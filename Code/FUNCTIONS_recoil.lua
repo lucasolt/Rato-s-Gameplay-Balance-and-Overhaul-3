@@ -14,6 +14,51 @@ local function processMetatext(id, text, populate_crosshair)
     return T(in_id, in_text)
 end
 
+---------------------------------------------------------------------------------------------------
+---- Sobretaxa de MIRA por recoil acumulado, em unidades de AP (passos de 0,5).
+----
+---- Extraida de `ApplyPersistantRecoilEffects` para ficar CONSULTAVEL sem efeito
+---- colateral. A IA do Rato's AI Overhaul precisa PREVER este custo ao planejar quantos
+---- disparos mirados cabem no AP; sem isso ela orcava mira pelo preco base, a execucao
+---- cobrava a sobretaxa por cima e o ultimo disparo simplesmente nao saia.
+----
+---- O ponto de extrair em vez de a IA reimplementar: a formula e cheia de float
+---- (0.7 / 30.00 / cRoundFlt em 0,5 / 0.6). Uma copia em aritmetica inteira do outro
+---- lado divergiria em silencio na primeira vez que um destes numeros mudasse -- e o mod
+---- ja tem um caso assim, o `RECOIL_STACKS_PCT`, duplicado com um comentario de "manter
+---- em sincronia".
+----
+---- PURA: nao le nem escreve o efeito `Rat_recoil`; `stacks` entra por argumento.
+---- O consumidor no jogo e `Rat_recoil.OnCalcAPCost`, como `cRoundDown(aim_cost * aim)`.
+---------------------------------------------------------------------------------------------------
+function Rat_GetRecoilAimCost(attacker, action, weapon, stacks)
+    if not attacker or not IsKindOf(weapon, "Firearm") then
+        return 0, 0
+    end
+
+    local option_mul = tonumber(CurrentModOptions["recoil_persistent_aim_effect"]) or 100
+    local recoil_value = get_recoilP_value(attacker, action, weapon, false, stacks, false)
+    local aim_mul = GetAimMul_Recoil_byCaliber(weapon)
+
+    local aim_cost = ((-recoil_value * 0.7 * aim_mul / 30.00) * (option_mul or 100)) / 100.0
+    local bolt_cost_adj = 0
+    if rat_canBolt(weapon) then
+        bolt_cost_adj = rat_get_manual_cyclingAP(attacker, weapon, true) * 0.6
+    end
+
+    aim_cost = Max(0, aim_cost - bolt_cost_adj)
+    aim_cost = cRoundFlt(aim_cost, 0.5)
+    aim_cost = Min(5, aim_cost)
+
+    if HasPerk(attacker, "shooting_stance") then
+        local stance_cost = (GetWeapon_StanceAP(attacker, weapon) + (Get_AimCost(attacker) * 2)) /
+                                1000.00
+        aim_cost = Min(stance_cost, aim_cost)
+    end
+
+    return aim_cost, recoil_value
+end
+
 function Unit:ApplyPersistantRecoilEffects(aim, action, weapon, attack_args)
     if aim > 2 then
         local effect_reset = self:GetStatusEffect("Rat_recoil")
@@ -23,32 +68,13 @@ function Unit:ApplyPersistantRecoilEffects(aim, action, weapon, attack_args)
         end
     end
 
-    local option_mul = tonumber(CurrentModOptions["recoil_persistent_aim_effect"]) or 100
-
     local num_shots = attack_args.num_shots or 1
 
     self:AddStatusEffect("Rat_recoil", 1)
     local effect = self:GetStatusEffect("Rat_recoil")
 
     local stacks = effect.stacks
-    local recoil_value = get_recoilP_value(self, action, weapon, false, stacks, false)
-
-    local aim_mul = GetAimMul_Recoil_byCaliber(weapon)
-
-    local aim_cost = ((-recoil_value * 0.7 * aim_mul / 30.00) * (option_mul or 100)) / 100.0 -- cRoundDown(-recoil_value/20)--/2.0  ---51
-    local bolt_cost_adj = 0
-    if rat_canBolt(weapon) then
-        bolt_cost_adj = rat_get_manual_cyclingAP(self, weapon, true) * 0.6
-    end
-
-    aim_cost = Max(0, aim_cost - bolt_cost_adj)
-    aim_cost = cRoundFlt(aim_cost, 0.5)
-
-    aim_cost = Min(5, aim_cost)
-    if HasPerk(self, "shooting_stance") then
-        local stance_cost = (GetWeapon_StanceAP(self, weapon) + (Get_AimCost(self) * 2)) / 1000.00
-        aim_cost = Min(stance_cost, aim_cost)
-    end
+    local aim_cost, recoil_value = Rat_GetRecoilAimCost(self, action, weapon, stacks)
 
     effect:SetParameter("Recoil_value", recoil_value)
     effect:SetParameter("aim_cost", aim_cost)

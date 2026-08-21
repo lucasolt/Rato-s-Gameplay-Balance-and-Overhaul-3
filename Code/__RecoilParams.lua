@@ -31,9 +31,9 @@ const.Combat.Recoil.Components = {
 }
 ----- Perks
 const.Combat.Recoil.Perks.TakeAimMul = 0.90
-const.Combat.Recoil.Perks.AutoWeaponsMul = 0.90
+const.Combat.Recoil.Perks.AutoWeaponsMul = 0.88
 ----
-const.Combat.Recoil.Other = {Prone = 0.95, Crouch = 0.98, Tracer = 0.96, AP = 1.04}
+const.Combat.Recoil.Other = {Prone = 0.88, Crouch = 0.93, Tracer = 0.89, AP = 1.04}
 
 function OnMsg.ClassesGenerate()
     AppendClass.FirearmProperties = {
