@@ -5,7 +5,7 @@ return PlaceObj('ModDef', {
 	'external_links', {
 		"https://www.buymeacoffee.com/rato_modder",
 	},
-	'last_changes', "3.58e\n\nfixed stationary MGs having bugged cones",
+	'last_changes', "3.59",
 	'SpellCheck', true,
 	'dependencies', {
 		PlaceObj('ModDependency', {
@@ -24,8 +24,8 @@ return PlaceObj('ModDef', {
 	'id', "cfahRED",
 	'author', "rato",
 	'version_major', 3,
-	'version_minor', 58,
-	'version', 12576,
+	'version_minor', 59,
+	'version', 12578,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -158,8 +158,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1787280076,
-	'code_hash', 9153888986403880421,
+	'saved', 1787296098,
+	'code_hash', 3029618073541794228,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",

@@ -235,19 +235,22 @@ function Firearm:GetAttackResults(action, attack_args)
     local graze_threshold = is_pellet_shot and const.Combat.PelletShotGrazeThreshold or num_shots >
                                 1 and const.Combat.MultishotGrazeThreshold or
                                 const.Combat.SingleShotGrazeThreshold
-    local aim_cth = 0
+    ---- REMOVIDO: as balas 2..N perdiam o bonus de mira (`shot_cth = shot_cth - aim_cth`),
+    ---- alem da degradacao por recoil. Eram DUAS penalidades sobre a mesma bala tardia.
+    ----
+    ---- Motivos para tirar:
+    ----   * invisivel -- nao aparecia em UI nenhuma, nem no painel de recoil (nao e recoil),
+    ----     e este bloco e pulado em `prediction`, entao o CTH exibido tambem nao a mostrava;
+    ----   * plana -- nao diferenciava arma, calibre nem forca, ao contrario do recoil;
+    ----   * redundante -- o recoil ja pune exatamente a mesma coisa, e melhor.
+    ----
+    ---- Com uma penalidade so, "quao ruim e uma rajada longa" vira um botao unico: o
+    ---- recoil. Ver AIM_REDESIGN.md.
     if num_shots > 1 and not prediction then
         local weapon = attack_args.weapon or attacker:GetActiveWeapons()
 
         local recoil = get_recoil(attacker, target, target_pos, action, weapon, false, num_shots) or
                            0
-
-        for i, v in ipairs(modifiers or empty_table) do
-            if v.id == "Aim" then
-                aim_cth = v.value
-                break
-            end
-        end
 
         shot_attack_args.cth_loss_per_shot = -recoil
     end
@@ -260,9 +263,6 @@ function Firearm:GetAttackResults(action, attack_args)
         shot_cth = original_cth - shot_attack_args.cth_loss_per_shot *
                        Min((i - 1), const.Combat.MaxShotIndexForRecoilCTHLoss)
 
-        if i > 1 then
-            shot_cth = shot_cth - aim_cth
-        end
         ----------------^^
 
         shot_cth = attacker:CallReactions_Modify("OnCalcShotChanceToHit", shot_cth, attacker,
