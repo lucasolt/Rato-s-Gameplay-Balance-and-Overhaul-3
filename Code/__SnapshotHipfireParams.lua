@@ -11,7 +11,7 @@ const.Combat.Hipfire.MaxDistforPenalty = 28 -- 26
 const.Combat.Snapshot.BasePenalty = -6 ---- -10
 const.Combat.Snapshot.MaxPenalty = -61
 const.Combat.Snapshot.MaxDistforPenalty = 40 --- tiles
-const.Combat.Snapshot.MGSetupMul = 60 -- MulDivRound
+const.Combat.Snapshot.MGSetupInterruptMul = 80 -- MulDivRound
 const.Combat.Snapshot.InterruptMul = 140 --- MulDivRound
 ---------------
 

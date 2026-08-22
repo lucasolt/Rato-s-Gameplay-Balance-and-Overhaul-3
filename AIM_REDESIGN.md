@@ -28,6 +28,10 @@ O (2) é o mais problemático dos três: não aparece em lugar nenhum da UI (o p
 `XTEMP_recoil` mostra recoil, e isso não é recoil), e é plano — não diferencia arma,
 calibre nem força, ao contrário do recoil.
 
+> **Atualização:** a metade "invisível" do (2) foi resolvida — o modificador `Aim`
+> (`CTH_aim.lua`) agora mostra **"Aiming (x2, 1st shot only)"** no próprio título quando
+> a ação dispara mais de uma bala. Continua plano, mas ao menos deixa de ser oculto.
+
 ---
 
 ## A proposta
@@ -145,11 +149,9 @@ oposto: **menos acoplamento, não mais simulação.**
 ## Nota para o lado da IA
 
 O `Rato's AI Overhaul` modela a rajada bala a bala desde o `BUGFIX (B21)`, replicando a
-fórmula de `SOURCE_FirearmGetAttackResults.lua`.
+fórmula de `SOURCE_FirearmGetAttackResults.lua:255-279` — **inclusive a remoção do bônus
+de mira nas balas 2..N**.
 
-**Feito (3.59):** a remoção do bônus de mira nas balas 2..N saiu do GBO3 e, junto, o
-`RATOAI_AimBonus` do lado da IA — que era a única avaliação de preset que o B21 tinha
-acrescentado. Sobrou uma penalidade só dentro da rajada, o recoil.
-
-Se os Degraus 1 ou 2 acontecerem, o `RATOAI_BurstHits` não precisa mudar: ele já opera
-só sobre o recoil.
+Se o Degrau 1 ou 2 acontecer, `RATOAI_BurstHits` e `RATOAI_AimBonus` (em
+`FUNCTION_ScoreAttacksDetailed.lua`) precisam acompanhar. O `RATOAI_AimBonus` deixa de
+existir, o que também remove a única avaliação de preset que o B21 acrescentou.

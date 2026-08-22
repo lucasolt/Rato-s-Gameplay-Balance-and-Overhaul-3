@@ -3,8 +3,8 @@ const.Combat.Recoil = {Components = {}, Perks = {}, Other = {}}
 const.Combat.Recoil.MarksmanshipMaxReduction = 0.85 -- 0.77
 const.Combat.Recoil.MarksmanshipMinStat = 50
 
-const.Combat.Recoil.BasePenalty = -10 ----- era - 5 antes da mundaça da mira
-const.Combat.Recoil.MaxPenalty = -100 -- era -90 antes da mudança da mira
+const.Combat.Recoil.BasePenalty = -5 ----- -5
+const.Combat.Recoil.MaxPenalty = -90 --- -50
 const.Combat.Recoil.MaxDistforPenalty = 36 -- 26 ----- -18
 const.Combat.Recoil.StacksMultiplier = 0.35 ---- * -- for Persistant Recoil
 const.Combat.Recoil.MGSetupMul = 0.60 ---- * -- MG Setup recoil reduction

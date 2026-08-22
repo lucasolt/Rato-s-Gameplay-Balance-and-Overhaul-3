@@ -245,7 +245,17 @@ function aim_cth()
                 bonus = num
             end
 
-            return num > 0, bonus, T {762331260877, "Aiming (x<aim_mod>)", aim_mod = num},
+            ---- Em rajada/multishot so a PRIMEIRA bala fica com o bonus de mira; as balas
+            ---- 2..N o perdem em Firearm:GetAttackResults, alem da degradacao por recoil.
+            ---- O CTH exibido e o da 1a bala, entao sem isto no titulo a perda nao aparece
+            ---- em lugar nenhum da UI.
+            local multishot = num > 0 and action and IsKindOf(weapon1, "Firearm") and
+                                  weapon1.GetAutofireShots and
+                                  (weapon1:GetAutofireShots(action) or 1) > 1
+
+            return num > 0, bonus, multishot and
+                       T {742118639405, "Aiming (x<aim_mod>, 1st shot only)", aim_mod = num} or
+                       T {762331260877, "Aiming (x<aim_mod>)", aim_mod = num},
                    #metaText ~= 0 and metaText
         end
 end
@@ -269,7 +279,8 @@ local t_id_table = {
     [886112546215] = "Sniper Scope 4x",
     [739262593826] = "Sniper Scope 6x",
     [688848752517] = "Crouching",
-    [271472323596] = "Prone"
+    [271472323596] = "Prone",
+    [742118639405] = "Aiming (x<aim_mod>, 1st shot only)"
 }
 
 ratG_T_table['CTH_aim.lua'] = t_id_table

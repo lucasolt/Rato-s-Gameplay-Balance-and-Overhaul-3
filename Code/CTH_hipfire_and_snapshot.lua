@@ -189,14 +189,22 @@ function place_hipfire_cth()
                 snap_penal = MulDivRound(snap_penal, weapon_ref, 100) + base_penal
 
                 if opportunity_attack then
-                    snap_penal = MulDivRound(snap_penal, const.Combat.Snapshot.InterruptMul, 100)
+                    if (g_Overwatch[attacker] and g_Overwatch[attacker].permanent) or action and
+                        action.id == "MGSetup" then
+                        snap_penal = MulDivRound(snap_penal,
+                                                 const.Combat.Snapshot.MGSetupInterruptMul, 100)
+                        print("mg setup snap penal", snap_penal)
+                    else
+                        snap_penal =
+                            MulDivRound(snap_penal, const.Combat.Snapshot.InterruptMul, 100)
+                    end
                 end
 
-                if (g_Overwatch[attacker] and g_Overwatch[attacker].permanent) or action and
-                    action.id == "MGSetup" then
-                    metaText[#metaText + 1] = T {516951375425, "MG Setup"}
-                    snap_penal = MulDivRound(snap_penal, const.Combat.Snapshot.MGSetupMul, 100)
-                end
+                -- if (g_Overwatch[attacker] and g_Overwatch[attacker].permanent) or action and
+                --    action.id == "MGSetup" then
+                --    metaText[#metaText + 1] = T {516951375425, "MG Setup"}
+                --    snap_penal = MulDivRound(snap_penal, const.Combat.Snapshot.MGSetupMul, 100)
+                -- end
 
                 if aim == 2 then
                     snap_penal = MulDivRound(snap_penal, 25, 100)
