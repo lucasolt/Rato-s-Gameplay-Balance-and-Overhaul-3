@@ -1531,6 +1531,38 @@ function rat_MGSetup_getap()
 
         end
 
+        -------------------------------------------------------------------------------------------
+        ---- O CUSTO DE DEITAR, QUE NUNCA FOI COBRADO DE NINGUEM
+        ----
+        ---- `Unit:MGSetup` (vanilla, UnitActions.lua:537) deita com `DoChangeStance("Prone")`, e
+        ---- `DoChangeStance` nao debita AP -- so troca `self.stance`, animacao e target dummy.
+        ---- Verificado no processo vivo: as duas funcoes sao as do jogo base, nenhum mod as
+        ---- substitui. Ou seja, montar a MG sempre saiu pelo MESMO preco em qualquer postura e em
+        ---- qualquer posicao, para merc e para IA.
+        ----
+        ---- O total pago continua o mesmo de sempre (o prone acontece uma vez so); o que muda e
+        ---- que ele deixa de ser invisivel:
+        ----     em pe     -> +2 AP     agachado -> +1 AP     ja deitado -> +0
+        ----
+        ---- Para o jogador: motivo real para deitar antes de plantar a MG, e a arma fica um pouco
+        ---- mais cara de plantar no meio de um avanco. Para a IA: e o gradiente que faltava --
+        ---- `AIFindDestinations` ja desconta a mudanca de postura do `dest_ap` do destino
+        ---- empacotado Prone (BUGFIX B25 do RATOAI), e ate aqui esse desconto era um custo
+        ---- fantasma, porque o MGSetup cobrava o mesmo dos dois lados. Agora a conta fecha nos
+        ---- dois caminhos: destino Prone paga 2 no deslocamento e 0 no setup; destino em pe paga
+        ---- 0 no deslocamento e 2 no setup.
+        ----
+        ---- Fica DEPOIS da reducao do HeavyWeaponsTraining de proposito: a perk barateia manejo de
+        ---- arma pesada, nao o ato de deitar, e assim o piso `min_ap_cost` nao engole o delta.
+        ----
+        ---- `Unit:GetStanceToStanceAP` devolve -1 quando ja se esta na postura (dai o `Max(0, ...)`)
+        ---- e ja respeita a perk `HitTheDeck`, que zera o custo de ir para Prone.
+        ---- Emplacement fica de fora: quem esta em `ManningEmplacement` nao muda de postura.
+        -------------------------------------------------------------------------------------------
+        if not unit:HasStatusEffect("ManningEmplacement") then
+            cost = cost + Max(0, unit:GetStanceToStanceAP("Prone"))
+        end
+
         return cost
 
     end

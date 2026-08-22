@@ -23,9 +23,31 @@ function place_hipfire_cth()
             end
 
             ---------------------------------------------------------------------------------------------------------
+            ---- MGSetup / MGRotate: a PREVISAO tem que medir o tiro que a arma vai fazer de verdade.
+            ----
+            ---- Uma MG montada dispara por interrupcao, e o ramo de interrupcao ja existe aqui
+            ---- embaixo -- curva propria de distancia (MGInterruptMaxDist / MGInterruptBasePenalty)
+            ---- vezes MGSetupInterruptMul. So que ele so e alcancado com `opportunity_attack`, e a
+            ---- previsao chega sem. Resultado: previa-se um snapshot comum, com a curva de 40
+            ---- tiles, no alcance em que a MG e mandada cobrir (o cone dela usa o WeaponRange
+            ---- INTEIRO, 34-40 tiles).
+            ----
+            ---- O tiro REAL ja entra aqui com opportunity_attack = true, entao ele nao muda nada.
+            ---- Quem muda e so quem pergunta "quanto eu acertaria se montasse".
+            ----
+            ---- Quem mais depende disso: o AIPrecalcConeTargetZones (source) descarta do cone todo
+            ---- alvo com `chance_to_hit == 0`. Medido no processo vivo, MG42 a 22 m: -58 como
+            ---- snapshot comum (CTH 2), -32 como interrupcao de MG (CTH 19). Com o -58, a IA
+            ---- perdia o cone inteiro e o MGSetup sumia da lista de signature actions.
+            ----
+            ---- O `aim = Max(aim, 1)` continua aqui pelo mesmo motivo de antes: o
+            ---- GetWeaponHipfireOrSnapshotMul desvia por `aim == 0` (hipfire) vs `aim > 0`
+            ---- (snapshot), e montar a arma nao e tiro de quadril.
+            ---------------------------------------------------------------------------------------------------------
 
-            if action.id == "MGSetup" then
+            if action.id == "MGSetup" or action.id == "MGRotate" then
                 aim = Max(aim, 1)
+                opportunity_attack = true
             end
 
             local actions_that_use_snapshot_always = {"Overwatch", "MobileShot", "RunAndGun"}
