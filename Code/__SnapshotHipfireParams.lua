@@ -12,6 +12,11 @@ const.Combat.Snapshot.BasePenalty = -6 ---- -10
 const.Combat.Snapshot.MaxPenalty = -61
 const.Combat.Snapshot.MaxDistforPenalty = 40 --- tiles
 const.Combat.Snapshot.MGSetupInterruptMul = 80 -- MulDivRound
+---- MachineGun em ataque de oportunidade: usa estes dois no lugar dos valores normais,
+---- para que a distancia pese menos sem baratear o tiro. No turno normal a MG segue com
+---- MaxDistforPenalty 40 e BasePenalty -6, como todas as outras classes.
+const.Combat.Snapshot.MGInterruptBasePenalty = -16
+const.Combat.Snapshot.MGInterruptMaxDist = 90 --- tiles
 const.Combat.Snapshot.InterruptMul = 140 --- MulDivRound
 ---------------
 

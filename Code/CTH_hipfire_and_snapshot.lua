@@ -176,6 +176,26 @@ function place_hipfire_cth()
 
                 base_penal1 = const.Combat.Snapshot.BasePenalty
 
+                ---- MG em interrupcao usa uma curva de distancia propria: rampa muito mais
+                ---- longa, componente fixo muito maior. O patamar geral fica parecido com o
+                ---- de antes, mas espalhado -- a distancia deixa de ser o que decide o tiro.
+                ----
+                ---- Motivo: o cone de overwatch da MG e o unico que usa o WeaponRange
+                ---- INTEIRO (34 a 40 tiles); as outras classes usam 75% dele, por
+                ---- Firearm:GetOverwatchConeParam. Com a rampa padrao terminando em 40, a MG
+                ---- pagava quase a penalidade maxima na borda do proprio cone -- justo o
+                ---- alcance que o jogo manda ela cobrir.
+                ----
+                ---- Esticar a rampa sozinho nao serviria: ela e linear a partir do zero,
+                ---- entao alongar o teto abaixa a curva INTEIRA na mesma proporcao, perto
+                ---- inclusive. Quem segura a ponta curta e o base_penal, que nao depende da
+                ---- distancia. Por isso os dois andam juntos aqui.
+                if opportunity_attack and IsKindOf(weapon1, "MachineGun") then
+                    max_dist = const.Combat.Snapshot.MGInterruptMaxDist * const.SlabSizeX
+                    base_penal1 = const.Combat.Snapshot.MGInterruptBasePenalty
+                    metaText[#metaText + 1] = T {519274638150, "Prepared Machine Gun"}
+                end
+
                 base_penal = MulDivRound(dist, base_penal1, 16 * const.SlabSizeX)
 
                 if base_penal < base_penal1 then
@@ -193,18 +213,11 @@ function place_hipfire_cth()
                         action.id == "MGSetup" then
                         snap_penal = MulDivRound(snap_penal,
                                                  const.Combat.Snapshot.MGSetupInterruptMul, 100)
-                        print("mg setup snap penal", snap_penal)
                     else
                         snap_penal =
                             MulDivRound(snap_penal, const.Combat.Snapshot.InterruptMul, 100)
                     end
                 end
-
-                -- if (g_Overwatch[attacker] and g_Overwatch[attacker].permanent) or action and
-                --    action.id == "MGSetup" then
-                --    metaText[#metaText + 1] = T {516951375425, "MG Setup"}
-                --    snap_penal = MulDivRound(snap_penal, const.Combat.Snapshot.MGSetupMul, 100)
-                -- end
 
                 if aim == 2 then
                     snap_penal = MulDivRound(snap_penal, 25, 100)
@@ -246,7 +259,7 @@ local t_id_table = {
     [645785968721] = "Low Reflexes",
     [433649794796] = "High Reflexes",
     [253999664478] = "Reflexes",
-    [516951375425] = "MG Setup"
+    [519274638150] = "Prepared Machine Gun"
 }
 
 ratG_T_table['CTH_shooting_stance_hipfire.lua'] = t_id_table

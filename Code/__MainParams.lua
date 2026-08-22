@@ -17,7 +17,7 @@ const.Combat.RunAndGunMaxPenalty = -10
 const.Combat.RunAndGun_MaxDistforPenalty = 14
 
 -- OW
-const.Combat.MGSetupBonusInterruptAccuracy = 5
+const.Combat.MGSetupBonusInterruptAccuracy = 0
 const.Combat.MGSetupConeMul = 110 --- MulDivRound
 const.Combat.MGSetupConeFlat = 180 --- addition (minutes)
 
