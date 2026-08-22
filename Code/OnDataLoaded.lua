@@ -1,4 +1,4 @@
-function OnMsg.DataLoaded()
+function rat_apply_changes()
     ------- CTH
     aim_cth()
     two_weaponcth()
@@ -33,6 +33,10 @@ function OnMsg.DataLoaded()
     place_hipfire_cth()
     recoil_template()
     -- add_recalcUI() ----smart ow compatibility
+end
+
+function OnMsg.DataLoaded()
+    rat_apply_changes()
 end
 
 function OnMsg.EnterSector()
