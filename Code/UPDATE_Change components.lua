@@ -1,4 +1,4 @@
-local version = 355
+local version = 360
 
 function OnMsg.UnitEnterCombat(unit)
     -- local unit_version = unit.rat_unit_updated or 0

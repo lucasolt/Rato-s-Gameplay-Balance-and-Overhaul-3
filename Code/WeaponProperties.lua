@@ -31,6 +31,7 @@ function OnMsg.ClassesGenerate()
 
     SubmachineGun.SingleShotCustomDeltaAP =
         1
+	
 end
 
 function fireprop()
@@ -49,6 +50,7 @@ function fireprop()
         modifiable = true
     }
 
+
     FirearmProperties.properties[#FirearmProperties.properties +
         1] = {
         -- category = "Caliber",
@@ -56,7 +58,7 @@ function fireprop()
         name = "Shooting Stance AP",
         help = "Ap to enter Shooting Stance (not in scale)",
         editor = "number",
-        default = 3,
+        default = false,
         template = false,
         min = 0,
         max = 50,

@@ -1501,6 +1501,91 @@ function rat_combat_actions()
 
 end
 
+---------------------------------------------------------------------------------------------------
+---- O COMPONENTE "DEITAR" DO CUSTO DO MGSETUP, EM UM LUGAR SO
+----
+---- Fonte unica para os dois lados que precisam desta parcela: o `GetAPCost` logo abaixo e as
+---- policies de posicionamento da IA (RATOAI: AIPolicyMGSetupAP, AIPolicyMGSetupPosScore), que
+---- DESCONTAM o termo medido da postura atual e RECOLOCAM o termo medido da postura do destino.
+---- Enquanto a formula esteve escrita nos dois lugares ela divergiu -- e foi exatamente o
+---- BUGFIX B29d do RATOAI ("a policy dizia sim e a acao dizia nao").
+----
+---- `from_stance` (opcional): mede a partir daquela postura em vez da atual.
+---- `Unit:GetStanceToStanceAP` devolve -1 quando ja se esta nela (dai o `Max(0, ...)`) e ja
+---- respeita a perk `HitTheDeck`, que zera o custo de ir para Prone.
+---------------------------------------------------------------------------------------------------
+function rat_MGSetup_StanceAP(unit, from_stance, ignore_free_move)
+    if not unit or unit:HasStatusEffect("ManningEmplacement") then
+        return 0 ---- quem esta no emplacamento nao muda de postura
+    end
+
+	----  Desabilitado pra ver se a IA usa
+	--if true then
+	--	return 0
+	--end 
+
+    local ap = Max(0, unit:GetStanceToStanceAP("Prone", from_stance))
+
+    -----------------------------------------------------------------------------------------------
+    ---- FREE MOVE PAGA O DEITAR -- senao "aperte prone antes" vira desconto de 2 AP.
+    ----
+    ---- As acoes de postura (`StanceStanding`, `StanceCrouch`, `StanceProne`, `Stance`) tem
+    ---- `UseFreeMove = true` no preset. O MGSetup NAO tem -- e nao pode ganhar, porque a flag e
+    ---- tudo-ou-nada: tornaria o custo INTEIRO pagavel com free move, nao so esta parcela.
+    ----
+    ---- Sem este desconto os dois caminhos deixaram de custar o mesmo, que era justamente o que o
+    ---- bloco de baixo afirmava garantir. Com B de AP normal e 2 de free move, de pe:
+    ----     deitar antes (StanceProne, free) e montar  ->  sobra B - StanceAP - 2
+    ----     montar direto de pe                        ->  sobra B - StanceAP - 4
+    ---- Ou seja: 2 AP de premio para quem lembrasse de apertar o botao de prone primeiro. Micro
+    ---- gratuito, do tipo que o design nao deve recompensar.
+    ----
+    ---- NAO ha vazamento de AP. `MGSetup` e `ActionType = "Ranged Attack"`, e `Unit:ConsumeAP`
+    ---- remove `FreeMove` para essa categoria; o `OnRemoved` do efeito devolve o saldo nao gasto
+    ---- (`ConsumeAP(free_move_ap)`), simetrico ao `GainAP` do `OnAdded`. O pool morre no momento da
+    ---- montagem de qualquer jeito -- descontar esta parcela contra ele so antecipa um gasto certo.
+    ----
+    ---- E pelo mesmo motivo NAO da para usar `args.goto_ap`, que seria o caminho fino (deixar o
+    ---- `ConsumeAP` debitar so esta parcela do free move): aquele bloco do `ConsumeAP` roda DEPOIS
+    ---- do `RemoveStatusEffect("FreeMove")`, com `free_move_ap` ja zerado. O `HasAP` concederia o
+    ---- desconto e o `ConsumeAP` cobraria cheio -- pior que nao ter desconto nenhum. Descontar
+    ---- aqui, como o `CombatActionMeleeGetCost` do jogo base faz com o `goto_ap` dele, e o padrao
+    ---- que funciona nesta engine.
+    ----
+    ---- `ignore_free_move` existe para a IA: o `AIPlayAttacks` (CombatAI.lua:202) remove `FreeMove`
+    ---- ANTES de escolher signature action, entao quando a IA monta a MG o pool ja e zero. As
+    ---- policies dela pontuam destinos ENQUANTO o pool ainda existe, e sem esta valvula orcariam o
+    ---- custo com um desconto que a execucao nao vai ter -- a assinatura exata do B29d.
+    -----------------------------------------------------------------------------------------------
+    if ignore_free_move then
+        return ap
+    end
+
+    -----------------------------------------------------------------------------------------------
+    ---- O DESCONTO E EM AP INTEIRO. `free_move_ap` e um orcamento de MOVIMENTO e vive fora da
+    ---- grade: `FreeMove.OnAdded` calcula `MulDivRound(Agility - 40, const.Scale.AP, 10)`, entao
+    ---- Agility 55 da 1500 -- um AP e meio. Isso e legitimo para andar, onde o custo por tile
+    ---- tambem e fracionado, e nao e legitimo aqui: custo de ACAO no jogo e sempre multiplo de
+    ---- `const.Scale.AP`. Descontar 1500 crus de uma parcela de 2000 devolvia 500, e o MGSetup
+    ---- inteiro passava a custar 6500 -- 6,5 AP, numero que nao existe em lugar nenhum da UI.
+    ----
+    ---- Piso na grade, e o piso e o lado certo: com 1 de free move o desconto e 1, nunca 2. Com
+    ---- os numeros medidos (custo 8, parcela de prone 2, free 1,5):
+    ----     deitar na mao   -> prone custa 2, dos quais 1 de free e 1 de AP; depois monta por 6
+    ----                        ============================================> 7 de AP real
+    ----     montar de pe    -> 8 - 2 + (2 - 1) = 7
+    ---- Sem o piso o caminho de pe sairia por 6,5, ou seja MAIS BARATO que fazer na mao -- o
+    ---- pedagio invertido, que e tao ruim quanto o original.
+    ----
+    ---- `x % const.Scale.AP` NAO e o no-op que o CLAUDE.md do RATOAI manda desconfiar (aquele e
+    ---- `x % 1` depois de divisao inteira). Aqui o modulo e 1000 e trunca de verdade.
+    -----------------------------------------------------------------------------------------------
+    local desconto = Min(ap, Max(0, unit.free_move_ap or 0))
+    desconto = desconto - desconto % const.Scale.AP
+
+    return Max(0, ap - desconto)
+end
+
 function rat_MGSetup_getap()
     CombatActions.MGSetup.GetAPCost = function(self, unit, args)
 
@@ -1544,6 +1629,11 @@ function rat_MGSetup_getap()
         ---- que ele deixa de ser invisivel:
         ----     em pe     -> +2 AP     agachado -> +1 AP     ja deitado -> +0
         ----
+        ---- Essa promessa de "o total continua o mesmo" so passou a valer de verdade quando o
+        ---- free move entrou na conta: ver `rat_MGSetup_StanceAP` acima. Deitar pelo botao de
+        ---- postura sempre pode ser pago com free move; deitar POR DENTRO do MGSetup nao podia, e
+        ---- o caminho direto ficou 2 AP mais caro que o caminho "prone antes".
+        ----
         ---- Para o jogador: motivo real para deitar antes de plantar a MG, e a arma fica um pouco
         ---- mais cara de plantar no meio de um avanco. Para a IA: e o gradiente que faltava --
         ---- `AIFindDestinations` ja desconta a mudanca de postura do `dest_ap` do destino
@@ -1555,13 +1645,10 @@ function rat_MGSetup_getap()
         ---- Fica DEPOIS da reducao do HeavyWeaponsTraining de proposito: a perk barateia manejo de
         ---- arma pesada, nao o ato de deitar, e assim o piso `min_ap_cost` nao engole o delta.
         ----
-        ---- `Unit:GetStanceToStanceAP` devolve -1 quando ja se esta na postura (dai o `Max(0, ...)`)
-        ---- e ja respeita a perk `HitTheDeck`, que zera o custo de ir para Prone.
-        ---- Emplacement fica de fora: quem esta em `ManningEmplacement` nao muda de postura.
+        ---- A parcela em si (postura de origem, guarda de emplacamento, free move) mora inteira em
+        ---- `rat_MGSetup_StanceAP`, porque a IA precisa da MESMA formula para orcar o destino.
         -------------------------------------------------------------------------------------------
-        if not unit:HasStatusEffect("ManningEmplacement") then
-            cost = cost + Max(0, unit:GetStanceToStanceAP("Prone"))
-        end
+        cost = cost + rat_MGSetup_StanceAP(unit)
 
         return cost
 

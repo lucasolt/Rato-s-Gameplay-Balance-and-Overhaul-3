@@ -1,21 +1,4 @@
 function ow_cth()
-    local MinPenalty = 0
-    local MaxPenalty = -20
-
-    for _, param in ipairs(Presets.ChanceToHitModifier.Default["OpportunityAttack"].Parameters) do
-        if param.Name == 'MinPenalty' then
-            param.Value = MinPenalty
-        end
-        if param.Name == 'MaxPenalty' then
-            param.Value = MaxPenalty
-        end
-    end
-    --
-    g_PresetParamCache[Presets.ChanceToHitModifier.Default["OpportunityAttack"]]['MinPenalty'] =
-        MinPenalty
-    g_PresetParamCache[Presets.ChanceToHitModifier.Default["OpportunityAttack"]]['MaxPenalty'] =
-        MaxPenalty
-
     Presets.ChanceToHitModifier.Default["OpportunityAttack"].CalcValue = function(self, attacker,
                                                                                   target,
                                                                                   body_part_def,
@@ -28,13 +11,12 @@ function ow_cth()
             return false, 0
         end
 
-        local max = self:ResolveValue("MaxPenalty")
-        local min = self:ResolveValue("MinPenalty")
+
         --------------------------
         local reflex = rGetReflex(attacker)
         -------------------------------
         local value = 0
-        local base_value = max + cRound((min - max) * reflex / 100.00)
+        local base_value = const.Combat.OWMaxDelta + cRound((const.Combat.OWMinDelta - const.Combat.OWMaxDelta) * reflex / 100.00)
 
         if g_Overwatch[attacker] and g_Overwatch[attacker].permanent or action and action.id ==
             "MGSetup" then

@@ -4,11 +4,18 @@ const.Combat.BurstFireCriticalChanceMul = 70 -- % -- Crit * Constant / 100
 
 ----- CTH
 const.Combat.SprintingCTH = -10 --- to hit sprinting target
+-- Aim
+const.Combat.CrouchAimMul = 105.0 -- float
+const.Combat.ProneAimMul = 110.0 -- float
+const.Combat.ProneGripAimMul = 90.0 -- float
+-- const.Combat.MobileAttackAimMul = 
+const.EnvEffects.HeavyRainAimingCTHMul = 80
+
 -- Recoil
 const.Combat.MultishotGrazeThreshold = 18 -- 12
 const.Combat.SingleShotGrazeThreshold = 10
 const.Combat.PelletShotGrazeThreshold = 22
-const.Combat.MultishotMinCTH = 5
+const.Combat.MultishotMinCTH = 4
 const.Combat.MaxShotIndexForRecoilCTHLoss = 6
 -------------------- Add for MG calcs here
 
@@ -20,12 +27,15 @@ const.Combat.RunAndGun_MaxDistforPenalty = 14
 const.Combat.MGSetupBonusInterruptAccuracy = 0
 const.Combat.MGSetupConeMul = 110 --- MulDivRound
 const.Combat.MGSetupConeFlat = 180 --- addition (minutes)
+const.Combat.OWMinDelta = 20
+const.Combat.OWMaxDelta = -10
 
 ------ old
 const.Combat.R_MinTargetedScaling = 10
 const.Combat.R_MaxTargetedScaling = 100
 const.Combat.R_MinAimScaling = 10
 const.Combat.R_MaxAimScaling = 100
+
 
 ----- AP
 const.Combat.CumbersomeStanceAP_StrThreshold = 80
@@ -36,7 +46,7 @@ const.Combat.BoltActionDexFirstThreshold = 85
 const.Combat.BoltActionDexSecondThreshold = 95
 
 ------ Pindown (Sniping)
-const.Combat.PindownCritPerAimLevel = 5
+const.Combat.PindownCritPerAimLevel = 4
 const.Combat.PindownAimLevelsForAPCost = 2
 const.Combat.PindownRangeMul = 150 --- MulDivRound
 
@@ -60,31 +70,7 @@ const.Combat.Critical.FirstAimCrit = 6
 const.Combat.GrazingHitDamage = 30 --- %
 const.Combat.MGFreeInterruptAttacks = 1
 const.Weapons.PointBlankRange = 6 --- tiles
-const.EnvEffects.RainAimingMultiplier = 100 --- %
+const.EnvEffects.RainAimingMultiplier = 0 --- %
 const.Weapons.CriticalDamage = 50
 const.Weapons.DoubleBarrelDamageBonus = 0 -- 50
 
--- function OnMsg.ClassesGenerate()
---      AppendClass.FirearmProperties = {
---          {
---              -- category = "Caliber",
---              id = "APStance",
---              name = "Shooting Stance AP",
---              help = "Ap to enter Shooting Stance (not in scale)",
---              editor = "number",
---              default = 3,
---              template = true,
---              min = 0,
---              max = 50,
---              modifiable = true
---          }
---      }
-
---      Pistol.APStance = 1
---      Revolver.APStance = 1
---      SubmachineGun.APStance = 3
---      Shotgun.APStance = 3
---      SniperRifle.APStance = 5
---      AssaultRifle.APStance = 4
---      MachineGun.APStance = 5
--- end

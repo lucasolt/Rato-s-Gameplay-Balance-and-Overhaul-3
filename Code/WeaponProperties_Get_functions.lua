@@ -43,6 +43,9 @@
 -- ap = Cumbersome_StanceAP(unit, self, ap)
 -- return ap
 -- end
+
+
+
 function FirearmProperties:Getdescription_hints()
 
     return rat_format_hints(self)

@@ -68,13 +68,13 @@ function aim_cth()
                 min_bonus = weapon1.AimAccuracy
             end
 
-            local w1, w2 = attacker:GetActiveWeapons()
-            local min_bonus2
-
-            if action and action.id == "DualShot" and w2 then
-                min_bonus2 = w2.AimAccuracy
-            end
-
+			local w1, w2, min_bonus2
+			if IsKindOf(attacker, "Unit") then
+            	w1, w2 = attacker:GetActiveWeapons()
+            	if action and action.id == "DualShot" and w2 then
+            	    min_bonus2 = w2.AimAccuracy
+            	end
+			end
             if IsKindOf(weapon1, "Pistol") or IsKindOf(weapon1, "Revolver") then
                 min_bonus = min_bonus * 0.5
 
@@ -201,14 +201,14 @@ function aim_cth()
 
             if IsKindOf(weapon1, "Firearm") then
                 if attacker.stance == "Crouch" then
-                    bonus = bonus * 105.0 / 100.0
+                    bonus = bonus * const.Combat.CrouchAimMul / 100.0
                     metaText[#metaText + 1] = T {688848752517, "Crouching"}
                 elseif attacker.stance == "Prone" then
-                    bonus = bonus * 110.0 / 100.0
+                    bonus = bonus * const.Combat.ProneAimMul / 100.0
                     metaText[#metaText + 1] = T {271472323596, "Prone"}
                     if weapon1:HasComponent("grip_prone_penalty") then
                         -- GetComponentEffectValue(weapon1, "grip_prone_penalty")
-                        bonus = bonus * 90 / 100.0
+                        bonus = bonus * const.Combat.ProneGripAimMul / 100.0
                         -- local neg = TranslationTable[676119455163] or "(-) "
                         -- local meta = neg .. componentdef.DisplayName
                         -- metaText[#metaText + 1] = meta
@@ -238,7 +238,7 @@ function aim_cth()
                 end
             end
 
-            bonus = cRound(bonus * scale_factor * const.Combat.R_AimMul / 100)
+
             ------------
 
             if num > 0 and bonus < 1 then
@@ -253,7 +253,16 @@ function aim_cth()
                                   weapon1.GetAutofireShots and
                                   (weapon1:GetAutofireShots(action) or 1) > 1
 
-            return num > 0, bonus, multishot and
+            local indoors = attacker and attacker.indoors
+            if GameState.RainHeavy and not indoors then
+                bonus = bonus * const.EnvEffects.HeavyRainAimingCTHMul / 100.0
+                metaText[#metaText + 1] = T {901477523654, "(-) Heavy Rain"}
+            end
+
+			bonus = cRound(bonus * scale_factor * const.Combat.R_AimMul / 100)
+
+            return num > 0, bonus,
+                   multishot and
                        T {742118639405, "Aiming (x<aim_mod>, 1st shot only)", aim_mod = num} or
                        T {762331260877, "Aiming (x<aim_mod>)", aim_mod = num},
                    #metaText ~= 0 and metaText
@@ -280,7 +289,8 @@ local t_id_table = {
     [739262593826] = "Sniper Scope 6x",
     [688848752517] = "Crouching",
     [271472323596] = "Prone",
-    [742118639405] = "Aiming (x<aim_mod>, 1st shot only)"
+    [742118639405] = "Aiming (x<aim_mod>, 1st shot only)",
+    [901477523654] = "(-) Heavy Rain"
 }
 
 ratG_T_table['CTH_aim.lua'] = t_id_table

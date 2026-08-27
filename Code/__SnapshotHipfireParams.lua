@@ -11,13 +11,15 @@ const.Combat.Hipfire.MaxDistforPenalty = 28 -- 26
 const.Combat.Snapshot.BasePenalty = -6 ---- -10
 const.Combat.Snapshot.MaxPenalty = -61
 const.Combat.Snapshot.MaxDistforPenalty = 40 --- tiles
-const.Combat.Snapshot.MGSetupInterruptMul = 80 -- MulDivRound
+
 ---- MachineGun em ataque de oportunidade: usa estes dois no lugar dos valores normais,
 ---- para que a distancia pese menos sem baratear o tiro. No turno normal a MG segue com
 ---- MaxDistforPenalty 40 e BasePenalty -6, como todas as outras classes.
 const.Combat.Snapshot.MGInterruptBasePenalty = -16
 const.Combat.Snapshot.MGInterruptMaxDist = 90 --- tiles
-const.Combat.Snapshot.InterruptMul = 140 --- MulDivRound
+
+const.Combat.Snapshot.MGSetupInterruptMul = 80 -- MulDivRound
+const.Combat.Snapshot.InterruptMul = 110 --- MulDivRound
 ---------------
 
 const.Combat.SnapshotHipfire.Components = {
@@ -33,20 +35,20 @@ const.Combat.SnapshotHipfire.MeleeWeaponMul = 0.85
 
 const.Combat.Hipfire.Components = {
     BullpupMul = 1.08,
-    LongBarrelMul = {Pistol = 0.96, Revolver = 0.94, Other = 0.91},
-    ShortBarrelMul = {Pistol = 1.04, Revolver = 1.06, Other = 1.09}
+    LongBarrelMul = {Pistol = 0.96, Revolver = 0.94, Other = 0.90},
+    ShortBarrelMul = {Pistol = 1.04, Revolver = 1.06, Other = 1.10}
 }
 
 const.Combat.Hipfire.Other = {Prone = 1.06, Crouch = 1.02}
 
 const.Combat.Snapshot.Components = {
-    DrumMagMul = 1.08,
-    NoStockMul = 0.94,
-    BullpupMul = 0.98,
-    LongBarrelMul = {Pistol = 1.04, Revolver = 1.05, Other = 1.08},
-    ShortBarrelMul = {Pistol = 0.96, Revolver = 0.95, Other = 0.92},
-    LightBarrelMul = 0.93, -- {Pistol = 1.02, Revolver = 1.03, Other = 0.92},
-    HeavyBarrelMul = 1.07 -- {Pistol = 0.98, Revolver = 0.97, Other = 0.94},
+    DrumMagMul = 1.05,
+    NoStockMul = 0.90,
+    BullpupMul = 0.95,
+    LongBarrelMul = {Pistol = 1.04, Revolver = 1.05, Other = 1.10},
+    ShortBarrelMul = {Pistol = 0.92, Revolver = 0.93, Other = 0.90},
+    LightBarrelMul = 0.90, -- {Pistol = 1.02, Revolver = 1.03, Other = 0.92},
+    HeavyBarrelMul = 1.10 -- {Pistol = 0.98, Revolver = 0.97, Other = 0.94},
 }
 
 function OnMsg.ClassesGenerate()

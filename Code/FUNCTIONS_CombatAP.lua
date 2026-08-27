@@ -140,11 +140,7 @@ end
 ---------------------------------------------------------------------------------------------------
 function rat_MobileAction_AP(action, unit)
 
-    if not unit then
-        return 0, 0
-    end
-
-    if not action then
+    if not unit or not action then
         return 0, 0
     end
 
