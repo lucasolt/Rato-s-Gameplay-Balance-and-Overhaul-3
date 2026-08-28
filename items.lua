@@ -905,6 +905,10 @@ return {
 		'CodeFileName', "Code/__SnapshotHipfireParams.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "__JamParams",
+		'CodeFileName', "Code/__JamParams.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "CaliberApplyParams",
 		'CodeFileName', "Code/CaliberApplyParams.lua",
 	}),
@@ -1346,6 +1350,11 @@ return {
 		'name', "SOURCE_FirearmGetAttackResults",
 		'comment', "---------------------- the holy grail ------------------------",
 		'CodeFileName', "Code/SOURCE_FirearmGetAttackResults.lua",
+	}),
+	PlaceObj('ModItemCode', {
+		'name', "SOURCE_ReliabilityAndJam",
+		'comment', "Reliability = resistencia a emperrar; desgaste tem constante propria",
+		'CodeFileName', "Code/SOURCE_ReliabilityAndJam.lua",
 	}),
 	PlaceObj('ModItemCode', {
 		'name', "SOURCE_GetMaxAP",
