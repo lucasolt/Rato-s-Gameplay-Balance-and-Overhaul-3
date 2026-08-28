@@ -31,28 +31,29 @@
 -- =================================================================================================
 
 -- ---- Kalashnikov / MG robusta -- folga de tolerancia, tolera sujeira ---------------------------
-AK47.Reliability = 95           -- hoje 95   (inalterado)
-AK74.Reliability = 95           -- hoje 95   (inalterado)
-RPK74.Reliability = 94          -- hoje 95
-PapovkaSKS_1.Reliability = 93   -- hoje 76   <<< +17  irma da AK em robustez; valor antigo era
+AK47.Reliability = 91--95           -- hoje 95   (inalterado)
+AK74.Reliability = 90--95           -- hoje 95   (inalterado)
+RPK74.Reliability = 89--94          -- hoje 95
+AKSU.Reliability = 88 
+PapovkaSKS_1.Reliability = 86--93   -- hoje 76   <<< +17  irma da AK em robustez; valor antigo era
                                 --                    compensacao por ser tiro unico
-MG58.Reliability = 94           -- hoje 95
-MG42.Reliability = 93           -- hoje 90
-HK21.Reliability = 92           -- hoje 90
+MG58.Reliability = 88           -- hoje 95
+MG42.Reliability = 89           -- hoje 90
+HK21.Reliability = 87           -- hoje 90
 
 -- ---- Ferrolho / revolver / muito confiavel -----------------------------------------------------
-Gewehr98.Reliability = 90       -- hoje 25   <<< +65  MAIOR INVERSAO. Ferrolho Mauser e dos
+Gewehr98.Reliability = 98--90       -- hoje 25   <<< +65  MAIOR INVERSAO. Ferrolho Mauser e dos
                                 --                    mecanismos mais confiaveis que existem; o 25
                                 --                    era puro artefato do desgaste por bala
-M24Sniper.Reliability = 88      -- hoje 44   <<< +44  ferrolho moderno, camara justa (por isso 88 e
+M24Sniper.Reliability = 95--      -- hoje 44   <<< +44  ferrolho moderno, camara justa (por isso 88 e
                                 --                    nao 92)
-Winchester1894.Reliability = 90 -- hoje 95   alavanca simples
-Winchester_Quest.Reliability = 90
-ColtAnaconda.Reliability = 91   -- hoje 85   revolver: sem ciclo automatico para falhar
-ColtPeacemaker.Reliability = 91 -- hoje 85
-TexRevolver.Reliability = 91    -- hoje 85
-AA12.Reliability = 88           -- hoje 80   projetada para confiabilidade
-FNMinimi.Reliability = 88       -- hoje 85
+Winchester1894.Reliability = 80--90 -- hoje 95   alavanca simples
+Winchester_Quest.Reliability = 80--90
+ColtAnaconda.Reliability = 90--91   -- hoje 85   revolver: sem ciclo automatico para falhar
+ColtPeacemaker.Reliability = 93 -- hoje 85
+TexRevolver.Reliability = 93    -- hoje 85
+AA12.Reliability = 84           -- hoje 80   projetada para confiabilidade
+FNMinimi.Reliability = 85       -- hoje 85
 BrowningM2HMG.Reliability = 86  -- hoje 80   M2 e lendariamente confiavel
 
 -- ---- Boa -- bem construidas, tolerancia media --------------------------------------------------
@@ -61,7 +62,7 @@ Galil_FlagHill.Reliability = 87 -- hoje 77
 AUG.Reliability = 85            -- hoje 85   (inalterado)
 MP5.Reliability = 85            -- hoje 85   (inalterado)
 MP5K.Reliability = 85           -- hoje 85   (inalterado)
-AKSU.Reliability = 84           -- hoje 80
+          -- hoje 80
 G36.Reliability = 82            -- hoje 75
 
 -- ---- Padrao -- impingimento direto, sensivel a fuligem -----------------------------------------
@@ -72,7 +73,7 @@ UZI.Reliability = 79            -- hoje 75
 LionRoar.Reliability = 79       -- hoje 80
 GoldenGun.Reliability = 79      -- hoje 80
 M16A2.Reliability = 78          -- hoje 80
-AR15.Reliability = 78           -- hoje 80
+AR15.Reliability = 81--78           -- hoje 80
 M4Commando.Reliability = 78     -- hoje 80
 MP40.Reliability = 77           -- hoje 70
 Bereta92.Reliability = 77       -- hoje 70
@@ -84,16 +85,16 @@ HiPower.Reliability = 74        -- hoje 50   <<< +24
 M41Shotgun.Reliability = 73     -- hoje 71
 FNFAL.Reliability = 72          -- hoje 65   tolerancias apertadas, sensivel a areia -- o unico
                                 --           valor herdado que ja descrevia a realidade
-DoubleBarrelShotgun.Reliability = 72 -- hoje 50
+DoubleBarrelShotgun.Reliability = 99 -- hoje 50
 
 -- ---- Exigente -- match rifle, municao-sensivel, recuo curto ------------------------------------
-PSG1.Reliability = 66           -- hoje 53   camara de competicao
-BarretM82.Reliability = 65      -- hoje 10   <<< +55  pesada e cara de manter, mas nao 10x pior que
+PSG1.Reliability = 68           -- hoje 53   camara de competicao
+BarretM82.Reliability = 66      -- hoje 10   <<< +55  pesada e cara de manter, mas nao 10x pior que
                                 --                    uma AK -- e esse era o problema de leitura
                                 --                    para o jogador
 DesertEagle.Reliability = 63    -- hoje 40   famosa por exigir carga plena
-Auto5.Reliability = 62          -- hoje 20   recuo curto, anel de friccao precisa estar certo
-Auto5_quest.Reliability = 62    -- hoje 20
+Auto5.Reliability = 80          -- hoje 20   recuo curto, anel de friccao precisa estar certo
+Auto5_quest.Reliability = 80   -- hoje 20
 
 -- =================================================================================================
 -- NAO MEXER: itens sem ciclo mecanico ja estao em 100 e nunca emperram
