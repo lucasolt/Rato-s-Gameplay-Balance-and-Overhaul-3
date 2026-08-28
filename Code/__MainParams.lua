@@ -73,5 +73,5 @@ const.Weapons.PointBlankRange = 6 --- tiles
 const.EnvEffects.RainAimingMultiplier = 0 --- %
 const.Weapons.CriticalDamage = 50
 const.Weapons.DoubleBarrelDamageBonus = 0 -- 50
-const.EnvEffects.RainConditionLossMod = 50 -- 100
+const.EnvEffects.RainConditionLossMod = 75
 
