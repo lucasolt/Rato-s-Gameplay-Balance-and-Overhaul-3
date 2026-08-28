@@ -54,7 +54,7 @@ ColtPeacemaker.Reliability = 93 -- hoje 85
 TexRevolver.Reliability = 93    -- hoje 85
 AA12.Reliability = 84           -- hoje 80   projetada para confiabilidade
 FNMinimi.Reliability = 85       -- hoje 85
-BrowningM2HMG.Reliability = 86  -- hoje 80   M2 e lendariamente confiavel
+BrowningM2HMG.Reliability = 90  -- hoje 80   M2 e lendariamente confiavel
 
 -- ---- Boa -- bem construidas, tolerancia media --------------------------------------------------
 Galil.Reliability = 87          -- hoje 83   base AK

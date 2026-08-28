@@ -26,7 +26,7 @@
 
 ---- Inclinacao por ponto de Condition perdido. 25 reproduz o `/4` do vanilla.
 ---- Sobe -> arma suja emperra mais, para TODAS as armas igualmente.
-const.Weapons.JamSlopePct = 25
+const.Weapons.JamSlopePct = 40
 
 ---- O dial que importa: o DEFICIT de Reliability que vale multiplicador x1.
 ----   jam_chance = base_por_condicao * (100 - Reliability) / JamRelRef
@@ -37,12 +37,12 @@ const.Weapons.JamSlopePct = 25
 ----     25 -> escala esticada, exige valores de Reliability na faixa 70-98 para nao saturar
 ----     40 -> recomendado; a faixa 62-95 rende AK ~2% e FNFAL ~11% em Condition 40
 ----     60 -> escala achatada, a faixa herdada 10-100 continua utilizavel sem retune
-const.Weapons.JamRelRef = 60
+const.Weapons.JamRelRef = 20
 
 ---- Teto duro da chance de emperrar por ataque, ja com a chuva aplicada. Rede de seguranca: impede
 ---- que uma arma muito ruim e muito suja vire injogavel, e evita que um valor de Reliability mal
 ---- calibrado exploda em campo.
-const.Weapons.JamChanceMax = 20
+const.Weapons.JamChanceMax = 30
 
 ---- Piso de Condition abaixo do qual o sorteio de jam acontece. 70 e o valor do vanilla
 ---- (`ItemConditionUsed`), replicado aqui como constante PROPRIA de proposito: `ItemConditionUsed`
@@ -71,7 +71,7 @@ const.Weapons.DegradeChancePct = 25
 ----     15 -> rajada de 10 desgasta ~2x um tiro unico   (recomendado)
 ----     25 -> ~3x
 ----    100 -> comportamento linear do vanilla
-const.Weapons.ExtraShotDegradePct = 30
+const.Weapons.ExtraShotDegradePct = 40
 
 ---------------------------------------------------------------------------------------------------
 ---- PORTAO DA IA
@@ -89,4 +89,4 @@ const.Weapons.ExtraShotDegradePct = 30
 ---- ligar faz a arma saqueada de um inimigo que lutou muito vir em condicao pior. E mudanca de
 ---- economia de loot, nao so de dificuldade.
 ---------------------------------------------------------------------------------------------------
-const.Weapons.WearAppliesToAI = true
+const.Weapons.WearAppliesToAI = false

@@ -5,7 +5,7 @@ return PlaceObj('ModDef', {
 	'external_links', {
 		"https://www.buymeacoffee.com/rato_modder",
 	},
-	'last_changes', "3.60\n- When set up, MGs will have lower snapshot penalty for interrupt attacks at long distances\n- Setting up MG now costs more if you are not prone. This extra cost can be paid with free move ap.\n- Components and perks effect on recoil/snapshot/hipfire and aim tweaked\n- Snipe action bonus crit per aim from 5 to 4.\n- Heavy rain no longer increases aim ap. Instead, it makes aiming less effective \n- Reflex sights no longer increase range\n- Snapshot penalty for opportunity attacks was decreased (from extra +20% to +10%). Reflex will grant bigger boost\n- Aim scaling formula changed, lower level units will have more benefit than before [ROLLED BACK]\n\n",
+	'last_changes', "3.60\n- When set up, MGs will have lower snapshot penalty for interrupt attacks at long distances\n- Setting up MG now costs more if you are not prone. This extra cost can be paid with free move ap.\n- Components and perks effect on recoil/snapshot/hipfire and aim tweaked\n- Snipe action bonus crit per aim from 5 to 4.\n- Heavy rain no longer increases aim ap. Instead, it makes aiming less effective \n- Reflex sights no longer increase range\n- Snapshot penalty for opportunity attacks was decreased (from extra +20% to +10%). Reflex will grant bigger boost\n- Aim scaling formula changed, lower level units will have more benefit than before [ROLLED BACK]\n- Redesign reliability mechanics. The value will now govern the chance of jamming instead of condition degradation by shot. The formula was changed, high reliability weapons will be able to perform even when in lower condition.\n",
 	'SpellCheck', true,
 	'dependencies', {
 		PlaceObj('ModDependency', {
@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 12643,
+	'version', 12646,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -161,8 +161,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1787806803,
-	'code_hash', -5086673134858065996,
+	'saved', 1787954563,
+	'code_hash', 7270801900558388843,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",

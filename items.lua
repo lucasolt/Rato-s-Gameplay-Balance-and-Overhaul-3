@@ -15917,7 +15917,6 @@ return {
 		ModificationDifficulty = -25,
 		ModificationEffects = {
 			"boltaction",
-			"IncreaseReliability",
 			"bolt_action_ap",
 		},
 		Parameters = {
@@ -15970,7 +15969,6 @@ return {
 		ModificationDifficulty = -25,
 		ModificationEffects = {
 			"boltaction",
-			"IncreaseReliability",
 			"bolt_action_ap",
 		},
 		Parameters = {
@@ -15996,7 +15994,6 @@ return {
 		ModificationDifficulty = 0,
 		ModificationEffects = {
 			"bolt_action_ap",
-			"IncreaseReliability",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -16021,7 +16018,6 @@ return {
 		ModificationDifficulty = 0,
 		ModificationEffects = {
 			"bolt_action_ap",
-			"IncreaseReliability",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
