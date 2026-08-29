@@ -154,7 +154,15 @@ function Rat_SeedSnapFromOverwatch(weapon)
 end
 
 ---- Piso mecanico: o cone mais fechado que a arma alcanca, derivado do WeaponRange.
----- Scopes rebaixam este piso (e a conversao natural do RangeIncrease a ser removido).
+----
+---- Scopes e canos longos rebaixam este piso SOZINHOS, sem codigo dedicado: o efeito
+---- IncreaseRange tem StatToModify = "WeaponRange", entao numa arma real o
+---- weapon.WeaponRange lido aqui ja vem com o bonus somado. As opticas de verdade do
+---- arsenal dao +16 (PSG/SSG69/LROpticsAdvanced) e +10 (LROptics/Thermal).
+----
+---- Ou seja, o RangeIncrease nao precisa ser removido como o desenho original supunha:
+---- ele VIRA o manipulo do piso. E a outra metade da scope, o +MaxAimActions, so
+---- rende de verdade no modelo assintotico, onde niveis extras nunca saturam.
 function Rat_ApertureFloor(weapon)
     local a = P()
     local range = (weapon and weapon.WeaponRange) or 20
@@ -186,10 +194,41 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     local skill_mul = Rat_ApertureSkillMul(attacker, weapon)
     s = MulDivRound(s, skill_mul, 100)
 
-    --- 3. cada nivel de mira FECHA o cone
+    --- 3. cada nivel de mira FECHA o cone, em direcao ao piso da arma
     local decay = Rat_ApertureAimDecay(weapon, attacker)
-    for _ = 1, aim do
-        s = MulDivRound(s, decay, 100)
+    local floor = Rat_ApertureFloor(weapon)
+
+    if a.ApertureAsymptotic then
+        ------------------------------------------------------------------------------
+        ---- O cone CONVERGE para o piso em vez de bater nele.
+        ----
+        ----     sigma = piso + (sigma0 - piso) * decay^aim
+        ----
+        ---- A forma antiga, Max(piso, sigma0 * decay^aim), tinha um joelho duro: no
+        ---- nivel em que o decay cruzava o piso, TUDO parava -- mais mira, scope,
+        ---- nada mudava. E como o piso e quase constante no arsenal (17 a 22
+        ---- minutos) enquanto o sigma do decay varia de 18 a 41, ele mordia
+        ---- justamente nas armas boas. Medido, Marks 85 a 30 tiles: a G36 ganhava
+        ---- +31 de CTH com os niveis 4 e 5, e a PSG1 ganhava +4 -- o rifle de
+        ---- assalto aproveitava a scope e o sniper nao, o oposto da intencao.
+        ----
+        ---- Com a convergencia cada stat tem um papel que nunca desliga:
+        ----   AimAccuracy  -- quao RAPIDO se converge (eficiencia de AP)
+        ----   WeaponRange  -- ONDE se converge (a assintota)
+        ----   scope        -- rebaixa a assintota, porque IncreaseRange tem
+        ----                   StatToModify = "WeaponRange" e o piso ja sai dali;
+        ----                   e os niveis extras de mira passam a ter espaco para
+        ----                   trabalhar. As duas metades da scope rendem.
+        ------------------------------------------------------------------------------
+        local gap = Max(0, s - floor)
+        for _ = 1, aim do
+            gap = MulDivRound(gap, decay, 100)
+        end
+        s = floor + gap
+    else
+        for _ = 1, aim do
+            s = MulDivRound(s, decay, 100)
+        end
     end
 
     --- 4. degrau de "arma no ombro" -- hipfire / snapshot.
@@ -214,9 +253,9 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
         end
     end
 
-    --- 5. piso mecanico do WeaponRange
-    local floor = Rat_ApertureFloor(weapon)
-    if s < floor then
+    --- 5. piso mecanico do WeaponRange (so no modelo antigo; no assintotico o piso
+    ---    ja entrou como assintota no passo 3)
+    if not a.ApertureAsymptotic and s < floor then
         s = floor
         meta[#meta + 1] = T(353401714895, "Range")
     end

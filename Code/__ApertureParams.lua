@@ -18,7 +18,7 @@ local A = const.Combat.Aperture
 
 ---- Chave-mestra. false = mod se comporta exatamente como antes (todos os
 ---- modifiers antigos ativos, CTH_angular inerte).
-A.Enabled = true
+A.Enabled = false
 
 ---- Cobertura por sondagem de silhueta (FUNCTIONS_cover_silhouette.lua). Depende de
 ---- A.Enabled; separada porque e a parte com custo de raycast, para poder ser
@@ -47,6 +47,32 @@ A.Base = 57
 ---- Derivado do WeaponRange (a distancia em que a arma foi projetada para acertar):
 ---- o cone minimo e a silhueta de um alvo em pe no limite do alcance, vezes este %.
 A.FloorPct = 55
+
+---------------------------------------------------------------------------------------------------
+---- Como a mira se aproxima do piso
+----
+---- true  -- ASSINTOTICO:  sigma = piso + (sigma0 - piso) * decay^aim
+---- false -- joelho duro:   sigma = Max(piso, sigma0 * decay^aim)
+----
+---- A forma antiga saturava: no nivel em que o decay cruzava o piso, mais mira e
+---- scope deixavam de valer qualquer coisa. E como o piso e quase constante no
+---- arsenal (17 a 22 minutos) enquanto o sigma do decay varia de 18 a 41, ele mordia
+---- justamente nas armas de maior AimAccuracy. Medido, Marks 85 a 30 tiles, ganho
+---- dos niveis de mira 4 e 5:
+----     G36  (acc 6, nao limitada pelo piso)  +31 de CTH
+----     PSG1 (acc 9, limitada pelo piso)       +4 de CTH
+---- O rifle de assalto aproveitava a scope e o sniper nao -- o oposto da intencao.
+----
+---- Com a convergencia, cada stat tem um papel que nunca desliga:
+----     AimAccuracy  quao RAPIDO se converge      -> eficiencia de AP
+----     WeaponRange  ONDE se converge             -> a assintota
+----     scope        rebaixa a assintota (via IncreaseRange, que ja escreve em
+----                  WeaponRange) e destrava niveis que agora sempre rendem
+----
+---- Custo a ter em conta: o tiro totalmente mirado fica MAIS DIFICIL no medio e
+---- longo alcance do que na forma antiga (PSG1 em aim 3 sai de sigma 18 para 30),
+---- em troca de aim 4 e 5 passarem a existir de verdade.
+A.ApertureAsymptotic = true
 
 ---------------------------------------------------------------------------------------------------
 ---- Silhueta -- MEDIDA no jogo (sonda de raios via GetLoFData, 2026-08-29)
@@ -173,7 +199,7 @@ A.ExposureBlockedPct = 6
 ---- e zerava cabeca/bracos/pernas a media distancia. O residual representa o que
 ---- sobra e nao e geometrico: o custo de escolher DELIBERADAMENTE um alvo pequeno,
 ---- que o sistema de Composure em CTH_targeted_noburst.lua ja modela.
-A.TargetedResidualPct = 35
+A.TargetedResidualPct = 0--35
 
 ---------------------------------------------------------------------------------------------------
 ---- Marksmanship escala o cone inteiro
@@ -233,8 +259,8 @@ A.DecayMinPct = 40 --- teto de fechamento por nivel (nunca fecha mais que 60%)
 
 A.AimStep = {
     [0] = 280, --- hipfire: x2.80 numa arma de referencia
-    [1] = 155, --- snapshot 1 nivel: x1.55
-    [2] = 118 --- snapshot 2 niveis: x1.18
+    [1] = 130,--155, --- snapshot 1 nivel: x1.55
+    [2] = 110--118 --- snapshot 2 niveis: x1.18
 }
 A.AimStepMaxLevel = 2 --- acima disso a arma esta encostada: alargamento 100
 
