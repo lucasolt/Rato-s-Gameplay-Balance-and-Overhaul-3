@@ -1278,6 +1278,10 @@ return {
 		'CodeFileName', "Code/FUNCTIONS_cover_silhouette.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "DEBUG_aperture_draw",
+		'CodeFileName', "Code/DEBUG_aperture_draw.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "XTEMP_recoil",
 		'CodeFileName', "Code/XTEMP_recoil.lua",
 	}),

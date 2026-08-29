@@ -114,11 +114,19 @@ A.Box = {
 A.ProbeGrid = {-66, 0, 66}
 
 ---- Ligar a grade fina custa uma SEGUNDA chamada de GetLoFData por avaliacao.
----- Medido com cache frio: 1,23 ms/call no modelo somado, 13,8 ms/call com a grade,
----- 1,33 ms/call com cache quente. Como a IA avalia muitas posicoes por turno e
----- cada posicao e um cache miss, o padrao e o modo barato: os cinco spots reais
----- que a consulta de ancoras ja devolve (resolucao de 20% em vez de 11%).
-A.CoverProbeGrid = false
+---- Medido com cache frio: 0,94 ms/call no modelo somado, 10,1 ms/call com a grade,
+---- 0,81 ms/call com cache quente.
+----
+---- Fica LIGADA por padrao apesar do custo. O modo barato -- os cinco spots que a
+---- consulta de ancoras ja devolve -- nao e so mais grosseiro, e ENVIESADO: os spots
+---- do engine (cabeca, torso, bracos, virilha, pernas) ficam todos na linha central
+---- do corpo, que e a parte mais visivel por construcao. Medido contra o mesmo alvo:
+---- grade 56% exposto, cinco spots 100%. Cobertura parcial praticamente sumia.
+----
+---- E quem paga este custo e so o JOGADOR: a IA nunca chega aqui, desvia antes pelo
+---- A.CoverAIFallback. Para o crosshair sao ~10 ms na primeira consulta de um alvo
+---- novo (menos de um frame) e cache em todas as seguintes.
+A.CoverProbeGrid = true
 
 ---- A IA usa `100 - coverage` (o "nivel 1": a porcentagem que o engine ja calcula,
 ---- sem a escada de InterpolateCoverEffect) em vez de raycast. Ver o bloco de
