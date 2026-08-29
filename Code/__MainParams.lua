@@ -66,6 +66,8 @@ const.Combat.Critical.PSOScopeCritOnAimed = 10
 const.Combat.Critical.FirstAimCrit = 6
 
 -------------
+const.Combat.AwareSightRange = 56
+const.Combat.UnawareSightRange = 18
 ----- Vanilla
 const.Combat.GrazingHitDamage = 30 --- %
 const.Combat.MGFreeInterruptAttacks = 1
@@ -74,4 +76,11 @@ const.EnvEffects.RainAimingMultiplier = 0 --- %
 const.Weapons.CriticalDamage = 50
 const.Weapons.DoubleBarrelDamageBonus = 0 -- 50
 const.EnvEffects.RainConditionLossMod = 75
-
+const.EnvEffects.FogSightMod = -40 -- -30
+const.EnvEffects.FogGrazeChance = 0-- 25
+const.EnvEffects.FireStormSightMod = -10
+const.EnvEffects.DustStormSightMod = -10
+const.EnvEffects.DustStormGrazeChance = 0
+const.EnvEffects.DarknessSightMod = - 60-- -10
+const.EnvEffects.DarknessDetectionRate = -40 -- -30
+const.EnvEffects.DarknessCTHPenalty = -30 -- -20

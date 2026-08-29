@@ -2192,18 +2192,6 @@ return {
 			value = 100,
 		}),
 		}),
-	PlaceObj('ModItemConstDef', {
-		Comment = "Sight radius (in tiles) for units aware of the target unit",
-		group = "Combat",
-		id = "AwareSightRange",
-		value = 56,
-	}),
-	PlaceObj('ModItemConstDef', {
-		Comment = "Sight radius (in tiles) for units aware of the target unit",
-		group = "Combat",
-		id = "UnawareSightRange",
-		value = 18,
-	}),
 	PlaceObj('ModItemInventoryItemCompositeDef', {
 		'Group', "Firearm - Assault",
 		'Id', "M14SAW_AUTO",

@@ -20,13 +20,13 @@ function OnMsg.ApplyModOptions(id)
     print("RAT MOD - options setting up")
 
     const.Combat.UnawareSightRange = extractNumberWithSignFromString(
-                                         CurrentModOptions['UnawareSight']) or 18
+                                         CurrentModOptions['UnawareSight']) or const.Combat.UnawareSightRange
     const.Combat.AwareSightRange =
-        extractNumberWithSignFromString(CurrentModOptions['AwareSight']) or 36
+        extractNumberWithSignFromString(CurrentModOptions['AwareSight']) or const.Combat.AwareSightRange
     const.EnvEffects.DarknessDetectionRate = extractNumberWithSignFromString(
-                                                 CurrentModOptions['NightDetect']) or -40
+                                                 CurrentModOptions['NightDetect']) or const.EnvEffects.DarknessDetectionRate
     const.EnvEffects.DarknessSightMod = extractNumberWithSignFromString(
-                                            CurrentModOptions['NightSight']) or -40
+                                            CurrentModOptions['NightSight']) or const.EnvEffects.DarknessSightMod 
 
     -- custom
     const.Combat.R_AimMul = extractNumberWithSignFromString(CurrentModOptions['aim_multiplier']) or
