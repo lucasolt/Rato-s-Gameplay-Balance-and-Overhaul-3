@@ -499,6 +499,120 @@ local stacks_multiplier = const.Combat.Recoil.StacksMultiplier
 local flat_penalty_base = const.Combat.Recoil.BasePenalty
 local param_base = const.Combat.Recoil.MaxPenalty
 
+---------------------------------------------------------------------------------------------------
+---- Produto multiplicativo do recoil: arma x componentes x mecanismo x postura x
+---- perks x calibre/Forca. E a parte que `get_recoil` e `get_recoilP_value` tinham
+---- IDENTICA, e que o modelo de cone angular precisa como terceiro consumidor.
+----
+---- Extraida em vez de copiada: o mod ja tem um caso de constante duplicada com um
+---- comentario de "manter em sincronia" (RECOIL_STACKS_PCT), e uma terceira copia
+---- desta cadeia divergiria em silencio na primeira vez que um destes numeros mudasse.
+----
+---- Retorna `mod` na mesma escala de antes (comeca em 100 e e multiplicado por
+---- fatores em torno de 1.0) e a lista de metaText acumulada.
+---------------------------------------------------------------------------------------------------
+function Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
+    local mod = 100
+    local metaText = {}
+    local display = false
+
+    local w1, weapon2 = attacker:GetActiveWeapons()
+    local dual = action and action.id == "DualShot"
+
+    local weapon_recoil_mod, metaText_wep = GetWepRecoil(weapon, attacker, display)
+    if dual then
+        local weapon_recoil_mod2 = GetWepRecoil(weapon2, attacker, display)
+        weapon_recoil_mod = (weapon_recoil_mod + weapon_recoil_mod2) / 2
+        metaText_wep = {rT(461685692199, "Average Recoil: Two Weapons")}
+    end
+    mod = mod * weapon_recoil_mod
+    for i, text in ipairs(metaText_wep) do
+        table.insert(metaText, text)
+    end
+
+    -----------------------Stance, perks
+    local other, otherMeta = GetRecoilOther(weapon, attacker, action)
+    mod = mod * other
+    for i, text in ipairs(otherMeta) do
+        table.insert(metaText, text)
+    end
+
+    -----------------str/caliber
+    local str_caliber_mod, meta_text_caliber = GetCaliberStrRecoil(weapon, attacker, num_shots)
+    if dual then
+        local str_caliber_mod2 = GetCaliberStrRecoil(weapon2, attacker, num_shots)
+        meta_text_caliber = {}
+        str_caliber_mod = (str_caliber_mod + str_caliber_mod2) / 2
+    end
+    mod = mod * str_caliber_mod
+    for i, text in ipairs(meta_text_caliber) do
+        table.insert(metaText, text)
+    end
+
+    return mod, metaText
+end
+
+---------------------------------------------------------------------------------------------------
+---- Recoil no modelo angular: taxa de ABERTURA do cone por tiro.
+----
+---- No modelo somado o recoil vira `cth_loss_per_shot` e e subtraido linearmente
+---- (SOURCE_FirearmGetAttackResults.lua:260). Aqui ele faz o que fisicamente faz --
+---- abre o cone -- e a perda de CTH passa a ser consequencia da geometria.
+----
+---- IMPORTANTE: isto NAO substitui a dependencia de distancia por uma taxa fixa.
+---- O recoil antigo nunca foi flat: `get_recoil` tem rampa linear ate
+---- MaxDistforPenalty (36 tiles), medida em -13 a 4 tiles e -76 a 28 tiles. No
+---- modelo angular a distancia continua mandando, so que pela via correta: um cone
+---- mais aberto custa pouco de perto, onde o alvo ja e maior que ele, e muito de
+---- longe, onde a silhueta e que e a restricao. A rampa deixa de precisar ser
+---- tabelada porque ela emerge de theta cair com 1/d.
+----
+---- Toda a cadeia relativa ja tunada sobrevive: arma, componentes, mecanismo,
+---- calibre, breakpoint de Forca, ROF, postura e perks continuam significando a
+---- mesma coisa, so que definindo quao RAPIDO o cone abre em vez de quantos pontos
+---- somem. Medido: mod_total vai de ~130 (MP5) a ~230 (AK47, MG42).
+----
+---- Retorna a taxa em % (122 = cone 1,22x por tiro).
+---------------------------------------------------------------------------------------------------
+function Rat_GetRecoilConeGrowth(attacker, action, weapon, num_shots, test)
+    local a = const.Combat.Aperture
+    if not attacker or not IsKindOf(weapon, "Firearm") then
+        return 100
+    end
+
+    local mod = Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
+
+    ---- cadencia: mais tiros no mesmo tempo, menos tempo para reassentar a arma
+    if not IsKindOf(weapon, "Shotgun") then
+        local action_id_rof = (action and action.id) or ""
+        if action_id_rof == "GrizzlyPerk" then
+            action_id_rof = "MGBurstFire"
+        end
+        local ROF = Rat_GetROF(weapon, action_id_rof)
+        if ROF and ROF > 1 then
+            mod = mod * ROF
+        end
+    end
+
+    ---- MG montada absorve recoil; MG na mao, nao
+    local aid = action and action.id
+    if aid == "MGBurstFire" then
+        if test or (g_Overwatch[attacker] and g_Overwatch[attacker].permanent) then
+            mod = mod * const.Combat.Recoil.MGSetupMul
+        end
+    elseif aid == "GrizzlyPerk" then
+        mod = mod * const.Combat.Recoil.MGSetupMul
+    end
+
+    local excess = MulDivRound(a.RecoilGrowthBase, cRound(mod), 100)
+    excess = Clamp(excess, 0, a.RecoilGrowthMax)
+
+    ---- o dial global de recoil do jogador continua valendo
+    excess = MulDivRound(excess, const.Combat.R_Recoil or 100, 100)
+
+    return 100 + excess
+end
+
 function get_recoil(attacker, target, target_pos, action, weapon, aim, num_shots, stacks, test,
                     test_distance, unit_command, populate_recoil, attacker_pos)
 
@@ -510,12 +624,8 @@ function get_recoil(attacker, target, target_pos, action, weapon, aim, num_shots
         return 0
     end
 
-    local metaText = {}
     local extra = 0
     ----------------------------------------------------------------------------------------------------------mods
-    local mod = 100
-    local display = false
-
     local target_pos = target_pos or IsKindOf(target, "Unit") and target:GetPos()
 
     local attacker_pos = attacker_pos or attacker:GetPos()
@@ -525,44 +635,7 @@ function get_recoil(attacker, target, target_pos, action, weapon, aim, num_shots
     local param = param_base
     local flat_penalty = flat_penalty_base
 
-    local weapon_recoil_mod, metaText_wep = GetWepRecoil(weapon, attacker, display)
-    if action.id == "DualShot" then
-        local weapon_recoil_mod2 = GetWepRecoil(weapon2, attacker, display)
-        weapon_recoil_mod = (weapon_recoil_mod + weapon_recoil_mod2) / 2
-        metaText_wep = {rT(461685692199, "Average Recoil: Two Weapons")}
-    end
-    mod = mod * weapon_recoil_mod
-
-    for i, text in ipairs(metaText_wep) do
-        table.insert(metaText, text)
-    end
-
-    -----------------------Stance, perks
-
-    local other, otherMeta = GetRecoilOther(weapon, attacker, action)
-
-    mod = mod * other
-
-    for i, text in ipairs(otherMeta) do
-        table.insert(metaText, text)
-    end
-
-    -----------------str/caliber
-    local str_caliber_mod = 1
-    local meta_text_caliber = {}
-    str_caliber_mod, meta_text_caliber = GetCaliberStrRecoil(weapon, attacker, num_shots)
-
-    if action.id == "DualShot" then
-        local str_caliber_mod2 = GetCaliberStrRecoil(weapon2, attacker, num_shots)
-        meta_text_caliber = {}
-        str_caliber_mod = (str_caliber_mod + str_caliber_mod2) / 2
-    end
-
-    mod = mod * str_caliber_mod
-
-    for i, text in ipairs(meta_text_caliber) do
-        table.insert(metaText, text)
-    end
+    local mod, metaText = Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
 
     ----------------------------------------------------------------------------------------------------------mods
 
@@ -678,13 +751,8 @@ function get_recoilP_value(attacker, action, weapon1, aim, stacks, unit_command)
         return 0
     end
 
-    local metaText = {}
-
     local extra = 0
     ----------------------------------------------------------------------------------------------------------mods
-    local mod = 100
-    local display = false
-
     local w1, weapon2 = attacker:GetActiveWeapons()
 
     local weapon = weapon1
@@ -692,48 +760,8 @@ function get_recoilP_value(attacker, action, weapon1, aim, stacks, unit_command)
     local param = param_base
     local flat_penalty = flat_penalty_base
 
-    local weapon_recoil_mod, metaText_wep = GetWepRecoil(weapon, attacker, display)
-    if action.id == "DualShot" then
-        weapon = weapon2
-        local weapon_recoil_mod2 = GetWepRecoil(weapon, attacker, display)
-        weapon = weapon1
-        weapon_recoil_mod = (weapon_recoil_mod + weapon_recoil_mod2) / 2
-        metaText_wep = {rT(862325237281, "Average Recoil: Two Weapons")}
-    end
-    mod = mod * weapon_recoil_mod
-
-    for i, text in ipairs(metaText_wep) do
-        table.insert(metaText, text)
-    end
-
-    -----------------------Stance, perks
-
-    local other, otherMeta = GetRecoilOther(weapon, attacker, action)
-
-    mod = mod * other
-
-    for i, text in ipairs(otherMeta) do
-        table.insert(metaText, text)
-    end
-
-    -----------------str/caliber
-    local str_caliber_mod = 1
-    local meta_text_caliber = {}
-    str_caliber_mod, meta_text_caliber = GetCaliberStrRecoil(weapon, attacker, false)
-
-    if action.id == "DualShot" then
-        weapon = weapon2
-        local str_caliber_mod2 = GetCaliberStrRecoil(weapon, attacker, false)
-        weapon = weapon1
-        meta_text_caliber = {}
-        str_caliber_mod = (str_caliber_mod + str_caliber_mod2) / 2
-    end
-
-    mod = mod * str_caliber_mod
-
-    for i, text in ipairs(meta_text_caliber) do
-        table.insert(metaText, text)
-    end
+    ---- mesma cadeia de get_recoil, so que com num_shots = false
+    local mod, metaText = Rat_GetRecoilBaseMod(attacker, action, weapon, false)
 
     ----------------------------------------------------------------------------------------------------------mods
 

@@ -302,6 +302,61 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
 end
 
 ---------------------------------------------------------------------------------------------------
+---- Rajada: o cone abre tiro a tiro
+----
+---- Devolve uma tabela [i] = razao em % do CTH do tiro i contra o do tiro 1.
+---- Aplicar como razao (e nao recalcular o CTH inteiro) preserva todos os modifiers
+---- residuais na mesma proporcao -- o consumidor so multiplica.
+----
+---- E aqui que a rajada ganha um comportamento que o modelo somado nao conseguia
+---- expressar: de perto ela continua letal, porque o alvo e maior que o cone mesmo
+---- depois de seis tiros; de longe ela morre no primeiro, porque a silhueta ja era
+---- a restricao. A separacao entre fogo de supressao e fogo de precisao sai da
+---- geometria em vez de precisar ser tabelada por acao.
+---------------------------------------------------------------------------------------------------
+function Rat_GetShotConeRatios(attacker, target, body_part_def, action, weapon, aim,
+                               opportunity_attack, attacker_pos, target_pos, num_shots)
+    local a = P()
+    local ratios = {}
+    if not num_shots or num_shots < 2 then
+        return ratios
+    end
+    ---- guarda tambem aqui, e nao so no chamador: a funcao e publica e a IA pode
+    ---- consulta-la para orcar rajada
+    if not Rat_AngularActive(weapon, action, attacker) then
+        return ratios
+    end
+
+    local cth1, sigma, theta = Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim,
+                                              opportunity_attack, attacker_pos, target_pos, nil)
+    if not sigma or sigma < 1 or not theta or theta < 1 or not cth1 or cth1 <= 0 then
+        return ratios
+    end
+
+    local growth = Rat_GetRecoilConeGrowth(attacker, action, weapon, num_shots)
+    if growth <= 100 then
+        return ratios
+    end
+
+    local base = Rat_RayleighCTH(theta, sigma)
+    if base < 1 then
+        return ratios
+    end
+
+    ---- o mesmo teto de indice que o modelo somado ja usava
+    local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
+    local sigma_i = sigma
+    for i = 2, num_shots do
+        if (i - 1) <= max_idx then
+            sigma_i = MulDivRound(sigma_i, growth, 100)
+        end
+        ratios[i] = Clamp(MulDivRound(Rat_RayleighCTH(theta, sigma_i), 100, base), 0, 100)
+    end
+
+    return ratios
+end
+
+---------------------------------------------------------------------------------------------------
 ---- Guarda
 ----
 ---- Chamada no topo de cada modifier que o modelo angular SUBSTITUI (os baldes

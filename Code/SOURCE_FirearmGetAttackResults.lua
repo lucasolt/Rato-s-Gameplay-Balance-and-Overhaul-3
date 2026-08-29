@@ -236,11 +236,22 @@ function Firearm:GetAttackResults(action, attack_args)
                                 1 and const.Combat.MultishotGrazeThreshold or
                                 const.Combat.SingleShotGrazeThreshold
     local aim_cth = 0
+    local cone_ratios = nil
     if num_shots > 1 and not prediction then
         local weapon = attack_args.weapon or attacker:GetActiveWeapons()
 
         local recoil = get_recoil(attacker, target, target_pos, action, weapon, false, num_shots) or
                            0
+
+        ---- No modelo angular o recoil ABRE O CONE em vez de subtrair pontos.
+        ---- As razoes ja embutem a distancia, porque a silhueta cai com 1/d --
+        ---- ver Rat_GetShotConeRatios / Rat_GetRecoilConeGrowth.
+        if Rat_AngularActive(weapon, action, attacker) then
+            cone_ratios = Rat_GetShotConeRatios(attacker, target, shot_attack_args.target_spot_group,
+                                                action, weapon, shot_attack_args.aim or 0,
+                                                shot_attack_args.opportunity_attack,
+                                                shot_attack_args.step_pos, target_pos, num_shots)
+        end
 
         ---- Em rajada so a PRIMEIRA bala fica com o bonus de mira; as 2..N o perdem.
         ---- Com o CTH angular nao existe mais um modifier "Aim" para ler -- o bonus de
@@ -273,11 +284,26 @@ function Firearm:GetAttackResults(action, attack_args)
         local shot_miss, shot_crit, shot_cth
         ------------- max 6 i
         local original_cth = self:GetShotChanceToHit(attack_results.chance_to_hit) or 0
-        shot_cth = original_cth - shot_attack_args.cth_loss_per_shot *
-                       Min((i - 1), const.Combat.MaxShotIndexForRecoilCTHLoss)
 
-        if i > 1 then
-            shot_cth = shot_cth - aim_cth
+        if cone_ratios then
+            ---- angular: a degradacao e a razao entre o CTH com o cone alargado por
+            ---- `i-1` tiros e o do primeiro tiro. Aplicada como RAZAO para preservar
+            ---- na mesma proporcao todos os modifiers que ja entraram no CTH final.
+            shot_cth = original_cth
+            if i > 1 then
+                shot_cth = shot_cth - aim_cth
+                local r = cone_ratios[i]
+                if r then
+                    shot_cth = MulDivRound(shot_cth, r, 100)
+                end
+            end
+        else
+            shot_cth = original_cth - shot_attack_args.cth_loss_per_shot *
+                           Min((i - 1), const.Combat.MaxShotIndexForRecoilCTHLoss)
+
+            if i > 1 then
+                shot_cth = shot_cth - aim_cth
+            end
         end
         ----------------^^
 

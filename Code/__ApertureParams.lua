@@ -240,6 +240,23 @@ A.MinCTH = 1
 A.MaxCTH = 97
 
 ---------------------------------------------------------------------------------------------------
+---- Recoil: taxa de abertura do cone por tiro
+----
+---- excesso = RecoilGrowthBase * mod_de_recoil / 100, onde mod_de_recoil e o produto
+---- ja tunado de FUNCTIONS_recoil (arma x componentes x mecanismo x calibre/Forca x
+---- ROF x postura x perks). Medido: ~130 na MP5, ~230 no AK47 e na MG42.
+----
+---- Com RecoilGrowthBase = 13 isso da +17%/tiro na MP5 e +27%/tiro no AK47.
+----
+---- A distancia NAO some daqui -- ela passa a agir pela geometria: um cone mais
+---- aberto custa pouco de perto (o alvo ja e maior que o cone) e muito de longe
+---- (a silhueta e a restricao). Ver o bloco em Rat_GetRecoilConeGrowth.
+---------------------------------------------------------------------------------------------------
+
+A.RecoilGrowthBase = 13
+A.RecoilGrowthMax = 60 --- teto do excesso por tiro (%)
+
+---------------------------------------------------------------------------------------------------
 
 function OnMsg.ClassesGenerate()
     AppendClass.Firearm = {
