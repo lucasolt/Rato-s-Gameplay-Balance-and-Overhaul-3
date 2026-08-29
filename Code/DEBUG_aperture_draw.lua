@@ -171,18 +171,9 @@ function Rat_DbgCover(target, attacker, body_part)
         end
     end
 
-    ---- caixa da silhueta amostrada: mostra ate onde a grade foi procurar
-    if dbg.anchor and dbg.attack_pos and dbg.halfw then
-        local dir = SetLen(dbg.anchor - dbg.attack_pos, 1000)
-        local right = SetLen(point(-dir:y(), dir:x(), 0), 1000)
-        local dx = MulDivRound(right, dbg.halfw, 1000)
-        local dz = point(0, 0, dbg.halfh)
-        local c = dbg.anchor
-        local corners = {c - dx - dz, c + dx - dz, c + dx + dz, c - dx + dz, c - dx - dz}
-        for i = 1, 4 do
-            DbgAddSegment(corners[i], corners[i + 1], clrSilh)
-        end
-    end
+    ---- A caixa da silhueta saiu daqui junto com a grade: a amostragem agora sai dos
+    ---- spots reais do corpo, entao os proprios raios ja desenham o padrao e nao ha
+    ---- retangulo que o descreva. (dbg.halfh deixou de existir nessa troca.)
 
     local txt = string.format("exposto %d%%  (%d/%d raios)  [%s]", pct, n_hit, #dbg,
                               tostring(dbg.mode))
@@ -256,15 +247,22 @@ function Rat_DbgCone(target, attacker, body_part)
     local _, max_aim = attacker:GetBaseAimLevelRange(action, target)
     max_aim = Clamp(max_aim or 3, 1, 6)
 
+    ---- Os discos mostram o raio que contem ~96% dos tiros (2.5 sigma), nao 1 sigma:
+    ---- num circulo de 1 sigma cabem so 39% dos disparos, entao desenha-lo daria a
+    ---- impressao de acerto certo em tiros de 72%. Mesmo criterio do crosshair.
+    local smul = a.CrosshairSigmaMul or 250
     for aim = 0, max_aim do
         local cth, sigma, theta = Rat_AngularCTH(attacker, target, body_part, action, weapon, aim,
                                                  false, apos, tpos)
-        local r = cone_radius(dist, sigma)
+        local spread = MulDivRound(sigma, smul, 100)
+        local r = cone_radius(dist, spread)
         draw_disc(center, r, dir, clrCone, 32)
         ---- rotulo na borda superior do proprio disco, para nao empilhar no centro
         DbgAddText(string.format("aim %d: %d%%", aim, cth), center + point(0, 0, r), clrCone)
-        lines[#lines + 1] = string.format("  aim %d | cone %5d' (raio %4dcm no alvo) | CTH %3d%%",
-                                          aim, sigma, r / 10, cth)
+        lines[#lines + 1] = string.format(
+            "  aim %d | sigma %4d' grupo %5d' (raio %4dcm no alvo) | CTH %3d%% | %s",
+            aim, sigma, spread, r / 10, cth,
+            (spread <= theta) and "grupo cabe no alvo" or "transborda")
     end
 
     ---- eixo de tiro
@@ -273,7 +271,7 @@ function Rat_DbgCone(target, attacker, body_part)
     a.Enabled = was
 
     return string.format("%s (%s) -> %s [%s] a %.1f tiles | theta do alvo = %d'\n%s\n" ..
-                             "  ciano = silhueta do alvo, amarelo = cone por nivel de mira",
+                             "  ciano = silhueta do alvo, amarelo = onde caem ~96% dos tiros, por nivel de mira",
                          tostring(attacker.session_id), tostring(weapon.class),
                          tostring(target.session_id), tostring(target:GetHitStance()),
                          dist / const.SlabSizeX,

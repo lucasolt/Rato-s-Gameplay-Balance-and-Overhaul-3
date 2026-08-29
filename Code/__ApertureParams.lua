@@ -333,7 +333,25 @@ A.RecoilGrowthMax = 60 --- teto do excesso por tiro (%)
 ---- vanilla ja usava, para o circulo continuar com tamanho familiar na tela.
 ---------------------------------------------------------------------------------------------------
 
-A.CrosshairRefScale = 260
+---- QUANTOS SIGMAS o circulo representa.
+----
+---- sigma e um DESVIO-PADRAO, nao o raio do cone. Num circulo de raio 1 sigma cabem
+---- apenas 39% dos tiros -- e era assim que o circulo era desenhado. Resultado: ele
+---- aparecia inteiro DENTRO da silhueta com CTH de 72 a 93%, e o jogador lia "nao
+---- tenho como errar" olhando para um tiro que erra um em cada quatro. Medido:
+----     AK47 aim 3 a 15t | sigma 50' | alvo 80' | circulo a 63% do alvo | CTH 72%
+----     AK47 aim 2 a 10t | sigma 63' | alvo 120'| circulo a 53% do alvo | CTH 84%
+----
+---- Contencao de Rayleigh por raio:  1.00s->39%  1.18s->50%  2.15s->90%  2.50s->96%
+----
+---- Com 2.5 o circulo passa a significar "e aqui que praticamente todos os meus
+---- tiros vao cair": se ele cabe na silhueta, o tiro e quase certo; se transborda,
+---- a fracao que sobra para fora e a que erra. E o mesmo numero descreve o
+---- agrupamento visivel se um dia o tiro virar simulacao de verdade.
+A.CrosshairSigmaMul = 250
+
+---- Escala em que o circulo (ja em 2.5 sigma) COBRE a silhueta.
+A.CrosshairRefScale = 200
 A.CrosshairMinScale = 90
 A.CrosshairMaxScale = 900
 

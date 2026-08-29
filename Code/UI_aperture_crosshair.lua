@@ -101,9 +101,12 @@ function Rat_PatchCrosshairAimCircle()
             return vanilla_update(self, context, ...)
         end
 
-        ---- o circulo E a razao cone/silhueta
-        local scale = Clamp(MulDivRound(a.CrosshairRefScale, sigma, theta), a.CrosshairMinScale,
-                            a.CrosshairMaxScale)
+        ---- O circulo mostra o raio que contem ~96% dos tiros (2.5 sigma), nao um
+        ---- sigma cru -- ver A.CrosshairSigmaMul. Desenhar 1 sigma punha o circulo
+        ---- dentro da silhueta em tiros de 72%, o que mentia para o jogador.
+        local spread = MulDivRound(sigma, a.CrosshairSigmaMul, 100)
+        local scale = Clamp(MulDivRound(a.CrosshairRefScale, spread, theta),
+                            a.CrosshairMinScale, a.CrosshairMaxScale)
 
         ---- cor: amarelo quando este e o nivel de mira mais barato possivel,
         ---- como no vanilla; vermelho caso contrario
@@ -114,10 +117,10 @@ function Rat_PatchCrosshairAimCircle()
             self.idAimTarget:SetImageColor(RGB(191, 67, 77))
         end
 
-        ---- anel mais "fechado" quando o cone ja cabe no alvo
-        if scale <= a.CrosshairRefScale then
+        ---- anel mais "fechado" quando o grupo de tiros ja cabe no alvo
+        if spread <= theta then
             self.idAimTarget:SetImage("UI/Hud/target_aim_small")
-        elseif sigma > theta * 2 then
+        elseif spread > theta * 2 then
             self.idAimTarget:SetImage("UI/Hud/T_HUD_TargetingCircle_Inner")
         else
             self.idAimTarget:SetImage("UI/Hud/T_HUD_TargetingCircle_Inner_2")
@@ -161,19 +164,23 @@ function Rat_ShowCrosshairScale(target, attacker)
     a.Enabled = true
 
     local out = {
-        string.format("%s (%s) -> %s a %.1f tiles  [ref=%d: circulo cobre a silhueta]",
+        string.format("%s (%s) -> %s a %.1f tiles  [circulo = %.1f sigma, ~96%% dos tiros]",
                       tostring(attacker.session_id), tostring(weapon.class),
                       tostring(target.session_id),
-                      attacker:GetDist(target) / const.SlabSizeX, a.CrosshairRefScale),
-        "aim | cone(') alvo(') |  escala | CTH"
+                      attacker:GetDist(target) / const.SlabSizeX,
+                      a.CrosshairSigmaMul / 100.0),
+        "aim | sigma  grupo   alvo | escala | CTH | grupo vs alvo"
     }
     for aim = 0, 4 do
         local cth, sigma, theta = Rat_AngularCTH(attacker, target, nil, action, weapon, aim, false,
                                                  attacker:GetPos(), target:GetPos(), nil)
+        local spread = MulDivRound(sigma, a.CrosshairSigmaMul, 100)
         local scale = theta >= 1 and
-                          Clamp(MulDivRound(a.CrosshairRefScale, sigma, theta), a.CrosshairMinScale,
-                                a.CrosshairMaxScale) or -1
-        out[#out + 1] = string.format(" %d  | %6d %6d | %6d  | %3d%%", aim, sigma, theta, scale, cth)
+                          Clamp(MulDivRound(a.CrosshairRefScale, spread, theta),
+                                a.CrosshairMinScale, a.CrosshairMaxScale) or -1
+        out[#out + 1] = string.format(" %d  | %5d %6d %6d | %6d | %3d%% | %s", aim, sigma, spread,
+                                      theta, scale, cth,
+                                      (theta >= 1 and spread <= theta) and "cabe" or "transborda")
     end
 
     a.Enabled = was
