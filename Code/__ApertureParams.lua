@@ -107,11 +107,27 @@ A.Box = {
     Prone = {halfw = 370, halfh = 255}
 }
 
----- Grade de sondagem fina: fracoes das meias-extensoes, em cada eixo. 3x3 = 9
----- raios, cada um valendo 1/9 da area. Pontos FIXOS e deterministicos: nao
----- consomem random sincronizado, entao sao seguros na previsao (crosshair) e na
----- IA -- e a distincao que torna isto viavel onde um NCTH completo nao seria.
-A.ProbeGrid = {-66, 0, 66}
+---- Desvios LATERAIS de sondagem, em % da meia-largura, aplicados a CADA spot do
+---- corpo que o engine devolve. Os spots dao o eixo vertical (cabeca, torso, bracos,
+---- virilha, pernas) e estes desvios varrem a largura: 5 spots x 5 desvios = 25
+---- raios, numa unica chamada de GetLoFData.
+----
+---- Nao existe mais uma caixa a centrar. A tentativa anterior -- grade 3x3 sobre uma
+---- caixa ancorada no spot do Torso -- estava sistematicamente descentrada: medido
+---- num alvo em pe, os spots reais iam de lateral -8 a +185 e vertical -575 a +373,
+---- enquanto a grade varria -251..+251 e -314..+314 a partir de zero. A coluna da
+---- esquerda e a linha de cima nunca tocavam o corpo, e a exposicao de um alvo
+---- inteiramente a descoberto travava em 44%.
+----
+---- Pontos FIXOS e deterministicos: nao consomem random sincronizado, entao sao
+---- seguros na previsao (crosshair) e na IA -- e a distincao que torna isto viavel
+---- onde um NCTH completo nao seria.
+A.ProbeLateral = {-80, -40, 0, 40, 80}
+
+---- Raio da cruz de amostragem da cabeca, em unidades do engine (110 = 11 cm, o
+---- raio equivalente medido). A cabeca e pequena e o spot dela E o centro da regiao,
+---- entao aqui uma cruz de cinco pontos basta.
+A.HeadProbeHalf = 110
 
 ---- Ligar a grade fina custa uma SEGUNDA chamada de GetLoFData por avaliacao.
 ---- Medido com cache frio: 0,94 ms/call no modelo somado, 10,1 ms/call com a grade,
@@ -134,6 +150,20 @@ A.CoverProbeGrid = true
 ---- de turno da IA intacto. false = IA tambem sonda, e paga o custo.
 A.CoverAIFallback = true
 
+---- Classe de penetracao dos raios de sondagem.
+----
+---- 0 = qualquer obstaculo bloqueia, mesmo os que a bala atravessaria. Cobertura
+---- volta a PROTEGER, no espirito do -35 flat que o mod cobrava antes.
+----
+---- A alternativa (usar a classe real da arma, como a consulta padrao do engine faz)
+---- muda muito o balance: medido, um alvo atras de uma pilha de pneus aparece com os
+---- cinco spots alcancaveis, porque a bala atravessa -- e quase toda cobertura do
+---- mapa deixaria de contar. A penetracao ja e tratada a parte, no dano.
+A.CoverPenetrationClass = 0
+
+---- Piso usado SO no caminho barato da IA, onde a entrada e uma porcentagem de
+---- cobertura e nao uma contagem de raios. No caminho completo, ocluido significa
+---- literalmente nenhum raio passar.
 ---- Fracao exposta abaixo da qual o alvo conta como totalmente ocluido.
 A.ExposureBlockedPct = 6
 

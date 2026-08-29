@@ -110,6 +110,9 @@ function Firearm:GetAttackResults(action, attack_args)
         cth, baseCth, modifiers = attacker:CalcChanceToHit(target, cth_action, shot_attack_args)
     end
 
+	------
+
+
     local attack_results = {
         weapon = self,
         fired = fired,

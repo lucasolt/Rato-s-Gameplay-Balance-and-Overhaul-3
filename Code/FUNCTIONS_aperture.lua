@@ -10,6 +10,9 @@
 ---- Tudo em aritmetica INTEIRA. Ver o cabecalho de __ApertureParams.lua.
 ---------------------------------------------------------------------------------------------------
 
+
+
+
 local A --- resolvido em tempo de chamada: __ApertureParams pode carregar depois deste arquivo
 local function P()
     A = A or const.Combat.Aperture

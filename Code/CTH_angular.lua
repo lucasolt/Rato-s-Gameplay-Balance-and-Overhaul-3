@@ -140,6 +140,7 @@ function OnMsg.GatherCTHModifications(unit, id, action_id, target, weapon1, weap
         data.rat_geo = geo
     end
 
+
     local value = data.base_chance or 0
     local scale
     if value < 0 then

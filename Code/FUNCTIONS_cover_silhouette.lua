@@ -233,10 +233,9 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
         if n_spots == 0 then
             return 100
         end
-        local p = MulDivRound(reached_spots, 100, n_spots)
-        if p < a.ExposureBlockedPct then
-            p = 0
-        end
+        ---- mesma regra do modo completo: ocluido = nenhum spot alcancado
+        local p = (reached_spots == 0) and 0 or
+                      Max(1, MulDivRound(reached_spots, 100, n_spots))
         if cache_count < CACHE_MAX then
             exposure_cache[key] = p
             cache_count = cache_count + 1
@@ -246,7 +245,6 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
 
     local box = a.Box[stance] or a.Box.Standing
     local halfw = head and 110 or box.halfw
-    local halfh = head and 110 or box.halfh
 
     ---- base ortonormal: horizontal perpendicular a linha de tiro, e vertical
     local flat = (anchor - attack_pos):SetZ(0)
@@ -255,15 +253,47 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
     end
     local right = SetLen(point(-flat:y(), flat:x(), 0), 1000)
 
-    ---- grade 3x3 de pontos FIXOS ao redor da ancora real
-    local grid = a.ProbeGrid
+    ---------------------------------------------------------------------------------------
+    ---- Pontos de sondagem ANCORADOS NA ANATOMIA.
+    ----
+    ---- A versao anterior montava uma grade 3x3 centrada no spot do Torso. Nao
+    ---- funcionava: o spot do Torso nao e o centro da silhueta em nenhum dos dois
+    ---- eixos. Medido contra um alvo em pe, no referencial do tiro, os spots reais
+    ---- iam de lateral -8 a +185 e de vertical -575 a +373 -- enquanto a grade varria
+    ---- lateral -251..+251 e vertical -314..+314, centrada em zero. A coluna da
+    ---- esquerda e a linha de cima caiam fora do corpo, sempre: 5 celulas perdidas de
+    ---- 9, exposicao travada em 44% para um alvo totalmente a descoberto.
+    ----
+    ---- Agora as amostras saem dos proprios spots que o engine devolve (cabeca,
+    ---- torso, bracos, virilha, pernas), que estao presos ao esqueleto animado: cada
+    ---- um vira uma linha de amostragem, com desvios laterais para varrer a largura.
+    ---- Nao ha centro nem caixa para estimar, e o padrao acompanha postura, pose e
+    ---- angulo de visada sozinho.
+    ---------------------------------------------------------------------------------------
     local targets, n = {}, 0
-    for _, fx in ipairs(grid) do
-        for _, fy in ipairs(grid) do
+    if head then
+        ---- a cabeca e pequena e o spot dela E o centro da regiao: uma cruz de cinco
+        ---- amostras em volta basta, e nao ha o problema de descentramento do corpo
+        local hw = a.HeadProbeHalf
+        for _, off in ipairs({point(0, 0, 0), MulDivRound(right, hw, 1000),
+                              MulDivRound(right, -hw, 1000), point(0, 0, hw),
+                              point(0, 0, -hw)}) do
             n = n + 1
-            targets[n] = anchor + MulDivRound(right, MulDivRound(halfw, fx, 100), 1000) +
-                             point(0, 0, MulDivRound(halfh, fy, 100))
+            targets[n] = anchor + off
         end
+    else
+        for _, l in ipairs(base.lof) do
+            local sp = l.target_pos
+            if sp then
+                for _, fx in ipairs(a.ProbeLateral) do
+                    n = n + 1
+                    targets[n] = sp + MulDivRound(right, MulDivRound(halfw, fx, 100), 1000)
+                end
+            end
+        end
+    end
+    if n == 0 then
+        return 100
     end
 
     local dist = attack_pos:Dist(anchor)
@@ -282,7 +312,12 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
         output_collisions = true,
         range = dist + 4 * const.SlabSizeX,
         seed = 0, --- deterministico: nenhum random sincronizado neste caminho
-        penetration_class = 0,
+        ---- 0 = qualquer obstaculo bloqueia o raio, mesmo os que a bala atravessaria.
+        ---- E o que faz cobertura PROTEGER, no espirito do -35 flat que o mod cobrava.
+        ---- Com a classe real da arma, um alvo atras de uma pilha de pneus conta como
+        ---- exposto (a bala passa) e quase toda cobertura do mapa deixa de valer --
+        ---- a penetracao ja e tratada a parte, no dano. Ver A.CoverPenetrationClass.
+        penetration_class = a.CoverPenetrationClass or 0,
         prediction = true,
         clamp_to_target = true,
         fire_relative_point_attack = false,
@@ -298,27 +333,48 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
         force_hit_seen_target = false
     }
 
+    ---------------------------------------------------------------------------------------
+    ---- Contagem: a exposicao e  alcancados / (alcancados + OBSTRUIDOS).
+    ----
+    ---- Nao dividir pelo total de raios. Um raio pode falhar por dois motivos muito
+    ---- diferentes, e so um deles e cobertura:
+    ----   OBSTRUIDO   -- bateu em alguma coisa ANTES do alvo. Isto e cobertura.
+    ----   ERRO DE MIRA -- passou ao lado sem bater em nada. Isto e a grade sendo mais
+    ----                   larga que a parte do corpo amostrada, e nao diz nada sobre
+    ----                   o mapa.
+    ----
+    ---- Medido antes de separar os dois: um alvo em pe e totalmente a descoberto dava
+    ---- 36% de exposicao, com TODOS os raios que falharam sem bloqueador nenhum -- era
+    ---- so geometria de amostragem virando "cobertura". Normalizando assim, o mesmo
+    ---- alvo da 100%, e o padrao de amostragem deixa de influenciar o resultado.
+    ----
+    ---- "Antes do alvo" e por distancia: os raios seguem 4 tiles alem do alvo, entao
+    ---- um que passa ao lado e bate no chao atras dele nao pode contar como cobertura.
+    ---------------------------------------------------------------------------------------
     local data = GetLoFData(attacker, targets, lof_args)
-    local reached = 0
+    local reached, obstructed = 0, 0
     for i, d in ipairs(data or empty_table) do
         local lof = d and (d.outside_attack_area_lof or (d.lof and d.lof[1]))
+        local sample_dist = attack_pos:Dist(targets[i])
         local ok, blocker = false, nil
         for _, h in ipairs((lof and lof.hits) or empty_table) do
             if h.obj == target then
                 ok = true
                 break
-            elseif not blocker then
+            elseif not blocker and h.pos and attack_pos:Dist(h.pos) < sample_dist then
                 blocker = h.obj and (h.obj.class or "?") or (h.terrain and "terreno")
             end
         end
         if ok then
             reached = reached + 1
+        elseif blocker then
+            obstructed = obstructed + 1
         end
         if dbg then
             dbg[#dbg + 1] = {
                 from = (lof and lof.attack_pos) or attack_pos, to = targets[i],
-                label = "g" .. i, reached = ok,
-                stuck = lof and (lof.stuck_pos or lof.lof_pos2), blocker = blocker
+                label = "g" .. i, reached = ok, blocker = blocker,
+                stuck = lof and (lof.stuck_pos or lof.lof_pos2)
             }
         end
     end
@@ -327,17 +383,22 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
         dbg.anchor = anchor
         dbg.attack_pos = attack_pos
         dbg.halfw = halfw
-        dbg.halfh = halfh
+        dbg.n_samples = n
     end
 
-    ---- A ancora conta como amostra tambem: se o engine alcanca aquele spot mas a
-    ---- grade toda erra, o alvo esta exposto por uma fresta, nao invisivel.
-    local pct = MulDivRound(reached, 100, n)
-    if pct == 0 and spot_reached[head and "Head" or "Torso"] then
-        pct = MulDivRound(100, 1, n)
-    end
-    if pct < a.ExposureBlockedPct then
+    ---- Ocluido significa NENHUM raio passar. Nao usar piso percentual aqui: com 25
+    ---- amostras a resolucao e 4%, e o piso de 6% zerava alvos com um raio limpo --
+    ---- foi assim que um alvo com os cinco spots do engine alcancaveis aparecia com
+    ---- corpo 0% e cabeca 40% ao mesmo tempo. O piso continua valendo so no caminho
+    ---- barato da IA, onde a entrada e uma porcentagem e nao uma contagem.
+    local sampled = reached + obstructed
+    local pct
+    if sampled == 0 then
+        pct = 100 --- nenhum raio tocou o corpo nem foi bloqueado: nada obstruindo
+    elseif reached == 0 then
         pct = 0
+    else
+        pct = Max(1, MulDivRound(reached, 100, sampled))
     end
 
     if cache_count < CACHE_MAX then
