@@ -41,9 +41,15 @@ function prone_cover()
         end
         ---- CTH angular: a POSTURA do alvo deixa de ser penalidade somada e passa a
         ---- ser silhueta menor (const.Combat.Aperture.Silhouette, medida no jogo).
-        ---- A COBERTURA continua percentual aqui ate a sondagem de silhueta ocluida
-        ---- entrar -- por isso o guard so desliga os ramos de postura.
         local angular = Rat_AngularActive(weapon1, action, attacker)
+
+        ---- Com a sondagem de silhueta ligada, a COBERTURA tambem sai daqui: vira
+        ---- fracao exposta medida por raycast (FUNCTIONS_cover_silhouette.lua), que
+        ---- ja sabe de altura, angulo de ataque e flanqueamento -- coisas que o
+        ---- InterpolateCoverEffect (Unit.lua:8701) esmagava numa escada de 3 degraus.
+        if angular and const.Combat.Aperture.CoverRaycast then
+            return false, 0
+        end
 
         local target_stance = target:GetHitStance()
         if target_stance == "Prone" and not angular then

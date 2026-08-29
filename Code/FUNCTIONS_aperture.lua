@@ -277,6 +277,21 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
     local dist = attacker_pos:Dist(target_pos)
 
     local sigma, meta, parts = Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
+
+    ---- Cobertura: nao e penalidade, e silhueta menor. A fracao exposta vem da
+    ---- sondagem de raios (FUNCTIONS_cover_silhouette.lua) quando ligada.
+    if exposed_pct == nil and a.CoverRaycast then
+        exposed_pct = Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_part_def,
+                                          weapon)
+    end
+
+    ---- totalmente ocluido: o tiro nao existe. Importante deixar chegar a ZERO --
+    ---- e assim que AIPrecalcConeTargetZones (CombatAI.lua:2138) descarta o alvo do
+    ---- cone, e assim que a UI mostra que nao ha tiro.
+    if exposed_pct == 0 then
+        return 0, sigma, 0, meta, parts, dist, 0
+    end
+
     local half_cm = Rat_TargetSilhouette(target, body_part_def, exposed_pct)
     local theta = Rat_ThetaTarget(dist, half_cm)
 

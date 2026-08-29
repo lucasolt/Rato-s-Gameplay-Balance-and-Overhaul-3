@@ -20,6 +20,11 @@ local A = const.Combat.Aperture
 ---- modifiers antigos ativos, CTH_angular inerte).
 A.Enabled = false
 
+---- Cobertura por sondagem de silhueta (FUNCTIONS_cover_silhouette.lua). Depende de
+---- A.Enabled; separada porque e a parte com custo de raycast, para poder ser
+---- desligada sozinha se a performance da IA nao fechar.
+A.CoverRaycast = true
+
 ---------------------------------------------------------------------------------------------------
 ---- Escala base
 ---------------------------------------------------------------------------------------------------
@@ -82,6 +87,47 @@ A.BodyPartAbsolute = {
     Head = 11,
     Neck = 11
 }
+
+---------------------------------------------------------------------------------------------------
+---- Geometria da silhueta para a SONDAGEM DE COBERTURA
+----
+---- Meia-largura / meia-altura da caixa da silhueta, em unidades do engine
+---- (1000 = 1 m), medidas com a sonda de raios. Dao a extensao da grade fina
+---- (A.CoverProbeGrid) ao redor do spot de corpo que o engine devolve.
+----
+---- A ALTURA do centro nao entra aqui de proposito: a sondagem ancora nos spots
+---- reais que o GetLoFData retorna, presos ao esqueleto animado. Estimar a altura
+---- (chao + offset por postura) errava ate 0,5 m em Z e, a curta distancia, isso
+---- bastava para a sonda ver parede onde o engine tinha linha limpa.
+---------------------------------------------------------------------------------------------------
+
+A.Box = {
+    Standing = {halfw = 380, halfh = 475},
+    Crouch = {halfw = 295, halfh = 360},
+    Prone = {halfw = 370, halfh = 255}
+}
+
+---- Grade de sondagem fina: fracoes das meias-extensoes, em cada eixo. 3x3 = 9
+---- raios, cada um valendo 1/9 da area. Pontos FIXOS e deterministicos: nao
+---- consomem random sincronizado, entao sao seguros na previsao (crosshair) e na
+---- IA -- e a distincao que torna isto viavel onde um NCTH completo nao seria.
+A.ProbeGrid = {-66, 0, 66}
+
+---- Ligar a grade fina custa uma SEGUNDA chamada de GetLoFData por avaliacao.
+---- Medido com cache frio: 1,23 ms/call no modelo somado, 13,8 ms/call com a grade,
+---- 1,33 ms/call com cache quente. Como a IA avalia muitas posicoes por turno e
+---- cada posicao e um cache miss, o padrao e o modo barato: os cinco spots reais
+---- que a consulta de ancoras ja devolve (resolucao de 20% em vez de 11%).
+A.CoverProbeGrid = false
+
+---- A IA usa `100 - coverage` (o "nivel 1": a porcentagem que o engine ja calcula,
+---- sem a escada de InterpolateCoverEffect) em vez de raycast. Ver o bloco de
+---- justificativa em FUNCTIONS_cover_silhouette.lua -- e o que mantem o orcamento
+---- de turno da IA intacto. false = IA tambem sonda, e paga o custo.
+A.CoverAIFallback = true
+
+---- Fracao exposta abaixo da qual o alvo conta como totalmente ocluido.
+A.ExposureBlockedPct = 6
 
 ---- Quanto do `tohit_mod` de TargetBodyPart ainda vale quando o modelo angular
 ---- esta ligado. A DIFICULDADE GEOMETRICA de acertar uma parte pequena ja saiu da

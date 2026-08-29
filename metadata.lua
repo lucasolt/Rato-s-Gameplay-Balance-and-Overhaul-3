@@ -97,6 +97,7 @@ return PlaceObj('ModDef', {
 		"Code/FUNCTIONS_Critical.lua",
 		"Code/FUNCTIONS_hipfire.lua",
 		"Code/FUNCTIONS_aperture.lua",
+		"Code/FUNCTIONS_cover_silhouette.lua",
 		"Code/XTEMP_recoil.lua",
 		"Code/FUNCTIONS_FirearmFirePellet.lua",
 		"Code/FUNCTIONS_Pellets.lua",
