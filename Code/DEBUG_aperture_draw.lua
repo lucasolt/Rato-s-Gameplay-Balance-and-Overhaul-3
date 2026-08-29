@@ -27,6 +27,24 @@ local function cone_radius(dist, minutes)
 end
 
 ---------------------------------------------------------------------------------------------------
+---- Z valido.
+----
+---- Unit:GetPos() devolve ponto com Z INVALIDO quando a unidade esta no terreno, e
+---- aritmetica de vetor com ele degrada para 2D em silencio: (center - apos) virava
+---- (894,-447) sem Z, o vetor perpendicular virava (0,0), e o disco saia horizontal.
+---- Era essa a causa dos circulos deitados no chao -- nao a orientacao do desenho.
+---------------------------------------------------------------------------------------------------
+local function vz(pos)
+    if not pos then
+        return pos
+    end
+    if pos:IsValidZ() then
+        return pos
+    end
+    return pos:SetZ(terrain.GetHeight(pos))
+end
+
+---------------------------------------------------------------------------------------------------
 ---- Disco NO PLANO PERPENDICULAR a linha de tiro -- um alvo de papel de frente para
 ---- o atirador, nao um circulo deitado no chao.
 ----
@@ -44,6 +62,13 @@ local function draw_disc(center, radius, dir, color, segments)
         return
     end
     segments = segments or 24
+    if not dir or not dir:IsValidZ() then
+        --- direcao sem Z nao define plano nenhum: o disco sairia deitado
+        dir = point(dir and dir:x() or 0, dir and dir:y() or 0, 0)
+    end
+    if dir:Len() == 0 then
+        return
+    end
     dir = SetLen(dir, 1000)
 
     ---- Partir de um vetor GENUINAMENTE perpendicular a dir. RotateAxis preserva a
@@ -210,14 +235,14 @@ function Rat_DbgCone(target, attacker, body_part)
     DbgClearVectors()
     DbgClearTexts()
 
-    local apos, tpos = attacker:GetPos(), target:GetPos()
+    ---- Z valido ANTES de qualquer matematica de vetor: ver o comentario em vz()
+    local apos, tpos = vz(attacker:GetPos()), vz(target:GetPos())
     local dist = apos:Dist(tpos)
 
     ---- plano do alvo: o circulo e desenhado na altura do ponto de mira
     local exposed = Rat_MeasureExposure(attacker, target, apos, tpos, body_part, weapon)
     local half_cm = Rat_TargetSilhouette(target, body_part, exposed)
-    local center = tpos:SetZ((tpos:IsValidZ() and tpos:z() or terrain.GetHeight(tpos)) +
-                                 (target:GetHitStance() == "Prone" and 200 or 800))
+    local center = tpos:SetZ(tpos:z() + (target:GetHitStance() == "Prone" and 200 or 800))
 
     ---- direcao de tiro: define o plano de TODOS os discos abaixo
     local dir = center - apos
