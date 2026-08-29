@@ -261,15 +261,15 @@ function Firearm:GetAttackResults(action, attack_args)
         ---- mira virou o fechamento do cone -- entao a perda se mede refazendo a
         ---- geometria com aim 0. Ver Rat_AngularCTH / CTH_angular.lua.
         if Rat_AngularActive(weapon, action, attacker) then
-            local aimed = Rat_AngularCTH(attacker, target, shot_attack_args.target_spot_group,
-                                         action, weapon, shot_attack_args.aim or 0,
-                                         shot_attack_args.opportunity_attack,
-                                         shot_attack_args.step_pos, target_pos)
-            local unaimed = Rat_AngularCTH(attacker, target, shot_attack_args.target_spot_group,
-                                           action, weapon, 0,
-                                           shot_attack_args.opportunity_attack,
-                                           shot_attack_args.step_pos, target_pos)
-            aim_cth = Max(0, aimed - unaimed)
+            --local aimed = Rat_AngularCTH(attacker, target, shot_attack_args.target_spot_group,
+            --                             action, weapon, shot_attack_args.aim or 0,
+            --                             shot_attack_args.opportunity_attack,
+            --                             shot_attack_args.step_pos, target_pos)
+            --local unaimed = Rat_AngularCTH(attacker, target, shot_attack_args.target_spot_group,
+            --                               action, weapon, 0,
+            --                               shot_attack_args.opportunity_attack,
+            --                               shot_attack_args.step_pos, target_pos)
+            --aim_cth = Max(0, aimed - unaimed)
         else
             for i, v in ipairs(modifiers or empty_table) do
                 if v.id == "Aim" then
@@ -280,6 +280,12 @@ function Firearm:GetAttackResults(action, attack_args)
         end
 
         shot_attack_args.cth_loss_per_shot = -recoil
+		if not attack_results.GBO_debug_cth_loss_per_shot then
+			attack_results.GBO_debug_cth_loss_per_shot = -recoil
+		end
+		if not attack_results.GBO_debug_recoil_cone_ratios then
+			attack_results.GBO_debug_recoil_cone_ratios = cone_ratios
+		end
     end
     ----------------------------------------------------------
 
@@ -418,6 +424,14 @@ function Firearm:GetAttackResults(action, attack_args)
             ---- o resultado do ataque passa a ser ACUMULADO do que cada bala fez,
             ---- entao os valores rolados no dado deixam de valer como ponto de partida
             miss, crit = true, false
+
+            ---- registro para o visualizador (Rat_DbgLastShots). So guarda pontos;
+            ---- nao altera nada do calculo.
+            g_RatLastSimShots = {
+                attacker = attacker, target = target,
+                attack_pos = attack_results.attack_pos, shots = {}
+            }
+
             for i = 1, num_shots do
                 if i > 1 and (i - 1) <= max_idx then
                     s_i = MulDivRound(s_i, growth, 100)
@@ -426,6 +440,9 @@ function Firearm:GetAttackResults(action, attack_args)
                     sigma = s_i,
                     target_pos = Rat_ShotScatterPoint(attacker, attack_results.attack_pos, aim_pos,
                                                       s_i)
+                }
+                g_RatLastSimShots.shots[i] = {
+                    target_pos = sim_shots[i].target_pos, sigma = s_i
                 }
                 NetUpdateHash("RatSimShot", attacker, target, i, s_i, sim_shots[i].target_pos)
             end
@@ -685,6 +702,13 @@ function Firearm:GetAttackResults(action, attack_args)
             ---- o resultado do ataque passa a ser a soma do que aconteceu
             miss = miss and shot_miss
             crit = crit or shot_crit
+
+            local rec = g_RatLastSimShots and g_RatLastSimShots.shots[i]
+            if rec then
+                rec.miss = shot_miss
+                rec.crit = shot_crit
+                rec.end_pos = hit_data.stuck_pos or hit_data.lof_pos2 or hit_data.target_pos
+            end
 
             NetUpdateHash("RatSimShotResult", attacker, target, i, shot_miss, shot_crit)
         end

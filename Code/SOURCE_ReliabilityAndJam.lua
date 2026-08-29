@@ -55,6 +55,11 @@ end
 ---- precisam da MESMA versao deste mod -- o que ja vale para qualquer mudanca de balanceamento
 ---- aqui, mas aqui e mais facil de esquecer porque a mudanca nao e visivel na UI.
 ---------------------------------------------------------------------------------------------------
+
+function FirearmBase:GetBaseDegradePerShot()
+	return MulDivRound(const.Weapons.DegradePerShot, self.ConditionDegradationMul or 100, 100)
+end
+
 function FirearmBase:ReliabilityCheck(attacker, num_shots)
     local item = self.parent_weapon or self
     local loss = item:GetBaseDegradePerShot()

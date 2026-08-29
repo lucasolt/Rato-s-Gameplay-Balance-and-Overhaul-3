@@ -884,6 +884,19 @@ function weapon_components_rat()
         id = "handguard_ext"
     })
 
+	PlaceObj('WeaponComponentEffect', {
+        Description = T(645613895578, "Increases weapon condition degradation"),
+        ModificationType = "Add",
+        Parameters = {
+            PlaceObj('PresetParamNumber',
+                     {'Name', "ConditionDegradationMulIncrease", 'Tag', "<ConditionDegradationMulIncrease>", 'Default', 10})
+        },
+        RequiredParams = {"ConditionDegradationMulIncrease"},
+        StatToModify = "ConditionDegradationMul",
+        group = "Stats",
+        id = "IncreaseConditionDegradationMul"
+    })
+
     -------------------------------------------------------------------------
 
     if WeaponComponentEffects and WeaponComponentEffects.ExtraOverwatchShots then
@@ -997,7 +1010,8 @@ local t_table = {
     [195877439875] = "Increases <em>Recoil</em> penalty",
     [674215963791] = "Changes pellet spread pattern, reducing vertical spread",
     [156932878971] = "Decreases Point-Blank range accuracy bonus",
-    [912316475877] = "Increases Point-Blank range accuracy bonus"
+    [912316475877] = "Increases Point-Blank range accuracy bonus",
+	[645613895578] = "Increases weapon condition degradation"
 }
 
 ratG_T_table['COMPONENT_weaponcomp_effects.lua'] = t_table

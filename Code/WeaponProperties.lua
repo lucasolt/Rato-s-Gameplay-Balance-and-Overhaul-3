@@ -24,7 +24,18 @@ function OnMsg.ClassesGenerate()
                 min = -50,
                 max = 50,
                 modifiable = true
-            }
+            }, {
+				category = "GBO",
+                id = "ConditionDegradationMul",
+                name = "ConditionDegradationMul",
+                help = "",
+                editor = "number",
+                default = 100,
+                template = true,
+                min = 0,
+                max = 1000,
+                modifiable = true
+			}
 
         }
     }

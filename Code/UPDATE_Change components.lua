@@ -1,12 +1,12 @@
 local version = 360
 
-function OnMsg.UnitEnterCombat(unit)
-    -- local unit_version = unit.rat_unit_updated or 0
-
-    -- if IsMerc(unit) or unit_version < version then
-    --     GBO_ReapplyWeaponComponents(unit)
-    -- end
-end
+--function OnMsg.UnitEnterCombat(unit)
+--    -- local unit_version = unit.rat_unit_updated or 0
+--
+--    -- if IsMerc(unit) or unit_version < version then
+--    --     GBO_ReapplyWeaponComponents(unit)
+--    -- end
+--end
 
 function OnMsg.UnitDataCreated(unit)
     set_unit_version_update(unit)
@@ -26,6 +26,7 @@ function OnMsg.UnitCreated(unit)
         print("GBO - updating unit:", unit.unitdatadef_id)
         ---update_components(unit)
         GBO_ReapplyWeaponComponents(unit)
+		GBO_ApplyDefaultSubweapon(unit)
     elseif R_IsAI(unit) then
         change_handgun_barrel(unit)
     end
@@ -270,4 +271,28 @@ function change_handgun_barrel(unit)
             end
         end
     end
+end
+
+function GBO_ApplyDefaultSubweapon(unit)
+    if not unit or not IsKindOf(unit, "Unit") or not unit:IsValid() then
+        return
+    end
+
+    local weapons = unit:GetEquippedWeapons(unit.current_weapon) or {}
+    local alt_slot = unit.current_weapon == "Handheld A" and "Handheld B" or "Handheld A"
+
+    table.iappend(weapons, unit:GetEquippedWeapons(alt_slot))
+
+    if not next(weapons) then
+        return
+    end
+
+    for _, weapon in ipairs(weapons) do
+		if IsKindOf(weapon, "A91_1") then
+			if weapon.components and weapon.components.Under and weapon.components.Under ~= "A91_GrenadeLauncher" then
+				weapon:SetWeaponComponent("Under", "A91_GrenadeLauncher")
+				ObjModified(weapon)
+			end
+		end
+	end
 end

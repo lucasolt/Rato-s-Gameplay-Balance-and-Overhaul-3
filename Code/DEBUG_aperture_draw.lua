@@ -9,10 +9,15 @@
 ----     Rat_DbgCover()        -- raios de cobertura no alvo sob o cursor
 ----     Rat_DbgCone()         -- cone de abertura contra a silhueta, por nivel de mira
 ----     Rat_DbgAll()          -- os dois
+----     Rat_DbgShots(24, 2)   -- dispara 24 tiros de MENTIRA com mira 2 e desenha o grupo
+----     Rat_DbgLastShots()    -- desenha os vetores do ultimo tiro de VERDADE
 ----     Rat_DbgClear()        -- limpa
 ----
 ---- Todos aceitam (target, attacker); sem argumentos usam a unidade selecionada como
 ---- atirador e o inimigo mais proximo com linha de tiro como alvo.
+----
+---- Rat_DbgShots e a unica que consome random sincronizado (usa o mesmo sorteio do
+---- tiro real). Em jogo solo e inofensivo.
 ---------------------------------------------------------------------------------------------------
 
 local clrHit = const.clrGreen
@@ -315,4 +320,174 @@ function Rat_DbgAll(target, attacker, body_part)
 
     return cone .. string.format("\n  cobertura: %d%% exposto (%d/%d raios, %s)", pct, n_hit, #dbg,
                                  tostring(dbg.mode))
+end
+
+---------------------------------------------------------------------------------------------------
+---- VETORES DE TIRO
+----
+---- Rat_DbgShots(n, aim)   -- dispara n tiros de MENTIRA e desenha o agrupamento
+---- Rat_DbgLastShots()     -- desenha os vetores do ultimo tiro de VERDADE
+----
+---- Verde = a bala cruzou o alvo. Vermelho = passou / bateu em outra coisa, e o
+---- traco vai ate onde ela parou. Ciano = a silhueta. Amarelo = o circulo que
+---- contem ~96% dos tiros (2.5 sigma), o mesmo do crosshair.
+---------------------------------------------------------------------------------------------------
+
+---- Monta os argumentos de LoF identicos aos que a simulacao usa em
+---- Firearm:GetAttackResults, para o desenho mostrar o tiro de verdade e nao uma
+---- aproximacao.
+local function sim_lof_args(attacker, weapon, attack_pos, dist)
+    return {
+        obj = attacker,
+        weapon = weapon,
+        stance = attacker.stance,
+        attack_pos = attack_pos,
+        output_collisions = true,
+        range = dist + 20 * const.SlabSizeX,
+        penetration_class = weapon:GetPenetrationClass(),
+        prediction = false,
+        clamp_to_target = false,
+        fire_relative_point_attack = false,
+        can_hit_attacker = false,
+        ignore_los = true,
+        inside_attack_area_check = false,
+        forced_hit_on_eye_contact = false,
+        can_use_covers = false,
+        aimIK = false,
+        can_stuck_on_unit = true,
+        force_hit_seen_target = false
+    }
+end
+
+---- ATENCAO: consome random sincronizado (o mesmo sorteio do tiro real). Em jogo
+---- solo e inofensivo; em co-op nao use durante o turno de outro jogador.
+function Rat_DbgShots(count, aim, target, attacker)
+    attacker = pick_attacker(attacker)
+    if not attacker then
+        return "sem atacante (selecione um merc)"
+    end
+    target = pick_target(attacker, target)
+    if not target then
+        return "sem alvo"
+    end
+
+    local weapon = attacker:GetActiveWeapons()
+    local action = attacker:GetDefaultAttackAction("ranged")
+    if not IsKindOf(weapon, "Firearm") or not action then
+        return "sem arma de fogo"
+    end
+
+    count = count or 24
+    aim = aim or 2
+
+    local a = const.Combat.Aperture
+    local was = a.Enabled
+    a.Enabled = true
+
+    ---- ancoras reais do engine, como a simulacao faz
+    local base = GetLoFData(attacker, target, {
+        obj = attacker, weapon = weapon, stance = attacker.stance,
+        prediction = true, output_collisions = true, force_hit_seen_target = false
+    })
+    if not base or not base.lof or #base.lof == 0 then
+        a.Enabled = was
+        return "sem linha de tiro"
+    end
+    local attack_pos = base.lof[1].attack_pos
+    local aim_pos
+    for _, l in ipairs(base.lof) do
+        if l.target_spot_group == "Torso" then
+            aim_pos = l.target_pos
+        end
+    end
+    aim_pos = aim_pos or base.lof[1].target_pos
+
+    local cth, geo_sigma, theta = Rat_AngularCTH(attacker, target, "Torso", action, weapon, aim,
+                                                 false, attacker:GetPos(), target:GetPos())
+    ---- mesmo sigma que a simulacao usa: derivado do CTH final, nao da abertura crua
+    local sigma = Rat_SigmaForCTH(theta, cth) or geo_sigma
+
+    DbgClearVectors()
+    DbgClearTexts()
+
+    local dist = attack_pos:Dist(aim_pos)
+    local dir = SetLen(aim_pos - attack_pos, 1000)
+    draw_disc(aim_pos, MulDivRound(theta, dist, 3438), dir, clrSilh, 32)
+    draw_disc(aim_pos, cone_radius(dist, MulDivRound(sigma, a.CrosshairSigmaMul or 250, 100)), dir,
+              clrCone, 32)
+
+    local lof_args = sim_lof_args(attacker, weapon, attack_pos, dist)
+    local hits, parts = 0, {}
+    for i = 1, count do
+        local pt = Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma)
+        lof_args.seed = attacker:Random()
+        local d = GetLoFData(attacker, pt, lof_args)
+        local lof = d and (d.outside_attack_area_lof or (d.lof and d.lof[1]))
+        local hit, spot
+        for _, h in ipairs((lof and lof.hits) or empty_table) do
+            if h.obj == target then
+                hit, spot = true, tostring(h.spot_group or "?")
+                break
+            end
+        end
+        local endpoint = (lof and (lof.stuck_pos or lof.lof_pos2)) or pt
+        DbgAddVector(attack_pos, endpoint - attack_pos, hit and clrHit or clrMiss)
+        if hit then
+            hits = hits + 1
+            parts[spot] = (parts[spot] or 0) + 1
+            draw_disc(endpoint, const.SlabSizeX / 14, dir, clrHit, 8)
+        end
+    end
+
+    a.Enabled = was
+
+    local ps = {}
+    for g, n in sorted_pairs(parts) do
+        ps[#ps + 1] = string.format("%s %d%%", g, MulDivRound(n, 100, Max(1, hits)))
+    end
+    return string.format(
+               "%s (%s) -> %s a %.1f tiles, aim %d\n" ..
+                   "  CTH exibido %d%% | %d/%d acertaram (%d%%) | sigma %d'\n  %s\n" ..
+                   "  verde = acertou, vermelho = errou; ciano = silhueta, amarelo = 96%% dos tiros",
+               tostring(attacker.session_id), tostring(weapon.class), tostring(target.session_id),
+               attacker:GetDist(target) / const.SlabSizeX, aim, cth, hits, count,
+               MulDivRound(hits, 100, count), sigma, table.concat(ps, "  "))
+end
+
+---- Desenha o ataque que REALMENTE aconteceu por ultimo. Nao sorteia nada: le o
+---- registro que Firearm:GetAttackResults deixa em g_RatLastSimShots.
+function Rat_DbgLastShots()
+    local rec = g_RatLastSimShots
+    if not rec or not rec.shots or #rec.shots == 0 then
+        return "nenhum tiro simulado registrado ainda (atire uma vez com A.SimulateShots = true)"
+    end
+
+    DbgClearVectors()
+    DbgClearTexts()
+
+    local lines = {}
+    local hits = 0
+    local dir = rec.shots[1] and rec.shots[1].target_pos and
+                    SetLen(rec.shots[1].target_pos - rec.attack_pos, 1000)
+
+    for i, sh in ipairs(rec.shots) do
+        local endpoint = sh.end_pos or sh.target_pos
+        local color = sh.miss and clrMiss or clrHit
+        DbgAddVector(rec.attack_pos, endpoint - rec.attack_pos, color)
+        if not sh.miss then
+            hits = hits + 1
+            if dir then
+                draw_disc(endpoint, const.SlabSizeX / 14, dir, color, 8)
+            end
+        end
+        DbgAddText(string.format("%d%s", i, sh.crit and " crit" or ""), endpoint, color)
+        lines[#lines + 1] = string.format("  tiro %d | sigma %5d' | %s%s", i, sh.sigma or -1,
+                                          sh.miss and "errou" or "ACERTOU",
+                                          sh.crit and " (critico)" or "")
+    end
+
+    return string.format("ultimo ataque: %s -> %s | %d/%d acertaram\n%s",
+                         tostring(rec.attacker and rec.attacker.session_id),
+                         tostring(rec.target and rec.target.session_id), hits, #rec.shots,
+                         table.concat(lines, "\n"))
 end

@@ -199,7 +199,7 @@ A.ExposureBlockedPct = 6
 ---- e zerava cabeca/bracos/pernas a media distancia. O residual representa o que
 ---- sobra e nao e geometrico: o custo de escolher DELIBERADAMENTE um alvo pequeno,
 ---- que o sistema de Composure em CTH_targeted_noburst.lua ja modela.
-A.TargetedResidualPct = 0--35
+A.TargetedResidualPct = 10 --35
 
 ---------------------------------------------------------------------------------------------------
 ---- Marksmanship escala o cone inteiro
@@ -317,7 +317,7 @@ A.MaxCTH = 97
 ---- (a silhueta e a restricao). Ver o bloco em Rat_GetRecoilConeGrowth.
 ---------------------------------------------------------------------------------------------------
 
-A.RecoilGrowthBase = 13
+A.RecoilGrowthBase = 20
 A.RecoilGrowthMax = 60 --- teto do excesso por tiro (%)
 
 ---------------------------------------------------------------------------------------------------
