@@ -35,13 +35,10 @@ end
 ---- Era essa a causa dos circulos deitados no chao -- nao a orientacao do desenho.
 ---------------------------------------------------------------------------------------------------
 local function vz(pos)
-    if not pos then
+    if not pos or pos:IsValidZ() then
         return pos
     end
-    if pos:IsValidZ() then
-        return pos
-    end
-    return pos:SetZ(terrain.GetHeight(pos))
+    return pos:SetTerrainZ()
 end
 
 ---------------------------------------------------------------------------------------------------

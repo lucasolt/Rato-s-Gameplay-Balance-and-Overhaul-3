@@ -265,6 +265,23 @@ A.RecoilGrowthBase = 13
 A.RecoilGrowthMax = 60 --- teto do excesso por tiro (%)
 
 ---------------------------------------------------------------------------------------------------
+---- Circulo do crosshair
+----
+---- O vanilla ja tem o circulo (idAimTarget) e ele so encolhe com o nivel de mira,
+---- de 560 a 200, ignorando distancia, arma, pericia e cobertura -- recurso deixado
+---- pela metade em ActionCameraCrosshair.lua:224-265. Aqui ele passa a mostrar a
+---- razao que o CTH realmente usa:  escala = RefScale * sigma / theta.
+----
+---- RefScale e a escala em que o circulo COBRE a silhueta (sigma == theta): abaixo
+---- disso o cone cabe no alvo, acima transborda. Escolhido dentro da faixa que o
+---- vanilla ja usava, para o circulo continuar com tamanho familiar na tela.
+---------------------------------------------------------------------------------------------------
+
+A.CrosshairRefScale = 260
+A.CrosshairMinScale = 90
+A.CrosshairMaxScale = 900
+
+---------------------------------------------------------------------------------------------------
 
 function OnMsg.ClassesGenerate()
     AppendClass.Firearm = {

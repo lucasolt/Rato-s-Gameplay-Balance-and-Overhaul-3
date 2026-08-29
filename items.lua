@@ -1282,6 +1282,10 @@ return {
 		'CodeFileName', "Code/DEBUG_aperture_draw.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "UI_aperture_crosshair",
+		'CodeFileName', "Code/UI_aperture_crosshair.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "XTEMP_recoil",
 		'CodeFileName', "Code/XTEMP_recoil.lua",
 	}),

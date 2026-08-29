@@ -39,6 +39,8 @@ function rat_apply_changes()
     ---- que Tons of Guns / Zulib adicionam.
     Rat_SeedApertureProperties()
     place_angular_cth()
+    ---- o circulo de mira do crosshair passa a mostrar a abertura real
+    Rat_PatchCrosshairAimCircle()
     -- add_recalcUI() ----smart ow compatibility
 end
 
