@@ -18,7 +18,7 @@ local A = const.Combat.Aperture
 
 ---- Chave-mestra. false = mod se comporta exatamente como antes (todos os
 ---- modifiers antigos ativos, CTH_angular inerte).
-A.Enabled = false
+A.Enabled = true
 
 ---- Cobertura por sondagem de silhueta (FUNCTIONS_cover_silhouette.lua). Depende de
 ---- A.Enabled; separada porque e a parte com custo de raycast, para poder ser

@@ -905,6 +905,10 @@ return {
 		'CodeFileName', "Code/__SnapshotHipfireParams.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "__ApertureParams",
+		'CodeFileName', "Code/__ApertureParams.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "__JamParams",
 		'CodeFileName', "Code/__JamParams.lua",
 	}),
@@ -1218,6 +1222,10 @@ return {
 		'CodeFileName', "Code/CTH_targeted_noburst.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "CTH_angular",
+		'CodeFileName', "Code/CTH_angular.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "UTIL",
 		'CodeFileName', "Code/UTIL.lua",
 	}),
@@ -1260,6 +1268,14 @@ return {
 	PlaceObj('ModItemCode', {
 		'name', "FUNCTIONS_hipfire",
 		'CodeFileName', "Code/FUNCTIONS_hipfire.lua",
+	}),
+	PlaceObj('ModItemCode', {
+		'name', "FUNCTIONS_aperture",
+		'CodeFileName', "Code/FUNCTIONS_aperture.lua",
+	}),
+	PlaceObj('ModItemCode', {
+		'name', "FUNCTIONS_cover_silhouette",
+		'CodeFileName', "Code/FUNCTIONS_cover_silhouette.lua",
 	}),
 	PlaceObj('ModItemCode', {
 		'name', "XTEMP_recoil",
