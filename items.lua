@@ -1226,6 +1226,10 @@ return {
 		'CodeFileName', "Code/CTH_angular.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "SOURCE_UnitCalcChanceToHit",
+		'CodeFileName', "Code/SOURCE_UnitCalcChanceToHit.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "UTIL",
 		'CodeFileName', "Code/UTIL.lua",
 	}),

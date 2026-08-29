@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 12655,
+	'version', 12669,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -85,6 +85,7 @@ return PlaceObj('ModDef', {
 		"Code/CTH_hipfire_and_snapshot.lua",
 		"Code/CTH_targeted_noburst.lua",
 		"Code/CTH_angular.lua",
+		"Code/SOURCE_UnitCalcChanceToHit.lua",
 		"Code/UTIL.lua",
 		"Code/FUNCTIONS_CombatGeneral.lua",
 		"Code/FUNCTIONS_CombatAP.lua",
@@ -167,8 +168,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1787982790,
-	'code_hash', 1297761267901861860,
+	'saved', 1788024024,
+	'code_hash', 8936149978303236952,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",
