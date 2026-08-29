@@ -26,6 +26,51 @@ local function cone_radius(dist, minutes)
     return MulDivRound(dist, minutes, 3438)
 end
 
+---------------------------------------------------------------------------------------------------
+---- Disco NO PLANO PERPENDICULAR a linha de tiro -- um alvo de papel de frente para
+---- o atirador, nao um circulo deitado no chao.
+----
+---- DbgAddCircle desenha no plano XY (horizontal), que num jogo tatico faz sentido
+---- para area de efeito no chao, mas aqui cortava a unidade ao meio e nao dava para
+---- comparar cone com silhueta.
+----
+---- RotateAxis(v, eixo, angulo) roda `v` em torno de `eixo`: partindo de um offset
+---- vertical e rodando em torno da direcao de tiro, os pontos caem exatamente no
+---- plano perpendicular a ela. E a mesma primitiva que GetPelletScatterData usa para
+---- montar o cone de chumbo grosso. Angulo em MINUTOS (360*60 = volta completa).
+---------------------------------------------------------------------------------------------------
+local function draw_disc(center, radius, dir, color, segments)
+    if not radius or radius < 1 then
+        return
+    end
+    segments = segments or 24
+    dir = SetLen(dir, 1000)
+
+    ---- Partir de um vetor GENUINAMENTE perpendicular a dir. RotateAxis preserva a
+    ---- componente paralela ao eixo, entao rodar um (0,0,r) cru daria um circulo
+    ---- correto no plano mas deslocado ao longo do eixo, e com raio efetivo menor
+    ---- que r -- o erro cresce com a inclinacao do tiro, e aqui o raio e justamente
+    ---- a grandeza que esta sendo comparada com a silhueta.
+    local up = point(0, 0, 1000)
+    local par = Dot(up, dir) / 1000 --- componente de `up` ao longo de dir
+    local perp = up - MulDivRound(dir, par, 1000)
+    if perp:Len() < 10 then
+        --- tiro quase vertical: usa a horizontal como referencia
+        perp = point(-dir:y(), dir:x(), 0)
+    end
+    perp = SetLen(perp, radius)
+
+    local full = 360 * 60
+    local prev
+    for i = 0, segments do
+        local pt = center + RotateAxis(perp, dir, MulDivRound(full, i, segments))
+        if prev then
+            DbgAddSegment(prev, pt, color)
+        end
+        prev = pt
+    end
+end
+
 function Rat_DbgClear()
     DbgClearVectors()
     DbgClearTexts()
@@ -93,17 +138,28 @@ function Rat_DbgCover(target, attacker, body_part)
         local color = r.reached and clrHit or clrMiss
         ---- raio bloqueado para onde bateu; raio limpo vai ate o corpo
         local endpoint = r.reached and r.to or (r.stuck or r.to)
-        DbgAddVector(r.from, endpoint - r.from, color)
+        local rdir = endpoint - r.from
+        DbgAddVector(r.from, rdir, color)
         if r.reached then
             n_hit = n_hit + 1
-            DbgAddCircle(endpoint, const.SlabSizeX / 12, color)
+            ---- marcador de frente para o raio, nao deitado no chao
+            draw_disc(endpoint, const.SlabSizeX / 12, SetLen(rdir, 1000), color, 10)
         elseif r.blocker then
             DbgAddText(r.blocker, endpoint, clrMiss)
         end
     end
 
-    if dbg.anchor then
-        DbgAddCircle(dbg.anchor, const.SlabSizeX / 8, clrSilh)
+    ---- caixa da silhueta amostrada: mostra ate onde a grade foi procurar
+    if dbg.anchor and dbg.attack_pos and dbg.halfw then
+        local dir = SetLen(dbg.anchor - dbg.attack_pos, 1000)
+        local right = SetLen(point(-dir:y(), dir:x(), 0), 1000)
+        local dx = MulDivRound(right, dbg.halfw, 1000)
+        local dz = point(0, 0, dbg.halfh)
+        local c = dbg.anchor
+        local corners = {c - dx - dz, c + dx - dz, c + dx + dz, c - dx + dz, c - dx - dz}
+        for i = 1, 4 do
+            DbgAddSegment(corners[i], corners[i + 1], clrSilh)
+        end
     end
 
     local txt = string.format("exposto %d%%  (%d/%d raios)  [%s]", pct, n_hit, #dbg,
@@ -163,8 +219,15 @@ function Rat_DbgCone(target, attacker, body_part)
     local center = tpos:SetZ((tpos:IsValidZ() and tpos:z() or terrain.GetHeight(tpos)) +
                                  (target:GetHitStance() == "Prone" and 200 or 800))
 
+    ---- direcao de tiro: define o plano de TODOS os discos abaixo
+    local dir = center - apos
+    if dir:Len() == 0 then
+        dir = point(1000, 0, 0)
+    end
+    dir = SetLen(dir, 1000)
+
     ---- silhueta efetiva (ja encolhida pela cobertura), em unidades do engine
-    DbgAddCircle(center, half_cm * 10, clrSilh)
+    draw_disc(center, half_cm * 10, dir, clrSilh, 32)
     DbgAddText(string.format("silhueta %dcm (exposto %d%%)", half_cm, exposed), center, clrSilh)
 
     local lines = {}
@@ -175,9 +238,9 @@ function Rat_DbgCone(target, attacker, body_part)
         local cth, sigma, theta = Rat_AngularCTH(attacker, target, body_part, action, weapon, aim,
                                                  false, apos, tpos)
         local r = cone_radius(dist, sigma)
-        DbgAddCircle(center, r, clrCone)
-        DbgAddText(string.format("aim %d: %d%%", aim, cth),
-                   center + point(0, 0, 260 * (aim + 1)), clrCone)
+        draw_disc(center, r, dir, clrCone, 32)
+        ---- rotulo na borda superior do proprio disco, para nao empilhar no centro
+        DbgAddText(string.format("aim %d: %d%%", aim, cth), center + point(0, 0, r), clrCone)
         lines[#lines + 1] = string.format("  aim %d | cone %5d' (raio %4dcm no alvo) | CTH %3d%%",
                                           aim, sigma, r / 10, cth)
     end
@@ -224,6 +287,7 @@ function Rat_DbgAll(target, attacker, body_part)
         DbgAddVector(r.from, endpoint - r.from, color)
         if r.reached then
             n_hit = n_hit + 1
+            draw_disc(endpoint, const.SlabSizeX / 14, SetLen(endpoint - r.from, 1000), color, 8)
         elseif r.blocker then
             DbgAddText(r.blocker, endpoint, clrMiss)
         end
