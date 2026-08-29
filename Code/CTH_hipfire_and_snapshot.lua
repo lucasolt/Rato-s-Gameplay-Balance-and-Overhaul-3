@@ -7,6 +7,13 @@ function place_hipfire_cth()
                 return false, 0
             end
 
+            ---- CTH angular: hipfire e snapshot viram um ALARGAMENTO do cone
+            ---- (const.Combat.Aperture.AimStep), escalado pelo mesmo produto de
+            ---- GetWeaponHipfireOrSnapshotMul que esta funcao ja usa hoje.
+            if Rat_AngularActive(weapon1, action, attacker) then
+                return false, 0
+            end
+
             local side = attacker and attacker.team and attacker.team.side or ''
 
             if not IsKindOf(weapon1, "Firearm") and action.id ~= "KnifeThrow" then

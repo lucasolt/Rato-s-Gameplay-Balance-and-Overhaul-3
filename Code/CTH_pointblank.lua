@@ -2,6 +2,12 @@ function point_blank_cth()
     Presets.ChanceToHitModifier.Default["PointBlank"].CalcValue =
         function(self, attacker, target, body_part_def, action, weapon1, weapon2, lof, aim,
                  opportunity_attack, attacker_pos, target_pos)
+            ---- CTH angular: de perto o alvo ja e maior que qualquer cone, entao o
+            ---- bonus de point-blank emerge da geometria e nao precisa ser somado.
+            if Rat_AngularActive(weapon1, action, attacker) then
+                return false, 0
+            end
+
             if attacker and IsKindOf(weapon1, "FirearmProperties") then
                 local pb_bonus = GetPBbonus(weapon1) or 10
 

@@ -32,6 +32,13 @@ function rat_apply_changes()
     place_scope_pen_cth()
     place_hipfire_cth()
     recoil_template()
+
+    ---- CTH angular. A semeadura roda DEPOIS de RatoGBO_WepPatch (OnMsg.ClassesGenerate,
+    ---- PATCH_call.lua:1), entao os OverwatchAngle do mod ja estao no lugar quando ela
+    ---- estima o `rat_aperture_snap` de quem nao declarou o seu -- inclusive as armas
+    ---- que Tons of Guns / Zulib adicionam.
+    Rat_SeedApertureProperties()
+    place_angular_cth()
     -- add_recalcUI() ----smart ow compatibility
 end
 

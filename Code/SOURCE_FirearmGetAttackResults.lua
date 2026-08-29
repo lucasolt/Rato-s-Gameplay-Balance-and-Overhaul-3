@@ -242,10 +242,26 @@ function Firearm:GetAttackResults(action, attack_args)
         local recoil = get_recoil(attacker, target, target_pos, action, weapon, false, num_shots) or
                            0
 
-        for i, v in ipairs(modifiers or empty_table) do
-            if v.id == "Aim" then
-                aim_cth = v.value
-                break
+        ---- Em rajada so a PRIMEIRA bala fica com o bonus de mira; as 2..N o perdem.
+        ---- Com o CTH angular nao existe mais um modifier "Aim" para ler -- o bonus de
+        ---- mira virou o fechamento do cone -- entao a perda se mede refazendo a
+        ---- geometria com aim 0. Ver Rat_AngularCTH / CTH_angular.lua.
+        if Rat_AngularActive(weapon, action, attacker) then
+            local aimed = Rat_AngularCTH(attacker, target, shot_attack_args.target_spot_group,
+                                         action, weapon, shot_attack_args.aim or 0,
+                                         shot_attack_args.opportunity_attack,
+                                         shot_attack_args.step_pos, target_pos)
+            local unaimed = Rat_AngularCTH(attacker, target, shot_attack_args.target_spot_group,
+                                           action, weapon, 0,
+                                           shot_attack_args.opportunity_attack,
+                                           shot_attack_args.step_pos, target_pos)
+            aim_cth = Max(0, aimed - unaimed)
+        else
+            for i, v in ipairs(modifiers or empty_table) do
+                if v.id == "Aim" then
+                    aim_cth = v.value
+                    break
+                end
             end
         end
 

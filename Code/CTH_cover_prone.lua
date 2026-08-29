@@ -39,8 +39,14 @@ function prone_cover()
         if opportunity_attack or not IsKindOf(weapon1, "Firearm") or not IsKindOf(target, "Unit") then
             return false, 0
         end
+        ---- CTH angular: a POSTURA do alvo deixa de ser penalidade somada e passa a
+        ---- ser silhueta menor (const.Combat.Aperture.Silhouette, medida no jogo).
+        ---- A COBERTURA continua percentual aqui ate a sondagem de silhueta ocluida
+        ---- entrar -- por isso o guard so desliga os ramos de postura.
+        local angular = Rat_AngularActive(weapon1, action, attacker)
+
         local target_stance = target:GetHitStance()
-        if target_stance == "Prone" then
+        if target_stance == "Prone" and not angular then
             local value = self:ResolveValue("PronePenalty")
 
             local max_dist = 24 * const.SlabSizeX
@@ -128,7 +134,7 @@ function prone_cover()
             end
         end
 
-        if target_stance == "Crouch" then
+        if target_stance == "Crouch" and not angular then
             local value = self:ResolveValue("CrouchPenalty")
 
             local max_dist = 26 * const.SlabSizeX
