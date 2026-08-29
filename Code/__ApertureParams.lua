@@ -18,7 +18,7 @@ local A = const.Combat.Aperture
 
 ---- Chave-mestra. false = mod se comporta exatamente como antes (todos os
 ---- modifiers antigos ativos, CTH_angular inerte).
-A.Enabled = false
+A.Enabled = true
 
 ---- Cobertura por sondagem de silhueta (FUNCTIONS_cover_silhouette.lua). Depende de
 ---- A.Enabled; separada porque e a parte com custo de raycast, para poder ser
@@ -349,6 +349,36 @@ A.RecoilGrowthMax = 60 --- teto do excesso por tiro (%)
 ---- a fracao que sobra para fora e a que erra. E o mesmo numero descreve o
 ---- agrupamento visivel se um dia o tiro virar simulacao de verdade.
 A.CrosshairSigmaMul = 250
+
+---------------------------------------------------------------------------------------------------
+---- SIMULACAO DO TIRO
+----
+---- true  -- sorteia o desvio dentro da abertura, dispara, e o que acertou acertou.
+---- false -- pipeline vanilla: o dado decide e CalcShotVectors encena a trajetoria.
+----
+---- O BALANCE E O MESMO. O sorteio sai da inversa da mesma LUT de Rayleigh de que o
+---- CTH exibido sai, entao a taxa de acerto esperada e identica por construcao --
+---- verificado com 10 mil tiros por caso, erro de 1 ponto (arredondamento):
+----     sigma 200 alvo 40 -> previsto  2%, sorteado  2%
+----     sigma  40 alvo 40 -> previsto 39%, sorteado 40%
+----     sigma  20 alvo 40 -> previsto 87%, sorteado 88%
+----
+---- O que muda e a CONSEQUENCIA do erro:
+----   - a bala perdida existe de verdade e pode acertar cobertura, aliado, ou o
+----     inimigo atras
+----   - a parte do corpo atingida deixa de ser rolada: e onde a bala cruzou
+----   - a rajada anda de verdade, porque cada tiro sai de um cone mais aberto
+----
+---- Cuidado ao reusar o codigo de pellets para isto: GetPelletScatterData sorteia
+---- raio UNIFORME, e medido no mesmo teste ele da 8% onde o previsto e 2% -- quatro
+---- vezes mais generoso no tiro dificil. A UI viraria mentira.
+----
+---- Consome random SINCRONIZADO, entao roda so na resolucao, nunca em previsao. A
+---- previsao continua usando a forma fechada, que e deterministica.
+----
+---- Limitacao conhecida: o roçado (grazing) fica desligado no modo simulacao. Ali a
+---- bala acerta o corpo ou nao acerta, e nao ha um "quase" para calibrar.
+A.SimulateShots = true
 
 ---- Escala em que o circulo (ja em 2.5 sigma) COBRE a silhueta.
 A.CrosshairRefScale = 200

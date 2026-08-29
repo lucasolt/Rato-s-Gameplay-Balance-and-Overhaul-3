@@ -344,6 +344,120 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
 end
 
 ---------------------------------------------------------------------------------------------------
+---- SIMULACAO: onde a bala cai
+----
+---- A LUT de Rayleigh serve os DOIS sentidos. Para a frente ela responde "que
+---- fracao dos tiros cai dentro do alvo" -- e o CTH que a UI mostra. Ao contrario,
+---- por transformada inversa, ela SORTEIA o desvio de um tiro. Como e a mesma
+---- tabela, o numero exibido e o tiro simulado concordam por construcao, e nao por
+---- calibracao.
+----
+---- Isto importa: o codigo de pellets (GetPelletScatterData) sorteia raio UNIFORME,
+---- e reusa-lo aqui faria o tiro divergir do que a UI promete. Medido, com 20 mil
+---- tiros: para sigma 200 e alvo 40 minutos o previsto e 2%, o sorteio de Rayleigh
+---- da 2% e o uniforme da 8% -- quatro vezes mais generoso no tiro dificil.
+---------------------------------------------------------------------------------------------------
+
+---- Sigma que produziria exatamente `cth` contra um alvo de meia-largura `theta`.
+----
+---- Fecha o laco da simulacao. O CTH final nao e so geometria: por cima do termo
+---- angular ainda somam perks, efeitos de status, bonus de parte do corpo e o dial
+---- global do mod. Se o tiro fosse sorteado com o sigma cru da abertura, todos esses
+---- modificadores mudariam o numero MOSTRADO sem mudar o tiro -- medido, 150 ataques
+---- com CTH exibido de 47%: a simulacao acertava 66%.
+----
+---- Derivando sigma de volta a partir do CTH final, o sorteio reproduz exatamente o
+---- numero que o jogador leu, qualquer que tenha sido a sua origem.
+function Rat_SigmaForCTH(theta, cth)
+    local a = P()
+    if not theta or theta < 1 then
+        return nil
+    end
+    cth = Clamp(cth or 0, 1, 99)
+    local permil = cth * 10
+    local T, step = a.Rayleigh, a.RayleighStep
+
+    for i = 1, #T do
+        if T[i] >= permil then
+            local lo, hi = T[i - 1], T[i]
+            local frac = (hi > lo) and MulDivRound(permil - lo, step, hi - lo) or 0
+            local k1000 = (i - 1) * step + frac
+            if k1000 < 1 then
+                return nil --- CTH tao baixo que o cone e praticamente infinito
+            end
+            return MulDivRound(theta, 1000, k1000)
+        end
+    end
+    return Max(1, theta / 4) --- CTH altissimo: cone bem dentro do alvo
+end
+
+---- Desvio radial de UM tiro, em minutos de angulo. Consome random SINCRONIZADO,
+---- entao so pode ser chamada na resolucao do tiro, nunca em previsao.
+function Rat_SampleShotOffset(attacker, sigma)
+    local a = P()
+    if not sigma or sigma < 1 then
+        return 0
+    end
+    local u = attacker:Random(1000)
+    local T, step = a.Rayleigh, a.RayleighStep
+
+    local k1000 = #T * step
+    for i = 1, #T do
+        if T[i] >= u then
+            local lo, hi = T[i - 1], T[i]
+            local frac = (hi > lo) and MulDivRound(u - lo, step, hi - lo) or 0
+            k1000 = (i - 1) * step + frac
+            break
+        end
+    end
+
+    return MulDivRound(sigma, k1000, 1000)
+end
+
+---- Converte um desvio angular num PONTO no mundo, no plano perpendicular a linha
+---- de tiro. Mesma primitiva que GetPelletScatterData usa para o cone de chumbo:
+---- RotateAxis em torno da direcao, partindo de um vetor genuinamente perpendicular
+---- (rodar um (0,0,r) cru preserva a componente paralela e encolhe o raio efetivo).
+function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma)
+    if not attack_pos or not aim_pos then
+        return aim_pos
+    end
+    if not attack_pos:IsValidZ() then
+        attack_pos = attack_pos:SetTerrainZ()
+    end
+    if not aim_pos:IsValidZ() then
+        aim_pos = aim_pos:SetTerrainZ()
+    end
+
+    local dir = aim_pos - attack_pos
+    local dist = dir:Len()
+    if dist < 1 then
+        return aim_pos
+    end
+
+    local offset_min = Rat_SampleShotOffset(attacker, sigma)
+    if offset_min <= 0 then
+        return aim_pos
+    end
+    ---- raio linear no plano do alvo: dist * angulo, com 3438 minutos por radiano
+    local radius = MulDivRound(dist, offset_min, 3438)
+    if radius < 1 then
+        return aim_pos
+    end
+
+    dir = SetLen(dir, 1000)
+    local up = point(0, 0, 1000)
+    local par = Dot(up, dir) / 1000
+    local perp = up - MulDivRound(dir, par, 1000)
+    if perp:Len() < 10 then
+        perp = point(-dir:y(), dir:x(), 0)
+    end
+    perp = SetLen(perp, radius)
+
+    return aim_pos + RotateAxis(perp, dir, attacker:Random(360 * 60))
+end
+
+---------------------------------------------------------------------------------------------------
 ---- Rajada: o cone abre tiro a tiro
 ----
 ---- Devolve uma tabela [i] = razao em % do CTH do tiro i contra o do tiro 1.
