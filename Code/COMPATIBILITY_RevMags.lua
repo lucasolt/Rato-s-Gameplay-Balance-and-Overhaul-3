@@ -19,7 +19,7 @@ function GBO_RevMag_ChangeMagazinesClasses()
                 mag.Caliber = caliber
                 mag.AdditionalHint = T(desc)
             else
-                print("RAT MOD REV MAG compatibility error", tostring(mag_id), "not found")
+                print("GBO REV MAG compatibility error", tostring(mag_id), "not found")
             end
         end
 

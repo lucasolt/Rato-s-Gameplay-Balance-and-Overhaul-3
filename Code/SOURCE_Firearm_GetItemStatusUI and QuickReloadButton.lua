@@ -51,7 +51,7 @@ function OnMsg.ModsReloaded()
 	redefine_Quick_reload_button()
 end
 
-
+OnMsg.DataLoaded =redefine_Quick_reload_button()
 
 ---------------------------------------------------------------------------------------------------------
 

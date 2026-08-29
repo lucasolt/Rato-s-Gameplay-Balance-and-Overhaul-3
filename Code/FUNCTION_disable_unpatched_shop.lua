@@ -1,5 +1,5 @@
 function disable_unpatched_shop()
-    print("RAT MOD TOG PATCH - Disabling unpatched weapons in shop")
+    print("GBO TOG PATCH - Disabling unpatched weapons in shop")
     ForEachPreset("InventoryItemCompositeDef", function(w)
         local item = g_Classes[w.id]
         if IsKindOf(item, "Katana_1") then
@@ -43,7 +43,7 @@ function disable_zulib_22mm_recipes()
     end
     for i, remove in ipairs(to_remove) do
         table.remove_value(recipes, remove)
-        -- print("RAT MOD - removing craft recipe:", remove.item_id)
+        -- print("GBO - removing craft recipe:", remove.item_id)
     end
 end
 
@@ -58,7 +58,7 @@ function disable_zulib_unused_calibers_recipes()
     end
     for i, remove in ipairs(to_remove) do
         table.remove_value(recipes, remove)
-        -- print("RAT MOD - removing craft recipe:", remove.item_id)
+        -- print("GBO - removing craft recipe:", remove.item_id)
     end
 end
 

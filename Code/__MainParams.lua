@@ -31,9 +31,9 @@ const.Combat.OWMinDelta = 20
 const.Combat.OWMaxDelta = -10
 
 ------ old
-const.Combat.R_MinTargetedScaling = 40
+const.Combat.R_MinTargetedScaling = 10
 const.Combat.R_MaxTargetedScaling = 100
-const.Combat.R_MinAimScaling = 40
+const.Combat.R_MinAimScaling = 10
 const.Combat.R_MaxAimScaling = 100
 
 

@@ -7,7 +7,7 @@ function OnMsg.EnterSector()
 
         already_placed = true
         print(
-            "RAT MOD - enabling SmartOW compatibility - redefining OW get attacks and aim function")
+            "GBO - enabling SmartOW compatibility - redefining OW get attacks and aim function")
     end
 end
 
@@ -16,7 +16,7 @@ function smart_xtempl()
     xt = FindXtByProp(xt[1], "comment", "weapon")
     local xt1 = FindXtByProp(xt, "id", "idSO_Buttons")
     if not xt1 then
-        print("RAT MOD: Error - SmartOverwatch xtemplate not found")
+        print("GBO: Error - SmartOverwatch xtemplate not found")
         return
     end
     if xt1[1][1].comment == "ratified" then
@@ -80,7 +80,7 @@ function smart_xtempl()
         end
     end
     xt1[1][1].comment = "ratified"
-    print("RAT MOD: changed SmartOW xTemplate to recalc UI actions")
+    print("GBO: changed SmartOW xTemplate to recalc UI actions")
 end
 
 function add_recalcUI()
@@ -98,7 +98,7 @@ function OnMsg.EnterSector()
         define_getOWattacks_and_aim()
 
         already_placed = true
-        print("RAT MOD - enabling SmartOW compatibility")
+        print("GBO - enabling SmartOW compatibility")
     end
 end
 
@@ -111,7 +111,7 @@ function OnMsg.CombatStart()
         define_getOWattacks_and_aim()
 
         already_placed = true
-        print("RAT MOD - enabling SmartOW compatibility")
+        print("GBO - enabling SmartOW compatibility")
     end
 end
 
@@ -124,7 +124,7 @@ function OnMsg.ZuluGameLoaded()
         define_getOWattacks_and_aim()
 
         already_placed = true
-        print("RAT MOD - enabling SmartOW compatibility")
+        print("GBO - enabling SmartOW compatibility")
     end
 end
 
@@ -137,6 +137,6 @@ function OnMsg.ModsReloaded()
         define_getOWattacks_and_aim()
 
         already_placed = true
-        print("RAT MOD - enabling SmartOW compatibility")
+        print("GBO - enabling SmartOW compatibility")
     end
 end

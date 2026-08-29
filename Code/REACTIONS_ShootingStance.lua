@@ -52,6 +52,14 @@ function OnMsg.UnitAnyMovementStart(unit)
     if actions_that_remove[unit.action_command] then
         unit:RemoveStatusEffect("shooting_stance")
     end
+
+end
+
+function OnMsg.UnitAnyMovementStart(unit)
+	print(unit.action_command)
+	if unit.action_command == "CombatGoto" then
+	    unit.reserved_return_pos = nil
+    end
 end
 
 function OnMsg.UnitMovementDone(unit, action_id, prev_pos)

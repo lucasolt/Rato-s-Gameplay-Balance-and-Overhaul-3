@@ -23,7 +23,7 @@ function OnMsg.UnitCreated(unit)
     local unit_version = unit.rat_unit_updated or 0
 
     if IsMerc(unit) or unit_version < version then
-        print("RAT MOD - updating unit:", unit.unitdatadef_id)
+        print("GBO - updating unit:", unit.unitdatadef_id)
         ---update_components(unit)
         GBO_ReapplyWeaponComponents(unit)
     elseif R_IsAI(unit) then
@@ -261,7 +261,7 @@ function change_handgun_barrel(unit)
 
                         if not endsWithHandgun(current_comp) and
                             WeaponComponents[current_comp .. "_handgun"] then
-                            print("RAT MOD: updating handgun barrel component")
+                            print("GBO: updating handgun barrel component")
                             weapon:SetWeaponComponent("Barrel", current_comp .. "_handgun")
                             ObjModified(weapon)
                         end

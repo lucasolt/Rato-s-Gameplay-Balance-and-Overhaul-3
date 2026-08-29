@@ -1,7 +1,7 @@
 function ApplyAmmoParams(class_id, class, ...)
 
     if not class then
-        print("RAT MOD - error, Ammo class not found for ID:", class_id)
+        print("GBO - error, Ammo class not found for ID:", class_id)
         return
     end
 
