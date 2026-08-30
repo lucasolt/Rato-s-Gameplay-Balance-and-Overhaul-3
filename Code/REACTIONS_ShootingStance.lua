@@ -55,12 +55,7 @@ function OnMsg.UnitAnyMovementStart(unit)
 
 end
 
-function OnMsg.UnitAnyMovementStart(unit)
-	print(unit.action_command)
-	if unit.action_command == "CombatGoto" then
-	    unit.reserved_return_pos = nil
-    end
-end
+
 
 function OnMsg.UnitMovementDone(unit, action_id, prev_pos)
     local actions_that_remove = {

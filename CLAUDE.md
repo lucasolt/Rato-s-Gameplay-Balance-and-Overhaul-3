@@ -40,6 +40,10 @@ Prefer measuring the live process over reasoning from memory or from screenshots
 evaluates Lua in the running game without a breakpoint, and `loadfile("AppData/Mods/<mod-id>/Code/
 FILE.lua")` through it is a real syntax check — there is no Lua interpreter on this machine.
 
+## Commits
+
+When you implement code changes, COMMIT them so they can identified later
+
 ## Reading files
 
 * Grep to locate before reading. Read a whole file only when it is new to the session and small

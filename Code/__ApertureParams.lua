@@ -77,7 +77,7 @@ A.CoverAIFallback = true
 
 ---- Classe de penetracao dos raios de sondagem. 0 = qualquer obstaculo bloqueia (cobertura PROTEGE,
 ---- espirito do -35 flat antigo). A classe real da arma faria quase toda cobertura sumir.
-A.CoverPenetrationClass = 0
+A.CoverPenetrationClass = 1--0
 
 ---- Fracao exposta abaixo da qual o alvo conta como totalmente ocluido. So no caminho barato da IA.
 A.ExposureBlockedPct = 6
@@ -107,9 +107,9 @@ A.DecayMinPct = 40 --- teto de fechamento por nivel (nunca fecha mais que 60%)
 ---- Regra GBO3: armas leves/curtas boas em SNAPSHOT (MP5 72), nao em hipfire (MP5 135).
 
 A.AimStep = {
-    [0] = 380, --- hipfire: x2.80 numa arma de referencia
-    [1] = 180,--155, --- snapshot 1 nivel: x1.55
-    [2] = 130--118 --- snapshot 2 niveis: x1.18
+    [0] = 280,--380, --- hipfire: x2.80 numa arma de referencia
+    [1] = 155,--180,--155, --- snapshot 1 nivel: x1.55
+    [2] = 118--130--118 --- snapshot 2 niveis: x1.18
 }
 A.AimStepMaxLevel = 2 --- acima disso a arma esta encostada: alargamento 100
 
@@ -175,7 +175,7 @@ A.ConeMulMax = 1000
 
 ---- Valvula da IA em espaco de cone: o inimigo so paga esta fracao (AIpenal_reduc) do EXCESSO do
 ---- cone sobre A.Base. false = a IA usa o cone cru. Como desconto em pontos o cone dependia da parte.
-A.AIConeValve = true
+--A.AIConeValve = true
 
 ---- SO COR, nao entra em conta nenhuma. Fator de cone tratado como "o pior caso" no gradiente do
 ---- overlay: e o teto contra o qual hipfire/snapshot sao pintados, para 280 e 155 nao sairem iguais.

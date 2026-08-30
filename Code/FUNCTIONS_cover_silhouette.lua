@@ -78,11 +78,11 @@ end
 ---- Fracao (0..100) da silhueta do alvo que o atirador enxerga a partir de
 ---- attacker_pos. `body_part` limita a sondagem aquela regiao do corpo.
 ----
----- `dbg`, quando presente, e uma tabela que a funcao preenche com o detalhe de cada
+---- `dbg_table`, quando presente, e uma tabela que a funcao preenche com o detalhe de cada
 ---- raio (origem, destino, se chegou, o que bloqueou) para o visualizador desenhar.
----- Passar `dbg` tambem ignora o cache e forca o caminho completo de sondagem, senao
+---- Passar `dbg_table` tambem ignora o cache e forca o caminho completo de sondagem, senao
 ---- nao haveria raio nenhum para mostrar quando a resposta ja estivesse memoizada.
-function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_part, weapon, dbg)
+function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_part, weapon, dbg_table)
     local a = P()
     if not a.Enabled or not a.CoverRaycast then
         return 100
@@ -105,7 +105,7 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
 
     local stance = target:GetHitStance()
     local key = xxhash(attacker_pos, target.handle, target_pos, stance, head and 1 or 0, cache_gen)
-    if not dbg then
+    if not dbg_table then
         local hit = exposure_cache[key]
         if hit then
             return hit
@@ -128,7 +128,7 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
     ---- O jogador (crosshair e tiro de verdade) fica com a sondagem completa.
     ---------------------------------------------------------------------------------------
     local side = attacker.team and attacker.team.side or ''
-    if a.CoverAIFallback and not dbg and not (side == 'player1' or side == 'player2') then
+    if a.CoverAIFallback and not dbg_table and not (side == 'player1' or side == 'player2') then
         local _, _, coverage = target:GetCoverPercentage(attacker_pos, target_pos)
         local p = Clamp(100 - (coverage or 0), 0, 100)
         if p < a.ExposureBlockedPct then
@@ -195,8 +195,8 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
             ---- cabeca/pescoco nao tem cinco amostras: usa so o proprio spot
             n_spots = 1
             reached_spots = (spot_reached.Head or spot_reached.Neck) and 1 or 0
-            if dbg then
-                dbg[#dbg + 1] = {
+            if dbg_table then
+                dbg_table[#dbg_table + 1] = {
                     from = attack_pos, to = anchor, label = head and "Head" or "?",
                     reached = reached_spots == 1,
                     stuck = base.lof[1].stuck_pos or base.lof[1].lof_pos2
@@ -209,7 +209,7 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
                 if ok then
                     reached_spots = reached_spots + 1
                 end
-                if dbg then
+                if dbg_table then
                     local blocker
                     for _, h in ipairs(l.hits or empty_table) do
                         if h.obj ~= target then
@@ -217,7 +217,7 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
                             break
                         end
                     end
-                    dbg[#dbg + 1] = {
+                    dbg_table[#dbg_table + 1] = {
                         from = l.attack_pos or attack_pos, to = l.target_pos,
                         label = tostring(l.target_spot_group), reached = ok,
                         stuck = l.stuck_pos or l.lof_pos2, blocker = blocker
@@ -225,10 +225,10 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
                 end
             end
         end
-        if dbg then
-            dbg.mode = "5 spots do engine"
-            dbg.anchor = anchor
-            dbg.attack_pos = attack_pos
+        if dbg_table then
+            dbg_table.mode = "5 spots do engine"
+            dbg_table.anchor = anchor
+            dbg_table.attack_pos = attack_pos
         end
         if n_spots == 0 then
             return 100
@@ -370,20 +370,20 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
         elseif blocker then
             obstructed = obstructed + 1
         end
-        if dbg then
-            dbg[#dbg + 1] = {
+        if dbg_table then
+            dbg_table[#dbg_table + 1] = {
                 from = (lof and lof.attack_pos) or attack_pos, to = targets[i],
                 label = "g" .. i, reached = ok, blocker = blocker,
                 stuck = lof and (lof.stuck_pos or lof.lof_pos2)
             }
         end
     end
-    if dbg then
-        dbg.mode = "grade 3x3"
-        dbg.anchor = anchor
-        dbg.attack_pos = attack_pos
-        dbg.halfw = halfw
-        dbg.n_samples = n
+    if dbg_table then
+        dbg_table.mode = "grade 3x3"
+        dbg_table.anchor = anchor
+        dbg_table.attack_pos = attack_pos
+        dbg_table.halfw = halfw
+        dbg_table.n_samples = n
     end
 
     ---- Ocluido significa NENHUM raio passar. Nao usar piso percentual aqui: com 25

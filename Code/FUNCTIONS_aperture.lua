@@ -767,7 +767,7 @@ function Rat_AngularActive(weapon, action, attacker)
     if not a or not a.Enabled then
         return false
     end
-    if not IsKindOf(weapon, "Firearm") then
+    if weapon and not IsKindOf(weapon, "Firearm") then
         return false
     end
     if action and action.ActionType == "Melee Attack" then

@@ -91,11 +91,11 @@ function Rat_ResolveAngular(data)
 
     ---- IA: a mesma valvula de sempre, agora FECHANDO O CONE em vez de devolver pontos de CTH.
     ---- Em pontos a correcao dependia de theta e o cone saia diferente em cada parte do corpo.
-    local side = attacker.team and attacker.team.side or ""
-    if a.AIConeValve and not (side == "player1" or side == "player2") and sigma > a.Base then
-        local pct = Clamp(cRound(AIpenal_reduc(attacker, 100) or 100), 0, 100)
-        sigma = Max(1, a.Base + MulDivRound(sigma - a.Base, pct, 100))
-    end
+    --local side = attacker.team and attacker.team.side or ""
+    --if a.AIConeValve and not (side == "player1" or side == "player2") and sigma > a.Base then
+    --    local pct = Clamp(cRound(AIpenal_reduc(attacker, 100) or 100), 0, 100)
+    --    sigma = Max(1, a.Base + MulDivRound(sigma - a.Base, pct, 100))
+    --end
 
     data.rat_theta, data.rat_meta, data.rat_parts = theta, meta, parts
     data.rat_aim, data.rat_geo_sigma, data.rat_cone_mul = aim, sigma, 100

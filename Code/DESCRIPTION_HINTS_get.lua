@@ -102,68 +102,116 @@ function rat_format_hints(self)
         return string.format("%.2f", angle)
     end
 
-    local termList = {
-        {
-            TranslationTable[242435461626] or "Shooting Stance Cost: ",
-            GetAPStance_display(self) or 0, " AP"
-        },
-        {TranslationTable[766379566745] or "Shooting Angle: ", Getangle_display(self) or 0, "º"},
-        {TranslationTable[412593832155] or "Reliability: ", self.Reliability, "%"},
-        {TranslationTable[654134899415] or "Noise Radius: ", self.Noise, " tiles"},
-        {TranslationTable[684546854913] or "Base critical chance: ", self.CritChance, "%"},
-        {TranslationTable[507781478006] or "Maximum critical scaling: ", self.CritChanceScaled, "%"},
-        {TranslationTable[247182652462] or "Extra critical damage: ", self.CritDamage, "%"}, {
-            TranslationTable[651371401489] or "Point Blank Range Accuracy: ",
-            GetPBbonus_display(self) or 0, "%"
-        },
-        {
-            TranslationTable[852084205321] or "Hipfire Penalty Multiplier: ",
-            GetHipfire_mul(self) or 0, "X"
-        }, {
-            TranslationTable[258395588915] or "Snapshot Penalty Multiplier: ",
-            GetSnapshot_mul(self) or 0, "X"
-        }, {
-            (self.owner and (TranslationTable[151451884832] or "Recoil Penalty Multiplier: ")) or
-                (TranslationTable[896979362710] or "Minimum Recoil Multiplier: "),
-            GetRecoil_mul(self) or 0, "X"
-        }, {
-            TranslationTable[158466723759] or "Recommended Strength: ", GetSTR_RECOIL(self),
-            (TranslationTable[785975283217]) or " STR"
-        }
-    }
+    
+	local termList = {
+	    {
+	        id = "ShootingStanceCost",
+	        TranslationTable[242435461626] or "Shooting Stance Cost: ",
+	        GetAPStance_display(self) or 0, " AP"
+	    },
+	    {
+	        id = "ShootingAngle",
+	        TranslationTable[766379566745] or "Shooting Angle: ",
+	        Getangle_display(self) or 0, "º"
+	    },
+	    {
+	        id = "Reliability",
+	        TranslationTable[412593832155] or "Reliability: ",
+	        self.Reliability, "%"
+	    },
+	    {
+	        id = "NoiseRadius",
+	        TranslationTable[654134899415] or "Noise Radius: ",
+	        self.Noise, " tiles"
+	    },
+	    {
+	        id = "BaseCriticalChance",
+	        TranslationTable[684546854913] or "Base critical chance: ",
+	        self.CritChance, "%"
+	    },
+	    {
+	        id = "MaximumCriticalScaling",
+	        TranslationTable[507781478006] or "Maximum critical scaling: ",
+	        self.CritChanceScaled, "%"
+	    },
+	    {
+	        id = "ExtraCriticalDamage",
+	        TranslationTable[247182652462] or "Extra critical damage: ",
+	        self.CritDamage, "%"
+	    },
+	    {
+	        id = "PointBlankRangeAccuracy",
+	        TranslationTable[651371401489] or "Point Blank Range Accuracy: ",
+	        GetPBbonus_display(self) or 0, "%"
+	    },
+	    {
+	        id = "HipfirePenaltyMultiplier",
+	        TranslationTable[852084205321] or "Hipfire Penalty Multiplier: ",
+	        GetHipfire_mul(self) or 0, "X"
+	    },
+	    {
+	        id = "SnapshotPenaltyMultiplier",
+	        TranslationTable[258395588915] or "Snapshot Penalty Multiplier: ",
+	        GetSnapshot_mul(self) or 0, "X"
+	    },
+	    {
+	        id = "RecoilPenaltyMultiplier",
+	        (self.owner and (TranslationTable[151451884832] or "Recoil Penalty Multiplier: ")) or
+	            (TranslationTable[896979362710] or "Minimum Recoil Multiplier: "),
+	        GetRecoil_mul(self) or 0, "X"
+	    },
+	    {
+	        id = "RecommendedStrength",
+	        TranslationTable[158466723759] or "Recommended Strength: ",
+	        GetSTR_RECOIL(self),
+	        TranslationTable[785975283217] or " STR"
+	    }
+	}
 
-    local shotty_terms = {
-        {TranslationTable[7195836321172] or "Number of Pellets: ", self.NumPellets or 0, ""},
-        {
-            TranslationTable[193184162359] or "Pellet Spread Angle: ",
-            GeBuckangle_display(self) or 0, "º"
-        }
+	local shotty_terms = {
+	    {
+	        id = "NumberOfPellets",
+	        TranslationTable[7195836321172] or "Number of Pellets: ",
+	        self.NumPellets or 0, ""
+	    },
+	    {
+	        id = "PelletSpreadAngle",
+	        TranslationTable[193184162359] or "Pellet Spread Angle: ",
+	        GeBuckangle_display(self) or 0, "º"
+	    }
+	}
 
-    }
+	if (self.NumPellets or 0) > 1 then
+	    for _, term in ipairs(shotty_terms) do
+	        table.insert(termList, term)
+	    end
+	end
 
-    if (self.NumPellets or 0) > 1 then
-        for i, term in ipairs(shotty_terms) do
-            table.insert(termList, term)
-        end
-    end
+	local AngularCthActiveExclusionList = {
+		PointBlankRangeAccuracy = true
+	}
+	local angularCTHActive = Rat_AngularActive()
 
-    for _, term in ipairs(termList) do
-        formattedString = formattedString .. "<color PDABrowserFlavorMedium>" .. term[1] ..
-                              "</color>" .. "<color PDABrowserTextHighlight>" .. term[2] ..
-                              "</color>" .. term[3] .. "\n"
-    end
+	for _, term in ipairs(termList) do
+		if not angularCTHActive or not AngularCthActiveExclusionList[term.id] then
+	    	formattedString = formattedString ..
+	    	    "<color PDABrowserFlavorMedium>" .. term[1] ..
+	    	    "</color>" ..
+	    	    "<color PDABrowserTextHighlight>" .. term[2] ..
+	    	    "</color>" .. term[3] .. "\n"
+		end
+	end
 
-    formattedString = formattedString .. "</style>"
+	formattedString = formattedString .. "</style>"
 
-    if self:IsCumbersome() then
-        formattedString = formattedString .. (TranslationTable[153781665575] or
-                              "\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Cumbersome (no Free Move)\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Increases Stance AP cost by 1 (negated by high Strength)\n")
-    end
+	if self:IsCumbersome() then
+	    formattedString = formattedString .. (TranslationTable[153781665575] or
+	        "\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Cumbersome (no Free Move)\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Increases Stance AP cost by 1 (negated by high Strength)\n")
+	end
 
-    -- print(formattedString)
-
-    return T {formattedString}
+	return T {formattedString}
 end
+
 
 local t_id_table = {
     [153781665575] = "\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Cumbersome (no Free Move)\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Increases Stance AP cost by 1 (negated by high Strength)\n",

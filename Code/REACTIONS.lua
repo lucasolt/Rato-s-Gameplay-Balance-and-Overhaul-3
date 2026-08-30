@@ -3,20 +3,20 @@ function OnMsg.UnitSwappedWeapon(unit)
 end
 
 ------------ Savior Rework
-local function check_and_addSaviorAdrenalineRush(team)
+local function check_and_addSaviorAdrenalineRush(team, downed_unit)
     for i, unit in ipairs(team.units or empty_table) do
-        if not (unit:IsDowned() or unit:IsDead()) and HasPerk(unit, "Savior") then
+        if not (downed_unit == unit) and not (unit:IsDowned() or unit:IsDead()) and HasPerk(unit, "Savior") then
             unit:AddStatusEffect("AdrenalineRush_Savior")
         end
     end
 end
 
 function OnMsg.UnitDied(unit)
-    check_and_addSaviorAdrenalineRush(unit.team or empty_table)
+    check_and_addSaviorAdrenalineRush(unit.team or empty_table, unit)
 end
 
 function OnMsg.UnitDowned(unit)
-    check_and_addSaviorAdrenalineRush(unit.team or empty_table)
+    check_and_addSaviorAdrenalineRush(unit.team or empty_table, unit)
 end
 ---
 function OnMsg.UnitStanceChanged(unit)
