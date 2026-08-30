@@ -618,6 +618,8 @@ function Rat_SimLoFOverrides(args, attack_pos, seed, ignore_colliders)
     args.ignore_los = true
     args.inside_attack_area_check = false
     args.forced_hit_on_eye_contact = false
+    ---- sem limpar, BulletCalcDamage (Weapon.lua:1255) troca o spot_group geometrico pelo mirado
+    args.target_spot_group = nil
     return args
 end
 

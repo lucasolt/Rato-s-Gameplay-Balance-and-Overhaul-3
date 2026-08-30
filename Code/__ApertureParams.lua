@@ -18,10 +18,10 @@ A.CoverRaycast = true
 
 ---- Abertura de referencia (minutos): Marks 100, arma de referencia, sem componentes. Move TUDO.
 ---- Calibrado 2026-08-29 contra o CTH do modelo somado, convertido a sigma pela LUT.
-A.Base = 57 --57
+A.Base = 75 --57
 
 ---- Piso mecanico do cone. Derivado do WeaponRange: silhueta de alvo em pe no alcance maximo x este %.
-A.FloorPct = 100 --55
+A.FloorPct = 55 --55
 
 ---- Convergencia da mira ao piso. true = assintotico: sigma = piso + (sigma0 - piso) * decay^aim
 ---- (cada stat sempre rende; tiro mirado fica mais dificil no medio/longo). false = joelho duro.
@@ -107,7 +107,7 @@ A.DecayMinPct = 40 --- teto de fechamento por nivel (nunca fecha mais que 60%)
 ---- Regra GBO3: armas leves/curtas boas em SNAPSHOT (MP5 72), nao em hipfire (MP5 135).
 
 A.AimStep = {
-    [0] = 280, --- hipfire: x2.80 numa arma de referencia
+    [0] = 380, --- hipfire: x2.80 numa arma de referencia
     [1] = 180,--155, --- snapshot 1 nivel: x1.55
     [2] = 130--118 --- snapshot 2 niveis: x1.18
 }
@@ -115,7 +115,7 @@ A.AimStepMaxLevel = 2 --- acima disso a arma esta encostada: alargamento 100
 
 ---- Manejo -> semente de `rat_aperture_snap`. OverwatchAngle so SEMEIA um valor inicial para armas
 ---- que nao declararam (o stat em si continua servindo rotacao/stance/AOE). Multiplicador %, MENOR = melhor.
-A.UseHandling = false
+A.UseHandling = true
 A.SeedOWMin = 600 --- OverwatchAngle tratado como "pesada" (Barret 545, MG42 571, PSG1 596)
 A.SeedOWMax = 1500 --- OverwatchAngle tratado como "manejavel" (UZI/MP5 1410-1437)
 A.SeedSnapHeavy = 125 --- multiplicador para arma pesada
@@ -158,7 +158,7 @@ A.SimulateShots = true
 ---- "Torso" nao e o centro da silhueta (spots vao Head +33 a Legs -59, centroide -14) e Rayleigh pressupoe
 ---- espalhamento CENTRADO. MUDA BALANCE: grupo desce ~14cm -> mais perna/virilha. So eixo vertical, so sem parte pedida.
 
-A.AimCentroidPct = 100
+A.AimCentroidPct = 0 --100
 
 ---- Segmentos do anel de mira. Mais que isto nao se distingue; menos, vira poligono a queima-roupa.
 A.CrosshairRingSegments = 32

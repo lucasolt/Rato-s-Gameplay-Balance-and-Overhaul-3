@@ -646,9 +646,6 @@ function Firearm:GetAttackResults(action, attack_args)
             local hit_it
             hit_it, shot_hit_spot = Rat_SimHitSpot(hit_data, target)
             shot_miss = not hit_it
-            if shot_miss then
-                miss_target_pos = sim.target_pos
-            end
 
             ---- crit rolado por tiro, so vale se a bala chegou. Sem multishot (Buckshot, DoubleBarrel,
             ---- DualShot) o roll e UM para o ataque inteiro: sem o limite de um crit o mesmo sorteio
@@ -684,7 +681,9 @@ function Firearm:GetAttackResults(action, attack_args)
 
         -- Only used for logging, the modifier isn't displayed anywhere as the
         -- crosshair uses another check.
-        if not shot_miss and
+        ---- `sim` fora: o traco vai num PONTO, nenhum hit e `is_target` e `stuck` fica sempre true --
+        ---- todo acerto simulado virava "sem linha de tiro" e o log dizia Missed (CombatObject.lua:466)
+        if not shot_miss and not sim and
             ((not precalc_shots and hit_data.stuck) or (precalc_shots and not anyHitsTarget)) then
             attack_results.chance_to_hit = 0
             attack_results.obstructed = true
