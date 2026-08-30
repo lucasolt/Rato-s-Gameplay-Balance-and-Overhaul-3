@@ -101,6 +101,21 @@ A.DecayBase = 8 --8
 A.DecayScale = 4--4
 A.DecayMinPct = 40 --- teto de fechamento por nivel (nunca fecha mais que 60%)
 
+---- Opticas com LIMIAR: bonus de AimAccuracy que so vale a partir do nivel `from` (ate `to`, se
+---- houver). Substitui os degraus `aim >= N` do modelo somado -- a luneta deixa de ser um degrau
+---- de pontos e vira CURVA: rende pouco nos primeiros niveis e muito depois do tempo investido.
+A.OpticAimBonus = {
+    {id = "pso_dragunov_scope", from = 2, acc = 2},
+    {id = "sniper_aim_scope", from = 3, acc = 3},
+    {id = "sniper_adv_aim_scope", from = 4, acc = 4},
+    ---- Forward Grip: so o PRIMEIRO nivel -- e o "aponta rapido" dele, nao um ganho permanente.
+    {id = "FirstAimBonusModifier", from = 1, to = 1, acc = 3}
+}
+
+---- Miras (AccuracyBonusWhenAimed): o `bonus_cth` autorado no componente vira multiplicador de
+---- cone, aplicado uma vez com aim >= 1. false = inerte.
+A.SightAimBonus = true
+
 ---- Degrau de "arma no ombro" -- hipfire / snapshot. So ate aim 2 (aim 3+ a arma esta encostada).
 ---- Escala o EXCESSO, nunca o cone inteiro:
 ----   alargamento = 100 + (AimStep[aim] - 100) * GetWeaponHipfireOrSnapshotMul/100 * manejo/100

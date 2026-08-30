@@ -89,15 +89,47 @@ function Rat_ApertureSkillMul(attacker, weapon)
     return a.SkillMax - MulDivRound(a.SkillMax - a.SkillMin, skill, 100)
 end
 
----- Quanto CADA nivel de mira fecha o cone, em % (80 = 80% do anterior). AimAccuracy da o
+---- Opticas com limiar presentes NESTA arma (A.OpticAimBonus). Resolvido uma vez por chamada:
+---- HasComponent dentro do laco de niveis sai caro no caminho quente (previsao, varredura da IA).
+function Rat_ApertureOptics(weapon)
+    local a = P()
+    if not IsKindOf(weapon, "Firearm") then
+        return empty_table
+    end
+    local list
+    for _, o in ipairs(a.OpticAimBonus or empty_table) do
+        if weapon:HasComponent(o.id) then
+            list = list or {}
+            list[#list + 1] = o
+        end
+    end
+    return list or empty_table
+end
+
+---- Bonus de AimAccuracy a que ESTE nivel de mira tem direito.
+function Rat_ApertureOpticAcc(optics, level)
+    local bonus = 0
+    for _, o in ipairs(optics or empty_table) do
+        if level >= o.from and (not o.to or level <= o.to) then
+            bonus = bonus + o.acc
+        end
+    end
+    return bonus
+end
+
+---- Quanto o nivel `level` de mira fecha o cone, em % (80 = 80% do anterior). AimAccuracy da o
 ---- teto; Hand-Eye Coordination da quanto disso o atirador cobra (a "Aiming Rework" do mod).
-function Rat_ApertureAimDecay(weapon, attacker)
+---- Opticas com limiar somam AimAccuracy so nos niveis a que tem direito, entao o decay VARIA
+---- por nivel -- `optics` vem pronto de Rat_ApertureOptics para nao repetir HasComponent.
+function Rat_ApertureAimDecay(weapon, attacker, level, optics)
     local a = P()
 
     local acc = (weapon and weapon.AimAccuracy) or 3
     if IsKindOfClasses(weapon, "Pistol", "Revolver") then
         acc = MulDivRound(acc, 50, 100)
     end
+
+    acc = acc + Rat_ApertureOpticAcc(optics or Rat_ApertureOptics(weapon), level or 1)
 
     local decay = 100 - (a.DecayBase + a.DecayScale * acc)
     decay = Max(a.DecayMinPct, decay)
@@ -244,25 +276,39 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     local skill_mul = Rat_ApertureSkillMul(attacker, weapon)
     s = MulDivRound(s, skill_mul, 100)
 
-    --- 3. cada nivel de mira FECHA o cone, em direcao ao piso da arma
-    local decay = Rat_ApertureAimDecay(weapon, attacker)
-    local floor = Rat_ApertureFloor(weapon)
-
-    if a.ApertureAsymptotic then
-        ---- sigma = piso + (sigma0 - piso) * decay^aim. Converge para o piso em vez de bater nele:
-        ---- cada stat sempre rende (AimAccuracy = velocidade, WeaponRange/scope = assintota).
-        local gap = Max(0, s - floor)
-        for _ = 1, aim do
-            gap = MulDivRound(gap, decay, 100)
-        end
-        s = floor + gap
-    else
-        for _ = 1, aim do
-            s = MulDivRound(s, decay, 100)
+    --- 3. quadro de visada da mira (AccuracyBonusWhenAimed). Antes do decay de PROPOSITO: fecha
+    ---    o gap ate o piso, ou seja e ganho de velocidade de convergencia, nao assintota nova.
+    local sight = 100
+    if aim > 0 and a.SightAimBonus and IsKindOf(weapon, "Firearm") then
+        local points = GetComponentEffectValue(weapon, "AccuracyBonusWhenAimed", "bonus_cth")
+        if points and points ~= 0 then
+            sight = Rat_ConeMulForPoints(points)
+            s = MulDivRound(s, sight, 100)
         end
     end
 
-    --- 4. degrau de "arma no ombro" (hipfire/snapshot). GetWeaponHipfireOrSnapshotMul
+    --- 4. cada nivel de mira FECHA o cone, em direcao ao piso da arma
+    local optics = Rat_ApertureOptics(weapon)
+    local floor = Rat_ApertureFloor(weapon)
+    ---- decay do ULTIMO nivel aplicado: com limiar de optica ele varia por nivel, e o que
+    ---- interessa ao jogador e quanto a mira esta rendendo AGORA.
+    local decay = Rat_ApertureAimDecay(weapon, attacker, Max(1, aim), optics)
+
+    if a.ApertureAsymptotic then
+        ---- sigma = piso + (sigma0 - piso) * prod(decay_i). Converge para o piso em vez de bater
+        ---- nele: cada stat sempre rende (AimAccuracy = velocidade, WeaponRange/scope = assintota).
+        local gap = Max(0, s - floor)
+        for i = 1, aim do
+            gap = MulDivRound(gap, Rat_ApertureAimDecay(weapon, attacker, i, optics), 100)
+        end
+        s = floor + gap
+    else
+        for i = 1, aim do
+            s = MulDivRound(s, Rat_ApertureAimDecay(weapon, attacker, i, optics), 100)
+        end
+    end
+
+    --- 5. degrau de "arma no ombro" (hipfire/snapshot). GetWeaponHipfireOrSnapshotMul
     ---    escala so o EXCESSO do alargamento, nunca o cone inteiro. Ver AimStep em __ApertureParams.lua.
     local hipsnap, step = 100, 100
     if aim <= a.AimStepMaxLevel then
@@ -289,8 +335,8 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
         end
     end
 
-    --- 5. piso mecanico do WeaponRange (so no modelo antigo; no assintotico o piso
-    ---    ja entrou como assintota no passo 3)
+    --- 6. piso mecanico do WeaponRange (so no modelo antigo; no assintotico o piso
+    ---    ja entrou como assintota no passo 4)
     if not a.ApertureAsymptotic and s < floor then
         s = floor
         meta[#meta + 1] = T(353401714895, "Range")
@@ -301,6 +347,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
         base_mul = base_mul,
         hipsnap = hipsnap,
         skill = skill_mul,
+        sight = sight,
         decay = decay,
         step = step,
         floor = floor

@@ -196,6 +196,11 @@ function Rat_ConeMetaText(data)
             meta[#meta + 1] = T {592038174652, "Marksmanship <pct>",
                                  pct = Rat_PctTagPenaltyOnly(parts.skill, a.SkillMax)}
         end
+        ---- quadro de visada da mira: fator unico, so com aim >= 1 (nunca piora, por isso o PctTag
+        ---- normal ja basta -- abaixo de 100 sai verde).
+        if aim > 0 and parts.sight and parts.sight ~= 100 then
+            meta[#meta + 1] = T {517294836150, "Sight <pct>", pct = Rat_PctTag(parts.sight)}
+        end
         if aim > 0 and parts.decay then
             ---- decay vive em [DecayMinPct, 100] e nunca passa de 100: mirar so ajuda, mais ou
             ---- menos. Verde = fecha o maximo que a arma permite; ambar = nao rende.
@@ -261,6 +266,7 @@ local t_id_table = {
     [193746285017] = "Aperture <cone> vs <tgt>",
     [481920573641] = "Weapon <pct>",
     [592038174652] = "Marksmanship <pct>",
+    [517294836150] = "Sight <pct>",
     [603847265139] = "Aim x<n> (<pct> per level)",
     [825069487351] = "Range floor <f>'",
     [714038265194] = "Modifiers <pct>"
