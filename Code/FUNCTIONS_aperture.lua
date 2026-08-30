@@ -1,19 +1,8 @@
 ---------------------------------------------------------------------------------------------------
----- CTH ANGULAR -- funcoes puras
-----
----- Nenhuma funcao aqui le ou escreve estado de jogo, rola dado ou aplica efeito.
----- Sao consultaveis pela UI (crosshair, em previsao) e pela IA
----- (AIPrecalcConeTargetZones avalia muitas posicoes por turno) sem efeito colateral
----- e sem consumir random sincronizado -- o mesmo motivo pelo qual
----- Rat_GetRecoilAimCost foi extraida de ApplyPersistantRecoilEffects.
-----
----- Tudo em aritmetica INTEIRA. Ver o cabecalho de __ApertureParams.lua.
+---- CTH ANGULAR -- funcoes puras (sem estado, sem random). Aritmetica INTEIRA. Ver __ApertureParams.lua.
 ---------------------------------------------------------------------------------------------------
 
-
-
-
-local A --- resolvido em tempo de chamada: __ApertureParams pode carregar depois deste arquivo
+local A --- resolvido em tempo de chamada: __ApertureParams pode carregar depois
 local function P()
     A = A or const.Combat.Aperture
     return A
@@ -23,8 +12,7 @@ end
 ---- Aritmetica
 ---------------------------------------------------------------------------------------------------
 
----- Raiz quadrada inteira (Newton). Deterministica, sem float -- `sqrt` do engine
----- devolve float e nao pode entrar no caminho que alimenta NetUpdateHash.
+---- Raiz quadrada inteira (Newton). O `sqrt` do engine devolve float e nao pode entrar no NetUpdateHash.
 function Rat_ISqrt(n)
     if n <= 0 then
         return 0
@@ -38,12 +26,11 @@ function Rat_ISqrt(n)
     return x
 end
 
----- Meia-largura aparente do alvo, em minutos de angulo.
----- half_cm em centimetros; dist em unidades do engine (guic = 10 = 1 cm).
----- 1 radiano = 3438 minutos; com a conversao de cm embutida vira 34380.
+---- Meia-largura aparente do alvo, em minutos de angulo. dist em unidades do engine (10 = 1 cm).
+---- Fator 34380 = 3438 min/rad com a conversao de cm embutida.
 function Rat_ThetaTarget(dist, half_cm)
     if not dist or dist < 1 then
-        return 100000 --- encostado: alvo ocupa tudo
+        return 100000 --- encostado
     end
     return Max(1, MulDivRound(half_cm, 34380, dist))
 end
@@ -52,11 +39,8 @@ end
 ---- Silhueta do alvo
 ---------------------------------------------------------------------------------------------------
 
----- Raio equivalente do alvo em centimetros.
-----   target        -- Unit (ou nil, cai em Standing)
-----   body_part_def -- preset TargetBodyPart, ou string, ou nil (Torso)
-----   exposed_pct   -- 0..100, fracao da silhueta NAO ocluida por cobertura.
-----                    Entra como raiz, porque a fracao e de AREA e theta e um raio.
+---- Raio equivalente do alvo em cm. body_part_def: preset, string ou nil (Torso).
+---- exposed_pct: 0..100 nao ocluido, entra como raiz (area -> raio).
 function Rat_TargetSilhouette(target, body_part_def, exposed_pct, stance_override)
     local a = P()
 
@@ -105,9 +89,8 @@ function Rat_ApertureSkillMul(attacker, weapon)
     return a.SkillMax - MulDivRound(a.SkillMax - a.SkillMin, skill, 100)
 end
 
----- Quanto CADA nivel de mira fecha o cone, em % (80 = fecha para 80% do anterior).
----- AimAccuracy define o teto; Hand-Eye Coordination define quanto disso o atirador
----- realmente cobra -- e a "Aiming Rework" do mod, expressa no angulo.
+---- Quanto CADA nivel de mira fecha o cone, em % (80 = 80% do anterior). AimAccuracy da o
+---- teto; Hand-Eye Coordination da quanto disso o atirador cobra (a "Aiming Rework" do mod).
 function Rat_ApertureAimDecay(weapon, attacker)
     local a = P()
 
@@ -139,9 +122,7 @@ function Rat_ApertureSnapMul(weapon)
     return Rat_SeedSnapFromOverwatch(weapon)
 end
 
----- Semente: converte OverwatchAngle em estimativa inicial de manejo.
----- NAO substitui o OverwatchAngle -- so da um ponto de partida para armas que
----- ainda nao declararam `rat_aperture_snap`. Ver __ApertureParams.lua.
+---- Estimativa inicial de manejo a partir do OverwatchAngle, para armas sem `rat_aperture_snap`.
 function Rat_SeedSnapFromOverwatch(weapon)
     local a = P()
     local ow = weapon and weapon.OverwatchAngle
@@ -153,16 +134,18 @@ function Rat_SeedSnapFromOverwatch(weapon)
     return a.SeedSnapHeavy - MulDivRound(a.SeedSnapHeavy - a.SeedSnapHandy, h, 100)
 end
 
----- Piso mecanico: o cone mais fechado que a arma alcanca, derivado do WeaponRange.
-----
----- Scopes e canos longos rebaixam este piso SOZINHOS, sem codigo dedicado: o efeito
----- IncreaseRange tem StatToModify = "WeaponRange", entao numa arma real o
----- weapon.WeaponRange lido aqui ja vem com o bonus somado. As opticas de verdade do
----- arsenal dao +16 (PSG/SSG69/LROpticsAdvanced) e +10 (LROptics/Thermal).
-----
----- Ou seja, o RangeIncrease nao precisa ser removido como o desenho original supunha:
----- ele VIRA o manipulo do piso. E a outra metade da scope, o +MaxAimActions, so
----- rende de verdade no modelo assintotico, onde niveis extras nunca saturam.
+function _test_SeedHandling()
+	print("=========================== Test handling")
+	ForEachPreset("InventoryItemCompositeDef", function(p)
+		local item = g_Classes[p.id]
+
+		if IsKindOf(item, "Firearm") and (item.is_tog_patched or IsVanillaFirearm(item)) then
+			print(p.id, item.is_tog_patched and "TOG" or "vanilla", Rat_SeedSnapFromOverwatch(item))
+		end
+	end)
+end
+---- Piso mecanico do cone, derivado do WeaponRange. Scopes/canos longos rebaixam o piso sozinhos:
+---- IncreaseRange tem StatToModify = "WeaponRange", entao weapon.WeaponRange ja vem com o bonus.
 function Rat_ApertureFloor(weapon)
     local a = P()
     local range = (weapon and weapon.WeaponRange) or 20
@@ -174,6 +157,73 @@ end
 ---------------------------------------------------------------------------------------------------
 ---- Abertura (sigma), em minutos de angulo
 ---------------------------------------------------------------------------------------------------
+
+---- Gradiente de QUALIDADE: 0 = pior (vermelho), 100 = melhor (verde), passando por ambar.
+---- Usado tanto no texto do overlay quanto no anel de mira, para os dois falarem a mesma lingua.
+local function lerp(from, to, t)
+    return from + MulDivRound(to - from, t, 100)
+end
+
+function Rat_QualityColor(pct)
+    pct = Clamp(pct or 0, 0, 100)
+    local r1, g1, b1, r2, g2, b2, t
+    if pct < 50 then
+        r1, g1, b1, r2, g2, b2, t = 214, 96, 82, 216, 172, 76, pct * 2
+    else
+        r1, g1, b1, r2, g2, b2, t = 216, 172, 76, 126, 186, 108, (pct - 50) * 2
+    end
+    return lerp(r1, r2, t), lerp(g1, g2, t), lerp(b1, b2, t)
+end
+
+---- Untranslated: e o jeito do engine de meter markup dentro de um arg de T. Sem ele a tag
+---- de cor sairia escapada como texto literal.
+function Rat_ScaleTag(text, quality_pct)
+    local r, g, b = Rat_QualityColor(quality_pct)
+    return Untranslated(string.format("<color %d %d %d>%s</color>", r, g, b, text))
+end
+
+---- Fator do cone com 100 NEUTRO: acima abre o cone (ruim), abaixo fecha (bom). Para fatores
+---- que nao tem 100 no meio da faixa, use Rat_ScaleTag com a qualidade calculada na mao.
+function Rat_PctTag(v)
+    if not v then
+        return Untranslated("")
+    end
+    if v == 100 then
+        return Untranslated("100%")
+    end
+    return Rat_ScaleTag(v .. "%", v > 100 and 0 or 100)
+end
+
+---- Fator que NUNCA fica melhor que neutro (Marksmanship: vive em [100, SkillMax]). Verde so
+---- em 100; acima disso o gradiente para no ambar, por pior que seja o `worst`. Deixar chegar
+---- ao verde diria que o fator esta ajudando, quando ele so esta atrapalhando menos.
+function Rat_PctTagPenaltyOnly(v, worst)
+    if not v then
+        return Untranslated("")
+    end
+    if v <= 100 then
+        ---- 100 e o MELHOR caso possivel aqui, entao ganha verde -- nao e neutro como no Rat_PctTag
+        return Rat_ScaleTag(v .. "%", 100)
+    end
+    local span = Max(1, (worst or 200) - 100)
+    local quality = 50 - Clamp(MulDivRound(v - 100, 50, span), 0, 50)
+    return Rat_ScaleTag(v .. "%", quality)
+end
+
+---- Espelho do anterior, para fator que NUNCA fica pior que neutro (decay da mira: vive em
+---- [DecayMinPct, 100]). Vermelho nunca aparece -- mirar no pior caso so deixa de ajudar,
+---- nao atrapalha. 100 = ambar ("nao rende nada"), `best` = verde.
+function Rat_PctTagBonusOnly(v, best)
+    if not v then
+        return Untranslated("")
+    end
+    if v >= 100 then
+        return Rat_ScaleTag(v .. "%", 50)
+    end
+    local span = Max(1, 100 - (best or 0))
+    local quality = 50 + Clamp(MulDivRound(100 - v, 50, span), 0, 50)
+    return Rat_ScaleTag(v .. "%", quality)
+end
 
 ---- Retorna sigma e a lista de contribuicoes (para a UI mostrar em minutos de cone,
 ---- no lugar da lista aditiva de pontos percentuais que o modelo antigo exibia).
@@ -199,27 +249,8 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     local floor = Rat_ApertureFloor(weapon)
 
     if a.ApertureAsymptotic then
-        ------------------------------------------------------------------------------
-        ---- O cone CONVERGE para o piso em vez de bater nele.
-        ----
-        ----     sigma = piso + (sigma0 - piso) * decay^aim
-        ----
-        ---- A forma antiga, Max(piso, sigma0 * decay^aim), tinha um joelho duro: no
-        ---- nivel em que o decay cruzava o piso, TUDO parava -- mais mira, scope,
-        ---- nada mudava. E como o piso e quase constante no arsenal (17 a 22
-        ---- minutos) enquanto o sigma do decay varia de 18 a 41, ele mordia
-        ---- justamente nas armas boas. Medido, Marks 85 a 30 tiles: a G36 ganhava
-        ---- +31 de CTH com os niveis 4 e 5, e a PSG1 ganhava +4 -- o rifle de
-        ---- assalto aproveitava a scope e o sniper nao, o oposto da intencao.
-        ----
-        ---- Com a convergencia cada stat tem um papel que nunca desliga:
-        ----   AimAccuracy  -- quao RAPIDO se converge (eficiencia de AP)
-        ----   WeaponRange  -- ONDE se converge (a assintota)
-        ----   scope        -- rebaixa a assintota, porque IncreaseRange tem
-        ----                   StatToModify = "WeaponRange" e o piso ja sai dali;
-        ----                   e os niveis extras de mira passam a ter espaco para
-        ----                   trabalhar. As duas metades da scope rendem.
-        ------------------------------------------------------------------------------
+        ---- sigma = piso + (sigma0 - piso) * decay^aim. Converge para o piso em vez de bater nele:
+        ---- cada stat sempre rende (AimAccuracy = velocidade, WeaponRange/scope = assintota).
         local gap = Max(0, s - floor)
         for _ = 1, aim do
             gap = MulDivRound(gap, decay, 100)
@@ -231,10 +262,8 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
         end
     end
 
-    --- 4. degrau de "arma no ombro" -- hipfire / snapshot.
-    ---    O produto de GetWeaponHipfireOrSnapshotMul e uma escala RELATIVA de
-    ---    penalidade, nao um multiplicador de cone: escala o EXCESSO do alargamento,
-    ---    nunca o cone inteiro. Ver o bloco AimStep em __ApertureParams.lua.
+    --- 4. degrau de "arma no ombro" (hipfire/snapshot). GetWeaponHipfireOrSnapshotMul
+    ---    escala so o EXCESSO do alargamento, nunca o cone inteiro. Ver AimStep em __ApertureParams.lua.
     local hipsnap, step = 100, 100
     if aim <= a.AimStepMaxLevel then
         if weapon and GetWeaponHipfireOrSnapshotMul then
@@ -245,11 +274,18 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
         local excess = (a.AimStep[aim] or 100) - 100
         if excess > 0 then
             excess = MulDivRound(excess, hipsnap, 100)
-            excess = MulDivRound(excess, Rat_ApertureSnapMul(weapon), 100)
+
+            excess = A.UseHandling and MulDivRound(excess, Rat_ApertureSnapMul(weapon), 100) or excess
             step = 100 + excess
+
+			local original_s_debug = s
             s = MulDivRound(s, step, 100)
-            meta[#meta + 1] = (aim == 0) and T(588769789298, "Hipfire") or
-                                  T(335346378867, "Snapshot")
+            ---- o % vai no proprio rotulo: e o alargamento que ESTE degrau aplicou ao cone
+            local tag = Rat_PctTagPenaltyOnly(step, a.MetaScaleWorst)
+            meta[#meta + 1] = (aim == 0) and T {936174028553, "Hipfire <pct>", pct = tag} or
+                                  T {418205963714, "Snapshot <pct>", pct = tag}
+
+			--print(meta[#meta][2], "hipsnap = ", hipsnap, "excess = ", excess, "step = ", step, "s = ", s, "original = ", original_s_debug)
         end
     end
 
@@ -304,8 +340,7 @@ end
 ---------------------------------------------------------------------------------------------------
 
 ---- Retorna cth (0..100), sigma, theta e metaText.
----- `exposed_pct` (0..100) e o gancho para o modelo de cobertura por silhueta
----- ocluida; enquanto nao existir, passa nil e a silhueta vem inteira.
+---- `exposed_pct` (0..100): fracao da silhueta nao ocluida por cobertura; nil = mede sozinho.
 function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, opportunity_attack,
                         attacker_pos, target_pos, exposed_pct)
     local a = P()
@@ -320,16 +355,13 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
 
     local sigma, meta, parts = Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
 
-    ---- Cobertura: nao e penalidade, e silhueta menor. A fracao exposta vem da
-    ---- sondagem de raios (FUNCTIONS_cover_silhouette.lua) quando ligada.
+    ---- Cobertura = silhueta menor, nao penalidade. Fracao exposta via raycast (FUNCTIONS_cover_silhouette.lua).
     if exposed_pct == nil and a.CoverRaycast then
         exposed_pct = Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_part_def,
                                           weapon)
     end
 
-    ---- totalmente ocluido: o tiro nao existe. Importante deixar chegar a ZERO --
-    ---- e assim que AIPrecalcConeTargetZones (CombatAI.lua:2138) descarta o alvo do
-    ---- cone, e assim que a UI mostra que nao ha tiro.
+    ---- totalmente ocluido: CTH 0 exato (AIPrecalcConeTargetZones descarta o alvo; UI mostra sem tiro).
     if exposed_pct == 0 then
         return 0, sigma, 0, meta, parts, dist, 0
     end
@@ -344,30 +376,12 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
 end
 
 ---------------------------------------------------------------------------------------------------
----- SIMULACAO: onde a bala cai
-----
----- A LUT de Rayleigh serve os DOIS sentidos. Para a frente ela responde "que
----- fracao dos tiros cai dentro do alvo" -- e o CTH que a UI mostra. Ao contrario,
----- por transformada inversa, ela SORTEIA o desvio de um tiro. Como e a mesma
----- tabela, o numero exibido e o tiro simulado concordam por construcao, e nao por
----- calibracao.
-----
----- Isto importa: o codigo de pellets (GetPelletScatterData) sorteia raio UNIFORME,
----- e reusa-lo aqui faria o tiro divergir do que a UI promete. Medido, com 20 mil
----- tiros: para sigma 200 e alvo 40 minutos o previsto e 2%, o sorteio de Rayleigh
----- da 2% e o uniforme da 8% -- quatro vezes mais generoso no tiro dificil.
+---- SIMULACAO: onde a bala cai. Rayleigh invertida sorteia o desvio -> numero exibido e tiro
+---- concordam por construcao. Nao usar o sorteio uniforme dos pellets (4x no tiro dificil).
 ---------------------------------------------------------------------------------------------------
 
 ---- Sigma que produziria exatamente `cth` contra um alvo de meia-largura `theta`.
-----
----- Fecha o laco da simulacao. O CTH final nao e so geometria: por cima do termo
----- angular ainda somam perks, efeitos de status, bonus de parte do corpo e o dial
----- global do mod. Se o tiro fosse sorteado com o sigma cru da abertura, todos esses
----- modificadores mudariam o numero MOSTRADO sem mudar o tiro -- medido, 150 ataques
----- com CTH exibido de 47%: a simulacao acertava 66%.
-----
----- Derivando sigma de volta a partir do CTH final, o sorteio reproduz exatamente o
----- numero que o jogador leu, qualquer que tenha sido a sua origem.
+---- Do CTH FINAL (perks/status/parte/dial), nao da abertura crua, senao a sim acerta mais que o numero.
 function Rat_SigmaForCTH(theta, cth)
     local a = P()
     if not theta or theta < 1 then
@@ -389,6 +403,35 @@ function Rat_SigmaForCTH(theta, cth)
         end
     end
     return Max(1, theta / 4) --- CTH altissimo: cone bem dentro do alvo
+end
+
+---- Cone que a UI desenha e a simulacao dispara: parte do sigma GEOMETRICO e so o corrige pelo que
+---- CalcChanceToHit somou por fora (recuo permanente, Dazed, perks). NAO inverter o CTH final cru.
+---- Medido no processo vivo (Barry, Peacemaker, 19 tiles, SEM modifier residual nenhum): com o CTH
+---- preso num limite ele sai igual em todas as partes, e Rat_SigmaForCTH -- que e theta*1000/k --
+---- devolve entao algo PROPORCIONAL A THETA. O cone virava copia escalada do body part: 64' na
+---- cabeca contra 501' no torso. Mirar na cabeca acertava o alvo 41% contra 5% no torso, e nivel
+---- de mira nao mudava nada (cone 64' fixo em aim 0..4). Corrige so onde a inversao tem resolucao:
+---- CTH e inteiro em pontos, e perto de 0 ou 100 um ponto vale cone demais para significar algo.
+function Rat_EffectiveSigma(theta, geo_sigma, cth_final)
+    local a = P()
+    if not theta or theta < 1 or not geo_sigma or not cth_final then
+        return geo_sigma
+    end
+
+    ---- geometrico SEM o clamp de Min/MaxCTH -- e o unico par honesto de cth_final
+    local geo_raw = Rat_RayleighCTH(theta, geo_sigma)
+    local lo, hi = a.ConeCorrLo, a.ConeCorrHi
+    if geo_raw < lo or geo_raw > hi or cth_final < lo or cth_final > hi then
+        return geo_sigma
+    end
+
+    local s_ref = Rat_SigmaForCTH(theta, geo_raw)
+    local s_fin = Rat_SigmaForCTH(theta, cth_final)
+    if not s_ref or not s_fin or s_ref < 1 then
+        return geo_sigma
+    end
+    return Max(1, MulDivRound(geo_sigma, s_fin, s_ref))
 end
 
 ---- Desvio radial de UM tiro, em minutos de angulo. Consome random SINCRONIZADO,
@@ -414,10 +457,8 @@ function Rat_SampleShotOffset(attacker, sigma)
     return MulDivRound(sigma, k1000, 1000)
 end
 
----- Converte um desvio angular num PONTO no mundo, no plano perpendicular a linha
----- de tiro. Mesma primitiva que GetPelletScatterData usa para o cone de chumbo:
----- RotateAxis em torno da direcao, partindo de um vetor genuinamente perpendicular
----- (rodar um (0,0,r) cru preserva a componente paralela e encolhe o raio efetivo).
+---- Desvio angular -> ponto no plano perpendicular a linha de tiro (RotateAxis, como os pellets).
+---- Parte de um vetor de fato perpendicular, senao o raio efetivo encolhe.
 function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma)
     if not attack_pos or not aim_pos then
         return aim_pos
@@ -458,17 +499,195 @@ function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma)
 end
 
 ---------------------------------------------------------------------------------------------------
----- Rajada: o cone abre tiro a tiro
-----
----- Devolve uma tabela [i] = razao em % do CTH do tiro i contra o do tiro 1.
----- Aplicar como razao (e nao recalcular o CTH inteiro) preserva todos os modifiers
----- residuais na mesma proporcao -- o consumidor so multiplica.
-----
----- E aqui que a rajada ganha um comportamento que o modelo somado nao conseguia
----- expressar: de perto ela continua letal, porque o alvo e maior que o cone mesmo
----- depois de seis tiros; de longe ela morre no primeiro, porque a silhueta ja era
----- a restricao. A separacao entre fogo de supressao e fogo de precisao sai da
----- geometria em vez de precisar ser tabelada por acao.
+---- SIMULACAO: nucleo compartilhado entre o tiro real e o visualizador -- tem que ser o MESMO
+---- procedimento. Garantia via Rat_SimSnapshot + Rat_DbgVerifySim (replay dos args do ultimo tiro).
+---------------------------------------------------------------------------------------------------
+
+---- Ponto de mira. O spot "Torso" nao e o centro da silhueta e Rayleigh pressupoe espalhamento
+---- centrado -> desvia para o centroide vertical dos spots do LoF. A.AimCentroidPct: 0 spot .. 100
+---- centroide. So eixo vertical, so sem parte do corpo pedida.
+function Rat_SimAimPos(lof, spot, fallback)
+    local a = P()
+    local aim_pos
+    for _, l in ipairs(lof or empty_table) do
+        if l.target_spot_group == spot then
+            aim_pos = l.target_pos
+        end
+    end
+    aim_pos = aim_pos or (lof and lof[1] and lof[1].target_pos) or fallback
+    if not aim_pos then
+        return fallback
+    end
+
+    local pct = a.AimCentroidPct or 0
+    local default_spot = (not spot) or spot == "Torso" or spot == g_DefaultShotBodyPart
+    if pct <= 0 or not default_spot or not lof or #lof < 2 then
+        return aim_pos
+    end
+
+    local sz, n = 0, 0
+    for _, l in ipairs(lof) do
+        if l.target_pos then
+            sz = sz + l.target_pos:z()
+            n = n + 1
+        end
+    end
+    if n < 2 then
+        return aim_pos
+    end
+    return aim_pos:SetZ(aim_pos:z() + MulDivRound(sz / n - aim_pos:z(), pct, 100))
+end
+
+---- Plano de tiro: theta, sigma, ponto sorteado de cada tiro. Consome random sincronizado,
+---- so na resolucao. ctx ENTRA: attacker target action weapon aim opportunity_attack spot
+---- attack_pos aim_pos step_pos target_pos cth num_shots. ctx SAI: theta geo_sigma sigma growth
+---- shots[i] = {sigma, target_pos}
+function Rat_SimPlanShots(ctx)
+    local _, geo_sigma, theta = Rat_AngularCTH(ctx.attacker, ctx.target, ctx.spot, ctx.action,
+                                               ctx.weapon, ctx.aim or 0, ctx.opportunity_attack,
+                                               ctx.step_pos, ctx.target_pos)
+    ctx.theta, ctx.geo_sigma = theta, geo_sigma
+
+    local sigma = Rat_EffectiveSigma(theta, geo_sigma, ctx.cth)
+    ctx.sigma = sigma
+    if not sigma or sigma < 1 then
+        return nil
+    end
+
+    local num_shots = Max(1, ctx.num_shots or 1)
+    local ladder, growth = Rat_SimSigmaLadder(ctx.attacker, ctx.action, ctx.weapon, sigma, num_shots)
+    ctx.growth, ctx.num_shots = growth, num_shots
+
+    local shots = {}
+    for i = 1, num_shots do
+        shots[i] = {
+            sigma = ladder[i],
+            target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, ctx.aim_pos, ladder[i])
+        }
+    end
+    ctx.shots = shots
+    return shots
+end
+
+---- Escada de recuo: o sigma de cada tiro de uma rajada de `num_shots`. Separada para o
+---- visualizador consultar o cone do tiro N sem disparar a rajada.
+function Rat_SimSigmaLadder(attacker, action, weapon, sigma0, num_shots)
+    num_shots = Max(1, num_shots or 1)
+    local growth = (num_shots > 1) and
+                       Rat_GetRecoilConeGrowth(attacker, action, weapon, num_shots) or 100
+    local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
+    local out, s = {}, sigma0
+    for i = 1, num_shots do
+        if i > 1 and (i - 1) <= max_idx then
+            s = MulDivRound(s, growth, 100)
+        end
+        out[i] = s
+    end
+    return out, growth
+end
+
+---- Overrides EXATOS que o tiro real aplica por tiro (ramo `if sim then`). Nada alem disso.
+function Rat_SimLoFOverrides(args, attack_pos, seed, ignore_colliders)
+    args.attack_pos = attack_pos
+    args.seed = seed
+    args.fire_relative_point_attack = false
+    args.ignore_colliders = ignore_colliders
+    args.ignore_los = true
+    args.inside_attack_area_check = false
+    args.forced_hit_on_eye_contact = false
+    return args
+end
+
+---- Extrai o LoF util de um retorno de GetLoFData, do mesmo jeito nos dois caminhos.
+function Rat_SimLoF(data)
+    return data and (data.outside_attack_area_lof or (data.lof and data.lof[1]))
+end
+
+---- A bala cruzou o alvo? Se sim, por onde. E o que substitui o dado: nao ha
+---- "rolar parte do corpo", a parte e onde a trajetoria passou.
+function Rat_SimHitSpot(lof, target)
+    for _, h in ipairs((lof and lof.hits) or empty_table) do
+        if h.obj == target then
+            return true, h.spot_group or h.spot or false
+        end
+    end
+    return false, nil
+end
+
+---- Registro do ataque para visualizador e comparador. Guarda todo o insumo; nao altera calculo.
+function Rat_SimSnapshot(ctx)
+    local args = ctx.args or empty_table
+    local rec = {
+        attacker = ctx.attacker, target = ctx.target,
+        attack_pos = ctx.attack_pos, aim_pos = ctx.aim_pos,
+        step_pos = ctx.step_pos, target_pos = ctx.target_pos,
+        spot = ctx.spot, aim = ctx.aim, opportunity_attack = ctx.opportunity_attack,
+        cth = ctx.cth, cth_source = ctx.cth_source,
+        theta = ctx.theta, geo_sigma = ctx.geo_sigma, sigma = ctx.sigma,
+        growth = ctx.growth, num_shots = ctx.num_shots,
+        action_id = ctx.action and ctx.action.id,
+        weapon_class = ctx.weapon and ctx.weapon.class,
+        aim_centroid_pct = P().AimCentroidPct,
+        ---- so os campos de LoF que mudam onde a bala para
+        lof_args = {
+            penetration_class = args.penetration_class,
+            range = args.range,
+            stance = args.stance,
+            target_spot_group = args.target_spot_group,
+            ignore_los = args.ignore_los,
+            clamp_to_target = args.clamp_to_target,
+            can_use_covers = args.can_use_covers,
+            can_stuck_on_unit = args.can_stuck_on_unit,
+            can_hit_attacker = args.can_hit_attacker,
+            force_hit_seen_target = args.force_hit_seen_target,
+            fire_relative_point_attack = args.fire_relative_point_attack,
+            inside_attack_area_check = args.inside_attack_area_check,
+            forced_hit_on_eye_contact = args.forced_hit_on_eye_contact,
+            output_collisions = args.output_collisions,
+            aimIK = args.aimIK,
+            additional_colliders = args.additional_colliders and true or false,
+            n_ignore_colliders = args.ignore_colliders and #args.ignore_colliders or 0
+        },
+        shots = {}
+    }
+    for i, s in ipairs(ctx.shots or empty_table) do
+        rec.shots[i] = {target_pos = s.target_pos, sigma = s.sigma}
+    end
+    ---- copia dos args ANTES do laco de tiros (que os muta): permite o visualizador replay-ar o tiro real.
+    rec.replay_args = ctx.args and table.copy(ctx.args) or nil
+    g_RatLastSimShots = rec
+    return rec
+end
+
+---- Args de LoF montados do zero, quando nao ha tiro real para replay. Aproximacao de
+---- SOURCE_FirearmGetAttackResults.lua:69-84; Rat_DbgVerifySim mostra onde difere do real.
+function Rat_SimBaseArgs(attacker, target, weapon, spot, range)
+    return {
+        obj = attacker,
+        weapon = weapon,
+        stance = attacker.stance,
+        target = target,
+        target_spot_group = spot or g_DefaultShotBodyPart,
+        step_pos = attacker:GetPos(),
+        occupied_pos = attacker:GetOccupiedPos(),
+        prediction = false,
+        output_collisions = true,
+        can_use_covers = false,
+        additional_colliders = target,
+        require_los = nil,
+        penetration_class = weapon:GetPenetrationClass(),
+        range = range,
+        can_stuck_on_unit = true,
+        force_hit_seen_target = false,
+        can_hit_attacker = false,
+        clamp_to_target = false,
+        aimIK = false
+    }
+end
+
+---------------------------------------------------------------------------------------------------
+---- Rajada: cone abre tiro a tiro. Devolve [i] = razao em % do CTH do tiro i contra o tiro 1
+---- (aplicar como razao preserva os modifiers residuais na mesma proporcao).
 ---------------------------------------------------------------------------------------------------
 function Rat_GetShotConeRatios(attacker, target, body_part_def, action, weapon, aim,
                                opportunity_attack, attacker_pos, target_pos, num_shots)
@@ -477,8 +696,7 @@ function Rat_GetShotConeRatios(attacker, target, body_part_def, action, weapon, 
     if not num_shots or num_shots < 2 then
         return ratios
     end
-    ---- guarda tambem aqui, e nao so no chamador: a funcao e publica e a IA pode
-    ---- consulta-la para orcar rajada
+    ---- guarda aqui tambem: funcao publica, a IA pode chamar
     if not Rat_AngularActive(weapon, action, attacker) then
         return ratios
     end
@@ -513,11 +731,8 @@ function Rat_GetShotConeRatios(attacker, target, body_part_def, action, weapon, 
 end
 
 ---------------------------------------------------------------------------------------------------
----- Guarda
-----
----- Chamada no topo de cada modifier que o modelo angular SUBSTITUI (os baldes
----- "multiplicam o cone" e "alteram a silhueta"). Com Enabled = false devolve
----- false e o mod se comporta exatamente como antes.
+---- Guarda: chamada no topo de cada modifier que o modelo angular substitui.
+---- Enabled = false -> false, e o mod se comporta como antes.
 ---------------------------------------------------------------------------------------------------
 
 function Rat_AngularActive(weapon, action, attacker)
@@ -535,18 +750,8 @@ function Rat_AngularActive(weapon, action, attacker)
 end
 
 ---------------------------------------------------------------------------------------------------
----- Semeadura das propriedades novas
-----
----- Roda em DataLoaded, DEPOIS do PATCH_GBO_weapons: percorre todas as classes de
----- Firearm e preenche `rat_aperture_snap` para quem nao declarou o seu. Cobre as
----- armas adicionadas por Tons of Guns / Zulib sem precisar editar tabela nenhuma.
----------------------------------------------------------------------------------------------------
-
----------------------------------------------------------------------------------------------------
----- Ferramentas de comparacao (console)
-----
----- Rat_SetAngularCTH(true/false) -- liga/desliga o modelo em runtime
----- Rat_CompareCTH(atacante, alvo) -- lado a lado, modelo somado x modelo angular
+---- Ferramentas de console: Rat_SetAngularCTH(on) liga/desliga; Rat_CompareCTH(atk, alvo) compara.
+---- Rat_SeedApertureProperties semeia `rat_aperture_snap` para Firearms sem o seu (ToG / Zulib).
 ---------------------------------------------------------------------------------------------------
 
 function Rat_SetAngularCTH(on)
@@ -623,3 +828,14 @@ function Rat_SeedApertureProperties()
     end
     return n
 end
+
+---------------------------------------------------------------------------------------------------
+
+---- Strings que Rat_GetAperture poe no metaText do modifier Aperture (ver CTH_angular.lua).
+local t_id_table = {
+    [936174028553] = "Hipfire <pct>",
+    [418205963714] = "Snapshot <pct>",
+    [353401714895] = "Range"
+}
+
+ratG_T_table['FUNCTIONS_aperture.lua'] = t_id_table

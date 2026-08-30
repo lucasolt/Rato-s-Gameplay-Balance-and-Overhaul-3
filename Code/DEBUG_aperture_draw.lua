@@ -1,23 +1,9 @@
 ---------------------------------------------------------------------------------------------------
----- CTH ANGULAR -- visualizadores
-----
----- Desenham no mundo o que o modelo esta "vendo", para conferir de olho o que as
----- tabelas dizem. Somente leitura: nao rolam dado, nao mudam estado, nao consomem
----- random sincronizado.
-----
----- Uso tipico no console (F2 / debug):
-----     Rat_DbgCover()        -- raios de cobertura no alvo sob o cursor
-----     Rat_DbgCone()         -- cone de abertura contra a silhueta, por nivel de mira
-----     Rat_DbgAll()          -- os dois
-----     Rat_DbgShots(24, 2)   -- dispara 24 tiros de MENTIRA com mira 2 e desenha o grupo
-----     Rat_DbgLastShots()    -- desenha os vetores do ultimo tiro de VERDADE
-----     Rat_DbgClear()        -- limpa
-----
----- Todos aceitam (target, attacker); sem argumentos usam a unidade selecionada como
----- atirador e o inimigo mais proximo com linha de tiro como alvo.
-----
----- Rat_DbgShots e a unica que consome random sincronizado (usa o mesmo sorteio do
----- tiro real). Em jogo solo e inofensivo.
+---- CTH ANGULAR -- visualizadores. Desenham no mundo o que o modelo ve; so leitura.
+---- Console: Rat_DbgCover() raios de cobertura | Rat_DbgCone() cone x silhueta por mira |
+---- Rat_DbgAll() os dois | Rat_DbgShots(24,2) 24 tiros de mentira | Rat_DbgLastShots(rings) ultimo
+---- tiro real, rings = um anel por disparo | Rat_DbgClear(). Sem args: atirador = selecionado, alvo do
+---- Crosshair UI ou o inimigo mais proximo. So Rat_DbgShots consome random sincronizado.
 ---------------------------------------------------------------------------------------------------
 
 local clrHit = const.clrGreen
@@ -26,75 +12,18 @@ local clrCone = const.clrYellow or RGB(255, 220, 0)
 local clrSilh = const.clrCyan
 local clrAxis = const.clrWhite
 
----- 1 radiano = 3438 minutos de angulo. Raio que um cone de `minutes` cobre a `dist`.
-local function cone_radius(dist, minutes)
-    return MulDivRound(dist, minutes, 3438)
-end
+---- Geometria em UI_aperture_ring.lua: o anel do jogador e estes discos sao o MESMO circulo.
+local cone_radius = Rat_ConeRadius
+local vz = Rat_RingValidZ
 
----------------------------------------------------------------------------------------------------
----- Z valido.
-----
----- Unit:GetPos() devolve ponto com Z INVALIDO quando a unidade esta no terreno, e
----- aritmetica de vetor com ele degrada para 2D em silencio: (center - apos) virava
----- (894,-447) sem Z, o vetor perpendicular virava (0,0), e o disco saia horizontal.
----- Era essa a causa dos circulos deitados no chao -- nao a orientacao do desenho.
----------------------------------------------------------------------------------------------------
-local function vz(pos)
-    if not pos or pos:IsValidZ() then
-        return pos
-    end
-    return pos:SetTerrainZ()
-end
-
----------------------------------------------------------------------------------------------------
----- Disco NO PLANO PERPENDICULAR a linha de tiro -- um alvo de papel de frente para
----- o atirador, nao um circulo deitado no chao.
-----
----- DbgAddCircle desenha no plano XY (horizontal), que num jogo tatico faz sentido
----- para area de efeito no chao, mas aqui cortava a unidade ao meio e nao dava para
----- comparar cone com silhueta.
-----
----- RotateAxis(v, eixo, angulo) roda `v` em torno de `eixo`: partindo de um offset
----- vertical e rodando em torno da direcao de tiro, os pontos caem exatamente no
----- plano perpendicular a ela. E a mesma primitiva que GetPelletScatterData usa para
----- montar o cone de chumbo grosso. Angulo em MINUTOS (360*60 = volta completa).
----------------------------------------------------------------------------------------------------
+---- Disco no plano perpendicular a linha de tiro (alvo de papel de frente).
 local function draw_disc(center, radius, dir, color, segments)
-    if not radius or radius < 1 then
+    local pts = Rat_RingPoints(center, radius, dir, segments or 24)
+    if not pts then
         return
     end
-    segments = segments or 24
-    if not dir or not dir:IsValidZ() then
-        --- direcao sem Z nao define plano nenhum: o disco sairia deitado
-        dir = point(dir and dir:x() or 0, dir and dir:y() or 0, 0)
-    end
-    if dir:Len() == 0 then
-        return
-    end
-    dir = SetLen(dir, 1000)
-
-    ---- Partir de um vetor GENUINAMENTE perpendicular a dir. RotateAxis preserva a
-    ---- componente paralela ao eixo, entao rodar um (0,0,r) cru daria um circulo
-    ---- correto no plano mas deslocado ao longo do eixo, e com raio efetivo menor
-    ---- que r -- o erro cresce com a inclinacao do tiro, e aqui o raio e justamente
-    ---- a grandeza que esta sendo comparada com a silhueta.
-    local up = point(0, 0, 1000)
-    local par = Dot(up, dir) / 1000 --- componente de `up` ao longo de dir
-    local perp = up - MulDivRound(dir, par, 1000)
-    if perp:Len() < 10 then
-        --- tiro quase vertical: usa a horizontal como referencia
-        perp = point(-dir:y(), dir:x(), 0)
-    end
-    perp = SetLen(perp, radius)
-
-    local full = 360 * 60
-    local prev
-    for i = 0, segments do
-        local pt = center + RotateAxis(perp, dir, MulDivRound(full, i, segments))
-        if prev then
-            DbgAddSegment(prev, pt, color)
-        end
-        prev = pt
+    for i = 2, #pts do
+        DbgAddSegment(pts[i - 1], pts[i], color)
     end
 end
 
@@ -107,14 +36,32 @@ end
 ---------------------------------------------------------------------------------------------------
 ---- Escolha de alvo/atirador
 ---------------------------------------------------------------------------------------------------
+g_RatDbgCrosshairTarget = false
 
 local function pick_attacker(attacker)
     return attacker or SelectedObj
 end
 
+---- Ultimo inimigo mirado pela UI do Crosshair (ao vivo ou o ultimo valido); so serve se for inimigo vivo de `attacker`.
+function Rat_DbgCrosshairTarget(attacker)
+    local igi = GetInGameInterfaceModeDlg and GetInGameInterfaceModeDlg()
+    local live = igi and igi.crosshair and igi.crosshair.context and igi.crosshair.context.target
+    local t = (IsValid(live) and live) or g_RatDbgCrosshairTarget
+    if IsValid(t) and not t:IsDead() and attacker ~= t and attacker:IsOnEnemySide(t) then
+        return t
+    end
+end
+
 local function pick_target(attacker, target)
     if target then
         return target
+    end
+    ---- se um merc esta selecionado, reusa o alvo do Crosshair UI antes do mais proximo
+    if attacker == SelectedObj then
+        local ct = Rat_DbgCrosshairTarget(attacker)
+        if ct then
+            return ct
+        end
     end
     ---- preferencia: alvo sob o cursor, senao o inimigo mais proximo
     local best, best_d
@@ -129,14 +76,7 @@ local function pick_target(attacker, target)
     return best
 end
 
----------------------------------------------------------------------------------------------------
----- Raios de cobertura
-----
----- Verde = o raio chegou no alvo. Vermelho = bloqueado, e o traco para exatamente
----- onde bateu, com o nome do que bloqueou. E a leitura direta da fracao exposta:
----- conte os verdes.
----------------------------------------------------------------------------------------------------
-
+---- Raios de cobertura. Verde = chegou; vermelho = bloqueado (com nome do bloqueador). Exposto = conte os verdes.
 function Rat_DbgCover(target, attacker, body_part)
     attacker = pick_attacker(attacker)
     if not attacker then
@@ -151,9 +91,9 @@ function Rat_DbgCover(target, attacker, body_part)
     local was_en, was_ray = a.Enabled, a.CoverRaycast
     a.Enabled, a.CoverRaycast = true, true
 
-    local dbg = {}
+    local debug_table = {}
     local pct = Rat_MeasureExposure(attacker, target, attacker:GetPos(), target:GetPos(), body_part,
-                                    attacker:GetActiveWeapons(), dbg)
+                                    attacker:GetActiveWeapons(), debug_table)
 
     a.Enabled, a.CoverRaycast = was_en, was_ray
 
@@ -161,7 +101,7 @@ function Rat_DbgCover(target, attacker, body_part)
     DbgClearTexts()
 
     local n_hit = 0
-    for _, r in ipairs(dbg) do
+    for _, r in ipairs(debug_table) do
         local color = r.reached and clrHit or clrMiss
         ---- raio bloqueado para onde bateu; raio limpo vai ate o corpo
         local endpoint = r.reached and r.to or (r.stuck or r.to)
@@ -176,14 +116,12 @@ function Rat_DbgCover(target, attacker, body_part)
         end
     end
 
-    ---- A caixa da silhueta saiu daqui junto com a grade: a amostragem agora sai dos
-    ---- spots reais do corpo, entao os proprios raios ja desenham o padrao e nao ha
-    ---- retangulo que o descreva. (dbg.halfh deixou de existir nessa troca.)
+    ---- sem caixa de silhueta: a amostragem sai dos spots reais do corpo, os raios ja desenham o padrao
 
-    local txt = string.format("exposto %d%%  (%d/%d raios)  [%s]", pct, n_hit, #dbg,
-                              tostring(dbg.mode))
-    if dbg.anchor then
-        DbgAddText(txt, dbg.anchor + point(0, 0, 1200), clrAxis)
+    local txt = string.format("exposto %d%%  (%d/%d raios)  [%s]", pct, n_hit, #debug_table,
+                              tostring(debug_table.mode))
+    if debug_table.anchor then
+        DbgAddText(txt, debug_table.anchor + point(0, 0, 1200), clrAxis)
     end
 
     return string.format("%s -> %s (%s%s) a %.1f tiles\n  %s\n  verde = chegou, vermelho = bloqueado",
@@ -193,18 +131,8 @@ function Rat_DbgCover(target, attacker, body_part)
                          attacker:GetDist(target) / const.SlabSizeX, txt)
 end
 
----------------------------------------------------------------------------------------------------
----- Cone de abertura contra silhueta
-----
----- Desenha, NA DISTANCIA DO ALVO, um circulo por nivel de mira com o raio que o
----- cone cobre ali, e um circulo ciano com a silhueta real do alvo. E o modelo
----- inteiro numa imagem: o alvo cabe no cone, ou o cone e maior que o alvo?
-----
----- Perto, todos os circulos de mira ficam menores que o ciano -- por isso mirar
----- quase nao muda nada. Longe, eles engolem o ciano, e cada nivel de mira comprado
----- e um circulo que encolhe.
----------------------------------------------------------------------------------------------------
-
+---- Cone de abertura contra silhueta. Na distancia do alvo: um circulo amarelo por nivel
+---- de mira (raio do cone ali) e um ciano com a silhueta real. O alvo cabe no cone?
 function Rat_DbgCone(target, attacker, body_part)
     attacker = pick_attacker(attacker)
     if not attacker then
@@ -232,10 +160,10 @@ function Rat_DbgCone(target, attacker, body_part)
     local apos, tpos = vz(attacker:GetPos()), vz(target:GetPos())
     local dist = apos:Dist(tpos)
 
-    ---- plano do alvo: o circulo e desenhado na altura do ponto de mira
+    ---- plano do alvo: no spot da parte mirada, a mesma ancora do anel do jogador
     local exposed = Rat_MeasureExposure(attacker, target, apos, tpos, body_part, weapon)
     local half_cm = Rat_TargetSilhouette(target, body_part, exposed)
-    local center = tpos:SetZ(tpos:z() + (target:GetHitStance() == "Prone" and 200 or 800))
+    local center = Rat_RingAnchor(target, body_part) or tpos
 
     ---- direcao de tiro: define o plano de TODOS os discos abaixo
     local dir = center - apos
@@ -252,9 +180,8 @@ function Rat_DbgCone(target, attacker, body_part)
     local _, max_aim = attacker:GetBaseAimLevelRange(action, target)
     max_aim = Clamp(max_aim or 3, 1, 6)
 
-    ---- Os discos mostram o raio que contem ~96% dos tiros (2.5 sigma), nao 1 sigma:
-    ---- num circulo de 1 sigma cabem so 39% dos disparos, entao desenha-lo daria a
-    ---- impressao de acerto certo em tiros de 72%. Mesmo criterio do crosshair.
+    ---- Raio de ~96% dos tiros (2.5 sigma), nao 1 sigma (que so contem 39%). Mesmo
+    ---- criterio do crosshair.
     local smul = a.CrosshairSigmaMul or 250
     for aim = 0, max_aim do
         local cth, sigma, theta = Rat_AngularCTH(attacker, target, body_part, action, weapon, aim,
@@ -285,9 +212,7 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
----- Os dois desenhos juntos. Rat_DbgCone e chamado primeiro porque limpa o canvas;
----- os raios sao redesenhados aqui por cima, em vez de chamar Rat_DbgCover (que
----- limparia o cone recem-desenhado).
+---- Cone + raios juntos. Cone primeiro (limpa o canvas); raios redesenhados aqui, nao via Rat_DbgCover.
 function Rat_DbgAll(target, attacker, body_part)
     local cone = Rat_DbgCone(target, attacker, body_part)
 
@@ -300,13 +225,13 @@ function Rat_DbgAll(target, attacker, body_part)
     local a = const.Combat.Aperture
     local was_en, was_ray = a.Enabled, a.CoverRaycast
     a.Enabled, a.CoverRaycast = true, true
-    local dbg = {}
+    local debug_table = {}
     local pct = Rat_MeasureExposure(attacker, target, attacker:GetPos(), target:GetPos(), body_part,
-                                    attacker:GetActiveWeapons(), dbg)
+                                    attacker:GetActiveWeapons(), debug_table)
     a.Enabled, a.CoverRaycast = was_en, was_ray
 
     local n_hit = 0
-    for _, r in ipairs(dbg) do
+    for _, r in ipairs(debug_table) do
         local color = r.reached and clrHit or clrMiss
         local endpoint = r.reached and r.to or (r.stuck or r.to)
         DbgAddVector(r.from, endpoint - r.from, color)
@@ -318,50 +243,32 @@ function Rat_DbgAll(target, attacker, body_part)
         end
     end
 
-    return cone .. string.format("\n  cobertura: %d%% exposto (%d/%d raios, %s)", pct, n_hit, #dbg,
-                                 tostring(dbg.mode))
+    return cone .. string.format("\n  cobertura: %d%% exposto (%d/%d raios, %s)", pct, n_hit, #debug_table,
+                                 tostring(debug_table.mode))
 end
 
 ---------------------------------------------------------------------------------------------------
----- VETORES DE TIRO
-----
----- Rat_DbgShots(n, aim)   -- dispara n tiros de MENTIRA e desenha o agrupamento
----- Rat_DbgLastShots()     -- desenha os vetores do ultimo tiro de VERDADE
-----
----- Verde = a bala cruzou o alvo. Vermelho = passou / bateu em outra coisa, e o
----- traco vai ate onde ela parou. Ciano = a silhueta. Amarelo = o circulo que
----- contem ~96% dos tiros (2.5 sigma), o mesmo do crosshair.
+---- VETORES DE TIRO. Rat_DbgShots(n,aim) tiros de mentira | Rat_DbgLastShots() ultimo tiro real |
+---- Rat_DbgVerifySim() debug x tiro real | Rat_DbgSilhouette() silhueta projetada real.
+---- Verde = bala cruzou o alvo, vermelho = passou, ciano = silhueta, amarelo = ~96% dos tiros.
+---- Reusa as funcoes de Firearm:GetAttackResults (Rat_SimPlanShots/LoFOverrides/HitSpot), nao reimplementa.
 ---------------------------------------------------------------------------------------------------
 
----- Monta os argumentos de LoF identicos aos que a simulacao usa em
----- Firearm:GetAttackResults, para o desenho mostrar o tiro de verdade e nao uma
----- aproximacao.
-local function sim_lof_args(attacker, weapon, attack_pos, dist)
-    return {
-        obj = attacker,
-        weapon = weapon,
-        stance = attacker.stance,
-        attack_pos = attack_pos,
-        output_collisions = true,
-        range = dist + 20 * const.SlabSizeX,
-        penetration_class = weapon:GetPenetrationClass(),
-        prediction = false,
-        clamp_to_target = false,
-        fire_relative_point_attack = false,
-        can_hit_attacker = false,
-        ignore_los = true,
-        inside_attack_area_check = false,
-        forced_hit_on_eye_contact = false,
-        can_use_covers = false,
-        aimIK = false,
-        can_stuck_on_unit = true,
-        force_hit_seen_target = false
-    }
+g_RatLastSimShots = false
+---- Args de LoF: prefere replay do ultimo tiro real; senao reconstroi e avisa (fidelidade nao garantida).
+local function sim_args_for(attacker, target, weapon, spot, range)
+    local rec = g_RatLastSimShots
+    if rec and rec.replay_args and rec.attacker == attacker and rec.target == target then
+        return table.copy(rec.replay_args), "replay do ultimo tiro real"
+    end
+    return Rat_SimBaseArgs(attacker, target, weapon, spot, range), "args reconstruidos (nao verificado)"
 end
 
----- ATENCAO: consome random sincronizado (o mesmo sorteio do tiro real). Em jogo
----- solo e inofensivo; em co-op nao use durante o turno de outro jogador.
-function Rat_DbgShots(count, aim, target, attacker)
+---- Rat_DbgShots(count, aim, spot, target, attacker, shot_idx, burst)
+---- `count` = amostras independentes do mesmo tiro, nao uma rajada. Tiro inspecionado = (shot_idx, burst),
+---- padrao 1 de 1. 3o tiro de uma rajada de 6: Rat_DbgShots(150, 2, nil, nil, nil, 3, 6).
+---- ATENCAO: consome random sincronizado; em co-op nao use no turno de outro jogador.
+function Rat_DbgShots(count, aim, target_spot, target, attacker, shot_idx, burst)
     attacker = pick_attacker(attacker)
     if not attacker then
         return "sem atacante (selecione um merc)"
@@ -370,6 +277,7 @@ function Rat_DbgShots(count, aim, target, attacker)
     if not target then
         return "sem alvo"
     end
+    target_spot = target_spot or g_DefaultShotBodyPart or "Torso"
 
     local weapon = attacker:GetActiveWeapons()
     local action = attacker:GetDefaultAttackAction("ranged")
@@ -379,12 +287,14 @@ function Rat_DbgShots(count, aim, target, attacker)
 
     count = count or 24
     aim = aim or 2
+    burst = Max(1, burst or 1)
+    shot_idx = Clamp(shot_idx or 1, 1, burst)
 
     local a = const.Combat.Aperture
     local was = a.Enabled
     a.Enabled = true
 
-    ---- ancoras reais do engine, como a simulacao faz
+    ---- ancoras do engine, e o mesmo ponto de mira que o tiro real usaria
     local base = GetLoFData(attacker, target, {
         obj = attacker, weapon = weapon, stance = attacker.stance,
         prediction = true, output_collisions = true, force_hit_seen_target = false
@@ -394,69 +304,112 @@ function Rat_DbgShots(count, aim, target, attacker)
         return "sem linha de tiro"
     end
     local attack_pos = base.lof[1].attack_pos
-    local aim_pos
+    local aim_pos = Rat_SimAimPos(base.lof, target_spot, base.lof[1].target_pos)
+    local spot_pos = base.lof[1].target_pos
     for _, l in ipairs(base.lof) do
-        if l.target_spot_group == "Torso" then
-            aim_pos = l.target_pos
+        if l.target_spot_group == target_spot then
+            spot_pos = l.target_pos
         end
     end
-    aim_pos = aim_pos or base.lof[1].target_pos
 
-    local cth, geo_sigma, theta = Rat_AngularCTH(attacker, target, "Torso", action, weapon, aim,
-                                                 false, attacker:GetPos(), target:GetPos())
-    ---- mesmo sigma que a simulacao usa: derivado do CTH final, nao da abertura crua
-    local sigma = Rat_SigmaForCTH(theta, cth) or geo_sigma
+    ---- CTH final do tiro real (com residuais); o geometrico cru divergia da UI e apertava o cone ~15%
+    local cth_args = {target_spot_group = target_spot, aim = aim, prediction = true,
+                      step_pos = attacker:GetPos(), target_pos = target:GetPos()}
+    local cth_raw = attacker:CalcChanceToHit(target, action, cth_args)
+    local cth = weapon:GetShotChanceToHit(cth_raw) or cth_raw
+
+    local dist = attack_pos:Dist(aim_pos)
+    local args, args_src = sim_args_for(attacker, target, weapon, target_spot,
+                                        dist + 20 * const.SlabSizeX)
+
+    local ctx = {
+        attacker = attacker, target = target, action = action, weapon = weapon,
+        aim = aim, opportunity_attack = false, spot = target_spot,
+        attack_pos = attack_pos, aim_pos = aim_pos,
+        step_pos = attacker:GetPos(), target_pos = target:GetPos(),
+        cth = cth, cth_source = "GetShotChanceToHit(CalcChanceToHit)",
+        ---- a rajada REAL que se quer inspecionar -- nao o numero de amostras
+        num_shots = burst, args = args
+    }
+    local shots = Rat_SimPlanShots(ctx)
+    if not shots then
+        a.Enabled = was
+        return "sem sigma valido (theta = " .. tostring(ctx.theta) .. ")"
+    end
+
+    ---- o cone do tiro escolhido; as `count` amostras saem TODAS dele
+    local sigma_i = shots[shot_idx].sigma
 
     DbgClearVectors()
     DbgClearTexts()
 
-    local dist = attack_pos:Dist(aim_pos)
     local dir = SetLen(aim_pos - attack_pos, 1000)
-    draw_disc(aim_pos, MulDivRound(theta, dist, 3438), dir, clrSilh, 32)
-    draw_disc(aim_pos, cone_radius(dist, MulDivRound(sigma, a.CrosshairSigmaMul or 250, 100)), dir,
-              clrCone, 32)
+    draw_disc(aim_pos, MulDivRound(ctx.theta, dist, 3438), dir, clrSilh, 32)
+    draw_disc(aim_pos, cone_radius(dist, MulDivRound(sigma_i, a.CrosshairSigmaMul or 250, 100)),
+              dir, clrCone, 32)
+    ---- onde o spot cru estava, para enxergar o deslocamento do centro de mira
+    if aim_pos ~= spot_pos then
+        DbgAddVector(spot_pos, aim_pos - spot_pos, clrAxis)
+        DbgAddText("spot", spot_pos, clrAxis)
+    end
 
-    local lof_args = sim_lof_args(attacker, weapon, attack_pos, dist)
     local hits, parts = 0, {}
     for i = 1, count do
-        local pt = Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma)
-        lof_args.seed = attacker:Random()
-        local d = GetLoFData(attacker, pt, lof_args)
-        local lof = d and (d.outside_attack_area_lof or (d.lof and d.lof[1]))
-        local hit, spot
-        for _, h in ipairs((lof and lof.hits) or empty_table) do
-            if h.obj == target then
-                hit, spot = true, tostring(h.spot_group or "?")
-                break
-            end
-        end
+        ---- mesma primitiva de sorteio do tiro real, sempre no cone do tiro escolhido
+        local pt = Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma_i)
+        Rat_SimLoFOverrides(args, attack_pos, attacker:Random(), args.ignore_colliders)
+        local lof = Rat_SimLoF(GetLoFData(attacker, pt, args))
+        local hit, spot = Rat_SimHitSpot(lof, target)
         local endpoint = (lof and (lof.stuck_pos or lof.lof_pos2)) or pt
         DbgAddVector(attack_pos, endpoint - attack_pos, hit and clrHit or clrMiss)
         if hit then
             hits = hits + 1
-            parts[spot] = (parts[spot] or 0) + 1
+            local g = tostring(spot or "?")
+            parts[g] = (parts[g] or 0) + 1
             draw_disc(endpoint, const.SlabSizeX / 14, dir, clrHit, 8)
         end
     end
 
     a.Enabled = was
 
+    ---- por membro: n acertos | % sobre os acertos | % sobre o total de tiros
     local ps = {}
     for g, n in sorted_pairs(parts) do
-        ps[#ps + 1] = string.format("%s %d%%", g, MulDivRound(n, 100, Max(1, hits)))
+        ps[#ps + 1] = string.format("    %-8s %2d  (%3d%% dos acertos | %3d%% do total)", g, n,
+                                    MulDivRound(n, 100, Max(1, hits)), MulDivRound(n, 100, count))
     end
+    if #ps == 0 then
+        ps[1] = "    (nenhum acerto)"
+    end
+
+    local dz = (aim_pos:z() - spot_pos:z()) / 10
     return string.format(
-               "%s (%s) -> %s a %.1f tiles, aim %d\n" ..
-                   "  CTH exibido %d%% | %d/%d acertaram (%d%%) | sigma %d'\n  %s\n" ..
+               "%s (%s) -> %s [%s] a %.1f tiles, aim %d, alvo %s\n" ..
+                   "  amostras: %d do tiro %d de %d  |  CTH %d%% (o mesmo do tiro real)\n" ..
+                   "  %d/%d acertaram (%d%% do total) | %d erraram\n" ..
+                   "  sigma %d' (tiro 1 = %d', growth %d%%)  theta %d'\n" ..
+                   "  centro de mira %+dcm vs spot (AimCentroidPct %d)  |  args: %s\n" ..
+                   "  distribuicao por membro:\n%s\n" ..
                    "  verde = acertou, vermelho = errou; ciano = silhueta, amarelo = 96%% dos tiros",
                tostring(attacker.session_id), tostring(weapon.class), tostring(target.session_id),
-               attacker:GetDist(target) / const.SlabSizeX, aim, cth, hits, count,
-               MulDivRound(hits, 100, count), sigma, table.concat(ps, "  "))
+               tostring(target:GetHitStance()), attacker:GetDist(target) / const.SlabSizeX, aim,
+               tostring(target_spot), count, shot_idx, burst, cth,
+               hits, count, MulDivRound(hits, 100, count), count - hits,
+               sigma_i, ctx.sigma, ctx.growth or 100, ctx.theta,
+               dz, a.AimCentroidPct or 0, args_src, table.concat(ps, "\n"))
 end
 
----- Desenha o ataque que REALMENTE aconteceu por ultimo. Nao sorteia nada: le o
----- registro que Firearm:GetAttackResults deixa em g_RatLastSimShots.
-function Rat_DbgLastShots()
+---- Anel do tiro `i` de `n`: amarelo no primeiro, vermelho no ultimo. E a leitura do recoil --
+---- quanto mais longe do amarelo, mais o cone abriu.
+local function recoil_ring_color(i, n)
+    local t = (n > 1) and MulDivRound(i - 1, 100, n - 1) or 0
+    return RGB(255 - MulDivRound(25, t, 100), 220 - MulDivRound(160, t, 100),
+               MulDivRound(40, t, 100))
+end
+
+---- Desenha o ultimo ataque real. Nao sorteia: le g_RatLastSimShots (gravado por
+---- Firearm:GetAttackResults). `rings` = um anel por tiro em vez de um so.
+function Rat_DbgLastShots(rings)
     local rec = g_RatLastSimShots
     if not rec or not rec.shots or #rec.shots == 0 then
         return "nenhum tiro simulado registrado ainda (atire uma vez com A.SimulateShots = true)"
@@ -466,28 +419,381 @@ function Rat_DbgLastShots()
     DbgClearTexts()
 
     local lines = {}
-    local hits = 0
+    local hits, crits, total, parts = 0, 0, #rec.shots, {}
     local dir = rec.shots[1] and rec.shots[1].target_pos and
                     SetLen(rec.shots[1].target_pos - rec.attack_pos, 1000)
+
+    if rec.aim_pos and dir then
+        local d = rec.attack_pos:Dist(rec.aim_pos)
+        local smul = const.Combat.Aperture.CrosshairSigmaMul or 250
+        draw_disc(rec.aim_pos, MulDivRound(rec.theta or 0, d, 3438), dir, clrSilh, 32)
+        if rings then
+            ---- sh.sigma ja vem com o recoil daquele disparo: os aneis mostram o cone abrindo
+            for i, sh in ipairs(rec.shots) do
+                draw_disc(rec.aim_pos, cone_radius(d, MulDivRound(sh.sigma or 0, smul, 100)), dir,
+                          recoil_ring_color(i, total), 24)
+            end
+        else
+            draw_disc(rec.aim_pos, cone_radius(d, MulDivRound(rec.sigma or 0, smul, 100)), dir,
+                      clrCone, 32)
+        end
+    end
 
     for i, sh in ipairs(rec.shots) do
         local endpoint = sh.end_pos or sh.target_pos
         local color = sh.miss and clrMiss or clrHit
         DbgAddVector(rec.attack_pos, endpoint - rec.attack_pos, color)
+        local spot = sh.spot and tostring(sh.spot) or "?"
         if not sh.miss then
             hits = hits + 1
+            if sh.crit then
+                crits = crits + 1
+            end
+            parts[spot] = (parts[spot] or 0) + 1
             if dir then
                 draw_disc(endpoint, const.SlabSizeX / 14, dir, color, 8)
             end
         end
         DbgAddText(string.format("%d%s", i, sh.crit and " crit" or ""), endpoint, color)
-        lines[#lines + 1] = string.format("  tiro %d | sigma %5d' | %s%s", i, sh.sigma or -1,
+        lines[#lines + 1] = string.format("  tiro %d | sigma %5d' | %s%s%s%s%s", i, sh.sigma or -1,
                                           sh.miss and "errou" or "ACERTOU",
-                                          sh.crit and " (critico)" or "")
+                                          sh.miss and "" or (" -> " .. spot),
+                                          sh.crit and " (critico)" or "",
+                                          sh.damage and string.format("  dano %d", sh.damage) or "",
+                                          ---- stray (-50% dano) em bala que cruzou o alvo = bug do leading_shot
+                                          sh.stray and "  *** STRAY ***" or "")
     end
 
-    return string.format("ultimo ataque: %s -> %s | %d/%d acertaram\n%s",
-                         tostring(rec.attacker and rec.attacker.session_id),
-                         tostring(rec.target and rec.target.session_id), hits, #rec.shots,
-                         table.concat(lines, "\n"))
+    local ps = {}
+    for g, n in sorted_pairs(parts) do
+        ps[#ps + 1] = string.format("    %-8s %2d  (%3d%% dos acertos | %3d%% do total)", g, n,
+                                    MulDivRound(n, 100, Max(1, hits)),
+                                    MulDivRound(n, 100, Max(1, total)))
+    end
+    if #ps == 0 then
+        ps[1] = "    (nenhum acerto)"
+    end
+
+    local l = rec.lof_args or empty_table
+    return string.format(
+               "ultimo ataque REAL: %s (%s, %s) -> %s [%s]\n" ..
+                   "  aim %s  alvo %s  |  CTH %s%%  <- %s\n" ..
+                   "  theta %s'  sigma %s'  (abertura crua %s')  growth %s%%  centro de mira %s\n" ..
+                   "  LoF: pen %s  range %s  ignore_los %s  clamp %s  covers %s  stuck_unit %s\n" ..
+                   "       fire_rel %s  area_check %s  eye_contact %s  add_colliders %s  ignore %s\n" ..
+                   "  %d/%d acertaram (%d%% do total) | %d erraram | %d criticos\n" ..
+                   "  ciano = silhueta; %s\n" ..
+                   "  distribuicao por membro:\n%s\n%s",
+               tostring(rec.attacker and rec.attacker.session_id), tostring(rec.weapon_class),
+               tostring(rec.action_id), tostring(rec.target and rec.target.session_id),
+               tostring(rec.target and rec.target:GetHitStance()),
+               tostring(rec.aim), tostring(rec.spot), tostring(rec.cth), tostring(rec.cth_source),
+               tostring(rec.theta), tostring(rec.sigma), tostring(rec.geo_sigma),
+               tostring(rec.growth), tostring(rec.aim_centroid_pct),
+               tostring(l.penetration_class), tostring(l.range), tostring(l.ignore_los),
+               tostring(l.clamp_to_target), tostring(l.can_use_covers),
+               tostring(l.can_stuck_on_unit), tostring(l.fire_relative_point_attack),
+               tostring(l.inside_attack_area_check), tostring(l.forced_hit_on_eye_contact),
+               tostring(l.additional_colliders), tostring(l.n_ignore_colliders),
+               hits, total, MulDivRound(hits, 100, Max(1, total)), total - hits, crits,
+               rings and "um anel por tiro, amarelo (tiro 1) -> vermelho (ultimo) = recoil abrindo" or
+                   "amarelo = 96% dos tiros do disparo 1 (Rat_DbgLastShots(true) = anel por tiro)",
+               table.concat(ps, "\n"), table.concat(lines, "\n"))
+end
+
+---- VERIFICACAO: recalcula os insumos do ultimo tiro real pelo caminho do debug e compara campo a campo.
+---- Pontos sorteados ficam de fora; compara o que DECIDE o sorteio (theta, sigma, growth, centro, origem, CTH) + args de LoF.
+function Rat_DbgVerifySim()
+    local rec = g_RatLastSimShots
+    if not rec or not rec.shots or #rec.shots == 0 then
+        return "nenhum tiro real registrado ainda (atire uma vez com A.SimulateShots = true)"
+    end
+    local attacker, target = rec.attacker, rec.target
+    if not IsValid(attacker) or not IsValid(target) then
+        return "atacante ou alvo do registro nao e mais valido"
+    end
+
+    local weapon = attacker:GetActiveWeapons()
+    local action = CombatActions[rec.action_id] or attacker:GetDefaultAttackAction("ranged")
+
+    local a = const.Combat.Aperture
+    local was = a.Enabled
+    a.Enabled = true
+
+    local hard, soft, nhard, nsoft = {}, {}, 0, 0
+    local function cmp(dst, name, real, mine, hard_check)
+        local eq = (real == mine)
+        if not eq then
+            if hard_check then
+                nhard = nhard + 1
+            else
+                nsoft = nsoft + 1
+            end
+        end
+        dst[#dst + 1] = string.format("  %-22s %-26s %-26s %s", name, tostring(real), tostring(mine),
+                                      eq and "ok" or "<<< DIFERE")
+    end
+
+    ---- BLOCO DURO: derivado so do snapshot (posicoes gravadas); divergencia aqui e bug
+    local ra = rec.replay_args
+    local debug_table = {}
+    if ra and ra.lof and #ra.lof > 0 then
+        debug_table.attack_pos = ra.lof[1].attack_pos
+        debug_table.aim_pos = Rat_SimAimPos(ra.lof, rec.spot, rec.target_pos)
+    end
+    local _, geo_sigma, theta = Rat_AngularCTH(attacker, target, rec.spot, action, weapon, rec.aim,
+                                               rec.opportunity_attack, rec.step_pos, rec.target_pos)
+    debug_table.theta, debug_table.geo_sigma = theta, geo_sigma
+    debug_table.sigma = Rat_SigmaForCTH(rec.theta, rec.cth) or rec.geo_sigma
+    local _, dbg_growth = Rat_SimSigmaLadder(attacker, action, weapon, rec.sigma or 1,
+                                             rec.num_shots or 1)
+    debug_table.growth = dbg_growth
+
+    hard[#hard + 1] = string.format("  %-22s %-26s %-26s", "campo", "tiro REAL", "caminho DEBUG")
+    cmp(hard, "attack_pos", rec.attack_pos, debug_table.attack_pos, true)
+    cmp(hard, "aim_pos", rec.aim_pos, debug_table.aim_pos, true)
+    cmp(hard, "sigma <- (theta,cth)", rec.sigma, debug_table.sigma, true)
+    cmp(hard, "growth", rec.growth, debug_table.growth, true)
+    cmp(hard, "theta", rec.theta, debug_table.theta, true)
+    cmp(hard, "geo_sigma", rec.geo_sigma, debug_table.geo_sigma, true)
+
+    ---- args reconstruidos: fallback de quando nao ha tiro real gravado; util saber quanto erram
+    local recon = Rat_SimBaseArgs(attacker, target, weapon, rec.spot,
+                                  (rec.lof_args or empty_table).range)
+    local l = rec.lof_args or empty_table
+    soft[#soft + 1] = string.format("  %-22s %-26s %-26s", "campo de LoF", "tiro REAL",
+                                    "RECONSTRUIDO (fallback)")
+    for _, k in ipairs({"penetration_class", "stance", "target_spot_group", "clamp_to_target",
+                        "can_use_covers", "can_stuck_on_unit", "can_hit_attacker",
+                        "force_hit_seen_target", "output_collisions", "aimIK"}) do
+        cmp(soft, k, l[k], recon[k], false)
+    end
+    cmp(soft, "additional_colliders", l.additional_colliders,
+        recon.additional_colliders and true or false, false)
+
+    ---- BLOCO MOLE: recalculado no estado atual; diferenca e esperada se algo mudou desde o tiro
+    local now_raw = attacker:CalcChanceToHit(target, action,
+        {target_spot_group = rec.spot, aim = rec.aim, prediction = true,
+         step_pos = attacker:GetPos(), target_pos = target:GetPos()})
+    local now_cth = weapon:GetShotChanceToHit(now_raw) or now_raw
+    local _, _, now_theta = Rat_AngularCTH(attacker, target, rec.spot, action, weapon, rec.aim,
+                                           rec.opportunity_attack, attacker:GetPos(),
+                                           target:GetPos())
+
+    a.Enabled = was
+
+    return string.format(
+               "VERIFICACAO  %s -> %s  (args: %s)\n\n" ..
+                   "[1] DERIVADO DO SNAPSHOT -- divergencia aqui e BUG de codigo\n%s\n" ..
+                   "  => %s\n\n" ..
+                   "[2] ARGS DE LoF: real x reconstruido -- so afeta quando NAO ha replay\n%s\n" ..
+                   "  => %s\n\n" ..
+                   "[3] ESTADO ATUAL DO MUNDO -- diferenca aqui e esperada se algo se moveu\n" ..
+                   "  cth   no tiro %s%%   agora %s%%\n" ..
+                   "  theta no tiro %s'   agora %s'\n" ..
+                   "  postura do alvo no tiro: %s   agora: %s",
+               tostring(attacker.session_id), tostring(target.session_id),
+               ra and "replay do tiro real" or "SEM replay gravado",
+               table.concat(hard, "\n"),
+               nhard == 0 and "IDENTICOS: o debug simula o mesmo tiro que o jogo" or
+                   (nhard .. " campo(s) divergem -- isto e bug"),
+               table.concat(soft, "\n"),
+               nsoft == 0 and "o fallback reproduz os args reais" or
+                   (nsoft .. " campo(s) divergem nominalmente. Medido em 80 tiros, os cinco " ..
+                       "campos que\n     divergem hoje (clamp_to_target, can_stuck_on_unit, " ..
+                       "can_hit_attacker,\n     force_hit_seen_target, aimIK) sao INERTES quando " ..
+                       "se atira num PONTO, que\n     e o caso da simulacao: 80% de acerto nos " ..
+                       "tres conjuntos. Ainda assim,\n     prefira o replay -- a inercia vale " ..
+                       "para este caminho, nao por principio."),
+               tostring(rec.cth), tostring(now_cth), tostring(rec.theta), tostring(now_theta),
+               tostring((rec.lof_args or empty_table).stance), tostring(target:GetHitStance()))
+end
+
+---- SILHUETA PROJETADA REAL. Grade 2D no plano perpendicular ao tiro, conta o que a colisao aceita
+---- (penetration_class = 0). Reporta area, raio equivalente (numero de A.Silhouette) e centro real vs mirado (A.AimCentroidPct).
+function Rat_DbgSilhouette(target, attacker, body_part, half_cm, steps)
+    attacker = pick_attacker(attacker)
+    if not attacker then
+        return "sem atacante (selecione um merc)"
+    end
+    target = pick_target(attacker, target)
+    if not target then
+        return "sem alvo"
+    end
+    body_part = body_part or g_DefaultShotBodyPart or "Torso"
+    half_cm = half_cm or 90 --- meia-largura da varredura, em cm
+    steps = steps or 10 --- 10 => grade 21x21 = 441 raios
+
+    local weapon = attacker:GetActiveWeapons()
+    local base = GetLoFData(attacker, target, {
+        obj = attacker, weapon = weapon, stance = attacker.stance,
+        prediction = true, output_collisions = true, force_hit_seen_target = false
+    })
+    if not base or not base.lof or #base.lof == 0 then
+        return "sem linha de tiro"
+    end
+    local attack_pos = base.lof[1].attack_pos
+    local aim_pos = Rat_SimAimPos(base.lof, body_part, base.lof[1].target_pos)
+
+    local dist = attack_pos:Dist(aim_pos)
+    local dir = SetLen(aim_pos - attack_pos, 1000)
+    local up = point(0, 0, 1000)
+    local par = Dot(up, dir) / 1000
+    local vert = up - MulDivRound(dir, par, 1000)
+    if vert:Len() < 10 then
+        vert = point(-dir:y(), dir:x(), 0)
+    end
+    vert = SetLen(vert, 1000)
+    local horiz = SetLen(point(-dir:y(), dir:x(), 0), 1000)
+
+    local cell = half_cm * 10 / steps --- lado da celula, em unidades do engine
+    local pts, meta, n = {}, {}, 0
+    for iy = -steps, steps do
+        for ix = -steps, steps do
+            n = n + 1
+            pts[n] = aim_pos + MulDivRound(horiz, ix * cell, 1000) +
+                         MulDivRound(vert, iy * cell, 1000)
+            meta[n] = {x = ix, y = iy}
+        end
+    end
+
+    local lof_args = {
+        obj = attacker, weapon = weapon, stance = attacker.stance, attack_pos = attack_pos,
+        output_collisions = true, range = dist + 20 * const.SlabSizeX,
+        penetration_class = 0, prediction = true, clamp_to_target = false,
+        fire_relative_point_attack = false, can_hit_attacker = false, ignore_los = true,
+        inside_attack_area_check = false, forced_hit_on_eye_contact = false,
+        can_use_covers = false, aimIK = false, can_stuck_on_unit = true,
+        force_hit_seen_target = false, seed = 0
+    }
+
+    local data = GetLoFData(attacker, pts, lof_args)
+    local hit_n, sx, sy = 0, 0, 0
+    local minx, maxx, miny, maxy
+    local grid = {}
+    for i, d in ipairs(data or empty_table) do
+        local ok = Rat_SimHitSpot(Rat_SimLoF(d), target)
+        grid[i] = ok
+        if ok then
+            local m = meta[i]
+            hit_n = hit_n + 1
+            sx, sy = sx + m.x, sy + m.y
+            minx = (not minx or m.x < minx) and m.x or minx
+            maxx = (not maxx or m.x > maxx) and m.x or maxx
+            miny = (not miny or m.y < miny) and m.y or miny
+            maxy = (not maxy or m.y > maxy) and m.y or maxy
+        end
+    end
+
+    if hit_n == 0 then
+        return string.format("%s -> %s: nenhum raio da grade acertou (alvo totalmente ocluido?)",
+                             tostring(attacker.session_id), tostring(target.session_id))
+    end
+
+    local cell_cm = half_cm / steps
+    local area_cm2 = hit_n * cell_cm * cell_cm
+    ---- raio equivalente: o disco de mesma AREA, que e o que theta modela
+    local r_eq = Rat_ISqrt(MulDivRound(area_cm2, 100, 314)) --- sqrt(area/pi)
+    local cx_cm = MulDivRound(sx, cell_cm, hit_n)
+    local cy_cm = MulDivRound(sy, cell_cm, hit_n)
+
+    ---- desenho: verde onde a colisao aceita, cruz no centro real
+    DbgClearVectors()
+    DbgClearTexts()
+    for i, ok in pairs(grid) do
+        if ok then
+            DbgAddVector(pts[i], MulDivRound(dir, 200, 1000), clrHit)
+        end
+    end
+    local centro = aim_pos + MulDivRound(horiz, cx_cm * 10, 1000) +
+                       MulDivRound(vert, cy_cm * 10, 1000)
+    draw_disc(centro, r_eq * 10, dir, clrCone, 32)
+    DbgAddText("centro real", centro, clrCone)
+    DbgAddText("mirado", aim_pos, clrAxis)
+
+    local modelo = Rat_TargetSilhouette(target, body_part, 100)
+    ---- penetration_class = 0: a grade mede silhueta E cobertura juntas -> so calibra A.Silhouette com alvo a descoberto
+    local expo = Rat_MeasureExposure(attacker, target, attacker:GetPos(), target:GetPos(),
+                                     body_part, weapon)
+    ---- limite da varredura: se o corpo encosta na borda, a area esta truncada
+    local clipped = (minx <= -steps) or (maxx >= steps) or (miny <= -steps) or (maxy >= steps)
+
+    return string.format(
+               "%s -> %s [%s] a %.1f tiles, parte %s  (grade %dx%d, celula %.1fcm)\n" ..
+                   "  extensao: %d..%dcm horizontal   %d..%dcm vertical%s\n" ..
+                   "  area projetada %d cm2  =>  raio equivalente %dcm\n" ..
+                   "  A.Silhouette atual para esta postura: %dcm  (%+d%%)\n" ..
+                   "  centro real vs ponto mirado: %+dcm lateral, %+dcm vertical\n" ..
+                   "  exposicao %d%%%s\n" ..
+                   "  verde = colisao aceita, amarelo = disco de area equivalente",
+               tostring(attacker.session_id), tostring(target.session_id),
+               tostring(target:GetHitStance()), attacker:GetDist(target) / const.SlabSizeX,
+               tostring(body_part), 2 * steps + 1, 2 * steps + 1, cell_cm,
+               minx * cell_cm, maxx * cell_cm, miny * cell_cm, maxy * cell_cm,
+               clipped and "   *** TRUNCADO: aumente half_cm ***" or "",
+               area_cm2, r_eq, modelo, MulDivRound(modelo - r_eq, 100, Max(1, r_eq)),
+               cx_cm, cy_cm, expo,
+               expo < 100 and "  *** NAO SERVE PARA CALIBRAR: alvo em cobertura ***" or
+                   "  (a descoberto -- serve para calibrar)")
+end
+
+---- Calibracao de A.Silhouette: mede todos os inimigos e resume por postura (so 100% expostos, nao truncados).
+---- Rode em varias posicoes: raio equivalente que varia com a distancia = mudanca no angulo de visada.
+function Rat_DbgSilhouetteCalib(attacker, body_part)
+    attacker = pick_attacker(attacker)
+    if not attacker then
+        return "sem atacante (selecione um merc)"
+    end
+    body_part = body_part or g_DefaultShotBodyPart or "Torso"
+
+    local by_stance, lines = {}, {}
+    local n_ok, n_skip = 0, 0
+    for _, o in ipairs(g_Units or empty_table) do
+        if o ~= attacker and not o:IsDead() and attacker:IsOnEnemySide(o) then
+            local txt = Rat_DbgSilhouette(o, attacker, body_part, 120, 12)
+            local r = tonumber(txt:match("raio equivalente (%d+)cm"))
+            local expo = tonumber(txt:match("exposicao (%d+)%%"))
+            local trunc = txt:find("TRUNCADO") and true or false
+            local st = tostring(o:GetHitStance())
+            local d = attacker:GetDist(o) / const.SlabSizeX
+            if r and expo == 100 and not trunc then
+                by_stance[st] = by_stance[st] or {}
+                table.insert(by_stance[st], r)
+                n_ok = n_ok + 1
+                lines[#lines + 1] = string.format("  %-30s %-8s %4.1ft  r_eq %2dcm",
+                                                  tostring(o.session_id):sub(-30), st, d, r)
+            else
+                n_skip = n_skip + 1
+                lines[#lines + 1] = string.format("  %-30s %-8s %4.1ft  ignorado (%s)",
+                                                  tostring(o.session_id):sub(-30), st, d,
+                                                  not r and "sem raio" or
+                                                      (trunc and "truncado" or
+                                                          ("exposicao " .. tostring(expo) .. "%")))
+            end
+        end
+    end
+
+    local sum = {}
+    for st, rs in sorted_pairs(by_stance) do
+        local s = 0
+        for _, r in ipairs(rs) do
+            s = s + r
+        end
+        local media = s / #rs
+        sum[#sum + 1] = string.format("  %-9s medido %2dcm (%d amostra%s)  |  A.Silhouette = %2dcm  (%+d%%)",
+                                      st, media, #rs, #rs > 1 and "s" or "",
+                                      const.Combat.Aperture.Silhouette[st] or -1,
+                                      MulDivRound((const.Combat.Aperture.Silhouette[st] or 0) - media,
+                                                  100, Max(1, media)))
+    end
+    if #sum == 0 then
+        sum[1] = "  (nenhum alvo a descoberto: aproxime-se ou saia da cobertura)"
+    end
+
+    return string.format("CALIBRACAO DE SILHUETA (parte %s)  --  %d usaveis, %d ignorados\n%s\n\n" ..
+                             "resumo por postura:\n%s\n\n" ..
+                             "  So alvos 100%% expostos entram. Junte medidas de varias posicoes\n" ..
+                             "  antes de mexer em A.Silhouette -- uma amostra so nao calibra nada.",
+                         tostring(body_part), n_ok, n_skip, table.concat(lines, "\n"),
+                         table.concat(sum, "\n"))
 end

@@ -1282,6 +1282,10 @@ return {
 		'CodeFileName', "Code/FUNCTIONS_cover_silhouette.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "UI_aperture_ring",
+		'CodeFileName', "Code/UI_aperture_ring.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "DEBUG_aperture_draw",
 		'CodeFileName', "Code/DEBUG_aperture_draw.lua",
 	}),
@@ -1321,6 +1325,10 @@ return {
 	PlaceObj('ModItemCode', {
 		'name', "SOURCE_ Unit:EnterCombat",
 		'CodeFileName', "Code/SOURCE_ Unit_EnterCombat.lua",
+	}),
+	PlaceObj('ModItemCode', {
+		'name', "SOURCE_GetBulletDamage",
+		'CodeFileName', "Code/SOURCE_GetBulletDamage.lua",
 	}),
 	PlaceObj('ModItemCode', {
 		'name', "SOURCE_AISignatureAction_MatchUnit",
@@ -2404,6 +2412,16 @@ return {
 			stack_min = 16,
 		}),
 	}),
+	PlaceObj('ModItemFolder', {
+		'name', "ComponentEffects",
+	}, {
+		PlaceObj('ModItemWeaponComponentEffect', {
+			ModificationType = "Multiply",
+			StatToModify = "ConditionDegradationMul",
+			group = "Default",
+			id = "NewModificationEffects",
+		}),
+		}),
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 5,
 		DisplayName = T(325115069441, --[[ModItemWeaponComponent HIll_StockGalil_01 DisplayName]] "Default Stock"),
@@ -3027,7 +3045,7 @@ return {
 		ModificationDifficulty = -10,
 		ModificationEffects = {
 			"SilentShots",
-			"ReduceReliability",
+			"IncreaseConditionDegradationMul",
 			"DecreaseAimAccuracy",
 			"flanker",
 			"compensator_effect_ugly_silencer",
@@ -3035,9 +3053,9 @@ return {
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
-				'Name', "ReliabilityDecrease",
+				'Name', "ConditionDegradationMulIncrease",
 				'Value', 20,
-				'Tag', "<ReliabilityDecrease>",
+				'Tag', "<ConditionDegradationMulIncrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "AimAccuracyDecrease",
@@ -3048,11 +3066,6 @@ return {
 				'Name', "NoiseMultiplier",
 				'Value', 50,
 				'Tag', "<NoiseMultiplier>%",
-			}),
-			PlaceObj('PresetParamPercent', {
-				'Name', "bonus_cth",
-				'Value', 3,
-				'Tag', "<bonus_cth>%",
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "OverwatchAngleDecrease",
@@ -3109,7 +3122,7 @@ return {
 			"flanker",
 			"compensator_effect_silencer",
 			"DecreaseOverwatchAngle",
-			"ReduceReliability",
+			"IncreaseConditionDegradationMul",
 		},
 		Parameters = {
 			PlaceObj('PresetParamPercent', {
@@ -3128,9 +3141,9 @@ return {
 				'Tag', "<OverwatchAngleDecrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
-				'Name', "ReliabilityDecrease",
+				'Name', "ConditionDegradationMulIncrease",
 				'Value', 10,
-				'Tag', "<ReliabilityDecrease>",
+				'Tag', "<ConditionDegradationMulIncrease>",
 			}),
 		},
 		Slot = "Muzzle",

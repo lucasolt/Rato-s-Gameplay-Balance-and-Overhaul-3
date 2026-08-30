@@ -5,7 +5,7 @@ return PlaceObj('ModDef', {
 	'external_links', {
 		"https://www.buymeacoffee.com/rato_modder",
 	},
-	'last_changes', "3.60\n- When set up, MGs will have lower snapshot penalty for interrupt attacks at long distances\n- Setting up MG now costs more if you are not prone. This extra cost can be paid with free move ap.\n- Components and perks effect on recoil/snapshot/hipfire and aim tweaked\n- Snipe action bonus crit per aim from 5 to 4.\n- Heavy rain no longer increases aim ap. Instead, it makes aiming less effective \n- Reflex sights no longer increase range\n- Snapshot penalty for opportunity attacks was decreased (from extra +20% to +10%). Reflex will grant bigger boost\n- Aim scaling formula changed, lower level units will have more benefit than before [ROLLED BACK]\n- Redesign reliability mechanics. The value will now govern the chance of jamming instead of condition degradation by shot. The formula was changed, high reliability weapons will be able to perform even when in lower condition.\n",
+	'last_changes', "3.60\n- When set up, MGs will have lower snapshot penalty for interrupt attacks at long distances\n- Setting up MG now costs more if you are not prone. This extra cost can be paid with free move ap.\n- Components and perks effect on recoil/snapshot/hipfire and aim tweaked\n- Snipe action bonus crit per aim from 5 to 4.\n- Heavy rain no longer increases aim ap. Instead, it makes aiming less effective \n- Reflex sights no longer increase range\n- Snapshot penalty for opportunity attacks was decreased (from extra +20% to +10%). Reflex will grant bigger boost\n- Aim scaling formula changed, lower level units will have more benefit than before [ROLLED BACK]\n- Redesign reliability mechanics. The value will now govern the chance of jamming instead of condition degradation by shot. The formula was changed, high reliability weapons will be able to perform even when in lower condition.\n- Changed fog vision radius reduction. Fog no longer causes grazing hits\n",
 	'SpellCheck', true,
 	'dependencies', {
 		PlaceObj('ModDependency', {
@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 12669,
+	'version', 12753,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -99,6 +99,7 @@ return PlaceObj('ModDef', {
 		"Code/FUNCTIONS_hipfire.lua",
 		"Code/FUNCTIONS_aperture.lua",
 		"Code/FUNCTIONS_cover_silhouette.lua",
+		"Code/UI_aperture_ring.lua",
 		"Code/DEBUG_aperture_draw.lua",
 		"Code/UI_aperture_crosshair.lua",
 		"Code/XTEMP_recoil.lua",
@@ -108,6 +109,7 @@ return PlaceObj('ModDef', {
 		"Code/REACTIONS.lua",
 		"Code/REACTIONS_ShootingStance.lua",
 		"Code/SOURCE_ Unit_EnterCombat.lua",
+		"Code/SOURCE_GetBulletDamage.lua",
 		"Code/SOURCE_AISignatureAction_MatchUnit.lua",
 		"Code/SOURCE_GetAutoFireShots.lua",
 		"Code/SOURCE_IModeCombatAreaAim_UpdateTarget.lua",
@@ -168,8 +170,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1788024024,
-	'code_hash', 8936149978303236952,
+	'saved', 1788072362,
+	'code_hash', -8579571250830518902,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",
@@ -300,6 +302,11 @@ return PlaceObj('ModDef', {
 			'Class', "LootDef",
 			'Id', "Gus",
 			'ClassDisplayName', "Loot definition",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponentEffect",
+			'Id', "NewModificationEffects",
+			'ClassDisplayName', "Modification Effects",
 		}),
 		PlaceObj('ModResourcePreset', {
 			'Class', "WeaponComponent",

@@ -19,9 +19,9 @@ function Unit:GetShootingStanceAP(target, weapon, aim, action, param)
     local ap_hipfire = 0
 
     ------(hipfire) Leftover, should be removed if not reinstated
-    if aim < 1 and not (target == self:GetLastAttack()) or not target then
-        ap_hipfire = GetHipfire_StanceAP(self, weapon)
-    end
+    --if aim < 1 and not (target == self:GetLastAttack()) or not target then
+    --    ap_hipfire = GetHipfire_StanceAP(self, weapon)
+    --end
 
     ------------Rotate
     local ap_rotate

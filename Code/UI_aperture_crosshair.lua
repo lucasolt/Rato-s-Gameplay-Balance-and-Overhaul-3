@@ -1,35 +1,106 @@
 ---------------------------------------------------------------------------------------------------
----- CROSSHAIR: o circulo de mira passa a mostrar a ABERTURA de verdade
-----
----- O vanilla ja tem o circulo (`idAimTarget`, imagem UI/Hud/target_aim) sobreposto
----- ao fundo do alvo, e ele visivelmente foi feito para representar dispersao -- mas
----- a logica ficou pela metade (ActionCameraCrosshair.lua:224-265):
-----
-----     local aimScale = aimMaxScale - aim * perLevel    -- 560 .. 200, linear
-----
----- Ou seja, encolhe so com o NIVEL DE MIRA. Ignora distancia, arma, pericia do
----- atirador e cobertura -- e as chamadas de SetVisible ao redor estao comentadas,
----- o que confirma que o recurso foi abandonado no meio.
-----
----- Com o modelo angular esse circulo tem finalmente o que mostrar: a razao entre o
----- cone da arma (sigma) e a silhueta do alvo (theta), que e exatamente a grandeza
----- de que o CTH sai. O circulo grande demais para o alvo E o motivo de errar.
-----
-----     escala = RefScale * sigma / theta
-----
----- RefScale e a escala em que o circulo cobre a silhueta (sigma == theta). Abaixo
----- dela o cone cabe no alvo; acima, transborda. Mirar, agachar, aproximar-se ou
----- flanquear encolhem o circulo pelo mesmo motivo que sobem o CTH.
-----
----- Com const.Combat.Aperture.Enabled = false o comportamento vanilla e restaurado
----- byte a byte: a funcao original fica guardada e volta a ser chamada.
+---- CROSSHAIR: o circulo de mira passa a mostrar a ABERTURA de verdade.
+---- O vanilla (`idAimTarget`) so encolhe uma imagem 2D com o nivel de mira e a logica ficou pela
+---- metade (ActionCameraCrosshair.lua:224-265). Aqui ele da lugar a um anel NO MUNDO, no plano do
+---- alvo e perpendicular a linha de tiro -- o mesmo circulo do DEBUG_aperture_draw. Ver UI_aperture_ring.
+---- Com A.Enabled = false a funcao original volta a ser chamada, sem alteracao.
 ---------------------------------------------------------------------------------------------------
 
 local vanilla_update --- OnContextUpdate original do template, para o fallback
+local debug = Platform.developer and Platform.rat
 
----- Acha o no do template que controla o circulo: aquele cujo filho direto tem
----- Id "idAimTarget". Procurar pela estrutura em vez de decorar o caminho
----- ([1][1][1][2][2] hoje) evita quebrar se a Haemimont mexer no layout.
+---- Sai do caminho: devolve o circulo 2D e apaga o anel do mundo.
+local function fallback(self, context, ...)
+    Rat_HideConeRing()
+    if self.idAimTarget then
+        self.idAimTarget:SetVisible(true)
+    end
+    return vanilla_update(self, context, ...)
+end
+
+---- Desenha o anel a partir do estado do CROSSHAIR, nao do widget: passar o mouse pelas body
+---- parts chama SetSelectedPart (muda targetPart) sem disparar update de contexto nenhum.
+---- false = o modelo nao se aplica aqui; o chamador volta ao circulo 2D.
+function Rat_UpdateConeRing(crosshair)
+    local a = const.Combat.Aperture
+    if not (a and a.Enabled) or not crosshair or not crosshair.context or
+        crosshair.window_state == "destroying" or crosshair.window_state == "pre-destroying" then
+        return false
+    end
+
+    local c = crosshair.context
+    local attacker = c.attacker
+    local target = c.target
+
+    ---- registra o alvo mirado para as funcoes de debug usarem "o ultimo do crosshair"
+    if debug and IsValid(target) and IsValid(attacker) then
+        g_RatDbgCrosshairTarget = target
+    end
+
+    local action = crosshair.show_data_for_action or c.action
+    local weapon = attacker and action and action:GetAttackWeapons(attacker)
+
+    if not IsValid(attacker) or not IsValid(target) or not action or
+        not Rat_AngularActive(weapon, action, attacker) then
+        return false
+    end
+
+    local aim = crosshair.aim or 0
+    local part = crosshair.targetPart and crosshair.targetPart.id
+    local step_pos = c.override_pos or attacker:GetPos()
+
+    local cth, sigma, theta, _, _, dist = Rat_AngularCTH(attacker, target, part, action, weapon,
+                                                         aim, false, step_pos, target:GetPos(), nil)
+
+    if not sigma or not theta or theta < 1 or not dist then
+        return false
+    end
+
+    ---- mesmo cone que Rat_SimPlanShots dispara: geometria corrigida pelo que entrou por mod_add
+    ---- em CalcChanceToHit (recoil permanente, Dazed). Ver Rat_EffectiveSigma.
+    local results = c.attackResultTable
+    results = results and part and results[part]
+    local cth_final = results and results.chance_to_hit
+    if cth_final then
+        sigma = Rat_EffectiveSigma(theta, sigma, cth_final)
+        cth = cth_final
+    end
+
+    ---- raio que contem ~96% dos tiros (2.5 sigma), nao 1 sigma cru -- ver A.CrosshairSigmaMul.
+    local spread = MulDivRound(sigma, a.CrosshairSigmaMul, 100)
+
+    ---- mesma escala de cor da linha Aperture no overlay (Rat_QualityColor): o anel e o texto
+    ---- respondem ao mesmo numero, entao a cor quer dizer a mesma coisa nos dois.
+    local color = RGB(Rat_QualityColor(cth))
+
+    ---- ancora no spot da parte mirada; plano perpendicular a linha de tiro. `dist` continua
+    ---- vindo do CTH (medido ate o pe do alvo): a diferenca de altura nao move o raio 1 cm.
+    local center = Rat_RingAnchor(target, part)
+    if not center then
+        return false
+    end
+
+    Rat_ShowConeRing(center, Rat_ConeRadius(dist, spread), center - Rat_RingValidZ(step_pos), color)
+    return true
+end
+
+---- Rollover nas body parts so mexe em targetPart; sem isto o anel so acompanharia o clique.
+function OnMsg.ClassesBuilt()
+    local cls = g_Classes.CrosshairUI
+    if not cls or cls.rat_ring_part_patched then
+        return
+    end
+    local vanilla_set_part = cls.SetSelectedPart
+    cls.rat_ring_part_patched = true
+    cls.SetSelectedPart = function(self, part, ...)
+        local res = vanilla_set_part(self, part, ...)
+        Rat_UpdateConeRing(self)
+        return res
+    end
+end
+
+---- Acha o no cujo filho direto tem Id "idAimTarget". Busca por estrutura, nao pelo caminho fixo,
+---- para nao quebrar se a Haemimont mexer no layout.
 local function find_aim_circle_node(root)
     local found
     local function walk(node, depth)
@@ -53,7 +124,7 @@ local function find_aim_circle_node(root)
     return found
 end
 
-function Rat_PatchCrosshairAimCircle()
+function Rat_PatchCrosshairAimCircle(force)
     local tpl = XTemplates and XTemplates.ActionCameraCrosshair
     if not tpl then
         return false, "XTemplates.ActionCameraCrosshair nao encontrado"
@@ -63,7 +134,7 @@ function Rat_PatchCrosshairAimCircle()
     if not node then
         return false, "no do idAimTarget nao encontrado no template"
     end
-    if node.rat_aperture_patched then
+    if node.rat_aperture_patched and not force then
         return true, "ja aplicado"
     end
 
@@ -71,75 +142,26 @@ function Rat_PatchCrosshairAimCircle()
     node.rat_aperture_patched = true
 
     node.OnContextUpdate = function(self, context, ...)
-        local a = const.Combat.Aperture
-        local crosshair = self:ResolveId("node")
-
-        ---- desligado, ou sem o que medir: comportamento vanilla intacto
-        if not (a and a.Enabled) or not crosshair or not crosshair.context then
-            return vanilla_update(self, context, ...)
+        if not Rat_UpdateConeRing(self:ResolveId("node")) then
+            return fallback(self, context, ...)
         end
-
-        local c = crosshair.context
-        local attacker = c.attacker
-        local target = c.target
-        local action = crosshair.show_data_for_action or c.action
-        local weapon = attacker and action and action:GetAttackWeapons(attacker)
-
-        if not IsValid(attacker) or not IsValid(target) or not action or
-            not Rat_AngularActive(weapon, action, attacker) then
-            return vanilla_update(self, context, ...)
-        end
-
-        local aim = crosshair.aim or 0
-        local part = crosshair.targetPart and crosshair.targetPart.id
-        local step_pos = c.override_pos or attacker:GetPos()
-
-        local cth, sigma, theta = Rat_AngularCTH(attacker, target, part, action, weapon, aim, false,
-                                                 step_pos, target:GetPos(), nil)
-
-        if not sigma or not theta or theta < 1 then
-            return vanilla_update(self, context, ...)
-        end
-
-        ---- O circulo mostra o raio que contem ~96% dos tiros (2.5 sigma), nao um
-        ---- sigma cru -- ver A.CrosshairSigmaMul. Desenhar 1 sigma punha o circulo
-        ---- dentro da silhueta em tiros de 72%, o que mentia para o jogador.
-        local spread = MulDivRound(sigma, a.CrosshairSigmaMul, 100)
-        local scale = Clamp(MulDivRound(a.CrosshairRefScale, spread, theta),
-                            a.CrosshairMinScale, a.CrosshairMaxScale)
-
-        ---- cor: amarelo quando este e o nivel de mira mais barato possivel,
-        ---- como no vanilla; vermelho caso contrario
-        local nextAimLevel = crosshair.GetNextAimLevel and crosshair:GetNextAimLevel()
-        if nextAimLevel == (crosshair.minAimPossible or 0) then
-            self.idAimTarget:SetImageColor(RGB(237, 184, 24))
-        else
-            self.idAimTarget:SetImageColor(RGB(191, 67, 77))
-        end
-
-        ---- anel mais "fechado" quando o grupo de tiros ja cabe no alvo
-        if spread <= theta then
-            self.idAimTarget:SetImage("UI/Hud/target_aim_small")
-        elseif spread > theta * 2 then
-            self.idAimTarget:SetImage("UI/Hud/T_HUD_TargetingCircle_Inner")
-        else
-            self.idAimTarget:SetImage("UI/Hud/T_HUD_TargetingCircle_Inner_2")
-        end
-
-        self.idAimTarget:SetScaleModifier(point(scale, scale))
+        self.idAimTarget:SetVisible(false) --- o anel do mundo substitui a imagem 2D
     end
 
     return true, "aplicado"
 end
 
 ---------------------------------------------------------------------------------------------------
----- Diagnostico: que escala o circulo teria, por nivel de mira
+---- Diagnostico: que raio o anel teria no alvo, por nivel de mira
 ---------------------------------------------------------------------------------------------------
 
 function Rat_ShowCrosshairScale(target, attacker)
     attacker = attacker or SelectedObj
     if not attacker then
         return "sem atacante"
+    end
+    if not target and attacker == SelectedObj and Rat_DbgCrosshairTarget then
+        target = Rat_DbgCrosshairTarget(attacker)
     end
     if not target then
         for _, o in ipairs(g_Units or empty_table) do
@@ -169,17 +191,15 @@ function Rat_ShowCrosshairScale(target, attacker)
                       tostring(target.session_id),
                       attacker:GetDist(target) / const.SlabSizeX,
                       a.CrosshairSigmaMul / 100.0),
-        "aim | sigma  grupo   alvo | escala | CTH | grupo vs alvo"
+        "aim | sigma  grupo   alvo | raio cm | CTH | grupo vs alvo"
     }
     for aim = 0, 4 do
-        local cth, sigma, theta = Rat_AngularCTH(attacker, target, nil, action, weapon, aim, false,
-                                                 attacker:GetPos(), target:GetPos(), nil)
+        local cth, sigma, theta, _, _, dist = Rat_AngularCTH(attacker, target, nil, action, weapon,
+                                                             aim, false, attacker:GetPos(),
+                                                             target:GetPos(), nil)
         local spread = MulDivRound(sigma, a.CrosshairSigmaMul, 100)
-        local scale = theta >= 1 and
-                          Clamp(MulDivRound(a.CrosshairRefScale, spread, theta),
-                                a.CrosshairMinScale, a.CrosshairMaxScale) or -1
-        out[#out + 1] = string.format(" %d  | %5d %6d %6d | %6d | %3d%% | %s", aim, sigma, spread,
-                                      theta, scale, cth,
+        out[#out + 1] = string.format(" %d  | %5d %6d %6d | %7d | %3d%% | %s", aim, sigma, spread,
+                                      theta, Rat_ConeRadius(dist, spread) / 10, cth,
                                       (theta >= 1 and spread <= theta) and "cabe" or "transborda")
     end
 

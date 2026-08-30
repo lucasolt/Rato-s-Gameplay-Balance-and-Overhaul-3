@@ -234,7 +234,7 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 	local knife_throw = IsKindOf(weapon, "MeleeWeapon") and (action.ActionType == "Ranged Attack")
 	local penalty = weapon:GetAccuracy(attacker_pos:Dist(target_pos), self, action, knife_throw) - 100
      ----
-    penalty = (const.Combat.Aperture.Enabled and action.ActionType == "Ranged Attack") and 0 or penalty
+    penalty = (const.Combat.Aperture.Enabled and action.ActionType == "Ranged Attack" and not knife_throw) and 0 or penalty
        ----
         
 	local final = Clamp(base + penalty, 0, 100)

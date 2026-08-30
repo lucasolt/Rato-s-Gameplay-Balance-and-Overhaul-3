@@ -5,9 +5,17 @@ function Unit:GetBaseAimLevelRange(action, target)
     if action and action.IsAimableAttack then
         local actionWep = action:GetAttackWeapons(self)
         if IsKindOf(actionWep, "Firearm") then
-            local singleMaxActions = {"DualShot", "AutoFire", "GrizzlyPerk"}
+            local singleMaxActions = {
+				["DualShot"] = true,
+				["AutoFire"]= true,
+				["GrizzlyPerk"]= true
+			}
 
-            if table.find(singleMaxActions, action.id) then
+			if const.Combat.Aperture.SimulateShots then
+				singleMaxActions["AutoFire"] = nil
+				--singleMaxActions["GrizzlyPerk"] = nil
+			end
+            if singleMaxActions[action.id] then
                 max = 1
             end
 

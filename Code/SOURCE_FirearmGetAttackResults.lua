@@ -246,9 +246,7 @@ function Firearm:GetAttackResults(action, attack_args)
         local recoil = get_recoil(attacker, target, target_pos, action, weapon, false, num_shots) or
                            0
 
-        ---- No modelo angular o recoil ABRE O CONE em vez de subtrair pontos.
-        ---- As razoes ja embutem a distancia, porque a silhueta cai com 1/d --
-        ---- ver Rat_GetShotConeRatios / Rat_GetRecoilConeGrowth.
+        ---- angular: o recoil abre o cone em vez de subtrair pontos (Rat_GetShotConeRatios).
         if Rat_AngularActive(weapon, action, attacker) then
             cone_ratios = Rat_GetShotConeRatios(attacker, target, shot_attack_args.target_spot_group,
                                                 action, weapon, shot_attack_args.aim or 0,
@@ -256,10 +254,7 @@ function Firearm:GetAttackResults(action, attack_args)
                                                 shot_attack_args.step_pos, target_pos, num_shots)
         end
 
-        ---- Em rajada so a PRIMEIRA bala fica com o bonus de mira; as 2..N o perdem.
-        ---- Com o CTH angular nao existe mais um modifier "Aim" para ler -- o bonus de
-        ---- mira virou o fechamento do cone -- entao a perda se mede refazendo a
-        ---- geometria com aim 0. Ver Rat_AngularCTH / CTH_angular.lua.
+        ---- Rajada: so a 1a bala leva o bonus de mira. No angular nao ha modifier "Aim" (virou fechamento do cone).
         if Rat_AngularActive(weapon, action, attacker) then
             --local aimed = Rat_AngularCTH(attacker, target, shot_attack_args.target_spot_group,
             --                             action, weapon, shot_attack_args.aim or 0,
@@ -295,9 +290,7 @@ function Firearm:GetAttackResults(action, attack_args)
         local original_cth = self:GetShotChanceToHit(attack_results.chance_to_hit) or 0
 
         if cone_ratios then
-            ---- angular: a degradacao e a razao entre o CTH com o cone alargado por
-            ---- `i-1` tiros e o do primeiro tiro. Aplicada como RAZAO para preservar
-            ---- na mesma proporcao todos os modifiers que ja entraram no CTH final.
+            ---- angular: degrada por RAZAO (cone alargado por i-1 tiros / tiro 1).
             shot_cth = original_cth
             if i > 1 then
                 shot_cth = shot_cth - aim_cth
@@ -382,70 +375,45 @@ function Firearm:GetAttackResults(action, attack_args)
     -- local pellets_data
     -----
 
-    ---------------------------------------------------------------------------------------------
-    ---- SIMULACAO: a bala vai onde o cone mandou
-    ----
-    ---- No pipeline vanilla o dado decide primeiro e a geometria e ENCENADA depois:
-    ---- num_hits e num_misses sao ENTRADA de CalcShotVectors, que fabrica trajetorias
-    ---- coerentes com o resultado ja sorteado. Aqui a ordem se inverte -- sorteia-se o
-    ---- desvio dentro da abertura, dispara-se, e o que acertou acertou.
-    ----
-    ---- O balance nao muda: o sorteio sai da INVERSA da mesma LUT de Rayleigh de que
-    ---- o CTH exibido sai, entao a taxa de acerto esperada e identica (verificado com
-    ---- 10 mil tiros, erro de 1 ponto). O que muda e a CONSEQUENCIA do erro: a bala
-    ---- perdida existe de verdade, pode bater na cobertura, num aliado ou no inimigo
-    ---- atras, e a parte do corpo atingida deixa de ser rolada -- e onde a bala cruzou.
-    ----
-    ---- So na resolucao, nunca em previsao: consome random sincronizado.
-    ---------------------------------------------------------------------------------------------
-    local sim_shots
+    ---- SIMULACAO: inverte o pipeline vanilla -- sorteia o desvio na abertura, dispara, a geometria decide
+    ---- acerto e parte do corpo. Mesma LUT de Rayleigh do CTH (taxa esperada igual); muda a consequencia do erro.
+    local sim_shots, sim_ctx
     if not prediction and const.Combat.Aperture.SimulateShots and
         Rat_AngularActive(attack_args.weapon or self, action, attacker) then
-        ---- O sigma do sorteio sai do CTH FINAL, nao da abertura crua: assim tudo que
-        ---- entrou no numero exibido -- perks, efeitos de status, bonus de parte do
-        ---- corpo, o dial global -- tambem entra no tiro. Sem isso a simulacao acertava
-        ---- 66% onde a UI prometia 47%. Ver Rat_SigmaForCTH.
-        local _, geo_sigma, theta = Rat_AngularCTH(attacker, target,
-                                                   shot_attack_args.target_spot_group, action,
-                                                   attack_args.weapon or self,
-                                                   shot_attack_args.aim or 0,
-                                                   shot_attack_args.opportunity_attack,
-                                                   shot_attack_args.step_pos, target_pos)
-        local sigma = Rat_SigmaForCTH(theta, self:GetShotChanceToHit(attack_results.chance_to_hit) or
-                                          attack_results.chance_to_hit) or geo_sigma
-        if sigma and sigma > 0 then
-            local growth = (num_shots > 1) and
-                               Rat_GetRecoilConeGrowth(attacker, action,
-                                                       attack_args.weapon or self, num_shots) or 100
-            local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
-            local aim_pos = target_pos
-            sim_shots = {}
-            local s_i = sigma
-            ---- o resultado do ataque passa a ser ACUMULADO do que cada bala fez,
-            ---- entao os valores rolados no dado deixam de valer como ponto de partida
+        ---- Rat_SimPlanShots: a mesma funcao que o visualizador chama
+        sim_ctx = {
+            attacker = attacker,
+            target = target,
+            action = action,
+            weapon = attack_args.weapon or self,
+            aim = shot_attack_args.aim or 0,
+            opportunity_attack = shot_attack_args.opportunity_attack,
+            spot = shot_attack_args.target_spot_group,
+            attack_pos = attack_results.attack_pos,
+            ---- ponto de mira != spot cru (Rat_SimAimPos / A.AimCentroidPct)
+            aim_pos = Rat_SimAimPos(shot_attack_args.lof,
+                                    shot_attack_args.target_spot_group, target_pos),
+            step_pos = shot_attack_args.step_pos,
+            target_pos = target_pos,
+            cth = self:GetShotChanceToHit(attack_results.chance_to_hit) or
+                attack_results.chance_to_hit,
+            cth_source = "GetShotChanceToHit(attack_results.chance_to_hit)",
+            num_shots = num_shots,
+            args = shot_attack_args
+        }
+        sim_shots = Rat_SimPlanShots(sim_ctx)
+        if sim_shots then
+            ---- resultado passa a ser acumulado do que cada bala fez
             miss, crit = true, false
 
-            ---- registro para o visualizador (Rat_DbgLastShots). So guarda pontos;
-            ---- nao altera nada do calculo.
-            g_RatLastSimShots = {
-                attacker = attacker, target = target,
-                attack_pos = attack_results.attack_pos, shots = {}
-            }
+            Rat_SimSnapshot(sim_ctx) ---- registro para Rat_DbgLastShots / Rat_DbgVerifySim; so le
 
             for i = 1, num_shots do
-                if i > 1 and (i - 1) <= max_idx then
-                    s_i = MulDivRound(s_i, growth, 100)
-                end
-                sim_shots[i] = {
-                    sigma = s_i,
-                    target_pos = Rat_ShotScatterPoint(attacker, attack_results.attack_pos, aim_pos,
-                                                      s_i)
-                }
-                g_RatLastSimShots.shots[i] = {
-                    target_pos = sim_shots[i].target_pos, sigma = s_i
-                }
-                NetUpdateHash("RatSimShot", attacker, target, i, s_i, sim_shots[i].target_pos)
+                NetUpdateHash("RatSimShot", attacker, target, i, sim_shots[i].sigma,
+                              sim_shots[i].target_pos)
             end
+        else
+            sim_shots = nil
         end
     end
 
@@ -571,7 +539,7 @@ function Firearm:GetAttackResults(action, attack_args)
         local precalc_shot = precalc_shots and precalc_shots[i]
         local shot_data = precalc_shot and precalc_shot.shot_data or shots_data[i]
 
-        local shot_cth, shot_miss, shot_crit, allow_grazing
+        local shot_cth, shot_miss, shot_crit, allow_grazing, shot_hit_spot
         shot_cth = band(shot_data, sfCthMask)
         shot_miss = band(shot_data, sfHit) == 0
         shot_crit = band(shot_data, sfCrit) ~= 0
@@ -583,16 +551,10 @@ function Firearm:GetAttackResults(action, attack_args)
         local attack_data, miss_target_pos, hit_data
         local sim = sim_shots and sim_shots[i]
         if sim then
-            ---- dispara no ponto sorteado, SEM ignorar o alvo: quem decide se acertou
-            ---- e a geometria, nao o dado
-            shot_attack_args.attack_pos = attack_results.attack_pos
-            shot_attack_args.seed = attacker:Random()
-            shot_attack_args.fire_relative_point_attack = false
-            shot_attack_args.ignore_colliders =
-                compile_ignore_colliders(killed_colliders, attack_args.ignore_colliders)
-            shot_attack_args.ignore_los = true
-            shot_attack_args.inside_attack_area_check = false
-            shot_attack_args.forced_hit_on_eye_contact = false
+            ---- dispara no ponto sorteado sem ignorar o alvo; a geometria decide o acerto.
+            Rat_SimLoFOverrides(shot_attack_args, attack_results.attack_pos, attacker:Random(),
+                                compile_ignore_colliders(killed_colliders,
+                                                         attack_args.ignore_colliders))
             allow_grazing = false
             attack_data = GetLoFData(attacker, sim.target_pos, shot_attack_args)
         elseif precalc_shot then
@@ -676,30 +638,31 @@ function Firearm:GetAttackResults(action, attack_args)
             }
         end
 
-        ---- SIMULACAO: aqui o resultado deixa de vir do dado. A bala ja voou; se ela
-        ---- cruzou o alvo, acertou. Tudo abaixo (dano, stray, graze, crit, body part)
-        ---- le `shot_miss`, entao basta corrigi-lo neste ponto.
+        ---- a bala ja voou: se cruzou o alvo, acertou. Corrige `shot_miss` aqui e o resto le dele.
         if sim then
-            local hit_it = false
-            for _, h in ipairs(hit_data.hits or empty_table) do
-                if h.obj == target then
-                    hit_it = true
-                    break
-                end
-            end
+            local hit_it
+            hit_it, shot_hit_spot = Rat_SimHitSpot(hit_data, target)
             shot_miss = not hit_it
             if shot_miss then
                 miss_target_pos = sim.target_pos
             end
 
-            ---- crit e rolado por tiro, mas so vale se a bala chegou
-            local croll = shot_attack_args.multishot and
-                              (attack_results.crit_roll[i] or 101) or attack_results.crit_roll
-            shot_crit = (not shot_miss) and (croll <= attack_results.crit_chance)
+            ---- crit rolado por tiro, so vale se a bala chegou. Sem multishot (Buckshot, DoubleBarrel,
+            ---- DualShot) o roll e UM para o ataque inteiro: sem o limite de um crit o mesmo sorteio
+            ---- critava toda bala que chegasse. Vanilla amarra em `i == 1`; aqui, na 1a que chegou.
+            local croll, single_roll
+            if shot_attack_args.multishot then
+                croll = attack_results.crit_roll[i] or 101
+            else
+                croll, single_roll = attack_results.crit_roll, true
+            end
+            shot_crit = (not shot_miss) and (croll <= attack_results.crit_chance) and
+                            not (single_roll and crit)
 
-            dmg_target = (leading_shot and not shot_miss) and target or false
+            ---- STRAY ignora `leading_shot`: BulletCalcDamage marca stray por `obj ~= hit_data.target`
+            ---- e vanilla so marca o 1o tiro leading -> acertos 2..N virariam stray (-50% dano). Cruzou o alvo = acertou.
+            dmg_target = (not shot_miss) and target or false
 
-            ---- o resultado do ataque passa a ser a soma do que aconteceu
             miss = miss and shot_miss
             crit = crit or shot_crit
 
@@ -707,7 +670,10 @@ function Firearm:GetAttackResults(action, attack_args)
             if rec then
                 rec.miss = shot_miss
                 rec.crit = shot_crit
+                rec.spot = (not shot_miss) and shot_hit_spot or nil
                 rec.end_pos = hit_data.stuck_pos or hit_data.lof_pos2 or hit_data.target_pos
+                rec.leading = leading_shot
+                rec.dmg_target = dmg_target and true or false
             end
 
             NetUpdateHash("RatSimShotResult", attacker, target, i, shot_miss, shot_crit)
@@ -755,6 +721,18 @@ function Firearm:GetAttackResults(action, attack_args)
         end
 
         self:BulletCalcDamage(hit_data)
+
+        ---- le de volta stray/dano que BulletCalcDamage decidiu, para Rat_DbgLastShots. So leitura.
+        local dbg_rec = sim and g_RatLastSimShots and g_RatLastSimShots.shots[i]
+        if dbg_rec then
+            for _, hit in ipairs(hit_data.hits or empty_table) do
+                if hit.obj == target then
+                    dbg_rec.stray = hit.stray and true or false
+                    dbg_rec.damage = hit.damage
+                    break
+                end
+            end
+        end
 
         if shot_attack_args.chance_only then
             return attack_results
