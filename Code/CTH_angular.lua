@@ -217,14 +217,23 @@ function Rat_ConeFactors(data)
                          tag = Rat_PctTagPenaltyOnly(parts.step, a.MetaScaleWorst)}
     end
 
-    ---- nao e fator multiplicativo: e a assintota, em minutos. Fecha a lista porque explica ate
-    ---- onde os niveis acima podem levar o cone.
+    ---- o piso nao e multiplicador -- e a assintota, em minutos. Fica indentado, como nota da
+    ---- linha Aperture, em vez de fingir ser um fator na enumeracao.
+    local meta = {}
     if parts.floor then
-        out[#out + 1] = {name = T(461829375024, "Range floor"),
-                         tag = Untranslated(parts.floor .. "'")}
+        meta[#meta + 1] = T {825069487351, "Range floor <f>'", f = parts.floor}
     end
 
-    return out
+    ---- O QUE SOBROU no fim: sigma final sobre a abertura de referencia. Vai separado porque ja
+    ---- conta os residuais, e entao so pode ser impresso DEPOIS deles. Nao e o produto das linhas
+    ---- acima -- o piso entra como assintota, somando, e produto nenhum daria nisso. E medida.
+    local total
+    if data.rat_sigma then
+        total = {name = T(604815927340, "Total"),
+                 tag = Rat_PctTag(MulDivRound(data.rat_sigma, 100, Max(1, a.Base)))}
+    end
+
+    return out, meta, total
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -334,7 +343,7 @@ local t_id_table = {
     [158426093774] = "Aim <n>",
     [592038471265] = "Hipfire",
     [837465019283] = "Snapshot",
-    [461829375024] = "Range floor",
+    [604815927340] = "Total",
     [603847265139] = "Aim x<n> (<pct> per level)",
     [825069487351] = "Range floor <f>'",
     [714038265194] = "Modifiers <pct>"

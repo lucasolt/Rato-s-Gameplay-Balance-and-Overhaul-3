@@ -69,7 +69,7 @@ function PopulateCrosshairUICth(win, attacker, action, attackResults)
         win.idChanceToHit.parent:SetZOrder(0)
     end
 
-    local out = {}
+    local out, total = {}, nil
     for _, mod in ipairs(modifiers) do
         if not mod.uiHidden then
             if mod.id == "RatAngularCTH" then
@@ -81,6 +81,9 @@ function PopulateCrosshairUICth(win, attacker, action, attackResults)
                     for _, f in ipairs(mod.rat_factors) do
                         out[#out + 1] = line(f.name, visible and f.tag)
                     end
+                    ---- o que nao e multiplicador (piso do alcance) fica indentado
+                    push_meta(out, mod.rat_meta)
+                    total = mod.rat_total --- impresso no fim: ele ja conta os residuais
                 else
                     push_meta(out, mod.metaText)
                 end
@@ -96,6 +99,10 @@ function PopulateCrosshairUICth(win, attacker, action, attackResults)
                                          T {257328164584, "<percent(value)>", value = mod.value})
             end
         end
+    end
+
+    if total then
+        out[#out + 1] = line(total.name, visible and total.tag)
     end
 
     win.idModifiers:SetVisible(true)
