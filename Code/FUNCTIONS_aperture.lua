@@ -147,7 +147,7 @@ end
 
 ---- Multiplicador do degrau de hipfire/snapshot desta arma (propriedade nova).
 function Rat_ApertureSnapMul(weapon)
-    local v = weapon and weapon.rat_aperture_snap or 0
+    local v = weapon and weapon.HandlingMul or 0
     if v and v > 0 then
         return v
     end
@@ -889,19 +889,19 @@ function Rat_CompareCTH(attacker, target, max_aim)
     return table.concat(lines, "\n")
 end
 
-function Rat_SeedApertureProperties()
-    local n = 0
-    for _, classdef in pairs(g_Classes) do
-        if type(classdef) == "table" and rawget(classdef, "OverwatchAngle") and
-            IsKindOf(classdef, "Firearm") then
-            if (rawget(classdef, "rat_aperture_snap") or 0) == 0 then
-                classdef.rat_aperture_snap = Rat_SeedSnapFromOverwatch(classdef)
-                n = n + 1
-            end
-        end
-    end
-    return n
-end
+--function Rat_SeedApertureProperties()
+--    local n = 0
+--    for _, classdef in pairs(g_Classes) do
+--        if type(classdef) == "table" and rawget(classdef, "OverwatchAngle") and
+--            IsKindOf(classdef, "Firearm") then
+--            if (rawget(classdef, "rat_aperture_snap") or 0) == 0 then
+--                classdef.rat_aperture_snap = Rat_SeedSnapFromOverwatch(classdef)
+--                n = n + 1
+--            end
+--        end
+--    end
+--    return n
+--end
 
 ---------------------------------------------------------------------------------------------------
 

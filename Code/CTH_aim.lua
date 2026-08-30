@@ -275,6 +275,91 @@ function aim_cth()
         end
 end
 
+
+
+--function GBO_GetWeaponAimAccuracy(weapon1, attacker)
+--	local min_bonus = 1
+--	local metaText = {}
+--	if IsKindOfClasses(weapon1, "FirearmProperties", "MeleeWeaponProperties") then
+--    	min_bonus = weapon1.AimAccuracy
+--    end       
+--
+--	local w1, w2, min_bonus2
+--    if IsKindOf(weapon1, "Pistol") or IsKindOf(weapon1, "Revolver") then
+--        min_bonus = min_bonus * 0.5
+--        --metaText[#metaText + 1] = T {195655494642, "(-) Handgun"}
+--    end
+--    --local has_pso, pso_def = weapon1:HasComponent("pso_dragunov_scope")
+--    ----if num >= 2 and has_pso then
+--    ----    local scope_bonus = min_bonus * 0.01
+--    ----    min_bonus = min_bonus + scope_bonus
+--    ----    metaText[#metaText + 1] = pso_def.DisplayName -- T(231236431718, "PSO-1 Scope 4x")
+--    --end
+--    if num >= 3 and weapon1:HasComponent("sniper_aim_scope") then
+--        local scope_bonus = min_bonus * 0.1 + 0.7
+--        min_bonus = min_bonus + scope_bonus
+--        metaText[#metaText + 1] = T {886112546215, "Sniper Scope 4x"}
+--    end
+--    if num >= 4 and weapon1:HasComponent("sniper_adv_aim_scope") then
+--        local scope_bonus = (min_bonus * 0.05) + 0.3
+--        min_bonus = min_bonus + scope_bonus
+--        metaText[#metaText + 1] = T {739262593826, "Sniper Scope 6x"}
+--    end
+--
+--    local bonus =  min_bonus
+--    --------------------------
+--    local modifyVal, compDef
+--    -- Forward Grip
+--    local modifyVal, compDef = GetComponentEffectValue(weapon1, "FirstAimBonusModifier",
+--                                                       "first_aim_bonus")
+--    if modifyVal then
+--        bonus = bonus + (min_bonus * 0.3) + 2.1
+--        metaText[#metaText + 1] = compDef.DisplayName
+--    end
+--    -- Improved Sight
+--    local modifyVal_improved_sight, compDef_improved_sight =
+--        GetComponentEffectValue(weapon1, "AccuracyBonusWhenAimed", "bonus_cth")
+--    if modifyVal_improved_sight then
+--        bonus = bonus + modifyVal_improved_sight
+--    end
+--    ---
+--    local modifyVal_vgrip, compDef_vgrip =
+--        GetComponentEffectValue(weapon1, "AccuracyBonusWhenAimed_vgrip", "bonus_cth_v")
+--    if modifyVal_vgrip and not w2 then
+--        bonus = bonus + modifyVal_vgrip
+--        metaText[#metaText + 1] = compDef_vgrip.DisplayName
+--    end
+--    ---------------------------------------
+--    --local attacker_pos = attacker_pos or attacker:GetPos()
+--    --local target_pos = target_pos or target:GetPos()
+--    --local pb_dist = const.Weapons.PointBlankRange * const.SlabSizeX
+--    --local dist = attacker_pos:Dist(target_pos)
+--    --local close_range = rat_close_range()
+--    --if dist <= close_range then
+--    --    modifyVal, compDef = GetComponentEffectValue(weapon1, "reflex_sight_close_range",
+--    --                                                 "Close_bonus")
+--    --    if modifyVal then
+--    --        bonus = bonus + modifyVal
+--    --        metaText[#metaText + 1] = T(888825974784, "Close Range") -- compDef.DisplayName
+--    --    end
+--    --end
+--    -----------------------------------
+--    -----------
+--    modifyVal, compDef =
+--        GetComponentEffectValue(weapon1, "ReduceAimAccuracy", "cth_penalty")
+--    if modifyVal then
+--        bonus = bonus * 0.5 -- Max(1, MulDivRound(bonus, 100 - modifyVal, 100))
+--        metaText[#metaText + 1] = compDef.DisplayName
+--    end
+--    if weapon1:HasComponent("light_stock_aim_reduce") then
+--        bonus = bonus * 0.90 -- Max(1, MulDivRound(min_bonus, 80, 100))
+--        metaText[#metaText + 1] = T(899433651477, "(-) Light Stock")
+--    end
+--
+--	return bonus
+--end
+
+
 ---------------------------------------------------------------------------------------------------------
 
 local t_id_table = {
