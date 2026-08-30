@@ -458,7 +458,9 @@ function Rat_DbgLastShots(rings)
         DbgAddText(string.format("%d%s", i, sh.crit and " crit" or ""), endpoint, color)
         lines[#lines + 1] = string.format("  tiro %d | sigma %5d' | %s%s%s%s%s", i, sh.sigma or -1,
                                           sh.miss and "errou" or "ACERTOU",
-                                          sh.miss and "" or (" -> " .. spot),
+                                          sh.miss and "" or
+                                              string.format(" -> %s (crit %d%%)", spot,
+                                                            sh.crit_chance or -1),
                                           sh.crit and " (critico)" or "",
                                           sh.damage and string.format("  dano %d", sh.damage) or "",
                                           ---- stray (-50% dano) em bala que cruzou o alvo = bug do leading_shot

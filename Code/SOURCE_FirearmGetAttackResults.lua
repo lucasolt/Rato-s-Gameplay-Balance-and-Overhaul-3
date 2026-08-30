@@ -647,6 +647,17 @@ function Firearm:GetAttackResults(action, attack_args)
             hit_it, shot_hit_spot = Rat_SimHitSpot(hit_data, target)
             shot_miss = not hit_it
 
+            ---- crit da parte ATINGIDA, nao da mirada (CalcCritChance le args.target_spot_group,
+            ---- Unit.lua:7267). attack_results.crit_chance segue o da mira, que e o que a UI mostra.
+            local shot_crit_chance = attack_results.crit_chance
+            if not shot_miss and shot_hit_spot then
+                local aimed = shot_attack_args.target_spot_group
+                shot_attack_args.target_spot_group = shot_hit_spot
+                shot_crit_chance = attacker:CalcCritChance(self, target, action, shot_attack_args,
+                                                           shot_attack_args.step_pos)
+                shot_attack_args.target_spot_group = aimed
+            end
+
             ---- crit rolado por tiro, so vale se a bala chegou. Sem multishot (Buckshot, DoubleBarrel,
             ---- DualShot) o roll e UM para o ataque inteiro: sem o limite de um crit o mesmo sorteio
             ---- critava toda bala que chegasse. Vanilla amarra em `i == 1`; aqui, na 1a que chegou.
@@ -656,7 +667,7 @@ function Firearm:GetAttackResults(action, attack_args)
             else
                 croll, single_roll = attack_results.crit_roll, true
             end
-            shot_crit = (not shot_miss) and (croll <= attack_results.crit_chance) and
+            shot_crit = (not shot_miss) and (croll <= shot_crit_chance) and
                             not (single_roll and crit)
 
             ---- STRAY ignora `leading_shot`: BulletCalcDamage marca stray por `obj ~= hit_data.target`
@@ -670,6 +681,7 @@ function Firearm:GetAttackResults(action, attack_args)
             if rec then
                 rec.miss = shot_miss
                 rec.crit = shot_crit
+                rec.crit_chance = shot_crit_chance
                 rec.spot = (not shot_miss) and shot_hit_spot or nil
                 rec.end_pos = hit_data.stuck_pos or hit_data.lof_pos2 or hit_data.target_pos
                 rec.leading = leading_shot
