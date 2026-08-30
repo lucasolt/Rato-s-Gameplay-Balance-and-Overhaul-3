@@ -290,21 +290,26 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     --- 4. cada nivel de mira FECHA o cone, em direcao ao piso da arma
     local optics = Rat_ApertureOptics(weapon)
     local floor = Rat_ApertureFloor(weapon)
-    ---- decay do ULTIMO nivel aplicado: com limiar de optica ele varia por nivel, e o que
-    ---- interessa ao jogador e quanto a mira esta rendendo AGORA.
-    local decay = Rat_ApertureAimDecay(weapon, attacker, Max(1, aim), optics)
+    ---- escada de decay: com limiar de optica cada nivel fecha um tanto diferente. Guardada
+    ---- inteira para o overlay enumerar nivel a nivel (ver Rat_ConeFactors).
+    local ladder = {}
+    for i = 1, aim do
+        ladder[i] = Rat_ApertureAimDecay(weapon, attacker, i, optics)
+    end
+    ---- um numero so, para quem nao quer a escada: o do ULTIMO nivel aplicado
+    local decay = ladder[aim] or Rat_ApertureAimDecay(weapon, attacker, 1, optics)
 
     if a.ApertureAsymptotic then
         ---- sigma = piso + (sigma0 - piso) * prod(decay_i). Converge para o piso em vez de bater
         ---- nele: cada stat sempre rende (AimAccuracy = velocidade, WeaponRange/scope = assintota).
         local gap = Max(0, s - floor)
         for i = 1, aim do
-            gap = MulDivRound(gap, Rat_ApertureAimDecay(weapon, attacker, i, optics), 100)
+            gap = MulDivRound(gap, ladder[i], 100)
         end
         s = floor + gap
     else
         for i = 1, aim do
-            s = MulDivRound(s, Rat_ApertureAimDecay(weapon, attacker, i, optics), 100)
+            s = MulDivRound(s, ladder[i], 100)
         end
     end
 
@@ -349,6 +354,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
         skill = skill_mul,
         sight = sight,
         decay = decay,
+        decay_ladder = ladder,
         step = step,
         floor = floor
     }

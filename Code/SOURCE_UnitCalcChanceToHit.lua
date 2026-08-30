@@ -186,7 +186,8 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 				name = nameOverride or mod.display_name,
 				value = value,
 				id = idOverride or mod.id,
-				metaText = metaText
+				metaText = metaText,
+				rat_mul = rat_cone and mod_data.rat_last_mul or nil
 			})
 		end
 	end)
@@ -211,7 +212,8 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 					name = mod_data.display_name,
 					value = value,
 					id = effect.id,
-					metaText = mod_data.meta_text
+					metaText = mod_data.meta_text,
+					rat_mul = rat_cone and mod_data.rat_last_mul or nil
 				})
 			end
 		end
@@ -245,7 +247,8 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 								name = mod_data.display_name,
 								value = value,
 								id = component_id,
-								metaText = mod_data.meta_text
+								metaText = mod_data.meta_text,
+								rat_mul = rat_cone and mod_data.rat_last_mul or nil
 							})
 						end
 					end
@@ -266,6 +269,10 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 		base = Rat_ConeFinish(mod_data, base, modifiers, rat_first)
 		if rat_entry then
 			rat_entry.name, rat_entry.metaText = Rat_ConeMetaText(mod_data)
+			---- a decomposicao do cone vai estruturada: o overlay a enumera como linhas proprias
+			---- em vez de aninhar no metaText. Inserido DEPOIS de Rat_ConeFinish de proposito --
+			---- ele usa #modifiers para achar as linhas que as reacoes inseriram.
+			rat_entry.rat_factors = Rat_ConeFactors(mod_data)
 		end
 		---- UM cone so: crosshair, simulacao e visualizadores leem daqui em vez de reinverter CTH
 		if type(args) == "table" then

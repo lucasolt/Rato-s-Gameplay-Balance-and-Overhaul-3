@@ -110,6 +110,8 @@ end
 ---------------------------------------------------------------------------------------------------
 
 function Rat_ConeAbsorb(data, points)
+    ---- multiplicador desta absorcao, para o overlay mostrar o que ESTE modificador fez ao cone
+    data.rat_last_mul = 100
     if data.rat_blocked or not data.rat_sigma then
         return 0
     end
@@ -121,6 +123,7 @@ function Rat_ConeAbsorb(data, points)
     if mul == 100 then
         return 0
     end
+    data.rat_last_mul = mul
 
     local a = const.Combat.Aperture
     local before = data.rat_cth
@@ -158,12 +161,70 @@ function Rat_ConeFinish(data, base, modifiers, first)
             if i == #modifiers then
                 share = delta - given --- a sobra da divisao inteira vai toda na ultima linha
             end
+            ---- cone destas linhas e APROXIMADO: mod_add/mod_mul chegam ja somados, entao cada
+            ---- uma e avaliada pelos pontos crus que trouxe, nao por uma absorcao propria.
+            modifiers[i].rat_mul = Rat_ConeMulForPoints(modifiers[i].value or 0)
             modifiers[i].value = share
             given = given + share
         end
     end
 
     return Max(0, base + delta)
+end
+
+---------------------------------------------------------------------------------------------------
+---- Decomposicao do cone em linhas ESTRUTURADAS. O overlay enumera cada fator como modificador
+---- proprio, com o percentual a direita, em vez de empilhar tudo no metaText da linha Aperture:
+---- eles sao modificadores do cone como qualquer outro, e mereciam a mesma leitura.
+---- Cada item: {name = T, tag = T ja formatado e colorido}.
+---------------------------------------------------------------------------------------------------
+
+function Rat_ConeFactors(data)
+    local a = const.Combat.Aperture
+    local parts, aim = data.rat_parts, data.rat_aim or 0
+    local out = {}
+    if not parts then
+        return out
+    end
+
+    if parts.base_mul and parts.base_mul ~= 100 then
+        out[#out + 1] = {name = T(268301947512, "Weapon"), tag = Rat_PctTag(parts.base_mul)}
+    end
+
+    ---- skill_mul vive em [SkillMin, SkillMax] e nunca desce de 100: Marks so deixa MENOS ruim.
+    if parts.skill then
+        out[#out + 1] = {name = T(419573028641, "Marksmanship"),
+                         tag = Rat_PctTagPenaltyOnly(parts.skill, a.SkillMax)}
+    end
+
+    if parts.sight and parts.sight ~= 100 then
+        out[#out + 1] = {name = T(730192846053, "Sight"), tag = Rat_PctTag(parts.sight)}
+    end
+
+    ---- um nivel por linha: com limiar de optica o fechamento MUDA conforme a mira sobe, e essa
+    ---- curva e justamente o que distingue uma luneta de um reflex.
+    for i = 1, aim do
+        local d = parts.decay_ladder and parts.decay_ladder[i]
+        if d then
+            out[#out + 1] = {name = T {158426093774, "Aim <n>", n = i},
+                             tag = Rat_PctTagBonusOnly(d, a.DecayMinPct)}
+        end
+    end
+
+    if parts.step and parts.step ~= 100 then
+        out[#out + 1] = {name = (aim == 0) and T(592038471265, "Hipfire") or
+                             T(837465019283, "Snapshot"),
+                         tag = Rat_PctTagPenaltyOnly(parts.step, a.MetaScaleWorst)}
+    end
+
+    ---- nao e fator multiplicativo: e a assintota, em minutos. Fecha a lista porque explica ate
+    ---- onde os niveis acima podem levar o cone.
+    if parts.floor then
+        out[#out + 1] = {name = T(461829375024, "Range floor"),
+                         tag = Untranslated(parts.floor .. "'")}
+    end
+
+    return out
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -267,6 +328,13 @@ local t_id_table = {
     [481920573641] = "Weapon <pct>",
     [592038174652] = "Marksmanship <pct>",
     [517294836150] = "Sight <pct>",
+    [268301947512] = "Weapon",
+    [419573028641] = "Marksmanship",
+    [730192846053] = "Sight",
+    [158426093774] = "Aim <n>",
+    [592038471265] = "Hipfire",
+    [837465019283] = "Snapshot",
+    [461829375024] = "Range floor",
     [603847265139] = "Aim x<n> (<pct> per level)",
     [825069487351] = "Range floor <f>'",
     [714038265194] = "Modifiers <pct>"

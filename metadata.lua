@@ -102,6 +102,7 @@ return PlaceObj('ModDef', {
 		"Code/UI_aperture_ring.lua",
 		"Code/DEBUG_aperture_draw.lua",
 		"Code/UI_aperture_crosshair.lua",
+		"Code/UI_aperture_breakdown.lua",
 		"Code/XTEMP_recoil.lua",
 		"Code/FUNCTIONS_FirearmFirePellet.lua",
 		"Code/FUNCTIONS_Pellets.lua",
