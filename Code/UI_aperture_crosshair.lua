@@ -49,22 +49,15 @@ function Rat_UpdateConeRing(crosshair)
     local part = crosshair.targetPart and crosshair.targetPart.id
     local step_pos = c.override_pos or attacker:GetPos()
 
-    local cth, sigma, theta, _, _, dist = Rat_AngularCTH(attacker, target, part, action, weapon,
-                                                         aim, false, step_pos, target:GetPos(), nil)
-
-    if not sigma or not theta or theta < 1 or not dist then
+    ---- UM cone so, o mesmo que Rat_SimPlanShots dispara: quem o resolve e CalcChanceToHit
+    ---- (geometria + residuais ja em cone) e ele o devolve nos proprios args.
+    local target_pos = target:GetPos()
+    local sigma, theta, cth = Rat_AttackCone(attacker, target, action, part, aim, false, step_pos,
+                                             target_pos)
+    if not sigma or not theta or theta < 1 then
         return false
     end
-
-    ---- mesmo cone que Rat_SimPlanShots dispara: geometria corrigida pelo que entrou por mod_add
-    ---- em CalcChanceToHit (recoil permanente, Dazed). Ver Rat_EffectiveSigma.
-    local results = c.attackResultTable
-    results = results and part and results[part]
-    local cth_final = results and results.chance_to_hit
-    if cth_final then
-        sigma = Rat_EffectiveSigma(theta, sigma, cth_final)
-        cth = cth_final
-    end
+    local dist = step_pos:Dist(target_pos)
 
     ---- raio que contem ~96% dos tiros (2.5 sigma), nao 1 sigma cru -- ver A.CrosshairSigmaMul.
     local spread = MulDivRound(sigma, a.CrosshairSigmaMul, 100)
@@ -73,8 +66,8 @@ function Rat_UpdateConeRing(crosshair)
     ---- respondem ao mesmo numero, entao a cor quer dizer a mesma coisa nos dois.
     local color = RGB(Rat_QualityColor(cth))
 
-    ---- ancora no spot da parte mirada; plano perpendicular a linha de tiro. `dist` continua
-    ---- vindo do CTH (medido ate o pe do alvo): a diferenca de altura nao move o raio 1 cm.
+    ---- ancora no spot da parte mirada; plano perpendicular a linha de tiro. `dist` vai ate o pe
+    ---- do alvo, como no CTH: a diferenca de altura nao move o raio 1 cm.
     local center = Rat_RingAnchor(target, part)
     if not center then
         return false
@@ -194,9 +187,9 @@ function Rat_ShowCrosshairScale(target, attacker)
         "aim | sigma  grupo   alvo | raio cm | CTH | grupo vs alvo"
     }
     for aim = 0, 4 do
-        local cth, sigma, theta, _, _, dist = Rat_AngularCTH(attacker, target, nil, action, weapon,
-                                                             aim, false, attacker:GetPos(),
-                                                             target:GetPos(), nil)
+        local sigma, theta, cth = Rat_AttackCone(attacker, target, action, nil, aim, false,
+                                                 attacker:GetPos(), target:GetPos())
+        local dist = attacker:GetDist(target)
         local spread = MulDivRound(sigma, a.CrosshairSigmaMul, 100)
         out[#out + 1] = string.format(" %d  | %5d %6d %6d | %7d | %3d%% | %s", aim, sigma, spread,
                                       theta, Rat_ConeRadius(dist, spread) / 10, cth,

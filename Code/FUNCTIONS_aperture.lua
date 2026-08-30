@@ -380,59 +380,77 @@ end
 ---- concordam por construcao. Nao usar o sorteio uniforme dos pellets (4x no tiro dificil).
 ---------------------------------------------------------------------------------------------------
 
----- Sigma que produziria exatamente `cth` contra um alvo de meia-largura `theta`.
----- Do CTH FINAL (perks/status/parte/dial), nao da abertura crua, senao a sim acerta mais que o numero.
-function Rat_SigmaForCTH(theta, cth)
+---- Inversa da LUT: k*1000 que produz exatamente `cth`. Nao depende de theta -- e o que permite
+---- traduzir pontos de CTH em multiplicador de cone sem olhar para o tamanho do alvo.
+function Rat_KForCTH(cth)
     local a = P()
+    cth = Clamp(cth or 0, 1, 99)
+    local permil = cth * 10
+    local tbl, step = a.Rayleigh, a.RayleighStep
+
+    for i = 1, #tbl do
+        if tbl[i] >= permil then
+            local lo, hi = tbl[i - 1], tbl[i]
+            local frac = (hi > lo) and MulDivRound(permil - lo, step, hi - lo) or 0
+            local k1000 = (i - 1) * step + frac
+            return (k1000 >= 1) and k1000 or nil --- cone praticamente infinito
+        end
+    end
+    return #tbl * step --- CTH altissimo: cone bem dentro do alvo
+end
+
+---- Sigma que produziria exatamente `cth` contra um alvo de meia-largura `theta`. So o caminho de
+---- sanidade da LUT (Rat_DbgVerifySim); o cone de verdade vem de Rat_AttackCone, nunca da inversao.
+function Rat_SigmaForCTH(theta, cth)
     if not theta or theta < 1 then
         return nil
     end
-    cth = Clamp(cth or 0, 1, 99)
-    local permil = cth * 10
-    local T, step = a.Rayleigh, a.RayleighStep
-
-    for i = 1, #T do
-        if T[i] >= permil then
-            local lo, hi = T[i - 1], T[i]
-            local frac = (hi > lo) and MulDivRound(permil - lo, step, hi - lo) or 0
-            local k1000 = (i - 1) * step + frac
-            if k1000 < 1 then
-                return nil --- CTH tao baixo que o cone e praticamente infinito
-            end
-            return MulDivRound(theta, 1000, k1000)
-        end
+    local k1000 = Rat_KForCTH(cth)
+    if not k1000 then
+        return nil
     end
-    return Max(1, theta / 4) --- CTH altissimo: cone bem dentro do alvo
+    return Max(1, MulDivRound(theta, 1000, k1000))
 end
 
----- Cone que a UI desenha e a simulacao dispara: parte do sigma GEOMETRICO e so o corrige pelo que
----- CalcChanceToHit somou por fora (recuo permanente, Dazed, perks). NAO inverter o CTH final cru.
----- Medido no processo vivo (Barry, Peacemaker, 19 tiles, SEM modifier residual nenhum): com o CTH
----- preso num limite ele sai igual em todas as partes, e Rat_SigmaForCTH -- que e theta*1000/k --
----- devolve entao algo PROPORCIONAL A THETA. O cone virava copia escalada do body part: 64' na
----- cabeca contra 501' no torso. Mirar na cabeca acertava o alvo 41% contra 5% no torso, e nivel
----- de mira nao mudava nada (cone 64' fixo em aim 0..4). Corrige so onde a inversao tem resolucao:
----- CTH e inteiro em pontos, e perto de 0 ou 100 um ponto vale cone demais para significar algo.
-function Rat_EffectiveSigma(theta, geo_sigma, cth_final)
+---- Pontos de CTH -> multiplicador de cone (%, 100 neutro, >100 abre). A moeda dos residuais.
+---- A leitura de sempre ("penalidade tira uma FRACAO da chance, bonus fecha parte do que falta")
+---- e avaliada num CTH de REFERENCIA fixo, nao no CTH do alvo: theta se cancela na razao de k,
+---- e so por isso o cone sai igual em todas as partes do corpo. Ver A.ConeRefCTH.
+function Rat_ConeMulForPoints(points)
     local a = P()
-    if not theta or theta < 1 or not geo_sigma or not cth_final then
-        return geo_sigma
+    if not points or points == 0 then
+        return 100
     end
 
-    ---- geometrico SEM o clamp de Min/MaxCTH -- e o unico par honesto de cth_final
-    local geo_raw = Rat_RayleighCTH(theta, geo_sigma)
-    local lo, hi = a.ConeCorrLo, a.ConeCorrHi
-    if geo_raw < lo or geo_raw > hi or cth_final < lo or cth_final > hi then
-        return geo_sigma
+    local ref = Clamp(a.ConeRefCTH or 50, 2, 98)
+    local target
+    if points < 0 then
+        target = MulDivRound(ref, 100 + Max(points, -100), 100)
+    else
+        target = ref + MulDivRound(100 - ref, Min(points, 100), 100)
     end
 
-    local s_ref = Rat_SigmaForCTH(theta, geo_raw)
-    local s_fin = Rat_SigmaForCTH(theta, cth_final)
-    if not s_ref or not s_fin or s_ref < 1 then
-        return geo_sigma
+    local k_ref, k_tgt = Rat_KForCTH(ref), Rat_KForCTH(Clamp(target, 1, 99))
+    if not k_ref or not k_tgt or k_tgt < 1 then
+        return a.ConeMulMax
     end
-    return Max(1, MulDivRound(geo_sigma, s_fin, s_ref))
+    return Clamp(MulDivRound(k_ref, 100, k_tgt), a.ConeMulMin, a.ConeMulMax)
 end
+
+---- Cone FINAL de um ataque: geometria ja alargada/fechada pelos residuais. Quem resolve e
+---- CalcChanceToHit, que devolve o cone nos proprios args -- aqui so se sonda uma vez.
+function Rat_AttackCone(attacker, target, action, spot, aim, opportunity_attack, step_pos, target_pos)
+    if not IsValid(attacker) or not target or not action then
+        return nil
+    end
+    local args = {target_spot_group = spot, aim = aim or 0, prediction = true,
+                  opportunity_attack = opportunity_attack,
+                  step_pos = step_pos or attacker:GetPos(),
+                  target_pos = target_pos or (IsPoint(target) and target) or target:GetPos()}
+    local cth = attacker:CalcChanceToHit(target, action, args, "chance_only")
+    return args.rat_sigma, args.rat_theta, cth
+end
+
 
 ---- Desvio radial de UM tiro, em minutos de angulo. Consome random SINCRONIZADO,
 ---- entao so pode ser chamada na resolucao do tiro, nunca em previsao.
@@ -540,15 +558,20 @@ end
 
 ---- Plano de tiro: theta, sigma, ponto sorteado de cada tiro. Consome random sincronizado,
 ---- so na resolucao. ctx ENTRA: attacker target action weapon aim opportunity_attack spot
----- attack_pos aim_pos step_pos target_pos cth num_shots. ctx SAI: theta geo_sigma sigma growth
----- shots[i] = {sigma, target_pos}
+---- attack_pos aim_pos step_pos target_pos cth num_shots [sigma]. ctx SAI: theta geo_sigma sigma
+---- growth shots[i] = {sigma, target_pos}
 function Rat_SimPlanShots(ctx)
     local _, geo_sigma, theta = Rat_AngularCTH(ctx.attacker, ctx.target, ctx.spot, ctx.action,
                                                ctx.weapon, ctx.aim or 0, ctx.opportunity_attack,
                                                ctx.step_pos, ctx.target_pos)
     ctx.theta, ctx.geo_sigma = theta, geo_sigma
 
-    local sigma = Rat_EffectiveSigma(theta, geo_sigma, ctx.cth)
+    ---- o cone JA vem resolvido de CalcChanceToHit (args.rat_sigma); sem ele, sonda uma vez.
+    local sigma = ctx.sigma
+    if not sigma then
+        sigma = Rat_AttackCone(ctx.attacker, ctx.target, ctx.action, ctx.spot, ctx.aim,
+                               ctx.opportunity_attack, ctx.step_pos, ctx.target_pos)
+    end
     ctx.sigma = sigma
     if not sigma or sigma < 1 then
         return nil
@@ -690,7 +713,7 @@ end
 ---- (aplicar como razao preserva os modifiers residuais na mesma proporcao).
 ---------------------------------------------------------------------------------------------------
 function Rat_GetShotConeRatios(attacker, target, body_part_def, action, weapon, aim,
-                               opportunity_attack, attacker_pos, target_pos, num_shots)
+                               opportunity_attack, attacker_pos, target_pos, num_shots, sigma_final)
     local a = P()
     local ratios = {}
     if not num_shots or num_shots < 2 then
@@ -703,6 +726,8 @@ function Rat_GetShotConeRatios(attacker, target, body_part_def, action, weapon, 
 
     local cth1, sigma, theta = Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim,
                                               opportunity_attack, attacker_pos, target_pos, nil)
+    ---- razao medida no cone que o tiro usa de verdade (residuais ja dentro), nao no geometrico
+    sigma = sigma_final or sigma
     if not sigma or sigma < 1 or not theta or theta < 1 or not cth1 or cth1 <= 0 then
         return ratios
     end
@@ -805,10 +830,10 @@ function Rat_CompareCTH(attacker, target, max_aim)
         P().Enabled = true
         local new = attacker:CalcChanceToHit(target, action, args_base, "chance_only")
 
-        local _, sigma, theta = Rat_AngularCTH(attacker, target, nil, action, weapon, aim, false,
-                                               attacker:GetPos(), target:GetPos())
+        ---- o cone FINAL, o mesmo que o tiro usa: CalcChanceToHit acabou de devolve-lo nos args
+        local sigma, theta = args_base.rat_sigma, args_base.rat_theta
         lines[#lines + 1] = string.format(" %d  |  %3d   |   %3d   | %5d  %5d", aim, old or -1,
-                                          new or -1, sigma, theta)
+                                          new or -1, sigma or -1, theta or -1)
     end
 
     P().Enabled = was

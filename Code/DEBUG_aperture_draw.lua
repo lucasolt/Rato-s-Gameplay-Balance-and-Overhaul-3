@@ -184,8 +184,9 @@ function Rat_DbgCone(target, attacker, body_part)
     ---- criterio do crosshair.
     local smul = a.CrosshairSigmaMul or 250
     for aim = 0, max_aim do
-        local cth, sigma, theta = Rat_AngularCTH(attacker, target, body_part, action, weapon, aim,
-                                                 false, apos, tpos)
+        ---- o cone do TIRO (residuais ja dentro), o mesmo do anel e da simulacao
+        local sigma, theta, cth = Rat_AttackCone(attacker, target, action, body_part, aim, false,
+                                                 apos, tpos)
         local spread = MulDivRound(sigma, smul, 100)
         local r = cone_radius(dist, spread)
         draw_disc(center, r, dir, clrCone, 32)
@@ -544,7 +545,10 @@ function Rat_DbgVerifySim()
     local _, geo_sigma, theta = Rat_AngularCTH(attacker, target, rec.spot, action, weapon, rec.aim,
                                                rec.opportunity_attack, rec.step_pos, rec.target_pos)
     debug_table.theta, debug_table.geo_sigma = theta, geo_sigma
-    debug_table.sigma = Rat_SigmaForCTH(rec.theta, rec.cth) or rec.geo_sigma
+    ---- pelo mesmo caminho do tiro real (CalcChanceToHit), nao mais invertendo o CTH final
+    debug_table.sigma = Rat_AttackCone(attacker, target, action, rec.spot, rec.aim,
+                                       rec.opportunity_attack, rec.step_pos, rec.target_pos) or
+                            rec.geo_sigma
     local _, dbg_growth = Rat_SimSigmaLadder(attacker, action, weapon, rec.sigma or 1,
                                              rec.num_shots or 1)
     debug_table.growth = dbg_growth
@@ -552,7 +556,7 @@ function Rat_DbgVerifySim()
     hard[#hard + 1] = string.format("  %-22s %-26s %-26s", "campo", "tiro REAL", "caminho DEBUG")
     cmp(hard, "attack_pos", rec.attack_pos, debug_table.attack_pos, true)
     cmp(hard, "aim_pos", rec.aim_pos, debug_table.aim_pos, true)
-    cmp(hard, "sigma <- (theta,cth)", rec.sigma, debug_table.sigma, true)
+    cmp(hard, "sigma (cone final)", rec.sigma, debug_table.sigma, true)
     cmp(hard, "growth", rec.growth, debug_table.growth, true)
     cmp(hard, "theta", rec.theta, debug_table.theta, true)
     cmp(hard, "geo_sigma", rec.geo_sigma, debug_table.geo_sigma, true)

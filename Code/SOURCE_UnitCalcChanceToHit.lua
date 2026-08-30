@@ -114,9 +114,31 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 		max = 100,
 	}
 
+	---- ANGULAR: sigma e a moeda. A geometria entra AQUI, antes dos residuais, e cada residual
+	---- vira multiplicador de cone (Rat_ConeAbsorb) em vez de pontos somados por cima. O modifier
+	---- nao poderia fazer isto sozinho: efeitos de status e componentes so rodam depois dele.
+	local rat_entry, rat_cone = nil, false
+	if IsValidTarget(target) and Rat_AngularActive(weapon1, action, self) then
+		Rat_ResolveAngular(mod_data)
+		rat_cone = not mod_data.rat_blocked
+	end
+	if rat_cone then
+		---- passa pelo GatherCTHModifications como qualquer modifier: e ele que arma data.enabled
+		---- e da a outros mods a mesma chance de mexer nesta linha que tinham no pipeline vanilla
+		mod_data.meta_text = nil
+		local value = self:GatherCTHModifications("RatAngularCTH", mod_data.rat_cth - skill, mod_data)
+		base = base + value
+		if modifiers then
+			rat_entry = {name = false, value = value, id = "RatAngularCTH"}
+			table.insert(modifiers, rat_entry)
+		end
+	end
 
 	-- Evaluate all modifiers
 	ForEachPreset("ChanceToHitModifier", function(mod)
+		if rat_cone and mod.id == "RatAngularCTH" then
+			return --- ja resolvido acima; o preset e o caminho do pipeline vanilla
+		end
 		if mod.RequireTarget and not IsValidTarget(target) then
 			return
 		end
@@ -149,6 +171,9 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 		mod_data.display_name = nameOverride or mod.display_name
 		mod_data.meta_text = (IsT(metaText) and {metaText} or metaText) or nil
 		value = self:GatherCTHModifications(mod.id, value, mod_data)
+		if rat_cone then
+			value = Rat_ConeAbsorb(mod_data, value)
+		end
 		if args and not args.prediction then
 			NetUpdateHash("CalcChanceToHit_Modifier_Mods", mod.id, value)
 		end
@@ -172,6 +197,9 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 		mod_data.display_name = effect.DisplayName
 		mod_data.meta_text = nil
 		local value = self:GatherCTHModifications(effect.class, 0, mod_data)
+		if rat_cone then
+			value = Rat_ConeAbsorb(mod_data, value)
+		end
 		if args and not args.prediction then
 			NetUpdateHash("CalcChanceToHit_Effect_Mods", effect.class, value)
 		end
@@ -203,6 +231,9 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 					mod_data.display_name = def.DisplayName
 					mod_data.meta_text = nil
 					local value = self:GatherCTHModifications(component_id, 0, mod_data)
+					if rat_cone then
+						value = Rat_ConeAbsorb(mod_data, value)
+					end
 					if args and not args.prediction then
 						NetUpdateHash("CalcChanceToHit_Component_Mods", weapon.id, component_id, value)
 					end
@@ -224,11 +255,26 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 	end
 	
 	mod_data.modifiers = modifiers
+	---- as reacoes inserem linhas proprias em `modifiers` com pontos crus; Rat_ConeFinish precisa
+	---- saber onde elas comecam para reescrever o valor delas com o delta que o cone produziu
+	local rat_first = modifiers and #modifiers or 0
 	self:CallReactions("OnCalcChanceToHit", self, action, target, weapon1, weapon2, mod_data)
 	if IsKindOf(target, "Unit") then
 		target:CallReactions("OnCalcChanceToHit", self, action, target, weapon1, weapon2, mod_data)
 	end
-	base = Max(0, mod_data.enabled and MulDivRound(base + mod_data.mod_add, mod_data.mod_mul, 100) or 0)
+	if rat_cone then
+		base = Rat_ConeFinish(mod_data, base, modifiers, rat_first)
+		if rat_entry then
+			rat_entry.name, rat_entry.metaText = Rat_ConeMetaText(mod_data)
+		end
+		---- UM cone so: crosshair, simulacao e visualizadores leem daqui em vez de reinverter CTH
+		if type(args) == "table" then
+			args.rat_sigma, args.rat_theta = mod_data.rat_sigma, mod_data.rat_theta
+			args.rat_cone_mul, args.rat_geo_sigma = mod_data.rat_cone_mul, mod_data.rat_geo_sigma
+		end
+	else
+		base = Max(0, mod_data.enabled and MulDivRound(base + mod_data.mod_add, mod_data.mod_mul, 100) or 0)
+	end
 
 	local target_pos = IsPoint(target) and target or target:GetPos()
 	local knife_throw = IsKindOf(weapon, "MeleeWeapon") and (action.ActionType == "Ranged Attack")

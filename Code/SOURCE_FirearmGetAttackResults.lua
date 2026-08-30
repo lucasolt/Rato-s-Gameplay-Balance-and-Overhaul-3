@@ -251,7 +251,8 @@ function Firearm:GetAttackResults(action, attack_args)
             cone_ratios = Rat_GetShotConeRatios(attacker, target, shot_attack_args.target_spot_group,
                                                 action, weapon, shot_attack_args.aim or 0,
                                                 shot_attack_args.opportunity_attack,
-                                                shot_attack_args.step_pos, target_pos, num_shots)
+                                                shot_attack_args.step_pos, target_pos, num_shots,
+                                                shot_attack_args.rat_sigma)
         end
 
         ---- Rajada: so a 1a bala leva o bonus de mira. No angular nao ha modifier "Aim" (virou fechamento do cone).
@@ -398,6 +399,8 @@ function Firearm:GetAttackResults(action, attack_args)
             cth = self:GetShotChanceToHit(attack_results.chance_to_hit) or
                 attack_results.chance_to_hit,
             cth_source = "GetShotChanceToHit(attack_results.chance_to_hit)",
+            ---- o cone que CalcChanceToHit resolveu para ESTE ataque; sem ele Rat_SimPlanShots sonda
+            sigma = shot_attack_args.rat_sigma,
             num_shots = num_shots,
             args = shot_attack_args
         }

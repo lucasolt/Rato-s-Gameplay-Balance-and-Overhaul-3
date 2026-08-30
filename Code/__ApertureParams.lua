@@ -18,7 +18,7 @@ A.CoverRaycast = true
 
 ---- Abertura de referencia (minutos): Marks 100, arma de referencia, sem componentes. Move TUDO.
 ---- Calibrado 2026-08-29 contra o CTH do modelo somado, convertido a sigma pela LUT.
-A.Base = 65 --57
+A.Base = 57 --57
 
 ---- Piso mecanico do cone. Derivado do WeaponRange: silhueta de alvo em pe no alcance maximo x este %.
 A.FloorPct = 100 --55
@@ -163,11 +163,19 @@ A.AimCentroidPct = 100
 ---- Segmentos do anel de mira. Mais que isto nao se distingue; menos, vira poligono a queima-roupa.
 A.CrosshairRingSegments = 32
 
----- Faixa de CTH em que a correcao do cone por modificadores externos e confiavel (Rat_EffectiveSigma).
----- Fora dela o cone sai do geometrico puro: CTH e inteiro em pontos e perto dos extremos um ponto
----- vale cone demais -- alem disso os clamps Min/MaxCTH achatam todas as partes no mesmo numero.
-A.ConeCorrLo = 8
-A.ConeCorrHi = 92
+---- Residuais (recoil permanente, Dazed, perks, TargetedShot, componentes) entram como
+---- MULTIPLICADOR DE CONE, nao como pontos somados por cima. A traducao pontos -> cone e avaliada
+---- neste CTH de referencia; theta se cancela na razao de k, entao o cone sai igual em toda parte
+---- do corpo. Em CTH = ConeRefCTH o resultado bate exatamente com o modelo de pontos antigo.
+A.ConeRefCTH = 50
+
+---- Teto e piso do multiplicador de UM residual. Sem eles -100 pontos daria cone infinito.
+A.ConeMulMin = 25
+A.ConeMulMax = 1000
+
+---- Valvula da IA em espaco de cone: o inimigo so paga esta fracao (AIpenal_reduc) do EXCESSO do
+---- cone sobre A.Base. false = a IA usa o cone cru. Como desconto em pontos o cone dependia da parte.
+A.AIConeValve = true
 
 ---- SO COR, nao entra em conta nenhuma. Fator de cone tratado como "o pior caso" no gradiente do
 ---- overlay: e o teto contra o qual hipfire/snapshot sao pintados, para 280 e 155 nao sairem iguais.
