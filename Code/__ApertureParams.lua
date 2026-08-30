@@ -12,16 +12,26 @@ A.Enabled = true
 ---- Cobertura por sondagem de silhueta (FUNCTIONS_cover_silhouette.lua). Separada de A.Enabled (custo de raycast).
 A.CoverRaycast = true
 
+
+---------------------------------------------------------------------------------------------------
+---- Marksmanship escala o cone inteiro -- x2.60 em Marks 0 .. x1.00 em Marks 100
+---------------------------------------------------------------------------------------------------
+
+A.SkillMin = 50 --100 --- multiplicador (%) em Marksmanship 100
+A.SkillMaxFactor = 3
+A.SkillMax = A.SkillMaxFactor * A.SkillMin --300--260 --- multiplicador (%) em Marksmanship 0
+
+
+
 ---------------------------------------------------------------------------------------------------
 ---- Escala base
 ---------------------------------------------------------------------------------------------------
-
 ---- Abertura de referencia (minutos): Marks 100, arma de referencia, sem componentes. Move TUDO.
 ---- Calibrado 2026-08-29 contra o CTH do modelo somado, convertido a sigma pela LUT.
-A.Base = 75 --57
+A.Base = 7500 / A.SkillMin--75 --57
 
 ---- Piso mecanico do cone. Derivado do WeaponRange: silhueta de alvo em pe no alcance maximo x este %.
-A.FloorPct = 55 --55
+A.FloorPct = 150 --55
 
 ---- Convergencia da mira ao piso. true = assintotico: sigma = piso + (sigma0 - piso) * decay^aim
 ---- (cada stat sempre rende; tiro mirado fica mais dificil no medio/longo). false = joelho duro.
@@ -86,12 +96,7 @@ A.ExposureBlockedPct = 6
 ---- (cobrar o inteiro contaria duas vezes); o residual e o custo de ESCOLHER alvo pequeno.
 A.TargetedResidualPct = 0 --35
 
----------------------------------------------------------------------------------------------------
----- Marksmanship escala o cone inteiro -- x2.60 em Marks 0 .. x1.00 em Marks 100
----------------------------------------------------------------------------------------------------
 
-A.SkillMax = 300--260 --- multiplicador (%) em Marksmanship 0
-A.SkillMin = 100 --- multiplicador (%) em Marksmanship 100
 
 ---- AimAccuracy define quanto CADA nivel de mira FECHA o cone:
 ---- decay% = 100 - (DecayBase + DecayScale * AimAccuracy). AimAccuracy 3 -> 80%/nivel, 6 -> 68%, 9 -> 56%.
@@ -115,6 +120,10 @@ A.OpticAimBonus = {
 ---- Miras (AccuracyBonusWhenAimed): o `bonus_cth` autorado no componente vira multiplicador de
 ---- cone, aplicado uma vez com aim >= 1. false = inerte.
 A.SightAimBonus = true
+
+-- TODO: reflex sight should use differnt value, as it has also the close range bonus
+-- TODO: Crouch and prone should increase aim accuracy
+-- TODO: Grips
 
 ---- Degrau de "arma no ombro" -- hipfire / snapshot. So ate aim 2 (aim 3+ a arma esta encostada).
 ---- Escala o EXCESSO, nunca o cone inteiro:

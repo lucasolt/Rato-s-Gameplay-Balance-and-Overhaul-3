@@ -12,10 +12,11 @@ local debug = Platform.developer and Platform.rat
 ---- Sai do caminho: devolve o circulo 2D e apaga o anel do mundo.
 local function fallback(self, context, ...)
     Rat_HideConeRing()
-    if self.idAimTarget then
-        self.idAimTarget:SetVisible(true)
-    end
-    return vanilla_update(self, context, ...)
+	return
+    --if self.idAimTarget then
+    --    self.idAimTarget:SetVisible(true)
+    --end
+    --return vanilla_update(self, context, ...)
 end
 
 ---- Desenha o anel a partir do estado do CROSSHAIR, nao do widget: passar o mouse pelas body

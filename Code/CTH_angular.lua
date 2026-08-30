@@ -230,7 +230,9 @@ function Rat_ConeFactors(data)
     local total
     if data.rat_sigma then
         total = {name = T(604815927340, "Total"),
-                 tag = Rat_PctTag(MulDivRound(data.rat_sigma, 100, Max(1, a.Base)))}
+                 --tag = Rat_PctTag(MulDivRound(data.rat_sigma, 100, Max(1, a.Base)))}
+				                  tag = Rat_PctTag(MulDivRound(data.rat_sigma, 10000,
+                                              Max(1, a.Base * a.SkillMin)))}
     end
 
     return out, meta, total
