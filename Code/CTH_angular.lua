@@ -234,7 +234,9 @@ function Rat_ConeFactors(data)
     ---- linha Aperture, em vez de fingir ser um fator na enumeracao.
     local meta = {}
     if parts.floor then
-        meta[#meta + 1] = T {825069487351, "Range floor <f>'", f = parts.floor}
+        ---- em grupo (2.5 sigma), mesma escala da linha Aperture
+        meta[#meta + 1] = T {825069487351, "Range floor <f>'",
+                             f = MulDivRound(parts.floor, a.CrosshairSigmaMul or 250, 100)}
     end
 
     ---- O QUE SOBROU no fim: sigma final sobre a abertura de referencia. Vai separado porque ja
@@ -296,7 +298,9 @@ function Rat_ConeMetaText(data)
             end
         end
         if parts.floor then
-            meta[#meta + 1] = T {825069487351, "Range floor <f>'", f = parts.floor}
+            ---- em grupo (2.5 sigma), mesma escala da linha Aperture
+            meta[#meta + 1] = T {825069487351, "Range floor <f>'",
+                                 f = MulDivRound(parts.floor, a.CrosshairSigmaMul or 250, 100)}
         end
     end
 
@@ -308,7 +312,10 @@ function Rat_ConeMetaText(data)
     ---- cone e alvo vao no NOME (aspa simples = minuto de angulo): e a comparacao que decide o
     ---- tiro, entao fica na linha mestre; o metaText so explica de onde o cone veio. A cor e a do
     ---- CTH resultante -- a mesma do anel de mira (UI_aperture_crosshair).
-    return T {193746285017, "Aperture <cone> vs <tgt>", cone = Rat_ScaleTag(sigma .. "'", cth),
+    ---- Exibe o GRUPO (2.5 sigma, ~96% dos tiros -- A.CrosshairSigmaMul), nao o sigma cru: e o
+    ---- mesmo raio que o anel desenha, e so contra ele "cone ~= alvo" quer dizer "acerto quase certo".
+    local group = MulDivRound(sigma, a.CrosshairSigmaMul or 250, 100)
+    return T {193746285017, "Aperture <cone> vs <tgt>", cone = Rat_ScaleTag(group .. "'", cth),
               tgt = Rat_ScaleTag(theta .. "'", cth)}, meta
 end
 
