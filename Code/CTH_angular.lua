@@ -206,8 +206,11 @@ function Rat_ConeFactors(data)
     for i = 1, aim do
         local d = parts.decay_ladder and parts.decay_ladder[i]
         if d then
+            ---- stance / handgun / grip / optica de limiar so mexem no decay: indentados sob a
+            ---- ultima linha de mira (a que ja reflete todos eles no %).
             out[#out + 1] = {name = T {158426093774, "Aim <n>", n = i},
-                             tag = Rat_ConeMulTag(d)}
+                             tag = Rat_ConeMulTag(d),
+                             sub = (i == aim) and parts.aim_meta or nil}
         end
     end
 
@@ -277,6 +280,9 @@ function Rat_ConeMetaText(data)
             ---- menos. Verde = fecha o maximo que a arma permite; ambar = nao rende.
             meta[#meta + 1] = T {603847265139, "Aim x<n> (<pct> per level)", n = aim,
                                  pct = Rat_ConeMulTag(parts.decay)}
+            for _, t in ipairs(parts.aim_meta or empty_table) do
+                meta[#meta + 1] = t
+            end
         end
         if parts.floor then
             meta[#meta + 1] = T {825069487351, "Range floor <f>'", f = parts.floor}

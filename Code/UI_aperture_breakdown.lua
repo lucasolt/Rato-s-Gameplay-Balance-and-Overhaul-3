@@ -82,6 +82,10 @@ function PopulateCrosshairUICth(win, attacker, action, attackResults)
                 if mod.rat_factors and #mod.rat_factors > 0 then
                     for _, f in ipairs(mod.rat_factors) do
                         out[#out + 1] = line(f.name, visible and f.tag)
+                        ---- fatores que so mexem neste (stance, grip, handgun): indentados sob ele
+                        if f.sub then
+                            push_meta(out, f.sub)
+                        end
                     end
                     ---- o que nao e multiplicador (piso do alcance) fica indentado
                     push_meta(out, mod.rat_meta)

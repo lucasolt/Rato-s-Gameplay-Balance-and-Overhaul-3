@@ -89,25 +89,29 @@ function Rat_ApertureSkillMul(attacker, weapon)
     return a.SkillMax - MulDivRound(a.SkillMax - a.SkillMin, skill, 100)
 end
 
----- Opticas com limiar presentes NESTA arma (A.OpticAimBonus). Resolvido uma vez por chamada:
+---- Opticas com limiar presentes NESTA arma (A.ComponentEffectsAimBonus). Resolvido uma vez por chamada:
 ---- HasComponent dentro do laco de niveis sai caro no caminho quente (previsao, varredura da IA).
-function Rat_ApertureOptics(weapon)
+function GetApertureAimComponentEffects(weapon)
     local a = P()
     if not IsKindOf(weapon, "Firearm") then
         return empty_table
     end
-    local list
-    for _, o in ipairs(a.OpticAimBonus or empty_table) do
-        if weapon:HasComponent(o.id) then
+    local list, meta
+    for _, eff in ipairs(a.ComponentEffectsAimBonus or empty_table) do
+		--local modifyVal, compDef =GetComponentEffectValue(weapon, eff, "bonus_cth_v")
+		local has, comp = weapon:HasComponent(eff.id)
+        if has then
             list = list or {}
-            list[#list + 1] = o
+            list[#list + 1] = eff
+			meta = meta or {}
+			meta[#meta +1] = comp.DisplayName or ""
         end
     end
-    return list or empty_table
+    return list or empty_table, meta or empty_table
 end
 
 ---- Bonus de AimAccuracy a que ESTE nivel de mira tem direito.
-function Rat_ApertureOpticAcc(optics, level)
+function GetApertureComponentAccBonus(optics, level)
     local bonus = 0
     for _, o in ipairs(optics or empty_table) do
         if level >= o.from and (not o.to or level <= o.to) then
@@ -120,16 +124,62 @@ end
 ---- Quanto o nivel `level` de mira fecha o cone, em % (80 = 80% do anterior). AimAccuracy da o
 ---- teto; Hand-Eye Coordination da quanto disso o atirador cobra (a "Aiming Rework" do mod).
 ---- Opticas com limiar somam AimAccuracy so nos niveis a que tem direito, entao o decay VARIA
----- por nivel -- `optics` vem pronto de Rat_ApertureOptics para nao repetir HasComponent.
+---- por nivel -- `optics` vem pronto de GetApertureAimComponentEffects para nao repetir HasComponent.
+
+
+
+
 function Rat_ApertureAimDecay(weapon, attacker, level, optics)
     local a = P()
 
     local acc = (weapon and weapon.AimAccuracy) or 3
-    if IsKindOfClasses(weapon, "Pistol", "Revolver") then
-        acc = MulDivRound(acc, 50, 100)
+	local meta = {}
+
+    acc = acc + GetApertureComponentAccBonus(optics or GetApertureAimComponentEffects(weapon), level or 1)
+
+	----- Handguns
+    if IsKindOfClasses(weapon, "Pistol", "Revolver") 
+	and A.AimAccMuls.HandGunPenalty ~= 100 then
+        acc = MulDivRound(acc, A.AimAccMuls.HandGunPenalty, 100)
+		meta[#meta + 1] = T {195655494642, "(-) Handgun"}
     end
 
-    acc = acc + Rat_ApertureOpticAcc(optics or Rat_ApertureOptics(weapon), level or 1)
+	for eff, data in pairs(A.AimAccMuls.CompEffects) do
+		local has, compDef = weapon:HasComponent(eff)
+		--local modifyVal, compDef = GetComponentEffectValue(weapon, "ReduceAimAccuracy", "cth_penalty")
+    	if has then
+    		acc = MulDivRound(acc, data.mul, 100)
+        	local m = data.meta and Untranslated(data.meta) or (compDef and compDef.DisplayName)
+        	if m then meta[#meta + 1] = m end
+    	end
+	end
+
+    ---- target camo
+    --if IsKindOf(target, "Unit") then
+    --    local armor = target:GetItemInSlot("Torso", "Armor")
+    --    if armor and armor.Camouflage then
+    --        bonus = bonus * Max(0, 100 - const.Combat.CamoAimPenalty) / 100.0 -- MulDivRound(bonus, Max(0, 100 - const.Combat.CamoAimPenalty), 100)
+    --        meta[#meta + 1] =
+    --            T(396692757033, "Camouflaged - aiming is less effective")
+    --    end
+    --end
+
+	----- Stance aim bonus
+	if attacker and level > 0 then
+	    if attacker.stance == "Crouch" then
+            acc = MulDivRound(acc, A.AimAccMuls.Crouch or 100, 100)
+            meta[#meta + 1] = T {688848752517, "Crouching"}
+        elseif attacker.stance == "Prone" then
+            acc = MulDivRound(acc, A.AimAccMuls.Prone or 100, 100)
+            meta[#meta + 1] = T {271472323596, "Prone"}
+        	if weapon:HasComponent("grip_prone_penalty") then
+            	acc = MulDivRound(acc, A.AimAccMuls.ProneGripPenalty or 100, 100)
+				meta[#meta + 1] = T {85643189456, "(-) Grip while prone"}
+			end
+		end
+	end
+
+
 
     local decay = 100 - (a.DecayBase + a.DecayScale * acc)
     decay = Max(a.DecayMinPct, decay)
@@ -142,7 +192,7 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
     --- decay_efetivo = 100 - (100 - decay) * he/100
     decay = 100 - MulDivRound(100 - decay, he, 100)
 
-    return Clamp(decay, a.DecayMinPct, 99)
+    return Clamp(decay, a.DecayMinPct, 99), meta
 end
 
 ---- Multiplicador do degrau de hipfire/snapshot desta arma (propriedade nova).
@@ -190,97 +240,6 @@ end
 ---- Abertura (sigma), em minutos de angulo
 ---------------------------------------------------------------------------------------------------
 
----- Gradiente de QUALIDADE: 0 = pior (vermelho), 100 = melhor (verde), passando por ambar.
----- Usado tanto no texto do overlay quanto no anel de mira, para os dois falarem a mesma lingua.
-local function lerp(from, to, t)
-    return from + MulDivRound(to - from, t, 100)
-end
-
-function Rat_QualityColor(pct)
-    pct = Clamp(pct or 0, 0, 100)
-    local r1, g1, b1, r2, g2, b2, t
-    if pct < 50 then
-        r1, g1, b1, r2, g2, b2, t = 214, 96, 82, 216, 172, 76, pct * 2
-    else
-        r1, g1, b1, r2, g2, b2, t = 216, 172, 76, 126, 186, 108, (pct - 50) * 2
-    end
-    return lerp(r1, r2, t), lerp(g1, g2, t), lerp(b1, b2, t)
-end
-
----- Untranslated: e o jeito do engine de meter markup dentro de um arg de T. Sem ele a tag
----- de cor sairia escapada como texto literal.
-function Rat_ScaleTag(text, quality_pct)
-    local r, g, b = Rat_QualityColor(quality_pct)
-    return Untranslated(string.format("<color %d %d %d>%s</color>", r, g, b, text))
-end
-
----- Fator do cone com 100 NEUTRO: acima abre o cone (ruim), abaixo fecha (bom). Para fatores
----- que nao tem 100 no meio da faixa, use Rat_ScaleTag com a qualidade calculada na mao.
-function Rat_PctTag(v)
-    if not v then
-        return Untranslated("")
-    end
-    if v == 100 then
-        return Untranslated("100%")
-    end
-    return Rat_ScaleTag(v .. "%", v > 100 and 0 or 100)
-end
-
----- Fator que NUNCA fica melhor que neutro (Marksmanship: vive em [100, SkillMax]). Verde so
----- em 100; acima disso o gradiente para no ambar, por pior que seja o `worst`. Deixar chegar
----- ao verde diria que o fator esta ajudando, quando ele so esta atrapalhando menos.
-function Rat_PctTagPenaltyOnly(v, worst)
-    if not v then
-        return Untranslated("")
-    end
-    if v <= 100 then
-        ---- 100 e o MELHOR caso possivel aqui, entao ganha verde -- nao e neutro como no Rat_PctTag
-        return Rat_ScaleTag(v .. "%", 100)
-    end
-    local span = Max(1, (worst or 200) - 100)
-    local quality = 50 - Clamp(MulDivRound(v - 100, 50, span), 0, 50)
-    return Rat_ScaleTag(v .. "%", quality)
-end
-
----- Espelho do anterior, para fator que NUNCA fica pior que neutro (decay da mira: vive em
----- [DecayMinPct, 100]). Vermelho nunca aparece -- mirar no pior caso so deixa de ajudar,
----- nao atrapalha. 100 = ambar ("nao rende nada"), `best` = verde.
-function Rat_PctTagBonusOnly(v, best)
-    if not v then
-        return Untranslated("")
-    end
-    if v >= 100 then
-        return Rat_ScaleTag(v .. "%", 50)
-    end
-    local span = Max(1, 100 - (best or 0))
-    local quality = 50 + Clamp(MulDivRound(100 - v, 50, span), 0, 50)
-    return Rat_ScaleTag(v .. "%", quality)
-end
-
----- Fator de cone, gradiente CONTINUO dos dois lados -- a MESMA escala do snapshot, agora com
----- lado verde tambem: A.MetaScaleWorst e o vermelho cheio, 100 o ambar (neutro), A.MetaScaleBest
----- o verde cheio. Qualidade linear em cada metade. Usar onde o fator e so um multiplicador de
----- cone (Weapon, Marksmanship, Sight, cada nivel de mira, Hipfire/Snapshot, residuais, Total).
-function Rat_ConeMulTag(v, best, worst)
-    if not v then
-        return Untranslated("")
-    end
-    if v == 100 then
-        return Untranslated("100%")
-    end
-    local a = P()
-    best = best or a.MetaScaleBest or 50
-    worst = worst or a.MetaScaleWorst or 350
-    local quality
-    if v < 100 then
-        local span = Max(1, 100 - best)
-        quality = 50 + Clamp(MulDivRound(100 - v, 50, span), 0, 50)
-    else
-        local span = Max(1, worst - 100)
-        quality = 50 - Clamp(MulDivRound(v - 100, 50, span), 0, 50)
-    end
-    return Rat_ScaleTag(v .. "%", quality)
-end
 
 ---- Retorna sigma e a lista de contribuicoes (para a UI mostrar em minutos de cone,
 ---- no lugar da lista aditiva de pontos percentuais que o modelo antigo exibia).
@@ -313,16 +272,20 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     end
 
     --- 4. cada nivel de mira FECHA o cone, em direcao ao piso da arma
-    local optics = Rat_ApertureOptics(weapon)
+    local comps, metaTextComps = GetApertureAimComponentEffects(weapon)
     local floor = Rat_ApertureFloor(weapon)
     ---- escada de decay: com limiar de optica cada nivel fecha um tanto diferente. Guardada
     ---- inteira para o overlay enumerar nivel a nivel (ver Rat_ConeFactors).
     local ladder = {}
+	local aimMetaText
     for i = 1, aim do
-        ladder[i] = Rat_ApertureAimDecay(weapon, attacker, i, optics)
+        ladder[i], aimMetaText = Rat_ApertureAimDecay(weapon, attacker, i, comps)
     end
     ---- um numero so, para quem nao quer a escada: o do ULTIMO nivel aplicado
-    local decay = ladder[aim] or Rat_ApertureAimDecay(weapon, attacker, 1, optics)
+    local decay = ladder[aim]
+	if not decay then
+		decay, aimMetaText = Rat_ApertureAimDecay(weapon, attacker, 1, comps)
+	end
 
     if a.ApertureAsymptotic then
         ---- sigma = piso + (sigma0 - piso) * prod(decay_i). Converge para o piso em vez de bater
@@ -372,6 +335,20 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
         meta[#meta + 1] = T(353401714895, "Range")
     end
 
+	---- opticas (limiar), stance, handgun, grip: so mexem no DECAY, entao ficam SOB a linha Aim
+	---- no overlay -- nao na linha-mestre Aperture. Ver Rat_ConeFactors / UI_aperture_breakdown.
+	local aim_meta
+	if aim > 0 then
+		aim_meta = {}
+		for _, v in ipairs(metaTextComps) do
+			if v and v ~= "" then aim_meta[#aim_meta + 1] = v end
+		end
+		for _, v in ipairs(aimMetaText or empty_table) do
+			if v and v ~= "" then aim_meta[#aim_meta + 1] = v end
+		end
+		if #aim_meta == 0 then aim_meta = nil end
+	end
+
     return Max(1, s), meta, {
         base = a.Base,
         base_mul = base_mul,
@@ -381,7 +358,8 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
         decay = decay,
         decay_ladder = ladder,
         step = step,
-        floor = floor
+        floor = floor,
+        aim_meta = aim_meta
     }
 end
 
@@ -940,7 +918,11 @@ end
 local t_id_table = {
     [936174028553] = "Hipfire <pct>",
     [418205963714] = "Snapshot <pct>",
-    [353401714895] = "Range"
+    [353401714895] = "Range",
+    [688848752517] = "Crouching",
+    [271472323596] = "Prone",
+    [195655494642] = "(-) Handgun",
+    [85643189456] = "(-) Grip while prone"
 }
 
 ratG_T_table['FUNCTIONS_aperture.lua'] = t_id_table
