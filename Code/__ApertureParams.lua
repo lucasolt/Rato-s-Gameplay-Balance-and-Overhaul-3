@@ -31,7 +31,7 @@ A.SkillMax = A.SkillMaxFactor * A.SkillMin --300--260 --- multiplicador (%) em M
 A.Base = 7500 / A.SkillMin--75 --57
 
 ---- Piso mecanico do cone. Derivado do WeaponRange: silhueta de alvo em pe no alcance maximo x este %.
-A.FloorPct = 150 --55
+A.FloorPct = 130 --55
 
 ---- Convergencia da mira ao piso. true = assintotico: sigma = piso + (sigma0 - piso) * decay^aim
 ---- (cada stat sempre rende; tiro mirado fica mais dificil no medio/longo). false = joelho duro.
@@ -102,24 +102,35 @@ A.TargetedResidualPct = 0 --35
 ---- decay% = 100 - (DecayBase + DecayScale * AimAccuracy). AimAccuracy 3 -> 80%/nivel, 6 -> 68%, 9 -> 56%.
 ---- Hand-Eye Coordination (Dex+Marks) escala quanto disso o atirador COBRA (= "Aiming Rework").
 
-A.DecayBase = 8 --8
-A.DecayScale = 4--4
+A.DecayBase = 4 --8
+A.DecayScale = 6--4
 A.DecayMinPct = 40 --- teto de fechamento por nivel (nunca fecha mais que 60%)
 
 ---- Opticas com LIMIAR: bonus de AimAccuracy que so vale a partir do nivel `from` (ate `to`, se
 ---- houver). Substitui os degraus `aim >= N` do modelo somado -- a luneta deixa de ser um degrau
 ---- de pontos e vira CURVA: rende pouco nos primeiros niveis e muito depois do tempo investido.
-A.OpticAimBonus = {
-    {id = "pso_dragunov_scope", from = 2, acc = 2},
+A.ComponentEffectsAimBonus = {
+    {id = "pso_dragunov_scope", from = 2, acc = 2 },
     {id = "sniper_aim_scope", from = 3, acc = 3},
     {id = "sniper_adv_aim_scope", from = 4, acc = 4},
     ---- Forward Grip: so o PRIMEIRO nivel -- e o "aponta rapido" dele, nao um ganho permanente.
-    {id = "FirstAimBonusModifier", from = 1, to = 1, acc = 3}
+    {id = "FirstAimBonusModifier", from = 1, to = 1, acc = 3},
+	{id = "BonusAccuracyWhenFullyAimed", from = 3, to = 3, acc = 4}
 }
 
 ---- Miras (AccuracyBonusWhenAimed): o `bonus_cth` autorado no componente vira multiplicador de
 ---- cone, aplicado uma vez com aim >= 1. false = inerte.
 A.SightAimBonus = true
+A.AimAccMuls ={
+	Crouch = 105,
+	Prone = 110,
+	ProneGripPenalty = 95,
+	HandgunPenalty = 50, --- 100 is disabled
+	CompEffects = { -- {mul = 90, meta = "string"}
+		light_stock_aim_reduce = {mul = 90}, 
+		ReduceAimAccuracy = {mul = 75}
+	}
+}
 
 -- TODO: reflex sight should use differnt value, as it has also the close range bonus
 -- TODO: Crouch and prone should increase aim accuracy
@@ -191,7 +202,7 @@ A.CrosshairRingSegments = 32
 ---- MULTIPLICADOR DE CONE, nao como pontos somados por cima. A traducao pontos -> cone e avaliada
 ---- neste CTH de referencia; theta se cancela na razao de k, entao o cone sai igual em toda parte
 ---- do corpo. Em CTH = ConeRefCTH o resultado bate exatamente com o modelo de pontos antigo.
-A.ConeRefCTH = 50
+A.ConeRefCTH = 80--50
 
 ---- Teto e piso do multiplicador de UM residual. Sem eles -100 pontos daria cone infinito.
 A.ConeMulMin = 25
@@ -204,8 +215,8 @@ A.ConeMulMax = 1000
 ---- SO COR, nao entra em conta nenhuma. Ancoras do gradiente de fator de cone no overlay
 ---- (Rat_ConeMulTag): MetaScaleWorst = vermelho cheio, 100 = ambar, MetaScaleBest = verde cheio.
 ---- Worst e o teto contra o qual hipfire/snapshot sao pintados, para 280 e 155 nao sairem iguais.
-A.MetaScaleWorst = 350
-A.MetaScaleBest = 50
+A.MetaScaleWorst = 300--300
+A.MetaScaleBest = 60--60
 
 ---------------------------------------------------------------------------------------------------
 

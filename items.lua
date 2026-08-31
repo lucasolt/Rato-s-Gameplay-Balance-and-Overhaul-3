@@ -1278,6 +1278,10 @@ return {
 		'CodeFileName', "Code/FUNCTIONS_aperture.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "FUNCTIONS_aperture_ui_helpers",
+		'CodeFileName', "Code/FUNCTIONS_aperture_ui_helpers.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "FUNCTIONS_cover_silhouette",
 		'CodeFileName', "Code/FUNCTIONS_cover_silhouette.lua",
 	}),

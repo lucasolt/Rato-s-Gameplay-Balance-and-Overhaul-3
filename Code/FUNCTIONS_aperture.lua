@@ -139,8 +139,8 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
 
 	----- Handguns
     if IsKindOfClasses(weapon, "Pistol", "Revolver") 
-	and A.AimAccMuls.HandGunPenalty ~= 100 then
-        acc = MulDivRound(acc, A.AimAccMuls.HandGunPenalty, 100)
+	and A.AimAccMuls.HandgunPenalty ~= 100 then
+        acc = MulDivRound(acc, A.AimAccMuls.HandgunPenalty, 100)
 		meta[#meta + 1] = T {195655494642, "(-) Handgun"}
     end
 
