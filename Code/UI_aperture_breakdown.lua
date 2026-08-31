@@ -3,9 +3,10 @@
 ---- Sigma e a unica moeda, entao cada residual aparece como o MULTIPLICADOR DE CONE que aplicou
 ---- (100 = neutro, >100 abre o cone = pior, <100 fecha = melhor) -- que e o que ele de fato fez.
 ----
----- Ficam tres coisas: Marksmanship (a base em pontos), Aperture (a geometria, com a propria
----- decomposicao no metaText) e uma linha por modificador que mexeu no cone. Modificador neutro
----- some, e o metaText antigo deles tambem -- ele explica pontos, moeda que aqui nao existe mais.
+---- A linha Aperture mostra o CTH da GEOMETRIA (base de Marksmanship ja somada -- sem linha
+---- propria pra ela), e abaixo vem uma linha por fator do cone e uma por modificador residual.
+---- Modificador neutro some, e o metaText antigo deles tambem -- ele fala em pontos, moeda que
+---- aqui nao existe mais.
 ----
 ---- Sem a linha Aperture nos modifiers (A.Enabled = false, melee, alvo invalido) cai no vanilla.
 ---------------------------------------------------------------------------------------------------
@@ -69,14 +70,25 @@ function PopulateCrosshairUICth(win, attacker, action, attackResults)
         win.idChanceToHit.parent:SetZOrder(0)
     end
 
+    ---- pontos de base (Marksmanship): a linha Aperture os absorve e passa a mostrar o CTH da
+    ---- geometria, em vez de "rat_cth - skill" -- numero sem sentido sozinho. E a unica linha
+    ---- crua {name, value} que o engine insere; todo o resto do nosso pipeline carrega id/rat_mul.
+    local base_pts = 0
+    for _, mod in ipairs(modifiers) do
+        if mod.value and not mod.id and not mod.rat_mul and not mod.uiHidden then
+            base_pts = base_pts + mod.value
+        end
+    end
+
     local out, total = {}, nil
     for _, mod in ipairs(modifiers) do
         if not mod.uiHidden then
             if mod.id == "RatAngularCTH" then
                 ---- geometria: o nome ja traz "cone vs alvo"; de onde o cone veio sai logo abaixo,
-                ---- uma linha por fator, no mesmo formato dos residuais.
-                out[#out + 1] = line(mod.name, visible and mod.value and
-                                         T {257328164584, "<percent(value)>", value = mod.value})
+                ---- uma linha por fator. O numero e o CTH da geometria (base + cone), nao o delta.
+                out[#out + 1] = line(mod.name, visible and
+                                         T {257328164584, "<percent(value)>",
+                                            value = (mod.value or 0) + base_pts})
                 if mod.rat_factors and #mod.rat_factors > 0 then
                     for _, f in ipairs(mod.rat_factors) do
                         out[#out + 1] = line(f.name, visible and f.tag)
@@ -93,8 +105,10 @@ function PopulateCrosshairUICth(win, attacker, action, attackResults)
                     out[#out + 1] = line(mod.name, visible and Rat_ConeMulTag(mod.rat_mul) or
                                              cone_sign(mod.rat_mul))
                 end
+            elseif mod.value and not mod.id then
+                ---- base de Marksmanship: dobrada na linha Aperture acima, sem linha propria
             else
-                ---- Marksmanship e o que nao passou pelo cone (cheats, linhas de outros mods)
+                ---- o que nao passou pelo cone e nao e base (cheats, Out of Range, outros mods)
                 out[#out + 1] = line(mod.name, visible and mod.value and
                                          T {257328164584, "<percent(value)>", value = mod.value})
             end
