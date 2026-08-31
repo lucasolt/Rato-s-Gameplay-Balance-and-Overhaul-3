@@ -201,17 +201,27 @@ function Rat_ConeFactors(data)
         out[#out + 1] = {name = T(730192846053, "Sight"), tag = Rat_ConeMulTag(parts.sight)}
     end
 
-    ---- um nivel por linha: com limiar de optica o fechamento MUDA conforme a mira sobe, e essa
-    ---- curva e justamente o que distingue uma luneta de um reflex.
-    for i = 1, aim do
-        local d = parts.decay_ladder and parts.decay_ladder[i]
-        if d then
-            ---- stance / handgun / grip / optica de limiar so mexem no decay: indentados sob a
-            ---- ultima linha de mira (a que ja reflete todos eles no %).
-            out[#out + 1] = {name = T {158426093774, "Aim <n>", n = i},
-                             tag = Rat_ConeMulTag(d),
-                             sub = (i == aim) and parts.aim_meta or nil}
+    ---- UMA linha de mira: o % e o efeito de TODOS os niveis juntos sobre o cone inteiro, nao o
+    ---- multiplicador cru do gap (que so fecha o excesso acima do piso). Assim skill x sight x aim
+    ---- x step fecha no Total. Conversao: (piso + gap*prod)/pre. Escada crua vai como sub-nota.
+    local ladder = parts.decay_ladder
+    if aim > 0 and ladder and ladder[1] then
+        local pre = parts.pre_aim or parts.base or 1
+        local flr = parts.floor or 0
+        local gap0 = Max(0, pre - flr)
+        local prod, sub = 100, {}
+        for i = 1, aim do
+            local d = ladder[i] or 100
+            prod = MulDivRound(prod, d, 100)
+            sub[#sub + 1] = T {603847265139, "Aim x<n> (<pct> per level)", n = i,
+                               pct = Rat_ConeMulTag(d)}
         end
+        local cone = a.ApertureAsymptotic and (flr + MulDivRound(gap0, prod, 100))
+                        or MulDivRound(pre, prod, 100)
+        local eff = (pre > 0) and MulDivRound(cone, 100, pre) or 100
+        for _, m in ipairs(parts.aim_meta or empty_table) do sub[#sub + 1] = m end
+        out[#out + 1] = {name = T {158426093774, "Aim <n>", n = aim},
+                         tag = Rat_ConeMulTag(eff), sub = sub}
     end
 
     if parts.step and parts.step ~= 100 then
@@ -232,9 +242,10 @@ function Rat_ConeFactors(data)
     ---- acima -- o piso entra como assintota, somando, e produto nenhum daria nisso. E medida.
     local total
     if data.rat_sigma then
+        ---- ancora = A.Base (cone neutro, skill neutro): Marksmanship e um fator visivel que puxa
+        ---- dali pra baixo. Assim Total = produto de todas as linhas e Total * Base = cone da bala.
         total = {name = T(604815927340, "Total"),
-                 tag = Rat_ConeMulTag(MulDivRound(data.rat_sigma, 10000,
-                                                  Max(1, a.Base * a.SkillMin)))}
+                 tag = Rat_ConeMulTag(MulDivRound(data.rat_sigma, 100, Max(1, a.Base)))}
     end
 
     return out, meta, total

@@ -287,6 +287,10 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
 		decay, aimMetaText = Rat_ApertureAimDecay(weapon, attacker, 1, comps)
 	end
 
+    ---- cone antes de mirar: o overlay converte o decay do gap em multiplicador do cone INTEIRO
+    ---- (gap_mul so faz sentido contra o piso), para que o produto das linhas feche no Total.
+    local pre_aim = s
+
     if a.ApertureAsymptotic then
         ---- sigma = piso + (sigma0 - piso) * prod(decay_i). Converge para o piso em vez de bater
         ---- nele: cada stat sempre rende (AimAccuracy = velocidade, WeaponRange/scope = assintota).
@@ -355,6 +359,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
         hipsnap = hipsnap,
         skill = skill_mul,
         sight = sight,
+        pre_aim = pre_aim,
         decay = decay,
         decay_ladder = ladder,
         step = step,
