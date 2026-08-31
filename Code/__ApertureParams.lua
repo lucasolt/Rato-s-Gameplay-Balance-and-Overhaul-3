@@ -28,7 +28,8 @@ A.SkillMax = A.SkillMaxFactor * A.SkillMin --300--260 --- multiplicador (%) em M
 ---------------------------------------------------------------------------------------------------
 ---- Abertura de referencia (minutos): Marks 100, arma de referencia, sem componentes. Move TUDO.
 ---- Calibrado 2026-08-29 contra o CTH do modelo somado, convertido a sigma pela LUT.
-A.Base = 7500 / A.SkillMin--75 --57
+A.BaseFactor = 55
+A.Base = A.BaseFactor * 100 / A.SkillMin--75 --57
 
 ---- Piso mecanico do cone. Derivado do WeaponRange: silhueta de alvo em pe no alcance maximo x este %.
 A.FloorPct = 130 --55
@@ -87,7 +88,7 @@ A.CoverAIFallback = true
 
 ---- Classe de penetracao dos raios de sondagem. 0 = qualquer obstaculo bloqueia (cobertura PROTEGE,
 ---- espirito do -35 flat antigo). A classe real da arma faria quase toda cobertura sumir.
-A.CoverPenetrationClass = 1--0
+A.CoverPenetrationClass = 2--0
 
 ---- Fracao exposta abaixo da qual o alvo conta como totalmente ocluido. So no caminho barato da IA.
 A.ExposureBlockedPct = 6
@@ -102,7 +103,7 @@ A.TargetedResidualPct = 0 --35
 ---- decay% = 100 - (DecayBase + DecayScale * AimAccuracy). AimAccuracy 3 -> 80%/nivel, 6 -> 68%, 9 -> 56%.
 ---- Hand-Eye Coordination (Dex+Marks) escala quanto disso o atirador COBRA (= "Aiming Rework").
 
-A.DecayBase = 4 --8
+A.DecayBase = 6 --8
 A.DecayScale = 6--4
 A.DecayMinPct = 40 --- teto de fechamento por nivel (nunca fecha mais que 60%)
 
@@ -125,7 +126,7 @@ A.AimAccMuls ={
 	Crouch = 105,
 	Prone = 110,
 	ProneGripPenalty = 95,
-	HandgunPenalty = 50, --- 100 is disabled
+	HandgunPenalty = 100,--50 ---- 100 is disabled
 	CompEffects = { -- {mul = 90, meta = "string"}
 		light_stock_aim_reduce = {mul = 90}, 
 		ReduceAimAccuracy = {mul = 75}
