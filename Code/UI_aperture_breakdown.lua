@@ -90,7 +90,7 @@ function PopulateCrosshairUICth(win, attacker, action, attackResults)
             elseif mod.rat_mul then
                 ---- residual: so quem mexeu no cone. Sem metaText -- ele fala em pontos.
                 if mod.rat_mul ~= 100 then
-                    out[#out + 1] = line(mod.name, visible and Rat_PctTag(mod.rat_mul) or
+                    out[#out + 1] = line(mod.name, visible and Rat_ConeMulTag(mod.rat_mul) or
                                              cone_sign(mod.rat_mul))
                 end
             else

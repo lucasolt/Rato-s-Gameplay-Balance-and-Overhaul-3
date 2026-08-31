@@ -188,17 +188,17 @@ function Rat_ConeFactors(data)
     end
 
     if parts.base_mul and parts.base_mul ~= 100 then
-        out[#out + 1] = {name = T(268301947512, "Weapon"), tag = Rat_PctTag(parts.base_mul)}
+        out[#out + 1] = {name = T(268301947512, "Weapon"), tag = Rat_ConeMulTag(parts.base_mul)}
     end
 
-    ---- skill_mul vive em [SkillMin, SkillMax] e nunca desce de 100: Marks so deixa MENOS ruim.
+    ---- skill_mul vive em [SkillMin, SkillMax]: pode fechar (Marks alto, SkillMin<100) ou abrir
     if parts.skill then
         out[#out + 1] = {name = T(419573028641, "Marksmanship"),
-                         tag = Rat_PctTagPenaltyOnly(parts.skill, a.SkillMax)}
+                         tag = Rat_ConeMulTag(parts.skill)}
     end
 
     if parts.sight and parts.sight ~= 100 then
-        out[#out + 1] = {name = T(730192846053, "Sight"), tag = Rat_PctTag(parts.sight)}
+        out[#out + 1] = {name = T(730192846053, "Sight"), tag = Rat_ConeMulTag(parts.sight)}
     end
 
     ---- um nivel por linha: com limiar de optica o fechamento MUDA conforme a mira sobe, e essa
@@ -207,14 +207,14 @@ function Rat_ConeFactors(data)
         local d = parts.decay_ladder and parts.decay_ladder[i]
         if d then
             out[#out + 1] = {name = T {158426093774, "Aim <n>", n = i},
-                             tag = Rat_PctTagBonusOnly(d, a.DecayMinPct)}
+                             tag = Rat_ConeMulTag(d)}
         end
     end
 
     if parts.step and parts.step ~= 100 then
         out[#out + 1] = {name = (aim == 0) and T(592038471265, "Hipfire") or
                              T(837465019283, "Snapshot"),
-                         tag = Rat_PctTagPenaltyOnly(parts.step, a.MetaScaleWorst)}
+                         tag = Rat_ConeMulTag(parts.step)}
     end
 
     ---- o piso nao e multiplicador -- e a assintota, em minutos. Fica indentado, como nota da
@@ -230,9 +230,8 @@ function Rat_ConeFactors(data)
     local total
     if data.rat_sigma then
         total = {name = T(604815927340, "Total"),
-                 --tag = Rat_PctTag(MulDivRound(data.rat_sigma, 100, Max(1, a.Base)))}
-				                  tag = Rat_PctTag(MulDivRound(data.rat_sigma, 10000,
-                                              Max(1, a.Base * a.SkillMin)))}
+                 tag = Rat_ConeMulTag(MulDivRound(data.rat_sigma, 10000,
+                                                  Max(1, a.Base * a.SkillMin)))}
     end
 
     return out, meta, total
@@ -258,7 +257,7 @@ function Rat_ConeMetaText(data)
     ---- So entra o que nao e neutro -- na ordem de aplicacao de Rat_GetAperture.
     if parts then
         if parts.base_mul and parts.base_mul ~= 100 then
-            meta[#meta + 1] = T {481920573641, "Weapon <pct>", pct = Rat_PctTag(parts.base_mul)}
+            meta[#meta + 1] = T {481920573641, "Weapon <pct>", pct = Rat_ConeMulTag(parts.base_mul)}
         end
         ---- sempre visivel, ao contrario das outras: em Marks 100 o 100% verde E a informacao
         ---- ("nao ha nada a ganhar aqui"), nao um neutro para esconder.
@@ -266,18 +265,18 @@ function Rat_ConeMetaText(data)
             ---- skill_mul vive em [SkillMin, SkillMax] e nunca desce de 100: aqui Marks so deixa
             ---- MENOS ruim, nunca ajuda. Gradiente para no ambar por isso.
             meta[#meta + 1] = T {592038174652, "Marksmanship <pct>",
-                                 pct = Rat_PctTagPenaltyOnly(parts.skill, a.SkillMax)}
+                                 pct = Rat_ConeMulTag(parts.skill)}
         end
         ---- quadro de visada da mira: fator unico, so com aim >= 1 (nunca piora, por isso o PctTag
         ---- normal ja basta -- abaixo de 100 sai verde).
         if aim > 0 and parts.sight and parts.sight ~= 100 then
-            meta[#meta + 1] = T {517294836150, "Sight <pct>", pct = Rat_PctTag(parts.sight)}
+            meta[#meta + 1] = T {517294836150, "Sight <pct>", pct = Rat_ConeMulTag(parts.sight)}
         end
         if aim > 0 and parts.decay then
             ---- decay vive em [DecayMinPct, 100] e nunca passa de 100: mirar so ajuda, mais ou
             ---- menos. Verde = fecha o maximo que a arma permite; ambar = nao rende.
             meta[#meta + 1] = T {603847265139, "Aim x<n> (<pct> per level)", n = aim,
-                                 pct = Rat_PctTagBonusOnly(parts.decay, a.DecayMinPct)}
+                                 pct = Rat_ConeMulTag(parts.decay)}
         end
         if parts.floor then
             meta[#meta + 1] = T {825069487351, "Range floor <f>'", f = parts.floor}
@@ -286,7 +285,7 @@ function Rat_ConeMetaText(data)
 
     ---- tudo o que entrou depois da geometria (recoil, Dazed, perks, componentes), ja em cone
     if data.rat_cone_mul and data.rat_cone_mul ~= 100 then
-        meta[#meta + 1] = T {714038265194, "Modifiers <pct>", pct = Rat_PctTag(data.rat_cone_mul)}
+        meta[#meta + 1] = T {714038265194, "Modifiers <pct>", pct = Rat_ConeMulTag(data.rat_cone_mul)}
     end
 
     ---- cone e alvo vao no NOME (aspa simples = minuto de angulo): e a comparacao que decide o

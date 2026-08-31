@@ -201,18 +201,22 @@ A.ConeMulMax = 1000
 ---- cone sobre A.Base. false = a IA usa o cone cru. Como desconto em pontos o cone dependia da parte.
 --A.AIConeValve = true
 
----- SO COR, nao entra em conta nenhuma. Fator de cone tratado como "o pior caso" no gradiente do
----- overlay: e o teto contra o qual hipfire/snapshot sao pintados, para 280 e 155 nao sairem iguais.
+---- SO COR, nao entra em conta nenhuma. Ancoras do gradiente de fator de cone no overlay
+---- (Rat_ConeMulTag): MetaScaleWorst = vermelho cheio, 100 = ambar, MetaScaleBest = verde cheio.
+---- Worst e o teto contra o qual hipfire/snapshot sao pintados, para 280 e 155 nao sairem iguais.
 A.MetaScaleWorst = 350
+A.MetaScaleBest = 50
 
 ---------------------------------------------------------------------------------------------------
 
+
+-- TODO: Check the second property
 function OnMsg.ClassesGenerate()
     AppendClass.Firearm = {
         properties = {
             ---- Multiplicador (%) do degrau de hipfire/snapshot. Menor = aponta mais rapido.
             ---- 0 = nao declarado, semeado do OverwatchAngle em Rat_SeedApertureProperties().
-            {id = "rat_aperture_snap", editor = "number", default = 0, no_edit = true},
+            --{id = "rat_aperture_snap", editor = "number", default = 0, no_edit = true},
             ---- Multiplicador (%) da abertura BASE da arma, antes de mira e componentes. 100 = referencia.
             {id = "rat_aperture_base_mul", editor = "number", default = 100, no_edit = true}
         }

@@ -257,6 +257,31 @@ function Rat_PctTagBonusOnly(v, best)
     return Rat_ScaleTag(v .. "%", quality)
 end
 
+---- Fator de cone, gradiente CONTINUO dos dois lados -- a MESMA escala do snapshot, agora com
+---- lado verde tambem: A.MetaScaleWorst e o vermelho cheio, 100 o ambar (neutro), A.MetaScaleBest
+---- o verde cheio. Qualidade linear em cada metade. Usar onde o fator e so um multiplicador de
+---- cone (Weapon, Marksmanship, Sight, cada nivel de mira, Hipfire/Snapshot, residuais, Total).
+function Rat_ConeMulTag(v, best, worst)
+    if not v then
+        return Untranslated("")
+    end
+    if v == 100 then
+        return Untranslated("100%")
+    end
+    local a = P()
+    best = best or a.MetaScaleBest or 50
+    worst = worst or a.MetaScaleWorst or 350
+    local quality
+    if v < 100 then
+        local span = Max(1, 100 - best)
+        quality = 50 + Clamp(MulDivRound(100 - v, 50, span), 0, 50)
+    else
+        local span = Max(1, worst - 100)
+        quality = 50 - Clamp(MulDivRound(v - 100, 50, span), 0, 50)
+    end
+    return Rat_ScaleTag(v .. "%", quality)
+end
+
 ---- Retorna sigma e a lista de contribuicoes (para a UI mostrar em minutos de cone,
 ---- no lugar da lista aditiva de pontos percentuais que o modelo antigo exibia).
 function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
