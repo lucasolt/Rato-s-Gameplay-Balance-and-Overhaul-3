@@ -59,15 +59,23 @@ function OnMsg.ClassesGenerate()
                 max = 1000,
                 modifiable = true
 
-			}
+			},
 
         }
     }
 
-    SubmachineGun.SingleShotCustomDeltaAP =
-        1
-	
+
+    SubmachineGun.SingleShotCustomDeltaAP = 1
+
 end
+
+-- Cap de aim levels: Modifiers.lua baixa o `max` da prop meta no clamp do modifier de MaxAimActions.
+-- `properties` e array (nao keyed): acha por id e sobe de 5 pra 10.
+function OnMsg.ClassesBuilt()
+    local prop = table.find_value(FirearmProperties.properties, "id", "MaxAimActions")
+    if prop then prop.max = 10 end
+end
+
 
 function fireprop()
 
