@@ -12,10 +12,9 @@ local debug = Platform.developer and Platform.rat
 ---- Sai do caminho: devolve o circulo 2D e apaga o anel do mundo.
 local function fallback(self, context, ...)
     Rat_HideConeRing()
-	return
-    --if self.idAimTarget then
-    --    self.idAimTarget:SetVisible(true)
-    --end
+    if self.idAimTarget then
+        self.idAimTarget:SetVisible(true)
+    end
     --return vanilla_update(self, context, ...)
 end
 

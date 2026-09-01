@@ -141,9 +141,8 @@ function rat_format_hints(self)
 	    },
 	    {
 	        id = "PointBlankRangeAccuracy",
-	        angularCTHActive and (TranslationTable[162198456754] or "Handling: ") or (TranslationTable[651371401489] or "Point Blank Range Accuracy: "),
-	        MulDivRound(GetPBbonus_display(self), 
-			angularCTHActive and const.Combat.Aperture.PBAsHandlingMul or 100, 100) or 0,
+	        angularCTHActive and (TranslationTable[184329577856] or "Handling: ") or (TranslationTable[651371401489] or "Point Blank Range Accuracy: "),
+	        MulDivRound(GetPBbonus_display(self), angularCTHActive and const.Combat.Aperture.PBAsHandlingMul or 100, 100) or 0,
 			angularCTHActive and "" or "%"
 	    },
 	    {
@@ -232,7 +231,8 @@ local t_id_table = {
     [158466723759] = "Recommended Strength: ",
     [785975283217] = " STR",
     [719583632117] = "Number of Pellets: ",
-    [193184162359] = "Pellet Spread Angle: "
+    [193184162359] = "Pellet Spread Angle: ",
+	[184329577856] = "Handling: "
 }
 
 ratG_T_table['DESCRIPTION_HINTS_get.lua'] = t_id_table

@@ -21,6 +21,8 @@ function GBO_ApplyApertureCTHMode(mode)
 	const.Combat.Aperture.SimulateShots = (m == "aCTH")
 	for _, u in ipairs(g_Units or empty_table) do u.combat_cache = nil end
 	if ApplyApertureItemParams then ApplyApertureItemParams() end
+	
+	if RatoTOGComponents then RatoTOGComponents() end
 	print("GBO Options - CTH mode:", m, "| Enabled:", const.Combat.Aperture.Enabled,
 	      "| SimulateShots:", const.Combat.Aperture.SimulateShots)
 end

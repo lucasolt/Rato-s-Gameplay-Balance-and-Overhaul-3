@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 12825,
+	'version', 12865,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -147,12 +147,15 @@ return PlaceObj('ModDef', {
 		"Code/PATCH_call.lua",
 		"Code/PATCH_CharacterEffectPresets.lua",
 		"Code/PATCH_OnClassesGenerate.lua",
+		"Code/APPEND_CLASS_WeaponComponent.lua",
 		"Code/CONSTANTS_mod_options.lua",
 		"Code/OPTIONS_GunsHurt.lua",
 		"InventoryItem/M14SAW_AUTO.lua",
+		"Code/SetScopeEffects.lua",
 	},
 	'default_options', {
 		AIWeaponStanceMul = 100,
+		ApertureCTH = "aCTH",
 		AwareSight = "56 (GBO Default)",
 		Extra_start_ap = "0 (default for Rato's GBO)",
 		NightDetect = "-40 (Rato's Default)",
@@ -172,8 +175,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1788226235,
-	'code_hash', -8928487027412754974,
+	'saved', 1788295155,
+	'code_hash', 6398735203317890332,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",
@@ -304,11 +307,6 @@ return PlaceObj('ModDef', {
 			'Class', "LootDef",
 			'Id', "Gus",
 			'ClassDisplayName', "Loot definition",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponentEffect",
-			'Id', "NewModificationEffects",
-			'ClassDisplayName', "Modification Effects",
 		}),
 		PlaceObj('ModResourcePreset', {
 			'Class', "WeaponComponent",

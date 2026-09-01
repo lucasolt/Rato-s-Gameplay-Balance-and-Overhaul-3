@@ -14,7 +14,7 @@ local A = const.Combat.Aperture
 
 --- Refactored Scopes
 A.ComponentEffectsAimBonus = {
-    {id = "pso_dragunov_scope", from = 4, acc = 6 },
+    {id = "pso_dragunov_scope", from = 4, acc = 4 },
     {id = "sniper_aim_scope", from = 5, acc = 8},
 	{id = "sniper_adv_aim_scope", from = 6, acc = 10},
     ---- Forward Grip: so o PRIMEIRO nivel -- e o "aponta rapido" dele, nao um ganho permanente.
@@ -230,12 +230,17 @@ end
 function Rat_ReapplyApertureComponents()
 	local n = 0
 	for _, u in ipairs(g_Units or empty_table) do
+
 		if IsValid(u) then
 			for _, wslot in ipairs({ "Handheld A", "Handheld B" }) do
 				for _, w in ipairs(u:GetEquippedWeapons(wslot) or empty_table) do
 					if IsKindOf(w, "Firearm") and w.components then
 						for cslot, cid in sorted_pairs(w.components) do
-							if RAT_SCOPE_ORIGINALS[cid] and WeaponComponents[cid] then
+							local weapon_component = WeaponComponents[cid]
+							if weapon_component and RAT_SCOPE_ORIGINALS[cid] then
+								w:SetWeaponComponent(cslot, cid)
+								n = n + 1
+							elseif weapon_component and RAT_SCOPE_ORIGINALS[weapon_component.GBO_ComponentAncestor] then
 								w:SetWeaponComponent(cslot, cid)
 								n = n + 1
 							end

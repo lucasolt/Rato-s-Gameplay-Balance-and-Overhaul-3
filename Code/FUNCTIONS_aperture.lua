@@ -164,7 +164,7 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
     end
 	
 	----- Stance aim bonus
-	print("decay", decay)
+	
 	if attacker then
 	    if decay_muls.Crouch  and attacker.stance == "Crouch"  then
             decay = MulDivRound(decay, decay_muls.Crouch or 100, 100)
@@ -193,7 +193,7 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
     --- decay_efetivo = 100 - (100 - decay) * he/100
     decay = 100 - MulDivRound(100 - decay, he, 100)
 
-	print("decay final",Clamp(decay, a.DecayMinPct, 99) )
+	
     return Clamp(decay, a.DecayMinPct, 99), meta
 end
 
