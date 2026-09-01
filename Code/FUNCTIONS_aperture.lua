@@ -197,45 +197,52 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
     return Clamp(decay, a.DecayMinPct, 99), meta
 end
 
----- Multiplicador do degrau de hipfire/snapshot desta arma (propriedade nova).
-function Rat_ApertureSnapMul(weapon)
-    local v = weapon and weapon.ApertureSnapHipMul or 0
-    if v and v > 0 then
-        return v
-    end
-    return Rat_SeedSnapFromOverwatch(weapon)
-end
-
----- Estimativa inicial de manejo a partir do OverwatchAngle, para armas sem `rat_aperture_snap`.
-function Rat_SeedSnapFromOverwatch(weapon)
+---- MANEJO -> multiplicador da abertura base. GetPBbonus ja soma classe + arma + componentes
+---- (cano, bullpup, grips, handguard), entao todo componente que dava Point Blank Accuracy passa
+---- a dar manejo sem nenhum trabalho por componente. MENOR = melhor.
+function Rat_ApertureHandlingMul(weapon)
     local a = P()
-    local ow = weapon and weapon.OverwatchAngle
-    if not ow then
+    if not IsKindOf(weapon, "FirearmProperties") or not GetPBbonus then
         return 100
     end
-    local span = Max(1, a.SeedOWMax - a.SeedOWMin)
-    local h = Clamp(MulDivRound(ow - a.SeedOWMin, 100, span), 0, 100)
-    return a.SeedSnapHeavy - MulDivRound(a.SeedSnapHeavy - a.SeedSnapHandy, h, 100)
+    local pb = GetPBbonus(weapon) or 0
+    if pb == 0 then
+        return 100
+    end
+    return Clamp(100 - MulDivRound(a.HandlingScale or 0, pb, 100), a.HandlingMin or 60,
+                 a.HandlingMax or 140)
 end
 
-function _test_SeedHandling()
-	print("=========================== Test handling")
-	ForEachPreset("InventoryItemCompositeDef", function(p)
-		local item = g_Classes[p.id]
-
-		if IsKindOf(item, "Firearm") and (item.is_tog_patched or IsVanillaFirearm(item)) then
-			print(p.id, item.is_tog_patched and "TOG" or "vanilla", Rat_SeedSnapFromOverwatch(item))
-		end
-	end)
+---- Ampliacao da optica montada -> multiplicador do PISO (A.ScopeFloorMul). Le o tier pelo id do
+---- componente ou pelo ancestral GBO (variantes ToG apontam para o componente base).
+function Rat_ScopeFloorMul(weapon)
+    local a = P()
+    local muls = a.ScopeFloorMul
+    if not muls or not IsKindOf(weapon, "Firearm") or not weapon.components then
+        return 100
+    end
+    local tiers = a.ApertureComponentTier or empty_table
+    for _, cid in sorted_pairs(weapon.components) do
+        local comp = WeaponComponents[cid]
+        local tier = comp and (tiers[cid] or tiers[comp.GBO_ComponentAncestor or ""])
+        local mul = tier and muls[tier]
+        if mul then
+            return mul
+        end
+    end
+    return 100
 end
----- Piso mecanico do cone, derivado do WeaponRange. Scopes/canos longos rebaixam o piso sozinhos:
----- IncreaseRange tem StatToModify = "WeaponRange", entao weapon.WeaponRange ja vem com o bonus.
+
+---- Piso mecanico do cone, derivado do WeaponRange -- a ASSINTOTA do tiro mirado. Opticas nao dao
+---- mais WeaponRange; a "cereja" delas entra aqui, so no piso, entao e invisivel com pouca mira
+---- (no aim 0 o cone e ~10x o piso) e vale tudo com mira cheia. Canos longos continuam pelo range.
 function Rat_ApertureFloor(weapon)
     local a = P()
     local range = (weapon and weapon.WeaponRange) or 20
     local floor_dist = range * const.SlabSizeX
     local theta = Rat_ThetaTarget(floor_dist, a.Silhouette.Standing)
-    return Max(1, MulDivRound(theta, a.FloorPct, 100))
+    local floor = MulDivRound(theta, a.FloorPct, 100)
+    return Max(1, MulDivRound(floor, Rat_ScopeFloorMul(weapon), 100))
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -252,8 +259,9 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     local meta = {}
     local s = a.Base
 
-    --- 1. precisao intrinseca da arma
-    local base_mul = (weapon and weapon.HandlingMul) or 100
+    --- 1. manejo da arma (o antigo Point Blank Accuracy). Multiplica sigma_0, entao o efeito
+    ---    decai a cada nivel de mira em vez de ser um desconto fixo no cone final.
+    local base_mul = Rat_ApertureHandlingMul(weapon)
     if base_mul ~= 100 then
         s = MulDivRound(s, base_mul, 100)
     end
@@ -318,9 +326,9 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
 
         local excess = (a.AimStep[aim] or 100) - 100
         if excess > 0 then
+            ---- `hipsnap` ja traz wep_base_hip_mul / wep_base_snapshot_mul da arma; nao ha
+            ---- segundo multiplicador de manejo aqui de proposito.
             excess = MulDivRound(excess, hipsnap, 100)
-
-            excess = a.UseHandling and MulDivRound(excess, Rat_ApertureSnapMul(weapon), 100) or excess
             step = 100 + excess
 
 			local original_s_debug = s
@@ -825,6 +833,37 @@ end
 ---- Enabled = false -> false, e o mod se comporta como antes.
 ---------------------------------------------------------------------------------------------------
 
+---- Nivel de mira que a GEOMETRIA vai usar de fato. Stance/overwatch/interrupt sobem para 1
+---- (a arma esta no ombro), Snipe vai ao maximo. Quem le `aim` cru fora daqui fica dessincronizado
+---- do cone -- foi o que deixava o tiro de overwatch com luneta escapar da penalidade de perto.
+function Rat_EffectiveAim(attacker, action, aim, opportunity_attack, target)
+    aim = aim or 0
+    if not attacker then
+        return aim, opportunity_attack
+    end
+
+    if action and (action.id == "MGSetup" or action.id == "MGRotate") then
+        return Max(aim, 1), true
+    end
+
+    if opportunity_attack or attacker:HasStatusEffect("shooting_stance") or
+        attacker:HasStatusEffect("ManningEmplacement") or
+        attacker:HasStatusEffect("StationedMachineGun") or (action and action.id == "Overwatch") or
+        (g_Overwatch[attacker] and g_Overwatch[attacker].permanent) then
+        aim = Max(1, aim)
+    end
+
+    ---- PinDown ("Snipe" no mod) atira com mira maxima.
+    if action and action.id == "PinDown" then
+        local _, max_aim = attacker:GetBaseAimLevelRange(action, target)
+        if max_aim then
+            aim = Max(aim, max_aim)
+        end
+    end
+
+    return aim, opportunity_attack
+end
+
 function Rat_AngularActive(weapon, action, attacker)
     local a = P()
     if not a or not a.Enabled then
@@ -845,8 +884,8 @@ end
 ---------------------------------------------------------------------------------------------------
 
 function Rat_SetAngularCTH(on)
-    GBO_ApplyApertureCTHMode(on and "aCTH" or "old CTH") -- deriva Enabled, limpa cache, reaplica opticas
-    Rat_ReapplyApertureComponents() -- empurra as opticas para as armas ja equipadas em campo
+    ---- deriva Enabled, limpa cache, reescreve as opticas E reaplica nas armas em campo
+    GBO_ApplyApertureCTHMode(on and "aCTH" or "old CTH")
     return "CTH angular: " .. (P().Enabled and "LIGADO" or "desligado")
 end
 

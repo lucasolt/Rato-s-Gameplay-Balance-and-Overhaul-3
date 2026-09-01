@@ -2,13 +2,12 @@ function point_blank_cth()
     Presets.ChanceToHitModifier.Default["PointBlank"].CalcValue =
         function(self, attacker, target, body_part_def, action, weapon1, weapon2, lof, aim,
                  opportunity_attack, attacker_pos, target_pos)
-            ---- CTH angular: de perto o alvo ja e maior que qualquer cone, entao o
-            ---- bonus de point-blank emerge da geometria e nao precisa ser somado.
-            --if Rat_AngularActive(weapon1, action, attacker) then
-            --    --return false, 0
-            --end
---
-			local angular_cth = Rat_AngularActive(weapon1, action, attacker)
+            ---- CTH angular: o PBbonus virou MANEJO e entra na abertura base (Rat_ApertureHandlingMul),
+            ---- nao como residual sobre o cone final. A linha "Handling" do overlay vem de la.
+            if Rat_AngularActive(weapon1, action, attacker) then
+                return false, 0
+            end
+
             if attacker and IsKindOf(weapon1, "FirearmProperties") then
                 local pb_bonus = GetPBbonus(weapon1) or 10
 
@@ -17,11 +16,6 @@ function point_blank_cth()
                     local pb_bonus2 = GetPBbonus(weapon2)
                     pb_bonus = cRound((pb_bonus2 + pb_bonus) / 2)
                 end
-
-				if angular_cth then
-					return true, MulDivRound(pb_bonus, const.Combat.Aperture.PBAsHandlingMul, 100),
-						T(162198456754, "Handling")
-				end
 
                 local dex = attacker.Dexterity
 

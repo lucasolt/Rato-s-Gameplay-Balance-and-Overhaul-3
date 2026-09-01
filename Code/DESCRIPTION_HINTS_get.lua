@@ -142,8 +142,10 @@ function rat_format_hints(self)
 	    {
 	        id = "PointBlankRangeAccuracy",
 	        angularCTHActive and (TranslationTable[184329577856] or "Handling: ") or (TranslationTable[651371401489] or "Point Blank Range Accuracy: "),
-	        MulDivRound(GetPBbonus_display(self), angularCTHActive and const.Combat.Aperture.PBAsHandlingMul or 100, 100) or 0,
-			angularCTHActive and "" or "%"
+			---- em aCTH o manejo e multiplicador de cone: mesma leitura de hipfire/snapshot/recoil, MENOR = melhor
+	        angularCTHActive and string.format("%.2f", Rat_ApertureHandlingMul(self) / 100.0)
+				or (GetPBbonus_display(self) or 0),
+			angularCTHActive and "X" or "%"
 	    },
 	    {
 	        id = "HipfirePenaltyMultiplier",

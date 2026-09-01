@@ -1,5 +1,9 @@
 # Angular CTH — balance model, measurements and tuning
 
+> **Status:** everything in §3, §4, §5 and §7 is **implemented** on `feat/cth-angular` and verified
+> in the live process. §1, §2 and §6 are the model and the measurements; they are the reference,
+> not a to-do. What was deliberately *not* changed is listed in "Applied" at the bottom.
+
 Written against the live process (JA3Debug, combat loaded, `IMP_Merc1`, aCTH + SimulateShots on).
 Everything numeric here is either read out of the game or produced by `tools/aperture_model.py`,
 which is a bit-exact integer replica of `Code/FUNCTIONS_aperture.lua` — validated against
@@ -357,6 +361,10 @@ under-reports the shot by ~10 points against a prone target. To align them, cali
 not move. (Raising the silhouette alone makes the game easier by ~7 points in that band; raising
 sigma alone lowers both numbers together and never converges — you need both.)
 
+Re-measured after all the §8 changes (same target, n = 500): aim 0 `38 vs 46`, aim 1 `40 vs 51`,
+aim 2 `78 vs 72`. Same shape, unchanged magnitude — as expected, since none of the changes touch
+the silhouette. It confirms the divergence is geometric and not a consequence of tuning.
+
 **(b) `A.MaxCTH = 97` is a display-only clamp.** The simulation never sees it, so at point blank the
 UI says 97% and the shot lands 100% of the time. One-directional and in the player's favour, but the
 advertised 3% miss does not exist in aCTH mode.
@@ -406,3 +414,82 @@ Fix: call `Rat_ReapplyApertureComponents()` from `GBO_ApplyApertureCTHMode` (gua
 only when `a.UseHandling` is truthy. It is never set. The ~40 per-weapon `ApertureSnapHipMul` values
 in `PATCH_GBO_weapons.lua` (Barrett 125 … AKSU 83) have no effect. Decide and make it explicit; see
 §3.3.
+
+
+---
+
+## 8. Applied
+
+Implemented and verified live (`ReloadLua` + `ApplyApertureItemParams` + `Rat_ReapplyApertureComponents`).
+
+**Handling**
+- `Rat_ApertureHandlingMul(weapon)` = `Clamp(100 - 1.5 * GetPBbonus(weapon), 60, 140)`, applied to
+  sigma₀ in `Rat_GetAperture`. Because `GetPBbonus` already sums class + weapon + components
+  (barrel, bullpup, grips, handguard), **every component that used to grant Point Blank Accuracy
+  now grants handling instead**, with no per-component work.
+- `CTH_pointblank.lua` returns `false, 0` under aCTH — the residual path is gone, and with it the
+  `A.ConeRefCTH` asymmetry problem for handling specifically.
+- The overlay's `Weapon` cone line is now `Handling`; the weapon-description hint shows it as a
+  multiplier (`0.85 X`, lower is better) alongside Hipfire / Snapshot / Recoil.
+- Verified: VSK94 with `PB +10` → `HandlingMul 85`, no `PointBlank` line in the modifier list.
+
+**No second hipfire/snapshot multiplier**
+- `A.UseHandling`, `Rat_ApertureSnapMul`, `Rat_SeedSnapFromOverwatch`, `_test_SeedHandling` and the
+  `SeedOW*` params are deleted. The step is scaled only by `GetWeaponHipfireOrSnapshotMul`, i.e. by
+  `wep_base_hip_mul` / `wep_base_snapshot_mul` — stats the player already reads.
+- The ~40 `ApertureSnapHipMul` assignments in `PATCH_GBO_weapons.lua` are left alone: that file is
+  generated, and the property is now inert.
+
+**Scopes**
+- `A.ScopeFloorMul = {_6x = 87, _4x = 92, _2x = 96, _1dot5x = 98}` applied in `Rat_ApertureFloor`.
+  Moves the asymptote only; `WeaponRange` is untouched, so max aim range, AP, out-of-range checks
+  and the AI are unaffected.
+- Thresholds moved to where gap remains, and aligned with the text already written on the
+  `WeaponComponentEffect` presets: `pso_dragunov_scope` from 2 (+2), `sniper_aim_scope` from 3 (+3),
+  `sniper_adv_aim_scope` from 4 (+4).
+- `IncreaseAimAccuracy` removed from every magnification profile — raw AimAccuracy is a weapon stat;
+  what the optic contributes goes through the thresholds.
+- 24 previously-untouched optics added to `ApertureComponentTier` + `RAT_SCOPE_ORIGINALS` (ToG
+  masters and their variants, AWP/Caws/NTW/WA2000/AN94/FN2000/G11 rails, TAR21 reflex,
+  `ImprovedIronsight_AR15`). **Optics still granting `IncreaseRange`: 0** (was 14).
+- `RAT_PCT` was a global param-name → percent map, but `bonus_cth` is a percent param on
+  GW43/`ImprovedIronsight_AR15` and a plain number elsewhere. Percent typing is now per-component
+  (`pct = {...}` on the pristine entry), falling back to the global map.
+
+**Weapon range under aCTH** — `RAT_APERTURE_WEAPON_RANGE`, `{pristine, aCTH}` per weapon, applied and
+restored with the optics. Stretch above 20 tiles: **+55% snipers/marksman (capped at 44), +35% MG,
++30% assault rifles, +15% SMG, 0 for pistols / revolvers / shotguns.** Barrett 40→44, PSG1 34→42,
+M24 32→39, MG42 30→34, AK74 28→30, HK53 28→29, MP5/Glock unchanged. Grenade launchers and the flare
+gun excluded. `apply_range` refuses to write (and prints) if the current value is neither the
+pristine nor the aCTH value, so retuning `PATCH_GBO_weapons` cannot be silently overwritten.
+
+**B2 fixed, and it was worse than it looked.** `WeaponRange` is read from `base_WeaponRange`
+(`Modifiers.lua`), which lives on the *class* — writing `cls.WeaponRange` alone changes nothing on
+any weapon. `apply_range` now writes both, `Rat_ReapplyApertureComponents` rebases the instances
+(`SetBase` / `RestoreModifiableValue`) and re-applies *every* component, not just known optics, and
+the mode switch itself now calls it. Verified idempotent: re-running leaves one `WeaponRange`
+modifier (`Mosin_Barrel_long_1 add=4`), not two, and the aCTH-on → off → on round trip is exact.
+The reapply is called from `OnMsg.ApplyModOptions` / `DataLoaded` / `ModsReloaded`, **never from
+file scope** — calling it during load aborted the rest of `__ApertureParams.lua` and left half the
+parameter table undefined.
+
+**B1 — not a bug in the UI, but a real leak elsewhere.** The player cannot select 0 aim levels while
+in shooting stance, so the dominated option was never offered. The underlying desync was real
+though: the geometry bumped aim to ≥ 1 while `CTH_scope.lua` read the raw aim, so **scoped
+overwatch / interrupt / MG-setup shots escaped the close-range penalty entirely**.
+`Rat_EffectiveAim(attacker, action, aim, opportunity_attack, target)` is now the single definition
+of "what aim level is this shot really", used by both `Rat_ResolveAngular` and `CTH_scope`.
+Verified: the penalty now shows at aim 0, and CTH goes 38 → 40 → 78 → 97 across aim 0-3, monotone.
+
+**Parameters** — `A.ConeRefCTH` 80 → 65, `A.DecayMinPct` 20 → 30, `A.HandlingScale/Min/Max` added,
+`A.PBAsHandlingMul` removed.
+
+### Not changed
+
+- `A.FloorPct` (55) and `A.DecayScale` (6) — the runway measures fine; these move the whole game.
+- `A.Silhouette` / `A.BaseFactor` — the §6 (a) divergence is a documented deliberate fudge for the
+  prone flat penalty. Fixing it means recalibrating both together against `Rat_DbgShots`, which is a
+  balance pass of its own.
+- `A.MaxCTH` (97) — the §6 (b) clamp is display-only and favours the player.
+- The AP economy (§2) — `ShootAP`, `APStance` and `A.AimStep` are where the close-range identity
+  actually lives, and that is a design decision, not a fix.

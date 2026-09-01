@@ -21,7 +21,7 @@ function GBO_ApplyApertureCTHMode(mode)
 	const.Combat.Aperture.SimulateShots = (m == "aCTH")
 	for _, u in ipairs(g_Units or empty_table) do u.combat_cache = nil end
 	if ApplyApertureItemParams then ApplyApertureItemParams() end
-	
+
 	if RatoTOGComponents then RatoTOGComponents() end
 	print("GBO Options - CTH mode:", m, "| Enabled:", const.Combat.Aperture.Enabled,
 	      "| SimulateShots:", const.Combat.Aperture.SimulateShots)
@@ -29,11 +29,22 @@ end
 
 GBO_ApplyApertureCTHMode() -- tabela recem-recriada acima: repopula os espelhos agora
 
-function OnMsg.ApplyModOptions()
+---- Reescrever os presets nao basta: a arma equipada guarda o valor calculado sobre a base ANTIGA.
+---- Sem isto a arma em campo ficava com o IncreaseRange velho e sem os niveis de mira novos -- o
+---- refactor de optica inteiro nao valia nada. Fica NOS HANDLERS, nunca no escopo do arquivo:
+---- mexer em unidade durante o load aborta o resto deste arquivo.
+local function apply_mode_and_field()
 	GBO_ApplyApertureCTHMode(CurrentModOptions and CurrentModOptions.ApertureCTH)
+	if Rat_ReapplyApertureComponents and g_Units and #g_Units > 0 then
+		Rat_ReapplyApertureComponents()
+	end
+end
+
+function OnMsg.ApplyModOptions()
+	apply_mode_and_field()
 end
 function OnMsg.DataLoaded()
-	GBO_ApplyApertureCTHMode(CurrentModOptions and CurrentModOptions.ApertureCTH)
+	apply_mode_and_field()
 end
 
 ---- Cobertura por sondagem de silhueta (FUNCTIONS_cover_silhouette.lua). Separada de A.Enabled (custo de raycast).
@@ -132,7 +143,9 @@ A.TargetedResidualPct = 0 --35
 
 A.DecayBase = 0 --8
 A.DecayScale = 6--4
-A.DecayMinPct = 20 --- teto de fechamento por nivel. nunca fecha mais que (100 - DecayMinPct) %
+---- teto de fechamento por nivel. nunca fecha mais que (100 - DecayMinPct) %. Abaixo de 30 um
+---- unico nivel com optica de limiar fecha quase todo o gap e vira degrau, nao curva.
+A.DecayMinPct = 30 --20
 
 ---- Opticas com LIMIAR: bonus de AimAccuracy que so vale a partir do nivel `from` (ate `to`, se
 ---- houver). Substitui os degraus `aim >= N` do modelo somado -- a luneta deixa de ser um degrau
@@ -148,9 +161,16 @@ A.DecayMinPct = 20 --- teto de fechamento por nivel. nunca fecha mais que (100 -
 
 
 
--------- TEMPORARY! yeah sure
-A.PBAsHandlingMul = 100
---------
+---------------------------------------------------------------------------------------------------
+---- MANEJO. O antigo Point Blank Accuracy (GetPBbonus, que ja soma classe + arma + componentes)
+---- vira multiplicador da abertura BASE -- nao residual sobre o cone final.
+----   HandlingMul = 100 - HandlingScale * GetPBbonus / 100
+---- Entrar em sigma_0 e o que da a forma pretendida: o ganho e multiplicado pelo decay a cada
+---- nivel, entao manejo decide o tiro rapido e SOME quando o cone converge no piso. Como residual
+---- final seria um % fixo em todo nivel e a arma longa nunca ultrapassaria a curta.
+A.HandlingScale = 150
+A.HandlingMin = 60
+A.HandlingMax = 140
 
 A.AimDecayMuls ={
 	HeavyRainAim = 120,
@@ -179,13 +199,8 @@ A.AimStep = {
 }
 A.AimStepMaxLevel = 2 --- acima disso a arma esta encostada: alargamento 100
 
----- Manejo -> semente de `rat_aperture_snap`. OverwatchAngle so SEMEIA um valor inicial para armas
----- que nao declararam (o stat em si continua servindo rotacao/stance/AOE). Multiplicador %, MENOR = melhor.
-A.UseApertureSnapHipMul = false
-A.SeedOWMin = 600 --- OverwatchAngle tratado como "pesada" (Barret 545, MG42 571, PSG1 596)
-A.SeedOWMax = 1500 --- OverwatchAngle tratado como "manejavel" (UZI/MP5 1410-1437)
-A.SeedSnapHeavy = 125 --- multiplicador para arma pesada
-A.SeedSnapHandy = 80 --- multiplicador para arma manejavel
+---- O degrau NAO tem multiplicador proprio de arma: quem cumpre esse papel e wep_base_hip_mul /
+---- wep_base_snapshot_mul, que ja sao stats expostos ao jogador. `ApertureSnapHipMul` foi removido.
 
 ---- LUT de Rayleigh -- P(acerto) = 1 - exp(-k^2 / 2), k = theta_alvo / sigma (dispersao radial 2D).
 ---- Tabulada por mil, indice = k*8 (passo 0.125), interpolada. Fora da tabela (k > 4) retorna 1000.
@@ -233,7 +248,8 @@ A.CrosshairRingSegments = 32
 ---- MULTIPLICADOR DE CONE, nao como pontos somados por cima. A traducao pontos -> cone e avaliada
 ---- neste CTH de referencia; theta se cancela na razao de k, entao o cone sai igual em toda parte
 ---- do corpo. Em CTH = ConeRefCTH o resultado bate exatamente com o modelo de pontos antigo.
-A.ConeRefCTH = 80--50
+---- 65 e onde a escala e ~simetrica: em 80, +20 pontos valia cone 94 e -20 valia 125.
+A.ConeRefCTH = 65 --80--50
 
 ---- Teto e piso do multiplicador de UM residual. Sem eles -100 pontos daria cone infinito.
 A.ConeMulMin = 25

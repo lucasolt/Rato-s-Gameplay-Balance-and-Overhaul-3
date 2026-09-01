@@ -36,37 +36,10 @@ function Rat_ResolveAngular(data)
         return data
     end
 
-    local aim = data.aim or 0
-    local opportunity_attack = data.opportunity_attack
-
-    ---- MGSetup / MGRotate: a PREVISAO tem que medir o tiro que a arma vai fazer de verdade --
-    ---- montar a arma nao e tiro de quadril. Mesmo motivo em CTH_hipfire_and_snapshot.lua:26-46.
-    if action and (action.id == "MGSetup" or action.id == "MGRotate") then
-        aim = Max(aim, 1)
-        opportunity_attack = true
-    end
-
-    if opportunity_attack or attacker:HasStatusEffect("shooting_stance") or
-        attacker:HasStatusEffect("ManningEmplacement") or
-        attacker:HasStatusEffect("StationedMachineGun") then
-        aim = Max(1, aim)
-    end
-
-    if action and action.id == "Overwatch" then
-        aim = Max(1, aim)
-    end
-
-    if g_Overwatch[attacker] and g_Overwatch[attacker].permanent then
-        aim = Max(1, aim)
-    end
-
-    ---- PinDown ("Snipe" no mod) atira com mira maxima.
-    if action and action.id == "PinDown" then
-        local _, max_aim = attacker:GetBaseAimLevelRange(action, target)
-        if max_aim then
-            aim = Max(aim, max_aim)
-        end
-    end
+    ---- MGSetup / MGRotate / stance / overwatch / Snipe: a PREVISAO tem que medir o tiro que a arma
+    ---- vai fazer de verdade -- montar a arma nao e tiro de quadril. Ver Rat_EffectiveAim.
+    local aim, opportunity_attack = Rat_EffectiveAim(attacker, action, data.aim,
+                                                     data.opportunity_attack, target)
 
     local _, sigma, theta, meta, parts = Rat_AngularCTH(attacker, target, data.target_spot_group,
                                                         action, weapon1, aim, opportunity_attack,
@@ -188,7 +161,7 @@ function Rat_ConeFactors(data)
     end
 
     if parts.base_mul and parts.base_mul ~= 100 then
-        out[#out + 1] = {name = T(268301947512, "Weapon"), tag = Rat_ConeMulTag(parts.base_mul)}
+        out[#out + 1] = {name = T(268301947512, "Handling"), tag = Rat_ConeMulTag(parts.base_mul)}
     end
 
     ---- skill_mul vive em [SkillMin, SkillMax]: pode fechar (Marks alto, SkillMin<100) ou abrir
@@ -273,7 +246,7 @@ function Rat_ConeMetaText(data)
     ---- So entra o que nao e neutro -- na ordem de aplicacao de Rat_GetAperture.
     if parts then
         if parts.base_mul and parts.base_mul ~= 100 then
-            meta[#meta + 1] = T {481920573641, "Weapon <pct>", pct = Rat_ConeMulTag(parts.base_mul)}
+            meta[#meta + 1] = T {481920573641, "Handling <pct>", pct = Rat_ConeMulTag(parts.base_mul)}
         end
         ---- sempre visivel, ao contrario das outras: em Marks 100 o 100% verde E a informacao
         ---- ("nao ha nada a ganhar aqui"), nao um neutro para esconder.
@@ -359,10 +332,10 @@ end
 local t_id_table = {
     [724418639250] = "Aperture",
     [193746285017] = "Aperture <cone> vs <tgt>",
-    [481920573641] = "Weapon <pct>",
+    [481920573641] = "Handling <pct>",
     [592038174652] = "Marksmanship <pct>",
     [517294836150] = "Sight <pct>",
-    [268301947512] = "Weapon",
+    [268301947512] = "Handling",
     [419573028641] = "Marksmanship",
     [730192846053] = "Sight",
     [158426093774] = "Aim <n>",
