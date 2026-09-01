@@ -12,6 +12,22 @@
 
 local A = const.Combat.Aperture
 
+--- Refactored Scopes
+A.ComponentEffectsAimBonus = {
+    {id = "pso_dragunov_scope", from = 4, acc = 6 },
+    {id = "sniper_aim_scope", from = 5, acc = 8},
+	{id = "sniper_adv_aim_scope", from = 6, acc = 10},
+    ---- Forward Grip: so o PRIMEIRO nivel -- e o "aponta rapido" dele, nao um ganho permanente.
+    {id = "FirstAimBonusModifier", from = 1, to = 1, acc = 3},
+	{id = "BonusAccuracyWhenFullyAimed", from = 3, to = 3, acc = 4}
+}
+
+---- Miras (AccuracyBonusWhenAimed): o `bonus_cth` autorado no componente vira multiplicador de
+---- cone, aplicado uma vez com aim >= 1. false = inerte.
+A.SightAimBonus = true
+
+
+
 ---- Perfis por ampliacao. Parameters = {NomeDoParam = valor_inteiro} (param % usa o inteiro cru,
 ---- 150 = 150%). ModificationEffects = {EffectId = true garante presente | false garante ausente}.
 ---- Efeito de "niveis de mira" = IncreaseMaxAimActions (param MaxAimActionsIncrease); "range" da
@@ -33,7 +49,11 @@ A.ApertureMagnifications = {
 		Parameters = { MaxAimActionsIncrease = 1 },
 		ModificationEffects = { IncreaseMaxAimActions = true, IncreaseRange = false, IncreaseAimAccuracy = false },
 	},
-	Reflex = {}, -- nao muda nada; fica aqui so para marcar intencao
+	Reflex = {},
+	Ironsight = {
+		Parameters = {bonus_cth = 3},
+		ModificationEffects = {AccuracyBonusWhenAimed = true},
+	}, -- nao muda nada; fica aqui so para marcar intencao
 }
 
 ---- Componente -> perfil. Componente ausente daqui nao e tocado. Chute inicial de tiers:
@@ -191,12 +211,19 @@ function Rat_RestoreApertureItemParams()
 end
 
 function ApplyApertureItemParams()
-	if not A or not A.Enabled then
+	local ap = const.Combat.Aperture -- sempre a tabela viva (recriada a cada reload de __ApertureParams)
+	if not ap or not ap.Enabled then
 		return Rat_RestoreApertureItemParams()
 	end
-	for id, tier_name in pairs(A.ApertureComponentTier) do
-		apply_one(id, A.ApertureMagnifications[tier_name])
+	for id, tier_name in pairs(ap.ApertureComponentTier or empty_table) do
+		apply_one(id, (ap.ApertureMagnifications or empty_table)[tier_name])
 	end
+end
+
+---- Ancora de load: garante que o override roda depois deste arquivo (e do __ApertureParams) carregar.
+---- __ApertureParams tambem chama via GBO_ApplyApertureCTHMode, mas so se ApplyModOptions/DataLoaded disparar.
+function OnMsg.ModsReloaded()
+	ApplyApertureItemParams()
 end
 
 ---- Empurra o override para as armas ja equipadas em campo, sem esperar UnitCreated.
