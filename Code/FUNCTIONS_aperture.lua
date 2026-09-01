@@ -2,10 +2,10 @@
 ---- CTH ANGULAR -- funcoes puras (sem estado, sem random). Aritmetica INTEIRA. Ver __ApertureParams.lua.
 ---------------------------------------------------------------------------------------------------
 
-local A --- resolvido em tempo de chamada: __ApertureParams pode carregar depois
+---- Sempre a tabela viva: __ApertureParams recria const.Combat.Aperture a cada reload, cachear
+---- num upvalue deixava P() preso na tabela velha.
 local function P()
-    A = A or const.Combat.Aperture
-    return A
+    return const.Combat.Aperture
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -320,7 +320,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
         if excess > 0 then
             excess = MulDivRound(excess, hipsnap, 100)
 
-            excess = A.UseHandling and MulDivRound(excess, Rat_ApertureSnapMul(weapon), 100) or excess
+            excess = a.UseHandling and MulDivRound(excess, Rat_ApertureSnapMul(weapon), 100) or excess
             step = 100 + excess
 
 			local original_s_debug = s
@@ -845,12 +845,8 @@ end
 ---------------------------------------------------------------------------------------------------
 
 function Rat_SetAngularCTH(on)
-    P().Enabled = not not on
-    ApplyApertureItemParams() -- aplica/restaura o override de opticas conforme o novo estado
-    Rat_ReapplyApertureComponents()
-    for _, u in ipairs(g_Units or empty_table) do
-        u.combat_cache = nil
-    end
+    GBO_ApplyApertureCTHMode(on and "aCTH" or "old CTH") -- deriva Enabled, limpa cache, reaplica opticas
+    Rat_ReapplyApertureComponents() -- empurra as opticas para as armas ja equipadas em campo
     return "CTH angular: " .. (P().Enabled and "LIGADO" or "desligado")
 end
 
