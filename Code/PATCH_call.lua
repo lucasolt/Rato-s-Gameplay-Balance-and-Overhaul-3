@@ -4,6 +4,7 @@ end
 
 function OnMsg.ModsReloaded()
     RatoGBOComponents()
+    ApplyApertureItemParams() -- override de opticas enquanto o aperture esta ligado
     GBO_patch_WeaponsPresetsClass()
 end
 

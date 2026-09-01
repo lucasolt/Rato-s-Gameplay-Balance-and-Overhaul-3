@@ -137,23 +137,6 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
 
     acc = acc + GetApertureComponentAccBonus(optics or GetApertureAimComponentEffects(weapon), level or 1)
 
-	----- Handguns
-    if IsKindOfClasses(weapon, "Pistol", "Revolver") 
-	and A.AimAccMuls.HandgunPenalty ~= 100 then
-        acc = MulDivRound(acc, A.AimAccMuls.HandgunPenalty, 100)
-		meta[#meta + 1] = T {195655494642, "(-) Handgun"}
-    end
-
-	for eff, data in pairs(A.AimAccMuls.CompEffects) do
-		local has, compDef = weapon:HasComponent(eff)
-		--local modifyVal, compDef = GetComponentEffectValue(weapon, "ReduceAimAccuracy", "cth_penalty")
-    	if has then
-    		acc = MulDivRound(acc, data.mul, 100)
-        	local m = data.meta and Untranslated(data.meta) or (compDef and compDef.DisplayName)
-        	if m then meta[#meta + 1] = m end
-    	end
-	end
-
     ---- target camo
     --if IsKindOf(target, "Unit") then
     --    local armor = target:GetItemInSlot("Torso", "Armor")
@@ -164,16 +147,34 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
     --    end
     --end
 
+    local decay = 100 - (a.DecayBase + a.DecayScale * acc)
+
+	local decay_muls = const.Combat.Aperture and const.Combat.Aperture.AimDecayMuls or {}
+	
+	local indoors = attacker and attacker.indoors
+	if GameState.RainHeavy and not indoors then
+		decay = MulDivRound(decay, decay_muls.HeavyRainAim, 100)
+        meta[#meta + 1] = T {901477523654, "(-) Heavy Rain"}
+    end
+	
+	if IsKindOfClasses(weapon, "Pistol", "Revolver") 
+	and decay_muls.HandgunPenalty and decay_muls.HandgunPenalty ~= 100 then
+        decay = MulDivRound(decay, decay_muls.HandgunPenalty, 100)
+		meta[#meta + 1] = T {195655494642, "(-) Handgun"}
+    end
+	
 	----- Stance aim bonus
-	if attacker and level > 0 then
-	    if attacker.stance == "Crouch" then
-            acc = MulDivRound(acc, A.AimAccMuls.Crouch or 100, 100)
+	print("decay", decay)
+	if attacker then
+	    if decay_muls.Crouch  and attacker.stance == "Crouch"  then
+            decay = MulDivRound(decay, decay_muls.Crouch or 100, 100)
+			print("decay c", decay)
             meta[#meta + 1] = T {688848752517, "Crouching"}
-        elseif attacker.stance == "Prone" then
-            acc = MulDivRound(acc, A.AimAccMuls.Prone or 100, 100)
+        elseif decay_muls.Prone and attacker.stance == "Prone" then
+            decay = MulDivRound(decay, decay_muls.Prone or 100, 100)
             meta[#meta + 1] = T {271472323596, "Prone"}
-        	if weapon:HasComponent("grip_prone_penalty") then
-            	acc = MulDivRound(acc, A.AimAccMuls.ProneGripPenalty or 100, 100)
+        	if decay_muls.ProneGripPenalty and weapon:HasComponent("grip_prone_penalty") then
+            	decay = MulDivRound(decay, decay_muls.ProneGripPenalty or 100, 100)
 				meta[#meta + 1] = T {85643189456, "(-) Grip while prone"}
 			end
 		end
@@ -181,7 +182,7 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
 
 
 
-    local decay = 100 - (a.DecayBase + a.DecayScale * acc)
+
     decay = Max(a.DecayMinPct, decay)
 
     --- Hand-Eye Coordination (Dex+Marks): abaixo de 100 o fechamento e parcial.
@@ -192,12 +193,13 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
     --- decay_efetivo = 100 - (100 - decay) * he/100
     decay = 100 - MulDivRound(100 - decay, he, 100)
 
+	print("decay final",Clamp(decay, a.DecayMinPct, 99) )
     return Clamp(decay, a.DecayMinPct, 99), meta
 end
 
 ---- Multiplicador do degrau de hipfire/snapshot desta arma (propriedade nova).
 function Rat_ApertureSnapMul(weapon)
-    local v = weapon and weapon.HandlingMul or 0
+    local v = weapon and weapon.ApertureSnapHipMul or 0
     if v and v > 0 then
         return v
     end
@@ -251,7 +253,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     local s = a.Base
 
     --- 1. precisao intrinseca da arma
-    local base_mul = (weapon and weapon.rat_aperture_base_mul) or 100
+    local base_mul = (weapon and weapon.HandlingMul) or 100
     if base_mul ~= 100 then
         s = MulDivRound(s, base_mul, 100)
     end
@@ -844,6 +846,8 @@ end
 
 function Rat_SetAngularCTH(on)
     P().Enabled = not not on
+    ApplyApertureItemParams() -- aplica/restaura o override de opticas conforme o novo estado
+    Rat_ReapplyApertureComponents()
     for _, u in ipairs(g_Units or empty_table) do
         u.combat_cache = nil
     end

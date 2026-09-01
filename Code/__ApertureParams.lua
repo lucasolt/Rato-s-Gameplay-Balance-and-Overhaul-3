@@ -28,11 +28,11 @@ A.SkillMax = A.SkillMaxFactor * A.SkillMin --300--260 --- multiplicador (%) em M
 ---------------------------------------------------------------------------------------------------
 ---- Abertura de referencia (minutos): Marks 100, arma de referencia, sem componentes. Move TUDO.
 ---- Calibrado 2026-08-29 contra o CTH do modelo somado, convertido a sigma pela LUT.
-A.BaseFactor = 55
+A.BaseFactor = 75
 A.Base = A.BaseFactor * 100 / A.SkillMin--75 --57
 
 ---- Piso mecanico do cone. Derivado do WeaponRange: silhueta de alvo em pe no alcance maximo x este %.
-A.FloorPct = 130 --55
+A.FloorPct = 55 --130 --55
 
 ---- Convergencia da mira ao piso. true = assintotico: sigma = piso + (sigma0 - piso) * decay^aim
 ---- (cada stat sempre rende; tiro mirado fica mais dificil no medio/longo). false = joelho duro.
@@ -103,9 +103,9 @@ A.TargetedResidualPct = 0 --35
 ---- decay% = 100 - (DecayBase + DecayScale * AimAccuracy). AimAccuracy 3 -> 80%/nivel, 6 -> 68%, 9 -> 56%.
 ---- Hand-Eye Coordination (Dex+Marks) escala quanto disso o atirador COBRA (= "Aiming Rework").
 
-A.DecayBase = 6 --8
+A.DecayBase = 0 --8
 A.DecayScale = 6--4
-A.DecayMinPct = 40 --- teto de fechamento por nivel (nunca fecha mais que 60%)
+A.DecayMinPct = 20 --- teto de fechamento por nivel. nunca fecha mais que (100 - DecayMinPct) %
 
 ---- Opticas com LIMIAR: bonus de AimAccuracy que so vale a partir do nivel `from` (ate `to`, se
 ---- houver). Substitui os degraus `aim >= N` do modelo somado -- a luneta deixa de ser um degrau
@@ -119,20 +119,25 @@ A.ComponentEffectsAimBonus = {
 	{id = "BonusAccuracyWhenFullyAimed", from = 3, to = 3, acc = 4}
 }
 
+-------- TEMPORARY! yeah sure
+A.PBAsHandlingMul = 100
+--------
 ---- Miras (AccuracyBonusWhenAimed): o `bonus_cth` autorado no componente vira multiplicador de
 ---- cone, aplicado uma vez com aim >= 1. false = inerte.
 A.SightAimBonus = true
-A.AimAccMuls ={
-	Crouch = 105,
-	Prone = 110,
-	ProneGripPenalty = 95,
-	HandgunPenalty = 100,--50 ---- 100 is disabled
+
+
+A.AimDecayMuls ={
+	HeavyRainAim = 120,
+	Crouch = 95,
+	Prone = 90,
+	ProneGripPenalty = 105,
+	HandgunPenalty = 150,--50 ---- 100 is disabled
 	CompEffects = { -- {mul = 90, meta = "string"}
-		light_stock_aim_reduce = {mul = 90}, 
-		ReduceAimAccuracy = {mul = 75}
+		light_stock_aim_reduce = {mul = 110}, 
+		ReduceAimAccuracy = {mul = 150}
 	}
 }
-
 -- TODO: reflex sight should use differnt value, as it has also the close range bonus
 -- TODO: Crouch and prone should increase aim accuracy
 -- TODO: Grips
@@ -144,14 +149,14 @@ A.AimAccMuls ={
 
 A.AimStep = {
     [0] = 280,--380, --- hipfire: x2.80 numa arma de referencia
-    [1] = 155,--180,--155, --- snapshot 1 nivel: x1.55
-    [2] = 118--130--118 --- snapshot 2 niveis: x1.18
+    [1] = 180,--180,--155, --- snapshot 1 nivel: x1.55
+    [2] = 130--130--118 --- snapshot 2 niveis: x1.18
 }
 A.AimStepMaxLevel = 2 --- acima disso a arma esta encostada: alargamento 100
 
 ---- Manejo -> semente de `rat_aperture_snap`. OverwatchAngle so SEMEIA um valor inicial para armas
 ---- que nao declararam (o stat em si continua servindo rotacao/stance/AOE). Multiplicador %, MENOR = melhor.
-A.UseHandling = true
+A.UseApertureSnapHipMul = false
 A.SeedOWMin = 600 --- OverwatchAngle tratado como "pesada" (Barret 545, MG42 571, PSG1 596)
 A.SeedOWMax = 1500 --- OverwatchAngle tratado como "manejavel" (UZI/MP5 1410-1437)
 A.SeedSnapHeavy = 125 --- multiplicador para arma pesada
@@ -223,14 +228,161 @@ A.MetaScaleBest = 60--60
 
 
 -- TODO: Check the second property
-function OnMsg.ClassesGenerate()
-    AppendClass.Firearm = {
-        properties = {
-            ---- Multiplicador (%) do degrau de hipfire/snapshot. Menor = aponta mais rapido.
-            ---- 0 = nao declarado, semeado do OverwatchAngle em Rat_SeedApertureProperties().
-            --{id = "rat_aperture_snap", editor = "number", default = 0, no_edit = true},
-            ---- Multiplicador (%) da abertura BASE da arma, antes de mira e componentes. 100 = referencia.
-            {id = "rat_aperture_base_mul", editor = "number", default = 100, no_edit = true}
-        }
-    }
+--function OnMsg.ClassesGenerate()
+--    AppendClass.Firearm = {
+--        properties = {
+--            ---- Multiplicador (%) do degrau de hipfire/snapshot. Menor = aponta mais rapido.
+--            ---- 0 = nao declarado, semeado do OverwatchAngle em Rat_SeedApertureProperties().
+--            --{id = "rat_aperture_snap", editor = "number", default = 0, no_edit = true},
+--            ---- Multiplicador (%) da abertura BASE da arma, antes de mira e componentes. 100 = referencia.
+--            {id = "HandlingMul", editor = "number", default = 100, no_edit = true}
+--        }
+--    }
+--end
+
+
+---------------------------------------------------------------------------------------------------
+---- Override de componentes SO enquanto o aperture esta ligado (A.Enabled). Mexe apenas nas chaves
+---- listadas por perfil; o resto do componente (custo, visuais, outros efeitos) fica intacto.
+---- Idempotente: guarda o pristino no 1o toque e reconstroi dele a cada chamada. A.Enabled = false
+---- -> restaura o pristino. Reaplicar em armas em campo: Rat_ReapplyApertureComponents().
+---------------------------------------------------------------------------------------------------
+
+---- Perfis por ampliacao. Parameters = {NomeDoParam = valor_inteiro} (param % usa o inteiro cru,
+---- 150 = 150%). ModificationEffects = {EffectId = true garante presente | false garante ausente}.
+---- Efeito de "niveis de mira" = IncreaseMaxAimActions (param MaxAimActionsIncrease); "range" da
+---- optica = IncreaseRange (param RangeIncrease).
+A.ApertureMagnifications = {
+	_6x = {
+		Parameters = { MaxAimActionsIncrease = 3 },
+		ModificationEffects = { IncreaseMaxAimActions = true, IncreaseRange = false },
+	},
+	_4x = {
+		Parameters = { MaxAimActionsIncrease = 2 },
+		ModificationEffects = { IncreaseMaxAimActions = true, IncreaseRange = false },
+	},
+	_2x = {
+		Parameters = { MaxAimActionsIncrease = 1 },
+		ModificationEffects = { IncreaseMaxAimActions = true, IncreaseRange = false },
+	},
+	Reflex = {}, -- nao muda nada; fica aqui so para marcar intencao
+}
+
+---- Componente -> perfil. Componente ausente daqui nao e tocado. Chute inicial de tiers:
+A.ApertureComponentTier = {
+	ReflexSight               = "Reflex",
+	ReflexSightAdvanced       = "Reflex",
+	ReflexSightAdvanced_Glock = "Reflex",
+	_ReflexSIghtVigilance     = "Reflex",
+	ImprovedIronsight         = "Reflex",
+	G36_SCOPE                 = "_2x",
+	SCOPE_G36_2               = "_2x",
+	AUGScope_Default          = "_2x",
+	WideScope                 = "_2x",
+	ScopeCOG                  = "_4x",
+	ScopeCOGQuick             = "_4x",
+	LROptics                  = "_4x",
+	LROptics_DragunovDefault  = "_4x",
+	ThermalScope              = "_4x",
+	LROpticsAdvanced          = "_6x",
+	PSG_DefaultScope          = "_6x",
+}
+
+---- pristino por id: { effects = {lista de ids}, params = {Name = Value} }
+local aperture_orig = {}
+
+local function aperture_snapshot(comp, id)
+	if aperture_orig[id] then return end
+	local params = {}
+	for _, p in ipairs(comp.Parameters or empty_table) do
+		params[p.Name] = p.Value
+	end
+	aperture_orig[id] = { effects = table.icopy(comp.ModificationEffects or empty_table), params = params }
+end
+
+---- reescreve ModificationEffects/Parameters do preset e refaz o cache de params (g_PresetParamCache
+---- e o que ResolveValue le; PostLoad o reconstroi).
+local function aperture_write(comp, effects, params_map)
+	comp.ModificationEffects = effects
+
+	local list = {}
+	for name, value in sorted_pairs(params_map) do
+		list[#list + 1] = PlaceObj('PresetParamNumber', { 'Name', name, 'Value', value, 'Tag', "<" .. name .. ">" })
+	end
+	comp.Parameters = list
+
+	g_PresetParamCache[comp] = nil
+	comp:PostLoad()
+end
+
+function Rat_RestoreApertureItemParams()
+	for id, snap in pairs(aperture_orig) do
+		local comp = WeaponComponents[id]
+		if comp then
+			aperture_write(comp, table.icopy(snap.effects), snap.params)
+		end
+	end
+end
+
+function ApplyApertureItemParams()
+	if not A or not A.Enabled then
+		return Rat_RestoreApertureItemParams()
+	end
+
+	for id, tier_name in pairs(A.ApertureComponentTier) do
+		local comp = WeaponComponents[id]
+		if not comp then
+			print("GBO aperture: componente inexistente", id)
+		else
+			aperture_snapshot(comp, id)
+			local orig = aperture_orig[id]
+			local tier = A.ApertureMagnifications[tier_name] or empty_table
+			local eff_override = tier.ModificationEffects or empty_table
+			local par_override = tier.Parameters or empty_table
+
+			---- efeitos: pristino, tira os marcados false, poe os marcados true que faltam (mantem ordem)
+			local effects, seen = {}, {}
+			for _, e in ipairs(orig.effects) do
+				if eff_override[e] ~= false then
+					effects[#effects + 1] = e
+					seen[e] = true
+				end
+			end
+			for e, want in pairs(eff_override) do
+				if want and not seen[e] then effects[#effects + 1] = e end
+			end
+
+			---- params: pristino + overrides do perfil
+			local params = {}
+			for name, value in pairs(orig.params) do params[name] = value end
+			for name, value in pairs(par_override) do params[name] = value end
+
+			aperture_write(comp, effects, params)
+		end
+	end
+end
+
+---- Empurra o override para as armas ja equipadas em campo, sem esperar UnitCreated.
+function Rat_ReapplyApertureComponents()
+	local n = 0
+	for _, u in ipairs(g_Units or empty_table) do
+		if IsValid(u) then
+			for _, wslot in ipairs({ "Handheld A", "Handheld B" }) do
+				for _, w in ipairs(u:GetEquippedWeapons(wslot) or empty_table) do
+					if IsKindOf(w, "Firearm") and w.components then
+						for cslot, cid in sorted_pairs(w.components) do
+							if A.ApertureComponentTier[cid] and WeaponComponents[cid] then
+								w:SetWeaponComponent(cslot, cid)
+								n = n + 1
+							end
+						end
+						w.rat_updated_in = nil
+						ObjModified(w)
+					end
+				end
+			end
+			u.combat_cache = nil
+		end
+	end
+	return "aperture: reaplicado em " .. n .. " componentes"
 end
