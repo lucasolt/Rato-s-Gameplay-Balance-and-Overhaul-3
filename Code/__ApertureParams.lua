@@ -168,7 +168,7 @@ A.DecayMinPct = 30 --20
 ---- Entrar em sigma_0 e o que da a forma pretendida: o ganho e multiplicado pelo decay a cada
 ---- nivel, entao manejo decide o tiro rapido e SOME quando o cone converge no piso. Como residual
 ---- final seria um % fixo em todo nivel e a arma longa nunca ultrapassaria a curta.
-A.HandlingScale = 150
+A.HandlingScale = 100--150
 A.HandlingMin = 60
 A.HandlingMax = 140
 

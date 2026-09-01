@@ -13,26 +13,31 @@
 local A = const.Combat.Aperture
 
 --- Refactored Scopes
----- `from` tem que cair onde ainda SOBRA gap: com acc 9 restam ~10% do gap no nivel 4 e ~2% no 5,
----- entao um bonus grande e tardio nao move nada (medido: +8 no nivel 5 = 0 tiles depois do
----- arredondamento inteiro). Os `from` batem com o texto ja escrito nos WeaponComponentEffect.
+---- Limiar de mira por ampliacao. Regra: quanto MAIOR a ampliacao, mais TARDE o bonus comeca e
+---- maior ele e. E o que faz a luneta grande ser um compromisso e nao um upgrade direto.
+---- Os `from` batem com o texto ja escrito nos WeaponComponentEffect ("2+", "3+", "4+ niveis").
+---- Valores pequenos de proposito: acima de acc 12 o decay bate em A.DecayMinPct e +3 == +5.
 A.ComponentEffectsAimBonus = {
-    {id = "pso_dragunov_scope", from = 2, acc = 2},
-    {id = "sniper_aim_scope", from = 3, acc = 3},
-	{id = "sniper_adv_aim_scope", from = 4, acc = 4},
+    {id = "pso_dragunov_scope", from = 2, acc = 1},
+    {id = "sniper_aim_scope", from = 3, acc = 2},
+	{id = "sniper_adv_aim_scope", from = 4, acc = 3},
     ---- Forward Grip: so o PRIMEIRO nivel -- e o "aponta rapido" dele, nao um ganho permanente.
     {id = "FirstAimBonusModifier", from = 1, to = 1, acc = 3},
-	{id = "BonusAccuracyWhenFullyAimed", from = 3, to = 3, acc = 4}
+	{id = "BonusAccuracyWhenFullyAimed", from = 3, to = 3, acc = 2}
 }
 
 ---- A CEREJA da optica: multiplicador do PISO do cone por ampliacao (Rat_ApertureFloor). E a unica
 ---- coisa que move a ASSINTOTA, e a assintota e todo o cone que sobra com mira cheia. Nao mexe em
 ---- WeaponRange, entao alcance maximo, custo de AP, checagem de fora de alcance e IA ficam iguais:
 ---- e "alcance so com mira cheia". Invisivel no aim 0-1 (la o cone e ~10x o piso). MENOR = melhor.
+----
+---- E aqui que as ampliacoes se separam, NAO no limiar de mira: o piso nao tem teto, enquanto o
+---- bonus de AimAccuracy satura em A.DecayMinPct e faz 4x e 6x colapsarem no mesmo numero.
 A.ScopeFloorMul = {
-	_6x = 87,
-	_4x = 92,
+	_6x = 74,
+	_4x = 86,
 	_2x = 96,
+	_2xQuick = 98,
 	_1dot5x = 98,
 	Reflex = 100,
 	Ironsight = 100,
@@ -49,23 +54,43 @@ A.SightAimBonus = true
 ---- Efeito de "niveis de mira" = IncreaseMaxAimActions (param MaxAimActionsIncrease); "range" da
 ---- optica = IncreaseRange (param RangeIncrease).
 A.ApertureMagnifications = {
-	---- IncreaseAimAccuracy sai de TODAS: AimAccuracy crua e stat de arma. O que a optica da em
-	---- precisao vem pelos limiares de A.ComponentEffectsAimBonus, que so valem a partir de `from`.
+	---- AMPLIACAO E COMPROMISSO, nao upgrade. Cada degrau paga adiantado e cobra depois:
+	----   niveis de mira a mais + piso mais baixo   (so rende com mira alta e longe)
+	----   snapshot pior (snap_reduc NEGATIVO no canal scope_snapshot que ja existe, so vale aim<=2)
+	----   ScopePenalty maior                        (pior de perto, em qualquer nivel)
+	----   limiar de mira comecando mais tarde       (pior no aim 3, melhor do 4 em diante)
+	---- IncreaseAimAccuracy sai de TODAS: AimAccuracy crua e stat de arma.
 	_6x = {
-		Parameters = { MaxAimActionsIncrease = 3 },
-		ModificationEffects = { IncreaseMaxAimActions = true, IncreaseRange = false, IncreaseAimAccuracy = false },
+		Parameters = { MaxAimActionsIncrease = 3, snap_reduc = -40 },
+		ModificationEffects = { IncreaseMaxAimActions = true, scope_snapshot = true,
+			ScopePenalty3 = true, ScopePenalty2 = false, ScopePenalty1 = false,
+			IncreaseRange = false, IncreaseAimAccuracy = false },
 	},
 	_4x = {
-		Parameters = { MaxAimActionsIncrease = 2 },
-		ModificationEffects = { IncreaseMaxAimActions = true, IncreaseRange = false, IncreaseAimAccuracy = false },
+		Parameters = { MaxAimActionsIncrease = 2, snap_reduc = -25 },
+		ModificationEffects = { IncreaseMaxAimActions = true, scope_snapshot = true,
+			ScopePenalty2 = true, ScopePenalty1 = false, ScopePenalty3 = false,
+			IncreaseRange = false, IncreaseAimAccuracy = false },
 	},
 	_2x = {
+		Parameters = { MaxAimActionsIncrease = 1, snap_reduc = -10 },
+		ModificationEffects = { BonusAccuracyWhenFullyAimed = true, IncreaseMaxAimActions = true,
+			scope_snapshot = true, ScopePenalty1 = true, ScopePenalty2 = false, ScopePenalty3 = false,
+			IncreaseRange = false, IncreaseAimAccuracy = false },
+	},
+	---- 2x de aquisicao rapida (ACOG/WideScope): trocam o piso e a mira alta pelo snapshot. O
+	---- `snap_reduc` positivo autorado no componente e mantido -- o perfil nao o sobrescreve.
+	_2xQuick = {
 		Parameters = { MaxAimActionsIncrease = 1 },
-		ModificationEffects = { BonusAccuracyWhenFullyAimed = true, IncreaseMaxAimActions = true, IncreaseRange = false, IncreaseAimAccuracy = false },
+		ModificationEffects = { BonusAccuracyWhenFullyAimed = true, IncreaseMaxAimActions = true,
+			scope_snapshot = true, ScopePenalty1 = true, ScopePenalty2 = false, ScopePenalty3 = false,
+			IncreaseRange = false, IncreaseAimAccuracy = false },
 	},
 	_1dot5x = {
 		Parameters = { MaxAimActionsIncrease = 1 },
-		ModificationEffects = { IncreaseMaxAimActions = true, IncreaseRange = false, IncreaseAimAccuracy = false },
+		ModificationEffects = { IncreaseMaxAimActions = true, IncreaseRange = false,
+			IncreaseAimAccuracy = false, ScopePenalty1 = false, ScopePenalty2 = false,
+			ScopePenalty3 = false },
 	},
 	Reflex = {},
 	Ironsight = {
@@ -84,42 +109,37 @@ A.ApertureComponentTier = {
 	G36_SCOPE                 = "_2x",
 	SCOPE_G36_2               = "_2x",
 	AUGScope_Default          = "_1dot5x",
-	WideScope                 = "_2x",
 	ScopeCOG                  = "_2x",
-	ScopeCOGQuick             = "_2x",
+	---- ACOG e WideScope sao as 2x de aquisicao rapida: ja autoram scope_snapshot POSITIVO
+	WideScope                 = "_2xQuick",
+	ScopeCOGQuick             = "_2xQuick",
 	LROptics                  = "_4x",
 	LROptics_DragunovDefault  = "_4x",
 	ThermalScope              = "_4x",
 	LROpticsAdvanced          = "_6x",
 	PSG_DefaultScope          = "_6x",
 
-	---- Opticas de ToG / armas modadas que ficavam de fora: continuavam dando IncreaseRange
-	---- (SSG69 +16, VSS/SteyrS/PSO-1M2/m76/thermal +10, G11/GW43 +4) e nenhum nivel de mira novo.
-	---- Os `_Master_*` sao os templates de onde as variantes herdam -- os dois lados precisam entrar.
-	SSG69_Scope_1             = "_6x",
+	---- Opticas de ToG que ficavam de fora e continuavam dando IncreaseRange. So entram as que
+	---- servem arma PATCHED (is_tog_patched) ou vanilla -- auditado no processo vivo por slot
+	---- "Scope". Os `_Master_*` sao os templates de onde as variantes herdam: os dois precisam entrar.
+	SSG69_Scope_1             = "_6x",  -- SSG69_1
 	_Master_SSG69_Scope_TOG   = "_6x",
-	NTW_20_Scope_1            = "_6x",
-	WA2000_Scope_1            = "_6x",
-	VSS_Scope_1               = "_4x",
+	VSS_Scope_1               = "_4x",  -- VSS_1
 	["_Master_PSO-1M2_Scope_TOG"] = "_4x",
-	SteyrS_Scope_1            = "_4x",
+	SteyrS_Scope_1            = "_4x",  -- SteyrScout_1
 	_Master_SteyrS_Scope_TOG  = "_4x",
-	m76_scope_1               = "_4x",
+	m76_scope_1               = "_4x",  -- M76_1
 	_Master_m76_scope_TOG     = "_4x",
-	ThermalScope_1            = "_4x",
-	ThermalScope_2            = "_4x",
-	AWP_Scope_1               = "_4x",
-	GW43_Scope_1              = "_2x",
+	GW43_Scope_1              = "_2x",  -- STG44R_1, Gewehr43_1
 	_Master_GW43_Scope_TOG    = "_2x",
-	Caws_Scope_1              = "_2x",
-	G11_Rail_9                = "_2x",
-	G11_Scope_1               = "_1dot5x",
+	G11_Scope_1               = "_1dot5x", -- G11_1
 	_Master_G11_Scope_1       = "_1dot5x",
-	AN94_Scope_1              = "_1dot5x",
-	FN2000_Scope_1            = "_1dot5x",
-	G11_Rail_7                = "_1dot5x",
-	TAR21_Scope_Rflx_1        = "Reflex",
-	ImprovedIronsight_AR15    = "Reflex",
+	TAR21_Scope_Rflx_1        = "Reflex", -- TAR21_1
+	ImprovedIronsight_AR15    = "Reflex", -- AR15
+
+	---- FORA de proposito -- so servem arma ToG NAO patched, fora do escopo de balance do mod:
+	---- AWP_Scope_1, WA2000_Scope_1, NTW_20_Scope_1, Caws_Scope_1, FN2000_Scope_1,
+	---- G11_Rail_7, G11_Rail_9. E sem arma nenhuma: AN94_Scope_1, ThermalScope_1, ThermalScope_2.
 }
 
 ---------------------------------------------------------------------------------------------------
@@ -226,14 +246,6 @@ RAT_SCOPE_ORIGINALS = {
 		effects = { "IncreaseMaxAimActions", "IncreaseRange", "DecreaseOverwatchAngle", "ScopePenalty2", "pso_dragunov_scope", "zrak_scope_crit" },
 		params = { MaxAimActionsIncrease = 1, RangeIncrease = 10, OverwatchAngleDecrease = 68, crit_torso = 12 },
 	},
-	ThermalScope_1 = {
-		effects = { "IgnoreInTheDarkWhenFullyAimed", "IgnoreCoverCtHWhenFullyAimed", "IgnoreLightOfSightWhenFullyAimed", "IgnoreGrazingHitsWhenFullyAimed", "IncreaseRange", "ScopePenalty2", "DecreaseOverwatchAngle" },
-		params = { RangeIncrease = 10, OverwatchAngleDecrease = 55, APincrease = 1 },
-	},
-	ThermalScope_2 = {
-		effects = { "IgnoreInTheDarkWhenFullyAimed", "IgnoreCoverCtHWhenFullyAimed", "IgnoreLightOfSightWhenFullyAimed", "IgnoreGrazingHitsWhenFullyAimed", "IncreaseRange", "ScopePenalty2", "DecreaseOverwatchAngle" },
-		params = { RangeIncrease = 10, OverwatchAngleDecrease = 55, APincrease = 1 },
-	},
 	G11_Scope_1 = {
 		effects = { "IncreaseRange", "AccuracyBonusWhenAimed" },
 		params = { RangeIncrease = 4, bonus_cth = 10 },
@@ -251,38 +263,6 @@ RAT_SCOPE_ORIGINALS = {
 		effects = { "AccuracyBonusWhenAimed", "DecreaseOverwatchAngle", "IncreaseRange" },
 		params = { RangeIncrease = 4, bonus_cth = 15, OverwatchAngleDecrease = 85 },
 		pct = { bonus_cth = true },
-	},
-	AWP_Scope_1 = {
-		effects = { "IncreaseAimAccuracy", "IncreaseMaxAimActions" },
-		params = { AimAccuracyIncrease = 3, MaxAimActionsIncrease = 1 },
-	},
-	NTW_20_Scope_1 = {
-		effects = { "IncreaseAimAccuracy", "IncreaseMaxAimActions" },
-		params = { AimAccuracyIncrease = 3, MaxAimActionsIncrease = 1 },
-	},
-	WA2000_Scope_1 = {
-		effects = { "IncreaseAimAccuracy", "IncreaseMaxAimActions", "CritBonusWhenFullyAimed" },
-		params = { AimAccuracyIncrease = 5, MaxAimActionsIncrease = 1, crit = 5 },
-	},
-	Caws_Scope_1 = {
-		effects = { "IncreaseAimAccuracy", "IncreaseMaxAimActions", "CritBonusWhenFullyAimed" },
-		params = { AimAccuracyIncrease = 2, MaxAimActionsIncrease = 1, crit = 2 },
-	},
-	AN94_Scope_1 = {
-		effects = { "IncreaseMaxAimActions" },
-		params = { MaxAimActionsIncrease = 1 },
-	},
-	FN2000_Scope_1 = {
-		effects = { "IncreaseMaxAimActions" },
-		params = { MaxAimActionsIncrease = 1 },
-	},
-	G11_Rail_7 = {
-		effects = { "IncreaseMaxAimActions" },
-		params = { MaxAimActionsIncrease = 1 },
-	},
-	G11_Rail_9 = {
-		effects = { "IncreaseAimAccuracy", "IncreaseMaxAimActions" },
-		params = { AimAccuracyIncrease = 3, MaxAimActionsIncrease = 1 },
 	},
 	TAR21_Scope_Rflx_1 = {
 		effects = { "IncreaseOverwatchAngle", "hipfire_dot_effect_laser", "IncreaseCritChangeScaled", "critical_per_aim_laser", "reflex_sight_close_range", "AccuracyBonusWhenAimed" },

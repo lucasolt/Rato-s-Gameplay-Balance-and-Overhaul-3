@@ -252,37 +252,58 @@ left. But at level 5 with `acc 9` only **2% of the original gap is left**. Measu
 **`+8 AimAccuracy at level 5 is worth exactly zero** — after integer rounding sigma is 22 either
 way. The bonus is spectacular on paper and invisible in play.
 
-### Two changes
+### Magnification is a commitment, not an upgrade
 
-**(a) Move the thresholds earlier and make them smaller.** `from = 3`, `acc = +2..+4`. That is where
-there is still gap to close.
+The extra aim *level* is not the weak part — at 40 tiles, level 3→4 on a scoped M24 is **+23 CTH**.
+What is worthless is extra *AimAccuracy* at a late level: AimAccuracy sets the **rate** the gap
+closes, and by level 4-5 there is no gap left to close faster. The floor is the only lever that
+**creates** gap, so it is the only one that makes late levels worth having.
 
-```lua
-A.ComponentEffectsAimBonus = {
-    {id = "pso_dragunov_scope",   from = 3, acc = 2},
-    {id = "sniper_aim_scope",     from = 3, acc = 3},
-    {id = "sniper_adv_aim_scope", from = 3, acc = 4},
-    {id = "FirstAimBonusModifier",       from = 1, to = 1, acc = 3},
-    {id = "BonusAccuracyWhenFullyAimed", from = 3, to = 3, acc = 4},
-}
-```
+Two measured constraints shaped the final ladder:
 
-**(b) Add a scope floor multiplier — this is the "cherry", and the only honest one.**
-The floor is the entire remaining cone at high aim and it is *invisible* at low aim (at aim 0 the
-cone is 10× the floor). So a floor multiplier is self-gating: it pays only at max aim levels, exactly
-as specified, and it does **not** touch `WeaponRange`, so out-of-range checks, `GetMaxAimRange`, AP
-costs and the AI are all unaffected. It is "range at full aim only".
+- **`A.DecayMinPct = 30` clamps the decay at AimAccuracy 12.** A sniper starts at 9, so `+3` and
+  `+5` from a scope produce the *same* decay. Threshold bonuses cannot separate 4x from 6x on the
+  weapons that care most. The floor multiplier has no such ceiling.
+- Every tier must be **worse** than the smaller one until the aim investment is paid, or a bigger
+  scope is a strict upgrade and the choice is fake.
 
-```lua
--- __ApertureParams.lua / SetScopeEffects.lua
-A.ScopeFloorMul = { _1dot5x = 100, _2x = 96, _4x = 92, _6x = 87 }
+So each magnification step pays up front and collects late:
 
--- FUNCTIONS_aperture.lua, Rat_ApertureFloor(weapon)
-local mul = Rat_ScopeFloorMul(weapon)          -- 100 when no optic tier matches
-return Max(1, MulDivRound(MulDivRound(theta, a.FloorPct, 100), mul, 100))
-```
+| tier | max aim | floor ×  | `snap_reduc` | ScopePenalty | threshold |
+|---|---|---|---|---|---|
+| Reflex | +0 | 100 | +10 (bonus) | — | — |
+| 1.5x | +1 | 98 | — | none | — |
+| 2x quick (ACOG, WideScope) | +1 | 98 | +5 (bonus, kept) | 1 | from 3 only, +2 |
+| 2x | +1 | 96 | **−10** | 1 | from 3 only, +2 |
+| 4x | +2 | 86 | **−25** | 2 | from 3, +2 |
+| 6x | +3 | 74 | **−40** | 3 | from 4, +3 |
 
-M24 + 6× scope: d50 max goes 48.6 → 55.9 tiles, aim 0 stays 4.1, aim 1 moves 10.8 → 11.1.
+`snap_reduc` runs through the existing `scope_snapshot` component channel, which computes
+`(100 − snap_reduc)/100` — a **negative** value is already a penalty, so this needed no new code,
+shows up in the Snapshot line the player already reads, and only applies while `aim ≤ 2`
+(the `A.AimStep` window). The later threshold onset is what keeps the 6x behind at aim 3.
+
+Result (M24 R39 acc 9, Marks 90 — CTH by aim level):
+
+| | | aim 0 | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|---|---|---|
+| **10 t** | no scope | 9 | 53 | 97 | 97 | | | |
+| | 2x | 9 | 50 | 97 | 97 | 97 | | |
+| | 4x | 8 | 41 | 96 | 97 | 97 | 97 | |
+| | 6x | 6 | 33 | 92 | 97 | 97 | 97 | 97 |
+| **40 t** | no scope | 1 | 5 | 21 | 51 | | | |
+| | 2x | 1 | 4 | 21 | 61 | 71 | | |
+| | 4x | 1 | 4 | 21 | 64 | 79 | 83 | |
+| | 6x | 1 | 4 | 21 | 64 | **87** | **90** | **93** |
+
+Up close the bigger scope is pure downside and everything converges to 97 by aim 3 anyway — the
+scope choice costs you and buys nothing. Past ~25 tiles the 6x falls behind through aim 3 and then
+overtakes from aim 4 and never stops gaining. The ladder holds the same shape on the SVD, AK74 and
+MP5 (`python tools/aperture_report.py`).
+
+**So: does it become useful further away? That is the only place it is useful.** The last aim level
+is worth `+0` at 10 tiles for every weapon (saturated), and `+3` to `+15` at 40 tiles depending on
+how much gap the floor left open — which is exactly what the floor multiplier is for.
 
 ### Housekeeping in the scope pass
 
@@ -444,14 +465,22 @@ Implemented and verified live (`ReloadLua` + `ApplyApertureItemParams` + `Rat_Re
 - `A.ScopeFloorMul = {_6x = 87, _4x = 92, _2x = 96, _1dot5x = 98}` applied in `Rat_ApertureFloor`.
   Moves the asymptote only; `WeaponRange` is untouched, so max aim range, AP, out-of-range checks
   and the AI are unaffected.
-- Thresholds moved to where gap remains, and aligned with the text already written on the
-  `WeaponComponentEffect` presets: `pso_dragunov_scope` from 2 (+2), `sniper_aim_scope` from 3 (+3),
-  `sniper_adv_aim_scope` from 4 (+4).
+- Thresholds now start **later** for bigger scopes, matching the text already on the
+  `WeaponComponentEffect` presets: `pso_dragunov_scope` from 2 (+1), `sniper_aim_scope` from 3 (+2),
+  `sniper_adv_aim_scope` from 4 (+3), `BonusAccuracyWhenFullyAimed` from 3 only (+2). Kept small —
+  above AimAccuracy 12 the decay clamps and further points do nothing.
+- `snap_reduc` per magnification (`−10 / −25 / −40`) through the existing `scope_snapshot` channel,
+  and `ScopePenalty1/2/3` forced to match the tier, so a bigger scope is strictly worse until the
+  aim is paid for. `_2xQuick` (ACOG, WideScope) keeps its authored `+5` speed bonus instead.
 - `IncreaseAimAccuracy` removed from every magnification profile — raw AimAccuracy is a weapon stat;
   what the optic contributes goes through the thresholds.
-- 24 previously-untouched optics added to `ApertureComponentTier` + `RAT_SCOPE_ORIGINALS` (ToG
-  masters and their variants, AWP/Caws/NTW/WA2000/AN94/FN2000/G11 rails, TAR21 reflex,
-  `ImprovedIronsight_AR15`). **Optics still granting `IncreaseRange`: 0** (was 14).
+- Previously-untouched optics added to `ApertureComponentTier` + `RAT_SCOPE_ORIGINALS`, but only
+  those reachable from a **patched or vanilla** weapon — audited live by `Scope` slot against
+  `is_tog_patched`: SSG69, VSS/PSO-1M2, SteyrScout, m76, GW43, G11, TAR21 reflex,
+  `ImprovedIronsight_AR15`, plus their `_Master_*` templates. Left alone as out of scope:
+  `AWP_Scope_1`, `WA2000_Scope_1`, `NTW_20_Scope_1`, `Caws_Scope_1`, `FN2000_Scope_1`,
+  `G11_Rail_7/9` (unpatched ToG weapons only) and `AN94_Scope_1`, `ThermalScope_1/2` (no weapon
+  uses them). **Optics still granting `IncreaseRange`: 0** (was 14).
 - `RAT_PCT` was a global param-name → percent map, but `bonus_cth` is a percent param on
   GW43/`ImprovedIronsight_AR15` and a plain number elsewhere. Percent typing is now per-component
   (`pct = {...}` on the pristine entry), falling back to the global map.
