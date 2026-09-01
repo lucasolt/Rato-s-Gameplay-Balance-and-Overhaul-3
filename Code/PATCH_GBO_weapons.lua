@@ -41,7 +41,7 @@ function RatoGBO_WepPatch()
 	BarretM82.rat_barrel_len = 730
 	BarretM82.rat_weigth = 14000
 	BarretM82.is_vanilla_firearm = true
-	BarretM82.HandlingMul = 125
+	BarretM82.ApertureSnapHipMul = 125
 	BarretM82.PenetrationClass = 1
 
 
@@ -81,7 +81,7 @@ function RatoGBO_WepPatch()
 	MG42.rat_barrel_len = 550
 	MG42.rat_weigth = 11600
 	MG42.is_vanilla_firearm = true
-	MG42.HandlingMul = 125
+	MG42.ApertureSnapHipMul = 125
 	MG42.PenetrationClass = 1
 
 
@@ -119,7 +119,7 @@ function RatoGBO_WepPatch()
 	MG58.rat_barrel_len = 550
 	MG58.rat_weigth = 11600
 	MG58.is_vanilla_firearm = true
-	MG58.HandlingMul = 125
+	MG58.ApertureSnapHipMul = 125
 	MG58.PenetrationClass = 1
 
 
@@ -161,7 +161,7 @@ function RatoGBO_WepPatch()
 	PSG1.rat_barrel_len = 650
 	PSG1.rat_weigth = 7000
 	PSG1.is_vanilla_firearm = true
-	PSG1.HandlingMul = 125
+	PSG1.ApertureSnapHipMul = 125
 	PSG1.PenetrationClass = 1
 
 
@@ -202,7 +202,7 @@ function RatoGBO_WepPatch()
 	Gewehr98.rat_barrel_len = 740
 	Gewehr98.rat_weigth = 4500
 	Gewehr98.is_vanilla_firearm = true
-	Gewehr98.HandlingMul = 122
+	Gewehr98.ApertureSnapHipMul = 122
 	Gewehr98.PenetrationClass = 1
 
 
@@ -243,7 +243,7 @@ function RatoGBO_WepPatch()
 	HK21.rat_barrel_len = 530
 	HK21.rat_weigth = 8000
 	HK21.is_vanilla_firearm = true
-	HK21.HandlingMul = 120
+	HK21.ApertureSnapHipMul = 120
 	HK21.PenetrationClass = 1
 
 
@@ -283,7 +283,7 @@ function RatoGBO_WepPatch()
 	FNMinimi.rat_barrel_len = 460
 	FNMinimi.rat_weigth = 7900
 	FNMinimi.is_vanilla_firearm = true
-	FNMinimi.HandlingMul = 116
+	FNMinimi.ApertureSnapHipMul = 116
 	FNMinimi.PenetrationClass = 1
 
 
@@ -324,7 +324,7 @@ function RatoGBO_WepPatch()
 	M24Sniper.rat_barrel_len = 610
 	M24Sniper.rat_weigth = 5200
 	M24Sniper.is_vanilla_firearm = true
-	M24Sniper.HandlingMul = 116
+	M24Sniper.ApertureSnapHipMul = 116
 	M24Sniper.PenetrationClass = 1
 
 
@@ -365,7 +365,7 @@ function RatoGBO_WepPatch()
 	DragunovSVD.rat_barrel_len = 610
 	DragunovSVD.rat_weigth = 4500
 	DragunovSVD.is_vanilla_firearm = true
-	DragunovSVD.HandlingMul = 114
+	DragunovSVD.ApertureSnapHipMul = 114
 	DragunovSVD.PenetrationClass = 1
 
 
@@ -405,7 +405,7 @@ function RatoGBO_WepPatch()
 	RPK74.rat_barrel_len = 580
 	RPK74.rat_weigth = 5600
 	RPK74.is_vanilla_firearm = true
-	RPK74.HandlingMul = 114
+	RPK74.ApertureSnapHipMul = 114
 	RPK74.PenetrationClass = 1
 
 
@@ -440,7 +440,7 @@ function RatoGBO_WepPatch()
 	GoldenGun.wep_base_snapshot_mul = 100
 	GoldenGun.weigth_held_mul = 100
 	GoldenGun.is_vanilla_firearm = true
-	GoldenGun.HandlingMul = 111
+	GoldenGun.ApertureSnapHipMul = 111
 	GoldenGun.PenetrationClass = 1
 
 
@@ -482,7 +482,7 @@ function RatoGBO_WepPatch()
 	M14SAW.rat_barrel_len = 457
 	M14SAW.rat_weigth = 5220
 	M14SAW.is_vanilla_firearm = true
-	M14SAW.HandlingMul = 111
+	M14SAW.ApertureSnapHipMul = 111
 	M14SAW.PenetrationClass = 1
 
 
@@ -529,7 +529,7 @@ function RatoGBO_WepPatch()
 	M14SAW_AUTO.rat_barrel_len = 457
 	M14SAW_AUTO.rat_weigth = 5220
 	M14SAW_AUTO.is_vanilla_firearm = true
-	M14SAW_AUTO.HandlingMul = 111
+	M14SAW_AUTO.ApertureSnapHipMul = 111
 	M14SAW_AUTO.PenetrationClass = 1
 
 
@@ -572,7 +572,7 @@ function RatoGBO_WepPatch()
 	M41Shotgun.is_vanilla_firearm = true
 	M41Shotgun.BuckshotConeAngle = 240
 	M41Shotgun.BuckshotFalloffDamage = 50
-	M41Shotgun.HandlingMul = 111
+	M41Shotgun.ApertureSnapHipMul = 111
 	M41Shotgun.PenetrationClass = 1
 
 
@@ -614,7 +614,7 @@ function RatoGBO_WepPatch()
 	DoubleBarrelShotgun.is_vanilla_firearm = true
 	DoubleBarrelShotgun.BuckshotConeAngle = 390
 	DoubleBarrelShotgun.BuckshotFalloffDamage = 50
-	DoubleBarrelShotgun.HandlingMul = 110
+	DoubleBarrelShotgun.ApertureSnapHipMul = 110
 	DoubleBarrelShotgun.PenetrationClass = 1
 
 
@@ -656,7 +656,7 @@ function RatoGBO_WepPatch()
 	Auto5.is_vanilla_firearm = true
 	Auto5.BuckshotConeAngle = 300
 	Auto5.BuckshotFalloffDamage = 50
-	Auto5.HandlingMul = 107
+	Auto5.ApertureSnapHipMul = 107
 	Auto5.PenetrationClass = 1
 
 
@@ -693,7 +693,7 @@ function RatoGBO_WepPatch()
 	Auto5_quest.is_vanilla_firearm = true
 	Auto5_quest.BuckshotConeAngle = 300
 	Auto5_quest.BuckshotFalloffDamage = 100
-	Auto5_quest.HandlingMul = 107
+	Auto5_quest.ApertureSnapHipMul = 107
 	Auto5_quest.PenetrationClass = 1
 
 
@@ -736,7 +736,7 @@ function RatoGBO_WepPatch()
 	AUG.rat_barrel_len = 500
 	AUG.rat_weigth = 4200
 	AUG.is_vanilla_firearm = true
-	AUG.HandlingMul = 106
+	AUG.ApertureSnapHipMul = 106
 	AUG.PenetrationClass = 1
 
 
@@ -781,7 +781,7 @@ function RatoGBO_WepPatch()
 	AA12.is_vanilla_firearm = true
 	AA12.BuckshotConeAngle = 355
 	AA12.BuckshotFalloffDamage = 50
-	AA12.HandlingMul = 105
+	AA12.ApertureSnapHipMul = 105
 	AA12.PenetrationClass = 1
 
 
@@ -822,7 +822,7 @@ function RatoGBO_WepPatch()
 	FNFAL.rat_barrel_len = 450
 	FNFAL.rat_weigth = 4600
 	FNFAL.is_vanilla_firearm = true
-	FNFAL.HandlingMul = 104
+	FNFAL.ApertureSnapHipMul = 104
 	FNFAL.PenetrationClass = 1
 
 
@@ -869,7 +869,7 @@ function RatoGBO_WepPatch()
 	G36.is_vanilla_firearm = true
 	G36.AutoFireCustomDeltaAP = 1
 	G36.SingleShotCustomDeltaAP = 1
-	G36.HandlingMul = 104
+	G36.ApertureSnapHipMul = 104
 	G36.PenetrationClass = 1
 
 
@@ -913,7 +913,7 @@ function RatoGBO_WepPatch()
 	M16A2.rat_barrel_len = 500
 	M16A2.rat_weigth = 3600
 	M16A2.is_vanilla_firearm = true
-	M16A2.HandlingMul = 104
+	M16A2.ApertureSnapHipMul = 104
 	M16A2.PenetrationClass = 1
 
 
@@ -956,7 +956,7 @@ function RatoGBO_WepPatch()
 	FAMAS.rat_barrel_len = 510
 	FAMAS.rat_weigth = 3900
 	FAMAS.is_vanilla_firearm = true
-	FAMAS.HandlingMul = 102
+	FAMAS.ApertureSnapHipMul = 102
 	FAMAS.PenetrationClass = 1
 
 
@@ -998,7 +998,7 @@ function RatoGBO_WepPatch()
 	Galil.rat_barrel_len = 535
 	Galil.rat_weigth = 4450
 	Galil.is_vanilla_firearm = true
-	Galil.HandlingMul = 102
+	Galil.ApertureSnapHipMul = 102
 	Galil.PenetrationClass = 1
 
 
@@ -1040,7 +1040,7 @@ function RatoGBO_WepPatch()
 	Winchester1894.rat_barrel_len = 540
 	Winchester1894.rat_weigth = 3000
 	Winchester1894.is_vanilla_firearm = true
-	Winchester1894.HandlingMul = 102
+	Winchester1894.ApertureSnapHipMul = 102
 	Winchester1894.PenetrationClass = 1
 
 
@@ -1079,7 +1079,7 @@ function RatoGBO_WepPatch()
 	AK47.rat_barrel_len = 410
 	AK47.rat_weigth = 4400
 	AK47.is_vanilla_firearm = true
-	AK47.HandlingMul = 101
+	AK47.ApertureSnapHipMul = 101
 	AK47.PenetrationClass = 1
 
 
@@ -1112,7 +1112,7 @@ function RatoGBO_WepPatch()
 	Galil_FlagHill.wep_base_snapshot_mul = 106
 	Galil_FlagHill.weigth_held_mul = 100
 	Galil_FlagHill.is_vanilla_firearm = true
-	Galil_FlagHill.HandlingMul = 101
+	Galil_FlagHill.ApertureSnapHipMul = 101
 	Galil_FlagHill.PenetrationClass = 1
 
 
@@ -1153,7 +1153,7 @@ function RatoGBO_WepPatch()
 	AK74.rat_barrel_len = 410
 	AK74.rat_weigth = 3800
 	AK74.is_vanilla_firearm = true
-	AK74.HandlingMul = 98
+	AK74.ApertureSnapHipMul = 98
 	AK74.PenetrationClass = 1
 
 
@@ -1194,7 +1194,7 @@ function RatoGBO_WepPatch()
 	AR15.rat_barrel_len = 450
 	AR15.rat_weigth = 3000
 	AR15.is_vanilla_firearm = true
-	AR15.HandlingMul = 98
+	AR15.ApertureSnapHipMul = 98
 	AR15.PenetrationClass = 1
 
 
@@ -1234,7 +1234,7 @@ function RatoGBO_WepPatch()
 	MP40.rat_barrel_len = 250
 	MP40.rat_weigth = 4000
 	MP40.is_vanilla_firearm = true
-	MP40.HandlingMul = 89
+	MP40.ApertureSnapHipMul = 89
 	MP40.PenetrationClass = 1
 
 
@@ -1271,7 +1271,7 @@ function RatoGBO_WepPatch()
 	Winchester_Quest.wep_base_snapshot_mul = 100
 	Winchester_Quest.weigth_held_mul = 100
 	Winchester_Quest.is_vanilla_firearm = true
-	Winchester_Quest.HandlingMul = 89
+	Winchester_Quest.ApertureSnapHipMul = 89
 	Winchester_Quest.PenetrationClass = 1
 
 
@@ -1307,7 +1307,7 @@ function RatoGBO_WepPatch()
 	LionRoar.wep_base_snapshot_mul = 95
 	LionRoar.weigth_held_mul = 100
 	LionRoar.is_vanilla_firearm = true
-	LionRoar.HandlingMul = 84
+	LionRoar.ApertureSnapHipMul = 84
 	LionRoar.PenetrationClass = 1
 
 
@@ -1348,7 +1348,7 @@ function RatoGBO_WepPatch()
 	M4Commando.rat_barrel_len = 250
 	M4Commando.rat_weigth = 2430
 	M4Commando.is_vanilla_firearm = true
-	M4Commando.HandlingMul = 84
+	M4Commando.ApertureSnapHipMul = 84
 	M4Commando.PenetrationClass = 1
 
 
@@ -1388,7 +1388,7 @@ function RatoGBO_WepPatch()
 	UZI.rat_barrel_len = 250
 	UZI.rat_weigth = 2700
 	UZI.is_vanilla_firearm = true
-	UZI.HandlingMul = 84
+	UZI.ApertureSnapHipMul = 84
 	UZI.PenetrationClass = 1
 
 
@@ -1429,7 +1429,7 @@ function RatoGBO_WepPatch()
 	AKSU.rat_barrel_len = 210
 	AKSU.rat_weigth = 2900
 	AKSU.is_vanilla_firearm = true
-	AKSU.HandlingMul = 83
+	AKSU.ApertureSnapHipMul = 83
 	AKSU.PenetrationClass = 1
 
 
@@ -1469,7 +1469,7 @@ function RatoGBO_WepPatch()
 	MP5.rat_barrel_len = 220
 	MP5.rat_weigth = 2880
 	MP5.is_vanilla_firearm = true
-	MP5.HandlingMul = 83
+	MP5.ApertureSnapHipMul = 83
 	MP5.PenetrationClass = 1
 
 
@@ -1512,7 +1512,7 @@ function RatoGBO_WepPatch()
 	MP5K.rat_barrel_len = 110
 	MP5K.rat_weigth = 2000
 	MP5K.is_vanilla_firearm = true
-	MP5K.HandlingMul = 83
+	MP5K.ApertureSnapHipMul = 83
 	MP5K.PenetrationClass = 1
 
 
@@ -1553,7 +1553,7 @@ function RatoGBO_WepPatch()
 	Bereta92.rat_barrel_len = 120
 	Bereta92.rat_weigth = 950
 	Bereta92.is_vanilla_firearm = true
-	Bereta92.HandlingMul = 80
+	Bereta92.ApertureSnapHipMul = 80
 	Bereta92.PenetrationClass = 1
 
 
@@ -1590,7 +1590,7 @@ function RatoGBO_WepPatch()
 	BrowningM2HMG.weigth_held_mul = 100
 	BrowningM2HMG.long_shots = 5
 	BrowningM2HMG.is_vanilla_firearm = true
-	BrowningM2HMG.HandlingMul = 80
+	BrowningM2HMG.ApertureSnapHipMul = 80
 	BrowningM2HMG.PenetrationClass = 1
 
 
@@ -1633,7 +1633,7 @@ function RatoGBO_WepPatch()
 	ColtAnaconda.rat_barrel_len = 150
 	ColtAnaconda.rat_weigth = 1400
 	ColtAnaconda.is_vanilla_firearm = true
-	ColtAnaconda.HandlingMul = 80
+	ColtAnaconda.ApertureSnapHipMul = 80
 	ColtAnaconda.PenetrationClass = 1
 
 
@@ -1675,7 +1675,7 @@ function RatoGBO_WepPatch()
 	ColtPeacemaker.rat_barrel_len = 160
 	ColtPeacemaker.rat_weigth = 720
 	ColtPeacemaker.is_vanilla_firearm = true
-	ColtPeacemaker.HandlingMul = 80
+	ColtPeacemaker.ApertureSnapHipMul = 80
 	ColtPeacemaker.PenetrationClass = 1
 
 
@@ -1717,7 +1717,7 @@ function RatoGBO_WepPatch()
 	DesertEagle.rat_barrel_len = 150
 	DesertEagle.rat_weigth = 2100
 	DesertEagle.is_vanilla_firearm = true
-	DesertEagle.HandlingMul = 80
+	DesertEagle.ApertureSnapHipMul = 80
 	DesertEagle.PenetrationClass = 1
 
 
@@ -1766,7 +1766,7 @@ function RatoGBO_WepPatch()
 	Glock18.is_vanilla_firearm = true
 	Glock18.AutoFireCustomDeltaAP = 1
 	Glock18.SingleShotCustomDeltaAP = 1
-	Glock18.HandlingMul = 80
+	Glock18.ApertureSnapHipMul = 80
 	Glock18.PenetrationClass = 1
 
 
@@ -1807,7 +1807,7 @@ function RatoGBO_WepPatch()
 	HiPower.rat_barrel_len = 110
 	HiPower.rat_weigth = 1050
 	HiPower.is_vanilla_firearm = true
-	HiPower.HandlingMul = 80
+	HiPower.ApertureSnapHipMul = 80
 	HiPower.PenetrationClass = 1
 
 
@@ -1847,7 +1847,7 @@ function RatoGBO_WepPatch()
 	TexRevolver.rat_barrel_len = 160
 	TexRevolver.rat_weigth = 720
 	TexRevolver.is_vanilla_firearm = true
-	TexRevolver.HandlingMul = 80
+	TexRevolver.ApertureSnapHipMul = 80
 	TexRevolver.PenetrationClass = 1
 
 

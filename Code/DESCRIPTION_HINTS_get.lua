@@ -102,7 +102,7 @@ function rat_format_hints(self)
         return string.format("%.2f", angle)
     end
 
-    
+    local angularCTHActive = Rat_AngularActive()
 	local termList = {
 	    {
 	        id = "ShootingStanceCost",
@@ -141,8 +141,10 @@ function rat_format_hints(self)
 	    },
 	    {
 	        id = "PointBlankRangeAccuracy",
-	        TranslationTable[651371401489] or "Point Blank Range Accuracy: ",
-	        GetPBbonus_display(self) or 0, "%"
+	        angularCTHActive and (TranslationTable[162198456754] or "Handling: ") or (TranslationTable[651371401489] or "Point Blank Range Accuracy: "),
+	        MulDivRound(GetPBbonus_display(self), 
+			angularCTHActive and const.Combat.Aperture.PBAsHandlingMul or 100, 100) or 0,
+			angularCTHActive and "" or "%"
 	    },
 	    {
 	        id = "HipfirePenaltyMultiplier",
@@ -188,9 +190,9 @@ function rat_format_hints(self)
 	end
 
 	local AngularCthActiveExclusionList = {
-		PointBlankRangeAccuracy = true
+		--PointBlankRangeAccuracy = true
 	}
-	local angularCTHActive = Rat_AngularActive()
+
 
 	for _, term in ipairs(termList) do
 		if not angularCTHActive or not AngularCthActiveExclusionList[term.id] then

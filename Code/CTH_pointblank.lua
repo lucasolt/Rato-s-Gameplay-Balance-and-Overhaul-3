@@ -4,10 +4,11 @@ function point_blank_cth()
                  opportunity_attack, attacker_pos, target_pos)
             ---- CTH angular: de perto o alvo ja e maior que qualquer cone, entao o
             ---- bonus de point-blank emerge da geometria e nao precisa ser somado.
-            if Rat_AngularActive(weapon1, action, attacker) then
-                return false, 0
-            end
-
+            --if Rat_AngularActive(weapon1, action, attacker) then
+            --    --return false, 0
+            --end
+--
+			local angular_cth = Rat_AngularActive(weapon1, action, attacker)
             if attacker and IsKindOf(weapon1, "FirearmProperties") then
                 local pb_bonus = GetPBbonus(weapon1) or 10
 
@@ -16,6 +17,11 @@ function point_blank_cth()
                     local pb_bonus2 = GetPBbonus(weapon2)
                     pb_bonus = cRound((pb_bonus2 + pb_bonus) / 2)
                 end
+
+				if angular_cth then
+					return true, MulDivRound(pb_bonus, const.Combat.Aperture.PBAsHandlingMul, 100),
+						T(162198456754, "Handling")
+				end
 
                 local dex = attacker.Dexterity
 
@@ -106,7 +112,8 @@ local t_id_table = {
     [869282891923] = "High Dexterity",
     [634749487718] = "Average Dexterity",
     [461622328882] = "Point-Blank Range",
-    [974362381782] = "Close Range"
+    [974362381782] = "Close Range",
+	[162198456754] = "Handling"
 }
 
 ratG_T_table['CTH_pointblank.lua'] = t_id_table

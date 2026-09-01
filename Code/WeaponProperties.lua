@@ -37,6 +37,18 @@ function OnMsg.ClassesGenerate()
                 modifiable = true
 			}, {
 				category = "GBO_aCTH",
+                id = "ApertureSnapHipMul",
+                name = "ApertureSnapHipMul",
+                help = "",
+                editor = "number",
+                default = 100,
+                template = true,
+                min = 0,
+                max = 1000,
+                modifiable = true
+			},
+			{
+				category = "GBO_aCTH",
                 id = "HandlingMul",
                 name = "HandlingMul",
                 help = "",
