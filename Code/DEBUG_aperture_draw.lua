@@ -553,20 +553,22 @@ function Rat_DbgBurst(bursts, burst, aim, target_spot, target, attacker)
 end
 
 ---------------------------------------------------------------------------------------------------
----- Rat_DbgSweep(target, attacker, stances, dists, azimuths)
----- Varre a GEOMETRIA REAL do alvo e imprime as meias-extensoes angulares que a tabela de silhueta
----- precisa. E o insumo para calibrar o modelo separavel: theta e um raio EQUIVALENTE EM AREA, e
----- area nao preserva probabilidade de acerto sob dispersao isotropica.
+---- Rat_DbgSweep(target, attacker, stances, dists, azimuths, verbose)
+---- Varre a GEOMETRIA REAL do alvo e resume as meias-extensoes que a tabela de silhueta precisa.
+---- theta e um raio EQUIVALENTE EM AREA, e area nao preserva probabilidade de acerto sob dispersao
+---- isotropica: um corpo alto e estreito tem a mesma area de um disco gordo e e bem mais dificil de
+---- acertar. Trocar o circulo por extensoes por eixo exige MEDIR as extensoes.
 ----
----- O angulo de visada NAO gira a unidade: gira a ORIGEM do tiro em volta dela, o que da a mesma
----- geometria relativa sem tocar no alvo. So a postura e mutada de verdade, e volta ao fim --
----- inclusive se a varredura estourar, porque o corpo roda dentro de pcall.
+---- O azimute NAO gira a unidade: gira a ORIGEM do tiro em volta dela -- mesma geometria relativa
+---- sem tocar no alvo. So a postura e mutada, e volta ao fim mesmo se a varredura estourar.
 ----
----- Fronteira por bisseccao: a regiao e estrelada perto do centro, entao ~8 passos bastam onde a
----- varredura linear gastava 180.
+---- Saida padrao = MEDIANA de larg/theta e alt/theta por (postura, azimute). As razoes sao estaveis
+---- em distancia (medido de 6 a 50 tiles), entao distancia e ruido a agregar, nao dimensao a manter.
+---- `verbose` imprime tambem cada cenario.
+----
 ---- ATENCAO: consome random sincronizado; em co-op nao use no turno de outro jogador.
 ---------------------------------------------------------------------------------------------------
-function Rat_DbgSweep(target, attacker, stances, dists, azimuths)
+function Rat_DbgSweep(target, attacker, stances, dists, azimuths, verbose)
     attacker = pick_attacker(attacker)
     if not attacker then
         return "sem atacante (selecione um merc)"
@@ -581,14 +583,13 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths)
     end
 
     stances = stances or {"Standing", "Crouch", "Prone"}
-    dists = dists or {3, 6, 10, 15, 25, 40}
+    dists = dists or {6, 10, 15, 25}
     azimuths = azimuths or {0, 45, 90, 135, 180}
 
     local a = const.Combat.Aperture
     local was_enabled, was_stance = a.Enabled, target.stance
     a.Enabled = true
 
-    ---- altura da arma acima do terreno, medida no atacante de verdade
     local real = GetLoFData(attacker, target, {obj = attacker, weapon = weapon,
         stance = attacker.stance, prediction = true, output_collisions = true,
         force_hit_seen_target = false})
@@ -602,14 +603,19 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths)
         tpos = tpos:SetTerrainZ()
     end
 
-    local rows, usable, blocked = {}, 0, 0
+    ---- samples[stance][az] = lista de {w, h}; fp[stance][chave] = extensoes cruas, para detectar
+    ---- postura que nao chegou a colisao (linhas identicas entre posturas nao sao medida, sao bug)
+    local samples, fp, raw = {}, {}, {}
+    local usable, blocked, dup = 0, 0, 0
+
     local ok, err = pcall(function()
         for _, stance in ipairs(stances) do
-            ---- so a propriedade + refresh do dummy: ChangeStance e um comando com AP e animacao
             target.stance = stance
             target:SetTargetDummyFromPos(nil, nil, false)
+            samples[stance], fp[stance] = {}, {}
 
             for _, az in ipairs(azimuths) do
+                samples[stance][az] = {}
                 for _, d in ipairs(dists) do
                     local du = d * const.SlabSizeX
                     local ap = (tpos + Rotate(point(du, 0, 0), az * 60)):SetTerrainZ()
@@ -617,7 +623,6 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths)
 
                     local args = Rat_SimBaseArgs(attacker, target, weapon, "Torso",
                                                  du + 20 * const.SlabSizeX)
-                    ---- spots do alvo VISTOS DAQUI: o ponto de mira tem de sair desta origem
                     local seen = GetLoFData(attacker, target, {obj = attacker, weapon = weapon,
                         stance = attacker.stance, prediction = true, output_collisions = true,
                         force_hit_seen_target = false, attack_pos = ap, step_pos = ap})
@@ -640,8 +645,6 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths)
                             return (Rat_SimHitSpot(Rat_SimLoF(GetLoFData(attacker, pt, args)),
                                                    target))
                         end
-
-                        ---- fronteira conexa a partir do centro, por bisseccao
                         local function edge(azm)
                             if not hits_at(azm, 5) then
                                 return 0
@@ -660,22 +663,45 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths)
                         local theta = Rat_ThetaTarget(dist,
                                           Rat_TargetSilhouette(target, "Torso", 100, stance))
                         if not hits_at(0, 1) then
-                            ---- origem sem linha de tiro (parede, quina, dentro de geometria).
-                            ---- Marcar em vez de emitir zeros: zero aqui NAO e alvo estreito, e
-                            ---- ausencia de medida, e poluiria a calibracao como se fosse dado.
+                            ---- origem sem linha de tiro: zero aqui nao e alvo estreito, e ausencia
+                            ---- de medida, e poluiria a calibracao como se fosse dado
                             blocked = blocked + 1
-                            rows[#rows + 1] = string.format(
-                                "  %-8s | %3d | %3d | %5d |         sem linha de tiro",
-                                stance, az, d, theta)
                         else
                             local bu, ar, bd, al = edge(0), edge(90), edge(180), edge(270)
-                            usable = usable + 1
-                            ---- o raio que a tabela AFIRMA vs as extensoes que a bala encontra
-                            rows[#rows + 1] = string.format(
-                                "  %-8s | %3d | %3d | %5d | %5d %5d %5d %5d | %5d%% %5d%%",
-                                stance, az, d, theta, bu, bd, ar, al,
-                                MulDivRound((ar + al) / 2, 100, Max(1, theta)),
-                                MulDivRound((bu + bd) / 2, 100, Max(1, theta)))
+                            local w = MulDivRound((ar + al) / 2, 100, Max(1, theta))
+                            local h = MulDivRound((bu + bd) / 2, 100, Max(1, theta))
+                            local key = az .. ":" .. d
+                            fp[stance][key] = bu .. "," .. bd .. "," .. ar .. "," .. al
+
+                            ---- alguma postura ANTERIOR mediu exatamente isto? entao a mudanca de
+                            ---- postura nao chegou a geometria de colisao: descartar, nao contar
+                            local same
+                            for _, prev in ipairs(stances) do
+                                if prev == stance then
+                                    break
+                                end
+                                if fp[prev] and fp[prev][key] == fp[stance][key] then
+                                    same = prev
+                                end
+                            end
+
+                            if same then
+                                dup = dup + 1
+                                if verbose then
+                                    raw[#raw + 1] = string.format(
+                                        "  %-8s | %3d | %3d | IDENTICO a %s -- descartado",
+                                        stance, az, d, same)
+                                end
+                            else
+                                usable = usable + 1
+                                local s = samples[stance][az]
+                                s[#s + 1] = {w = w, h = h}
+                                if verbose then
+                                    raw[#raw + 1] = string.format(
+                                        "  %-8s | %3d | %3d | %5d | %5d %5d %5d %5d | %5d%% %5d%%",
+                                        stance, az, d, theta, bu, bd, ar, al, w, h)
+                                end
+                            end
                         end
                     end
                 end
@@ -683,7 +709,6 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths)
         end
     end)
 
-    ---- restaura SEMPRE, inclusive se o corpo estourou
     target.stance = was_stance
     target:SetTargetDummyFromPos(nil, nil, false)
     a.Enabled = was_enabled
@@ -691,17 +716,48 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths)
         return "ERRO na varredura (estado do alvo restaurado): " .. tostring(err)
     end
 
-    local head = "%s (%s) -> %s   varredura de geometria" ..
-                     "\n  extensoes a partir do ponto de mira (Torso), em minutos de angulo" ..
-                     "\n  az = azimute do ATIRADOR em volta do alvo, relativo ao angulo atual dele" ..
-                     "\n  postura  |  az |  d  | theta |  cima baixo   dir   esq | larg/th  alt/th" ..
-                     "\n%s" ..
-                     "\n%s" ..
-                     "\n  larg/th e alt/th sao o alvo: 100%% = o circulo acerta aquele eixo."
+    local function median(list, field)
+        local v = {}
+        for _, e in ipairs(list) do
+            v[#v + 1] = e[field]
+        end
+        if #v == 0 then
+            return nil
+        end
+        table.sort(v)
+        return v[(#v + 1) / 2]
+    end
+
+    local lines = {"  postura  |  az |  n | larg/th | alt/th"}
+    for _, stance in ipairs(stances) do
+        for _, az in ipairs(azimuths) do
+            local s = samples[stance] and samples[stance][az] or empty_table
+            if #s > 0 then
+                lines[#lines + 1] = string.format("  %-8s | %3d | %2d |   %4d%% |  %4d%%", stance,
+                                                  az, #s, median(s, "w"), median(s, "h"))
+            end
+        end
+    end
+
+    local notes = {string.format("  %d cenarios medidos, %d sem linha de tiro, %d descartados por"
+                                     .. " postura identica", usable, blocked, dup)}
+    if dup > 0 then
+        notes[#notes + 1] = "  AVISO: linhas identicas entre posturas -- a mudanca de postura nao" ..
+                                " chegou a colisao nesses casos."
+    end
+    if blocked > usable then
+        notes[#notes + 1] = "  AVISO: maioria dos cenarios bloqueada. As medidas que sobraram sao" ..
+                                " dos angulos abertos, nao uma amostra do alvo -- procure terreno limpo."
+    end
+
+    local head = "%s (%s) -> %s [postura real: %s]   varredura de geometria" ..
+                     "\n  larg/th e alt/th: mediana em distancia, %% do raio que a tabela afirma." ..
+                     "\n  100%% = o circulo acerta aquele eixo. az = azimute do ATIRADOR em volta do alvo." ..
+                     "\n%s\n%s%s"
     return string.format(head, tostring(attacker.session_id), tostring(weapon.class),
-                         tostring(target.session_id), table.concat(rows, "\n"),
-                         string.format("  %d cenarios medidos, %d sem linha de tiro",
-                                       usable, blocked))
+                         tostring(target.session_id), tostring(was_stance),
+                         table.concat(lines, "\n"), table.concat(notes, "\n"),
+                         verbose and ("\n\n  cenarios:\n" .. table.concat(raw, "\n")) or "")
 end
 
 ---- Desenha o ultimo ataque real. Nao sorteia: le g_RatLastSimShots (gravado por
