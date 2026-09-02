@@ -64,7 +64,7 @@ const.Combat.Critical.PrismScopeCritPerAim = 3 -- 4
 const.Combat.Critical.LaserDotCritPerAim = 1
 const.Combat.Critical.PSOScopeCritOnAimed = 10
 const.Combat.Critical.FirstAimCrit = 6
-
+const.Combat.HandEyeCritScalingFactor = 80
 -------------
 const.Combat.AwareSightRange = 56
 const.Combat.UnawareSightRange = 18
