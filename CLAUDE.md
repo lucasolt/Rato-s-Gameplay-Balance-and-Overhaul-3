@@ -1,155 +1,122 @@
-# CLAUDE.md — Rato's Mods — Audit e Diagnóstico
+# CLAUDE.md — Rato's Mods — Audit and Diagnostics
 
-## Estrutura do workspace
+## Code comments (important)
 
-### Source do jogo (somente leitura — apenas referência de API)
-- `C:\Steam\steamapps\common\Jagged Alliance 3\ModTools\Src`
+* Comments must be one line maximum and as concise as possible.
+* Only comment non-obvious logic or important decisions/workarounds.
+* Never narrate or restate the code.
 
-### Bibliotecas de dependência (somente leitura — apenas referência)
-- `C:\Users\Lucas\AppData\Roaming\Jagged Alliance 3\Mods\ja3_commonlib`
-- `C:\Users\Lucas\AppData\Roaming\Jagged Alliance 3\Mods\Zulib Weapons Core`
+## Workspace structure
 
-### Mods do autor
-- `C:\Users\Lucas\AppData\Roaming\Jagged Alliance 3\Mods\Rato-s-Gameplay-Balance-and-Overhaul-3` — foco principal
-- `C:\Users\Lucas\AppData\Roaming\Jagged Alliance 3\Mods\Rato-s-Explosive-Overhaul-2.0`
-- `C:\Users\Lucas\AppData\Roaming\Jagged Alliance 3\Mods\Rato-s-ToG-Compatibility-Patch---Rebalance`
-- `C:\Users\Lucas\AppData\Roaming\Jagged Alliance 3\Mods\Rato's AI Overhaul`
+### Game source (read-only — API reference only)
 
-## O que são estes mods
-Conjunto de mods de balance e overhaul para Jagged Alliance 3. Modificam
-comportamento de itens, efeitos de personagem, IA e mecânicas de gameplay
-via sistema de override parcial do engine — não redefinem entidades inteiras,
-apenas os campos que mudam.
+* `C:\Steam\steamapps\common\Jagged Alliance 3\ModTools\Src\`
 
+### Dependency libraries (read-only — reference only)
 
-## Descrição do mod GBO3
+* `C:\Users\Lucas\AppData\Roaming\Jagged Alliance 3\Mods\ja3_commonlib\`
+* `C:\Users\Lucas\AppData\Roaming\Jagged Alliance 3\Mods\Zulib Weapons Core\`
 
-This mod aims to provide a balanced but very challenging experience, improving depth of gameplay, increasing lethality and incorporating some realistic mechanics. Auto fire modes have full bullet damage, and single shots have more chance of critical hit.
+### Author's mods
 
-Please use a fresh savegame with this mod, so that the components will have their proper effects and to avoid bugs.
+* `C:\Users\Lucas\AppData\Roaming\Jagged Alliance 3\Mods\Rato-s-Gameplay-Balance-and-Overhaul-3\` — primary focus
+* `C:\Users\Lucas\AppData\Roaming\Jagged Alliance 3\Mods\Rato-s-Explosive-Overhaul-2.0\`
+* `C:\Users\Lucas\AppData\Roaming\Jagged Alliance 3\Mods\Rato-s-ToG-Compatibility-Patch---Rebalance\`
+* `C:\Users\Lucas\AppData\Roaming\Jagged Alliance 3\Mods\Rato's AI Overhaul\`
 
-It is also recommended to not use an Ironman mode save
+## What these mods are
 
-It also very important to exit the game completely after selecting all desired mods, and opening it again, to prevent bugs.
+A collection of balance and overhaul mods for Jagged Alliance 3. They modify
+item behavior, character effects, AI, and gameplay mechanics
+through the engine's partial override system — they do not redefine entire entities,
+only the fields that are changed.
 
+## Debugging the game
 
-Compatibility patches:
+See `DEBUG SERVER.md` for instructions on connecting to the debug server and retrieving realtime
+data from the running game.
 
-NEW - Compatible with Revised Mags II
+Prefer measuring the live process over reasoning from memory or from screenshots. `tools/dap_eval.py`
+evaluates Lua in the running game without a breakpoint, and `loadfile("AppData/Mods/<mod-id>/Code/
+FILE.lua")` through it is a real syntax check — there is no Lua interpreter on this machine.
 
-With ToG. Add Tons of Guns
-https://steamcommunity.com/sharedfiles/filedetails/?id=3101203757
+## Commits
 
-If you have ToG and ToC loaded, this mod will use some custom visuals for the added scopes. Recommended
+When you implement code changes, COMMIT them so they can identified later
 
-Compatible with Descriptive CTH
+## Reading files
 
+* Grep to locate before reading. Read a whole file only when it is new to the session and small
+  (under ~200 lines).
+* In a large file, read the slice: `Read` with `offset`/`limit` around the line Grep found.
+* Do not re-read a file to verify an edit that was just applied — `Edit` would have failed loudly.
+* Exception: when changing behavior rather than looking something up, read wide enough to see the
+  whole call chain. A narrow read hides an early return above the match or an override below it.
 
+## Delegating searches
 
-Penalties can be customized in mod options
+Use the `ja3-source` subagent for questions answered outside this mod's `Code/` — engine APIs,
+call sites in `ModTools\Src`, whether a sibling mod reads a property. It returns `file:line`
+findings instead of loading large read-only files into the main conversation.
 
-Gun overhaul overview:
+Keep reasoning and editing in the main session. A subagent's summary is lossy, which is fine for
+"where is X" and wrong for "is this logic correct".
 
-Aiming Rework: Mercs with low Hand-Eye Coordination (Dex + Marks) will get less benefits from aim bonus.
+## Editing rules
 
-Shooting Stance: you need to spend AP to shoulder your weapon to aim. This will create an angle where you can shoot more accurately. If you aim outsde the angle, you must spend AP to rotate. Unaimed shots now have Hipfire penalty. 1 aim level shots have Snapshot penalty. Component weight or barrel length can reduce shooting angle. Inspired by Wax's mod.
+* `items.lua` — generated by the game's mod editor. Contains presets (archetypes, policies,
+  behaviors, actions, mod options) and mirrors the code list.
+  **Presets and numbers must continue to be produced only through the in-game editor — never edit them manually.**
 
-Weapons have rotation angles based on real life weight and barrel length.
+  **Exception, authorized on 2026-08-27: registering a new code file.** When creating a
+  `Code/*.lua`, add the corresponding block following the pattern already present in the file:
 
-New mechanics and components permit you to make your weapon into a hybrid: rip the stock off your rifle to make it deadly and fast at close range - like a SMG -, or mount a sniper scope and heavy barrel to have precise single headshots at a distance.
+  ```lua
+  PlaceObj('ModItemCode', {
+      'name', "FILE_NAME",          -- without .lua
+      'CodeFileName', "Code/FILE_NAME.lua",
+  }),
+  ```
 
-Correct magazine and expanded magazine sizes.
+  (`'comment'` is optional and some blocks use it.) The position must mirror the one in the
+  `code` list in `metadata.lua` — the two are the **same load order**, and desynchronizing them
+  breaks loading. The same applies to GBO3 and the author's other mods, which use `items.lua`
+  in the same format.
 
-Weapon calibers are realistic, so two weapons with the same caliber will have very similar damage. There is room for variations depending on the class of the weapon or other aspects.
+* `metadata.lua` — the `code` list defines the **load order** and is mirrored in
+  `items.lua`. Registering a new code file here is allowed (see above); **both files must
+  be updated together**, in the same position. Any other modification requires explicit instruction.
 
-Penetration depends on the caliber.
+* New logic goes in `Code/*.lua`; presets and numbers are produced through the editor.
 
-Weapons classes were changed to dominate a specific range and have a specific function.
+* **Arithmetic: always use `MulDivRound`, never floats.** This engine runs Lua 5.3 with the
+  `/` operator **replaced by integer truncating division** — measured in the live process.
 
-Ammo Overhaul:
-5.45 rounds now have tumbling effect, which increase critical chance
-5.56 rounds have fragmentation effect, which increase critical damage
-AP rounds now have decreased critical damage and increased recoil
-Match rounds have increased aim, range, and Critical Scaling
-Tracer rounds apply Marked, Revealed and are easier to compensate recoil
-HP rounds now have increased critical damage (instead of chance)
+* **Creating a global at runtime is a runtime error.** The engine only allows globals during load;
+  at runtime it raises `Attempt to create a new global` and aborts the action in progress. New
+  globals must be declared at file scope; `rawset(_G, ...)` bypasses `__newindex`, but it is a
+  hack, not a solution.
 
-Gun Stats Info:
+* **Do not write global guards.**
 
-Recoil penalty determines how much accuracy degradation your burst attacks will suffer. It also influences the persistant recoil for single shots in a turn.
+* **Never use the identifier `dbg`** (variable, table key, or mentioned in a
+  comment) in `Code/*.lua`. Use `trace`.
 
-Hipfire penalty determines the penalty when you shoot with 0 aim levels.
+  *Cause:* `dbg = empty_func -- WILL BE REMOVED IN GOLD MASTER`
+  (`CommonLua/Core/lib.lua:32`).
 
-Snapshot penalty determines the easiness of rapidly aquiring new targets. Will apply a penalty when shooting with less than 3 aim levels. If you are attacking the same target as your last attack, this penalty is negated. It is also important for Overwatch and Mobile attacks accuracy.
-For these stats, the lower, the better.
-
-New systems based on attributes
-
-New multishot systems
-
-Full damage in all forms of Automatic Fire
-
-New recoil system :
-
-CTH is decreased shot by shot.
-
-Scales with Strength and Marksmanship, different scaling for calibers. All calibers have a Recoil Breakpoint in Str: if you are below this str level the penalties will be even higher per point. It also represents a flat component of the recoil, so the higher the breakpoint, the higher will be the overall penalty to hit.
-
-Only the first bullet will benefit from Aiming bonus.
-
-Autofire: shoots 10 bullets, has fixed AP cost, can be aimed once.
-
-MG burst rework : Shoots 6 bullets. Strength has more impact on determining accuracy of the MG.
-
-Run and Gun reworked: lethal at close range, has big accuracy penalty at distance. The move range depends on agility and bulk of the weapon
-
-Pindown reworked: now it is called Snipe. Grants an attack with maximum aim levels, extra critical chance, reduced penalty to hit body parts and that bypasses low cover. Synergic with scoped weapons that have increased max aim levels.
-
-Shotgun Pellets: Shotguns will fire individual pellets, each ballistically simulated. Added Slug shots as well.
-
-Other changes:
-
-Dual Fire rework: Max aim = 1, AP cost reduced. Dexterity reduces penalty. Higher penalty at distance.
-
-Low Cover effect is increased.
-
-Sight Radius is increased.
-
-Shot Crit bonus: firearms have critical bonus chance that scales with Dexterity+Marksmanship. The effect is based on aim level. Single shot have significant more scaling.
-
-Targeted shot bonus reworked: Applies when fully aimed. Scales with Composure (compost of Marksmanship and Wisdom). Snipers have better scaling. Single shot has better scaling.
-
-Melee range shooting penalty: long barrels make it harder to hit at melee range, while short ones make it easier.
-
-Scope and component overhaul
-What really makes a sniper weapon? A precision scope.
-
-Scopes now give a high range bonus. They come in 5 magnification scales. The higher magnification scopes now give a penalty when shooting at close range. The penalty is proportional to the bonus range, and get progressively higher the closer you are to the target.
-
-
-Stealth overhaul:
-
-Suppressors no longer completely silence your gun, they cut the noise radius by half. To effectively sneak, you need to use Subsonic ammo now, a type of bullet designed to travel slowly and be less loud.
-
-It's harder to do a stealth kill on aware opponents.
-
-Enemy detection range is increased.
-
-
-Optional Addons (Recommended):
-
-https://steamcommunity.com/sharedfiles/filedetails/?id=3028029624 Wounding Overhaul
-
-https://steamcommunity.com/sharedfiles/filedetails/?id=3253652174 NEW Explosives Overhaul 2.0
-
-https://steamcommunity.com/sharedfiles/filedetails/?id=3087514348 Cash economy customizer
-
+  `dbg(...)` is the engine's idiom for dev-only expressions, and the build step that removes it
+  in the Gold Master **is not Lua-aware**: it finds the token, searches for the next `(`, and
+  removes text up to the corresponding `)` — which may be far away. Since this mod never called
+  `dbg(...)`, it only used `dbg` as a name, but the pruning started in the wrong place. It has
+  already corrupted comments unrelated to debugging.
 
 Version: 3.58-12574
-## Estrutura típica dos mods
-- `Code/` — lógica principal em Lua
-- `CharacterEffect/` — efeitos aplicados a personagens
-- `InventoryItem/` — modificações de itens de inventário
-- `items.lua` — gerado automaticamente pelo jogo, NUNCA editar
-- `metadata.lua` — metadados do mod, não editar sem instrução explícita
 
+## Typical mod structure
+
+* `Code/` — main Lua logic
+* `CharacterEffect/` — effects applied to characters
+* `InventoryItem/` — inventory item modifications
+* `items.lua` — automatically generated by the game; if edited, it must follow the exact existing pattern
+* `metadata.lua` — mod metadata; if edited, it must follow the exact existing pattern
