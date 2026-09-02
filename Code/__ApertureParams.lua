@@ -86,19 +86,66 @@ A.Silhouette = {
     Prone = 31 --26
 }
 
----- Body part como % do raio da postura.
-A.BodyPart = {
-    Torso = 100,
-    Arms = 62,
-    Legs = 62,
-    Groin = 55
+---- CTH = P(acertar o alvo), igual para tiro livre e tiro pedido: quem escolhe a cabeca nao fica
+---- com CTH de cabeca, fica com o CTH do corpo e um dado a mais sobre ONDE pegou. A.BodyPart e
+---- A.BodyPartAbsolute (raio por parte) sairam daqui em 2026-09-01 -- com a bala resolvida pela
+---- geometria, a parte atingida ja e consequencia da trajetoria, nao de uma silhueta menor.
+---- O custo de MIRAR parte pequena continua vivo em A.TargetedResidualPct.
+
+---------------------------------------------------------------------------------------------------
+---- MODELO SEPARAVEL -- meias-extensoes do corpo por postura x azimute
+----
+---- theta e um raio EQUIVALENTE EM AREA, e area NAO preserva probabilidade de acerto sob dispersao
+---- isotropica: um corpo alto e estreito tem a area de um disco gordo e e bem mais dificil de
+---- acertar. Medido: de pe o circulo erra +30% na vertical e -40% na horizontal; deitado de flanco
+---- erra 4x entre a direcao dos pes e a da cabeca. Trocar o circulo por quatro extensoes por eixo
+---- transforma isso de vies em dado.
+----
+---- % de theta, {cima, baixo, direita, esquerda}. az = azimute do ATIRADOR em volta do alvo,
+---- relativo ao angulo do corpo do alvo: 0 = o alvo esta de frente para quem atira.
+---- 180..360 espelha 0..180 trocando direita<->esquerda. direita/esquerda sao do ATIRADOR.
+----
+---- Medido com Rat_DbgSweep em 2026-09-01 (bisseccao da fronteira real, 4 distancias por celula,
+---- mediana em distancia; as razoes sao estaveis de 6 a 40 tiles). Validacao: de pe e agachado,
+---- az 0 e az 180 saem espelhos exatos -- o referencial esta certo. Deitado NAO espelha, e nao
+---- deveria: a ponta da cabeca e a dos pes sao coisas diferentes.
+----
+---- CAVEAT: medido num terreno so. `baixo` e o unico eixo que o relevo contamina de verdade
+---- (de pe: 130% de frente, 287% de flanco -- o chao corta o raio antes dos pes em alguns
+---- angulos). Re-medir em terreno plano melhora esta coluna; as outras tres sao anatomia.
+A.ExtentAzStep = 45
+A.Extent = {
+    ----          cima baixo   dir   esq        az
+    Standing = {
+        {          131,  130,   67,   49}, ----   0
+        {          130,  107,   49,   58}, ----  45
+        {           90,  204,   27,   42}, ----  90
+        {           90,  287,   26,   53}, ---- 135
+        {          129,  129,   49,   67}, ---- 180
+    },
+    Crouch = {
+        {          140,  131,   93,   62}, ----   0
+        {          108,  149,   66,   61}, ----  45  INTERPOLADO -- re-medir
+        {           76,  167,   38,   59}, ----  90
+        {          107,  150,   49,   75}, ---- 135  INTERPOLADO -- re-medir
+        {          137,  133,   59,   91}, ---- 180
+    },
+    Prone = {
+        {          108,   57,  101,  103}, ----   0
+        {           55,   57,  287,  111}, ----  45
+        {           36,   44,  391,  100}, ----  90
+        {           56,   56,  147,  119}, ---- 135
+        {          119,   56,   75,  100}, ---- 180
+    },
 }
 
----- Partes que NAO escalam com a postura: raio ABSOLUTO em cm. Cabeca mede ~22/20/19 nas 3 posturas
----- -- escala-la com o corpo tornava headshot em alvo agachado impossivel.
-A.BodyPartAbsolute = {
-    Head = 11,
-    Neck = 11
+---- Meia-faixa normal em permil: 1000 * (Phi(z) - 0.5), z = indice * NormalStep / 1000.
+---- Gerada por tools/normal_band_lut.py. Cada eixo do modelo separavel e uma faixa; o par de
+---- meias-faixas soma a massa entre -esq e +dir. Confere com 68/95/99.7 em k = 1, 2, 3.
+A.NormalStep = 125
+A.NormalBand = {
+    [0] = 0, 50, 99, 146, 191, 234, 273, 309, 341, 370, 394, 415, 433, 448, 460, 470, 477, 483,
+    488, 491, 494, 496, 497, 498, 499, 499, 499, 500, 500, 500, 500, 500, 500,
 }
 
 ---- Geometria da silhueta para a SONDAGEM DE COBERTURA: meia-largura/altura da caixa (1000 = 1 m),

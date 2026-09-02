@@ -41,9 +41,10 @@ function Rat_ResolveAngular(data)
     local aim, opportunity_attack = Rat_EffectiveAim(attacker, action, data.aim,
                                                      data.opportunity_attack, target)
 
-    local _, sigma, theta, meta, parts = Rat_AngularCTH(attacker, target, data.target_spot_group,
-                                                        action, weapon1, aim, opportunity_attack,
-                                                        data.attacker_pos, data.target_pos, nil)
+    local _, sigma, theta, meta, parts, _, _, up, down, right, left =
+        Rat_AngularCTH(attacker, target, data.target_spot_group, action, weapon1, aim,
+                       opportunity_attack, data.attacker_pos, data.target_pos, nil)
+    data.rat_ext_up, data.rat_ext_down, data.rat_ext_right, data.rat_ext_left = up, down, right, left
 
     ---- alvo totalmente ocluido: nao ha cone que resolva, CTH 0 e nenhum residual muda isso
     if not sigma or not theta or theta < 1 then
@@ -73,8 +74,25 @@ function Rat_ResolveAngular(data)
     data.rat_theta, data.rat_meta, data.rat_parts = theta, meta, parts
     data.rat_aim, data.rat_geo_sigma, data.rat_cone_mul = aim, sigma, 100
     data.rat_sigma = sigma
-    data.rat_cth = Clamp(Rat_RayleighCTH(theta, sigma), a.MinCTH, a.MaxCTH)
+    data.rat_cth = Rat_ConeCTH(data)
     return data
+end
+
+---- CTH no sigma ATUAL de `data`. As extensoes sao geometria e nao mexem quando um residual fecha
+---- o cone, entao recalcular por elas e exato -- e mais barato que reabrir Rat_AngularCTH.
+---- `rat_theta` sai junto porque e raio EQUIVALENTE EM PROBABILIDADE: depende do sigma.
+function Rat_ConeCTH(data)
+    local a = const.Combat.Aperture
+    local sigma = data.rat_sigma
+    local cth
+    if data.rat_ext_up then
+        cth = Clamp(Rat_SeparableCTH(sigma, data.rat_ext_up, data.rat_ext_down, data.rat_ext_right,
+                                     data.rat_ext_left), a.MinCTH, a.MaxCTH)
+        data.rat_theta = Rat_ThetaEquivalent(sigma, cth) or data.rat_theta
+    else
+        cth = Clamp(Rat_RayleighCTH(data.rat_theta, sigma), a.MinCTH, a.MaxCTH)
+    end
+    return cth
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -98,11 +116,10 @@ function Rat_ConeAbsorb(data, points)
     end
     data.rat_last_mul = mul
 
-    local a = const.Combat.Aperture
     local before = data.rat_cth
     data.rat_sigma = Max(1, MulDivRound(data.rat_sigma, mul, 100))
     data.rat_cone_mul = MulDivRound(data.rat_cone_mul or 100, mul, 100)
-    data.rat_cth = Clamp(Rat_RayleighCTH(data.rat_theta, data.rat_sigma), a.MinCTH, a.MaxCTH)
+    data.rat_cth = Rat_ConeCTH(data)
     return data.rat_cth - before
 end
 

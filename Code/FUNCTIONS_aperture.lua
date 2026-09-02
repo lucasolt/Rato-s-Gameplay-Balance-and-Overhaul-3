@@ -39,33 +39,17 @@ end
 ---- Silhueta do alvo
 ---------------------------------------------------------------------------------------------------
 
----- Raio equivalente do alvo em cm. body_part_def: preset, string ou nil (Torso).
----- exposed_pct: 0..100 nao ocluido, entra como raiz (area -> raio).
+---- Raio equivalente do alvo em cm, por postura. `body_part_def` continua no perfil porque meia
+---- duzia de chamadas passam a parte, mas NAO muda mais o tamanho: CTH e P(acertar o alvo), e a
+---- parte atingida sai da trajetoria. exposed_pct: 0..100 nao ocluido, entra como raiz (area -> raio).
 function Rat_TargetSilhouette(target, body_part_def, exposed_pct, stance_override)
     local a = P()
 
-    local part_id = body_part_def
-    if type(part_id) == "table" then
-        part_id = part_id.id
+    local stance = stance_override
+    if not stance and IsKindOf(target, "Unit") then
+        stance = target:GetHitStance()
     end
-
-    local r
-    local absolute = part_id and a.BodyPartAbsolute[part_id]
-    if absolute then
-        --- cabeca/pescoco: medidos constantes nas tres posturas
-        r = absolute
-    else
-        local stance = stance_override
-        if not stance and IsKindOf(target, "Unit") then
-            stance = target:GetHitStance()
-        end
-        r = a.Silhouette[stance] or a.Silhouette.Standing
-
-        local part = part_id and a.BodyPart[part_id]
-        if part then
-            r = MulDivRound(r, part, 100)
-        end
-    end
+    local r = a.Silhouette[stance] or a.Silhouette.Standing
 
     if exposed_pct and exposed_pct < 100 then
         exposed_pct = Max(0, exposed_pct)
@@ -74,6 +58,49 @@ function Rat_TargetSilhouette(target, body_part_def, exposed_pct, stance_overrid
     end
 
     return Max(1, r)
+end
+
+---- Azimute do atirador em volta do alvo, relativo ao CORPO do alvo. Devolve 0..180 graus e se o
+---- lado espelha (do outro lado do corpo, direita e esquerda do atirador trocam de anatomia).
+---- Le o dummy, nao a unidade: FindProneAngle encaixa deitado numa grade de 45 graus, e as duas
+---- orientacoes divergem justo na postura em que o azimute mais importa (medido: 315 vs 325).
+function Rat_TargetAzimuth(attacker_pos, target)
+    if not attacker_pos or not IsKindOf(target, "Unit") then
+        return nil
+    end
+    local body = (target.target_dummy and target.target_dummy:GetOrientationAngle()) or
+                     target:GetOrientationAngle()
+    local d = AngleDiff(CalcOrientation(target:GetPos(), attacker_pos), body) / 60
+    return abs(d), d < 0
+end
+
+---- Quatro meias-extensoes do corpo vistas DESTE ponto, em minutos de angulo (cima, baixo,
+---- direita, esquerda). nil = alvo sem corpo tabelado (ponto, veiculo): quem chama cai no circulo.
+function Rat_TargetExtents(attacker_pos, target, dist, exposed_pct, stance_override)
+    local a = P()
+    local az, flip = Rat_TargetAzimuth(attacker_pos, target)
+    if not az then
+        return nil
+    end
+
+    local stance = stance_override or target:GetHitStance()
+    local rows = a.Extent[stance] or a.Extent.Standing
+    local step = a.ExtentAzStep
+
+    ---- interpola entre os dois azimutes medidos que cercam este
+    local i = Clamp(az / step, 0, #rows - 2)
+    local f = az - i * step
+    local lo, hi = rows[i + 1], rows[i + 2]
+
+    local theta = Rat_ThetaTarget(dist, Rat_TargetSilhouette(target, nil, exposed_pct, stance))
+    local function ext(n)
+        return Max(1, MulDivRound(theta, lo[n] + MulDivRound(hi[n] - lo[n], f, step), 100))
+    end
+    local up, down, right, left = ext(1), ext(2), ext(3), ext(4)
+    if flip then
+        right, left = left, right
+    end
+    return up, down, right, left, theta
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -168,7 +195,6 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
 	if attacker then
 	    if decay_muls.Crouch  and attacker.stance == "Crouch"  then
             decay = MulDivRound(decay, decay_muls.Crouch or 100, 100)
-			print("decay c", decay)
             meta[#meta + 1] = T {688848752517, "Crouching"}
         elseif decay_muls.Prone and attacker.stance == "Prone" then
             decay = MulDivRound(decay, decay_muls.Prone or 100, 100)
@@ -406,6 +432,42 @@ function Rat_RayleighCTH(theta, sigma)
     return MulDivRound(permil, 100, 1000)
 end
 
+---- Massa normal entre o centro e `x`, em permil (0..500). LUT interpolada, um eixo so.
+local function normal_half(x, sigma)
+    local a = P()
+    local tbl, step = a.NormalBand, a.NormalStep
+    local z = MulDivRound(x, 1000, sigma)
+    local i = z / step
+    if i >= #tbl then
+        return 500
+    end
+    return tbl[i] + MulDivRound(tbl[i + 1] - tbl[i], z - i * step, step)
+end
+
+---- P = Px * Py, cada eixo a massa normal entre -esq e +dir. Substitui o circulo equivalente em
+---- AREA, que nao preserva probabilidade: o mesmo sigma que da Rayleigh no raio da a normal por
+---- eixo, entao nenhum numero de sigma ja tunado precisa mexer. Em porcento.
+function Rat_SeparableCTH(sigma, up, down, right, left)
+    if not sigma or sigma < 1 then
+        return 100
+    end
+    local px = normal_half(right, sigma) + normal_half(left, sigma)
+    local py = normal_half(up, sigma) + normal_half(down, sigma)
+    return MulDivRound(px * py, 100, 1000000)
+end
+
+---- Raio EQUIVALENTE EM PROBABILIDADE: o circulo que, neste sigma, teria exatamente este CTH.
+---- E o que deixa theta continuar sendo a moeda unica do resto do modelo (anel da UI, escada de
+---- recuo, Rat_ConeMulForPoints) agora que a chance sai de quatro extensoes e nao de um raio.
+---- Efeito colateral desejado: o circulo desenhado passa a ser o circulo HONESTO do alvo.
+function Rat_ThetaEquivalent(sigma, cth)
+    local k1000 = Rat_KForCTH(cth)
+    if not k1000 or not sigma then
+        return nil
+    end
+    return Max(1, MulDivRound(sigma, k1000, 1000))
+end
+
 ---------------------------------------------------------------------------------------------------
 ---- CTH geometrico completo
 ---------------------------------------------------------------------------------------------------
@@ -438,12 +500,20 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
     end
 
     local half_cm = Rat_TargetSilhouette(target, body_part_def, exposed_pct)
-    local theta = Rat_ThetaTarget(dist, half_cm)
+    local up, down, right, left = Rat_TargetExtents(attacker_pos, target, dist, exposed_pct)
 
-    local cth = Rat_RayleighCTH(theta, sigma)
-    cth = Clamp(cth, a.MinCTH, a.MaxCTH)
+    local cth, theta
+    if up then
+        cth = Clamp(Rat_SeparableCTH(sigma, up, down, right, left), a.MinCTH, a.MaxCTH)
+        theta = Rat_ThetaEquivalent(sigma, cth)
+    end
+    if not theta then
+        ---- alvo sem corpo tabelado (ponto, veiculo, destrutivel) ou CTH fora da LUT: circulo mesmo.
+        theta = Rat_ThetaTarget(dist, half_cm)
+        cth = Clamp(Rat_RayleighCTH(theta, sigma), a.MinCTH, a.MaxCTH)
+    end
 
-    return cth, sigma, theta, meta, parts, dist, half_cm
+    return cth, sigma, theta, meta, parts, dist, half_cm, up, down, right, left
 end
 
 ---------------------------------------------------------------------------------------------------
