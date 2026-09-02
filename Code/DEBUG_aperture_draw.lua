@@ -623,8 +623,11 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths, verbose)
                     ---- azimute RELATIVO ao alvo: sem somar a orientacao dele, az 0 e uma direcao
                     ---- do MUNDO e a mesma coluna mede o peito de um alvo e o flanco de outro --
                     ---- a tabela sairia embaralhada. 0 = de frente, 90 = flanco, 180 = por tras.
-                    local ap = (tpos + Rotate(point(du, 0, 0),
-                                              target:GetOrientationAngle() + az * 60)):SetTerrainZ()
+                    ---- angulo do DUMMY, nao da unidade: deitado, FindProneAngle encaixa o corpo
+                    ---- numa grade de 45 graus e o corpo que colide fica fora do angulo da unidade.
+                    local body = (target.target_dummy and target.target_dummy:GetOrientationAngle())
+                                     or target:GetOrientationAngle()
+                    local ap = (tpos + Rotate(point(du, 0, 0), body + az * 60)):SetTerrainZ()
                     ap = ap:SetZ(ap:z() + gun_z)
 
                     local args = Rat_SimBaseArgs(attacker, target, weapon, "Torso",
@@ -674,8 +677,13 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths, verbose)
                             blocked = blocked + 1
                         else
                             local bu, ar, bd, al = edge(0), edge(90), edge(180), edge(270)
-                            local w = MulDivRound((ar + al) / 2, 100, Max(1, theta))
-                            local h = MulDivRound((bu + bd) / 2, 100, Max(1, theta))
+                            ---- SEM media: num corpo deitado o raio rasga AO LONGO num lado e
+                            ---- ATRAVES no outro, e a media das duas apaga a unica coisa que
+                            ---- distingue a postura. Quatro semi-extensoes, cada uma por si.
+                            local w = MulDivRound(ar, 100, Max(1, theta))
+                            local h = MulDivRound(al, 100, Max(1, theta))
+                            local wu = MulDivRound(bu, 100, Max(1, theta))
+                            local hd = MulDivRound(bd, 100, Max(1, theta))
                             local key = az .. ":" .. d
                             fp[stance][key] = bu .. "," .. bd .. "," .. ar .. "," .. al
 
@@ -701,7 +709,7 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths, verbose)
                             else
                                 usable = usable + 1
                                 local s = samples[stance][az]
-                                s[#s + 1] = {w = w, h = h}
+                                s[#s + 1] = {w = w, h = h, wu = wu, hd = hd}
                                 if verbose then
                                     raw[#raw + 1] = string.format(
                                         "  %-8s | %3d | %3d | %5d | %5d %5d %5d %5d | %5d%% %5d%%",
@@ -734,13 +742,14 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths, verbose)
         return v[(#v + 1) / 2]
     end
 
-    local lines = {"  postura  |  az |  n | larg/th | alt/th"}
+    local lines = {"  postura  |  az |  n | cima  baixo   dir   esq   (% de theta)"}
     for _, stance in ipairs(stances) do
         for _, az in ipairs(azimuths) do
             local s = samples[stance] and samples[stance][az] or empty_table
             if #s > 0 then
-                lines[#lines + 1] = string.format("  %-8s | %3d | %2d |   %4d%% |  %4d%%", stance,
-                                                  az, #s, median(s, "w"), median(s, "h"))
+                lines[#lines + 1] = string.format("  %-8s | %3d | %2d | %4d%% %4d%% %4d%% %4d%%",
+                                                  stance, az, #s, median(s, "wu"), median(s, "hd"),
+                                                  median(s, "w"), median(s, "h"))
             end
         end
     end
@@ -757,7 +766,7 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths, verbose)
     end
 
     local head = "%s (%s) -> %s [postura real: %s]   varredura de geometria" ..
-                     "\n  larg/th e alt/th: mediana em distancia, %% do raio que a tabela afirma." ..
+                     "\n  mediana em distancia, %% do raio que a tabela afirma. SEM media entre lados." ..
                      "\n  100%% = o circulo acerta aquele eixo. az = ATIRADOR relativo a FRENTE do alvo." ..
                      "\n%s\n%s%s"
     return string.format(head, tostring(attacker.session_id), tostring(weapon.class),
