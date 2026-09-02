@@ -80,9 +80,3 @@ function OnMsg.ApplyModOptions(mod_id)
         -- add_recalcUI()
     end
 end
-
-function OnMsg.DataLoaded()
-    if CurrentModOptions["noise_setting_num"] == "Vanilla" then
-        rat_noise_settings("Vanilla")
-    end
-end
