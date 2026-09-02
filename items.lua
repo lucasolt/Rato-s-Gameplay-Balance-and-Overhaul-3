@@ -1409,6 +1409,10 @@ return {
 		'CodeFileName', "Code/SOURCE_UnitCanAttack.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "SOURCE_UnitSetTargetDummyFromPos",
+		'CodeFileName', "Code/SOURCE_UnitSetTargetDummyFromPos.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "SOURCE_FirearmFireBullet",
 		'CodeFileName', "Code/SOURCE_FirearmFireBullet.lua",
 	}),
@@ -4677,6 +4681,7 @@ return {
 				"ScopePenalty3",
 				"DecreaseOverwatchAngle",
 				"bodypart_scope",
+				"scope_snapshot",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -4703,6 +4708,11 @@ return {
 					'Name', "crit",
 					'Value', 15,
 					'Tag', "<crit>%",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_reduc",
+					'Value', -40,
+					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
@@ -4855,6 +4865,7 @@ return {
 				"ScopePenalty2",
 				"DecreaseOverwatchAngle",
 				"IncreaseMaxAimActions",
+				"scope_snapshot",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -4876,6 +4887,11 @@ return {
 					'Name', "RangeIncrease",
 					'Value', 10,
 					'Tag', "<RangeIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_reduc",
+					'Value', -25,
+					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
@@ -5049,8 +5065,9 @@ return {
 				"ScopePenalty1",
 				"IgnoreInTheDarkWhenFullyAimed",
 				"DecreaseOverwatchAngle",
-				"BonusAccuracyWhenFullyAimed",
 				"IncreaseMaxAimActions",
+				"BonusAccuracyWhenFullyAimed",
+				"scope_snapshot",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5077,6 +5094,11 @@ return {
 					'Name', "crit",
 					'Value', 15,
 					'Tag', "<crit>%",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_reduc",
+					'Value', -10,
+					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
@@ -5118,8 +5140,9 @@ return {
 				"ScopePenalty1",
 				"IgnoreInTheDarkWhenFullyAimed",
 				"DecreaseOverwatchAngle",
-				"BonusAccuracyWhenFullyAimed",
 				"IncreaseMaxAimActions",
+				"BonusAccuracyWhenFullyAimed",
+				"scope_snapshot",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5146,6 +5169,11 @@ return {
 					'Name', "crit",
 					'Value', 15,
 					'Tag', "<crit>%",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_reduc",
+					'Value', -10,
+					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
@@ -5966,8 +5994,9 @@ return {
 				"ScopePenalty1",
 				"DecreaseOverwatchAngle",
 				"critical_per_aim_scope",
-				"BonusAccuracyWhenFullyAimed",
 				"IncreaseMaxAimActions",
+				"BonusAccuracyWhenFullyAimed",
+				"scope_snapshot",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5989,6 +6018,11 @@ return {
 					'Name', "RangeIncrease",
 					'Value', 6,
 					'Tag', "<RangeIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_reduc",
+					'Value', -10,
+					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
@@ -6170,8 +6204,8 @@ return {
 				"ScopePenalty1",
 				"scope_snapshot",
 				"IncreaseOverwatchAngle",
-				"BonusAccuracyWhenFullyAimed",
 				"IncreaseMaxAimActions",
+				"BonusAccuracyWhenFullyAimed",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6378,8 +6412,8 @@ return {
 				"OpportunityAttackBonusCth",
 				"ScopePenalty1",
 				"scope_snapshot",
-				"BonusAccuracyWhenFullyAimed",
 				"IncreaseMaxAimActions",
+				"BonusAccuracyWhenFullyAimed",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6587,6 +6621,7 @@ return {
 				"DecreaseOverwatchAngle",
 				"pso_dragunov_scope",
 				"IncreaseMaxAimActions",
+				"scope_snapshot",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6613,6 +6648,11 @@ return {
 					'Name', "crit_bonus",
 					'Value', 15,
 					'Tag', "<crit_bonus>%",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_reduc",
+					'Value', -25,
+					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
@@ -6642,6 +6682,7 @@ return {
 				"ScopePenalty2",
 				"DecreaseOverwatchAngle",
 				"sniper_aim_scope",
+				"scope_snapshot",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6663,6 +6704,11 @@ return {
 					'Name', "RangeIncrease",
 					'Value', 10,
 					'Tag', "<RangeIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_reduc",
+					'Value', -25,
+					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
@@ -6820,6 +6866,7 @@ return {
 				"ScopePenalty3",
 				"DecreaseOverwatchAngle",
 				"sniper_adv_aim_scope",
+				"scope_snapshot",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6841,6 +6888,11 @@ return {
 					'Name', "RangeIncrease",
 					'Value', 16,
 					'Tag', "<RangeIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_reduc",
+					'Value', -40,
+					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",

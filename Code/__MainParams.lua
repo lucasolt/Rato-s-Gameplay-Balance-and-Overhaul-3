@@ -17,6 +17,11 @@ const.Combat.SingleShotGrazeThreshold = 10
 const.Combat.PelletShotGrazeThreshold = 22
 const.Combat.MultishotMinCTH = 4
 const.Combat.MaxShotIndexForRecoilCTHLoss = 6
+
+---- Unidade so re-encara o inimigo mais proximo no PROPRIO turno. Ver
+---- SOURCE_UnitSetTargetDummyFromPos: sem isto a silhueta exposta muda sozinha a cada
+---- VisibilityUpdate, e com ela o CTH e a parte do corpo atingida.
+const.Combat.FreezeIdleFacing = true
 -------------------- Add for MG calcs here
 
 -- RunAndGun

@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 12868,
+	'version', 12870,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -128,6 +128,7 @@ return PlaceObj('ModDef', {
 		"Code/SOURCE_ReliabilityAndJam.lua",
 		"Code/SOURCE_GetMaxAP.lua",
 		"Code/SOURCE_UnitCanAttack.lua",
+		"Code/SOURCE_UnitSetTargetDummyFromPos.lua",
 		"Code/SOURCE_FirearmFireBullet.lua",
 		"Code/SOURCE_Firearm_GetItemStatusUI and QuickReloadButton.lua",
 		"Code/SOURCE_FirearmGetImpactForce.lua",
@@ -175,8 +176,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1788299212,
-	'code_hash', 9124082041394829470,
+	'saved', 1788309046,
+	'code_hash', 179291696095722628,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",
