@@ -560,7 +560,9 @@ end
 ---- acertar. Trocar o circulo por extensoes por eixo exige MEDIR as extensoes.
 ----
 ---- O azimute NAO gira a unidade: gira a ORIGEM do tiro em volta dela -- mesma geometria relativa
----- sem tocar no alvo. So a postura e mutada, e volta ao fim mesmo se a varredura estourar.
+---- sem tocar no alvo. E RELATIVO A FRENTE do alvo (0 = de frente, 90 = flanco, 180 = por tras),
+---- senao a mesma coluna mediria o peito de um alvo e o flanco de outro.
+---- So a postura e mutada, e volta ao fim mesmo se a varredura estourar.
 ----
 ---- Saida padrao = MEDIANA de larg/theta e alt/theta por (postura, azimute). As razoes sao estaveis
 ---- em distancia (medido de 6 a 50 tiles), entao distancia e ruido a agregar, nao dimensao a manter.
@@ -618,7 +620,11 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths, verbose)
                 samples[stance][az] = {}
                 for _, d in ipairs(dists) do
                     local du = d * const.SlabSizeX
-                    local ap = (tpos + Rotate(point(du, 0, 0), az * 60)):SetTerrainZ()
+                    ---- azimute RELATIVO ao alvo: sem somar a orientacao dele, az 0 e uma direcao
+                    ---- do MUNDO e a mesma coluna mede o peito de um alvo e o flanco de outro --
+                    ---- a tabela sairia embaralhada. 0 = de frente, 90 = flanco, 180 = por tras.
+                    local ap = (tpos + Rotate(point(du, 0, 0),
+                                              target:GetOrientationAngle() + az * 60)):SetTerrainZ()
                     ap = ap:SetZ(ap:z() + gun_z)
 
                     local args = Rat_SimBaseArgs(attacker, target, weapon, "Torso",
@@ -752,7 +758,7 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths, verbose)
 
     local head = "%s (%s) -> %s [postura real: %s]   varredura de geometria" ..
                      "\n  larg/th e alt/th: mediana em distancia, %% do raio que a tabela afirma." ..
-                     "\n  100%% = o circulo acerta aquele eixo. az = azimute do ATIRADOR em volta do alvo." ..
+                     "\n  100%% = o circulo acerta aquele eixo. az = ATIRADOR relativo a FRENTE do alvo." ..
                      "\n%s\n%s%s"
     return string.format(head, tostring(attacker.session_id), tostring(weapon.class),
                          tostring(target.session_id), tostring(was_stance),
