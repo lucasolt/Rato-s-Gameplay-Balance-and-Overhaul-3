@@ -69,7 +69,7 @@ const.Combat.Critical.PrismScopeCritPerAim = 3 -- 4
 const.Combat.Critical.LaserDotCritPerAim = 1
 const.Combat.Critical.PSOScopeCritOnAimed = 10
 const.Combat.Critical.FirstAimCrit = 6
-
+const.Combat.HandEyeCritScalingFactor = 80
 -------------
 const.Combat.AwareSightRange = 56
 const.Combat.UnawareSightRange = 18
@@ -86,6 +86,6 @@ const.EnvEffects.FogGrazeChance = 0-- 25
 const.EnvEffects.FireStormSightMod = -10
 const.EnvEffects.DustStormSightMod = -10
 const.EnvEffects.DustStormGrazeChance = 0
-const.EnvEffects.DarknessSightMod = - 60-- -10
+const.EnvEffects.DarknessSightMod = -40 -- default da opcao NightSight; sobrescrito por ela
 const.EnvEffects.DarknessDetectionRate = -40 -- -30
 const.EnvEffects.DarknessCTHPenalty = -30 -- -20
