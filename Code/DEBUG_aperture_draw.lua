@@ -552,6 +552,158 @@ function Rat_DbgBurst(bursts, burst, aim, target_spot, target, attacker)
                          table.concat(dist_rows, "\n"), table.concat(ps, "\n"))
 end
 
+---------------------------------------------------------------------------------------------------
+---- Rat_DbgSweep(target, attacker, stances, dists, azimuths)
+---- Varre a GEOMETRIA REAL do alvo e imprime as meias-extensoes angulares que a tabela de silhueta
+---- precisa. E o insumo para calibrar o modelo separavel: theta e um raio EQUIVALENTE EM AREA, e
+---- area nao preserva probabilidade de acerto sob dispersao isotropica.
+----
+---- O angulo de visada NAO gira a unidade: gira a ORIGEM do tiro em volta dela, o que da a mesma
+---- geometria relativa sem tocar no alvo. So a postura e mutada de verdade, e volta ao fim --
+---- inclusive se a varredura estourar, porque o corpo roda dentro de pcall.
+----
+---- Fronteira por bisseccao: a regiao e estrelada perto do centro, entao ~8 passos bastam onde a
+---- varredura linear gastava 180.
+---- ATENCAO: consome random sincronizado; em co-op nao use no turno de outro jogador.
+---------------------------------------------------------------------------------------------------
+function Rat_DbgSweep(target, attacker, stances, dists, azimuths)
+    attacker = pick_attacker(attacker)
+    if not attacker then
+        return "sem atacante (selecione um merc)"
+    end
+    target = pick_target(attacker, target)
+    if not target then
+        return "sem alvo"
+    end
+    local weapon = attacker:GetActiveWeapons()
+    if not IsKindOf(weapon, "Firearm") then
+        return "sem arma de fogo"
+    end
+
+    stances = stances or {"Standing", "Crouch", "Prone"}
+    dists = dists or {3, 6, 10, 15, 25, 40}
+    azimuths = azimuths or {0, 45, 90, 135, 180}
+
+    local a = const.Combat.Aperture
+    local was_enabled, was_stance = a.Enabled, target.stance
+    a.Enabled = true
+
+    ---- altura da arma acima do terreno, medida no atacante de verdade
+    local real = GetLoFData(attacker, target, {obj = attacker, weapon = weapon,
+        stance = attacker.stance, prediction = true, output_collisions = true,
+        force_hit_seen_target = false})
+    if not real or not real.lof or #real.lof == 0 then
+        a.Enabled = was_enabled
+        return "sem linha de tiro para medir a altura da arma"
+    end
+    local gun_z = real.lof[1].attack_pos:z() - attacker:GetPos():SetTerrainZ():z()
+    local tpos = target:GetPos()
+    if not tpos:IsValidZ() then
+        tpos = tpos:SetTerrainZ()
+    end
+
+    local rows, usable, blocked = {}, 0, 0
+    local ok, err = pcall(function()
+        for _, stance in ipairs(stances) do
+            ---- so a propriedade + refresh do dummy: ChangeStance e um comando com AP e animacao
+            target.stance = stance
+            target:SetTargetDummyFromPos(nil, nil, false)
+
+            for _, az in ipairs(azimuths) do
+                for _, d in ipairs(dists) do
+                    local du = d * const.SlabSizeX
+                    local ap = (tpos + Rotate(point(du, 0, 0), az * 60)):SetTerrainZ()
+                    ap = ap:SetZ(ap:z() + gun_z)
+
+                    local args = Rat_SimBaseArgs(attacker, target, weapon, "Torso",
+                                                 du + 20 * const.SlabSizeX)
+                    ---- spots do alvo VISTOS DAQUI: o ponto de mira tem de sair desta origem
+                    local seen = GetLoFData(attacker, target, {obj = attacker, weapon = weapon,
+                        stance = attacker.stance, prediction = true, output_collisions = true,
+                        force_hit_seen_target = false, attack_pos = ap, step_pos = ap})
+                    local aim_pos = seen and seen.lof and seen.lof[1] and
+                                        Rat_SimAimPos(seen.lof, "Torso", seen.lof[1].target_pos)
+                    if aim_pos then
+                        local dist = ap:Dist(aim_pos)
+                        local dir = SetLen(aim_pos - ap, 1000)
+                        local up = point(0, 0, 1000)
+                        local perp = up - MulDivRound(dir, Dot(up, dir) / 1000, 1000)
+                        if perp:Len() < 10 then
+                            perp = point(-dir:y(), dir:x(), 0)
+                        end
+
+                        local function hits_at(azm, minutes)
+                            local radius = MulDivRound(dist, minutes, 3438)
+                            local pt = aim_pos +
+                                           RotateAxis(SetLen(perp, Max(1, radius)), dir, azm * 60)
+                            Rat_SimLoFOverrides(args, ap, attacker:Random(), args.ignore_colliders)
+                            return (Rat_SimHitSpot(Rat_SimLoF(GetLoFData(attacker, pt, args)),
+                                                   target))
+                        end
+
+                        ---- fronteira conexa a partir do centro, por bisseccao
+                        local function edge(azm)
+                            if not hits_at(azm, 5) then
+                                return 0
+                            end
+                            local lo, hi = 5, 2000
+                            if hits_at(azm, hi) then
+                                return hi
+                            end
+                            while hi - lo > 5 do
+                                local mid = (lo + hi) / 2
+                                if hits_at(azm, mid) then lo = mid else hi = mid end
+                            end
+                            return lo
+                        end
+
+                        local theta = Rat_ThetaTarget(dist,
+                                          Rat_TargetSilhouette(target, "Torso", 100, stance))
+                        if not hits_at(0, 1) then
+                            ---- origem sem linha de tiro (parede, quina, dentro de geometria).
+                            ---- Marcar em vez de emitir zeros: zero aqui NAO e alvo estreito, e
+                            ---- ausencia de medida, e poluiria a calibracao como se fosse dado.
+                            blocked = blocked + 1
+                            rows[#rows + 1] = string.format(
+                                "  %-8s | %3d | %3d | %5d |         sem linha de tiro",
+                                stance, az, d, theta)
+                        else
+                            local bu, ar, bd, al = edge(0), edge(90), edge(180), edge(270)
+                            usable = usable + 1
+                            ---- o raio que a tabela AFIRMA vs as extensoes que a bala encontra
+                            rows[#rows + 1] = string.format(
+                                "  %-8s | %3d | %3d | %5d | %5d %5d %5d %5d | %5d%% %5d%%",
+                                stance, az, d, theta, bu, bd, ar, al,
+                                MulDivRound((ar + al) / 2, 100, Max(1, theta)),
+                                MulDivRound((bu + bd) / 2, 100, Max(1, theta)))
+                        end
+                    end
+                end
+            end
+        end
+    end)
+
+    ---- restaura SEMPRE, inclusive se o corpo estourou
+    target.stance = was_stance
+    target:SetTargetDummyFromPos(nil, nil, false)
+    a.Enabled = was_enabled
+    if not ok then
+        return "ERRO na varredura (estado do alvo restaurado): " .. tostring(err)
+    end
+
+    local head = "%s (%s) -> %s   varredura de geometria" ..
+                     "\n  extensoes a partir do ponto de mira (Torso), em minutos de angulo" ..
+                     "\n  az = azimute do ATIRADOR em volta do alvo, relativo ao angulo atual dele" ..
+                     "\n  postura  |  az |  d  | theta |  cima baixo   dir   esq | larg/th  alt/th" ..
+                     "\n%s" ..
+                     "\n%s" ..
+                     "\n  larg/th e alt/th sao o alvo: 100%% = o circulo acerta aquele eixo."
+    return string.format(head, tostring(attacker.session_id), tostring(weapon.class),
+                         tostring(target.session_id), table.concat(rows, "\n"),
+                         string.format("  %d cenarios medidos, %d sem linha de tiro",
+                                       usable, blocked))
+end
+
 ---- Desenha o ultimo ataque real. Nao sorteia: le g_RatLastSimShots (gravado por
 ---- Firearm:GetAttackResults). `rings` = um anel por tiro em vez de um so.
 function Rat_DbgLastShots(rings)
