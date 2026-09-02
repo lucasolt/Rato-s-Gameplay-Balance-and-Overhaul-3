@@ -265,6 +265,54 @@ local function sim_args_for(attacker, target, weapon, spot, range)
     return Rat_SimBaseArgs(attacker, target, weapon, spot, range), "args reconstruidos (nao verificado)"
 end
 
+---- Monta o ctx de simulacao do mesmo jeito que Firearm:GetAttackResults monta -- ancoras de LoF do
+---- engine, ponto de mira de Rat_SimAimPos, CTH final COM residuais (o geometrico cru diverge da UI
+---- e aperta o cone ~15%). Compartilhado pelos amostradores: se divergirem, o visualizador para de
+---- medir o que o jogo faz. Devolve ctx, args_src, spot_pos -- ou nil e a razao.
+local function sim_ctx_for(attacker, target, target_spot, aim, burst)
+    local weapon = attacker:GetActiveWeapons()
+    local action = attacker:GetDefaultAttackAction("ranged")
+    if not IsKindOf(weapon, "Firearm") or not action then
+        return nil, "sem arma de fogo"
+    end
+
+    local base = GetLoFData(attacker, target, {
+        obj = attacker, weapon = weapon, stance = attacker.stance,
+        prediction = true, output_collisions = true, force_hit_seen_target = false
+    })
+    if not base or not base.lof or #base.lof == 0 then
+        return nil, "sem linha de tiro"
+    end
+
+    local attack_pos = base.lof[1].attack_pos
+    local aim_pos = Rat_SimAimPos(base.lof, target_spot, base.lof[1].target_pos)
+    local spot_pos = base.lof[1].target_pos
+    for _, l in ipairs(base.lof) do
+        if l.target_spot_group == target_spot then
+            spot_pos = l.target_pos
+        end
+    end
+
+    local cth_args = {target_spot_group = target_spot, aim = aim, prediction = true,
+                      step_pos = attacker:GetPos(), target_pos = target:GetPos()}
+    local cth_raw = attacker:CalcChanceToHit(target, action, cth_args)
+    local cth = weapon:GetShotChanceToHit(cth_raw) or cth_raw
+
+    local dist = attack_pos:Dist(aim_pos)
+    local args, args_src = sim_args_for(attacker, target, weapon, target_spot,
+                                        dist + 20 * const.SlabSizeX)
+
+    return {
+        attacker = attacker, target = target, action = action, weapon = weapon,
+        aim = aim, opportunity_attack = false, spot = target_spot,
+        attack_pos = attack_pos, aim_pos = aim_pos,
+        step_pos = attacker:GetPos(), target_pos = target:GetPos(),
+        cth = cth, cth_source = "GetShotChanceToHit(CalcChanceToHit)",
+        ---- a rajada REAL que se quer inspecionar -- nao o numero de amostras
+        num_shots = burst, args = args
+    }, args_src, spot_pos
+end
+
 ---- Rat_DbgShots(count, aim, spot, target, attacker, shot_idx, burst)
 ---- `count` = amostras independentes do mesmo tiro, nao uma rajada. Tiro inspecionado = (shot_idx, burst),
 ---- padrao 1 de 1. 3o tiro de uma rajada de 6: Rat_DbgShots(150, 2, nil, nil, nil, 3, 6).
@@ -280,12 +328,6 @@ function Rat_DbgShots(count, aim, target_spot, target, attacker, shot_idx, burst
     end
     target_spot = target_spot or g_DefaultShotBodyPart or "Torso"
 
-    local weapon = attacker:GetActiveWeapons()
-    local action = attacker:GetDefaultAttackAction("ranged")
-    if not IsKindOf(weapon, "Firearm") or not action then
-        return "sem arma de fogo"
-    end
-
     count = count or 24
     aim = aim or 2
     burst = Max(1, burst or 1)
@@ -295,43 +337,15 @@ function Rat_DbgShots(count, aim, target_spot, target, attacker, shot_idx, burst
     local was = a.Enabled
     a.Enabled = true
 
-    ---- ancoras do engine, e o mesmo ponto de mira que o tiro real usaria
-    local base = GetLoFData(attacker, target, {
-        obj = attacker, weapon = weapon, stance = attacker.stance,
-        prediction = true, output_collisions = true, force_hit_seen_target = false
-    })
-    if not base or not base.lof or #base.lof == 0 then
+    local ctx, args_src, spot_pos = sim_ctx_for(attacker, target, target_spot, aim, burst)
+    if not ctx then
         a.Enabled = was
-        return "sem linha de tiro"
+        return args_src
     end
-    local attack_pos = base.lof[1].attack_pos
-    local aim_pos = Rat_SimAimPos(base.lof, target_spot, base.lof[1].target_pos)
-    local spot_pos = base.lof[1].target_pos
-    for _, l in ipairs(base.lof) do
-        if l.target_spot_group == target_spot then
-            spot_pos = l.target_pos
-        end
-    end
-
-    ---- CTH final do tiro real (com residuais); o geometrico cru divergia da UI e apertava o cone ~15%
-    local cth_args = {target_spot_group = target_spot, aim = aim, prediction = true,
-                      step_pos = attacker:GetPos(), target_pos = target:GetPos()}
-    local cth_raw = attacker:CalcChanceToHit(target, action, cth_args)
-    local cth = weapon:GetShotChanceToHit(cth_raw) or cth_raw
-
+    local weapon, args = ctx.weapon, ctx.args
+    local attack_pos, aim_pos, cth = ctx.attack_pos, ctx.aim_pos, ctx.cth
     local dist = attack_pos:Dist(aim_pos)
-    local args, args_src = sim_args_for(attacker, target, weapon, target_spot,
-                                        dist + 20 * const.SlabSizeX)
 
-    local ctx = {
-        attacker = attacker, target = target, action = action, weapon = weapon,
-        aim = aim, opportunity_attack = false, spot = target_spot,
-        attack_pos = attack_pos, aim_pos = aim_pos,
-        step_pos = attacker:GetPos(), target_pos = target:GetPos(),
-        cth = cth, cth_source = "GetShotChanceToHit(CalcChanceToHit)",
-        ---- a rajada REAL que se quer inspecionar -- nao o numero de amostras
-        num_shots = burst, args = args
-    }
     local shots = Rat_SimPlanShots(ctx)
     if not shots then
         a.Enabled = was
@@ -409,6 +423,133 @@ local function recoil_ring_color(i, n)
     local t = (n > 1) and MulDivRound(i - 1, 100, n - 1) or 0
     return RGB(255 - MulDivRound(25, t, 100), 220 - MulDivRound(160, t, 100),
                MulDivRound(40, t, 100))
+end
+
+---------------------------------------------------------------------------------------------------
+---- Rat_DbgBurst(bursts, burst, aim, spot, target, attacker)
+---- RAJADAS inteiras, nao tiros avulsos: `bursts` rajadas de `burst` tiros, taxa de acerto por
+---- INDICE de tiro. Rat_DbgShots reamostra o eixo do recuo a cada tiro; aqui cada rajada tem UM
+---- eixo, como no jogo -- e a diferenca aparece na correlacao entre tiros da mesma rajada, que e
+---- justamente o que a caminhada do cano introduziu.
+---- 100 rajadas de 3: Rat_DbgBurst(100, 3, 1). Desenha a ULTIMA rajada, para ver um risco.
+---- ATENCAO: consome random sincronizado; em co-op nao use no turno de outro jogador.
+---------------------------------------------------------------------------------------------------
+function Rat_DbgBurst(bursts, burst, aim, target_spot, target, attacker)
+    attacker = pick_attacker(attacker)
+    if not attacker then
+        return "sem atacante (selecione um merc)"
+    end
+    target = pick_target(attacker, target)
+    if not target then
+        return "sem alvo"
+    end
+    target_spot = target_spot or g_DefaultShotBodyPart or "Torso"
+
+    bursts = Max(1, bursts or 100)
+    burst = Max(1, burst or 3)
+    aim = aim or 1
+
+    local a = const.Combat.Aperture
+    local was = a.Enabled
+    a.Enabled = true
+
+    local ctx, args_src, spot_pos = sim_ctx_for(attacker, target, target_spot, aim, burst)
+    if not ctx then
+        a.Enabled = was
+        return args_src
+    end
+    local args = ctx.args
+    local attack_pos, aim_pos = ctx.attack_pos, ctx.aim_pos
+
+    ---- hits[i] = acertos do tiro i somados nas rajadas; per_burst[k+1] = rajadas com k acertos
+    local hits, parts, per_burst, plan, last = {}, {}, {}, nil, nil
+    for i = 1, burst do
+        hits[i] = 0
+    end
+    for k = 0, burst do
+        per_burst[k + 1] = 0
+    end
+
+    for b = 1, bursts do
+        ---- UM plano por rajada: um eixo de recuo e uma rolagem de controle por coice, como no tiro real
+        local shots = Rat_SimPlanShots(ctx)
+        if not shots then
+            a.Enabled = was
+            return "sem sigma valido (theta = " .. tostring(ctx.theta) .. ")"
+        end
+        plan = plan or shots ---- previsao: igual em toda rajada, basta guardar a primeira
+        local in_burst = 0
+        for i = 1, burst do
+            Rat_SimLoFOverrides(args, attack_pos, attacker:Random(), args.ignore_colliders)
+            local lof = Rat_SimLoF(GetLoFData(attacker, shots[i].target_pos, args))
+            local hit, spot = Rat_SimHitSpot(lof, target)
+            if hit then
+                hits[i] = hits[i] + 1
+                in_burst = in_burst + 1
+                local g = tostring(spot or "?")
+                parts[g] = (parts[g] or 0) + 1
+            end
+            if b == bursts then
+                last = last or {}
+                last[i] = {pt = shots[i].target_pos, hit = hit,
+                           end_pos = (lof and (lof.stuck_pos or lof.lof_pos2)) or shots[i].target_pos}
+            end
+        end
+        per_burst[in_burst + 1] = per_burst[in_burst + 1] + 1
+    end
+
+    ---- so a ULTIMA rajada e desenhada: um eixo so, para o risco ficar visivel
+    DbgClearVectors()
+    DbgClearTexts()
+    local dist = attack_pos:Dist(aim_pos)
+    local dir = SetLen(aim_pos - attack_pos, 1000)
+    draw_disc(aim_pos, MulDivRound(ctx.theta, dist, 3438), dir, clrSilh, 32)
+    draw_disc(aim_pos, cone_radius(dist, MulDivRound(ctx.sigma, a.CrosshairSigmaMul or 250, 100)),
+              dir, clrCone, 32)
+    for i, sh in ipairs(last or empty_table) do
+        DbgAddVector(attack_pos, sh.end_pos - attack_pos, recoil_ring_color(i, burst))
+        DbgAddText(tostring(i), sh.pt, recoil_ring_color(i, burst))
+    end
+
+    local rows, total = {}, 0
+    for i = 1, burst do
+        total = total + hits[i]
+        rows[#rows + 1] = string.format("    %2d  |  %3d%% |  %3d%% | %5d | %5d", i,
+                                        plan[i].cth or -1, MulDivRound(hits[i], 100, bursts),
+                                        plan[i].mu or 0, plan[i].sigma)
+    end
+
+    local dist_rows = {}
+    for k = 0, burst do
+        dist_rows[#dist_rows + 1] = string.format("      %d acerto(s): %3d%%", k,
+                                                  MulDivRound(per_burst[k + 1], 100, bursts))
+    end
+    ---- media em centesimos: a divisao inteira truncaria para 0 toda rajada que acerta menos de 1
+    local avg100 = MulDivRound(total, 100, bursts)
+
+    local ps = {}
+    for g, n in sorted_pairs(parts) do
+        ps[#ps + 1] = string.format("      %-10s %4d (%d%%)", g, n,
+                                    MulDivRound(n, 100, Max(1, total)))
+    end
+
+    a.Enabled = was
+    return string.format("%s (%s) -> %s [%s] a %.1f tiles, aim %d, alvo %s\n" ..
+                             "  %d rajadas de %d  |  CTH da UI %d%%  |  args: %s\n" ..
+                             "  cone %d'  subida %d'/tiro  controle %d%%  theta %d'\n" ..
+                             "  tiro | prev | med  |    mu | cone\n%s\n" ..
+                             "  acertos por rajada (media %d.%02d de %d; ao menos 1 em %d%%):\n%s\n" ..
+                             "  distribuicao por membro:\n%s\n" ..
+                             "  desenhada a ULTIMA rajada: amarelo = tiro 1, vermelho = ultimo",
+                         tostring(attacker.session_id), tostring(ctx.weapon.class),
+                         tostring(target.session_id), tostring(target:GetHitStance()),
+                         attacker:GetDist(target) / const.SlabSizeX, aim, tostring(target_spot),
+                         bursts, burst, ctx.cth, args_src,
+                         ctx.sigma, ctx.climb or 0, ctx.control_chance or 0, ctx.theta,
+                         table.concat(rows, "\n"),
+                         avg100 / 100, avg100 % 100, burst,
+                         100 - MulDivRound(per_burst[1], 100, bursts),
+                         table.concat(dist_rows, "\n"), table.concat(ps, "\n"))
 end
 
 ---- Desenha o ultimo ataque real. Nao sorteia: le g_RatLastSimShots (gravado por
