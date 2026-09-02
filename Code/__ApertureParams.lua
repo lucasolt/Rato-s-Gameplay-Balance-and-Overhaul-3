@@ -34,9 +34,16 @@ function GBO_ApplyApertureCTHMode(mode)
 	for _, u in ipairs(g_Units or empty_table) do u.combat_cache = nil end
 	if ApplyApertureItemParams then ApplyApertureItemParams() end
 
+	---- Unidade so re-encara o inimigo mais proximo no PROPRIO turno. Ver
+	---- SOURCE_UnitSetTargetDummyFromPos: sem isto a silhueta exposta muda sozinha a cada
+	---- VisibilityUpdate, e com ela o CTH e a parte do corpo atingida.
+	const.Combat.FreezeIdleFacing = const.Combat.Aperture.Enabled and const.Combat.Aperture.SimulateShots
+
 	if RatoTOGComponents then RatoTOGComponents() end
 	print("GBO Options - CTH mode:", m, "| Enabled:", const.Combat.Aperture.Enabled,
 	      "| SimulateShots:", const.Combat.Aperture.SimulateShots)
+
+	
 end
 
 GBO_ApplyApertureCTHMode() -- tabela recem-recriada acima: repopula os espelhos agora

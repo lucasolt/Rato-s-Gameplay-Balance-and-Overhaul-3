@@ -32,7 +32,7 @@ function hand_eye_crit(action_id, weapon, attacker, aim)
         factor = burst_factor
     end
 
-    local hec_factor = hand_eye * factor
+    local hec_factor = MulDivRound(hand_eye, factor, const.Combat.HandEyeCritScalingFactor)
     local crit_HEC = cRound(hec_factor / 100 * (0 + (aim or 0)))
 
     return crit_HEC

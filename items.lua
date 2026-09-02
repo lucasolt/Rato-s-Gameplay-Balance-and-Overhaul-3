@@ -1148,10 +1148,6 @@ return {
 		'CodeFileName', "Code/COMPONENT_weaponcomp_effects.lua",
 	}),
 	PlaceObj('ModItemCode', {
-		'name', "Aim_Scaling",
-		'CodeFileName', "Code/Aim_Scaling.lua",
-	}),
-	PlaceObj('ModItemCode', {
 		'name', "CTH_2weaponfire",
 		'CodeFileName', "Code/CTH_2weaponfire.lua",
 	}),
@@ -1564,10 +1560,11 @@ return {
 			'name', "ApertureCTH",
 			'NameColor', RGBA(164, 0, 0, 255),
 			'DisplayName', "CTH Mode",
+			'Help', "---Experimental, untested ----\n\nAngular Chance to Hit (aCTH) is a simulated way to determine shot hits, inspired by New Chance to Hit (NCTH) from 1.13. \n\nInstead of an attack roll, you will have a halo showing where your shots can go. The actual shot will be randomly simulated inside that ring, and a colision test will be made to check for hits and damage. You can hit other body parts in this way.\n\naCTH Lite uses the same ring, but instead of simulating the attack, it will roll a chance.\n\nOld CTH is the original behavior.",
 			'OnApply', function (self, value)
 				GBO_ApplyApertureCTHMode(value)
 			end,
-			'DefaultValue', "aCTH",
+			'DefaultValue', "old CTH",
 			'ChoiceList', {
 				"aCTH",
 				"aCTH Lite",
@@ -4678,10 +4675,10 @@ return {
 			ModificationDifficulty = 20,
 			ModificationEffects = {
 				"IncreaseMaxAimActions",
+				"IncreaseRange",
 				"ScopePenalty3",
 				"DecreaseOverwatchAngle",
 				"bodypart_scope",
-				"scope_snapshot",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -4691,7 +4688,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "MaxAimActionsIncrease",
-					'Value', 3,
+					'Value', 1,
 					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -4708,11 +4705,6 @@ return {
 					'Name', "crit",
 					'Value', 15,
 					'Tag', "<crit>%",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "snap_reduc",
-					'Value', -40,
-					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
@@ -4862,21 +4854,15 @@ return {
 				"IgnoreCoverCtHWhenFullyAimed",
 				"IgnoreLightOfSightWhenFullyAimed",
 				"IgnoreGrazingHitsWhenFullyAimed",
+				"IncreaseRange",
 				"ScopePenalty2",
 				"DecreaseOverwatchAngle",
-				"IncreaseMaxAimActions",
-				"scope_snapshot",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
 					'Value', 1,
 					'Tag', "<APincrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "MaxAimActionsIncrease",
-					'Value', 2,
-					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -4887,11 +4873,6 @@ return {
 					'Name', "RangeIncrease",
 					'Value', 10,
 					'Tag', "<RangeIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "snap_reduc",
-					'Value', -25,
-					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
@@ -5063,22 +5044,16 @@ return {
 			ModificationEffects = {
 				"CritBonusWhenFullyAimed",
 				"ScopePenalty1",
+				"IncreaseRange",
 				"IgnoreInTheDarkWhenFullyAimed",
 				"DecreaseOverwatchAngle",
-				"IncreaseMaxAimActions",
-				"BonusAccuracyWhenFullyAimed",
-				"scope_snapshot",
+				"IncreaseAimAccuracy",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
 					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "MaxAimActionsIncrease",
-					'Value', 1,
-					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -5094,11 +5069,6 @@ return {
 					'Name', "crit",
 					'Value', 15,
 					'Tag', "<crit>%",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "snap_reduc",
-					'Value', -10,
-					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
@@ -5138,22 +5108,16 @@ return {
 			ModificationEffects = {
 				"CritBonusWhenFullyAimed",
 				"ScopePenalty1",
+				"IncreaseRange",
 				"IgnoreInTheDarkWhenFullyAimed",
 				"DecreaseOverwatchAngle",
-				"IncreaseMaxAimActions",
-				"BonusAccuracyWhenFullyAimed",
-				"scope_snapshot",
+				"IncreaseAimAccuracy",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
 					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "MaxAimActionsIncrease",
-					'Value', 1,
-					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -5169,11 +5133,6 @@ return {
 					'Name', "crit",
 					'Value', 15,
 					'Tag', "<crit>%",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "snap_reduc",
-					'Value', -10,
-					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
@@ -5209,19 +5168,15 @@ return {
 			Icon = "UI/Icons/Upgrades/custom_Steyr_AUG_scope",
 			ModificationDifficulty = 0,
 			ModificationEffects = {
+				"IncreaseAimAccuracy",
+				"IncreaseRange",
 				"DecreaseOverwatchAngle",
-				"IncreaseMaxAimActions",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
 					'Value', 3,
 					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "MaxAimActionsIncrease",
-					'Value', 1,
-					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -5991,23 +5946,17 @@ return {
 			Icon = "UI/Icons/Upgrades/prism_scope",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
+				"IncreaseRange",
 				"ScopePenalty1",
 				"DecreaseOverwatchAngle",
 				"critical_per_aim_scope",
-				"IncreaseMaxAimActions",
-				"BonusAccuracyWhenFullyAimed",
-				"scope_snapshot",
+				"IncreaseAimAccuracy",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
 					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "MaxAimActionsIncrease",
-					'Value', 1,
-					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -6018,11 +5967,6 @@ return {
 					'Name', "RangeIncrease",
 					'Value', 6,
 					'Tag', "<RangeIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "snap_reduc",
-					'Value', -10,
-					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
@@ -6201,22 +6145,17 @@ return {
 			ModificationDifficulty = 10,
 			ModificationEffects = {
 				"FirstAimBonusModifier",
+				"IncreaseRange",
 				"ScopePenalty1",
+				"IncreaseAimAccuracy",
 				"scope_snapshot",
 				"IncreaseOverwatchAngle",
-				"IncreaseMaxAimActions",
-				"BonusAccuracyWhenFullyAimed",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
 					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "MaxAimActionsIncrease",
-					'Value', 1,
-					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
@@ -6410,21 +6349,16 @@ return {
 			ModificationDifficulty = 10,
 			ModificationEffects = {
 				"OpportunityAttackBonusCth",
+				"IncreaseRange",
 				"ScopePenalty1",
+				"IncreaseAimAccuracy",
 				"scope_snapshot",
-				"IncreaseMaxAimActions",
-				"BonusAccuracyWhenFullyAimed",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
 					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "MaxAimActionsIncrease",
-					'Value', 1,
-					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeIncrease",
@@ -6616,12 +6550,12 @@ return {
 			Icon = "UI/Icons/Upgrades/custom_Dragunov_scope",
 			ModificationDifficulty = 20,
 			ModificationEffects = {
+				"IncreaseRange",
 				"pso_dragunov_scope_critical",
 				"ScopePenalty2",
 				"DecreaseOverwatchAngle",
 				"pso_dragunov_scope",
 				"IncreaseMaxAimActions",
-				"scope_snapshot",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6631,7 +6565,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "MaxAimActionsIncrease",
-					'Value', 2,
+					'Value', 1,
 					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6648,11 +6582,6 @@ return {
 					'Name', "crit_bonus",
 					'Value', 15,
 					'Tag', "<crit_bonus>%",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "snap_reduc",
-					'Value', -25,
-					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
@@ -6679,10 +6608,10 @@ return {
 			ModificationDifficulty = 10,
 			ModificationEffects = {
 				"IncreaseMaxAimActions",
+				"IncreaseRange",
 				"ScopePenalty2",
 				"DecreaseOverwatchAngle",
 				"sniper_aim_scope",
-				"scope_snapshot",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6692,7 +6621,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "MaxAimActionsIncrease",
-					'Value', 2,
+					'Value', 1,
 					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6704,11 +6633,6 @@ return {
 					'Name', "RangeIncrease",
 					'Value', 10,
 					'Tag', "<RangeIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "snap_reduc",
-					'Value', -25,
-					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
@@ -6863,10 +6787,10 @@ return {
 			ModificationDifficulty = 20,
 			ModificationEffects = {
 				"IncreaseMaxAimActions",
+				"IncreaseRange",
 				"ScopePenalty3",
 				"DecreaseOverwatchAngle",
 				"sniper_adv_aim_scope",
-				"scope_snapshot",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6876,7 +6800,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "MaxAimActionsIncrease",
-					'Value', 3,
+					'Value', 2,
 					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6888,11 +6812,6 @@ return {
 					'Name', "RangeIncrease",
 					'Value', 16,
 					'Tag', "<RangeIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "snap_reduc",
-					'Value', -40,
-					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
