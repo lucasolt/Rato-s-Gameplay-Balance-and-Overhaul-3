@@ -3,6 +3,18 @@
 ---- Aritmetica INTEIRA (NetUpdateHash em co-op). Inerte com A.Enabled = false.
 ---------------------------------------------------------------------------------------------------
 
+--TODO: 02/09/2026 list
+--TODO: make sure AI will orient before checking for cover in LOF
+--TODO: Fix target angle getting smaller when you aim
+--TODO: Fix shots being too accurate? for AI? (aim is too strong)
+--TODO: conversely, fix opportunity attacks, as they have no aim, never hitting.
+--TODO: Tune Recoil. It should be able to hit. It should generate "compensated" positions lower too
+--TODO: fix strays specially for suppression mod. check crit chance.
+--TODO: Check how the aCTH deals with out of sight targets (wallbang)
+--TODO: AI OVERHAUL - make sure AI will not try to shoot through the walls
+--TODO: AI OVERHAUL - Enemy LastPos should generate threat. They should also try to "chase" the last pos
+--TODO: General balancing - OW tuning - maybe snapshot should not scale with distance. instead it could decrease total cth by a %.. 
+
 const.Combat.Aperture = {}
 local A = const.Combat.Aperture
 
@@ -93,50 +105,50 @@ A.Silhouette = {
 ---- O custo de MIRAR parte pequena continua vivo em A.TargetedResidualPct.
 
 ---------------------------------------------------------------------------------------------------
----- MODELO SEPARAVEL -- meias-extensoes do corpo por postura x azimute
+---- MODELO SEPARAVEL -- a silhueta sai da CAIXA DA ANIMACAO, nao de uma tabela
 ----
 ---- theta e um raio EQUIVALENTE EM AREA, e area NAO preserva probabilidade de acerto sob dispersao
 ---- isotropica: um corpo alto e estreito tem a area de um disco gordo e e bem mais dificil de
----- acertar. Medido: de pe o circulo erra +30% na vertical e -40% na horizontal; deitado de flanco
----- erra 4x entre a direcao dos pes e a da cabeca. Trocar o circulo por quatro extensoes por eixo
----- transforma isso de vies em dado.
+---- acertar. Medido, o circulo errava +15 a +17 pontos na faixa de 50-70%.
 ----
----- % de theta, {cima, baixo, direita, esquerda}. az = azimute do ATIRADOR em volta do alvo,
----- relativo ao angulo do corpo do alvo: 0 = o alvo esta de frente para quem atira.
----- 180..360 espelha 0..180 trocando direita<->esquerda. direita/esquerda sao do ATIRADOR.
+---- A primeira tentativa tabelou quatro extensoes por postura x azimute, medidas com raycast
+---- (Rat_DbgSweep). Nao presta como TABELA: o raycast mede a cena, nao o corpo. Basta o atirador
+---- estar 80 cm acima do alvo para a linha de tiro inclinar, o plano perpendicular girar e
+---- "cima/baixo" passar a raspar o corpo no comprimento -- medido, o MESMO alvo dava baixo 130%
+---- de um lado e 287% do outro. Duas varreduras em cenas diferentes nao se pareciam.
 ----
----- Medido com Rat_DbgSweep em 2026-09-01 (bisseccao da fronteira real, 4 distancias por celula,
----- mediana em distancia; as razoes sao estaveis de 6 a 40 tiles). Validacao: de pe e agachado,
----- az 0 e az 180 saem espelhos exatos -- o referencial esta certo. Deitado NAO espelha, e nao
----- deveria: a ponta da cabeca e a dos pes sao coisas diferentes.
-----
----- CAVEAT: medido num terreno so. `baixo` e o unico eixo que o relevo contamina de verdade
----- (de pe: 130% de frente, 287% de flanco -- o chao corta o raio antes dos pes em alguns
----- angulos). Re-medir em terreno plano melhora esta coluna; as outras tres sao anatomia.
-A.ExtentAzStep = 45
-A.Extent = {
-    ----          cima baixo   dir   esq        az
+---- GetEntityBBox devolve a caixa da animacao no frame do corpo: anatomia pura, sem terreno, sem
+---- raio nenhum, em menos de 1 us. Medida: de pe 93x68x146 cm, agachado 104x67x123, deitado
+---- 195x91x53. Projetar os 8 cantos no plano perpendicular da as quatro extensoes de graca, com
+---- o azimute EXATO (sem interpolar) e a inclinacao real da linha de tiro incluida.
+
+---- Ancora do ponto de mira dentro da caixa, em % de cada eixo do frame do corpo {x, y, z}.
+---- Mirar a cabeca sobe a ancora ~36 cm e o corpo passa a se estender quase so para BAIXO;
+---- usar a ancora do torso para todos os spots custava 33 pontos (53% na tela, 20% no tiro).
+---- Deitado o eixo que separa cabeca de pes e o X (comprimento), nao o Z -- por isso {x,y,z}
+---- e nao so a altura. Medido em 2026-09-02, media de 4 pontos de vista.
+A.SpotAnchor = {
     Standing = {
-        {          131,  130,   67,   49}, ----   0
-        {          130,  107,   49,   58}, ----  45
-        {           90,  204,   27,   42}, ----  90
-        {           90,  287,   26,   53}, ---- 135
-        {          129,  129,   49,   67}, ---- 180
+        Head  = {78, 70, 92}, Torso = {48, 42, 69}, Arms = {56, 40, 60},
+        Groin = {37, 30, 51}, Legs  = {77, 36, 30},
     },
     Crouch = {
-        {          140,  131,   93,   62}, ----   0
-        {          108,  149,   66,   61}, ----  45  INTERPOLADO -- re-medir
-        {           76,  167,   38,   59}, ----  90
-        {          107,  150,   49,   75}, ---- 135  INTERPOLADO -- re-medir
-        {          137,  133,   59,   91}, ---- 180
+        Head  = {76, 44, 90}, Torso = {46, 37, 60}, Arms = {65, 28, 50},
+        Groin = {37, 32, 38}, Legs  = {79,  9, 42},
     },
     Prone = {
-        {          108,   57,  101,  103}, ----   0
-        {           55,   57,  287,  111}, ----  45
-        {           36,   44,  391,  100}, ----  90
-        {           56,   56,  147,  119}, ---- 135
-        {          119,   56,   75,  100}, ---- 180
+        Head  = {90, 64, 49}, Torso = {67, 55, 42}, Arms = {85, 18, -4},
+        Groin = {54, 51, 61}, Legs  = {37, 14, 76},
     },
+}
+
+---- Caixa -> corpo, em %. Os cantos da caixa sao vazios: de pe ela tem 93 cm de largura e o
+---- homem tem ~50. E a UNICA constante ajustavel deste caminho -- calibrada contra tiro simulado,
+---- nao contra o modelo antigo. Maior = alvo maior = mais CTH.
+A.BodyFill = {
+    Standing = 75,
+    Crouch = 84,
+    Prone = 80,
 }
 
 ---- Meia-faixa normal em permil: 1000 * (Phi(z) - 0.5), z = indice * NormalStep / 1000.
@@ -189,7 +201,7 @@ A.TargetedResidualPct = 0 --35
 ---- Hand-Eye Coordination (Dex+Marks) escala quanto disso o atirador COBRA (= "Aiming Rework").
 
 A.DecayBase = 0 --8
-A.DecayScale = 6--4
+A.DecayScale = 4--4
 ---- teto de fechamento por nivel. nunca fecha mais que (100 - DecayMinPct) %. Abaixo de 30 um
 ---- unico nivel com optica de limiar fecha quase todo o gap e vira degrau, nao curva.
 A.DecayMinPct = 30 --20
@@ -241,8 +253,8 @@ A.AimDecayMuls ={
 
 A.AimStep = {
     [0] = 280,--380, --- hipfire: x2.80 numa arma de referencia
-    [1] = 180,--180,--155, --- snapshot 1 nivel: x1.55
-    [2] = 130--130--118 --- snapshot 2 niveis: x1.18
+    [1] = 155,--180,--155, --- snapshot 1 nivel: x1.55
+    [2] = 118--130--118 --- snapshot 2 niveis: x1.18
 }
 A.AimStepMaxLevel = 2 --- acima disso a arma esta encostada: alargamento 100
 
@@ -335,7 +347,7 @@ A.RecoilClimbMax = 400 --- teto por tiro. Frouxo de proposito: o teto antigo (60
 ---- Chance de o atirador SEGURAR o cano naquele tiro = 100 - control (Marks, postura, bipe, Forca,
 ---- perks). Media identica ao desconto deterministico antigo; o que entra e a variancia.
 A.RecoilControlMax = 90 --- ninguem segura sempre
-A.RecoilControlResidual = 15 --- % da subida que passa mesmo num tiro controlado
+A.RecoilControlResidual = 5--15 --- % da subida que passa mesmo num tiro controlado
 
 ---- Direcao da caminhada, sorteada UMA vez por rajada: "para cima" girado por um yaw aleatorio de
 ---- ate +/- este angulo (graus). 0 = subida pura; 180 = eixo totalmente aleatorio, como a vanilla
@@ -368,7 +380,7 @@ A.CrosshairRingSegments = 32
 ---- neste CTH de referencia; theta se cancela na razao de k, entao o cone sai igual em toda parte
 ---- do corpo. Em CTH = ConeRefCTH o resultado bate exatamente com o modelo de pontos antigo.
 ---- 65 e onde a escala e ~simetrica: em 80, +20 pontos valia cone 94 e -20 valia 125.
-A.ConeRefCTH = 65 --80--50
+A.ConeRefCTH = 50--65 --80--50
 
 ---- Teto e piso do multiplicador de UM residual. Sem eles -100 pontos daria cone infinito.
 A.ConeMulMin = 25

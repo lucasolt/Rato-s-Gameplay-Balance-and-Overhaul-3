@@ -41,10 +41,13 @@ function Rat_ResolveAngular(data)
     local aim, opportunity_attack = Rat_EffectiveAim(attacker, action, data.aim,
                                                      data.opportunity_attack, target)
 
-    local _, sigma, theta, meta, parts, _, _, up, down, right, left =
+    local _, sigma, theta, meta, parts, _, _, up, down, right, left, theta_geo =
         Rat_AngularCTH(attacker, target, data.target_spot_group, action, weapon1, aim,
                        opportunity_attack, data.attacker_pos, data.target_pos, nil)
     data.rat_ext_up, data.rat_ext_down, data.rat_ext_right, data.rat_ext_left = up, down, right, left
+    ---- tamanho do alvo para EXIBIR: geometria pura. rat_theta e equivalente em probabilidade e
+    ---- encolhe quando o cone fecha -- correto como moeda interna, absurdo como "tamanho do alvo".
+    data.rat_theta_geo = theta_geo
 
     ---- alvo totalmente ocluido: nao ha cone que resolva, CTH 0 e nenhum residual muda isso
     if not sigma or not theta or theta < 1 then
@@ -250,7 +253,11 @@ end
 
 function Rat_ConeMetaText(data)
     local a = const.Combat.Aperture
-    local sigma, theta, cth = data.rat_sigma, data.rat_theta, data.rat_cth
+    local sigma, cth = data.rat_sigma, data.rat_cth
+    ---- tamanho do alvo = GEOMETRIA. rat_theta e equivalente em probabilidade e encolhe
+    ---- quando a mira fecha o cone -- certo como moeda interna, absurdo na tela: o alvo
+    ---- nao fica menor porque quem atira mirou melhor.
+    local theta = data.rat_theta_geo or data.rat_theta
     local parts, aim = data.rat_parts, data.rat_aim or 0
 
     local meta = {}

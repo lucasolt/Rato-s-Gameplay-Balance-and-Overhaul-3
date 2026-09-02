@@ -60,47 +60,92 @@ function Rat_TargetSilhouette(target, body_part_def, exposed_pct, stance_overrid
     return Max(1, r)
 end
 
----- Azimute do atirador em volta do alvo, relativo ao CORPO do alvo. Devolve 0..180 graus e se o
----- lado espelha (do outro lado do corpo, direita e esquerda do atirador trocam de anatomia).
----- Le o dummy, nao a unidade: FindProneAngle encaixa deitado numa grade de 45 graus, e as duas
----- orientacoes divergem justo na postura em que o azimute mais importa (medido: 315 vs 325).
-function Rat_TargetAzimuth(attacker_pos, target)
-    if not attacker_pos or not IsKindOf(target, "Unit") then
-        return nil
-    end
-    local body = (target.target_dummy and target.target_dummy:GetOrientationAngle()) or
-                     target:GetOrientationAngle()
-    local d = AngleDiff(CalcOrientation(target:GetPos(), attacker_pos), body) / 60
-    return abs(d), d < 0
-end
-
----- Quatro meias-extensoes do corpo vistas DESTE ponto, em minutos de angulo (cima, baixo,
----- direita, esquerda). nil = alvo sem corpo tabelado (ponto, veiculo): quem chama cai no circulo.
-function Rat_TargetExtents(attacker_pos, target, dist, exposed_pct, stance_override)
+---- Quatro meias-extensoes do alvo vistas DESTE ponto, em minutos de angulo, mais o ponto de
+---- mira, a distancia ate ele e um theta geometrico (equivalente em area) para exibicao.
+----
+---- Projeta os 8 cantos da caixa da animacao no plano perpendicular a linha de tiro. Isso da o
+---- azimute exato e a inclinacao real de graca -- sem tabela, sem interpolar, sem raycast.
+---- A ancora do spot importa mais que tudo: mirar a cabeca sobe o ponto de mira ~36 cm e o corpo
+---- passa a se estender quase so para baixo. nil = alvo sem caixa (ponto, veiculo): cai no circulo.
+function Rat_TargetExtents(attacker_pos, target, spot, exposed_pct, stance_override)
     local a = P()
-    local az, flip = Rat_TargetAzimuth(attacker_pos, target)
-    if not az then
+    local o = (IsKindOf(target, "Unit") and target.target_dummy) or target
+    if not IsValid(o) or not o.GetEntityBBox then
+        return nil
+    end
+    local bb = o:GetEntityBBox()
+    if not bb then
         return nil
     end
 
-    local stance = stance_override or target:GetHitStance()
-    local rows = a.Extent[stance] or a.Extent.Standing
-    local step = a.ExtentAzStep
-
-    ---- interpola entre os dois azimutes medidos que cercam este
-    local i = Clamp(az / step, 0, #rows - 2)
-    local f = az - i * step
-    local lo, hi = rows[i + 1], rows[i + 2]
-
-    local theta = Rat_ThetaTarget(dist, Rat_TargetSilhouette(target, nil, exposed_pct, stance))
-    local function ext(n)
-        return Max(1, MulDivRound(theta, lo[n] + MulDivRound(hi[n] - lo[n], f, step), 100))
+    local stance = stance_override
+    if not stance and IsKindOf(target, "Unit") then
+        stance = target:GetHitStance()
     end
-    local up, down, right, left = ext(1), ext(2), ext(3), ext(4)
-    if flip then
-        right, left = left, right
+    local anchors = a.SpotAnchor[stance] or a.SpotAnchor.Standing
+    local part = spot
+    if type(part) == "table" then
+        part = part.id
     end
-    return up, down, right, left, theta
+    local anc = anchors[part] or anchors.Torso
+
+    local ang = o:GetOrientationAngle()
+    local base = Rat_ValidZ(o:GetPos())
+    local mn, mx = bb:min(), bb:max()
+
+    ---- um canto da caixa (ou a ancora) do frame do corpo para o mundo: a caixa e alinhada aos
+    ---- eixos LOCAIS, entao so a guinada roda; z nao gira.
+    local function to_world(x, y, z)
+        return base + Rotate(point(x, y, 0), ang) + point(0, 0, z)
+    end
+
+    local aim = to_world(mn:x() + MulDivRound(mx:x() - mn:x(), anc[1], 100),
+                         mn:y() + MulDivRound(mx:y() - mn:y(), anc[2], 100),
+                         mn:z() + MulDivRound(mx:z() - mn:z(), anc[3], 100))
+
+    local dist = attacker_pos:Dist(aim)
+    if dist < 1 then
+        return nil
+    end
+
+    ---- eixos do plano perpendicular a linha de tiro
+    local dir = SetLen(aim - attacker_pos, 1000)
+    local upv = point(0, 0, 1000) - MulDivRound(dir, dir:z(), 1000)
+    if upv:Len() < 10 then
+        upv = point(0, 1000, 0) --- tiro na vertical: qualquer perpendicular serve
+    end
+    upv = SetLen(upv, 1000)
+    local rgt = SetLen(Cross(dir, upv), 1000)
+
+    local up, down, right, left = 0, 0, 0, 0
+    for xi = 0, 1 do
+        local cx = (xi == 0) and mn:x() or mx:x()
+        for yi = 0, 1 do
+            local cy = (yi == 0) and mn:y() or mx:y()
+            for zi = 0, 1 do
+                local v = to_world(cx, cy, (zi == 0) and mn:z() or mx:z()) - aim
+                local du, dr = Dot(v, upv) / 1000, Dot(v, rgt) / 1000
+                up, down = Max(up, du), Max(down, -du)
+                right, left = Max(right, dr), Max(left, -dr)
+            end
+        end
+    end
+
+    ---- caixa -> corpo (os cantos sao vazios), e cobertura como reducao de AREA: a raiz repartida
+    ---- pelos dois eixos preserva a fracao exposta que o resto do modelo ja usa.
+    local fill = a.BodyFill[stance] or a.BodyFill.Standing
+    if exposed_pct and exposed_pct < 100 then
+        fill = MulDivRound(fill, Rat_ISqrt(Max(0, exposed_pct) * 100), 100)
+    end
+    local function minutes(x)
+        return Max(1, MulDivRound(MulDivRound(x, fill, 100), 3438, dist))
+    end
+    up, down, right, left = minutes(up), minutes(down), minutes(right), minutes(left)
+
+    ---- theta GEOMETRICO (equivalente em area) so para exibicao: nao depende de sigma, entao o
+    ---- tamanho do alvo mostrado na UI para de encolher quando o jogador mira.
+    local theta_geo = Max(1, Rat_ISqrt(MulDivRound(right + left, up + down, 4)))
+    return up, down, right, left, theta_geo, aim, dist
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -500,7 +545,8 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
     end
 
     local half_cm = Rat_TargetSilhouette(target, body_part_def, exposed_pct)
-    local up, down, right, left = Rat_TargetExtents(attacker_pos, target, dist, exposed_pct)
+    local up, down, right, left, theta_geo = Rat_TargetExtents(attacker_pos, target, body_part_def,
+                                                               exposed_pct)
 
     local cth, theta
     if up then
@@ -508,12 +554,13 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
         theta = Rat_ThetaEquivalent(sigma, cth)
     end
     if not theta then
-        ---- alvo sem corpo tabelado (ponto, veiculo, destrutivel) ou CTH fora da LUT: circulo mesmo.
+        ---- alvo sem caixa (ponto, veiculo, destrutivel) ou CTH fora da LUT: circulo mesmo.
         theta = Rat_ThetaTarget(dist, half_cm)
+        theta_geo = theta
         cth = Clamp(Rat_RayleighCTH(theta, sigma), a.MinCTH, a.MaxCTH)
     end
 
-    return cth, sigma, theta, meta, parts, dist, half_cm, up, down, right, left
+    return cth, sigma, theta, meta, parts, dist, half_cm, up, down, right, left, theta_geo
 end
 
 ---------------------------------------------------------------------------------------------------

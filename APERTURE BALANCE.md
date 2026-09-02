@@ -1,5 +1,13 @@
 # Angular CTH — balance model, measurements and tuning
 
+> **STALE as of 2026-09-02.** Sections 1 and 2 rest on `d50 = 1022 / sigma`, which came from the
+> area-equivalent circle. The circle was replaced by a separable per-axis model fed by the target's
+> animation box, and the constant both moved and stopped being a single number — it now depends on
+> stance and aspect angle. The *identity* `d50 = C / sigma` still holds (C is sigma-invariant).
+> A live measurement of C on 2026-09-01 did not reconcile with the analytic value and is not
+> trustworthy; re-measure before rewriting these tables. See `TODO NOTES.md`.
+
+
 > **Status:** everything in §3, §4, §5 and §7 is **implemented** on `feat/cth-angular` and verified
 > in the live process. §1, §2 and §6 are the model and the measurements; they are the reference,
 > not a to-do. What was deliberately *not* changed is listed in "Applied" at the bottom.

@@ -570,7 +570,7 @@ end
 ----
 ---- ATENCAO: consome random sincronizado; em co-op nao use no turno de outro jogador.
 ---------------------------------------------------------------------------------------------------
-function Rat_DbgSweep(target, attacker, stances, dists, azimuths, verbose)
+function Rat_DbgSweep(target, attacker, stances, dists, azimuths, verbose, spot)
     attacker = pick_attacker(attacker)
     if not attacker then
         return "sem atacante (selecione um merc)"
@@ -584,6 +584,10 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths, verbose)
         return "sem arma de fogo"
     end
 
+    ---- o spot ANCORA as extensoes: mirar a cabeca move o ponto de mira ~36 cm para cima e o
+    ---- corpo passa a se estender quase so para baixo. Medir a partir do Torso e usar para a
+    ---- cabeca superestimava 33 pontos (53% na tela, 20% no tiro).
+    spot = spot or "Torso"
     stances = stances or {"Standing", "Crouch", "Prone"}
     dists = dists or {6, 10, 15, 25}
     azimuths = azimuths or {0, 45, 90, 135, 180}
@@ -627,16 +631,20 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths, verbose)
                     ---- numa grade de 45 graus e o corpo que colide fica fora do angulo da unidade.
                     local body = (target.target_dummy and target.target_dummy:GetOrientationAngle())
                                      or target:GetOrientationAngle()
-                    local ap = (tpos + Rotate(point(du, 0, 0), body + az * 60)):SetTerrainZ()
-                    ap = ap:SetZ(ap:z() + gun_z)
+                    ---- z do ALVO, nao do terreno sob o atirador. Desnivel inclina a linha de
+                    ---- tiro, a inclinacao gira o plano perpendicular, e "cima/baixo" passa a
+                    ---- raspar o corpo no COMPRIMENTO em vez de medir a altura: medido, o mesmo
+                    ---- alvo dava baixo 130% de um lado e 287% do outro so por causa disso.
+                    ---- A tabela guarda ANATOMIA; o relevo real e erro de runtime, nao dado.
+                    local ap = (tpos + Rotate(point(du, 0, 0), body + az * 60)):SetZ(tpos:z() + gun_z)
 
-                    local args = Rat_SimBaseArgs(attacker, target, weapon, "Torso",
+                    local args = Rat_SimBaseArgs(attacker, target, weapon, spot,
                                                  du + 20 * const.SlabSizeX)
                     local seen = GetLoFData(attacker, target, {obj = attacker, weapon = weapon,
                         stance = attacker.stance, prediction = true, output_collisions = true,
                         force_hit_seen_target = false, attack_pos = ap, step_pos = ap})
                     local aim_pos = seen and seen.lof and seen.lof[1] and
-                                        Rat_SimAimPos(seen.lof, "Torso", seen.lof[1].target_pos)
+                                        Rat_SimAimPos(seen.lof, spot, seen.lof[1].target_pos)
                     if aim_pos then
                         local dist = ap:Dist(aim_pos)
                         local dir = SetLen(aim_pos - ap, 1000)
@@ -670,7 +678,7 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths, verbose)
                         end
 
                         local theta = Rat_ThetaTarget(dist,
-                                          Rat_TargetSilhouette(target, "Torso", 100, stance))
+                                          Rat_TargetSilhouette(target, nil, 100, stance))
                         if not hits_at(0, 1) then
                             ---- origem sem linha de tiro: zero aqui nao e alvo estreito, e ausencia
                             ---- de medida, e poluiria a calibracao como se fosse dado
@@ -747,9 +755,10 @@ function Rat_DbgSweep(target, attacker, stances, dists, azimuths, verbose)
         for _, az in ipairs(azimuths) do
             local s = samples[stance] and samples[stance][az] or empty_table
             if #s > 0 then
+                local cima, baixo = median(s, "wu"), median(s, "hd")
+                local dir, esq = median(s, "w"), median(s, "h")
                 lines[#lines + 1] = string.format("  %-8s | %3d | %2d | %4d%% %4d%% %4d%% %4d%%",
-                                                  stance, az, #s, median(s, "wu"), median(s, "hd"),
-                                                  median(s, "w"), median(s, "h"))
+                                                  stance, az, #s, cima, baixo, dir, esq)
             end
         end
     end
