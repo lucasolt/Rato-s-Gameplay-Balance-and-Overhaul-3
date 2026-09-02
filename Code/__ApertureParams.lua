@@ -211,6 +211,57 @@ A.Rayleigh = {
     940, 956, 968, 977, 984, 989, 992, 995, 997, 998, 999, 999, 999, 1000
 }
 
+---- LUT do circulo DESLOCADO -- P(acerto) quando o RECUO ja moveu o centro de mira `mu` para fora
+---- do alvo. A Rayleigh acima so vale com o cano parado (mu = 0); com mu > 0 a distribuicao vira um
+---- ANEL de raio mu e espessura sigma, e nenhum sigma equivalente reproduz a curva inteira -- casar
+---- so o segundo momento erra ate 15 pontos no tiro 3 de uma rajada (medido). Entao tabela-se a
+---- coisa certa: P(k, m) = 1 - Q1(m, k), k = theta/sigma, m = mu/sigma. Ver Rat_RiceCTH.
+---- Gerada por tools/offset_circle_lut.py; a linha [0] reproduz a Rayleigh acima ao milesimo.
+---- Linhas = m em passos de 0.5 (0 a 8); colunas = k em passos de 0.25 (0 a 8). Valores por mil.
+
+A.OffsetCircleKStep = 250
+A.OffsetCircleMStep = 500
+A.OffsetCircle = {
+    [0] = {[0] = 0, 31, 118, 245, 393, 542, 675, 784, 865, 920, 956, 977, 989, 995, 998, 999, 1000,
+           1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000,
+           1000, 1000},
+    [1] = {[0] = 0, 27, 104, 220, 357, 499, 631, 743, 831, 895, 938, 966, 982, 991, 996, 998, 999,
+           1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000,
+           1000, 1000},
+    [2] = {[0] = 0, 19, 73, 159, 267, 388, 512, 629, 731, 815, 879, 925, 956, 976, 987, 994, 997,
+           999, 999, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000,
+           1000},
+    [3] = {[0] = 0, 10, 41, 92, 164, 253, 356, 466, 576, 679, 768, 841, 896, 936, 963, 979, 989,
+           995, 998, 999, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000,
+           1000},
+    [4] = {[0] = 0, 4, 18, 43, 82, 137, 209, 297, 396, 502, 606, 702, 786, 853, 905, 941, 966, 981,
+           990, 995, 998, 999, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000},
+    [5] = {[0] = 0, 1, 6, 16, 33, 61, 102, 159, 232, 320, 418, 522, 623, 716, 796, 861, 910, 945,
+           968, 982, 991, 996, 998, 999, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000},
+    [6] = {[0] = 0, 0, 2, 5, 11, 22, 41, 70, 113, 172, 246, 334, 433, 535, 634, 725, 803, 866, 914,
+           947, 969, 983, 991, 996, 998, 999, 1000, 1000, 1000, 1000, 1000, 1000, 1000},
+    [7] = {[0] = 0, 0, 0, 1, 3, 6, 13, 25, 45, 76, 121, 180, 256, 344, 442, 544, 642, 732, 809,
+           870, 916, 949, 970, 984, 992, 996, 998, 999, 1000, 1000, 1000, 1000, 1000},
+    [8] = {[0] = 0, 0, 0, 0, 1, 1, 3, 7, 15, 28, 48, 80, 126, 187, 263, 352, 450, 551, 648, 737,
+           813, 873, 918, 950, 971, 984, 992, 996, 998, 999, 1000, 1000, 1000},
+    [9] = {[0] = 0, 0, 0, 0, 0, 0, 1, 2, 4, 8, 16, 29, 51, 84, 130, 191, 268, 357, 455, 556, 653,
+           741, 816, 875, 920, 951, 972, 985, 992, 996, 998, 999, 1000},
+    [10] = {[0] = 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 4, 9, 17, 30, 53, 86, 133, 195, 272, 362, 460, 560,
+            657, 744, 818, 877, 921, 952, 972, 985, 992, 996, 998},
+    [11] = {[0] = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 4, 9, 17, 31, 54, 88, 135, 198, 276, 366,
+            464, 564, 660, 747, 820, 879, 922, 953, 973, 985, 992},
+    [12] = {[0] = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 5, 9, 18, 32, 55, 89, 137, 201, 278,
+            369, 467, 567, 663, 749, 822, 880, 923, 953, 973},
+    [13] = {[0] = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 5, 10, 18, 33, 56, 91, 139, 203,
+            281, 371, 469, 569, 665, 751, 823, 881, 924},
+    [14] = {[0] = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 5, 10, 19, 33, 57, 92, 141,
+            204, 283, 373, 471, 571, 667, 752, 825},
+    [15] = {[0] = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 5, 10, 19, 34, 58,
+            93, 142, 206, 285, 375, 473, 573, 668},
+    [16] = {[0] = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 5, 10, 19, 34,
+            58, 94, 143, 207, 286, 377, 475},
+}
+
 ---------------------------------------------------------------------------------------------------
 ---- Limites do CTH final produzido pelo modelo geometrico
 ---------------------------------------------------------------------------------------------------
@@ -218,11 +269,32 @@ A.Rayleigh = {
 A.MinCTH = 1
 A.MaxCTH = 97
 
----- Recoil: abertura do cone por tiro. excesso = RecoilGrowthBase * mod_de_recoil / 100
----- (mod vem de FUNCTIONS_recoil; ~130 MP5, ~230 AK47/MG42). Distancia entra pela geometria, ver Rat_GetRecoilConeGrowth.
+---- Recoil: o cano SOBE, o cone nao alarga. Ver Rat_GetRecoilClimb / Rat_SimRecoilLadder.
+---- subida por tiro = RecoilClimbBase * (mod / control) / 100, em MINUTOS de angulo
+---- (mod/control vem de FUNCTIONS_recoil; mod ~130 MP5, ~230 AK47/MG42). A distancia entra pela
+---- geometria: a mesma subida e inofensiva de perto e fatal de longe, porque theta cai com 1/d.
 
-A.RecoilGrowthBase = 40 -- 13
-A.RecoilGrowthMax = 60 --60 --- teto do excesso por tiro (%)
+A.RecoilClimbBase = 80 --- minutos com mod 100 (~1.3 graus). MEDIDO no processo vivo: iguala o CTH
+--- medio da rajada do modelo de growth antigo em sigma 143 (AutoFire, aim 1) nas duas silhuetas
+--- testadas -- 46 vs 42 e 19 vs 19. O FORMATO muda, e e a assinatura da caminhada: o tiro 2 fica
+--- mais perto (90 vs 78) e a partir do 4o a rajada ja saiu do alvo (5 vs 9). Uma arma que sobe sai;
+--- um cone que so alarga nunca sai de vez.
+--- Em sigma alto (hipfire, 262) o modelo novo e bem mais brando (36 vs 22): a subida do cano nao
+--- depende de quao aberto o cone ja estava, e o modelo antigo cobrava o recuo em cima da propria
+--- imprecisao da arma. E a unica mudanca de balance deliberada da troca.
+A.RecoilClimbMax = 400 --- teto por tiro. Frouxo de proposito: o teto antigo (60%) era atingido por
+--- quase toda arma automatica e achatava as diferencas que a cadeia de recoil existe para produzir.
+
+---- Chance de o atirador SEGURAR o cano naquele tiro = 100 - control (Marks, postura, bipe, Forca,
+---- perks). Media identica ao desconto deterministico antigo; o que entra e a variancia.
+A.RecoilControlMax = 90 --- ninguem segura sempre
+A.RecoilControlResidual = 15 --- % da subida que passa mesmo num tiro controlado
+
+---- Direcao da caminhada, sorteada UMA vez por rajada: "para cima" girado por um yaw aleatorio de
+---- ate +/- este angulo (graus). 0 = subida pura; 180 = eixo totalmente aleatorio, como a vanilla
+---- faz em CalcShotVectors. Valores altos custam menos acerto: theta e um raio CIRCULAR equivalente
+---- e a silhueta real e alta e estreita, entao andar na vertical perdoa mais que andar de lado.
+A.RecoilWalkYaw = 40
 
 ---- Anel de mira: desenhado NO MUNDO com o raio real do cone (ver UI_aperture_ring.lua).
 ---- QUANTOS SIGMAS o anel representa. 1 sigma contem 39% dos tiros; 2.5 contem 96%.

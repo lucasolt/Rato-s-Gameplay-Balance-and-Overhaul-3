@@ -356,8 +356,11 @@ function Rat_DbgShots(count, aim, target_spot, target, attacker, shot_idx, burst
 
     local hits, parts = 0, {}
     for i = 1, count do
-        ---- mesma primitiva de sorteio do tiro real, sempre no cone do tiro escolhido
-        local pt = Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma_i)
+        ---- amostra COMPLETA do tiro escolhido: eixo de recuo proprio, subida rolada tiro a tiro
+        ---- ate ele, e so entao a dispersao da arma. Reamostrar o eixo a cada amostra e o certo --
+        ---- a nuvem que sai e a distribuicao real do tiro N, nao uma unica rajada.
+        local sample = Rat_SimReplanShot(ctx, shot_idx)
+        local pt = sample.target_pos
         Rat_SimLoFOverrides(args, attack_pos, attacker:Random(), args.ignore_colliders)
         local lof = Rat_SimLoF(GetLoFData(attacker, pt, args))
         local hit, spot = Rat_SimHitSpot(lof, target)
@@ -388,7 +391,7 @@ function Rat_DbgShots(count, aim, target_spot, target, attacker, shot_idx, burst
                "%s (%s) -> %s [%s] a %.1f tiles, aim %d, alvo %s\n" ..
                    "  amostras: %d do tiro %d de %d  |  CTH %d%% (o mesmo do tiro real)\n" ..
                    "  %d/%d acertaram (%d%% do total) | %d erraram\n" ..
-                   "  sigma %d' (tiro 1 = %d', growth %d%%)  theta %d'\n" ..
+                   "  sigma %d' (tiro 1 = %d', subida %d'/tiro, controle %d%%)  theta %d'\n" ..
                    "  centro de mira %+dcm vs spot (AimCentroidPct %d)  |  args: %s\n" ..
                    "  distribuicao por membro:\n%s\n" ..
                    "  verde = acertou, vermelho = errou; ciano = silhueta, amarelo = 96%% dos tiros",
@@ -396,7 +399,7 @@ function Rat_DbgShots(count, aim, target_spot, target, attacker, shot_idx, burst
                tostring(target:GetHitStance()), attacker:GetDist(target) / const.SlabSizeX, aim,
                tostring(target_spot), count, shot_idx, burst, cth,
                hits, count, MulDivRound(hits, 100, count), count - hits,
-               sigma_i, ctx.sigma, ctx.growth or 100, ctx.theta,
+               sigma_i, ctx.sigma, ctx.climb or 0, ctx.control_chance or 0, ctx.theta,
                dz, a.AimCentroidPct or 0, args_src, table.concat(ps, "\n"))
 end
 
@@ -481,7 +484,7 @@ function Rat_DbgLastShots(rings)
     return string.format(
                "ultimo ataque REAL: %s (%s, %s) -> %s [%s]\n" ..
                    "  aim %s  alvo %s  |  CTH %s%%  <- %s\n" ..
-                   "  theta %s'  sigma %s'  (abertura crua %s')  growth %s%%  centro de mira %s\n" ..
+                   "  theta %s'  sigma %s' (crua %s')  subida %s'/tiro (controle %s%%)  mira %s\n" ..
                    "  LoF: pen %s  range %s  ignore_los %s  clamp %s  covers %s  stuck_unit %s\n" ..
                    "       fire_rel %s  area_check %s  eye_contact %s  add_colliders %s  ignore %s\n" ..
                    "  %d/%d acertaram (%d%% do total) | %d erraram | %d criticos\n" ..
@@ -492,7 +495,7 @@ function Rat_DbgLastShots(rings)
                tostring(rec.target and rec.target:GetHitStance()),
                tostring(rec.aim), tostring(rec.spot), tostring(rec.cth), tostring(rec.cth_source),
                tostring(rec.theta), tostring(rec.sigma), tostring(rec.geo_sigma),
-               tostring(rec.growth), tostring(rec.aim_centroid_pct),
+               tostring(rec.climb), tostring(rec.control_chance), tostring(rec.aim_centroid_pct),
                tostring(l.penetration_class), tostring(l.range), tostring(l.ignore_los),
                tostring(l.clamp_to_target), tostring(l.can_use_covers),
                tostring(l.can_stuck_on_unit), tostring(l.fire_relative_point_attack),
@@ -505,7 +508,7 @@ function Rat_DbgLastShots(rings)
 end
 
 ---- VERIFICACAO: recalcula os insumos do ultimo tiro real pelo caminho do debug e compara campo a campo.
----- Pontos sorteados ficam de fora; compara o que DECIDE o sorteio (theta, sigma, growth, centro, origem, CTH) + args de LoF.
+---- Pontos sorteados ficam de fora; compara o que DECIDE o sorteio (theta, sigma, subida, centro, origem, CTH) + args de LoF.
 function Rat_DbgVerifySim()
     local rec = g_RatLastSimShots
     if not rec or not rec.shots or #rec.shots == 0 then
@@ -551,15 +554,16 @@ function Rat_DbgVerifySim()
     debug_table.sigma = Rat_AttackCone(attacker, target, action, rec.spot, rec.aim,
                                        rec.opportunity_attack, rec.step_pos, rec.target_pos) or
                             rec.geo_sigma
-    local _, dbg_growth = Rat_SimSigmaLadder(attacker, action, weapon, rec.sigma or 1,
-                                             rec.num_shots or 1)
-    debug_table.growth = dbg_growth
+    local _, dbg_climb, dbg_chance = Rat_SimRecoilLadder(attacker, action, weapon, rec.sigma or 1,
+                                                         rec.num_shots or 1)
+    debug_table.climb, debug_table.control_chance = dbg_climb, dbg_chance
 
     hard[#hard + 1] = string.format("  %-22s %-26s %-26s", "campo", "tiro REAL", "caminho DEBUG")
     cmp(hard, "attack_pos", rec.attack_pos, debug_table.attack_pos, true)
     cmp(hard, "aim_pos", rec.aim_pos, debug_table.aim_pos, true)
     cmp(hard, "sigma (cone final)", rec.sigma, debug_table.sigma, true)
-    cmp(hard, "growth", rec.growth, debug_table.growth, true)
+    cmp(hard, "subida (min/tiro)", rec.climb, debug_table.climb, true)
+    cmp(hard, "controle (%)", rec.control_chance, debug_table.control_chance, true)
     cmp(hard, "theta", rec.theta, debug_table.theta, true)
     cmp(hard, "geo_sigma", rec.geo_sigma, debug_table.geo_sigma, true)
 

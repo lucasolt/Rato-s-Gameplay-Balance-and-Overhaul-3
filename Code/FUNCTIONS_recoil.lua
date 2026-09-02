@@ -245,36 +245,42 @@ function GetCaliberStrRecoil(weapon, attacker, num_shots)
 
     local str = attacker.Strength
 
-    local scaleFactor = 0
-
     local breakpoint, modifier = Recoil_StrBreakpoint(weapon1)
 
     if not breakpoint or breakpoint == 0 then
-        return 1
+        return 1, metaText, 1
     end
 
     local adjust = 0.4
     local adjusted_breakpoint = breakpoint * adjust
-    local adjusted_str = str * adjust
+    local modified_breakpoint = breakpoint * modifier
 
-    if str < breakpoint then
-        scaleFactor = 20.0 +
-                          ((100.0 - 20.0) * (adjusted_breakpoint - adjusted_str) /
-                              adjusted_breakpoint)
-        metaText[#metaText + 1] = rT(285153762692, "(-) Low Strength")
-    else
-        scaleFactor = 20.0 -
-                          (20.0 * (adjusted_str - adjusted_breakpoint) /
-                              (100.0 - adjusted_breakpoint))
-
-        metaText[#metaText + 1] = rT(988872717528, "Strength")
-
+    ---- corpo isolado em duas locais para poder ser avaliado tambem com a Forca NO TETO: a razao
+    ---- entre os dois valores e a parcela que o ATIRADOR controla; o resto e cartucho, e cartucho
+    ---- nao se negocia. Sem isolar, a Forca ficaria soldada ao calibre dentro da mesma expressao
+    ---- e o modelo angular teria de recopiar as constantes -- o erro que o RECOIL_STACKS_PCT ja deu.
+    local function scale_for(s)
+        local adjusted_str = s * adjust
+        if s < breakpoint then
+            return 20.0 +
+                       ((100.0 - 20.0) * (adjusted_breakpoint - adjusted_str) / adjusted_breakpoint)
+        end
+        return 20.0 - (20.0 * (adjusted_str - adjusted_breakpoint) / (100.0 - adjusted_breakpoint))
+    end
+    local function recoil_for(sf)
+        return (((sf * 2.5 * adjust) + 35.0 + modified_breakpoint) / 100) ^ 1.9
     end
 
-    local modified_breakpoint = breakpoint * modifier
-    local str_mod_f = ((scaleFactor * 2.5 * adjust) + 35.0 + modified_breakpoint) / 100
+    local scaleFactor = scale_for(str)
+    if str < breakpoint then
+        metaText[#metaText + 1] = rT(285153762692, "(-) Low Strength")
+    else
+        metaText[#metaText + 1] = rT(988872717528, "Strength")
+    end
 
-    str_mod_f = str_mod_f ^ 1.9
+    local str_mod_f = recoil_for(scaleFactor)
+    local ideal = recoil_for(scale_for(100))
+    local str_control = (ideal > 0) and (str_mod_f / ideal) or 1
 
     if num_shots and num_shots > 1 and weapon.tracer == 1 then
         str_mod_f = str_mod_f * const.Combat.Recoil.Other.Tracer
@@ -286,24 +292,31 @@ function GetCaliberStrRecoil(weapon, attacker, num_shots)
         metaText[#metaText + 1] = rT(281796668818, "(-) AP Rounds")
     end
 
-    return str_mod_f, metaText
+    return str_mod_f, metaText, str_control
 end
 
+---- `control` (3o retorno) e o subproduto dos fatores do ATIRADOR -- postura, bipe, Marksmanship,
+---- perks de recuo. Sao os que o modelo angular converte em CHANCE de segurar o cano; o resto
+---- (deltas de rajada da arma, bump stock) e da arma e continua so em `mod`.
 function GetRecoilOther(weapon, attacker, action)
 
     local metaText = {}
     local mod = 1.00
+    local control = 1.00
     if action and action.id ~= "RunAndGun" then
         if attacker.stance then
             if attacker.stance == "Prone" then
                 mod = mod * const.Combat.Recoil.Other.Prone
+                control = control * const.Combat.Recoil.Other.Prone
                 metaText[#metaText + 1] = rT(294661659116, "Prone")
                 if weapon and weapon:HasComponent("AccuracyBonusProne") then
                     mod = mod * const.Combat.Recoil.Components.BipodMul
+                    control = control * const.Combat.Recoil.Components.BipodMul
                     metaText[#metaText + 1] = rT(523692869416, "Bipod")
                 end
             elseif attacker.stance == "Crouch" then
                 mod = mod * const.Combat.Recoil.Other.Crouch
+                control = control * const.Combat.Recoil.Other.Crouch
                 metaText[#metaText + 1] = rT(663793494488, "Crouching")
             end
         end
@@ -317,6 +330,7 @@ function GetRecoilOther(weapon, attacker, action)
         local marks_scaling = min_reduction + (1 - min_reduction) *
                                   (1 - (marks - min_stat * 1.00) / (100 - min_stat) * 1.00)
         mod = mod * marks_scaling
+        control = control * marks_scaling
 
         if marks == 100 then
             metaText[#metaText + 1] = rT(869135768177, "Perfect Technique")
@@ -333,6 +347,7 @@ function GetRecoilOther(weapon, attacker, action)
     if not attacker.placeholder then
         if attacker:HasStatusEffect("TakeAim") then
             mod = mod * const.Combat.Recoil.Perks.TakeAimMul
+            control = control * const.Combat.Recoil.Perks.TakeAimMul
             metaText[#metaText + 1] = rT(712682745289, "Perk: Recoil Management")
         end
 
@@ -340,6 +355,7 @@ function GetRecoilOther(weapon, attacker, action)
             not (action.id == "SingleShot" or action.id == "Buckshot" or action.id == "Pindown" or
                 action.id == "MobileShot") and attacker:HasStatusEffect("AutoWeapons") then
             mod = mod * const.Combat.Recoil.Perks.AutoWeaponsMul
+            control = control * const.Combat.Recoil.Perks.AutoWeaponsMul
             metaText[#metaText + 1] = rT(764956297274, "Perk: Auto Weapons")
 
         end
@@ -381,7 +397,7 @@ function GetRecoilOther(weapon, attacker, action)
         end
     end
 
-    return mod, metaText
+    return mod, metaText, control
 end
 
 function GetMechanismRecoil(weapon)
@@ -513,6 +529,8 @@ local param_base = const.Combat.Recoil.MaxPenalty
 ---------------------------------------------------------------------------------------------------
 function Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
     local mod = 100
+    ---- fracao do recuo que o atirador ainda NAO cancelou (1 = nao cancela nada). Ver GetRecoilOther.
+    local control = 1.00
     local metaText = {}
     local display = false
 
@@ -531,56 +549,67 @@ function Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
     end
 
     -----------------------Stance, perks
-    local other, otherMeta = GetRecoilOther(weapon, attacker, action)
+    local other, otherMeta, other_control = GetRecoilOther(weapon, attacker, action)
     mod = mod * other
+    control = control * other_control
     for i, text in ipairs(otherMeta) do
         table.insert(metaText, text)
     end
 
     -----------------str/caliber
-    local str_caliber_mod, meta_text_caliber = GetCaliberStrRecoil(weapon, attacker, num_shots)
+    local str_caliber_mod, meta_text_caliber, str_control = GetCaliberStrRecoil(weapon, attacker,
+                                                                                num_shots)
     if dual then
-        local str_caliber_mod2 = GetCaliberStrRecoil(weapon2, attacker, num_shots)
+        local str_caliber_mod2, _, str_control2 = GetCaliberStrRecoil(weapon2, attacker, num_shots)
         meta_text_caliber = {}
         str_caliber_mod = (str_caliber_mod + str_caliber_mod2) / 2
+        str_control = (str_control + str_control2) / 2
     end
     mod = mod * str_caliber_mod
+    control = control * str_control
     for i, text in ipairs(meta_text_caliber) do
         table.insert(metaText, text)
     end
 
-    return mod, metaText
+    return mod, metaText, control
 end
 
 ---------------------------------------------------------------------------------------------------
----- Recoil no modelo angular: taxa de ABERTURA do cone por tiro.
+---- Recoil no modelo angular: SUBIDA DO CANO por tiro, e a chance de o atirador segura-la.
 ----
----- No modelo somado o recoil vira `cth_loss_per_shot` e e subtraido linearmente
----- (SOURCE_FirearmGetAttackResults.lua:260). Aqui ele faz o que fisicamente faz --
----- abre o cone -- e a perda de CTH passa a ser consequencia da geometria.
+---- O modelo somado vira `cth_loss_per_shot` e subtrai pontos em linha
+---- (SOURCE_FirearmGetAttackResults.lua:260). O modelo de cone anterior alargava o cone. Nenhum
+---- dos dois e recuo: recuo nao espalha o grupo em volta do alvo, ele LEVANTA o cano numa direcao
+---- e a rajada anda por ali. E o que a vanilla desenha em Firearm:CalcShotVectors (Weapon.lua:1612),
+---- so que la e enfeite -- acerto e erro ja tinham sido sorteados. Aqui a bala e a verdade, entao a
+---- caminhada precisa vir com a probabilidade que lhe corresponde (Rat_SimRecoilLadder).
 ----
----- IMPORTANTE: isto NAO substitui a dependencia de distancia por uma taxa fixa.
----- O recoil antigo nunca foi flat: `get_recoil` tem rampa linear ate
----- MaxDistforPenalty (36 tiles), medida em -13 a 4 tiles e -76 a 28 tiles. No
----- modelo angular a distancia continua mandando, so que pela via correta: um cone
----- mais aberto custa pouco de perto, onde o alvo ja e maior que ele, e muito de
----- longe, onde a silhueta e que e a restricao. A rampa deixa de precisar ser
----- tabelada porque ela emerge de theta cair com 1/d.
+---- A cadeia tunada se parte em DOIS papeis, sem recopiar constante nenhuma:
+----   arma  = mod / control -- cano, mecanismo, cartucho, ROF, deltas de rajada: quanto sobe
+----   control              -- Marksmanship, postura, bipe, Forca vs breakpoint, perks: o atirador
+---- e `control` deixa de ser um desconto garantido e vira CHANCE de o tiro sair controlado:
+----     chance = 100 - control    (control 0.65 -> 35% dos tiros nao sobem)
+---- A media sobrevive intacta -- gun * (1 - chance) = mod -- entao toda a escala ja tunada continua
+---- valendo; o que muda e a variancia, e ela entra no CTH pelo segundo momento, nao a esmo.
+---- Um atirador de moeda-ao-ar fica pior que um confiavel de mesma media, que e o certo.
 ----
----- Toda a cadeia relativa ja tunada sobrevive: arma, componentes, mecanismo,
----- calibre, breakpoint de Forca, ROF, postura e perks continuam significando a
----- mesma coisa, so que definindo quao RAPIDO o cone abre em vez de quantos pontos
----- somem. Medido: mod_total vai de ~130 (MP5) a ~230 (AK47, MG42).
+---- A distancia continua mandando, pela via correta: a mesma subida custa pouco de perto, onde a
+---- silhueta e maior que ela, e muito de longe. Nao precisa de rampa tabelada -- emerge de theta ~ 1/d.
 ----
----- Retorna a taxa em % (122 = cone 1,22x por tiro).
+---- Retorna a subida por tiro em MINUTOS de angulo e a chance de controle em % (0..100).
 ---------------------------------------------------------------------------------------------------
-function Rat_GetRecoilConeGrowth(attacker, action, weapon, num_shots, test)
+function Rat_GetRecoilClimb(attacker, action, weapon, num_shots, test)
     local a = const.Combat.Aperture
     if not attacker or not IsKindOf(weapon, "Firearm") then
-        return 100
+        return 0, 0
     end
 
-    local mod = Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
+    local mod, _, control = Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
+
+    ---- control > 1 (Marks baixa, Forca abaixo do breakpoint) nao e "controle negativo": e a ARMA
+    ---- subindo mais. Corta em 1 e o excesso fica no lado da arma, senao o ruim sumiria na divisao.
+    control = Min(control, 1.00)
+    local gun = (control > 0) and (mod / control) or mod
 
     ---- cadencia: mais tiros no mesmo tempo, menos tempo para reassentar a arma
     if not IsKindOf(weapon, "Shotgun") then
@@ -590,27 +619,28 @@ function Rat_GetRecoilConeGrowth(attacker, action, weapon, num_shots, test)
         end
         local ROF = Rat_GetROF(weapon, action_id_rof)
         if ROF and ROF > 1 then
-            mod = mod * ROF
+            gun = gun * ROF
         end
     end
 
-    ---- MG montada absorve recoil; MG na mao, nao
+    ---- MG montada absorve recoil; MG na mao, nao. E apoio do atirador -> entra no controle.
     local aid = action and action.id
     if aid == "MGBurstFire" then
         if test or (g_Overwatch[attacker] and g_Overwatch[attacker].permanent) then
-            mod = mod * const.Combat.Recoil.MGSetupMul
+            control = control * const.Combat.Recoil.MGSetupMul
         end
     elseif aid == "GrizzlyPerk" then
-        mod = mod * const.Combat.Recoil.MGSetupMul
+        control = control * const.Combat.Recoil.MGSetupMul
     end
 
-    local excess = MulDivRound(a.RecoilGrowthBase, cRound(mod), 100)
-    excess = Clamp(excess, 0, a.RecoilGrowthMax)
+    local climb = MulDivRound(a.RecoilClimbBase, cRound(gun), 100)
+    climb = Clamp(climb, 0, a.RecoilClimbMax)
 
     ---- o dial global de recoil do jogador continua valendo
-    excess = MulDivRound(excess, const.Combat.R_Recoil or 100, 100)
+    climb = MulDivRound(climb, const.Combat.R_Recoil or 100, 100)
 
-    return 100 + excess
+    local chance = Clamp(100 - cRound(control * 100), 0, a.RecoilControlMax)
+    return climb, chance
 end
 
 function get_recoil(attacker, target, target_pos, action, weapon, aim, num_shots, stacks, test,
