@@ -15,7 +15,7 @@ local function fallback(self, context, ...)
     if self.idAimTarget then
         self.idAimTarget:SetVisible(true)
     end
-    --return vanilla_update(self, context, ...)
+    return vanilla_update(self, context, ...)
 end
 
 ---- Desenha o anel a partir do estado do CROSSHAIR, nao do widget: passar o mouse pelas body
