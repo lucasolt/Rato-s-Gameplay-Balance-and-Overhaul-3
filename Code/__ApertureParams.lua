@@ -16,6 +16,10 @@
 --TODO: General balancing - OW tuning - maybe snapshot should not scale with distance. instead it could decrease total cth by a %.. 
 --TODO: 03/09/2026
 --TODO: fix cth degrading to old logic. Probably related to peeking from cover (needs a future position for check lof)
+--TODO: AI OVERHAUL - check grenade distribution. Give more timed to enemies. Less frustrating but still a challenge to the player
+
+
+
 const.Combat.Aperture = {}
 local A = const.Combat.Aperture
 
@@ -339,7 +343,7 @@ A.MaxCTH = 97
 ---- (mod/control vem de FUNCTIONS_recoil; mod ~130 MP5, ~230 AK47/MG42). A distancia entra pela
 ---- geometria: a mesma subida e inofensiva de perto e fatal de longe, porque theta cai com 1/d.
 
-A.RecoilClimbBase = 80 --- minutos com mod 100 (~1.3 graus). MEDIDO no processo vivo: iguala o CTH
+A.RecoilClimbBase = 20--80 --- minutos com mod 100 (~1.3 graus). MEDIDO no processo vivo: iguala o CTH
 --- medio da rajada do modelo de growth antigo em sigma 143 (AutoFire, aim 1) nas duas silhuetas
 --- testadas -- 46 vs 42 e 19 vs 19. O FORMATO muda, e e a assinatura da caminhada: o tiro 2 fica
 --- mais perto (90 vs 78) e a partir do 4o a rajada ja saiu do alvo (5 vs 9). Uma arma que sobe sai;
@@ -347,7 +351,7 @@ A.RecoilClimbBase = 80 --- minutos com mod 100 (~1.3 graus). MEDIDO no processo 
 --- Em sigma alto (hipfire, 262) o modelo novo e bem mais brando (36 vs 22): a subida do cano nao
 --- depende de quao aberto o cone ja estava, e o modelo antigo cobrava o recuo em cima da propria
 --- imprecisao da arma. E a unica mudanca de balance deliberada da troca.
-A.RecoilClimbMax = 400 --- teto por tiro. Frouxo de proposito: o teto antigo (60%) era atingido por
+A.RecoilClimbMax = 200--400 --- teto por tiro. Frouxo de proposito: o teto antigo (60%) era atingido por
 --- quase toda arma automatica e achatava as diferencas que a cadeia de recoil existe para produzir.
 
 ---- Chance de o atirador SEGURAR o cano naquele tiro = 100 - control (Marks, postura, bipe, Forca,
