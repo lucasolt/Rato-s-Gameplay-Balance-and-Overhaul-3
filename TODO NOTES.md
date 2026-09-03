@@ -152,6 +152,34 @@ multiplier is an angle and angles do not care about range. It is one new number.
 
 ---
 
+## 11. Ponto de mira e silhueta — **DONE, 2026-09-02**
+
+Descoberto ao validar contra tiro simulado: o modelo mirava num ponto que a bala nao usava.
+`A.SpotAnchor` (tabela de ancora por postura, chutada) foi substituida por
+`Unit:GetStaticSpotPos(spot)` — o spot da animacao, que bate **exato** com o `target_pos` do
+`GetLoFData`. Custo 35 us (~3% do orcamento de `CalcChanceToHit`).
+
+Um exemplo de por que a tabela nao tinha conserto: num alvo agachado o spot `Torso` do motor
+fica **acima** do spot `Head` (635 mm vs 594 mm).
+
+`A.BodyFill` recalibrada contra tiro simulado: **Standing 77, Crouch 75, Prone 56** (era
+75/84/80). Resultado final, 250 tiros por ponto, previsto/medido no Torso:
+
+| postura  | aim 2 | aim 4 | aim 6 |
+|----------|-------|-------|-------|
+| Standing | 9/12  | 32/34 | 49/46 |
+| Crouch   | 14/17 | 44/45 | 63/60 |
+| Prone    | 9/11  | 34/34 | 54/60 |
+
+Erro maximo 6 pontos contra ~3 pontos de ruido amostral, sem sinal sistematico.
+
+**Limitacao conhecida:** o modelo e UM retangulo. Mirando a cabeca de um alvo de pe a longa
+distancia com cone apertado ele erra para cima (35% previsto contra 18% medido a 28 tiles,
+aim 6), porque assume a largura dos ombros na altura da cabeca. Nas demais celulas fica dentro
+do ruido.
+
+---
+
 ## Also outstanding, not on your list
 
 - `A.TargetedResidualPct = 0` means calling a head shot now costs nothing at all: same CTH as the

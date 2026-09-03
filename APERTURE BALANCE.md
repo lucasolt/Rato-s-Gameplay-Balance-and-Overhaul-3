@@ -1,11 +1,14 @@
 # Angular CTH — balance model, measurements and tuning
 
-> **STALE as of 2026-09-02.** Sections 1 and 2 rest on `d50 = 1022 / sigma`, which came from the
-> area-equivalent circle. The circle was replaced by a separable per-axis model fed by the target's
-> animation box, and the constant both moved and stopped being a single number — it now depends on
-> stance and aspect angle. The *identity* `d50 = C / sigma` still holds (C is sigma-invariant).
-> A live measurement of C on 2026-09-01 did not reconcile with the analytic value and is not
-> trustworthy; re-measure before rewriting these tables. See `TODO NOTES.md`.
+> **Re-measured 2026-09-02.** `d50 = 1022 / sigma` came from the area-equivalent circle and is
+> gone. The circle was replaced by a separable per-axis model fed by the target's animation box, so
+> the constant both moved *and* stopped being a single number: it depends on stance, aspect angle
+> and the shooter's eye height. The identity `d50 = C / sigma` still holds — C is sigma-invariant,
+> confirmed at sigma 100 and 200 (agreement within 1%). Use the table in §1.1.
+>
+> Every derived number below that was computed from 1022 (§1.2, §1.3, §3, §4 tables) is
+> **scaled by C/1022** — for a standing frontal torso that is ×1.04, so those tables are close to
+> right; for prone or oblique targets they are not. Rescale before trusting them.
 
 
 > **Status:** everything in §3, §4, §5 and §7 is **implemented** on `feat/cth-angular` and verified
@@ -40,12 +43,32 @@ a point of Marksmanship and an aim level in the same unit.
 
 ### 1.1 Effective range *is* 1/sigma
 
-For a standing torso `theta = 1203/d` (d in tiles), so the distance at which a given cone still
-gives 50% is
+The distance at which a given cone still gives 50% is
 
 ```
-d50 = 1022 / sigma          (standing torso)
+d50 (tiles) = C x 1000 / (sigma x 1200)
 ```
+
+`C` is sigma-invariant but depends on the target's stance, the aspect angle you see it at, and how
+far above it the shooter's eye sits. Measured in the live process on 2026-09-02, standing shooter
+(eye 1.5 m), `Torso`, fully exposed:
+
+| stance   | az 0 | az 45 | az 90 | az 135 | az 180 |
+|----------|------|-------|-------|--------|--------|
+| Standing | 1062 | 1479  | 1256  | 1467   | 1067   |
+| Crouch   |  948 | 1184  |  999  | 1184   |  961   |
+| Prone    |  770 | 1006  |  874  | 1025   |  810   |
+
+az 0 = you are looking at the target's front, az 90 = its flank. **The flank is the wide side**:
+a man is ~35% easier to hit from 45° than head-on. Crouching buys ~11% of range back at az 0 and
+~20% at az 45; going prone buys ~27% / ~32%.
+
+Eye height matters most against prone targets, because a standing shooter looks *down* onto the
+whole body instead of at its edge — dropping the shooter's eye from 1.5 m to 0.9 m moves prone C
+from 770 to 714 at az 0 (−7%), against −1% for a standing target.
+
+Validated against simulated shots: the model's 50% sigma matched the measured 50% crossing on all
+three stances (standing 30 vs ~29, crouch 39 vs ~36-43, prone 33 vs ~35).
 
 **A cone multiplier of `m` is exactly a `1/m` change in effective range, at every distance.**
 That is the common currency. A residual that reports "cone ×108%" is "−7% of your reach".
@@ -56,7 +79,7 @@ Nothing else in the model needs its own scale.
 `Rat_ApertureFloor` is `FloorPct% × theta(range)`, so the floor is a pure function of range and
 
 ```
-d50_max = 1022 / F = 1.545 x WeaponRange           (at FloorPct = 55)
+d50_max = C / F   ->   1.61 x WeaponRange   (standing az 0, C = 1062, FloorPct 55)
 ```
 
 `FloorPct` has one clean meaning: **the CTH a fully-converged shot gets at the weapon's own

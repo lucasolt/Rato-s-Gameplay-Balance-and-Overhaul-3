@@ -90,8 +90,6 @@ A.SkillMin = 50 --100 --- multiplicador (%) em Marksmanship 100
 A.SkillMaxFactor = 3
 A.SkillMax = A.SkillMaxFactor * A.SkillMin --300--260 --- multiplicador (%) em Marksmanship 0
 
-
-
 ---------------------------------------------------------------------------------------------------
 ---- Escala base
 ---------------------------------------------------------------------------------------------------
@@ -141,33 +139,14 @@ A.Silhouette = {
 ---- 195x91x53. Projetar os 8 cantos no plano perpendicular da as quatro extensoes de graca, com
 ---- o azimute EXATO (sem interpolar) e a inclinacao real da linha de tiro incluida.
 
----- Ancora do ponto de mira dentro da caixa, em % de cada eixo do frame do corpo {x, y, z}.
----- Mirar a cabeca sobe a ancora ~36 cm e o corpo passa a se estender quase so para BAIXO;
----- usar a ancora do torso para todos os spots custava 33 pontos (53% na tela, 20% no tiro).
----- Deitado o eixo que separa cabeca de pes e o X (comprimento), nao o Z -- por isso {x,y,z}
----- e nao so a altura. Medido em 2026-09-02, media de 4 pontos de vista.
-A.SpotAnchor = {
-    Standing = {
-        Head  = {78, 70, 92}, Torso = {48, 42, 69}, Arms = {56, 40, 60},
-        Groin = {37, 30, 51}, Legs  = {77, 36, 30},
-    },
-    Crouch = {
-        Head  = {76, 44, 90}, Torso = {46, 37, 60}, Arms = {65, 28, 50},
-        Groin = {37, 32, 38}, Legs  = {79,  9, 42},
-    },
-    Prone = {
-        Head  = {90, 64, 49}, Torso = {67, 55, 42}, Arms = {85, 18, -4},
-        Groin = {54, 51, 61}, Legs  = {37, 14, 76},
-    },
-}
 
 ---- Caixa -> corpo, em %. Os cantos da caixa sao vazios: de pe ela tem 93 cm de largura e o
 ---- homem tem ~50. E a UNICA constante ajustavel deste caminho -- calibrada contra tiro simulado,
 ---- nao contra o modelo antigo. Maior = alvo maior = mais CTH.
 A.BodyFill = {
-    Standing = 75,
-    Crouch = 84,
-    Prone = 80,
+    Standing = 77,
+    Crouch = 75,
+    Prone = 56,
 }
 
 ---- Meia-faixa normal em permil: 1000 * (Phi(z) - 0.5), z = indice * NormalStep / 1000.
@@ -213,8 +192,6 @@ A.ExposureBlockedPct = 6
 ---- (cobrar o inteiro contaria duas vezes); o residual e o custo de ESCOLHER alvo pequeno.
 A.TargetedResidualPct = 0 --35
 
-
-
 ---- AimAccuracy define quanto CADA nivel de mira FECHA o cone:
 ---- decay% = 100 - (DecayBase + DecayScale * AimAccuracy). AimAccuracy 3 -> 80%/nivel, 6 -> 68%, 9 -> 56%.
 ---- Hand-Eye Coordination (Dex+Marks) escala quanto disso o atirador COBRA (= "Aiming Rework").
@@ -236,8 +213,6 @@ A.DecayMinPct = 30 --20
 --    {id = "FirstAimBonusModifier", from = 1, to = 1, acc = 3},
 --	{id = "BonusAccuracyWhenFullyAimed", from = 3, to = 3, acc = 4}
 --}
-
-
 
 ---------------------------------------------------------------------------------------------------
 ---- MANEJO. O antigo Point Blank Accuracy (GetPBbonus, que ja soma classe + arma + componentes)

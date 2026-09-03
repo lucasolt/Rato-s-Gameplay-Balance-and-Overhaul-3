@@ -69,6 +69,8 @@ end
 ---- passa a se estender quase so para baixo. nil = alvo sem caixa (ponto, veiculo): cai no circulo.
 function Rat_TargetExtents(attacker_pos, target, spot, exposed_pct, stance_override)
     local a = P()
+    ---- sem Z valido a subtracao devolve ponto 2D e dir:z() vira nil no calculo do plano
+    attacker_pos = Rat_ValidZ(attacker_pos)
     local o = (IsKindOf(target, "Unit") and target.target_dummy) or target
     if not IsValid(o) or not o.GetEntityBBox then
         return nil
@@ -82,26 +84,32 @@ function Rat_TargetExtents(attacker_pos, target, spot, exposed_pct, stance_overr
     if not stance and IsKindOf(target, "Unit") then
         stance = target:GetHitStance()
     end
-    local anchors = a.SpotAnchor[stance] or a.SpotAnchor.Standing
     local part = spot
     if type(part) == "table" then
         part = part.id
     end
-    local anc = anchors[part] or anchors.Torso
 
     local ang = o:GetOrientationAngle()
     local base = Rat_ValidZ(o:GetPos())
     local mn, mx = bb:min(), bb:max()
 
-    ---- um canto da caixa (ou a ancora) do frame do corpo para o mundo: a caixa e alinhada aos
-    ---- eixos LOCAIS, entao so a guinada roda; z nao gira.
+    ---- um canto da caixa do frame do corpo para o mundo: a caixa e alinhada aos eixos LOCAIS,
+    ---- entao so a guinada roda; z nao gira.
     local function to_world(x, y, z)
         return base + Rotate(point(x, y, 0), ang) + point(0, 0, z)
     end
 
-    local aim = to_world(mn:x() + MulDivRound(mx:x() - mn:x(), anc[1], 100),
-                         mn:y() + MulDivRound(mx:y() - mn:y(), anc[2], 100),
-                         mn:z() + MulDivRound(mx:z() - mn:z(), anc[3], 100))
+    ---- ponto de mira = o spot da animacao, o MESMO que a bala persegue (GetLoFData bate exato).
+    ---- Nada de tabela por postura: o esqueleto ja sabe onde a cabeca esta neste frame.
+    local aim
+    if IsKindOf(target, "Unit") then
+        local got, p = pcall(target.GetStaticSpotPos, target, part)
+        if got and p then
+            aim = Rat_ValidZ(p)
+        end
+    end
+    aim = aim or to_world((mn:x() + mx:x()) / 2, (mn:y() + mx:y()) / 2,
+                          (mn:z() + mx:z()) / 2)
 
     local dist = attacker_pos:Dist(aim)
     if dist < 1 then
@@ -736,7 +744,7 @@ end
 
 ---- Sem Z valido a subtracao de pontos devolve um ponto 2D e o eixo vertical some inteiro --
 ---- Rat_PerpUp caia no fallback horizontal sem avisar. Toda origem/alvo passa por aqui antes.
-local function Rat_ValidZ(p)
+function Rat_ValidZ(p)
     if p and not p:IsValidZ() then
         return p:SetTerrainZ()
     end
