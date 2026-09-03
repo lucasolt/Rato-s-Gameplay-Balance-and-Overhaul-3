@@ -23,7 +23,7 @@ A.ComponentEffectsAimBonus = {
 	{id = "sniper_adv_aim_scope", from = 4, acc = 3},
     ---- Forward Grip: so o PRIMEIRO nivel -- e o "aponta rapido" dele, nao um ganho permanente.
     {id = "FirstAimBonusModifier", from = 1, to = 1, acc = 3},
-	{id = "BonusAccuracyWhenFullyAimed", from = 3, to = 3, acc = 2}
+	{id = "BonusAccuracyWhenFullyAimed", from = 3, to = 3, acc = 2},
 }
 
 ---- A CEREJA da optica: multiplicador do PISO do cone por ampliacao (Rat_ApertureFloor). E a unica
@@ -61,21 +61,21 @@ A.ApertureMagnifications = {
 	----   limiar de mira comecando mais tarde       (pior no aim 3, melhor do 4 em diante)
 	---- IncreaseAimAccuracy sai de TODAS: AimAccuracy crua e stat de arma.
 	_6x = {
-		Parameters = { MaxAimActionsIncrease = 3, snap_reduc = -40 },
-		ModificationEffects = { IncreaseMaxAimActions = true, scope_snapshot = true,
+		Parameters = { MaxAimActionsIncrease = 3, snap_mul = 140 },
+		ModificationEffects = { IncreaseMaxAimActions = true, SnapshotPropertyMul = true,
 			ScopePenalty3 = true, ScopePenalty2 = false, ScopePenalty1 = false,
 			IncreaseRange = false, IncreaseAimAccuracy = false },
 	},
 	_4x = {
-		Parameters = { MaxAimActionsIncrease = 2, snap_reduc = -25 },
-		ModificationEffects = { IncreaseMaxAimActions = true, scope_snapshot = true,
+		Parameters = { MaxAimActionsIncrease = 2, snap_mul = 125 },
+		ModificationEffects = { IncreaseMaxAimActions = true, SnapshotPropertyMul = true,
 			ScopePenalty2 = true, ScopePenalty1 = false, ScopePenalty3 = false,
 			IncreaseRange = false, IncreaseAimAccuracy = false },
 	},
 	_2x = {
-		Parameters = { MaxAimActionsIncrease = 1, snap_reduc = -10 },
+		Parameters = { MaxAimActionsIncrease = 1, snap_mul = 110 },
 		ModificationEffects = { BonusAccuracyWhenFullyAimed = true, IncreaseMaxAimActions = true,
-			scope_snapshot = true, ScopePenalty1 = true, ScopePenalty2 = false, ScopePenalty3 = false,
+			SnapshotPropertyMul = true, ScopePenalty1 = true, ScopePenalty2 = false, ScopePenalty3 = false,
 			IncreaseRange = false, IncreaseAimAccuracy = false },
 	},
 	---- 2x de aquisicao rapida (ACOG/WideScope): trocam o piso e a mira alta pelo snapshot. O
@@ -92,11 +92,16 @@ A.ApertureMagnifications = {
 			IncreaseAimAccuracy = false, ScopePenalty1 = false, ScopePenalty2 = false,
 			ScopePenalty3 = false },
 	},
-	Reflex = {},
+	Reflex = {		Parameters = {bonus_cth = 10},
+		ModificationEffects = {AccuracyBonusWhenAimed = true, reflex_sight_close_range = false}},
 	Ironsight = {
 		Parameters = {bonus_cth = 3},
 		ModificationEffects = {AccuracyBonusWhenAimed = true},
-	}, -- nao muda nada; fica aqui so para marcar intencao
+	}, 
+	--VerticalGrip = {
+	--	Parameters = {bonus_cth = 4},
+	--	ModificationEffects = {AccuracyBonusWhenAimed = true},
+	--}
 }
 
 ---- Componente -> perfil. Componente ausente daqui nao e tocado. Chute inicial de tiers:
@@ -105,7 +110,7 @@ A.ApertureComponentTier = {
 	ReflexSightAdvanced       = "Reflex",
 	ReflexSightAdvanced_Glock = "Reflex",
 	_ReflexSIghtVigilance     = "Reflex",
-	ImprovedIronsight         = "Reflex",
+	ImprovedIronsight         = "Ironsight",
 	G36_SCOPE                 = "_2x",
 	SCOPE_G36_2               = "_2x",
 	AUGScope_Default          = "_1dot5x",
@@ -286,8 +291,8 @@ RAT_APERTURE_WEAPON_RANGE = {
 	---- Snipers / marksman
 	BarretM82                = { 40, 44},
 	PSG1                     = { 34, 42},
-	M24Sniper                = { 32, 39},
-	SSG69_1                  = { 32, 39},
+	M24Sniper                = { 32, 40},
+	SSG69_1                  = { 32, 40},
 	DragunovSVD              = { 30, 36},
 	Gewehr98                 = { 30, 36},
 	GoldenGun                = { 30, 36},
@@ -295,30 +300,30 @@ RAT_APERTURE_WEAPON_RANGE = {
 	Gewehr43_1               = { 28, 32},
 	Mosin_1                  = { 28, 32},
 	SteyrScout_1             = { 28, 32},
-	Winchester1894           = { 26, 29},
-	Winchester_Quest         = { 26, 29},
+	Winchester1894           = { 26, 28},
+	Winchester_Quest         = { 26, 28},
 	VSS_1                    = { 24, 26},
-	Delisle_1                = { 22, 23},
-	VSK94_1                  = { 22, 23},
+	Delisle_1                = { 22, 24},
+	VSK94_1                  = { 22, 24},
 	---- Metralhadoras
 	MG58                     = { 32, 36},
 	PKM_1                    = { 32, 36},
 	BrowningM2HMG            = { 30, 34},
 	HK21                     = { 30, 34},
 	MG42                     = { 30, 34},
-	FNMinimi                 = { 28, 31},
-	HK23ECamo_1              = { 28, 31},
-	HK23E_1                  = { 28, 31},
-	RPD_1                    = { 28, 31},
-	RPK74                    = { 28, 31},
+	FNMinimi                 = { 28, 32},
+	HK23ECamo_1              = { 28, 32},
+	HK23E_1                  = { 28, 32},
+	RPD_1                    = { 28, 32},
+	RPK74                    = { 28, 32},
 	---- Fuzis de assalto
-	AR10std                  = { 30, 33},
-	FNFAL                    = { 30, 33},
-	G3A3Green_1              = { 30, 33},
-	G3A3_1                   = { 30, 33},
-	Galil_FlagHill           = { 30, 33},
-	M14SAW                   = { 30, 33},
-	M14SAW_AUTO              = { 30, 33},
+	AR10std                  = { 30, 34},
+	FNFAL                    = { 30, 36},
+	G3A3Green_1              = { 30, 34},
+	G3A3_1                   = { 30, 34},
+	Galil_FlagHill           = { 30, 30},
+	M14SAW                   = { 30, 32},
+	M14SAW_AUTO              = { 30, 32},
 	AK74                     = { 28, 30},
 	AN94_1                   = { 28, 30},
 	AR15                     = { 28, 30},
@@ -343,12 +348,19 @@ RAT_APERTURE_WEAPON_RANGE = {
 	Type56B_1                = { 26, 28},
 	Type56C_1                = { 26, 28},
 	Type56D_1                = { 26, 28},
-	G11_1                    = { 24, 25},
-	Groza_1                  = { 22, 23},
+	G11_1                    = { 24, 26},
+	Groza_1                  = { 22, 24},
 	---- Submetralhadoras (so as de cano longo mudam)
-	HK53_1                   = { 28, 29},
-	AKSU                     = { 24, 25},
-	M4Commando               = { 24, 25},
+	HK53_1                   = { 28, 30},
+	AKSU                     = { 24, 26},
+	M4Commando               = { 24, 26},
+
+	--
+	M41Shotgun = { 22, 26},
+	Auto5 = { 20, 24},
+	AA12 = {20, 24},
+	DoubleBarrelShotgun = { 18, 22},
+	Auto5_quest = { 18, 22},
 }
 
 ---- params autorados como PresetParamPercent no items.lua (so muda o tipo do PlaceObj / a tag).

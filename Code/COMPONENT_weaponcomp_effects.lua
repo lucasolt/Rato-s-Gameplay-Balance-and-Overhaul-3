@@ -600,6 +600,7 @@ function weapon_components_rat()
         id = "scope_snapshot"
     })
 
+
     PlaceObj('WeaponComponentEffect', {
         Comment = "In OpportunityAttack Cth Modifier",
         Description = T(299071168122,

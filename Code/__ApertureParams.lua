@@ -14,7 +14,8 @@
 --TODO: AI OVERHAUL - make sure AI will not try to shoot through the walls
 --TODO: AI OVERHAUL - Enemy LastPos should generate threat. They should also try to "chase" the last pos
 --TODO: General balancing - OW tuning - maybe snapshot should not scale with distance. instead it could decrease total cth by a %.. 
-
+--TODO: 03/09/2026
+--TODO: fix cth degrading to old logic. Probably related to peeking from cover (needs a future position for check lof)
 const.Combat.Aperture = {}
 local A = const.Combat.Aperture
 
@@ -95,11 +96,17 @@ A.SkillMax = A.SkillMaxFactor * A.SkillMin --300--260 --- multiplicador (%) em M
 ---------------------------------------------------------------------------------------------------
 ---- Abertura de referencia (minutos): Marks 100, arma de referencia, sem componentes. Move TUDO.
 ---- Calibrado 2026-08-29 contra o CTH do modelo somado, convertido a sigma pela LUT.
-A.BaseFactor = 75
+function aCTH_base(new_base)
+	A.BaseFactor = new_base
+	A.Base = A.BaseFactor * 100 / A.SkillMin
+	return A.Base
+end
+
+A.BaseFactor = 60--75
 A.Base = A.BaseFactor * 100 / A.SkillMin--75 --57
 
 ---- Piso mecanico do cone. Derivado do WeaponRange: silhueta de alvo em pe no alcance maximo x este %.
-A.FloorPct = 55 --130 --55
+A.FloorPct = 35 --130 --55
 
 ---- Convergencia da mira ao piso. true = assintotico: sigma = piso + (sigma0 - piso) * decay^aim
 ---- (cada stat sempre rende; tiro mirado fica mais dificil no medio/longo). false = joelho duro.
@@ -242,8 +249,7 @@ A.AimDecayMuls ={
 		ReduceAimAccuracy = {mul = 150}
 	}
 }
--- TODO: reflex sight should use differnt value, as it has also the close range bonus
--- TODO: Crouch and prone should increase aim accuracy
+
 -- TODO: Grips
 
 ---- Degrau de "arma no ombro" -- hipfire / snapshot. So ate aim 2 (aim 3+ a arma esta encostada).
@@ -253,8 +259,8 @@ A.AimDecayMuls ={
 
 A.AimStep = {
     [0] = 280,--380, --- hipfire: x2.80 numa arma de referencia
-    [1] = 155,--180,--155, --- snapshot 1 nivel: x1.55
-    [2] = 118--130--118 --- snapshot 2 niveis: x1.18
+    [1] = 130,--155,--180,--155, --- snapshot 1 nivel: x1.55
+    [2] = 110,--118--130--118 --- snapshot 2 niveis: x1.18
 }
 A.AimStepMaxLevel = 2 --- acima disso a arma esta encostada: alargamento 100
 
@@ -370,7 +376,7 @@ A.CrosshairSigmaMul = 250
 ---- "Torso" nao e o centro da silhueta (spots vao Head +33 a Legs -59, centroide -14) e Rayleigh pressupoe
 ---- espalhamento CENTRADO. MUDA BALANCE: grupo desce ~14cm -> mais perna/virilha. So eixo vertical, so sem parte pedida.
 
-A.AimCentroidPct = 0 --100
+A.AimCentroidPct = 100 --100
 
 ---- Segmentos do anel de mira. Mais que isto nao se distingue; menos, vira poligono a queima-roupa.
 A.CrosshairRingSegments = 32
@@ -380,7 +386,7 @@ A.CrosshairRingSegments = 32
 ---- neste CTH de referencia; theta se cancela na razao de k, entao o cone sai igual em toda parte
 ---- do corpo. Em CTH = ConeRefCTH o resultado bate exatamente com o modelo de pontos antigo.
 ---- 65 e onde a escala e ~simetrica: em 80, +20 pontos valia cone 94 e -20 valia 125.
-A.ConeRefCTH = 50--65 --80--50
+A.ConeRefCTH = 50--50
 
 ---- Teto e piso do multiplicador de UM residual. Sem eles -100 pontos daria cone infinito.
 A.ConeMulMin = 25
@@ -397,18 +403,4 @@ A.MetaScaleWorst = 300--300
 A.MetaScaleBest = 60--60
 
 ---------------------------------------------------------------------------------------------------
-
-
--- TODO: Check the second property
---function OnMsg.ClassesGenerate()
---    AppendClass.Firearm = {
---        properties = {
---            ---- Multiplicador (%) do degrau de hipfire/snapshot. Menor = aponta mais rapido.
---            ---- 0 = nao declarado, semeado do OverwatchAngle em Rat_SeedApertureProperties().
---            --{id = "rat_aperture_snap", editor = "number", default = 0, no_edit = true},
---            ---- Multiplicador (%) da abertura BASE da arma, antes de mira e componentes. 100 = referencia.
---            {id = "HandlingMul", editor = "number", default = 100, no_edit = true}
---        }
---    }
---end
 

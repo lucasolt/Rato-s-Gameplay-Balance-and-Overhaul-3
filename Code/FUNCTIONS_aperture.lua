@@ -375,10 +375,11 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     ---    o gap ate o piso, ou seja e ganho de velocidade de convergencia, nao assintota nova.
     local sight = 100
     if aim > 0 and a.SightAimBonus and IsKindOf(weapon, "Firearm") then
-        local points = GetComponentEffectValue(weapon, "AccuracyBonusWhenAimed", "bonus_cth")
+        local points, comp = GetComponentEffectValue(weapon, "AccuracyBonusWhenAimed", "bonus_cth")
         if points and points ~= 0 then
             sight = Rat_ConeMulForPoints(points)
             s = MulDivRound(s, sight, 100)
+			meta[#meta + 1] = comp.DisplayName
         end
     end
 

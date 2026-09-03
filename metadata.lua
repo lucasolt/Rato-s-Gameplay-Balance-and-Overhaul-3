@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 12879,
+	'version', 12889,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -175,8 +175,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1788383506,
-	'code_hash', 8865225286823070983,
+	'saved', 1788407105,
+	'code_hash', -1248139330135754978,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",
@@ -247,6 +247,11 @@ return PlaceObj('ModDef', {
 			'Class', "CharacterEffectCompositeDef",
 			'Id', "AdrenalineRush_Savior",
 			'ClassDisplayName', "Character effect",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponentEffect",
+			'Id', "SnapshotPropertyMul",
+			'ClassDisplayName', "Modification Effects",
 		}),
 		PlaceObj('ModResourcePreset', {
 			'Class', "CombatAction",
