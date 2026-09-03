@@ -644,7 +644,9 @@ end
 ---- numero ja tunado se mexa. Com mu > 0 a nuvem vira anel e so a LUT 2D acerta a curva.
 ---------------------------------------------------------------------------------------------------
 function Rat_RiceCTH(theta, sigma, mu)
-    if not mu or mu <= 0 then
+    ---- mu < 0 = cano passou do alvo (supercompensacao); o que conta e a DISTANCIA ao centro
+    mu = mu and abs(mu) or 0
+    if mu <= 0 then
         return Rat_RayleighCTH(theta, sigma)
     end
     local a = P()
@@ -690,7 +692,7 @@ function Rat_BurstShotCTH(theta, sigma, n, climb, chance)
     end
     n = Min(n, #Rat_Binomial)
 
-    local held = MulDivRound(climb, Clamp(P().RecoilControlResidual or 0, 0, 100), 100)
+    local held = Rat_RecoilHeldStep(climb)
     local row = Rat_Binomial[n]
     local acc, wsum = 0, 0
     for j = 0, n do
@@ -886,25 +888,38 @@ local function Rat_RecoilHeld(attacker, chance)
     return chance > 0 and attacker:Random(100) < chance
 end
 
----- Um degrau da caminhada: o cano sobe `climb`, ou so o residual se o atirador segurou.
+---- Delta de UM tiro segurado: passa o residual e ainda PUXA de volta RecoilCorrectPct de `climb`.
+---- Negativo quando a correcao supera o residual -- e por onde o mu acumulado desce e cruza zero.
+---- Global porque Rat_BurstShotCTH usa o MESMO passo: se os dois lados calcularem separado,
+---- previsao e bala divergem sem avisar.
+function Rat_RecoilHeldStep(climb)
+    local a = P()
+    return MulDivRound(climb, Clamp(a.RecoilControlResidual or 0, 0, 100), 100) -
+               MulDivRound(climb, Clamp(a.RecoilCorrectPct or 0, 0, 100), 100)
+end
+
+---- Um degrau da caminhada: o cano sobe `climb`, ou anda o passo segurado (que pode ser para baixo).
 local function Rat_RecoilStep(attacker, mu, climb, chance)
     if Rat_RecoilHeld(attacker, chance) then
-        return mu + MulDivRound(climb, Clamp(P().RecoilControlResidual or 0, 0, 100), 100)
+        return mu + Rat_RecoilHeldStep(climb)
     end
     return mu + climb
 end
 
 ---- Ponto de mira ja deslocado pela subida acumulada `mu` (minutos). Puro: sem random.
 function Rat_RecoilWalkPoint(attack_pos, aim_pos, axis, mu)
-    if not mu or mu <= 0 or not axis then
+    if not mu or mu == 0 or not axis then
         return aim_pos
     end
     local dist = Rat_ValidZ(attack_pos):Dist(Rat_ValidZ(aim_pos))
     local rise = MulDivRound(dist, mu, 3438)
-    if rise < 1 then
-        return aim_pos
+    ---- rise < 0 = cano abaixo da mira; SetLen nao aceita comprimento negativo
+    if rise > 0 then
+        return aim_pos + SetLen(axis, rise)
+    elseif rise < 0 then
+        return aim_pos - SetLen(axis, -rise)
     end
-    return aim_pos + SetLen(axis, rise)
+    return aim_pos
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -983,19 +998,24 @@ function Rat_SimPlanShots(ctx)
 
     local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
 
+    ---- em "growth" o recuo esta NO CONE, entao a bala tem de sair do cone alargado do tiro i
+    local growth_mode = (P().RecoilMode == "growth")
+    ctx.sigma_disp = sigma_disp
+
     local shots, mu = {}, 0
     for i = 1, num_shots do
         ---- a mira do tiro i sai de onde o recuo ja deixou o cano; a dispersao continua sendo o
         ---- cone da arma, do mesmo tamanho em todos os tiros -- recuo desloca, nao espalha.
         local aim_pos = axis and Rat_RecoilWalkPoint(ctx.attack_pos, ctx.aim_pos, axis, mu) or
                             ctx.aim_pos
+        local disp = growth_mode and (sigma_disp[i] or sigma) or sigma
         shots[i] = {
             ---- cone de EXIBICAO: o que daria este mesmo CTH contra este alvo. A dispersao que a
             ---- bala usa e sempre `sigma` -- o recuo esta em `mu`, nao no cone.
             sigma = sigma_disp[i] or sigma,
             cth = cth[i],
             mu = mu,
-            target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, sigma)
+            target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, disp)
         }
         ---- o coice deste tiro so conta para o PROXIMO, e so ate max_idx (a arma reassenta)
         if axis and i <= max_idx then
@@ -1025,10 +1045,31 @@ function Rat_SimReplanShot(ctx, idx)
 
     local aim_pos = axis and Rat_RecoilWalkPoint(ctx.attack_pos, ctx.aim_pos, axis, mu) or
                         ctx.aim_pos
+    local disp = ctx.sigma
+    if P().RecoilMode == "growth" and ctx.sigma_disp then
+        disp = ctx.sigma_disp[idx] or disp
+    end
     return {
         mu = mu,
-        target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, ctx.sigma)
+        target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, disp)
     }
+end
+
+
+---- Modo "growth": o sigma de cada tiro da rajada. O recuo alarga o cone, o cano nao anda.
+function Rat_SimSigmaLadder(attacker, action, weapon, sigma0, num_shots)
+    num_shots = Max(1, num_shots or 1)
+    local growth = (num_shots > 1) and
+                       Rat_GetRecoilConeGrowth(attacker, action, weapon, num_shots) or 100
+    local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
+    local out, s = {}, sigma0
+    for i = 1, num_shots do
+        if i > 1 and (i - 1) <= max_idx then
+            s = MulDivRound(s, growth, 100)
+        end
+        out[i] = s
+    end
+    return out, growth
 end
 
 
@@ -1046,6 +1087,19 @@ end
 ---------------------------------------------------------------------------------------------------
 function Rat_SimRecoilLadder(attacker, action, weapon, sigma0, num_shots, theta)
     num_shots = Max(1, num_shots or 1)
+
+    ---- modo antigo: sem caminhada e sem mu -- o cone de cada tiro JA e a perda.
+    if P().RecoilMode == "growth" then
+        local ladder = Rat_SimSigmaLadder(attacker, action, weapon, sigma0, num_shots)
+        local cth = {}
+        if theta and theta >= 1 then
+            for i = 1, num_shots do
+                cth[i] = Rat_RayleighCTH(theta, ladder[i])
+            end
+        end
+        return cth, 0, 0, ladder
+    end
+
     local climb, chance = 0, 0
     if num_shots > 1 then
         climb, chance = Rat_GetRecoilClimb(attacker, action, weapon, num_shots)

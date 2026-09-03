@@ -8,7 +8,8 @@
 --TODO: Fix target angle getting smaller when you aim
 --TODO: Fix shots being too accurate? for AI? (aim is too strong)
 --TODO: conversely, fix opportunity attacks, as they have no aim, never hitting.
---TODO: Tune Recoil. It should be able to hit. It should generate "compensated" positions lower too
+--TODO: Tune Recoil. Posicoes compensadas (mu < 0) ja saem via A.RecoilCorrectPct; falta VALIDAR
+--TODO: no processo vivo e recalibrar A.RecoilClimbBase, que ainda e do modelo so-para-cima.
 --TODO: fix strays specially for suppression mod. check crit chance.
 --TODO: Check how the aCTH deals with out of sight targets (wallbang)
 --TODO: AI OVERHAUL - make sure AI will not try to shoot through the walls
@@ -358,6 +359,26 @@ A.RecoilClimbMax = 200--400 --- teto por tiro. Frouxo de proposito: o teto antig
 ---- perks). Media identica ao desconto deterministico antigo; o que entra e a variancia.
 A.RecoilControlMax = 90 --- ninguem segura sempre
 A.RecoilControlResidual = 5--15 --- % da subida que passa mesmo num tiro controlado
+
+---- "walk" = o cano sobe e a rajada anda por ele. "growth" = o cone alarga por tiro (modelo
+---- antigo, ate b0d9b99). Ver Rat_SimRecoilLadder.
+A.RecoilMode = "walk"
+
+---- Feedback: num tiro SEGURADO o atirador PUXA o cano de volta esta % de `climb`. Acima do
+---- residual o tiro segurado DESCE o cano e o mu acumulado cruza zero -- a supercompensacao.
+---- Fracao de `climb` e nao do mu acumulado de proposito: mantem o passo com dois valores so, que
+---- e o que deixa Rat_BurstShotCTH continuar exato pela binomial em vez de virar Monte Carlo.
+---- 0 = comportamento antigo (o cano so sobe).
+---- Deriva do teto de controle, nao e chute: a deriva media por tiro e
+----     climb * (1 - c * (100 + corr - residual) / 100)
+---- e zera em c = 100 / (95 + corr). Em 16 isso cai em c = 0.90 = RecoilControlMax, entao o melhor
+---- atirador possivel SEGURA a linha e ninguem enterra o cano na media. Acima disso a deriva media
+---- vira negativa antes do teto e mais controle passaria a ser pior -- nao mexer sem refazer a conta.
+A.RecoilCorrectPct = 16
+
+---- Modo "growth": excesso de cone por tiro = RecoilGrowthBase * mod / 100, teto RecoilGrowthMax.
+A.RecoilGrowthBase = 40
+A.RecoilGrowthMax = 60
 
 ---- Direcao da caminhada, sorteada UMA vez por rajada: "para cima" girado por um yaw aleatorio de
 ---- ate +/- este angulo (graus). 0 = subida pura; 180 = eixo totalmente aleatorio, como a vanilla

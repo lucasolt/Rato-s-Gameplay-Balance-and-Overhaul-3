@@ -598,6 +598,43 @@ end
 ----
 ---- Retorna a subida por tiro em MINUTOS de angulo e a chance de controle em % (0..100).
 ---------------------------------------------------------------------------------------------------
+---- Modo "growth" (A.RecoilMode): o recuo ALARGA o cone por tiro em vez de levantar o cano.
+---- Retorna o multiplicador de sigma por tiro em % (100 = sem recuo).
+function Rat_GetRecoilConeGrowth(attacker, action, weapon, num_shots, test)
+    local a = const.Combat.Aperture
+    if not attacker or not IsKindOf(weapon, "Firearm") then
+        return 100
+    end
+
+    local mod = Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
+
+    ---- cadencia: mais tiros no mesmo tempo, menos tempo para reassentar a arma
+    if not IsKindOf(weapon, "Shotgun") then
+        local action_id_rof = (action and action.id) or ""
+        if action_id_rof == "GrizzlyPerk" then
+            action_id_rof = "MGBurstFire"
+        end
+        local ROF = Rat_GetROF(weapon, action_id_rof)
+        if ROF and ROF > 1 then
+            mod = mod * ROF
+        end
+    end
+
+    ---- MG montada absorve recoil; MG na mao, nao
+    local aid = action and action.id
+    if aid == "MGBurstFire" then
+        if test or (g_Overwatch[attacker] and g_Overwatch[attacker].permanent) then
+            mod = mod * const.Combat.Recoil.MGSetupMul
+        end
+    elseif aid == "GrizzlyPerk" then
+        mod = mod * const.Combat.Recoil.MGSetupMul
+    end
+
+    local excess = Clamp(MulDivRound(a.RecoilGrowthBase, cRound(mod), 100), 0, a.RecoilGrowthMax)
+    excess = MulDivRound(excess, const.Combat.R_Recoil or 100, 100)
+    return 100 + excess
+end
+
 function Rat_GetRecoilClimb(attacker, action, weapon, num_shots, test)
     local a = const.Combat.Aperture
     if not attacker or not IsKindOf(weapon, "Firearm") then
