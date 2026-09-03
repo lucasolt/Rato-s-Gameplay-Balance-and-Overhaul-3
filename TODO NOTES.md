@@ -182,16 +182,29 @@ faixa, entao `P = Px_tronco * Py_tronco + Px_cabeca * Py_cabeca`. Nenhuma aproxi
 A separacao so vale quando **se mira a cabeca E ela sai da silhueta** (`hu + hh >= up`). Medido,
 tiro na cabeca, aim 6, dois retangulos / um retangulo / observado:
 
-| postura  | 2 ret | 1 ret | medido |
-|----------|-------|-------|--------|
-| Standing |    26 |    35 |     22 |
-| Crouch   |    40 |    76 |     69 |
-| Prone    |    29 |    55 |     41 |
+| pose                | 2 ret | 1 ret | medido |
+|---------------------|-------|-------|--------|
+| `hg_Standing_Idle`  |    26 |    35 |     22 |
+| `ar_TakeCover_Idle` |    40 |    76 |     69 |
+| `ar_Prone_Idle`     |    29 |    55 |     41 |
 
-De pe a cabeca sobra acima do ombro e separar acerta. Agachado ela fica encaixada entre os
-ombros — o spot `Torso` do motor chega a ficar ACIMA do da cabeca — e ali a caixa ja tem a
-largura certa: separar tirava corpo e dava 40% onde o tiro deu 69%. Por isso a condicao
-geometrica, e nao "sempre que mirar a cabeca".
+**A unidade "agachada" que eu media era `ar_TakeCover_Idle`, nao `ar_Crouch_Idle`** — achado do
+Rato. Sao poses bem diferentes: caixa de 795 mm contra 1201 mm, e so na de cobertura o spot
+`Torso` do motor fica ACIMA do da cabeca.
+
+A condicao de separar tem duas partes, e o discriminador certo nao e o vao acima da cabeca (que
+nao separa agachado de deitado) e sim **onde o corpo fica**. Mirando a cabeca:
+
+| pose                | down | right+left | corpo pendura embaixo? |
+|---------------------|------|------------|------------------------|
+| `hg_Standing_Idle`  |  112 |         48 | sim -> separa          |
+| `ar_Crouch_Idle`    |  122 |        117 | sim -> separa          |
+| `ar_TakeCover_Idle` |   69 |         96 | nao -> um retangulo    |
+| `ar_Prone_Idle`     |   35 |        107 | nao -> um retangulo    |
+
+Dai `hu + hh >= up - hh and down > right + left`: a cabeca tem de chegar ao topo E o corpo tem de
+pendurar abaixo dela, em vez de se espalhar ao lado. Reproduz os tres casos validados por tiro e
+acerta o agachado de verdade, que o criterio antigo errava por UM minuto de arco (17 contra 18).
 
 Resultado final, 250 tiros por celula, previsto/medido:
 
@@ -201,7 +214,14 @@ Resultado final, 250 tiros por celula, previsto/medido:
 | Crouch   |    49/51 |    68/67 |   55/53 |   76/74 |   44/49 |   57/72 |
 | Prone    |    34/39 |    54/48 |   35/30 |   55/48 |   29/33 |   44/42 |
 
-**Sobra so `Legs`**, e a causa e conhecida: `Legs` e o unico spot em que
+**Pendente: `A.BodyFill.Crouch = 75` foi calibrada contra `ar_TakeCover_Idle`.** `GetHitStance`
+devolve `Crouch` para as duas poses, entao a mesma constante serve caixas de 795 mm e 1201 mm.
+Nao da para re-calibrar contra agachado de verdade nesta cena: as unidades em `ar_Crouch_Idle`
+estao todas atras de cobertura (exposicao 0-10%), e atacante INIMIGO nao simula direito
+(771 -> Barry deu 0 acertos em 200 tiros com 42% previsto; 778 -> Barry cai de 19% para 15%
+quando a mira sobe). Precisa de um merc agachado com linha de tiro limpa para um inimigo.
+
+**Sobra tambem `Legs`**, e a causa e conhecida: `Legs` e o unico spot em que
 `GetStaticSpotPos` NAO bate com o `target_pos` do `GetLoFData` (~55 cm de diferenca, porque tem
 varios spots de perna e o motor escolhe outro). O modelo mira num ponto e a bala em outro.
 

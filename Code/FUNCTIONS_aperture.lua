@@ -553,10 +553,13 @@ function Rat_SeparableCTH(sigma, up, down, right, left, head)
     local p_head = 0
     if head then
         local hu, hr, hw, hh = head[1], head[2], head[3], head[4]
-        ---- so separa se a cabeca SAI da silhueta. Agachado ela fica encaixada entre os ombros
-        ---- (o spot do torso do motor chega a ficar ACIMA do da cabeca) e ali a caixa ja tem a
-        ---- largura certa: separar tirava corpo e dava 40% onde o tiro simulado deu 69%.
-        if hu + hh >= up then
+        ---- Separar so vale se a cabeca chega ao topo E o corpo pendura ABAIXO dela, em vez de
+        ---- se espalhar ao lado. Em `ar_TakeCover_Idle` a cabeca fica encaixada entre os ombros
+        ---- (o spot Torso do motor chega a ficar ACIMA do da cabeca) e deitado o corpo fica ao
+        ---- lado: nos dois a caixa ja tem a largura certa e cortar o ombro comia corpo -- medido,
+        ---- dava 40% onde o tiro simulado deu 69%. Agachado de verdade (`ar_Crouch_Idle`) a
+        ---- cabeca sobra igual a de pe, e ai separa.
+        if hu + hh >= up - hh and down > right + left then
             body_up = Min(up, hu - hh) --- o tronco comeca no ombro, abaixo da cabeca
             p_head = MulDivRound(normal_band(hr - hw, hr + hw, sigma),
                                  normal_band(hu - hh, hu + hh, sigma), 1000)
