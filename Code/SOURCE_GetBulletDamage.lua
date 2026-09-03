@@ -39,11 +39,7 @@ function Firearm:BulletCalcDamage(hit_data, ricochet_idx)
 		local is_unit
 		if obj and IsKindOf(obj, "Unit") and not stray then
 			is_unit = true
-			----
-			if not const.Combat.Aperture or not const.Combat.Aperture.SimulateShots then
-				stray = obj ~= target
-			end
-			----
+			stray = obj ~= target
 			target_reached = target_reached or target and obj == target
 
 			if not prediction then

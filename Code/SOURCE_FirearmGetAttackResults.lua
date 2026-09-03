@@ -379,8 +379,10 @@ function Firearm:GetAttackResults(action, attack_args)
     ---- SIMULACAO: inverte o pipeline vanilla -- sorteia o desvio na abertura, dispara, a geometria decide
     ---- acerto e parte do corpo. Mesma LUT de Rayleigh do CTH (taxa esperada igual); muda a consequencia do erro.
     local sim_shots, sim_ctx
-    if not prediction and const.Combat.Aperture.SimulateShots and
-        Rat_AngularActive(attack_args.weapon or self, action, attacker) then
+    ---- AlwaysHits nao pode virar sorteio de geometria; alvo que nao e objeto (ponto) nunca
+    ---- aparece como `hit.obj`, entao todo tiro seria erro.
+    if not prediction and const.Combat.Aperture.SimulateShots and not action.AlwaysHits and
+        IsValid(target) and Rat_AngularActive(attack_args.weapon or self, action, attacker) then
         ---- Rat_SimPlanShots: a mesma funcao que o visualizador chama
         sim_ctx = {
             attacker = attacker,
@@ -718,6 +720,16 @@ function Firearm:GetAttackResults(action, attack_args)
         for k, v in pairs(shot_attack_args) do
             if not hit_data[k] then
                 hit_data[k] = v
+            end
+        end
+
+        ---- o pre-passe dentro de GetLoFData rodou com o PONTO sorteado como alvo, entao marcou
+        ---- stray todo acerto em unidade. Quem decide stray aqui e `dmg_target`, abaixo.
+        if sim then
+            for _, hit in ipairs(hit_data.hits or empty_table) do
+                if IsKindOf(hit.obj, "Unit") then
+                    hit.stray = nil
+                end
             end
         end
 

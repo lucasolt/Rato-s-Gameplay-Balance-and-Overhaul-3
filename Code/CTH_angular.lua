@@ -104,6 +104,7 @@ end
 ---------------------------------------------------------------------------------------------------
 
 function Rat_ConeAbsorb(data, points)
+    local a = const.Combat.Aperture
     ---- multiplicador desta absorcao, para o overlay mostrar o que ESTE modificador fez ao cone
     data.rat_last_mul = 100
     if data.rat_blocked or not data.rat_sigma then
@@ -117,11 +118,30 @@ function Rat_ConeAbsorb(data, points)
     if mul == 100 then
         return 0
     end
-    data.rat_last_mul = mul
+
+    local prev = data.rat_sigma
+    local sigma = Max(1, MulDivRound(prev, mul, 100))
+
+    ---- Teto: o sigma que ainda entrega MinCTH contra ESTE alvo. Alem dele o CTH exibido nao muda
+    ---- (ja esta no piso) mas o cone continuava abrindo -- e o cone e o que a bala dispara, entao
+    ---- uma penalidade grande jogava o tiro dezenas de graus fora e ele nao acertava nada.
+    if sigma > prev then
+        local cap = Rat_SigmaForCTH(data.rat_theta, a.MinCTH)
+        if cap then
+            sigma = Clamp(sigma, prev, Max(prev, cap))
+        end
+    end
+    if sigma == prev then
+        return 0
+    end
+
+    ---- o overlay mostra o que ESTE modificador fez ao cone: o efetivo, ja com o teto
+    local eff = MulDivRound(sigma, 100, prev)
+    data.rat_last_mul = eff
 
     local before = data.rat_cth
-    data.rat_sigma = Max(1, MulDivRound(data.rat_sigma, mul, 100))
-    data.rat_cone_mul = MulDivRound(data.rat_cone_mul or 100, mul, 100)
+    data.rat_sigma = sigma
+    data.rat_cone_mul = MulDivRound(data.rat_cone_mul or 100, eff, 100)
     data.rat_cth = Rat_ConeCTH(data)
     return data.rat_cth - before
 end
