@@ -635,6 +635,17 @@ function Rat_GetRecoilConeGrowth(attacker, action, weapon, num_shots, test)
     return 100 + excess
 end
 
+---- `control` (fracao do recuo que o atirador NAO cancelou, 0..1) -> chance de segurar o cano, em %.
+---- O mapa antigo era chance = 100 - control*100, e control real so anda entre 0.85 e 1.17: a chance
+---- nunca passava de 15% e o lado estocastico do recuo era decorativo. Pivot/Gain esticam a MESMA
+---- faixa; Pivot 100 / Gain 100 reproduz o mapa antigo exatamente.
+function Rat_RecoilHoldChance(control)
+    local a = const.Combat.Aperture
+    return Clamp(MulDivRound(a.RecoilControlGain or 100,
+                             (a.RecoilControlPivot or 100) - cRound((control or 1) * 100), 100),
+                 0, a.RecoilControlMax or 90)
+end
+
 function Rat_GetRecoilClimb(attacker, action, weapon, num_shots, test)
     local a = const.Combat.Aperture
     if not attacker or not IsKindOf(weapon, "Firearm") then
@@ -644,9 +655,20 @@ function Rat_GetRecoilClimb(attacker, action, weapon, num_shots, test)
     local mod, _, control = Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
 
     ---- control > 1 (Marks baixa, Forca abaixo do breakpoint) nao e "controle negativo": e a ARMA
-    ---- subindo mais. Corta em 1 e o excesso fica no lado da arma, senao o ruim sumiria na divisao.
+    ---- subindo mais. O clamp sozinho DESCARTAVA esse excesso -- cortava antes da divisao e a
+    ---- penalidade de estar abaixo do breakpoint nunca chegava ao climb. Agora o excesso e
+    ---- separado e multiplica a arma, que e o que o paragrafo acima sempre disse que fazia.
+    local excess = Max(1.00, control)
     control = Min(control, 1.00)
-    local gun = (control > 0) and (mod / control) or mod
+
+    ---- chance de segurar o cano. Derivada ANTES do gun de proposito: o gun se ajusta a ela para
+    ---- a media continuar valendo (ver abaixo), entao mexer no mapa nao desregula a escala.
+    local chance = Rat_RecoilHoldChance(control)
+
+    ---- a arma sobe o bastante para que a MEDIA continue sendo `mod`: gun * (1 - chance) = mod.
+    ---- E o que deixa RecoilClimbBase e toda a cadeia tunada valerem com qualquer Pivot/Gain.
+    local hold = (100 - chance) / 100.00
+    local gun = (hold > 0) and (mod * excess / hold) or (mod * excess)
 
     ---- cadencia: mais tiros no mesmo tempo, menos tempo para reassentar a arma
     if not IsKindOf(weapon, "Shotgun") then
@@ -661,13 +683,14 @@ function Rat_GetRecoilClimb(attacker, action, weapon, num_shots, test)
     end
 
     ---- MG montada absorve recoil; MG na mao, nao. E apoio do atirador -> entra no controle.
+    ---- Sobe SO a chance, sem refazer o gun: aqui a media cai de verdade, que e o beneficio.
     local aid = action and action.id
     if aid == "MGBurstFire" then
         if test or (g_Overwatch[attacker] and g_Overwatch[attacker].permanent) then
-            control = control * const.Combat.Recoil.MGSetupMul
+            chance = Rat_RecoilHoldChance(control * const.Combat.Recoil.MGSetupMul)
         end
     elseif aid == "GrizzlyPerk" then
-        control = control * const.Combat.Recoil.MGSetupMul
+        chance = Rat_RecoilHoldChance(control * const.Combat.Recoil.MGSetupMul)
     end
 
     local climb = MulDivRound(a.RecoilClimbBase, cRound(gun), 100)
@@ -676,7 +699,6 @@ function Rat_GetRecoilClimb(attacker, action, weapon, num_shots, test)
     ---- o dial global de recoil do jogador continua valendo
     climb = MulDivRound(climb, const.Combat.R_Recoil or 100, 100)
 
-    local chance = Clamp(100 - cRound(control * 100), 0, a.RecoilControlMax)
     return climb, chance
 end
 

@@ -360,8 +360,22 @@ A.RecoilClimbMax = 200--400 --- teto por tiro. Frouxo de proposito: o teto antig
 
 ---- Chance de o atirador SEGURAR o cano naquele tiro = 100 - control (Marks, postura, bipe, Forca,
 ---- perks). Media identica ao desconto deterministico antigo; o que entra e a variancia.
-A.RecoilControlMax = 90 --- ninguem segura sempre
+---- Teto da chance de segurar. Baixado 90 -> 70 em 2026-09-03 junto com Pivot/Gain: como o gun
+---- e derivado da chance para preservar a media (gun = mod / (1 - chance)), uma chance alta demais
+---- faz o gun estourar A.RecoilClimbMax e a media deixa de valer. Com ClimbBase 25 e mod ~200 o
+---- limite util e chance 75; 70 fica com folga.
+A.RecoilControlMax = 70--90 --- ninguem segura sempre
 A.RecoilControlResidual = 5--15 --- % da subida que passa mesmo num tiro controlado
+
+---- control -> chance de segurar o cano: chance = Gain * (Pivot - control*100) / 100.
+---- Pivot 100 / Gain 100 e o mapa antigo (chance = 100 - control*100), e ele nao servia: control
+---- real so anda entre 0.85 (agachado, Marks alta, Forca boa) e 1.17 (em pe, Forca abaixo do
+---- breakpoint), entao a chance ficava em 0-15% e o recuo era deterministico na pratica -- toda a
+---- maquina de RecoilCorrectPct nunca engatava. Pivot 105 poe o atirador neutro em ~8% em vez de
+---- 0%, e Gain 150 estica a faixa util para ~8-70%. A media do recuo NAO muda com isto: quem paga
+---- pela chance maior e o gun, que sobe junto. O que muda e a VARIANCIA, que e o ponto.
+A.RecoilControlPivot = 105
+A.RecoilControlGain = 150
 
 ---- "walk" = o cano sobe e a rajada anda por ele. "growth" = o cone alarga por tiro (modelo
 ---- antigo, ate b0d9b99). Ver Rat_SimRecoilLadder.
@@ -374,9 +388,12 @@ A.RecoilMode = "walk"
 ---- 0 = comportamento antigo (o cano so sobe).
 ---- Deriva do teto de controle, nao e chute: a deriva media por tiro e
 ----     climb * (1 - c * (100 + corr - residual) / 100)
----- e zera em c = 100 / (95 + corr). Em 16 isso cai em c = 0.90 = RecoilControlMax, entao o melhor
----- atirador possivel SEGURA a linha e ninguem enterra o cano na media. Acima disso a deriva media
----- vira negativa antes do teto e mais controle passaria a ser pior -- nao mexer sem refazer a conta.
+---- e zera em c = 100 / (95 + corr). Em 16 isso cai em c = 0.90. O texto antigo dizia que esse
+---- ponto era RecoilControlMax e que portanto o melhor atirador possivel segurava a linha -- era
+---- falso duas vezes: o mapa control -> chance so chegava a 15%, e o teto era 90 justamente onde a
+---- deriva zera. Hoje o teto e 70 (ver RecoilControlMax), abaixo do break-even: com corr 16 a
+---- deriva no teto ainda e 0.22 * climb, positiva, entao ninguem enterra o cano na media e mais
+---- controle nunca passa a ser pior. Subir RecoilControlMax acima de ~85 reabre esse buraco.
 A.RecoilCorrectPct = 16
 
 ---- Modo "growth": excesso de cone por tiro = RecoilGrowthBase * mod / 100, teto RecoilGrowthMax.
