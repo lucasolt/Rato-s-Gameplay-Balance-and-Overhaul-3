@@ -173,10 +173,37 @@ fica **acima** do spot `Head` (635 mm vs 594 mm).
 
 Erro maximo 6 pontos contra ~3 pontos de ruido amostral, sem sinal sistematico.
 
-**Limitacao conhecida:** o modelo e UM retangulo. Mirando a cabeca de um alvo de pe a longa
-distancia com cone apertado ele erra para cima (35% previsto contra 18% medido a 28 tiles,
-aim 6), porque assume a largura dos ombros na altura da cabeca. Nas demais celulas fica dentro
-do ruido.
+### Dois retangulos (2026-09-02, segunda passada)
+
+A limitacao do retangulo unico foi corrigida: a cabeca virou um segundo retangulo. A uniao
+continua fechada porque as duas faixas em Y sao disjuntas e a largura e constante dentro de cada
+faixa, entao `P = Px_tronco * Py_tronco + Px_cabeca * Py_cabeca`. Nenhuma aproximacao nova.
+
+A separacao so vale quando **se mira a cabeca E ela sai da silhueta** (`hu + hh >= up`). Medido,
+tiro na cabeca, aim 6, dois retangulos / um retangulo / observado:
+
+| postura  | 2 ret | 1 ret | medido |
+|----------|-------|-------|--------|
+| Standing |    26 |    35 |     22 |
+| Crouch   |    40 |    76 |     69 |
+| Prone    |    29 |    55 |     41 |
+
+De pe a cabeca sobra acima do ombro e separar acerta. Agachado ela fica encaixada entre os
+ombros — o spot `Torso` do motor chega a ficar ACIMA do da cabeca — e ali a caixa ja tem a
+largura certa: separar tirava corpo e dava 40% onde o tiro deu 69%. Por isso a condicao
+geometrica, e nao "sempre que mirar a cabeca".
+
+Resultado final, 250 tiros por celula, previsto/medido:
+
+| postura  | Torso a4 | Torso a6 | Head a4 | Head a6 | Legs a4 | Legs a6 |
+|----------|----------|----------|---------|---------|---------|---------|
+| Standing |    32/30 |    49/46 |   19/17 |   26/23 |   29/30 |   43/37 |
+| Crouch   |    49/51 |    68/67 |   55/53 |   76/74 |   44/49 |   57/72 |
+| Prone    |    34/39 |    54/48 |   35/30 |   55/48 |   29/33 |   44/42 |
+
+**Sobra so `Legs`**, e a causa e conhecida: `Legs` e o unico spot em que
+`GetStaticSpotPos` NAO bate com o `target_pos` do `GetLoFData` (~55 cm de diferenca, porque tem
+varios spots de perna e o motor escolhe outro). O modelo mira num ponto e a bala em outro.
 
 ---
 

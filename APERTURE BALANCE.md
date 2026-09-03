@@ -70,6 +70,10 @@ from 770 to 714 at az 0 (−7%), against −1% for a standing target.
 Validated against simulated shots: the model's 50% sigma matched the measured 50% crossing on all
 three stances (standing 30 vs ~29, crouch 39 vs ~36-43, prone 33 vs ~35).
 
+The table is for a `Torso` aim. Called **head** shots are computed from a second rectangle
+(see `TODO NOTES.md`); against a standing target that is worth roughly half the torso's C,
+because the head clears the shoulder line and the body no longer backs it up.
+
 **A cone multiplier of `m` is exactly a `1/m` change in effective range, at every distance.**
 That is the common currency. A residual that reports "cone ×108%" is "−7% of your reach".
 Nothing else in the model needs its own scale.

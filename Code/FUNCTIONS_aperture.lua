@@ -141,19 +141,41 @@ function Rat_TargetExtents(attacker_pos, target, spot, exposed_pct, stance_overr
 
     ---- caixa -> corpo (os cantos sao vazios), e cobertura como reducao de AREA: a raiz repartida
     ---- pelos dois eixos preserva a fracao exposta que o resto do modelo ja usa.
-    local fill = a.BodyFill[stance] or a.BodyFill.Standing
+    local expo = 100
     if exposed_pct and exposed_pct < 100 then
-        fill = MulDivRound(fill, Rat_ISqrt(Max(0, exposed_pct) * 100), 100)
+        expo = Rat_ISqrt(Max(0, exposed_pct) * 100)
     end
+    local fill = MulDivRound(a.BodyFill[stance] or a.BodyFill.Standing, expo, 100)
     local function minutes(x)
         return Max(1, MulDivRound(MulDivRound(x, fill, 100), 3438, dist))
+    end
+    ---- deslocamento COM SINAL, sem piso: posicao dentro da silhueta, nao tamanho
+    local function offset_min(x, scale)
+        return MulDivRound(MulDivRound(x, scale, 100), 3438, dist)
+    end
+
+    ---- Segundo retangulo, SO quando se mira a cabeca. A correcao e sobre a mira cair num
+    ---- apendice estreito: ai a caixa mente feio, porque supoe largura de ombro na altura da
+    ---- cabeca. Mirando no tronco a caixa ja tem a largura certa e separar so tira corpo --
+    ---- medido: deitado, separar no tronco da 30% onde o tiro simulado da 52%.
+    ---- A cabeca e ~esferica, entao a silhueta dela quase nao muda com o angulo: tamanho
+    ---- anatomico constante, encolhido so pela cobertura (BodyFill e o vazio da CAIXA, e a
+    ---- cabeca preenche a dela).
+    local head
+    if part == "Head" and IsKindOf(target, "Unit") then
+        local got, hp = pcall(target.GetStaticSpotPos, target, "Head")
+        if got and hp then
+            local v = Rat_ValidZ(hp) - aim
+            head = { offset_min(Dot(v, upv) / 1000, fill), offset_min(Dot(v, rgt) / 1000, fill),
+                     Max(1, offset_min(a.HeadHalfW, expo)), Max(1, offset_min(a.HeadHalfH, expo)) }
+        end
     end
     up, down, right, left = minutes(up), minutes(down), minutes(right), minutes(left)
 
     ---- theta GEOMETRICO (equivalente em area) so para exibicao: nao depende de sigma, entao o
     ---- tamanho do alvo mostrado na UI para de encolher quando o jogador mira.
     local theta_geo = Max(1, Rat_ISqrt(MulDivRound(right + left, up + down, 4)))
-    return up, down, right, left, theta_geo, aim, dist
+    return up, down, right, left, theta_geo, aim, dist, head
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -500,13 +522,49 @@ end
 ---- P = Px * Py, cada eixo a massa normal entre -esq e +dir. Substitui o circulo equivalente em
 ---- AREA, que nao preserva probabilidade: o mesmo sigma que da Rayleigh no raio da a normal por
 ---- eixo, entao nenhum numero de sigma ja tunado precisa mexer. Em porcento.
-function Rat_SeparableCTH(sigma, up, down, right, left)
+---- massa entre dois limites com sinal, nao so simetrica: e o que separa a faixa do tronco da
+---- faixa da cabeca sem contar a intersecao duas vezes.
+local function normal_band(lo, hi, sigma)
+    if hi <= lo then
+        return 0
+    end
+    if lo >= 0 then
+        return normal_half(hi, sigma) - normal_half(lo, sigma)
+    end
+    if hi <= 0 then
+        return normal_half(-lo, sigma) - normal_half(-hi, sigma)
+    end
+    return normal_half(-lo, sigma) + normal_half(hi, sigma)
+end
+
+---- DOIS retangulos empilhados, nao um. `head` = {hu, hr, hw, hh} em minutos, deslocamento do
+---- centro da cabeca em relacao a mira e as meias-dimensoes dela.
+----
+---- A uniao continua fechada porque as duas faixas em Y sao DISJUNTAS (o tronco e cortado no
+---- ombro, exatamente onde a cabeca comeca) e a largura e constante dentro de cada faixa:
+----     P = Px_tronco * Py_tronco + Px_cabeca * Py_cabeca
+---- Um retangulo so assumia largura de ombro na altura da cabeca -- 35% previsto contra 18%
+---- medido em tiro na cabeca de alvo de pe, longe, com cone apertado.
+function Rat_SeparableCTH(sigma, up, down, right, left, head)
     if not sigma or sigma < 1 then
         return 100
     end
+    local body_up = up
+    local p_head = 0
+    if head then
+        local hu, hr, hw, hh = head[1], head[2], head[3], head[4]
+        ---- so separa se a cabeca SAI da silhueta. Agachado ela fica encaixada entre os ombros
+        ---- (o spot do torso do motor chega a ficar ACIMA do da cabeca) e ali a caixa ja tem a
+        ---- largura certa: separar tirava corpo e dava 40% onde o tiro simulado deu 69%.
+        if hu + hh >= up then
+            body_up = Min(up, hu - hh) --- o tronco comeca no ombro, abaixo da cabeca
+            p_head = MulDivRound(normal_band(hr - hw, hr + hw, sigma),
+                                 normal_band(hu - hh, hu + hh, sigma), 1000)
+        end
+    end
     local px = normal_half(right, sigma) + normal_half(left, sigma)
-    local py = normal_half(up, sigma) + normal_half(down, sigma)
-    return MulDivRound(px * py, 100, 1000000)
+    local py = normal_band(-down, body_up, sigma)
+    return MulDivRound(MulDivRound(px, py, 1000) + p_head, 100, 1000)
 end
 
 ---- Raio EQUIVALENTE EM PROBABILIDADE: o circulo que, neste sigma, teria exatamente este CTH.
@@ -553,12 +611,12 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
     end
 
     local half_cm = Rat_TargetSilhouette(target, body_part_def, exposed_pct)
-    local up, down, right, left, theta_geo = Rat_TargetExtents(attacker_pos, target, body_part_def,
-                                                               exposed_pct)
+    local up, down, right, left, theta_geo, _, _, head =
+        Rat_TargetExtents(attacker_pos, target, body_part_def, exposed_pct)
 
     local cth, theta
     if up then
-        cth = Clamp(Rat_SeparableCTH(sigma, up, down, right, left), a.MinCTH, a.MaxCTH)
+        cth = Clamp(Rat_SeparableCTH(sigma, up, down, right, left, head), a.MinCTH, a.MaxCTH)
         theta = Rat_ThetaEquivalent(sigma, cth)
     end
     if not theta then
@@ -568,7 +626,7 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
         cth = Clamp(Rat_RayleighCTH(theta, sigma), a.MinCTH, a.MaxCTH)
     end
 
-    return cth, sigma, theta, meta, parts, dist, half_cm, up, down, right, left, theta_geo
+    return cth, sigma, theta, meta, parts, dist, half_cm, up, down, right, left, theta_geo, head
 end
 
 ---------------------------------------------------------------------------------------------------

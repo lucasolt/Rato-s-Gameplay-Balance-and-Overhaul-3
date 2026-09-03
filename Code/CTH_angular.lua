@@ -41,10 +41,11 @@ function Rat_ResolveAngular(data)
     local aim, opportunity_attack = Rat_EffectiveAim(attacker, action, data.aim,
                                                      data.opportunity_attack, target)
 
-    local _, sigma, theta, meta, parts, _, _, up, down, right, left, theta_geo =
+    local _, sigma, theta, meta, parts, _, _, up, down, right, left, theta_geo, head =
         Rat_AngularCTH(attacker, target, data.target_spot_group, action, weapon1, aim,
                        opportunity_attack, data.attacker_pos, data.target_pos, nil)
     data.rat_ext_up, data.rat_ext_down, data.rat_ext_right, data.rat_ext_left = up, down, right, left
+    data.rat_ext_head = head
     ---- tamanho do alvo para EXIBIR: geometria pura. rat_theta e equivalente em probabilidade e
     ---- encolhe quando o cone fecha -- correto como moeda interna, absurdo como "tamanho do alvo".
     data.rat_theta_geo = theta_geo
@@ -90,7 +91,7 @@ function Rat_ConeCTH(data)
     local cth
     if data.rat_ext_up then
         cth = Clamp(Rat_SeparableCTH(sigma, data.rat_ext_up, data.rat_ext_down, data.rat_ext_right,
-                                     data.rat_ext_left), a.MinCTH, a.MaxCTH)
+                                     data.rat_ext_left, data.rat_ext_head), a.MinCTH, a.MaxCTH)
         data.rat_theta = Rat_ThetaEquivalent(sigma, cth) or data.rat_theta
     else
         cth = Clamp(Rat_RayleighCTH(data.rat_theta, sigma), a.MinCTH, a.MaxCTH)

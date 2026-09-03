@@ -149,6 +149,12 @@ A.BodyFill = {
     Prone = 56,
 }
 
+---- Meia-largura e meia-altura da CABECA, em mm de verdade. E o segundo retangulo: sem ele o
+---- modelo assume largura de ombro na altura da cabeca. Nao passa por BodyFill -- a cabeca
+---- preenche a propria caixa; so a cobertura a encolhe.
+A.HeadHalfW = 90
+A.HeadHalfH = 115
+
 ---- Meia-faixa normal em permil: 1000 * (Phi(z) - 0.5), z = indice * NormalStep / 1000.
 ---- Gerada por tools/normal_band_lut.py. Cada eixo do modelo separavel e uma faixa; o par de
 ---- meias-faixas soma a massa entre -esq e +dir. Confere com 68/95/99.7 em k = 1, 2, 3.
