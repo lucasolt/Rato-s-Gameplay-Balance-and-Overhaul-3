@@ -145,7 +145,7 @@ A.Silhouette = {
 ---- nao contra o modelo antigo. Maior = alvo maior = mais CTH.
 A.BodyFill = {
     Standing = 77,
-    Crouch = 75,
+    Crouch = 72,
     Prone = 56,
 }
 

@@ -214,12 +214,28 @@ Resultado final, 250 tiros por celula, previsto/medido:
 | Crouch   |    49/51 |    68/67 |   55/53 |   76/74 |   44/49 |   57/72 |
 | Prone    |    34/39 |    54/48 |   35/30 |   55/48 |   29/33 |   44/42 |
 
-**Pendente: `A.BodyFill.Crouch = 75` foi calibrada contra `ar_TakeCover_Idle`.** `GetHitStance`
-devolve `Crouch` para as duas poses, entao a mesma constante serve caixas de 795 mm e 1201 mm.
-Nao da para re-calibrar contra agachado de verdade nesta cena: as unidades em `ar_Crouch_Idle`
-estao todas atras de cobertura (exposicao 0-10%), e atacante INIMIGO nao simula direito
-(771 -> Barry deu 0 acertos em 200 tiros com 42% previsto; 778 -> Barry cai de 19% para 15%
-quando a mira sobe). Precisa de um merc agachado com linha de tiro limpa para um inimigo.
+**`A.BodyFill.Crouch` re-calibrada contra `ar_Crouch_Idle`: 75 -> 72.** Cinco ajustes
+independentes (dois alvos, tres atiradores, 200 tiros por celula) deram 80 / 64 / 79 / 71 / 68 --
+mediana 72, dispersao +-8. A constante antiga saiu de uma unidade em `ar_TakeCover_Idle`; deu
+perto por acaso, porque `GetHitStance` devolve `Crouch` para as duas poses e a mesma constante
+acaba servindo caixas de 795 mm e 1201 mm.
+
+A dispersao de +-8 e o limite honesto do modelo de retangulo: dois alvos com a MESMA caixa e
+quase o mesmo azimute (0 e 8 graus) pedem 80 e 71. Nao e ruido amostral.
+
+Validado depois da troca, previsto/medido no Torso, aim 4 e 6:
+
+| pose                | par                | a4    | a6    |
+|---------------------|--------------------|-------|-------|
+| `ar_Crouch_Idle`    | Barry -> 772       | 47/53 | 68/73 |
+| `ar_Crouch_Idle`    | Grizzly -> 772     | 31/30 | 37/42 |
+| `ar_Crouch_Idle`    | Barry -> 774       | 43/40 | 65/63 |
+| `hg_Standing_Idle`  | IMP -> 776         | 32/31 | 49/46 |
+| `ar_Prone_Idle`     | IMP -> 778         | 34/37 | 54/53 |
+
+**Atacante INIMIGO nao simula direito** e continua em aberto: 771 -> Barry deu 0 acertos em 200
+tiros com 42% previsto, e 778 -> Barry cai de 19% para 15% quando a mira sobe. Todo numero acima
+foi medido com merc atirando.
 
 **Sobra tambem `Legs`**, e a causa e conhecida: `Legs` e o unico spot em que
 `GetStaticSpotPos` NAO bate com o `target_pos` do `GetLoFData` (~55 cm de diferenca, porque tem

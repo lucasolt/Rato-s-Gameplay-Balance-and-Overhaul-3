@@ -55,16 +55,17 @@ far above it the shooter's eye sits. Measured in the live process on 2026-09-02,
 
 | pose                            | az 0 | az 45 | az 90 | az 135 | az 180 |
 |---------------------------------|------|-------|-------|--------|--------|
-| Standing (`hg_Standing_Idle`)   | 1062 | 1479  | 1256  | 1467   | 1067   |
-| Crouch (`ar_Crouch_Idle`)       | 1072 | 1528  | 1391  | 1506   | 1057   |
-| Take cover (`ar_TakeCover_Idle`)|  948 | 1184  |  999  | 1184   |  963   |
+| Standing (`hg_Standing_Idle`)   | 1062 | 1479  | 1257  | 1467   | 1069   |
+| Crouch (`ar_Crouch_Idle`)       | 1029 | 1467  | 1335  | 1444   | 1010   |
+| Take cover (`ar_TakeCover_Idle`)|  910 | 1142  |  957  | 1141   |  928   |
 | Prone (`ar_Prone_Idle`)         |  770 | 1006  |  874  | 1025   |  810   |
 
 **Crouching is not the cover pose, and the difference is the whole point.** `GetHitStance`
-returns `Crouch` for both, but the boxes are 1201 mm and 795 mm tall. A plain crouch is *not*
-meaningfully harder to hit than standing (1072 vs 1062 at az 0 — it is even slightly wider at
-az 90, because the knees come out). **Take Cover is what actually buys you ~11%.** If cover is
-meant to be a decision, the crouch/take-cover gap is the lever, not the standing/crouch one.
+returns `Crouch` for both, but the boxes are 1201 mm and 795 mm tall. A plain crouch is barely
+harder to hit than standing (1029 vs 1062 at az 0, a 3% gain) and is actually *worse* at az 90
+(1335 vs 1257), because the knees come out sideways. **Take Cover is what actually buys you —
+about 12% frontally and 24% at the flank.** If cover is meant to be a decision, the
+crouch/take-cover gap is the lever, not the standing/crouch one.
 
 az 0 = you are looking at the target's front, az 90 = its flank. **The flank is the wide side**:
 a man is ~35% easier to hit from 45° than head-on. Crouching buys ~11% of range back at az 0 and
