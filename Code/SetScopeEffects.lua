@@ -18,12 +18,15 @@ local A = const.Combat.Aperture
 ---- Os `from` batem com o texto ja escrito nos WeaponComponentEffect ("2+", "3+", "4+ niveis").
 ---- Valores pequenos de proposito: acima de acc 12 o decay bate em A.DecayMinPct e +3 == +5.
 A.ComponentEffectsAimBonus = {
-    {id = "pso_dragunov_scope", from = 2, acc = 1},
-    {id = "sniper_aim_scope", from = 3, acc = 2},
-	{id = "sniper_adv_aim_scope", from = 4, acc = 3},
+    {id = "pso_dragunov_scope", from = 4, acc = 3},
+    {id = "sniper_aim_scope", from = 5, acc = 4},
+	{id = "sniper_adv_aim_scope", from = 6, acc = 4},
+	{id = "_x2ScopeAimBonus", from = 4, acc = 4},
     ---- Forward Grip: so o PRIMEIRO nivel -- e o "aponta rapido" dele, nao um ganho permanente.
     {id = "FirstAimBonusModifier", from = 1, to = 1, acc = 3},
-	{id = "BonusAccuracyWhenFullyAimed", from = 3, to = 3, acc = 2},
+	{id = "BonusAccuracyWhenFullyAimed", from = 3, to = 3, acc = 2}, -- HeavyStock
+	--{id = "SightAimBonus", from =1, to = 1, acc = 3}
+
 }
 
 ---- A CEREJA da optica: multiplicador do PISO do cone por ampliacao (Rat_ApertureFloor). E a unica
@@ -33,10 +36,14 @@ A.ComponentEffectsAimBonus = {
 ----
 ---- E aqui que as ampliacoes se separam, NAO no limiar de mira: o piso nao tem teto, enquanto o
 ---- bonus de AimAccuracy satura em A.DecayMinPct e faz 4x e 6x colapsarem no mesmo numero.
+---- Reativado 2026-09-03: com tudo em 100 a assintota era a mesma para toda optica e a unica
+---- separacao que sobrava era o numero de niveis de mira. Medido no processo vivo (M24 @40 tiles,
+---- mira cheia): 6x 70 -> 81, 4x 62 -> 64. So morde de verdade na ampliacao alta com alcance
+---- longo, que e exatamente onde a ampliacao deve pagar.
 A.ScopeFloorMul = {
 	_6x = 74,
-	_4x = 86,
-	_2x = 96,
+	_4x = 84,
+	_2x = 94,
 	_2xQuick = 98,
 	_1dot5x = 98,
 	Reflex = 100,
@@ -64,19 +71,22 @@ A.ApertureMagnifications = {
 		Parameters = { MaxAimActionsIncrease = 3, snap_mul = 140 },
 		ModificationEffects = { IncreaseMaxAimActions = true, SnapshotPropertyMul = true,
 			ScopePenalty3 = true, ScopePenalty2 = false, ScopePenalty1 = false,
-			IncreaseRange = false, IncreaseAimAccuracy = false },
+			IncreaseRange = false, IncreaseAimAccuracy = false, StanceAPincrease = true },
 	},
+	---- StanceAPincrease: o `APincrease = 1` ja autorado nas opticas longas era param ORFAO --
+	---- nenhum efeito o consumia e o APStance ficava igual ao da reflex. E o custo de ENTRADA
+	---- (shooting_stance paga-se uma vez), entao encarece montar a arma sem encarecer cada tiro.
 	_4x = {
 		Parameters = { MaxAimActionsIncrease = 2, snap_mul = 125 },
 		ModificationEffects = { IncreaseMaxAimActions = true, SnapshotPropertyMul = true,
 			ScopePenalty2 = true, ScopePenalty1 = false, ScopePenalty3 = false,
-			IncreaseRange = false, IncreaseAimAccuracy = false },
+			IncreaseRange = false, IncreaseAimAccuracy = false, StanceAPincrease = true },
 	},
 	_2x = {
 		Parameters = { MaxAimActionsIncrease = 1, snap_mul = 110 },
-		ModificationEffects = { BonusAccuracyWhenFullyAimed = true, IncreaseMaxAimActions = true,
+		ModificationEffects = { BonusAccuracyWhenFullyAimed = false, IncreaseMaxAimActions = true,
 			SnapshotPropertyMul = true, ScopePenalty1 = true, ScopePenalty2 = false, ScopePenalty3 = false,
-			IncreaseRange = false, IncreaseAimAccuracy = false },
+			IncreaseRange = false, IncreaseAimAccuracy = false, _x2ScopeAimBonus = true },
 	},
 	---- 2x de aquisicao rapida (ACOG/WideScope): trocam o piso e a mira alta pelo snapshot. O
 	---- `snap_reduc` positivo autorado no componente e mantido -- o perfil nao o sobrescreve.
@@ -92,7 +102,9 @@ A.ApertureMagnifications = {
 			IncreaseAimAccuracy = false, ScopePenalty1 = false, ScopePenalty2 = false,
 			ScopePenalty3 = false },
 	},
-	Reflex = {		Parameters = {bonus_cth = 10},
+	---- bonus_cth 10 -> 14: a reflex e a opcao BARATA (sem nivel de mira extra, sem AP de entrada),
+	---- entao precisa ser a melhor no aim 1-3 ou a 2x rapida a domina sem custar nada a mais.
+	Reflex = {		Parameters = {bonus_cth = 14},
 		ModificationEffects = {AccuracyBonusWhenAimed = true, reflex_sight_close_range = false}},
 	Ironsight = {
 		Parameters = {bonus_cth = 3},
