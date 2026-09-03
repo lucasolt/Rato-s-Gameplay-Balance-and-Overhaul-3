@@ -178,6 +178,22 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
         return 0
     end
 
+    ---- Ancoras alcancadas: esta consulta usa a penetracao da ARMA, a grade abaixo usa a fixa de
+    ---- A.CoverPenetrationClass. Vale como piso da grade -- ver o `reached == 0` la embaixo.
+    local n_spots, reached_spots = 0, 0
+    if head then
+        n_spots = 1
+        reached_spots = (spot_reached.Head or spot_reached.Neck) and 1 or 0
+    else
+        for _, l in ipairs(base.lof) do
+            n_spots = n_spots + 1
+            if spot_reached[l.target_spot_group] then
+                reached_spots = reached_spots + 1
+            end
+        end
+    end
+    local anchor_pct = (n_spots > 0) and MulDivRound(reached_spots, 100, n_spots) or 0
+
     ---------------------------------------------------------------------------------------
     ---- Modo barato (padrao): a propria consulta de ancoras JA e uma sondagem de
     ---- silhueta -- cinco raios contra pontos reais do corpo (cabeca, torso, bracos,
@@ -190,11 +206,8 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
     ---- estouraria o orcamento. A grade fina fica atras de A.CoverProbeGrid.
     ---------------------------------------------------------------------------------------
     if not a.CoverProbeGrid then
-        local n_spots, reached_spots = 0, 0
         if head then
             ---- cabeca/pescoco nao tem cinco amostras: usa so o proprio spot
-            n_spots = 1
-            reached_spots = (spot_reached.Head or spot_reached.Neck) and 1 or 0
             if dbg_table then
                 dbg_table[#dbg_table + 1] = {
                     from = attack_pos, to = anchor, label = head and "Head" or "?",
@@ -204,12 +217,8 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
             end
         else
             for _, l in ipairs(base.lof) do
-                n_spots = n_spots + 1
-                local ok = spot_reached[l.target_spot_group] and true or false
-                if ok then
-                    reached_spots = reached_spots + 1
-                end
                 if dbg_table then
+                    local ok = spot_reached[l.target_spot_group] and true or false
                     local blocker
                     for _, h in ipairs(l.hits or empty_table) do
                         if h.obj ~= target then
@@ -396,7 +405,11 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
     if sampled == 0 then
         pct = 100 --- nenhum raio tocou o corpo nem foi bloqueado: nada obstruindo
     elseif reached == 0 then
-        pct = 0
+        ---- Grade toda obstruida nao e oclusao por si so: ela sonda com penetracao fixa e as
+        ---- ancoras sondaram com a arma de verdade. Se a bala ainda chega a algum spot, vale a
+        ---- fracao das ancoras. Zerar aqui tirava o alvo do modelo angular, e o CTH voltava para
+        ---- a soma vanilla -- medido: Raid Leader atras de cerca de madeira, 49%.
+        pct = anchor_pct
     else
         pct = Max(1, MulDivRound(reached, 100, sampled))
     end

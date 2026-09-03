@@ -24,7 +24,7 @@
 ---------------------------------------------------------------------------------------------------
 
 function Rat_ResolveAngular(data)
-    if data.rat_sigma or data.rat_blocked then
+    if data.rat_sigma or data.rat_blocked or data.rat_occluded then
         return data
     end
 
@@ -50,9 +50,16 @@ function Rat_ResolveAngular(data)
     ---- encolhe quando o cone fecha -- correto como moeda interna, absurdo como "tamanho do alvo".
     data.rat_theta_geo = theta_geo
 
-    ---- alvo totalmente ocluido: nao ha cone que resolva, CTH 0 e nenhum residual muda isso
+    ---- Alvo totalmente ocluido: nao ha cone que resolva, CTH 0 e nenhum residual muda isso.
+    ---- NAO e rat_blocked: aquilo devolve o ataque ao pipeline vanilla, e os modifiers que o
+    ---- angular substitui continuam desligados (guarda Rat_AngularActive) -- o alvo saia com a
+    ---- soma crua de Marksmanship, o dobro do que o modelo dava com ele exposto.
     if not sigma or not theta or theta < 1 then
-        data.rat_blocked = true
+        data.rat_occluded = true
+        data.rat_theta, data.rat_theta_geo = 0, theta_geo or 0
+        data.rat_meta, data.rat_parts, data.rat_aim = meta, parts, aim
+        data.rat_geo_sigma, data.rat_cone_mul = sigma, 100
+        data.rat_sigma, data.rat_cth = nil, 0
         return data
     end
 
@@ -197,7 +204,8 @@ function Rat_ConeFactors(data)
     local a = const.Combat.Aperture
     local parts, aim = data.rat_parts, data.rat_aim or 0
     local out = {}
-    if not parts then
+    ---- sem cone (ocluido) nao ha fator nenhum a enumerar: a linha Aperture ja diz o porque
+    if not parts or not data.rat_sigma then
         return out
     end
 
@@ -275,6 +283,10 @@ end
 function Rat_ConeMetaText(data)
     local a = const.Combat.Aperture
     local sigma, cth = data.rat_sigma, data.rat_cth
+    ---- ocluido: sem cone para descrever, so o motivo de o tiro nao existir
+    if not sigma then
+        return T(724418639250, "Aperture"), {T(402715896331, "No exposed silhouette")}
+    end
     ---- tamanho do alvo = GEOMETRIA. rat_theta e equivalente em probabilidade e encolhe
     ---- quando a mira fecha o cone -- certo como moeda interna, absurdo na tela: o alvo
     ---- nao fica menor porque quem atira mirou melhor.
@@ -389,7 +401,8 @@ local t_id_table = {
     [604815927340] = "Total",
     [603847265139] = "Aim x<n> (<pct> per level)",
     [825069487351] = "Range floor <f>'",
-    [714038265194] = "Modifiers <pct>"
+    [714038265194] = "Modifiers <pct>",
+    [402715896331] = "No exposed silhouette"
 }
 
 ratG_T_table['CTH_angular.lua'] = t_id_table
