@@ -26,12 +26,6 @@ function Rat_ISqrt(n)
     return x
 end
 
----- Modulo da soma de dois desvios perpendiculares. Sinal some no quadrado, que e o que deixa o
----- passo lateral do plato entrar no CTH sem dobrar a mistura.
-function Rat_Hypot(x, y)
-    return Rat_ISqrt(x * x + y * y)
-end
-
 ---- Meia-largura aparente do alvo, em minutos de angulo. dist em unidades do engine (10 = 1 cm).
 ---- Fator 34380 = 3438 min/rad com a conversao de cm embutida.
 function Rat_ThetaTarget(dist, half_cm)
@@ -709,32 +703,47 @@ local Rat_Binomial = {
 ---- esperanca sai EXATA pela mistura binomial em vez de por um mu medio (que subestimaria a
 ---- perda: P e concava em mu no regime que interessa).
 ----
----- O balanco lateral (Rat_RecoilLateral) entra em TODO tiro a partir do 2o, nao so no plato: o
----- desvio do tiro e a HIPOTENUSA entre a subida acumulada e ele. Como o balanco e constante e o
----- seu sinal nao muda a distancia ao centro -- e so a distancia que Rat_RiceCTH le -- ele nao
----- multiplica a mistura: continua exata nos mesmos 7 termos da binomial.
----- O plato so trava `n`, ou seja a SUBIDA. O balanco segue igual depois dele.
+---- Cada coice tem direcao propria (+/- A.RecoilWalkYaw), entao ele se parte em DERIVA e ESPALHAMENTO:
+----   deriva     = E[cos phi] * passo, e o unico pedaco que empurra o cano para um lado so
+----   espalhamento = o resto, que nao tem direcao preferida e portanto e VARIANCIA, nao deslocamento
+---- Isso mantem a forma fechada nos mesmos 7 termos: a mistura binomial continua dando a deriva, e
+---- o espalhamento entra inflando o cone daquele termo. Rice ja e exatamente "gaussiana de desvio
+---- sigma centrada a mu do alvo" -- e so somar a variancia da caminhada dentro de sigma.
+----
+---- APROXIMACAO, e a unica do modelo: o espalhamento real e anisotropico (mais largo de lado que
+---- na vertical em yaw pequeno) e aqui entra como a MEDIA dos dois eixos, porque Rice pressupoe
+---- sigma isotropico. Medir com Rat_DbgBurst, que dispara de verdade e nao usa esta conta.
+----
+---- O plato trava a DERIVA e nada mais: os coices seguintes continuam somando espalhamento, que e
+---- o cano sendo chacoalhado sem ser empurrado.
 function Rat_BurstShotCTH(theta, sigma, n, climb, chance)
     if n <= 0 or not climb or climb <= 0 then
         return Rat_RayleighCTH(theta, sigma)
     end
-    local lat = MulDivRound(climb, Clamp(P().RecoilLateralPct or 0, 0, 100), 100)
-    n = Min(n, #Rat_Binomial)
-
+    local nv = Min(n, #Rat_Binomial) --- coices que ainda derivam
+    local cbar, spread = Rat_RecoilYawFactors()
     local held = Rat_RecoilHeldStep(climb)
-    local row = Rat_Binomial[n]
+
+    ---- coices passado o plato: so variancia, com o passo quadratico esperado
+    local extra = (n > nv) and
+                      (n - nv) * (MulDivRound(held * held, chance, 100) +
+                          MulDivRound(climb * climb, 100 - chance, 100)) or 0
+
+    local row = Rat_Binomial[nv]
     local acc, wsum = 0, 0
-    for j = 0, n do
+    for j = 0, nv do
         local w = row[j + 1] * 10000
         for _ = 1, j do
             w = MulDivRound(w, chance, 100)
         end
-        for _ = 1, n - j do
+        for _ = 1, nv - j do
             w = MulDivRound(w, 100 - chance, 100)
         end
         if w > 0 then
-            local mu = j * held + (n - j) * climb
-            acc = acc + w * Rat_RiceCTH(theta, sigma, Rat_Hypot(mu, lat))
+            local mu = j * held + (nv - j) * climb
+            local s2 = j * held * held + (nv - j) * climb * climb + extra
+            local sig = Max(1, Rat_ISqrt(sigma * sigma + MulDivRound(s2, spread, 1000)))
+            acc = acc + w * Rat_RiceCTH(theta, sig, MulDivRound(mu, cbar, 1000))
             wsum = wsum + w
         end
     end
@@ -890,26 +899,48 @@ end
 ---- resultado ja sorteado e aqui e a bala de verdade. Ver Rat_GetRecoilClimb.
 ---------------------------------------------------------------------------------------------------
 
----- Eixo da caminhada, sorteado UMA vez por rajada: "para cima" no plano do alvo, girado por um yaw
----- aleatorio de +/- A.RecoilWalkYaw. Consome random sincronizado -> so na resolucao.
+---- Referencial do recuo: "para cima" no plano do alvo. O yaw NAO entra aqui -- e sorteado por
+---- COICE (Rat_RecoilKick), nao por rajada, entao este eixo e so a base. Puro: sem random.
 function Rat_RecoilWalkAxis(attacker, attack_pos, aim_pos)
-    local a = P()
     local dir = Rat_ValidZ(aim_pos) - Rat_ValidZ(attack_pos)
     if dir:Len() < 1 then
         return point(0, 0, 1000)
     end
-    dir = SetLen(dir, 1000)
+    return SetLen(Rat_PerpUp(SetLen(dir, 1000)), 1000)
+end
 
-    local axis = SetLen(Rat_PerpUp(dir), 1000)
-    local yaw = Clamp(a.RecoilWalkYaw or 0, 0, 180) * 60
-    if yaw > 0 then
-        axis = RotateAxis(axis, dir, attacker:RandRange(-yaw, yaw))
-    end
-    return axis
+---- E[cos phi] = sin(Y)/Y para phi uniforme em +/- Y, por 1000, de 10 em 10 graus. E a fracao do
+---- passo que de fato SOBE: o resto do coice virou espalhamento.
+local Rat_YawCos = {
+    [0] = 1000, 995, 980, 955, 921, 878, 827, 769, 705, 637, 564, 489, 413, 338, 263, 191, 122, 59,
+    0
+}
+
+---- Devolve E[cos phi] (por 1000) e a variancia MEDIA por eixo de um passo unitario, (1-E[cos]^2)/2
+---- (por 1000). A media por eixo sai de graca: Var(cos) + Var(sin) = 1 - E[cos]^2, sempre.
+function Rat_RecoilYawFactors()
+    local y = Clamp(P().RecoilWalkYaw or 0, 0, 180)
+    local i = y / 10
+    local lo = Rat_YawCos[i] or 0
+    local cbar = lo + MulDivRound((Rat_YawCos[Min(i + 1, 18)] or lo) - lo, y - i * 10, 10)
+    return cbar, (1000 - MulDivRound(cbar, cbar, 1000)) / 2
+end
+
+---- UM coice, decomposto: quanto SOBE e quanto vai de LADO, em minutos. A moeda de controle decide
+---- o TAMANHO do passo; um yaw proprio decide para onde ele aponta. Devolve tambem o passo cru
+---- (o plato usa para descontar so a deriva) e se o tiro foi segurado, que o visualizador mostra --
+---- sem isso ele reimplementaria o coice e as duas copias divergiriam.
+---- Consome random sincronizado.
+function Rat_RecoilKick(attacker, climb, chance)
+    local held = Rat_RecoilHeld(attacker, chance)
+    local step = held and Rat_RecoilHeldStep(climb) or climb
+    local yaw = Clamp(P().RecoilWalkYaw or 0, 0, 180) * 60
+    local phi = (yaw > 0) and attacker:RandRange(-yaw, yaw) or 0
+    return MulDivRound(step, cos(phi), 4096), MulDivRound(step, sin(phi), 4096), step, held
 end
 
 ---- Rolagem de controle de UM tiro: o atirador segurou o cano? Consome random sincronizado.
----- Global porque Rat_DbgRecoilShots precisa do resultado da moeda, que Rat_RecoilStep esconde.
+---- Global porque Rat_RecoilKick e o visualizador precisam do resultado da moeda separado.
 function Rat_RecoilHeld(attacker, chance)
     return chance > 0 and attacker:Random(100) < chance
 end
@@ -922,26 +953,6 @@ function Rat_RecoilHeldStep(climb)
     local a = P()
     return MulDivRound(climb, Clamp(a.RecoilControlResidual or 0, 0, 100), 100) -
                MulDivRound(climb, Clamp(a.RecoilCorrectPct or 0, 0, 100), 100)
-end
-
----- Um degrau da caminhada: o cano sobe `climb`, ou anda o passo segurado (que pode ser para baixo).
-local function Rat_RecoilStep(attacker, mu, climb, chance)
-    if Rat_RecoilHeld(attacker, chance) then
-        return mu + Rat_RecoilHeldStep(climb)
-    end
-    return mu + climb
-end
-
----- BALANCO LATERAL de UM tiro. Existe em todo tiro a partir do 2o, junto com a subida -- ver
----- A.RecoilLateralPct. Nao acumula e nao depende da moeda de controle. Consome random sincronizado.
----- O plato (MaxShotIndexForRecoilCTHLoss) para so a SUBIDA: o balanco continua, e e o que impede
----- a cauda de uma rajada longa de virar um ponto congelado.
-function Rat_RecoilLateral(attacker, climb)
-    local lat = MulDivRound(climb, Clamp(P().RecoilLateralPct or 0, 0, 100), 100)
-    if lat <= 0 then
-        return 0
-    end
-    return (attacker:Random(2) == 0) and lat or -lat
 end
 
 ---- Desvio angular ao longo de um eixo. SetLen nao aceita comprimento negativo, dai os dois ramos.
@@ -1052,10 +1063,9 @@ function Rat_SimPlanShots(ctx)
     local growth_mode = (P().RecoilMode == "growth")
     ctx.sigma_disp = sigma_disp
 
-    local shots, mu = {}, 0
+    local cbar = Rat_RecoilYawFactors()
+    local shots, mu, lat = {}, 0, 0
     for i = 1, num_shots do
-        ---- balanco lateral: em todo tiro a partir do 2o, junto com a subida. Nao acumula.
-        local lat = (axis and i > 1) and Rat_RecoilLateral(ctx.attacker, climb) or 0
         ---- a mira do tiro i sai de onde o recuo ja deixou o cano; a dispersao continua sendo o
         ---- cone da arma, do mesmo tamanho em todos os tiros -- recuo desloca, nao espalha.
         local aim_pos = axis and
@@ -1071,9 +1081,12 @@ function Rat_SimPlanShots(ctx)
             lat = lat,
             target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, disp)
         }
-        ---- o coice deste tiro so conta para o PROXIMO, e so ate max_idx (dai o cano assenta)
-        if axis and i <= max_idx then
-            mu = Rat_RecoilStep(ctx.attacker, mu, climb, chance)
+        ---- o coice deste tiro so move o PROXIMO. Passado o plato ele ainda CHACOALHA o cano nos
+        ---- dois eixos -- so a deriva (E[cos phi] * passo) e descontada, que e o "para de subir".
+        if axis then
+            local dv, dl, step = Rat_RecoilKick(ctx.attacker, climb, chance)
+            mu = mu + dv - ((i > max_idx) and MulDivRound(step, cbar, 1000) or 0)
+            lat = lat + dl
         end
     end
     ctx.shots = shots
@@ -1090,15 +1103,17 @@ function Rat_SimReplanShot(ctx, idx)
                      Rat_RecoilWalkAxis(ctx.attacker, ctx.attack_pos, ctx.aim_pos) or nil
     local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
 
-    local mu = 0
+    local cbar = Rat_RecoilYawFactors()
+    local mu, lat = 0, 0
     for i = 1, idx - 1 do
-        if axis and i <= max_idx then
-            mu = Rat_RecoilStep(ctx.attacker, mu, climb, chance)
+        if axis then
+            local dv, dl, step = Rat_RecoilKick(ctx.attacker, climb, chance)
+            mu = mu + dv - ((i > max_idx) and MulDivRound(step, cbar, 1000) or 0)
+            lat = lat + dl
         end
     end
 
     local lat_axis = Rat_RecoilLateralAxis(axis, SetLen(ctx.aim_pos - ctx.attack_pos, 1000))
-    local lat = (axis and idx > 1) and Rat_RecoilLateral(ctx.attacker, climb) or 0
     local aim_pos = axis and
                         Rat_RecoilWalkPoint(ctx.attack_pos, ctx.aim_pos, axis, mu, lat_axis, lat) or
                         ctx.aim_pos

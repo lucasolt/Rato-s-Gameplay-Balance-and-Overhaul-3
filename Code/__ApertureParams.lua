@@ -408,23 +408,22 @@ A.RecoilCorrectPct = 16
 A.RecoilGrowthBase = 40
 A.RecoilGrowthMax = 60
 
----- Direcao da caminhada, sorteada UMA vez por rajada: "para cima" girado por um yaw aleatorio de
----- ate +/- este angulo (graus). 0 = subida pura; 180 = eixo totalmente aleatorio, como a vanilla
----- faz em CalcShotVectors. Valores altos custam menos acerto: theta e um raio CIRCULAR equivalente
----- e a silhueta real e alta e estreita, entao andar na vertical perdoa mais que andar de lado.
+---- Direcao de CADA COICE: "para cima" no plano do alvo, girado por um yaw aleatorio de ate
+---- +/- este angulo (graus). Sorteado por coice, nao por rajada -- e o que faz a subida e o
+---- balanco lateral sairem do MESMO parametro, em vez de precisarem de dois.
+---- 0 = subida pura, sem largura nenhuma; 180 = direcao totalmente aleatoria, como a vanilla faz
+---- em CalcShotVectors.
+----
+---- A componente que SOBE vale cos(phi) e a que vai de lado vale sin(phi). Como |phi| <= 40 deixa
+---- cos >= 0.77, o grupo continua sendo um RISCO para cima -- so que agora com largura, que era o
+---- que faltava. Em 40: a subida efetiva fica em 92% do passo (E[cos phi] = sin(Y)/Y) e o resto
+---- vira espalhamento.
+----
+---- Antes disto o yaw girava o eixo UMA vez por rajada: os tiros de uma mesma rajada ficavam todos
+---- numa reta, e como girar o eixo nao muda a DISTANCIA ao ponto de mira -- que e a unica coisa
+---- que Rat_RiceCTH le -- o parametro nao tinha efeito nenhum no CTH. Agora tem: a dispersao
+---- angular entra como variancia extra no cone (ver Rat_BurstShotCTH).
 A.RecoilWalkYaw = 40
-
----- BALANCO LATERAL, em % de `climb`. Existe em TODO tiro a partir do 2o, junto com a subida --
----- nao e a fase que comeca no plato. O plato para a SUBIDA; o balanco continua igual, e por isso
----- as ultimas balas de uma rajada longa viram um borrao horizontal em vez de um ponto.
----- Nao acumula (sinal sorteado a cada tiro) e NAO depende da moeda de controle: o atirador briga
----- com a subida, que e previsivel e sempre para o mesmo lado, mas nao tem o que corrigir num
----- balanco cuja direcao ele so descobre depois. Sendo constante, o CTH continua fechado nos
----- mesmos 7 termos -- o desvio do tiro vira so a hipotenusa entre subida e balanco.
----- 35 e PONTO DE PARTIDA, nao medido: poe o grupo de uma rajada de 6 como um risco vertical com
----- largura visivel (subida ~5x climb, balanco 0.35x climb). Medir com Rat_DbgBurst(200, 6, 1)
----- antes de considerar tunado.
-A.RecoilLateralPct = 35
 
 ---- Anel de mira: desenhado NO MUNDO com o raio real do cone (ver UI_aperture_ring.lua).
 ---- QUANTOS SIGMAS o anel representa. 1 sigma contem 39% dos tiros; 2.5 contem 96%.
