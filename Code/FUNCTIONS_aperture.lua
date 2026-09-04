@@ -879,7 +879,8 @@ function Rat_RecoilWalkAxis(attacker, attack_pos, aim_pos)
 end
 
 ---- Rolagem de controle de UM tiro: o atirador segurou o cano? Consome random sincronizado.
-local function Rat_RecoilHeld(attacker, chance)
+---- Global porque Rat_DbgRecoilShots precisa do resultado da moeda, que Rat_RecoilStep esconde.
+function Rat_RecoilHeld(attacker, chance)
     return chance > 0 and attacker:Random(100) < chance
 end
 
