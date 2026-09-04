@@ -187,25 +187,31 @@ things.
 ## 6. The estimator
 
 ```lua
-Rat_EstimateBurst(attacker, weapon, action, target, num_shots, samples, seed)
-    -> { hit_pct per shot }, { mean |p| per shot }, { mean |v| per shot }
+Rat_EstimateBurst(prof, theta, sigma, num_shots, samples, seed)
+    -> { cth, px, py, spread, offset, speed }   -- per shot, in minutes
 ```
 
-Runs the step above `samples` times and counts hits. Requirements:
+Built against the profile rather than against `(attacker, weapon, action, target)`: every caller
+already has the geometry resolved, and re-deriving it would have been the second implementation
+this rewrite exists to avoid. `Rat_SimRecoilLadder(..., want_cth)` is the wrapper that turns a
+unit and a weapon into one.
 
-* **Uses the same step function as the real shot.** Not a parallel implementation. This is the
-  whole reason we can afford a stochastic model.
-* **Unsynced rng.** `AsyncRand(n)` — verified in the live process, does not touch the synced
-  stream, so estimating never desyncs co-op. Real bullets keep using `attacker:Random` /
-  `attacker:RandRange`.
-* **Seeded for reproducibility.** `BraidRandomCreate(seed)` — verified: same seed gives the same
-  stream. Pass a fixed seed so a balance number does not flicker between calls, and so a specific
-  bad volley can be replayed in the visualiser.
+* **Same step function as the real shot.** Not a parallel implementation.
+* **Seeded, not unsynced.** `BraidRandomCreate(seed)` with a fixed seed from the params. This
+  turned out to be better than `AsyncRand`: the ladder becomes a deterministic function of the
+  profile, so it cannot desync co-op *and* it cannot flicker between calls. Real bullets keep
+  using `attacker:Random`.
+* **Off the real shot path.** `Rat_ISqrt` costs ~5.5 us and `Rat_RiceCTH` ~6.9 us, so 384 samples
+  is ~100 ms — far too much per burst. The bullet reads `p` directly and never needs a
+  probability, so `want_cth` is opt-in: debug tools pass it, `Rat_GetShotConeRatios` passes 48
+  (it produces a *ratio*, and the vanilla pipeline is the only consumer), and the real shot passes
+  nothing. `Rat_SimSnapshot` derives the displayed CTH and cone from the `p` that bullet actually
+  had, which is more exact than the ladder's mean anyway.
+* **Verified against the bullets.** 3000 synced bursts vs the seeded estimator, same profile:
+  48 samples +4 %, 128 +5 %, 384 +1 % on mean `|p|` at shot 6. Sampling error, converging.
 
-Return `|p|` and `|v|` per shot alongside the hit percentage. Those two are what make the model
-tunable — the hit percentage tells you *that* it went wrong, the velocity tells you *why*.
-
----
+`offset` and `speed` are what make the model tunable: the hit percentage says a burst went wrong,
+the velocity says why.
 
 ## 7. What this deletes
 
@@ -242,45 +248,68 @@ pre-compensated by experienced shooters). Nice flavour, orthogonal to this, sepa
 
 ---
 
-## 9. Calibration
+## 9. Calibration — done
 
-Anchor on the current ladders so the rewrite is not also a balance change. Reference case is the
-one every measurement in this branch used: **MP5, BurstFire, standing, θ 167', σ 115'**.
+Anchored on MP5 / BurstFire / theta 167' / sigma 115', against the `1cc229c` ladder. Shipped
+values: `KickBase 52`, `CFMaxBase 78`, `ControlGain 260`, `MaxIncrement 60`, `SettleShots 3`,
+`Damping 100`, `ErrorRatio 140`, `MinErrorPct 25`, `KickAngle 12`.
 
-Post-decoupling values at `HEAD` (`1cc229c`), measured live:
+Measured, at Dexterity 60 (the old model had no Dexterity axis, so this is the like-for-like row):
 
-| merc | climb | hold | CTH shots 1–6 |
-|---|---|---|---|
-| M50 S50 | 166' | 18 % | 65/42/20/8/3/1 |
-| M100 S50 | 141' | 39 % | 65/51/37/25/17/11 |
-| M50 S100 | 152' | 30 % | 65/47/30/17/9/5 |
-| M100 S100 | 129' | 50 % | 65/55/45/35/28/21 |
+| merc | old (`1cc229c`) | new |
+|---|---|---|
+| M50 S50   | 65/42/20/8/3/1   | 65/60/41/16/2/0 |
+| M100 S50  | 65/51/37/25/17/11 | 65/60/47/34/25/18 |
+| M50 S100  | 65/47/30/17/9/5  | 65/60/45/26/12/3 |
+| M100 S100 | 65/55/45/35/28/21 | 65/60/48/38/33/30 |
 
-Procedure:
+The ordering holds in every column and shots 4-6 land close. **Shot 2 is deliberately more
+generous** — 60 % for everyone against 42-55 % before. Reproducing the old shot 2 would have
+required `kick` larger than what any shooter can oppose on the first bullet, i.e. exactly the
+"second shot can barely hit anything" the rewrite was asked to remove. The skill separation now
+opens from shot 3, which is where the old ladder had it anyway.
 
-1. Fix `Damping = 1`, `MinError`, `ErrorRatio` at first guesses.
-2. Solve `KickMag` and the `control -> CFMax` mapping against the **two extreme rows** — two
-   anchors, two unknowns.
-3. Check the two middle rows land between them. If they do not, the `control -> CFMax` curve is
-   the wrong shape, not the kick.
-4. Only then tune `SettleShots` and `MinError`, which control the *shape* of the falloff rather
-   than its endpoints.
+Two things fell out that the spec had not predicted:
 
-Verify on a second weapon with a very different caliber before touching anything else — the whole
-point of a raw per-caliber kick is that the heavy weapons should behave differently, so a model
-that reproduces the MP5 and nothing else has failed.
+* **The MP5 sits ON the gate**, and that is what makes the ladder work: `kick` 90 against `CFMax`
+  60 (weak) to 122 (strong). The weak shooter cannot stabilise an SMG; the strong one can, with
+  headroom. Below `ErrorRatio` ~100 the deterministic gate drowns the Dexterity noise entirely and
+  accuracy stops mattering — 140 is where the two coexist.
+* **`MinErrorPct` is load-bearing, not a detail.** At 10 % the complete merc (M100 S100 D90) froze
+  at 59 % from shot 3 on — immune to recoil. At 25 % he falls to 45 % and is still clearly the best.
 
----
+Heavy calibers, measured: AK47 and MG42 both `kick` ~115, gated for a weak shooter (`CFMax` 40)
+and passable for a strong one (117-128). A mounted MG42 takes a weak shooter from unusable to
+65/57/35/23/19/17 — the mount is force he did not have to bring.
 
-## 10. Open decisions
+## 10. Decisions taken
 
-1. **`MaxIncrement`: constant or skill-driven?** 1.13 has it as an INI constant. Recommend
-   constant first — it is the difference between "can't change grip fast" and "isn't strong
-   enough", and conflating them makes both untunable.
-2. **JA3 stat mapping.** 1.13 uses Str/Agi/ExpLevel for `CFMax` and Dex/Wis/Agi/AutoWeapons for
-   accuracy. Proposal: `CFMax` from Strength + Agility, `Accuracy` from Dexterity + Marksmanship.
-   Keeping Marksmanship in accuracy preserves the stat that currently feeds recoil.
-3. **`KickAngle` per weapon or global?** Per-weapon is right physically but needs a preset field,
-   which means the in-game editor. Recommend a single global constant first; it costs nothing to
-   make it per-weapon later.
-4. **Sample count** for the estimator against UI refresh cost, if it is ever called outside debug.
+1. **`MaxIncrement` is a constant.** As recommended. It also turned out to be the ceiling on
+   `|delta|`, so it sets the scale `ErrorRatio` reads — conflating it with force would have made
+   both untunable, exactly as feared.
+2. **Stat mapping: `CFMax` from `control`, `Accuracy` from raw Dexterity.** Not Strength + Agility.
+   `control` already aggregates Marksmanship, stance, bipod, Strength-vs-caliber and perks, and it
+   is *tuned* — re-deriving force from raw stats would have thrown that away for nothing.
+   Dexterity is the one attribute the chain does not already spend, so nothing is counted twice.
+   `SettleShots` stayed a constant: three skill-driven quantities at once makes calibration
+   ill-posed.
+3. **`KickAngle` is global** (12 degrees right of vertical). Per-weapon needs an editor preset.
+4. **Samples: 384** by default, 48 for the cone ratios. Measured, see §6.
+
+Also changed from the spec while building:
+
+* **ROF shrinks the shooter's side (`CFMax`, `MaxIncrement`) instead of inflating the kick.** A
+  cartridge does not kick harder because the trigger is pulled faster; what a high rate of fire
+  costs is time to reassert the grip. The old code multiplied the climb.
+* **The `control -> CFMax` map has a floor of 30 on the divisor.** A mounted MG drives `control`
+  near 50, which `ControlGain 260` takes negative; without the floor one point of control swung
+  the force from 239 to 716 minutes/shot.
+
+## 11. Open for the author
+
+* **The Auto5 is not stabilisable by anyone** — `kick` 142 against a best-case `CFMax` of 128, so
+  even M100 S100 gets 65/55/26/9/2/0. Physically defensible for a 12-gauge, but it is a balance
+  statement, not a measurement. Lower `KickBase`, or give shotguns their own kick scale.
+* **Shot 2 at 60 % for everyone** (see §9) is a deliberate departure from the old ladder.
+* `CalcPreRecoilOffset` — the first bullet of a volley pre-compensated by experienced shooters —
+  is still deferred, and still orthogonal.
