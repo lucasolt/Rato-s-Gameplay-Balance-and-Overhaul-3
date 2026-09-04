@@ -813,7 +813,7 @@ end
 ---- Base do plano perpendicular a linha de tiro: componente VERTICAL de `up` que sobra depois de
 ---- tirar a paralela. Sem isto o raio efetivo encolhe com a inclinacao do tiro. `dir` ja normalizado
 ---- em 1000. Devolve tambem "para cima" no plano, que e a direcao que o recuo usa.
-local function Rat_PerpUp(dir)
+function Rat_PerpUp(dir)
     local up = point(0, 0, 1000)
     local par = Dot(up, dir) / 1000
     local perp = up - MulDivRound(dir, par, 1000)

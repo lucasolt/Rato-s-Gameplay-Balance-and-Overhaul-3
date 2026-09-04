@@ -2,7 +2,8 @@
 ---- CTH ANGULAR -- visualizadores. Desenham no mundo o que o modelo ve; so leitura.
 ---- Console: Rat_DbgCover() raios de cobertura | Rat_DbgCone() cone x silhueta por mira |
 ---- Rat_DbgAll() os dois | Rat_DbgShots(24,2) 24 tiros de mentira | Rat_DbgLastShots(rings) ultimo
----- tiro real, rings = um anel por disparo | Rat_DbgClear(). Sem args: atirador = selecionado, alvo do
+---- tiro real, rings = um anel por disparo | Rat_DbgRecoilMouse() vetores do recuo seguindo o mouse |
+---- Rat_DbgClear(). Sem args: atirador = selecionado, alvo do
 ---- Crosshair UI ou o inimigo mais proximo. So Rat_DbgShots consome random sincronizado.
 ---------------------------------------------------------------------------------------------------
 
@@ -1179,4 +1180,230 @@ function Rat_DbgSilhouetteCalib(attacker, body_part)
                              "  antes de mexer em A.Silhouette -- uma amostra so nao calibra nada.",
                          tostring(body_part), n_ok, n_skip, table.concat(lines, "\n"),
                          table.concat(sum, "\n"))
+end
+
+---------------------------------------------------------------------------------------------------
+---- RECUO SOB O CURSOR. Rat_DbgRecoilMouse() liga/desliga o modo que segue o mouse;
+---- Rat_DbgRecoilAt() desenha uma vez no ponto atual.
+---- Mira em QUALQUER ponto -- subida e controle nao dependem do alvo, so a distancia, que o cursor
+---- ja da. Havendo unidade sob o cursor entram tambem theta, o cone e o CTH por tiro.
+---- NAO consome random: em vez de sortear uma rajada, desenha o leque de eixos possiveis
+---- (+/- A.RecoilWalkYaw) e a escada de mu nos tres ramos deterministicos -- nunca segurou,
+---- esperado, sempre segurou. Sortear a 10 Hz corromperia o random sincronizado.
+---------------------------------------------------------------------------------------------------
+
+g_RatDbgRecoilThread = false
+
+---- v * pct / 100 preservando o sinal: o passo segurado e negativo quando a correcao supera o residual
+local function scale_pct(v, pct)
+    if v >= 0 then
+        return MulDivRound(v, pct, 100)
+    end
+    return -MulDivRound(-v, pct, 100)
+end
+
+---- Unidade sob o ponto do cursor. GetCursorPos ja encosta o ponto na malha, entao basta a
+---- vizinhanca do pe da unidade mais o vao vertical do corpo.
+local function unit_under(pos, attacker)
+    local best, best_d
+    for _, o in ipairs(g_Units or empty_table) do
+        if o ~= attacker and not o:IsDead() then
+            local p = vz(o:GetVisualPos())
+            local d = p:Dist2D(pos)
+            if d < const.SlabSizeX * 3 / 4 and abs(pos:z() - p:z()) < 3 * const.SlabSizeZ and
+                (not best_d or d < best_d) then
+                best, best_d = o, d
+            end
+        end
+    end
+    return best
+end
+
+---- Acao inspecionada: a do crosshair aberto (e o que o jogador esta olhando), senao o ataque padrao.
+local function pick_action(attacker, action_id)
+    if action_id then
+        return CombatActions[action_id]
+    end
+    local igi = GetInGameInterfaceModeDlg and GetInGameInterfaceModeDlg()
+    local ch = igi and igi.crosshair and igi.crosshair.context
+    return (ch and ch.action) or attacker:GetDefaultAttackAction("ranged")
+end
+
+---- Traco atravessado no eixo: marca um degrau da escada sem o peso de um disco inteiro.
+local function draw_tick(pt, dir, axis, len, color)
+    local h = SetLen(RotateAxis(axis, dir, 90 * 60), len)
+    DbgAddSegment(pt - h, pt + h, color)
+end
+
+---- Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker)
+---- Devolve o resumo e um segundo valor `ok` -- o modo mouse usa `ok` para limpar quando o ponto
+---- deixa de ser desenhavel, senao o desenho velho fica congelado na tela mentindo.
+function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker)
+    attacker = pick_attacker(attacker)
+    if not attacker then
+        return "sem atacante (selecione um merc)"
+    end
+    local weapon = attacker:GetActiveWeapons()
+    if not IsKindOf(weapon, "Firearm") then
+        return "arma ativa nao e de fogo"
+    end
+
+    pos = Rat_ValidZ(pos or GetCursorPos())
+    if not pos then
+        return "sem ponto sob o cursor"
+    end
+
+    burst = Max(2, burst or 6)
+    aim = aim or 1
+    local action = pick_action(attacker, action_id)
+    if not action then
+        return "sem acao de ataque"
+    end
+
+    local a = const.Combat.Aperture
+    local spot = g_DefaultShotBodyPart or "Torso"
+    local target = unit_under(pos, attacker)
+
+    local base = GetLoFData(attacker, target or pos, {
+        obj = attacker, weapon = weapon, stance = attacker.stance,
+        prediction = true, output_collisions = true, force_hit_seen_target = false
+    })
+    local lof = base and base.lof
+    if not lof or #lof == 0 then
+        return "sem linha de tiro ate o cursor"
+    end
+    local attack_pos = Rat_ValidZ(lof[1].attack_pos)
+    ---- com alvo, o ponto de mira e o mesmo que a bala usa (Rat_SimAimPos); sem alvo, o cursor cru
+    local aim_pos = target and Rat_ValidZ(Rat_SimAimPos(lof, spot, lof[1].target_pos)) or pos
+
+    local dist = attack_pos:Dist(aim_pos)
+    if dist < 1 then
+        return "cursor em cima do atirador"
+    end
+    local dir = SetLen(aim_pos - attack_pos, 1000)
+
+    local climb, chance = Rat_GetRecoilClimb(attacker, action, weapon, burst)
+    local held = Rat_RecoilHeldStep(climb)
+    local step_avg = scale_pct(climb, 100 - chance) + scale_pct(held, chance)
+    local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
+
+    ---- cone e CTH so existem contra um alvo: e theta que da escala ao desvio
+    local sigma, theta, cth = nil, nil, {}
+    if target then
+        sigma, theta = Rat_AttackCone(attacker, target, action, spot, aim, false, attacker:GetPos(),
+                                      target:GetPos())
+        if theta and theta >= 1 and sigma and sigma >= 1 then
+            for i = 1, burst do
+                cth[i] = Rat_BurstShotCTH(theta, sigma, Min(i - 1, max_idx), climb, chance)
+            end
+        end
+    end
+
+    ---- mu do tiro i em cada ramo. So os primeiros max_idx coices contam: a arma reassenta.
+    local mu_hi, mu_avg, mu_lo = {}, {}, {}
+    local h, v, l = 0, 0, 0
+    for i = 1, burst do
+        mu_hi[i], mu_avg[i], mu_lo[i] = h, v, l
+        if i <= max_idx then
+            h, v, l = h + climb, v + step_avg, l + held
+        end
+    end
+
+    DbgClearVectors()
+    DbgClearTexts()
+    DbgAddSegment(attack_pos, aim_pos, clrAxis)
+
+    local up = SetLen(Rat_PerpUp(dir), 1000)
+    local yaw = Clamp(a.RecoilWalkYaw or 0, 0, 180) * 60
+
+    ---- leque: a rajada inteira anda por UM destes eixos, sorteado no disparo
+    local tip = cone_radius(dist, Max(mu_hi[burst], 1))
+    if tip > 0 then
+        DbgAddVector(aim_pos, SetLen(up, tip), clrCone)
+        if yaw > 0 then
+            DbgAddVector(aim_pos, SetLen(RotateAxis(up, dir, -yaw), tip), clrSilh)
+            DbgAddVector(aim_pos, SetLen(RotateAxis(up, dir, yaw), tip), clrSilh)
+        end
+    end
+
+    ---- silhueta do alvo: a referencia contra a qual a subida vale ou nao
+    if theta and theta >= 1 then
+        draw_disc(aim_pos, cone_radius(dist, theta), dir, clrSilh, 32)
+    end
+
+    ---- degraus no eixo central: disco numerado no ramo esperado, traco nos dois extremos
+    local tick = Max(150, dist / 40)
+    local disp = sigma and cone_radius(dist, MulDivRound(sigma, a.CrosshairSigmaMul or 250, 100))
+    for i = 1, burst do
+        local c = recoil_ring_color(i, burst)
+        local p_avg = Rat_RecoilWalkPoint(attack_pos, aim_pos, up, mu_avg[i])
+        if disp and disp > 0 then
+            draw_disc(p_avg, disp, dir, c, 24)
+        end
+        draw_tick(Rat_RecoilWalkPoint(attack_pos, aim_pos, up, mu_hi[i]), dir, up, tick, clrMiss)
+        draw_tick(Rat_RecoilWalkPoint(attack_pos, aim_pos, up, mu_lo[i]), dir, up, tick, clrHit)
+        DbgAddText(tostring(i), p_avg, c)
+    end
+
+    local t10 = MulDivRound(dist, 10, const.SlabSizeX)
+    local lines = {
+        string.format("%s (%s) -- %s, aim %d, rajada de %d, %d.%d tiles",
+                      tostring(attacker.session_id), tostring(weapon.class), tostring(action.id),
+                      aim, burst, t10 / 10, t10 % 10),
+        string.format(
+            "subida %d'/tiro   segura %d%%   passo segurado %+d'   coices contam ate o tiro %d",
+            climb, chance, held, max_idx + 1),
+        string.format(
+            "mu no tiro %d:  nunca segura %d' (%dcm)   esperado %d' (%dcm)   sempre segura %d' (%dcm)",
+            burst, mu_hi[burst], cone_radius(dist, mu_hi[burst]) / 10, mu_avg[burst],
+            cone_radius(dist, mu_avg[burst]) / 10, mu_lo[burst],
+            cone_radius(dist, mu_lo[burst]) / 10)
+    }
+    if target and theta then
+        local cs = {}
+        for i = 1, burst do
+            cs[i] = tostring(cth[i] or "-")
+        end
+        lines[#lines + 1] = string.format("alvo %s [%s]   theta %d'   cone %d'   CTH por tiro: %s%%",
+                                          tostring(target.session_id),
+                                          tostring(target:GetHitStance()), theta, sigma,
+                                          table.concat(cs, "/"))
+    else
+        lines[#lines + 1] =
+            "sem unidade sob o cursor: so a geometria do recuo (cone e CTH exigem alvo)"
+    end
+    lines[#lines + 1] =
+        "amarelo->vermelho = tiro 1..N no ramo esperado | traco vermelho nunca segura, verde sempre | ciano = leque do eixo"
+
+    for i, s in ipairs(lines) do
+        DbgAddText(s, aim_pos:SetZ(aim_pos:z() + (#lines - i + 2) * 300), clrAxis)
+    end
+
+    return table.concat(lines, "\n"), true
+end
+
+---- Liga/desliga o modo que segue o mouse. Redesenha a 10 Hz e e previsao pura -- um raycast de LoF
+---- por quadro, o mesmo que o crosshair ja faz -- entao nao encosta no random sincronizado.
+function Rat_DbgRecoilMouse(burst, aim, action_id)
+    if IsValidThread(g_RatDbgRecoilThread) then
+        DeleteThread(g_RatDbgRecoilThread)
+        g_RatDbgRecoilThread = false
+        Rat_DbgClear()
+        return "recuo sob o cursor: DESLIGADO"
+    end
+    if burst == false then
+        return "recuo sob o cursor: ja estava desligado"
+    end
+
+    g_RatDbgRecoilThread = CreateRealTimeThread(function()
+        while true do
+            local _, ok = Rat_DbgRecoilAt(nil, burst, aim, action_id)
+            if not ok then
+                DbgClearVectors()
+                DbgClearTexts()
+            end
+            Sleep(100)
+        end
+    end)
+    return "recuo sob o cursor: LIGADO -- aponte o mouse. Chame de novo para desligar."
 end
