@@ -426,6 +426,15 @@ A.RecoilErrorRatio = 140
 ---- dirigido por pericia, entao escalar o piso nele faria a pericia levantar o proprio erro.
 A.RecoilMinErrorPct = 25
 
+---- Lateral sway, as % of the counter-force the shooter is applying this shot. A held muzzle is
+---- held at a HEIGHT: the force opposing the kick is easy to size and hard to aim, so what is left
+---- over goes sideways. Keying it on |cf| rather than on "the roll was lucky" means it appears
+---- exactly for whoever is gripping hard, grows with the caliber for free, and is absent for
+---- someone who is merely letting the gun climb -- he already has a different problem.
+---- MEDIDO: sem isto, 15% das rajadas ficam com os 6 tiros dentro do alvo, porque o erro so
+---- perturba o INCREMENTO da forca e um `cf` bem apontado no tiro 2 sobrevive ate o 6.
+A.RecoilLateralPct = 40
+
 ---- Estimador (Rat_EstimateBurst): Monte Carlo em cima do MESMO passo que a bala usa, entao nao
 ---- existe segunda implementacao do recuo para divergir. Semente FIXA de proposito -- a escada
 ---- vira funcao determinista do perfil, nao treme entre chamadas e nao dessincroniza co-op.

@@ -137,6 +137,7 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test)
         kp = MulDivRound(1000, 1, T * T),
         kd = MulDivRound(2000, a.RecoilDamping or 100, 100 * T),
         err_ratio = a.RecoilErrorRatio or 0,
+        lat = a.RecoilLateralPct or 0,
         ---- Dexterity is the hands; `other_control` is stance and training steadying them. Without
         ---- the second term skill buys a bigger correction AND a proportionally bigger error, and
         ---- cancels itself. Never removes the floor, only the error above it.
@@ -186,6 +187,12 @@ function Rat_RecoilStep(prof, st, rnd)
     st.cx, st.cy = vclamp(st.cx + dx, st.cy + dy, prof.cf_max)
 
     st.vx, st.vy = st.vx + prof.kick_x + st.cx, st.vy + prof.kick_y + st.cy
+
+    ---- the counter-force is easier to size than to aim, and the leftover is lateral: an impulse
+    ---- on vx only, sized by the force actually applied, which the loop then has to fight back
+    if prof.lat > 0 then
+        st.vx = st.vx + err_term(rnd, 0, MulDivRound(vlen(st.cx, st.cy), prof.lat, 100))
+    end
     st.px, st.py = st.px + st.vx, st.py + st.vy
 end
 
