@@ -1463,6 +1463,10 @@ function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker, over)
                                 "plato do tiro %d em diante: o coice vai para os LADOS, +/-%d' (%dcm) " ..
                                     "por tiro, media zero -- o grupo abre em largura, nao sobe mais",
                                 max_idx + 2, climb, cone_radius(dist, climb) / 10)
+    else
+        lines[#lines + 1] = string.format(
+                                "sem fase lateral: o plato so comeca no tiro %d e esta rajada tem %d",
+                                max_idx + 2, burst)
     end
     if theta and sigma then
         local cs = {}
@@ -1599,6 +1603,10 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker, over)
         string.format("cone %d' (%s)   %s", sigma, cone_src,
                       scatter and "dispersao LIGADA: o tiro 1 tambem sai do centro" or
                           "dispersao desligada: so o passeio do cano"),
+        (burst - 1 > max_idx) and
+            string.format("fase lateral do tiro %d em diante", max_idx + 2) or
+            string.format("sem fase lateral: o plato so comeca no tiro %d e esta rajada tem %d",
+                          max_idx + 2, burst),
         "    tiro |     mu | lateral | coice    | resultado", table.concat(rows, "\n")
     }
     if target then
