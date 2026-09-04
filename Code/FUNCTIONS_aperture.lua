@@ -26,6 +26,12 @@ function Rat_ISqrt(n)
     return x
 end
 
+---- Modulo da soma de dois desvios perpendiculares. Sinal some no quadrado, que e o que deixa o
+---- passo lateral do plato entrar no CTH sem dobrar a mistura.
+function Rat_Hypot(x, y)
+    return Rat_ISqrt(x * x + y * y)
+end
+
 ---- Meia-largura aparente do alvo, em minutos de angulo. dist em unidades do engine (10 = 1 cm).
 ---- Fator 34380 = 3438 min/rad com a conversao de cm embutida.
 function Rat_ThetaTarget(dist, half_cm)
@@ -686,10 +692,16 @@ local Rat_Binomial = {
 ---- `mu` nao e um numero, e uma distribuicao -- com n <= 6 ela tem no maximo 7 valores, entao a
 ---- esperanca sai EXATA pela mistura binomial em vez de por um mu medio (que subestimaria a
 ---- perda: P e concava em mu no regime que interessa).
+----
+---- Passado o plato (n > MaxShotIndexForRecoilCTHLoss) o coice vai para os lados (Rat_RecoilLateral).
+---- O sinal do desvio lateral nao muda a DISTANCIA ao centro, e e so a distancia que Rat_RiceCTH le,
+---- entao a simetria colapsa os dois sinais num termo so: a mistura ganha apenas o fator 2 da moeda
+---- de controle daquele tiro, e continua fechada em 14 termos em vez de virar Monte Carlo.
 function Rat_BurstShotCTH(theta, sigma, n, climb, chance)
     if n <= 0 or not climb or climb <= 0 then
         return Rat_RayleighCTH(theta, sigma)
     end
+    local lateral = n > #Rat_Binomial
     n = Min(n, #Rat_Binomial)
 
     local held = Rat_RecoilHeldStep(climb)
@@ -704,8 +716,18 @@ function Rat_BurstShotCTH(theta, sigma, n, climb, chance)
             w = MulDivRound(w, 100 - chance, 100)
         end
         if w > 0 then
-            acc = acc + w * Rat_RiceCTH(theta, sigma, j * held + (n - j) * climb)
-            wsum = wsum + w
+            local mu = j * held + (n - j) * climb
+            if lateral then
+                ---- desvio total = hipotenusa entre a subida ja assentada e o passo lateral do tiro
+                local w_held = MulDivRound(w, chance, 100)
+                local w_up = MulDivRound(w, 100 - chance, 100)
+                acc = acc + w_held * Rat_RiceCTH(theta, sigma, Rat_Hypot(mu, held)) +
+                          w_up * Rat_RiceCTH(theta, sigma, Rat_Hypot(mu, climb))
+                wsum = wsum + w_held + w_up
+            else
+                acc = acc + w * Rat_RiceCTH(theta, sigma, mu)
+                wsum = wsum + w
+            end
         end
     end
     return (wsum > 0) and MulDivRound(acc, 1, wsum) or 0
@@ -902,20 +924,45 @@ local function Rat_RecoilStep(attacker, mu, climb, chance)
     return mu + climb
 end
 
----- Ponto de mira ja deslocado pela subida acumulada `mu` (minutos). Puro: sem random.
-function Rat_RecoilWalkPoint(attack_pos, aim_pos, axis, mu)
-    if not mu or mu == 0 or not axis then
-        return aim_pos
+---- PLATO: passado MaxShotIndexForRecoilCTHLoss coices o cano nao sobe mais -- mas nao congela.
+---- O coice continua acontecendo, so que para os LADOS, com sinal sorteado. A media fica zero por
+---- simetria (nao precisa reequilibrar a moeda de controle) e o grupo passa a abrir em LARGURA
+---- fixa em vez de continuar subindo: e o que uma rajada sustentada faz de verdade, depois que o
+---- atirador para de perder terreno e passa a brigar de lado com a arma.
+---- Nao acumula de proposito: um passeio lateral somado voltaria a piorar sem limite, que e
+---- exatamente o que o plato existe para impedir. Consome random sincronizado.
+function Rat_RecoilLateral(attacker, climb, chance)
+    local step = Rat_RecoilHeld(attacker, chance) and Rat_RecoilHeldStep(climb) or climb
+    if step < 0 then
+        step = -step
     end
+    return (attacker:Random(2) == 0) and step or -step
+end
+
+---- Desvio angular ao longo de um eixo. SetLen nao aceita comprimento negativo, dai os dois ramos.
+local function offset_along(pos, axis, minutes, dist)
+    if not minutes or minutes == 0 or not axis then
+        return pos
+    end
+    local off = MulDivRound(dist, minutes, 3438)
+    if off > 0 then
+        return pos + SetLen(axis, off)
+    elseif off < 0 then
+        return pos - SetLen(axis, -off)
+    end
+    return pos
+end
+
+---- Ponto de mira ja deslocado pela subida acumulada `mu` e pelo desvio lateral `lat` do plato,
+---- ambos em minutos. Puro: sem random.
+function Rat_RecoilWalkPoint(attack_pos, aim_pos, axis, mu, lat_axis, lat)
     local dist = Rat_ValidZ(attack_pos):Dist(Rat_ValidZ(aim_pos))
-    local rise = MulDivRound(dist, mu, 3438)
-    ---- rise < 0 = cano abaixo da mira; SetLen nao aceita comprimento negativo
-    if rise > 0 then
-        return aim_pos + SetLen(axis, rise)
-    elseif rise < 0 then
-        return aim_pos - SetLen(axis, -rise)
-    end
-    return aim_pos
+    return offset_along(offset_along(aim_pos, axis, mu, dist), lat_axis, lat, dist)
+end
+
+---- Eixo lateral do plato: perpendicular ao eixo da caminhada, no mesmo plano do alvo.
+function Rat_RecoilLateralAxis(axis, dir)
+    return (axis and dir) and RotateAxis(axis, dir, 90 * 60) or nil
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -991,6 +1038,8 @@ function Rat_SimPlanShots(ctx)
     local axis = (climb > 0 and num_shots > 1) and
                      Rat_RecoilWalkAxis(ctx.attacker, ctx.attack_pos, ctx.aim_pos) or nil
     ctx.walk_axis = axis
+    local lat_axis = Rat_RecoilLateralAxis(axis, SetLen(ctx.aim_pos - ctx.attack_pos, 1000))
+    ctx.lat_axis = lat_axis
 
     local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
 
@@ -1000,9 +1049,14 @@ function Rat_SimPlanShots(ctx)
 
     local shots, mu = {}, 0
     for i = 1, num_shots do
+        ---- passado o plato o cano nao sobe mais, mas tambem nao congela: o coice do tiro vai
+        ---- para os lados, sorteado de novo a cada tiro (ver Rat_RecoilLateral).
+        local lat = (axis and (i - 1) > max_idx) and
+                        Rat_RecoilLateral(ctx.attacker, climb, chance) or 0
         ---- a mira do tiro i sai de onde o recuo ja deixou o cano; a dispersao continua sendo o
         ---- cone da arma, do mesmo tamanho em todos os tiros -- recuo desloca, nao espalha.
-        local aim_pos = axis and Rat_RecoilWalkPoint(ctx.attack_pos, ctx.aim_pos, axis, mu) or
+        local aim_pos = axis and
+                            Rat_RecoilWalkPoint(ctx.attack_pos, ctx.aim_pos, axis, mu, lat_axis, lat) or
                             ctx.aim_pos
         local disp = growth_mode and (sigma_disp[i] or sigma) or sigma
         shots[i] = {
@@ -1011,9 +1065,10 @@ function Rat_SimPlanShots(ctx)
             sigma = sigma_disp[i] or sigma,
             cth = cth[i],
             mu = mu,
+            lat = lat,
             target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, disp)
         }
-        ---- o coice deste tiro so conta para o PROXIMO, e so ate max_idx (a arma reassenta)
+        ---- o coice deste tiro so conta para o PROXIMO, e so ate max_idx (dai o cano assenta)
         if axis and i <= max_idx then
             mu = Rat_RecoilStep(ctx.attacker, mu, climb, chance)
         end
@@ -1039,7 +1094,11 @@ function Rat_SimReplanShot(ctx, idx)
         end
     end
 
-    local aim_pos = axis and Rat_RecoilWalkPoint(ctx.attack_pos, ctx.aim_pos, axis, mu) or
+    local lat_axis = Rat_RecoilLateralAxis(axis, SetLen(ctx.aim_pos - ctx.attack_pos, 1000))
+    local lat = (axis and (idx - 1) > max_idx) and Rat_RecoilLateral(ctx.attacker, climb, chance) or
+                    0
+    local aim_pos = axis and
+                        Rat_RecoilWalkPoint(ctx.attack_pos, ctx.aim_pos, axis, mu, lat_axis, lat) or
                         ctx.aim_pos
     local disp = ctx.sigma
     if P().RecoilMode == "growth" and ctx.sigma_disp then
@@ -1047,6 +1106,7 @@ function Rat_SimReplanShot(ctx, idx)
     end
     return {
         mu = mu,
+        lat = lat,
         target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, disp)
     }
 end
@@ -1106,9 +1166,10 @@ function Rat_SimRecoilLadder(attacker, action, weapon, sigma0, num_shots, theta)
         return cth, climb, chance, sigma_disp
     end
 
-    local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
+    ---- `n` vai CRU: quem corta no plato e Rat_BurstShotCTH, que passado ele troca a subida pelo
+    ---- passo lateral. Cortar aqui congelaria o CTH do 7o tiro em diante.
     for i = 1, num_shots do
-        cth[i] = Rat_BurstShotCTH(theta, sigma0, Min(i - 1, max_idx), climb, chance)
+        cth[i] = Rat_BurstShotCTH(theta, sigma0, i - 1, climb, chance)
         sigma_disp[i] = Rat_SigmaForCTH(theta, Clamp(cth[i], 1, 99)) or sigma0
     end
     return cth, climb, chance, sigma_disp

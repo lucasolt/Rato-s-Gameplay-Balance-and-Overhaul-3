@@ -16,6 +16,9 @@ const.Combat.MultishotGrazeThreshold = 18 -- 12
 const.Combat.SingleShotGrazeThreshold = 10
 const.Combat.PelletShotGrazeThreshold = 22
 const.Combat.MultishotMinCTH = 4
+---- Quantos coices SOBEM o cano. Passado isso o modelo angular nao congela o recuo: o coice passa
+---- a sair de lado, com sinal sorteado e sem acumular (Rat_RecoilLateral). O cano para de piorar
+---- mas continua se mexendo, e o grupo abre em largura em vez de subir sem fim.
 const.Combat.MaxShotIndexForRecoilCTHLoss = 6
 
 ---- Unidade so re-encara o inimigo mais proximo no PROPRIO turno. Ver

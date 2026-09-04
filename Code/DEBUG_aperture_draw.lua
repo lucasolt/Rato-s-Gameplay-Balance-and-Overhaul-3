@@ -1314,12 +1314,13 @@ function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker)
                                       target:GetPos())
         if theta and theta >= 1 and sigma and sigma >= 1 then
             for i = 1, burst do
-                cth[i] = Rat_BurstShotCTH(theta, sigma, Min(i - 1, max_idx), climb, chance)
+                cth[i] = Rat_BurstShotCTH(theta, sigma, i - 1, climb, chance)
             end
         end
     end
 
-    ---- mu do tiro i em cada ramo. So os primeiros max_idx coices contam: a arma reassenta.
+    ---- mu do tiro i em cada ramo. So os primeiros max_idx coices SOBEM o cano; passado o plato
+    ---- o coice vira desvio lateral (Rat_RecoilLateral), que nao acumula.
     local mu_hi, mu_avg, mu_lo = {}, {}, {}
     local h, v, l = 0, 0, 0
     for i = 1, burst do
@@ -1328,6 +1329,8 @@ function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker)
             h, v, l = h + climb, v + step_avg, l + held
         end
     end
+    ---- meio-desvio lateral esperado no plato: o modulo do passo que teria subido
+    local lat_avg = scale_pct(climb, 100 - chance) + scale_pct(Max(held, -held), chance)
 
     DbgClearVectors()
     DbgClearTexts()
@@ -1351,18 +1354,35 @@ function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker)
         draw_disc(aim_pos, cone_radius(dist, theta), dir, clrSilh, 32)
     end
 
-    ---- degraus no eixo central: disco numerado no ramo esperado, traco nos dois extremos
+    ---- degraus no eixo central: disco numerado no ramo esperado, traco nos dois extremos.
+    ---- Passado o plato o degrau nao sobe: o disco sai para o LADO, alternando o sinal, que e o
+    ---- que o coice faz de verdade a partir dali.
     local tick = Max(150, dist / 40)
+    local lat_ax = Rat_RecoilLateralAxis(up, dir)
     local disp = sigma and cone_radius(dist, MulDivRound(sigma, a.CrosshairSigmaMul or 250, 100))
     for i = 1, burst do
         local c = recoil_ring_color(i, burst)
-        local p_avg = Rat_RecoilWalkPoint(attack_pos, aim_pos, up, mu_avg[i])
+        local plateau = (i - 1) > max_idx
+        local lat = plateau and ((i % 2 == 0) and lat_avg or -lat_avg) or 0
+        local p_avg = Rat_RecoilWalkPoint(attack_pos, aim_pos, up, mu_avg[i], lat_ax, lat)
         if disp and disp > 0 then
             draw_disc(p_avg, disp, dir, c, 24)
         end
-        draw_tick(Rat_RecoilWalkPoint(attack_pos, aim_pos, up, mu_hi[i]), dir, up, tick, clrMiss)
-        draw_tick(Rat_RecoilWalkPoint(attack_pos, aim_pos, up, mu_lo[i]), dir, up, tick, clrHit)
+        if not plateau then
+            draw_tick(Rat_RecoilWalkPoint(attack_pos, aim_pos, up, mu_hi[i]), dir, up, tick, clrMiss)
+            draw_tick(Rat_RecoilWalkPoint(attack_pos, aim_pos, up, mu_lo[i]), dir, up, tick, clrHit)
+        end
         DbgAddText(tostring(i), p_avg, c)
+    end
+
+    ---- extensao lateral do plato: a largura que o grupo passa a ter, em vez de continuar subindo
+    if burst - 1 > max_idx and lat_ax then
+        for _, br in ipairs({{mu_hi[burst], clrMiss}, {mu_avg[burst], clrCone},
+                             {mu_lo[burst], clrHit}}) do
+            local e1 = Rat_RecoilWalkPoint(attack_pos, aim_pos, up, br[1], lat_ax, climb)
+            local e2 = Rat_RecoilWalkPoint(attack_pos, aim_pos, up, br[1], lat_ax, -climb)
+            DbgAddSegment(e1, e2, br[2])
+        end
     end
 
     local t10 = MulDivRound(dist, 10, const.SlabSizeX)
@@ -1371,7 +1391,7 @@ function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker)
                       tostring(attacker.session_id), tostring(weapon.class), tostring(action.id),
                       aim, burst, t10 / 10, t10 % 10),
         string.format(
-            "subida %d'/tiro   segura %d%%   passo segurado %+d'   coices contam ate o tiro %d",
+            "subida %d'/tiro   segura %d%%   passo segurado %+d'   cano sobe ate o tiro %d",
             climb, chance, held, max_idx + 1),
         string.format(
             "mu no tiro %d:  nunca segura %d' (%dcm)   esperado %d' (%dcm)   sempre segura %d' (%dcm)",
@@ -1379,6 +1399,12 @@ function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker)
             cone_radius(dist, mu_avg[burst]) / 10, mu_lo[burst],
             cone_radius(dist, mu_lo[burst]) / 10)
     }
+    if burst - 1 > max_idx then
+        lines[#lines + 1] = string.format(
+                                "plato do tiro %d em diante: o coice vai para os LADOS, +/-%d' (%dcm) " ..
+                                    "por tiro, media zero -- o grupo abre em largura, nao sobe mais",
+                                max_idx + 2, climb, cone_radius(dist, climb) / 10)
+    end
     if target and theta then
         local cs = {}
         for i = 1, burst do
@@ -1393,7 +1419,8 @@ function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker)
             "sem unidade sob o cursor: so a geometria do recuo (cone e CTH exigem alvo)"
     end
     lines[#lines + 1] =
-        "amarelo->vermelho = tiro 1..N no ramo esperado | traco vermelho nunca segura, verde sempre | ciano = leque do eixo"
+        "amarelo->vermelho = tiro 1..N no ramo esperado | traco vermelho nunca segura, verde sempre | " ..
+            "ciano = leque do eixo | barra horizontal = largura do plato"
 
     for i, s in ipairs(lines) do
         DbgAddText(s, aim_pos:SetZ(aim_pos:z() + (#lines - i + 2) * 300), clrAxis)
@@ -1437,6 +1464,7 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker)
 
     ---- UM eixo para a rajada inteira, como no tiro real: e o que faz o grupo virar risco
     local axis = Rat_RecoilWalkAxis(attacker, attack_pos, aim_pos)
+    local lat_ax = Rat_RecoilLateralAxis(axis, dir)
     local args = Rat_SimBaseArgs(attacker, target, weapon, sc.spot, dist + 20 * const.SlabSizeX)
 
     DbgClearVectors()
@@ -1448,7 +1476,9 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker)
     local mu, rows, nhit, nheld = 0, {}, 0, 0
     for i = 1, burst do
         local mu_i = mu
-        local aimed = Rat_RecoilWalkPoint(attack_pos, aim_pos, axis, mu)
+        ---- passado o plato o coice deste tiro sai de lado em vez de subir, e nao acumula
+        local lat = ((i - 1) > max_idx) and Rat_RecoilLateral(attacker, climb, chance) or 0
+        local aimed = Rat_RecoilWalkPoint(attack_pos, aim_pos, axis, mu, lat_ax, lat)
         if scatter and sigma and sigma >= 1 then
             aimed = Rat_ShotScatterPoint(attacker, attack_pos, aimed, sigma)
         end
@@ -1469,7 +1499,7 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker)
         DbgAddVector(attack_pos, end_pos - attack_pos, c)
         DbgAddText(tostring(i), end_pos, target and (hit and clrHit or clrMiss) or c)
 
-        ---- o coice deste tiro so move o PROXIMO, e so ate max_idx: depois a arma reassenta
+        ---- o coice deste tiro so move o PROXIMO, e so ate max_idx: dai o cano assenta
         local held
         if i <= max_idx then
             held = Rat_RecoilHeld(attacker, chance)
@@ -1478,9 +1508,11 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker)
             end
             mu = mu + (held and held_step or climb)
         end
-        rows[#rows + 1] = string.format("    %2d  | %+6d' | %+5dcm | %-8s | %s", i, mu_i,
-                                        cone_radius(dist, mu_i) / 10,
-                                        (i > max_idx) and "--" or (held and "segurou" or "subiu"),
+        ---- o tiro max_idx+1 ja sai do plato mas ainda nao rola lateral: nao sorteia nada
+        rows[#rows + 1] = string.format("    %2d  | %+6d' | %+6d' | %-8s | %s", i, mu_i, lat,
+                                        ((i - 1) > max_idx) and "lateral" or
+                                            (i > max_idx) and "assentou" or
+                                            (held and "segurou" or "subiu"),
                                         target and (hit and ("acerto " .. tostring(part or "?")) or
                                             "erro") or "-")
     end
@@ -1495,7 +1527,7 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker)
         string.format("cone %d' (%s)   %s", sigma, cone_src,
                       scatter and "dispersao LIGADA: o tiro 1 tambem sai do centro" or
                           "dispersao desligada: so o passeio do cano"),
-        "    tiro |     mu |  desvio | coice    | resultado", table.concat(rows, "\n")
+        "    tiro |     mu | lateral | coice    | resultado", table.concat(rows, "\n")
     }
     if target then
         lines[#lines + 1] = string.format("alvo %s [%s]   theta %d'   %d de %d acertos",
