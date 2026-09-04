@@ -85,15 +85,13 @@ function Rat_GetRecoilClimb(attacker, action, weapon, num_shots, test)
     local excess = Max(100, control)
     control = Min(control, 100)
 
-    ---- chance de segurar o cano. Derivada ANTES do gun de proposito: o gun se ajusta a ela para
-    ---- a media continuar valendo (ver abaixo), entao mexer no mapa nao desregula a escala.
     local chance = Rat_RecoilHoldChance(control)
 
-    ---- a arma sobe o bastante para que a MEDIA continue sendo `mod`: gun * (1 - chance) = mod.
-    ---- E o que deixa RecoilClimbBase e toda a cadeia tunada valerem com qualquer Pivot/Gain.
-    local hold = (100 - chance) / 100.00
-    local gun_base = mod * excess / 100.00
-    local gun = (hold > 0) and (gun_base / hold) or gun_base
+    ---- gun is the kick a LOST shot delivers, and nothing more. It used to be divided by (1-chance)
+    ---- so the mean stayed at `mod` whatever the hold map said -- but that inflated the kick of the
+    ---- mercs who hold most, so the best shooter had the wildest single shot. Skill now lowers the
+    ---- kick (via mod) AND raises the hold chance; the mean is no longer pinned, it just falls.
+    local gun = mod * excess / 100.00
 
     ---- cadencia: mais tiros no mesmo tempo, menos tempo para reassentar a arma
     if not IsKindOf(weapon, "Shotgun") then
