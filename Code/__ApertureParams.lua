@@ -390,17 +390,21 @@ A.RecoilStrGain = 200
 ---- entao e a escala que RecoilErrorRatio le.
 A.RecoilMaxIncBase = 70
 
----- Estica `other_control` (postura, bipe, Marksmanship, perks), que so anda entre ~63 (deitado
----- com bipe, Marks alta) e 100 (Marks <= 50 em pe). Sem ganho a diferenca de pericia no 2o tiro
----- seria de 15% e invisivel. 300 abre a faixa util.
-A.RecoilOtherGain = 300
+---- Estica `control` (postura, bipe, Marksmanship, perks E Forca), que so anda entre ~85 e ~109
+---- no MP5. Sem ganho a diferenca de pericia no 2o tiro seria de 15% e invisivel.
+---- `control` inteiro e nao so `other_control` de proposito: e assim que a Forca ACIMA do
+---- breakpoint continua valendo alguma coisa em vez de virar um degrau. O peso relativo sai de
+---- graca e bate com o old CTH -- la Marks 50->100 mexia a perda 14% e Forca 50->100 mexia 7%,
+---- e aqui other_control anda 15% contra os 9% de str_control. Mesma proporcao de 2 para 1.
+A.RecoilOtherGain = 250
 
 ---- T: em quantos tiros o atirador TENTA zerar (p, v). Ganhos do duplo polo em 1 - 1/T:
 ---- Kd = 2/T, Kp = 1/T^2. Manda a FORMA da queda, nao os extremos dela.
----- 6 e deliberadamente lento: em 3 o cano assenta antes do fim da rajada e a escada FLATTENA --
----- os tiros 4, 5 e 6 ficam todos iguais e nao ha mais razao para parar de atirar. Com T = 6 o
----- transiente dura a rajada inteira e a escada continua caindo, como no modelo antigo.
-A.RecoilSettleShots = 6
+---- T pequeno de proposito. Kp = 1/T^2 e a UNICA coisa que puxa o cano de volta ao alvo; Kd = 2/T
+---- so o freia. Em T = 6 o Kp fica 12x menor que o Kd, o cano para onde estiver e o modelo passa a
+---- parecer compensacao contra o tiro ANTERIOR em vez de volta ao alvo original. Em 3 o retorno e
+---- de verdade -- e a rajada de um merc bom se RECUPERA depois do mergulho, em vez de so cair.
+A.RecoilSettleShots = 3
 
 ---- % de amortecimento critico. Em 100 a trajetoria nominal nao passa do alvo, e entao TODA
 ---- supercompensacao no jogo e um erro do atirador -- que e o comportamento pedido. Abaixo de 100

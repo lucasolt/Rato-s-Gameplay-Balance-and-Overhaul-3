@@ -103,10 +103,13 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test)
     local str_eff = Max(30, 100 + MulDivRound(str_control - 100, a.RecoilStrGain or 100, 100))
     local cf_max = MulDivRound(kick, a.RecoilCFHeadroom or 100, str_eff)
 
-    ---- SKILL. How much of the grip is on the gun by the next bullet. The floor keeps a bipodded
-    ---- prone MG from dividing by nearly nothing.
-    local oth_eff = Max(30, 100 + MulDivRound(other_control - 100, a.RecoilOtherGain or 100, 100))
-    local max_inc = Max(1, MulDivRound(a.RecoilMaxIncBase or 1, 100, oth_eff))
+    ---- SKILL. How much of the grip is on the gun by the next bullet. Reads the FULL control --
+    ---- stance and marksmanship, but Strength too: muscle above the caliber's breakpoint stops
+    ---- opening the gate and keeps helping here, smoothly, the way the old CTH had it (its loss
+    ---- moved 15 -> 14 per shot from Str 50 to 100). The floor keeps a bipodded prone MG from
+    ---- dividing by nearly nothing.
+    local ctl_eff = Max(30, 100 + MulDivRound(control - 100, a.RecoilOtherGain or 100, 100))
+    local max_inc = Max(1, MulDivRound(a.RecoilMaxIncBase or 1, 100, ctl_eff))
 
     ---- rate of fire shortens the time BETWEEN shots, so it shortens the reaction -- not the
     ---- force, which is muscle, and not the kick, which is the cartridge.
@@ -160,7 +163,11 @@ end
 ---- `rnd(n)` returns 0..n-1 -- the real shot passes the synced rng and the estimator a seeded one,
 ---- so there is exactly one implementation of the recoil and prediction cannot drift from it.
 function Rat_RecoilStep(prof, st, rnd)
-    ---- where the shooter wants the velocity to go: PD aiming (p, v) at (0, 0)
+    ---- where the shooter wants the velocity to go. `p` is measured from the ORIGINAL aim point
+    ---- and never reset, so the shooter is always trying to get back to the target -- not merely
+    ---- to undo the last kick. Kp is what does that; Kd only stops the muzzle. Keep SettleShots
+    ---- small enough that Kp = 1/T^2 stays a real force next to Kd = 2/T, or the muzzle just
+    ---- coasts to a halt wherever it happens to be and the model reads as per-shot compensation.
     local ax = -(MulDivRound(st.px, prof.kp, 1000) + MulDivRound(st.vx, prof.kd, 1000))
     local ay = -(MulDivRound(st.py, prof.kp, 1000) + MulDivRound(st.vy, prof.kd, 1000))
 
