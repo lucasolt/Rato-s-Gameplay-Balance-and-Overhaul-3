@@ -7,18 +7,25 @@
 --TODO: make sure AI will orient before checking for cover in LOF
 --TODO: Fix target angle getting smaller when you aim
 --TODO: Fix shots being too accurate? for AI? (aim is too strong)
---TODO: conversely, fix opportunity attacks, as they have no aim, never hitting.
+
+
 --TODO: Tune Recoil. Posicoes compensadas (mu < 0) ja saem via A.RecoilCorrectPct; falta VALIDAR
 --TODO: no processo vivo e recalibrar A.RecoilClimbBase, que ainda e do modelo so-para-cima.
---TODO: fix strays specially for suppression mod. check crit chance.
+
+
+--TODO: Strays were fixed. Need to check if different body parts are being processed differently
+
 --TODO: Check how the aCTH deals with out of sight targets (wallbang)
 --TODO: AI OVERHAUL - make sure AI will not try to shoot through the walls
 --TODO: AI OVERHAUL - Enemy LastPos should generate threat. They should also try to "chase" the last pos
 --TODO: General balancing - OW tuning - maybe snapshot should not scale with distance. instead it could decrease total cth by a %.. 
+
+
 --TODO: 03/09/2026
 --TODO: fix cth degrading to old logic. Probably related to peeking from cover (needs a future position for check lof)
 --TODO: AI OVERHAUL - check grenade distribution. Give more timed to enemies. Less frustrating but still a challenge to the player
 
+--TODO: Debug - make a way to check recoil vectors at any time, at mouse location for example
 
 
 const.Combat.Aperture = {}
@@ -201,7 +208,7 @@ A.CoverAIFallback = true
 
 ---- Classe de penetracao dos raios de sondagem. 0 = qualquer obstaculo bloqueia (cobertura PROTEGE,
 ---- espirito do -35 flat antigo). A classe real da arma faria quase toda cobertura sumir.
-A.CoverPenetrationClass = 2--0
+A.CoverPenetrationClass = 0--0
 
 ---- Fracao exposta abaixo da qual o alvo conta como totalmente ocluido. So no caminho barato da IA.
 A.ExposureBlockedPct = 6
@@ -215,10 +222,10 @@ A.TargetedResidualPct = 0 --35
 ---- Hand-Eye Coordination (Dex+Marks) escala quanto disso o atirador COBRA (= "Aiming Rework").
 
 A.DecayBase = 0 --8
-A.DecayScale = 4--4
+A.DecayScale = 6--4
 ---- teto de fechamento por nivel. nunca fecha mais que (100 - DecayMinPct) %. Abaixo de 30 um
 ---- unico nivel com optica de limiar fecha quase todo o gap e vira degrau, nao curva.
-A.DecayMinPct = 30 --20
+A.DecayMinPct = 10--30 --20
 
 ---- Opticas com LIMIAR: bonus de AimAccuracy que so vale a partir do nivel `from` (ate `to`, se
 ---- houver). Substitui os degraus `aim >= N` do modelo somado -- a luneta deixa de ser um degrau
@@ -248,14 +255,15 @@ A.AimDecayMuls ={
 	Crouch = 95,
 	Prone = 90,
 	ProneGripPenalty = 105,
-	HandgunPenalty = 150,--50 ---- 100 is disabled
+	HandgunPenalty = 150, ---- 100 is disabled
 	CompEffects = { -- {mul = 90, meta = "string"}
 		light_stock_aim_reduce = {mul = 110}, 
-		ReduceAimAccuracy = {mul = 150}
+		ReduceAimAccuracy = {mul = 150} -- nostock
 	}
 }
 
 -- TODO: Grips
+-- TODO: 
 
 ---- Degrau de "arma no ombro" -- hipfire / snapshot. So ate aim 2 (aim 3+ a arma esta encostada).
 ---- Escala o EXCESSO, nunca o cone inteiro:
@@ -263,9 +271,9 @@ A.AimDecayMuls ={
 ---- Regra GBO3: armas leves/curtas boas em SNAPSHOT (MP5 72), nao em hipfire (MP5 135).
 
 A.AimStep = {
-    [0] = 280,--380, --- hipfire: x2.80 numa arma de referencia
-    [1] = 130,--155,--180,--155, --- snapshot 1 nivel: x1.55
-    [2] = 110,--118--130--118 --- snapshot 2 niveis: x1.18
+    [0] = 190,--210,--280,--, --- hipfire: x2.80 numa arma de referencia
+    [1] = 130,--155,--130,--155,--180,--155, --- snapshot 1 nivel: x1.55
+    [2] = 110--110,--118--130--118 --- snapshot 2 niveis: x1.18
 }
 A.AimStepMaxLevel = 2 --- acima disso a arma esta encostada: alargamento 100
 
@@ -344,7 +352,7 @@ A.MaxCTH = 97
 ---- (mod/control vem de FUNCTIONS_recoil; mod ~130 MP5, ~230 AK47/MG42). A distancia entra pela
 ---- geometria: a mesma subida e inofensiva de perto e fatal de longe, porque theta cai com 1/d.
 
-A.RecoilClimbBase = 25--40--80 --- minutos com mod 100 (~1.3 graus). MEDIDO no processo vivo: iguala o CTH
+A.RecoilClimbBase = 60 --40--80 --- minutos com mod 100 (~1.3 graus). MEDIDO no processo vivo: iguala o CTH
 --- medio da rajada do modelo de growth antigo em sigma 143 (AutoFire, aim 1) nas duas silhuetas
 --- testadas -- 46 vs 42 e 19 vs 19. O FORMATO muda, e e a assinatura da caminhada: o tiro 2 fica
 --- mais perto (90 vs 78) e a partir do 4o a rajada ja saiu do alvo (5 vs 9). Uma arma que sobe sai;
@@ -364,7 +372,7 @@ A.RecoilClimbMax = 200--400 --- teto por tiro. Frouxo de proposito: o teto antig
 ---- e derivado da chance para preservar a media (gun = mod / (1 - chance)), uma chance alta demais
 ---- faz o gun estourar A.RecoilClimbMax e a media deixa de valer. Com ClimbBase 25 e mod ~200 o
 ---- limite util e chance 75; 70 fica com folga.
-A.RecoilControlMax = 70--90 --- ninguem segura sempre
+A.RecoilControlMax = 90--70--90 --- ninguem segura sempre
 A.RecoilControlResidual = 5--15 --- % da subida que passa mesmo num tiro controlado
 
 ---- control -> chance de segurar o cano: chance = Gain * (Pivot - control*100) / 100.

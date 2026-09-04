@@ -937,19 +937,51 @@ return {
 		'CodeFileName', "Code/UnitDataDef_changes.lua",
 	}),
 	PlaceObj('ModItemWeaponComponentEffect', {
-		Description = T(604561908488, --[[ModItemWeaponComponentEffect SnapshotPropertyMul Description]] "Modifies <em>Snapshot Penalty</em>"),
+		Description = T(604561908488, --[[ModItemWeaponComponentEffect IncreaseSnapshotMul Description]] "Increases <em>Snapshot Penalty</em>"),
 		ModificationType = "Multiply",
 		Parameters = {
 			PlaceObj('PresetParamPercent', {
-				'Name', "snap_mul",
+				'Name', "snap_mul_inc",
 				'Value', 110,
-				'Tag', "<snap_mul>%",
+				'Tag', "<snap_mul_inc>%",
 			}),
 		},
 		Scale = "%",
 		StatToModify = "wep_base_snapshot_mul",
 		group = "Stats",
-		id = "SnapshotPropertyMul",
+		id = "IncreaseSnapshotMul",
+	}),
+	PlaceObj('ModItemWeaponComponentEffect', {
+		Description = T(274456321251, --[[ModItemWeaponComponentEffect DecreaseSnapshotMul Description]] "Decreases <em>Snapshot Penalty</em>"),
+		ModificationType = "Multiply",
+		Parameters = {
+			PlaceObj('PresetParamPercent', {
+				'Name', "snap_mul_reduc",
+				'Value', 110,
+				'Tag', "<snap_mul_reduc>%",
+			}),
+		},
+		Scale = "%",
+		StatToModify = "wep_base_snapshot_mul",
+		group = "Stats",
+		id = "DecreaseSnapshotMul",
+	}),
+	PlaceObj('ModItemWeaponComponentEffect', {
+		Comment = "-- aCTH",
+		Description = T(112353222781, --[[ModItemWeaponComponentEffect _x2ScopeAimBonus Description]] "Increases aim accuracy for attacks with 4 aim levels"),
+		comment = "-- aCTH",
+		group = "Default",
+		id = "_x2ScopeAimBonus",
+	}),
+	PlaceObj('ModItemWeaponComponentEffect', {
+		Comment = "--not used?",
+		Description = T(175841076720, --[[ModItemWeaponComponentEffect SightAccBonus Description]] "Increases accuracy for attacks with at least 1 aim level"),
+		RequiredParams = {
+			"bonus_cth",
+		},
+		comment = "--not used?",
+		group = "Default",
+		id = "SightAccBonus",
 	}),
 	PlaceObj('ModItemFolder', {
 		'name', "CombatActions",
@@ -4690,10 +4722,11 @@ return {
 			ModificationDifficulty = 20,
 			ModificationEffects = {
 				"IncreaseMaxAimActions",
+				"IncreaseRange",
 				"ScopePenalty3",
 				"DecreaseOverwatchAngle",
 				"bodypart_scope",
-				"SnapshotPropertyMul",
+				"IncreaseSnapshotMul",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -4722,9 +4755,9 @@ return {
 					'Tag', "<crit>%",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "snap_mul",
-					'Value', 140,
-					'Tag', "<snap_mul>",
+					'Name', "snap_mul_inc",
+					'Value', 160,
+					'Tag', "<snap_mul_inc>",
 				}),
 			},
 			Slot = "Scope",
@@ -4874,10 +4907,11 @@ return {
 				"IgnoreCoverCtHWhenFullyAimed",
 				"IgnoreLightOfSightWhenFullyAimed",
 				"IgnoreGrazingHitsWhenFullyAimed",
+				"IncreaseRange",
 				"ScopePenalty2",
 				"DecreaseOverwatchAngle",
-				"SnapshotPropertyMul",
 				"IncreaseMaxAimActions",
+				"IncreaseSnapshotMul",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -4901,9 +4935,9 @@ return {
 					'Tag', "<RangeIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "snap_mul",
-					'Value', 125,
-					'Tag', "<snap_mul>",
+					'Name', "snap_mul_inc",
+					'Value', 140,
+					'Tag', "<snap_mul_inc>",
 				}),
 			},
 			Slot = "Scope",
@@ -5075,11 +5109,12 @@ return {
 			ModificationEffects = {
 				"CritBonusWhenFullyAimed",
 				"ScopePenalty1",
+				"IncreaseRange",
 				"IgnoreInTheDarkWhenFullyAimed",
 				"DecreaseOverwatchAngle",
-				"SnapshotPropertyMul",
-				"BonusAccuracyWhenFullyAimed",
+				"_x2ScopeAimBonus",
 				"IncreaseMaxAimActions",
+				"IncreaseSnapshotMul",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5108,9 +5143,9 @@ return {
 					'Tag', "<crit>%",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "snap_mul",
-					'Value', 110,
-					'Tag', "<snap_mul>",
+					'Name', "snap_mul_inc",
+					'Value', 125,
+					'Tag', "<snap_mul_inc>",
 				}),
 			},
 			Slot = "Scope",
@@ -5150,11 +5185,12 @@ return {
 			ModificationEffects = {
 				"CritBonusWhenFullyAimed",
 				"ScopePenalty1",
+				"IncreaseRange",
 				"IgnoreInTheDarkWhenFullyAimed",
 				"DecreaseOverwatchAngle",
-				"SnapshotPropertyMul",
-				"BonusAccuracyWhenFullyAimed",
+				"_x2ScopeAimBonus",
 				"IncreaseMaxAimActions",
+				"IncreaseSnapshotMul",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5183,9 +5219,9 @@ return {
 					'Tag', "<crit>%",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "snap_mul",
-					'Value', 110,
-					'Tag', "<snap_mul>",
+					'Name', "snap_mul_inc",
+					'Value', 125,
+					'Tag', "<snap_mul_inc>",
 				}),
 			},
 			Slot = "Scope",
@@ -5221,6 +5257,7 @@ return {
 			Icon = "UI/Icons/Upgrades/custom_Steyr_AUG_scope",
 			ModificationDifficulty = 0,
 			ModificationEffects = {
+				"IncreaseRange",
 				"DecreaseOverwatchAngle",
 				"IncreaseMaxAimActions",
 			},
@@ -5293,7 +5330,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "bonus_cth",
-					'Value', 10,
+					'Value', 8,
 					'Tag', "<bonus_cth>",
 				}),
 				PlaceObj('PresetParamPercent', {
@@ -5505,7 +5542,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "bonus_cth",
-					'Value', 10,
+					'Value', 8,
 					'Tag', "<bonus_cth>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -5579,7 +5616,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "bonus_cth",
-					'Value', 10,
+					'Value', 8,
 					'Tag', "<bonus_cth>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -5785,7 +5822,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "bonus_cth",
-					'Value', 10,
+					'Value', 12,
 					'Tag', "<bonus_cth>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -5999,12 +6036,13 @@ return {
 			Icon = "UI/Icons/Upgrades/prism_scope",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
+				"IncreaseRange",
 				"ScopePenalty1",
 				"DecreaseOverwatchAngle",
 				"critical_per_aim_scope",
-				"SnapshotPropertyMul",
-				"BonusAccuracyWhenFullyAimed",
+				"_x2ScopeAimBonus",
 				"IncreaseMaxAimActions",
+				"IncreaseSnapshotMul",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6028,9 +6066,9 @@ return {
 					'Tag', "<RangeIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "snap_mul",
-					'Value', 110,
-					'Tag', "<snap_mul>",
+					'Name', "snap_mul_inc",
+					'Value', 125,
+					'Tag', "<snap_mul_inc>",
 				}),
 			},
 			Slot = "Scope",
@@ -6209,10 +6247,11 @@ return {
 			ModificationDifficulty = 10,
 			ModificationEffects = {
 				"FirstAimBonusModifier",
+				"IncreaseRange",
 				"ScopePenalty1",
 				"scope_snapshot",
 				"IncreaseOverwatchAngle",
-				"BonusAccuracyWhenFullyAimed",
+				"_x2ScopeAimBonus",
 				"IncreaseMaxAimActions",
 			},
 			Parameters = {
@@ -6418,9 +6457,10 @@ return {
 			ModificationDifficulty = 10,
 			ModificationEffects = {
 				"OpportunityAttackBonusCth",
+				"IncreaseRange",
 				"ScopePenalty1",
 				"scope_snapshot",
-				"BonusAccuracyWhenFullyAimed",
+				"_x2ScopeAimBonus",
 				"IncreaseMaxAimActions",
 			},
 			Parameters = {
@@ -6624,12 +6664,13 @@ return {
 			Icon = "UI/Icons/Upgrades/custom_Dragunov_scope",
 			ModificationDifficulty = 20,
 			ModificationEffects = {
+				"IncreaseRange",
 				"pso_dragunov_scope_critical",
 				"ScopePenalty2",
 				"DecreaseOverwatchAngle",
 				"pso_dragunov_scope",
 				"IncreaseMaxAimActions",
-				"SnapshotPropertyMul",
+				"IncreaseSnapshotMul",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6658,9 +6699,9 @@ return {
 					'Tag', "<crit_bonus>%",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "snap_mul",
-					'Value', 125,
-					'Tag', "<snap_mul>",
+					'Name', "snap_mul_inc",
+					'Value', 140,
+					'Tag', "<snap_mul_inc>",
 				}),
 			},
 			Slot = "Scope",
@@ -6687,10 +6728,11 @@ return {
 			ModificationDifficulty = 10,
 			ModificationEffects = {
 				"IncreaseMaxAimActions",
+				"IncreaseRange",
 				"ScopePenalty2",
 				"DecreaseOverwatchAngle",
 				"sniper_aim_scope",
-				"SnapshotPropertyMul",
+				"IncreaseSnapshotMul",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6714,9 +6756,9 @@ return {
 					'Tag', "<RangeIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "snap_mul",
-					'Value', 125,
-					'Tag', "<snap_mul>",
+					'Name', "snap_mul_inc",
+					'Value', 140,
+					'Tag', "<snap_mul_inc>",
 				}),
 			},
 			Slot = "Scope",
@@ -6871,10 +6913,11 @@ return {
 			ModificationDifficulty = 20,
 			ModificationEffects = {
 				"IncreaseMaxAimActions",
+				"IncreaseRange",
 				"ScopePenalty3",
 				"DecreaseOverwatchAngle",
 				"sniper_adv_aim_scope",
-				"SnapshotPropertyMul",
+				"IncreaseSnapshotMul",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6898,9 +6941,9 @@ return {
 					'Tag', "<RangeIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "snap_mul",
-					'Value', 140,
-					'Tag', "<snap_mul>",
+					'Name', "snap_mul_inc",
+					'Value', 160,
+					'Tag', "<snap_mul_inc>",
 				}),
 			},
 			Slot = "Scope",
@@ -9891,7 +9934,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "bonus_cth_v",
-				'Value', 2,
+				'Value', 3,
 				'Tag', "<bonus_cth_v>",
 			}),
 		},
@@ -10013,7 +10056,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "bonus_cth_v",
-				'Value', 2,
+				'Value', 3,
 				'Tag', "<bonus_cth_v>",
 			}),
 		},
@@ -10393,7 +10436,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "bonus_cth_v",
-				'Value', 2,
+				'Value', 3,
 				'Tag', "<bonus_cth_v>",
 			}),
 		},
@@ -15915,7 +15958,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "bonus_cth_v",
-				'Value', 2,
+				'Value', 3,
 				'Tag', "<bonus_cth_v>",
 			}),
 		},
@@ -15969,7 +16012,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "bonus_cth_v",
-				'Value', 2,
+				'Value', 3,
 				'Tag', "<bonus_cth_v>",
 			}),
 		},
@@ -16007,6 +16050,7 @@ return {
 		ModificationEffects = {
 			"Vert_grip_recoil",
 			"AccuracyBonusWhenAimed_vgrip",
+			"grip_prone_penalty",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -16016,7 +16060,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "bonus_cth_v",
-				'Value', 2,
+				'Value', 3,
 				'Tag', "<bonus_cth_v>",
 			}),
 		},
@@ -18022,7 +18066,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "bonus_cth_v",
-				'Value', 2,
+				'Value', 3,
 				'Tag', "<bonus_cth_v>",
 			}),
 		},
@@ -18057,7 +18101,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "bonus_cth_v",
-				'Value', 2,
+				'Value', 3,
 				'Tag', "<bonus_cth_v>",
 			}),
 		},

@@ -6,6 +6,10 @@
 * Only comment non-obvious logic or important decisions/workarounds.
 * Never narrate or restate the code.
 
+# Language (important)
+
+Always write the code and your messages in English, even if I speak portuguese sometimes. You use always English
+
 ## Workspace structure
 
 ### Game source (read-only — API reference only)

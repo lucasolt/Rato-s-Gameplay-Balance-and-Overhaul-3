@@ -1332,7 +1332,7 @@ local function recoil_scene(pos, burst, aim, action_id, attacker)
 
     return {
         attacker = attacker, weapon = weapon, action = action, target = target, spot = spot,
-        burst = Max(2, burst or 6), aim = aim or 1,
+        burst = Max(2, burst or 3), aim = aim or 3,
         attack_pos = attack_pos, aim_pos = aim_pos, dist = dist,
         dir = SetLen(aim_pos - attack_pos, 1000)
     }

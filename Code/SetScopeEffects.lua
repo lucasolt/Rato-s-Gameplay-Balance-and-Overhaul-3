@@ -16,12 +16,12 @@ local A = const.Combat.Aperture
 ---- Limiar de mira por ampliacao. Regra: quanto MAIOR a ampliacao, mais TARDE o bonus comeca e
 ---- maior ele e. E o que faz a luneta grande ser um compromisso e nao um upgrade direto.
 ---- Os `from` batem com o texto ja escrito nos WeaponComponentEffect ("2+", "3+", "4+ niveis").
----- Valores pequenos de proposito: acima de acc 12 o decay bate em A.DecayMinPct e +3 == +5.
+--TODO: change to an effect called ScopeAimBonusAtPeak. Parametrize the "from", "acc" and "to"
 A.ComponentEffectsAimBonus = {
-    {id = "pso_dragunov_scope", from = 4, acc = 3},
-    {id = "sniper_aim_scope", from = 5, acc = 4},
-	{id = "sniper_adv_aim_scope", from = 6, acc = 4},
-	{id = "_x2ScopeAimBonus", from = 4, acc = 4},
+    {id = "pso_dragunov_scope", from = 5, acc = 3},
+    {id = "sniper_aim_scope", from = 5, acc = 5},
+	{id = "sniper_adv_aim_scope", from = 6, acc = 5},
+	{id = "_x2ScopeAimBonus", from = 4, acc = 3},
     ---- Forward Grip: so o PRIMEIRO nivel -- e o "aponta rapido" dele, nao um ganho permanente.
     {id = "FirstAimBonusModifier", from = 1, to = 1, acc = 3},
 	{id = "BonusAccuracyWhenFullyAimed", from = 3, to = 3, acc = 2}, -- HeavyStock
@@ -44,15 +44,27 @@ A.ScopeFloorMul = {
 	_6x = 74,
 	_4x = 84,
 	_2x = 94,
-	_2xQuick = 98,
+	_2xQuick = 94,
 	_1dot5x = 98,
 	Reflex = 100,
 	Ironsight = 100,
+	--_6x = 100,
+	--_4x = 100,
+	--_2x = 100,
+	--_2xQuick = 100,
+	--_1dot5x = 100,
+	--Reflex = 100,
+	--Ironsight = 100,
 }
 
----- Miras (AccuracyBonusWhenAimed): o `bonus_cth` autorado no componente vira multiplicador de
----- cone, aplicado uma vez com aim >= 1. false = inerte.
+---- Miras: o `bonus_cth` autorado no componente vira multiplicador de cone, aplicado uma vez com
+---- aim >= 1. false = inerte (A.SightAimBonus). Cada entrada daqui e um componente independente --
+---- adicionar uma optica nova e so listar o id aqui, sem tocar em Rat_GetAperture/Rat_ConeFactors.
 A.SightAimBonus = true
+A.ConeMulEffects = {
+    {id = "AccuracyBonusWhenAimed", param = "bonus_cth"},
+    {id = "SightAccBonus", param = "bonus_cth"},
+}
 
 
 
@@ -68,50 +80,81 @@ A.ApertureMagnifications = {
 	----   limiar de mira comecando mais tarde       (pior no aim 3, melhor do 4 em diante)
 	---- IncreaseAimAccuracy sai de TODAS: AimAccuracy crua e stat de arma.
 	_6x = {
-		Parameters = { MaxAimActionsIncrease = 3, snap_mul = 140 },
-		ModificationEffects = { IncreaseMaxAimActions = true, SnapshotPropertyMul = true,
+		Parameters = { MaxAimActionsIncrease = 3, snap_mul_inc = 160},--140 },
+		ModificationEffects = { IncreaseMaxAimActions = true, IncreaseSnapshotMul = true,
 			ScopePenalty3 = true, ScopePenalty2 = false, ScopePenalty1 = false,
-			IncreaseRange = false, IncreaseAimAccuracy = false, StanceAPincrease = true },
+			IncreaseRange = true,
+			IncreaseAimAccuracy = false,
+			StanceAPincrease = false 
+		},
 	},
 	---- StanceAPincrease: o `APincrease = 1` ja autorado nas opticas longas era param ORFAO --
 	---- nenhum efeito o consumia e o APStance ficava igual ao da reflex. E o custo de ENTRADA
 	---- (shooting_stance paga-se uma vez), entao encarece montar a arma sem encarecer cada tiro.
 	_4x = {
-		Parameters = { MaxAimActionsIncrease = 2, snap_mul = 125 },
-		ModificationEffects = { IncreaseMaxAimActions = true, SnapshotPropertyMul = true,
+		Parameters = { MaxAimActionsIncrease = 2, snap_mul_inc = 140},--125 },
+		ModificationEffects = { IncreaseMaxAimActions = true, IncreaseSnapshotMul = true,
 			ScopePenalty2 = true, ScopePenalty1 = false, ScopePenalty3 = false,
-			IncreaseRange = false, IncreaseAimAccuracy = false, StanceAPincrease = true },
+			IncreaseRange = true,
+			IncreaseAimAccuracy = false,
+			StanceAPincrease = false
+			},
 	},
 	_2x = {
-		Parameters = { MaxAimActionsIncrease = 1, snap_mul = 110 },
-		ModificationEffects = { BonusAccuracyWhenFullyAimed = false, IncreaseMaxAimActions = true,
-			SnapshotPropertyMul = true, ScopePenalty1 = true, ScopePenalty2 = false, ScopePenalty3 = false,
-			IncreaseRange = false, IncreaseAimAccuracy = false, _x2ScopeAimBonus = true },
+		Parameters = { MaxAimActionsIncrease = 1, snap_mul_inc = 125},--110 },
+		ModificationEffects = { 
+			BonusAccuracyWhenFullyAimed = false,
+			IncreaseMaxAimActions = true,
+			IncreaseSnapshotMul = true,
+			ScopePenalty1 = true, ScopePenalty2 = false, ScopePenalty3 = false,
+			IncreaseRange = true,
+			IncreaseAimAccuracy = false,
+			_x2ScopeAimBonus = true },
 	},
 	---- 2x de aquisicao rapida (ACOG/WideScope): trocam o piso e a mira alta pelo snapshot. O
 	---- `snap_reduc` positivo autorado no componente e mantido -- o perfil nao o sobrescreve.
 	_2xQuick = {
-		Parameters = { MaxAimActionsIncrease = 1 },
-		ModificationEffects = { BonusAccuracyWhenFullyAimed = true, IncreaseMaxAimActions = true,
+		Parameters = { MaxAimActionsIncrease = 1, 
+		--bonus_cth = 4
+	 	},
+		ModificationEffects = { _x2ScopeAimBonus = true, IncreaseMaxAimActions = true,
 			scope_snapshot = true, ScopePenalty1 = true, ScopePenalty2 = false, ScopePenalty3 = false,
-			IncreaseRange = false, IncreaseAimAccuracy = false },
+			IncreaseRange = true, IncreaseAimAccuracy = false, 
+			FirstAimBonusModifier = true
+			--AccuracyBonusWhenAimed = true 
+		},
+	},
+	_2xWide = {
+		Parameters = { MaxAimActionsIncrease = 1},
+		ModificationEffects = { _x2ScopeAimBonus = true, IncreaseMaxAimActions = true,
+			scope_snapshot = true, ScopePenalty1 = true, ScopePenalty2 = false, ScopePenalty3 = false,
+			IncreaseRange = true, IncreaseAimAccuracy = false,
+			FirstAimBonusModifier = false},
 	},
 	_1dot5x = {
 		Parameters = { MaxAimActionsIncrease = 1 },
-		ModificationEffects = { IncreaseMaxAimActions = true, IncreaseRange = false,
+		ModificationEffects = { IncreaseMaxAimActions = true, IncreaseRange = true,
 			IncreaseAimAccuracy = false, ScopePenalty1 = false, ScopePenalty2 = false,
 			ScopePenalty3 = false },
 	},
 	---- bonus_cth 10 -> 14: a reflex e a opcao BARATA (sem nivel de mira extra, sem AP de entrada),
 	---- entao precisa ser a melhor no aim 1-3 ou a 2x rapida a domina sem custar nada a mais.
-	Reflex = {		Parameters = {bonus_cth = 14},
+	Reflex = {		Parameters = {bonus_cth = 12},
 		ModificationEffects = {AccuracyBonusWhenAimed = true, reflex_sight_close_range = false}},
+	ReflexAdvanced = {		Parameters = {bonus_cth = 8},
+		ModificationEffects = {AccuracyBonusWhenAimed = true, reflex_sight_close_range = false}},
+	ReflexVigilance = {		Parameters = {bonus_cth = 8},
+		ModificationEffects = {AccuracyBonusWhenAimed = true, reflex_sight_close_range = false}},
+
 	Ironsight = {
 		Parameters = {bonus_cth = 3},
 		ModificationEffects = {AccuracyBonusWhenAimed = true},
 	}, 
-	--VerticalGrip = {
-	--	Parameters = {bonus_cth = 4},
+	--Laser = {
+	--	
+	--}
+	--VerticalGrip = { -- no op
+	--	Parameters = {bonus_cth = 3},
 	--	ModificationEffects = {AccuracyBonusWhenAimed = true},
 	--}
 }
@@ -119,22 +162,33 @@ A.ApertureMagnifications = {
 ---- Componente -> perfil. Componente ausente daqui nao e tocado. Chute inicial de tiers:
 A.ApertureComponentTier = {
 	ReflexSight               = "Reflex",
-	ReflexSightAdvanced       = "Reflex",
-	ReflexSightAdvanced_Glock = "Reflex",
-	_ReflexSIghtVigilance     = "Reflex",
+	ReflexSightAdvanced       = "ReflexAdvanced",
+	ReflexSightAdvanced_Glock = "ReflexAdvanced",
+	_ReflexSIghtVigilance     = "ReflexVigilance",
 	ImprovedIronsight         = "Ironsight",
+	ImprovedIronsight_AR15    = "Ironsight", -- AR15
 	G36_SCOPE                 = "_2x",
 	SCOPE_G36_2               = "_2x",
 	AUGScope_Default          = "_1dot5x",
 	ScopeCOG                  = "_2x",
 	---- ACOG e WideScope sao as 2x de aquisicao rapida: ja autoram scope_snapshot POSITIVO
-	WideScope                 = "_2xQuick",
+	WideScope                 = "_2xWide",
 	ScopeCOGQuick             = "_2xQuick",
 	LROptics                  = "_4x",
 	LROptics_DragunovDefault  = "_4x",
 	ThermalScope              = "_4x",
 	LROpticsAdvanced          = "_6x",
 	PSG_DefaultScope          = "_6x",
+
+	-----
+	--VerticalGrip = "VerticalGrip",
+	--VerticalGrip_aug = "VerticalGrip",
+	--AK47_VerticalGrip = "VerticalGrip",
+	--VerticalGrip_M14 = "VerticalGrip",
+	--VerticalGrip_M16 = "VerticalGrip",
+	--VerticalGrip_Commando = "VerticalGrip",
+	--AKSU_VerticalGrip = "VerticalGrip",
+	--RPK74_VerticalGrip  = "VerticalGrip",
 
 	---- Opticas de ToG que ficavam de fora e continuavam dando IncreaseRange. So entram as que
 	---- servem arma PATCHED (is_tog_patched) ou vanilla -- auditado no processo vivo por slot
@@ -152,7 +206,7 @@ A.ApertureComponentTier = {
 	G11_Scope_1               = "_1dot5x", -- G11_1
 	_Master_G11_Scope_1       = "_1dot5x",
 	TAR21_Scope_Rflx_1        = "Reflex", -- TAR21_1
-	ImprovedIronsight_AR15    = "Reflex", -- AR15
+
 
 	---- FORA de proposito -- so servem arma ToG NAO patched, fora do escopo de balance do mod:
 	---- AWP_Scope_1, WA2000_Scope_1, NTW_20_Scope_1, Caws_Scope_1, FN2000_Scope_1,
@@ -164,6 +218,10 @@ A.ApertureComponentTier = {
 ---- params por nome. So o que o restore/apply precisa; visuais, custo e tags ficam no preset.
 ---------------------------------------------------------------------------------------------------
 RAT_SCOPE_ORIGINALS = {
+	--VerticalGrip = {
+	--	effects = { "AccuracyBonusWhenAimed_vgrip", "Vert_grip_recoi",  "grip_prone_penalty"},
+	--	params = { bonus_cth_v = 3 },
+	--},
 	PSG_DefaultScope = {
 		effects = { "IncreaseMaxAimActions", "IncreaseRange", "ScopePenalty3", "DecreaseOverwatchAngle", "bodypart_scope" },
 		params = { MaxAimActionsIncrease = 1, RangeIncrease = 16, crit = 15, OverwatchAngleDecrease = 50, APincrease = 1 },

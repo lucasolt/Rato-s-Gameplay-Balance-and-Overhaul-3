@@ -270,6 +270,17 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
         decay = MulDivRound(decay, decay_muls.HandgunPenalty, 100)
 		meta[#meta + 1] = T {195655494642, "(-) Handgun"}
     end
+
+	--- Comps
+
+	for eff, data in pairs(decay_muls.CompEffects) do
+		local has, compDef = weapon:HasComponent(eff)
+    	if has then
+    		decay = MulDivRound(decay, data.mul, 100)
+        	local m = data.meta and Untranslated(data.meta) or (compDef and compDef.DisplayName)
+        	if m then meta[#meta + 1] = m end
+    	end
+	end
 	
 	----- Stance aim bonus
 	
@@ -377,15 +388,20 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     local skill_mul = Rat_ApertureSkillMul(attacker, weapon)
     s = MulDivRound(s, skill_mul, 100)
 
-    --- 3. quadro de visada da mira (AccuracyBonusWhenAimed). Antes do decay de PROPOSITO: fecha
-    ---    o gap ate o piso, ou seja e ganho de velocidade de convergencia, nao assintota nova.
-    local sight = 100
+    --- 3. quadro de visada da mira (A.ConeMulEffects). Antes do decay de PROPOSITO: fecha o gap
+    ---    ate o piso, ou seja e ganho de velocidade de convergencia, nao assintota nova. Table-driven:
+    ---    cada componente listado em A.ConeMulEffects entra aqui sozinho, sem bloco de codigo proprio --
+    ---    o nome exibido vem do proprio componente (comp.DisplayName), nunca hardcoded.
+    local sight_effects
     if aim > 0 and a.SightAimBonus and IsKindOf(weapon, "Firearm") then
-        local points, comp = GetComponentEffectValue(weapon, "AccuracyBonusWhenAimed", "bonus_cth")
-        if points and points ~= 0 then
-            sight = Rat_ConeMulForPoints(points)
-            s = MulDivRound(s, sight, 100)
-			meta[#meta + 1] = comp.DisplayName
+        for _, eff in ipairs(a.ConeMulEffects or empty_table) do
+            local points, comp = GetComponentEffectValue(weapon, eff.id, eff.param)
+            if points and points ~= 0 then
+                local mul = Rat_ConeMulForPoints(points)
+                s = MulDivRound(s, mul, 100)
+                sight_effects = sight_effects or {}
+                sight_effects[#sight_effects + 1] = {name = comp.DisplayName, mul = mul}
+            end
         end
     end
 
@@ -476,7 +492,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
         base_mul = base_mul,
         hipsnap = hipsnap,
         skill = skill_mul,
-        sight = sight,
+        sight_effects = sight_effects,
         pre_aim = pre_aim,
         decay = decay,
         decay_ladder = ladder,

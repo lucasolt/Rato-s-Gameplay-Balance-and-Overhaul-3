@@ -219,8 +219,10 @@ function Rat_ConeFactors(data)
                          tag = Rat_ConeMulTag(parts.skill)}
     end
 
-    if parts.sight and parts.sight ~= 100 then
-        out[#out + 1] = {name = T(730192846053, "Sight"), tag = Rat_ConeMulTag(parts.sight)}
+    ---- quadro de visada: uma linha POR COMPONENTE em A.ConeMulEffects, com o nome que o proprio
+    ---- componente declara -- nunca um rotulo fixo tipo "Sight" escondendo qual optica agiu.
+    for _, eff in ipairs(parts.sight_effects or empty_table) do
+        out[#out + 1] = {name = eff.name, tag = Rat_ConeMulTag(eff.mul)}
     end
 
     ---- UMA linha de mira: o % e o efeito de TODOS os niveis juntos sobre o cone inteiro, nao o
@@ -313,10 +315,13 @@ function Rat_ConeMetaText(data)
             meta[#meta + 1] = T {592038174652, "Marksmanship <pct>",
                                  pct = Rat_ConeMulTag(parts.skill)}
         end
-        ---- quadro de visada da mira: fator unico, so com aim >= 1 (nunca piora, por isso o PctTag
-        ---- normal ja basta -- abaixo de 100 sai verde).
-        if aim > 0 and parts.sight and parts.sight ~= 100 then
-            meta[#meta + 1] = T {517294836150, "Sight <pct>", pct = Rat_ConeMulTag(parts.sight)}
+        ---- quadro de visada da mira: uma linha por componente (nunca piora, por isso o PctTag
+        ---- normal ja basta -- abaixo de 100 sai verde). Nome vem do componente, nao hardcoded.
+        if aim > 0 then
+            for _, eff in ipairs(parts.sight_effects or empty_table) do
+                meta[#meta + 1] = T {862915037462, "<name> <pct>", name = eff.name,
+                                     pct = Rat_ConeMulTag(eff.mul)}
+            end
         end
         if aim > 0 and parts.decay then
             ---- decay vive em [DecayMinPct, 100] e nunca passa de 100: mirar so ajuda, mais ou
