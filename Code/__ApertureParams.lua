@@ -414,6 +414,18 @@ A.RecoilGrowthMax = 60
 ---- e a silhueta real e alta e estreita, entao andar na vertical perdoa mais que andar de lado.
 A.RecoilWalkYaw = 40
 
+---- BALANCO LATERAL, em % de `climb`. Existe em TODO tiro a partir do 2o, junto com a subida --
+---- nao e a fase que comeca no plato. O plato para a SUBIDA; o balanco continua igual, e por isso
+---- as ultimas balas de uma rajada longa viram um borrao horizontal em vez de um ponto.
+---- Nao acumula (sinal sorteado a cada tiro) e NAO depende da moeda de controle: o atirador briga
+---- com a subida, que e previsivel e sempre para o mesmo lado, mas nao tem o que corrigir num
+---- balanco cuja direcao ele so descobre depois. Sendo constante, o CTH continua fechado nos
+---- mesmos 7 termos -- o desvio do tiro vira so a hipotenusa entre subida e balanco.
+---- 35 e PONTO DE PARTIDA, nao medido: poe o grupo de uma rajada de 6 como um risco vertical com
+---- largura visivel (subida ~5x climb, balanco 0.35x climb). Medir com Rat_DbgBurst(200, 6, 1)
+---- antes de considerar tunado.
+A.RecoilLateralPct = 35
+
 ---- Anel de mira: desenhado NO MUNDO com o raio real do cone (ver UI_aperture_ring.lua).
 ---- QUANTOS SIGMAS o anel representa. 1 sigma contem 39% dos tiros; 2.5 contem 96%.
 A.CrosshairSigmaMul = 250

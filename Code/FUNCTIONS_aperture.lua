@@ -709,15 +709,16 @@ local Rat_Binomial = {
 ---- esperanca sai EXATA pela mistura binomial em vez de por um mu medio (que subestimaria a
 ---- perda: P e concava em mu no regime que interessa).
 ----
----- Passado o plato (n > MaxShotIndexForRecoilCTHLoss) o coice vai para os lados (Rat_RecoilLateral).
----- O sinal do desvio lateral nao muda a DISTANCIA ao centro, e e so a distancia que Rat_RiceCTH le,
----- entao a simetria colapsa os dois sinais num termo so: a mistura ganha apenas o fator 2 da moeda
----- de controle daquele tiro, e continua fechada em 14 termos em vez de virar Monte Carlo.
+---- O balanco lateral (Rat_RecoilLateral) entra em TODO tiro a partir do 2o, nao so no plato: o
+---- desvio do tiro e a HIPOTENUSA entre a subida acumulada e ele. Como o balanco e constante e o
+---- seu sinal nao muda a distancia ao centro -- e so a distancia que Rat_RiceCTH le -- ele nao
+---- multiplica a mistura: continua exata nos mesmos 7 termos da binomial.
+---- O plato so trava `n`, ou seja a SUBIDA. O balanco segue igual depois dele.
 function Rat_BurstShotCTH(theta, sigma, n, climb, chance)
     if n <= 0 or not climb or climb <= 0 then
         return Rat_RayleighCTH(theta, sigma)
     end
-    local lateral = n > #Rat_Binomial
+    local lat = MulDivRound(climb, Clamp(P().RecoilLateralPct or 0, 0, 100), 100)
     n = Min(n, #Rat_Binomial)
 
     local held = Rat_RecoilHeldStep(climb)
@@ -733,17 +734,8 @@ function Rat_BurstShotCTH(theta, sigma, n, climb, chance)
         end
         if w > 0 then
             local mu = j * held + (n - j) * climb
-            if lateral then
-                ---- desvio total = hipotenusa entre a subida ja assentada e o passo lateral do tiro
-                local w_held = MulDivRound(w, chance, 100)
-                local w_up = MulDivRound(w, 100 - chance, 100)
-                acc = acc + w_held * Rat_RiceCTH(theta, sigma, Rat_Hypot(mu, held)) +
-                          w_up * Rat_RiceCTH(theta, sigma, Rat_Hypot(mu, climb))
-                wsum = wsum + w_held + w_up
-            else
-                acc = acc + w * Rat_RiceCTH(theta, sigma, mu)
-                wsum = wsum + w
-            end
+            acc = acc + w * Rat_RiceCTH(theta, sigma, Rat_Hypot(mu, lat))
+            wsum = wsum + w
         end
     end
     return (wsum > 0) and MulDivRound(acc, 1, wsum) or 0
@@ -940,19 +932,16 @@ local function Rat_RecoilStep(attacker, mu, climb, chance)
     return mu + climb
 end
 
----- PLATO: passado MaxShotIndexForRecoilCTHLoss coices o cano nao sobe mais -- mas nao congela.
----- O coice continua acontecendo, so que para os LADOS, com sinal sorteado. A media fica zero por
----- simetria (nao precisa reequilibrar a moeda de controle) e o grupo passa a abrir em LARGURA
----- fixa em vez de continuar subindo: e o que uma rajada sustentada faz de verdade, depois que o
----- atirador para de perder terreno e passa a brigar de lado com a arma.
----- Nao acumula de proposito: um passeio lateral somado voltaria a piorar sem limite, que e
----- exatamente o que o plato existe para impedir. Consome random sincronizado.
-function Rat_RecoilLateral(attacker, climb, chance)
-    local step = Rat_RecoilHeld(attacker, chance) and Rat_RecoilHeldStep(climb) or climb
-    if step < 0 then
-        step = -step
+---- BALANCO LATERAL de UM tiro. Existe em todo tiro a partir do 2o, junto com a subida -- ver
+---- A.RecoilLateralPct. Nao acumula e nao depende da moeda de controle. Consome random sincronizado.
+---- O plato (MaxShotIndexForRecoilCTHLoss) para so a SUBIDA: o balanco continua, e e o que impede
+---- a cauda de uma rajada longa de virar um ponto congelado.
+function Rat_RecoilLateral(attacker, climb)
+    local lat = MulDivRound(climb, Clamp(P().RecoilLateralPct or 0, 0, 100), 100)
+    if lat <= 0 then
+        return 0
     end
-    return (attacker:Random(2) == 0) and step or -step
+    return (attacker:Random(2) == 0) and lat or -lat
 end
 
 ---- Desvio angular ao longo de um eixo. SetLen nao aceita comprimento negativo, dai os dois ramos.
@@ -1065,10 +1054,8 @@ function Rat_SimPlanShots(ctx)
 
     local shots, mu = {}, 0
     for i = 1, num_shots do
-        ---- passado o plato o cano nao sobe mais, mas tambem nao congela: o coice do tiro vai
-        ---- para os lados, sorteado de novo a cada tiro (ver Rat_RecoilLateral).
-        local lat = (axis and (i - 1) > max_idx) and
-                        Rat_RecoilLateral(ctx.attacker, climb, chance) or 0
+        ---- balanco lateral: em todo tiro a partir do 2o, junto com a subida. Nao acumula.
+        local lat = (axis and i > 1) and Rat_RecoilLateral(ctx.attacker, climb) or 0
         ---- a mira do tiro i sai de onde o recuo ja deixou o cano; a dispersao continua sendo o
         ---- cone da arma, do mesmo tamanho em todos os tiros -- recuo desloca, nao espalha.
         local aim_pos = axis and
@@ -1111,8 +1098,7 @@ function Rat_SimReplanShot(ctx, idx)
     end
 
     local lat_axis = Rat_RecoilLateralAxis(axis, SetLen(ctx.aim_pos - ctx.attack_pos, 1000))
-    local lat = (axis and (idx - 1) > max_idx) and Rat_RecoilLateral(ctx.attacker, climb, chance) or
-                    0
+    local lat = (axis and idx > 1) and Rat_RecoilLateral(ctx.attacker, climb) or 0
     local aim_pos = axis and
                         Rat_RecoilWalkPoint(ctx.attack_pos, ctx.aim_pos, axis, mu, lat_axis, lat) or
                         ctx.aim_pos
