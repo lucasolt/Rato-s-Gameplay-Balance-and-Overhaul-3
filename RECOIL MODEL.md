@@ -171,18 +171,31 @@ dimensionless, none comparable to the target.
 
 ### Splitting the existing chain
 
-`Rat_GetRecoilBaseMod` already separates weapon from shooter and that split is exactly the one the
-new model needs:
+`Rat_GetRecoilBaseMod` already separates weapon from shooter, but the shooter side is *two* things
+and they must not be one number. `Rat_GetRecoilControl` now returns both separately:
 
-* `mod / control` — the stance-invariant weapon value (173.81 for the MP5, identical standing,
-  crouched and prone) → feeds **`KickMag`**.
-* `control` — everything the shooter contributes → feeds **`CFMax`** (inverted: lower control means
-  more force available).
+| output | feeds | meaning |
+|---|---|---|
+| `gun` = `mod / control` | **`KickMag`** | the cartridge. Stance- and skill-invariant. |
+| `str_control` | **`CFMax`** | Strength against **this caliber's** breakpoint |
+| `other_control` | **`MaxIncrement`** | stance, bipod, Marksmanship, perks |
 
-So the tuned chain in `FUNCTIONS_recoil.lua` survives. Only its two outputs get pointed at different
-things.
+`str_control` comes out of `GetCaliberStrRecoil` already relative to the weapon — 1.00 whenever
+Strength clears the breakpoint, 1.71 far below it — so `CFMax` is set as a *fraction of this
+weapon's kick*. The gate then reads **"do you have the muscle for this caliber"**, not "is this
+caliber big". A merc with Strength to spare holds down a 9mm however poor his marksmanship, and
+Strength above the breakpoint correctly stops mattering at all.
 
----
+Skill lives in `MaxIncrement`: how much of the grip is already on the gun when bullet 2 leaves.
+Once the kick is weapon-only — which is the whole point — that is the *only* place a shot-2
+gradient can come from.
+
+Two consequences worth stating, because both bit during calibration:
+
+* **The error floor must come from the neutral increment**, never from this merc's `MaxIncrement`.
+  Scaling it with a skill-driven quantity makes skill raise its own error.
+* **`Accuracy` needs `other_control` as well as Dexterity.** With Dexterity alone, skill buys a
+  bigger correction *and* a proportionally bigger error (`ErrorRatio * |delta|`), and cancels itself.
 
 ## 6. The estimator
 
@@ -250,66 +263,64 @@ pre-compensated by experienced shooters). Nice flavour, orthogonal to this, sepa
 
 ## 9. Calibration — done
 
-Anchored on MP5 / BurstFire / theta 167' / sigma 115', against the `1cc229c` ladder. Shipped
-values: `KickBase 52`, `CFMaxBase 78`, `ControlGain 260`, `MaxIncrement 60`, `SettleShots 3`,
-`Damping 100`, `ErrorRatio 140`, `MinErrorPct 25`, `KickAngle 12`.
+Anchored on MP5 / BurstFire / theta 167' / sigma 115'. Shipped: `KickBase 95`, `CFHeadroom 170`,
+`StrGain 200`, `MaxIncBase 70`, `OtherGain 300`, `SettleShots 6`, `Damping 100`, `ErrorRatio 140`,
+`MinErrorPct 25`, `KickAngle 12`.
 
-Measured, at Dexterity 60 (the old model had no Dexterity axis, so this is the like-for-like row):
+At Dexterity 60, against the `1cc229c` ladder:
 
-| merc | old (`1cc229c`) | new |
+| | old | new |
 |---|---|---|
-| M50 S50   | 65/42/20/8/3/1   | 65/60/41/16/2/0 |
-| M100 S50  | 65/51/37/25/17/11 | 65/60/47/34/25/18 |
-| M50 S100  | 65/47/30/17/9/5  | 65/60/45/26/12/3 |
-| M100 S100 | 65/55/45/35/28/21 | 65/60/48/38/33/30 |
+| M50  | 65/42/20/8/3/1 (M50 S50)   | 65/50/21/12/10/9 |
+| M100 | 65/55/45/35/28/21 (M100 S100) | 65/57/44/35/30/27 |
 
-The ordering holds in every column and shots 4-6 land close. **Shot 2 is deliberately more
-generous** — 60 % for everyone against 42-55 % before. Reproducing the old shot 2 would have
-required `kick` larger than what any shooter can oppose on the first bullet, i.e. exactly the
-"second shot can barely hit anything" the rewrite was asked to remove. The skill separation now
-opens from shot 3, which is where the old ladder had it anyway.
+**Strength no longer separates the MP5 rows at all** — S50 and S100 give identical ladders,
+because both clear the 9mm breakpoint of 48. That is the fix, not a regression: the old model
+separated them only because it conflated muscle with marksmanship.
 
-Two things fell out that the spec had not predicted:
+The gate, measured, closes exactly where the breakpoints are: MP5 below Str 50 (bp 48), AK47 and
+MG42 below 70 (bp 71, 77), Auto5 below 80 (bp 86).
 
-* **The MP5 sits ON the gate**, and that is what makes the ladder work: `kick` 90 against `CFMax`
-  60 (weak) to 122 (strong). The weak shooter cannot stabilise an SMG; the strong one can, with
-  headroom. Below `ErrorRatio` ~100 the deterministic gate drowns the Dexterity noise entirely and
-  accuracy stops mattering — 140 is where the two coexist.
-* **`MinErrorPct` is load-bearing, not a detail.** At 10 % the complete merc (M100 S100 D90) froze
-  at 59 % from shot 3 on — immune to recoil. At 25 % he falls to 45 % and is still clearly the best.
+Heavy calibers still hurt, but through the **transient** rather than the gate. The Auto5 kicks
+260'/shot, so even the merc who can hold it (338' of force) gets 65/43/15/8/6/6 — the muzzle
+travels a long way before the grip catches up. Previously it was unstabilisable by anyone, which
+was a bug, not a balance choice.
 
-Heavy calibers, measured: AK47 and MG42 both `kick` ~115, gated for a weak shooter (`CFMax` 40)
-and passable for a strong one (117-128). A mounted MG42 takes a weak shooter from unusable to
-65/57/35/23/19/17 — the mount is force he did not have to bring.
+Two scale facts that are not obvious and cost time:
+
+* **`KickBase` has to put the kick near theta.** Shot 2 fires from `kick - cf1`; if that is small
+  next to the cone, Rice barely moves and shot 2 is the same for everyone no matter how much skill
+  varies. 165' against a 167' torso is the right order.
+* **`SettleShots` is deliberately slow (6, not 3).** At 3 the muzzle settles before the burst ends
+  and the ladder *flattens* — shots 4, 5 and 6 identical, so there is never a reason to stop
+  firing. At 6 the transient lasts the whole burst and the ladder keeps falling.
 
 ## 10. Decisions taken
 
-1. **`MaxIncrement` is a constant.** As recommended. It also turned out to be the ceiling on
-   `|delta|`, so it sets the scale `ErrorRatio` reads — conflating it with force would have made
-   both untunable, exactly as feared.
-2. **Stat mapping: `CFMax` from `control`, `Accuracy` from raw Dexterity.** Not Strength + Agility.
-   `control` already aggregates Marksmanship, stance, bipod, Strength-vs-caliber and perks, and it
-   is *tuned* — re-deriving force from raw stats would have thrown that away for nothing.
-   Dexterity is the one attribute the chain does not already spend, so nothing is counted twice.
-   `SettleShots` stayed a constant: three skill-driven quantities at once makes calibration
-   ill-posed.
+1. **`MaxIncrement` is skill-driven after all**, from `other_control`. The spec recommended a
+   constant to keep "can't re-grip fast" apart from "isn't strong enough" — but with the kick
+   weapon-only, a constant leaves shot 2 identical for every shooter. The separation the
+   recommendation wanted is preserved anyway, because force now comes from `str_control`.
+2. **Stat mapping: `CFMax` from `str_control`, `MaxIncrement` from `other_control`, `Accuracy`
+   from Dexterity scaled by `other_control`.** Not Strength + Agility, and not the aggregate
+   `control` — see §5.
 3. **`KickAngle` is global** (12 degrees right of vertical). Per-weapon needs an editor preset.
 4. **Samples: 384** by default, 48 for the cone ratios. Measured, see §6.
 
 Also changed from the spec while building:
 
-* **ROF shrinks the shooter's side (`CFMax`, `MaxIncrement`) instead of inflating the kick.** A
-  cartridge does not kick harder because the trigger is pulled faster; what a high rate of fire
-  costs is time to reassert the grip. The old code multiplied the climb.
-* **The `control -> CFMax` map has a floor of 30 on the divisor.** A mounted MG drives `control`
-  near 50, which `ControlGain 260` takes negative; without the floor one point of control swung
-  the force from 239 to 716 minutes/shot.
+* **ROF shrinks `MaxIncrement` only.** Not the kick (that is the cartridge) and not `CFMax` (that
+  is muscle). What a high rate of fire costs is time to reassert the grip.
+* **Both control maps floor their divisor at 30.** A mounted MG drives both factors far down, and
+  without the floor one point of control swung the result wildly.
 
 ## 11. Open for the author
 
-* **The Auto5 is not stabilisable by anyone** — `kick` 142 against a best-case `CFMax` of 128, so
-  even M100 S100 gets 65/55/26/9/2/0. Physically defensible for a 12-gauge, but it is a balance
-  statement, not a measurement. Lower `KickBase`, or give shotguns their own kick scale.
-* **Shot 2 at 60 % for everyone** (see §9) is a deliberate departure from the old ladder.
-* `CalcPreRecoilOffset` — the first bullet of a volley pre-compensated by experienced shooters —
-  is still deferred, and still orthogonal.
+* **Shot 2 is kinder than the old ladder for a poor shooter** — 50 % against 42 %. Reproducing 42
+  would need a kick larger than any shooter can oppose on the first bullet, which is the
+  "second shot can barely hit anything" the rewrite was asked to remove.
+* **The tails floor rather than reaching zero** (9 % at shot 6 for the worst merc, against 1 %
+  before). That is the settled state of a stabilised muzzle plus the error floor. Raising
+  `MinErrorPct` deepens the tail but flattens the skill spread with it.
+* `CalcPreRecoilOffset` — the first bullet pre-compensated by experienced shooters — is still
+  deferred, and still orthogonal.
