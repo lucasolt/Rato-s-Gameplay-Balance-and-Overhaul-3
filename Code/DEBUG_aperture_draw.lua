@@ -3,8 +3,10 @@
 ---- Console: Rat_DbgCover() raios de cobertura | Rat_DbgCone() cone x silhueta por mira |
 ---- Rat_DbgAll() os dois | Rat_DbgShots(24,2) 24 tiros de mentira | Rat_DbgLastShots(rings) ultimo
 ---- tiro real, rings = um anel por disparo | Rat_DbgRecoilMouse() vetores do recuo seguindo o mouse,
----- Rat_DbgRecoilMouse(6,1,nil,true) rajada sorteada de verdade | Rat_DbgRecoilShots() uma rajada so |
----- Rat_DbgClear(). Sem args: atirador = selecionado, alvo do
+---- Rat_DbgRecoilMouse{shots=true} rajada sorteada de verdade | Rat_DbgRecoilShots() uma rajada so
+---- (os tres de recuo aceitam overrides: {chance=0} sem controle, {chance=100} controle total,
+---- {climb=N} recuo da arma, {theta=N, sigma=N} CTH sem alvo) | Rat_DbgClear().
+---- Sem args: atirador = selecionado, alvo do
 ---- Crosshair UI ou o inimigo mais proximo. So Rat_DbgShots consome random sincronizado.
 ---------------------------------------------------------------------------------------------------
 
@@ -1232,6 +1234,54 @@ local function pick_action(attacker, action_id)
     return (ch and ch.action) or attacker:GetDefaultAttackAction("ranged")
 end
 
+---------------------------------------------------------------------------------------------------
+---- OVERRIDES. Substituem o que a cadeia tunada entregaria, para isolar UM lever:
+----   climb   subida do cano em minutos/tiro (o recuo da arma)
+----   chance  chance de segurar em % -- 0 = sem controle nenhum, 100 = segura sempre
+----   control fracao do recuo NAO cancelada (0.85 tipico), mapeada por Rat_RecoilHoldChance;
+----           `chance` ganha se os dois vierem
+----   sigma   cone em minutos    theta  meia-largura do alvo em minutos
+---- theta/sigma destravam a escada de CTH em pontos SEM alvo, onde ela nao existiria.
+----
+---- So estes cinco de proposito: todos sao PARAMETROS de Rat_BurstShotCTH, entao o CTH acompanha
+---- o what-if. RecoilControlResidual, RecoilCorrectPct e RecoilWalkYaw ficaram de fora porque sao
+---- params globais -- so dariam para sobrescrever mutando const.Combat.Aperture, e ai a escada de
+---- CTH (que le o global por dentro) ignoraria o override e mostraria numero de outro cenario.
+---------------------------------------------------------------------------------------------------
+
+---- Console: as funcoes aceitam posicional OU uma tabela unica -- Rat_DbgRecoilShots{burst = 10,
+---- chance = 0}. Um ponto do engine nao e tabela Lua, entao a deteccao nao confunde com `pos`.
+local function is_opts(v)
+    return type(v) == "table" and not IsPoint(v)
+end
+
+local function apply_over(over, climb, chance, sigma, theta)
+    if not over then
+        return climb, chance, sigma, theta
+    end
+    if over.chance then
+        chance = over.chance
+    elseif over.control then
+        chance = Rat_RecoilHoldChance(over.control)
+    end
+    return over.climb or climb, chance, over.sigma or sigma, over.theta or theta
+end
+
+---- Sem esta linha um what-if passa por medicao.
+local function over_line(over)
+    if not over then
+        return nil
+    end
+    local ks = {}
+    for _, k in ipairs({"climb", "chance", "control", "sigma", "theta"}) do
+        if over[k] then
+            ks[#ks + 1] = k .. " = " .. tostring(over[k])
+        end
+    end
+    return (#ks > 0) and ("*** OVERRIDE: " .. table.concat(ks, ", ") ..
+               " -- nao e o que esta arma faz ***") or nil
+end
+
 ---- Traco atravessado no eixo: marca um degrau da escada sem o peso de um disco inteiro.
 local function draw_tick(pt, dir, axis, len, color)
     local h = SetLen(RotateAxis(axis, dir, 90 * 60), len)
@@ -1288,10 +1338,15 @@ local function recoil_scene(pos, burst, aim, action_id, attacker)
     }
 end
 
----- Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker)
+---- Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker, over) ou Rat_DbgRecoilAt{burst=..., ...}
 ---- Devolve o resumo e um segundo valor `ok` -- o modo mouse usa `ok` para limpar quando o ponto
 ---- deixa de ser desenhavel, senao o desenho velho fica congelado na tela mentindo.
-function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker)
+function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker, over)
+    if is_opts(pos) then
+        local o = pos
+        pos, burst, aim, action_id, attacker, over = o.pos, o.burst, o.aim, o.action_id, o.attacker,
+                                                     o
+    end
     local sc, err = recoil_scene(pos, burst, aim, action_id, attacker)
     if not sc then
         return err
@@ -1302,20 +1357,24 @@ function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker)
     local attack_pos, aim_pos, dist, dir = sc.attack_pos, sc.aim_pos, sc.dist, sc.dir
     burst, aim = sc.burst, sc.aim
 
-    local climb, chance = Rat_GetRecoilClimb(attacker, action, weapon, burst)
-    local held = Rat_RecoilHeldStep(climb)
-    local step_avg = scale_pct(climb, 100 - chance) + scale_pct(held, chance)
-    local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
-
-    ---- cone e CTH so existem contra um alvo: e theta que da escala ao desvio
+    ---- cone e CTH normalmente so existem contra um alvo -- e theta que da escala ao desvio.
+    ---- Os overrides destravam os dois em qualquer ponto.
     local sigma, theta, cth = nil, nil, {}
     if target then
         sigma, theta = Rat_AttackCone(attacker, target, action, spot, aim, false, attacker:GetPos(),
                                       target:GetPos())
-        if theta and theta >= 1 and sigma and sigma >= 1 then
-            for i = 1, burst do
-                cth[i] = Rat_BurstShotCTH(theta, sigma, i - 1, climb, chance)
-            end
+    end
+
+    local climb, chance = Rat_GetRecoilClimb(attacker, action, weapon, burst)
+    climb, chance, sigma, theta = apply_over(over, climb, chance, sigma, theta)
+
+    local held = Rat_RecoilHeldStep(climb)
+    local step_avg = scale_pct(climb, 100 - chance) + scale_pct(held, chance)
+    local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
+
+    if theta and theta >= 1 and sigma and sigma >= 1 then
+        for i = 1, burst do
+            cth[i] = Rat_BurstShotCTH(theta, sigma, i - 1, climb, chance)
         end
     end
 
@@ -1405,19 +1464,21 @@ function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker)
                                     "por tiro, media zero -- o grupo abre em largura, nao sobe mais",
                                 max_idx + 2, climb, cone_radius(dist, climb) / 10)
     end
-    if target and theta then
+    if theta and sigma then
         local cs = {}
         for i = 1, burst do
             cs[i] = tostring(cth[i] or "-")
         end
-        lines[#lines + 1] = string.format("alvo %s [%s]   theta %d'   cone %d'   CTH por tiro: %s%%",
-                                          tostring(target.session_id),
-                                          tostring(target:GetHitStance()), theta, sigma,
+        lines[#lines + 1] = string.format("alvo %s   theta %d'   cone %d'   CTH por tiro: %s%%",
+                                          target and (tostring(target.session_id) .. " [" ..
+                                              tostring(target:GetHitStance()) .. "]") or
+                                              "(theta de override)", theta, sigma,
                                           table.concat(cs, "/"))
     else
         lines[#lines + 1] =
-            "sem unidade sob o cursor: so a geometria do recuo (cone e CTH exigem alvo)"
+            "sem unidade sob o cursor: so a geometria do recuo (passe theta e sigma para ver CTH aqui)"
     end
+    lines[#lines + 1] = over_line(over)
     lines[#lines + 1] =
         "amarelo->vermelho = tiro 1..N no ramo esperado | traco vermelho nunca segura, verde sempre | " ..
             "ciano = leque do eixo | barra horizontal = largura do plato"
@@ -1435,8 +1496,14 @@ end
 ---- contra a qual os coices se leem; com `scatter` o cone da arma tambem entra e ele deixa de ser
 ---- exato (a rajada completa, como o jogo dispara). Sem alvo sob o cursor o cone e o de
 ---- Rat_GetAperture, sem os residuais -- que exigem alvo.
+---- Aceita tambem uma tabela unica: Rat_DbgRecoilShots{burst = 10, chance = 0, scatter = true}.
 ---- ATENCAO: consome random sincronizado; em co-op nao use no turno de outro jogador.
-function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker)
+function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker, over)
+    if is_opts(burst) then
+        local o = burst
+        burst, aim, scatter, pos, action_id, attacker, over = o.burst, o.aim, o.scatter, o.pos,
+                                                              o.action_id, o.attacker, o
+    end
     local sc, err = recoil_scene(pos, burst, aim, action_id, attacker)
     if not sc then
         return err
@@ -1449,10 +1516,6 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker)
     local attack_pos, aim_pos, dist, dir = sc.attack_pos, sc.aim_pos, sc.dist, sc.dir
     burst, aim = sc.burst, sc.aim
 
-    local climb, chance = Rat_GetRecoilClimb(attacker, action, weapon, burst)
-    local held_step = Rat_RecoilHeldStep(climb)
-    local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
-
     ---- com alvo, o cone final (residuais dentro); sem alvo, so a abertura de arma + pericia
     local sigma, theta
     if target then
@@ -1461,6 +1524,15 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker)
     end
     local cone_src = sigma and "cone final" or "abertura crua (sem residuais)"
     sigma = sigma or Rat_GetAperture(weapon, attacker, action, aim, false)
+
+    local climb, chance = Rat_GetRecoilClimb(attacker, action, weapon, burst)
+    climb, chance, sigma, theta = apply_over(over, climb, chance, sigma, theta)
+    if over and over.sigma then
+        cone_src = "override"
+    end
+
+    local held_step = Rat_RecoilHeldStep(climb)
+    local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
 
     ---- UM eixo para a rajada inteira, como no tiro real: e o que faz o grupo virar risco
     local axis = Rat_RecoilWalkAxis(attacker, attack_pos, aim_pos)
@@ -1536,6 +1608,7 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker)
     else
         lines[#lines + 1] = "sem unidade sob o cursor: nao ha o que acertar, so a geometria"
     end
+    lines[#lines + 1] = over_line(over)
 
     for i, s in ipairs(lines) do
         DbgAddText(s, aim_pos:SetZ(aim_pos:z() + (#lines - i + 2) * 300), clrAxis)
@@ -1545,11 +1618,12 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker)
     return table.concat(lines, "\n"), true
 end
 
----- Liga/desliga o modo que segue o mouse. Rat_DbgRecoilMouse(burst, aim, action_id, shots, scatter):
+---- Liga/desliga o modo que segue o mouse. Aceita tabela unica -- Rat_DbgRecoilMouse{shots = true,
+---- chance = 0}. Posicional: Rat_DbgRecoilMouse(burst, aim, action_id, shots, scatter, over):
 ---- sem `shots` desenha o modelo deterministico, previsao pura (um raycast de LoF por quadro, o mesmo
 ---- que o crosshair ja faz) -- nao encosta no random. Com `shots` desenha rajadas sorteadas de
 ---- verdade, e ai SIM consome random sincronizado.
-function Rat_DbgRecoilMouse(burst, aim, action_id, shots, scatter)
+function Rat_DbgRecoilMouse(burst, aim, action_id, shots, scatter, over)
     if IsValidThread(g_RatDbgRecoilThread) then
         DeleteThread(g_RatDbgRecoilThread)
         g_RatDbgRecoilThread = false
@@ -1558,6 +1632,11 @@ function Rat_DbgRecoilMouse(burst, aim, action_id, shots, scatter)
     end
     if burst == false then
         return "recuo sob o cursor: ja estava desligado"
+    end
+    if is_opts(burst) then
+        local o = burst
+        burst, aim, action_id, shots, scatter, over = o.burst, o.aim, o.action_id, o.shots,
+                                                      o.scatter, o
     end
 
     g_RatDbgRecoilThread = CreateRealTimeThread(function()
@@ -1569,9 +1648,9 @@ function Rat_DbgRecoilMouse(burst, aim, action_id, shots, scatter)
             if not shots or not last or not pos or pos:Dist(last) > const.SlabSizeX / 2 then
                 local txt, ok
                 if shots then
-                    txt, ok = Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id)
+                    txt, ok = Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, nil, over)
                 else
-                    txt, ok = Rat_DbgRecoilAt(pos, burst, aim, action_id)
+                    txt, ok = Rat_DbgRecoilAt(pos, burst, aim, action_id, nil, over)
                 end
                 if not ok then
                     DbgClearVectors()
