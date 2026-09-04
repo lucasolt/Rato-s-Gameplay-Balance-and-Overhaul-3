@@ -63,21 +63,13 @@ A.SightAimBonus = true
 A.ApertureMagnifications = {
 	---- AMPLIACAO E COMPROMISSO, nao upgrade. Cada degrau paga adiantado e cobra depois:
 	----   niveis de mira a mais + piso mais baixo   (so rende com mira alta e longe)
+	----   snapshot pior (snap_reduc NEGATIVO no canal scope_snapshot que ja existe, so vale aim<=2)
 	----   ScopePenalty maior                        (pior de perto, em qualquer nivel)
 	----   limiar de mira comecando mais tarde       (pior no aim 3, melhor do 4 em diante)
 	---- IncreaseAimAccuracy sai de TODAS: AimAccuracy crua e stat de arma.
-	----
-	---- REGRA DURA (2026-09-03): NENHUMA optica pode ficar pior que ferro em nivel de mira nenhum.
-	---- O compromisso da ampliacao mora no AP de entrada, no ScopePenalty de perto e no limiar
-	---- tardio -- nunca em CTH cru. O que violava era o SnapshotPropertyMul: `snap_mul` 110/125/140
-	---- inflava o degrau de snapshot no aim 1-2 e punha 2x e 4x ABAIXO de ferro (medido, 257
-	---- violacoes em 40 armas). Saiu de todos os perfis. No lugar entra um `bonus_cth` pequeno e
-	---- graduado, que garante a margem sobre o ferro (que tem bonus_cth 3) sem invadir a faixa da
-	---- reflex. Menos ampliacao = bonus um pouco maior, porque vidro grande demora mais a alinhar.
 	_6x = {
-		Parameters = { MaxAimActionsIncrease = 3, bonus_cth = 4 },
-		ModificationEffects = { IncreaseMaxAimActions = true, SnapshotPropertyMul = false,
-			AccuracyBonusWhenAimed = true,
+		Parameters = { MaxAimActionsIncrease = 3, snap_mul = 140 },
+		ModificationEffects = { IncreaseMaxAimActions = true, SnapshotPropertyMul = true,
 			ScopePenalty3 = true, ScopePenalty2 = false, ScopePenalty1 = false,
 			IncreaseRange = false, IncreaseAimAccuracy = false, StanceAPincrease = true },
 	},
@@ -85,42 +77,34 @@ A.ApertureMagnifications = {
 	---- nenhum efeito o consumia e o APStance ficava igual ao da reflex. E o custo de ENTRADA
 	---- (shooting_stance paga-se uma vez), entao encarece montar a arma sem encarecer cada tiro.
 	_4x = {
-		Parameters = { MaxAimActionsIncrease = 2, bonus_cth = 5 },
-		ModificationEffects = { IncreaseMaxAimActions = true, SnapshotPropertyMul = false,
-			AccuracyBonusWhenAimed = true,
+		Parameters = { MaxAimActionsIncrease = 2, snap_mul = 125 },
+		ModificationEffects = { IncreaseMaxAimActions = true, SnapshotPropertyMul = true,
 			ScopePenalty2 = true, ScopePenalty1 = false, ScopePenalty3 = false,
 			IncreaseRange = false, IncreaseAimAccuracy = false, StanceAPincrease = true },
 	},
 	_2x = {
-		Parameters = { MaxAimActionsIncrease = 1, bonus_cth = 6 },
+		Parameters = { MaxAimActionsIncrease = 1, snap_mul = 110 },
 		ModificationEffects = { BonusAccuracyWhenFullyAimed = false, IncreaseMaxAimActions = true,
-			SnapshotPropertyMul = false, AccuracyBonusWhenAimed = true,
-			ScopePenalty1 = true, ScopePenalty2 = false, ScopePenalty3 = false,
+			SnapshotPropertyMul = true, ScopePenalty1 = true, ScopePenalty2 = false, ScopePenalty3 = false,
 			IncreaseRange = false, IncreaseAimAccuracy = false, _x2ScopeAimBonus = true },
 	},
 	---- 2x de aquisicao rapida (ACOG/WideScope): trocam o piso e a mira alta pelo snapshot. O
 	---- `snap_reduc` positivo autorado no componente e mantido -- o perfil nao o sobrescreve.
-	---- bonus_cth so 3: a ACOG ja ganha aim 1 pelo FirstAimBonusModifier do proprio componente, e
-	---- passar disso a poe na frente da reflex -- que e a faixa da reflex. A WideScope, que nao tem
-	---- esse efeito, precisa dele para nao ficar abaixo do ferro.
 	_2xQuick = {
-		Parameters = { MaxAimActionsIncrease = 1, bonus_cth = 3 },
+		Parameters = { MaxAimActionsIncrease = 1 },
 		ModificationEffects = { BonusAccuracyWhenFullyAimed = true, IncreaseMaxAimActions = true,
-			AccuracyBonusWhenAimed = true,
 			scope_snapshot = true, ScopePenalty1 = true, ScopePenalty2 = false, ScopePenalty3 = false,
 			IncreaseRange = false, IncreaseAimAccuracy = false },
 	},
 	_1dot5x = {
-		Parameters = { MaxAimActionsIncrease = 1, bonus_cth = 6 },
-		ModificationEffects = { IncreaseMaxAimActions = true, AccuracyBonusWhenAimed = true,
-			IncreaseRange = false,
+		Parameters = { MaxAimActionsIncrease = 1 },
+		ModificationEffects = { IncreaseMaxAimActions = true, IncreaseRange = false,
 			IncreaseAimAccuracy = false, ScopePenalty1 = false, ScopePenalty2 = false,
 			ScopePenalty3 = false },
 	},
-	---- bonus_cth 10 -> 14 -> 16: a reflex e a opcao BARATA (sem nivel de mira extra, sem AP de
-	---- entrada), entao precisa ser a melhor no aim 1-3 ou a 2x rapida a domina sem custar nada a
-	---- mais. O 16 e o que a mantem na frente da ACOG depois que as ampliacoes ganharam bonus_cth.
-	Reflex = {		Parameters = {bonus_cth = 16},
+	---- bonus_cth 10 -> 14: a reflex e a opcao BARATA (sem nivel de mira extra, sem AP de entrada),
+	---- entao precisa ser a melhor no aim 1-3 ou a 2x rapida a domina sem custar nada a mais.
+	Reflex = {		Parameters = {bonus_cth = 14},
 		ModificationEffects = {AccuracyBonusWhenAimed = true, reflex_sight_close_range = false}},
 	Ironsight = {
 		Parameters = {bonus_cth = 3},
