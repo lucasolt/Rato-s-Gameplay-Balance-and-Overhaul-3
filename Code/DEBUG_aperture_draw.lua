@@ -1233,7 +1233,8 @@ end
 ---- OVERRIDES. Substituem o que a cadeia tunada entregaria, para isolar UM lever:
 ----   kick      coice bruto da arma em minutos/tiro
 ----   cf_max    forca maxima que o atirador opoe, em minutos/tiro. kick > cf_max = nao estabiliza
-----   control   recuo NAO cancelado em BASE 100 (85 tipico); remapeado em cf_max pela mesma conta
+----   str_control    Forca vs breakpoint do calibre, base 100 (100 = de sobra) -> remapeia cf_max
+----   other_control  postura/Marks/bipe/perks, base 100 -> remapeia MaxIncrement (o 2o tiro)
 ----   accuracy  0..100, quanto do erro acima do piso a pericia tira
 ----   sigma     cone em minutos    theta  meia-largura do alvo em minutos
 ---- theta/sigma destravam a escada de CTH em pontos SEM alvo, onde ela nao existiria.
@@ -1256,11 +1257,19 @@ local function apply_over(prof, sigma, theta, over)
     if prof then
         local a = const.Combat.Aperture
         prof = table.copy(prof)
-        if over.control then
-            local ctl = Max(30, 100 + MulDivRound(over.control - 100,
-                                                  a.RecoilControlGain or 100, 100))
-            prof.control = over.control
-            prof.cf_min = MulDivRound(a.RecoilCFMaxBase or 0, 100, ctl)
+        if over.str_control then
+            local se = Max(30, 100 + MulDivRound(over.str_control - 100,
+                                                 a.RecoilStrGain or 100, 100))
+            prof.str_control = over.str_control
+            prof.cf_min = MulDivRound(prof.kick_min, a.RecoilCFHeadroom or 100, se)
+        end
+        if over.other_control then
+            local oe = Max(30, 100 + MulDivRound(over.other_control - 100,
+                                                 a.RecoilOtherGain or 100, 100))
+            prof.other_control = over.other_control
+            prof.inc_min = Max(1, MulDivRound(a.RecoilMaxIncBase or 1, 100, oe))
+            prof.max_inc = prof.inc_min * 100
+            prof.min_err = MulDivRound(prof.max_inc, a.RecoilMinErrorPct or 0, 100)
         end
         prof.kick_min = over.kick or prof.kick_min
         prof.cf_min = over.cf_max or prof.cf_min
@@ -1280,7 +1289,8 @@ local function over_line(over)
         return nil
     end
     local ks = {}
-    for _, k in ipairs({"kick", "cf_max", "control", "accuracy", "sigma", "theta"}) do
+    for _, k in ipairs({"kick", "cf_max", "str_control", "other_control", "accuracy",
+                        "sigma", "theta"}) do
         if over[k] then
             ks[#ks + 1] = k .. " = " .. tostring(over[k])
         end

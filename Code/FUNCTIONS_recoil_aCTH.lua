@@ -61,10 +61,18 @@ end
 ---- PROFILE: the constants of one attack, resolved once. Everything the shooter and the weapon
 ---- contribute enters here and nowhere else.
 ----
----- The tuned chain in FUNCTIONS_recoil.lua survives whole; only its two outputs get pointed at
----- different things:
-----   gun = mod / control  -- the weapon alone (stance-invariant, measured) -> KickMag
-----   control              -- everything the shooter brings, base 100      -> CFMax, inverted
+---- The tuned chain in FUNCTIONS_recoil.lua survives whole; its outputs get pointed at three
+---- different things, and keeping them apart is what makes the model legible:
+----   gun = mod / control  -- the weapon alone, stance- and skill-invariant     -> KickMag
+----   str_control          -- Strength against THIS caliber's breakpoint        -> CFMax
+----   other_control        -- Marksmanship, stance, bipod, perks                -> MaxIncrement
+----
+---- Force and skill must not be the same number. `str_control` is already relative to the weapon
+---- (1.00 whenever Strength clears the breakpoint, 1.71 far below it), so the gate reads "do you
+---- have the muscle for this caliber" rather than "is this caliber big" -- a merc with Strength to
+---- spare holds down a 9mm even with poor marksmanship. Skill lives in MaxIncrement instead: it is
+---- how much of the grip is already on the gun when bullet 2 leaves, which is the only place a
+---- shot-2 gradient can come from once the kick itself is weapon-only.
 ---------------------------------------------------------------------------------------------------
 function Rat_RecoilProfile(attacker, action, weapon, num_shots, test)
     local a = P()
@@ -72,35 +80,40 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test)
         return nil
     end
 
-    local _, _, control, gun = Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
-    control = cRound(control)
+    local _, _, control, gun, other_control, str_control =
+        Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
+    control, other_control, str_control = cRound(control), cRound(other_control),
+                                          cRound(str_control)
 
     local kick = MulDivRound(a.RecoilKickBase or 0, cRound(gun), 100)
     kick = Max(0, MulDivRound(kick, const.Combat.R_Recoil or 100, 100))
 
-    ---- a mounted MG holds itself: the mount is force the shooter did not have to bring
+    ---- a mounted MG holds itself: the mount brings force AND steadies the grip
     local aid = action and action.id
     if aid == "GrizzlyPerk" or
         (aid == "MGBurstFire" and
             (test or (g_Overwatch[attacker] and g_Overwatch[attacker].permanent))) then
-        control = cRound(control * const.Combat.Recoil.MGSetupMul)
+        local mul = cRound(const.Combat.Recoil.MGSetupMul * 100)
+        str_control = MulDivRound(str_control, mul, 100)
+        other_control = MulDivRound(other_control, mul, 100)
     end
 
-    ---- control only spans ~85..117 in practice; the gain stretches that band around 100 before it
-    ---- inverts into force, so skill can decide the marginal calibers instead of nothing.
-    ---- The floor caps CFMax at 100/30 of the base: a mounted MG sends control near 50, which the
-    ---- gain drives negative, and without it one point of control would swing the force wildly.
-    local ctl = Max(30, 100 + MulDivRound(control - 100, a.RecoilControlGain or 100, 100))
-    local cf_max = MulDivRound(a.RecoilCFMaxBase or 0, 100, ctl)
-    local max_inc = Max(1, a.RecoilMaxIncrement or 1)
+    ---- FORCE. As a fraction of THIS weapon's kick, so a shooter strong enough for the caliber
+    ---- stabilises it whatever the caliber is, and one below its breakpoint cannot.
+    local str_eff = Max(30, 100 + MulDivRound(str_control - 100, a.RecoilStrGain or 100, 100))
+    local cf_max = MulDivRound(kick, a.RecoilCFHeadroom or 100, str_eff)
 
-    ---- rate of fire shortens the time between shots, so it shrinks the SHOOTER's side. The
-    ---- cartridge's kick does not change with how fast the trigger is pulled.
+    ---- SKILL. How much of the grip is on the gun by the next bullet. The floor keeps a bipodded
+    ---- prone MG from dividing by nearly nothing.
+    local oth_eff = Max(30, 100 + MulDivRound(other_control - 100, a.RecoilOtherGain or 100, 100))
+    local max_inc = Max(1, MulDivRound(a.RecoilMaxIncBase or 1, 100, oth_eff))
+
+    ---- rate of fire shortens the time BETWEEN shots, so it shortens the reaction -- not the
+    ---- force, which is muscle, and not the kick, which is the cartridge.
     if not IsKindOf(weapon, "Shotgun") then
         local ROF = Rat_GetROF(weapon, (aid == "GrizzlyPerk") and "MGBurstFire" or (aid or ""))
         local rof100 = ROF and cRound(ROF * 100) or 100
         if rof100 > 100 then
-            cf_max = MulDivRound(cf_max, 100, rof100)
             max_inc = Max(1, MulDivRound(max_inc, 100, rof100))
         end
     end
@@ -114,18 +127,24 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test)
         kick_y = MulDivRound(kick * 100, cos(ang), 4096),
         cf_max = cf_max * 100,
         max_inc = max_inc * 100,
-        min_err = MulDivRound(max_inc * 100, a.RecoilMinErrorPct or 0, 100),
+        ---- floor off the NEUTRAL increment, never off this merc's: `max_inc` is skill-driven now,
+        ---- and scaling the floor with it would make skill raise its own error.
+        min_err = MulDivRound((a.RecoilMaxIncBase or 1) * 100, a.RecoilMinErrorPct or 0, 100),
         ---- gains by 1000. Double root at 1 - 1/T gives Kd = 2/T and Kp = 1/T^2.
         kp = MulDivRound(1000, 1, T * T),
         kd = MulDivRound(2000, a.RecoilDamping or 100, 100 * T),
         err_ratio = a.RecoilErrorRatio or 0,
-        ---- Dexterity raw: the one stat the tuned chain does not already spend, so nothing is
-        ---- counted twice. It never removes the floor, only the error above it.
-        accuracy = Clamp(attacker.Dexterity or 0, 0, 100),
+        ---- Dexterity is the hands; `other_control` is stance and training steadying them. Without
+        ---- the second term skill buys a bigger correction AND a proportionally bigger error, and
+        ---- cancels itself. Never removes the floor, only the error above it.
+        accuracy = Clamp(MulDivRound(attacker.Dexterity or 0, 100, Max(30, other_control)), 0, 100),
         ---- minutes, for reading and for the gate: kick_min > cf_min means unstabilisable
         kick_min = kick,
         cf_min = cf_max,
-        control = control
+        inc_min = max_inc,
+        control = control,
+        str_control = str_control,
+        other_control = other_control
     }
 end
 

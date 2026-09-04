@@ -546,9 +546,9 @@ function Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
         table.insert(metaText, text)
     end
 
-    local control, situation_mod
-    control, situation_mod, metaText = Rat_GetRecoilControl(attacker, action, weapon, num_shots,
-                                                            metaText, dual, weapon2)
+    local control, situation_mod, other_control, str_control
+    control, situation_mod, metaText, other_control, str_control =
+        Rat_GetRecoilControl(attacker, action, weapon, num_shots, metaText, dual, weapon2)
     mod = mod * situation_mod
 
     ---- Parte da ARMA, isolada: e `mod` sem o que o atirador cancela. Invariante a postura, perks e
@@ -557,7 +557,9 @@ function Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
     ---- `situation_mod`, entao GetWepRecoil sozinho perderia todos eles.
     local gun = (control > 0) and (mod * 100.00 / control) or mod
 
-    return mod, metaText, control, gun
+    ---- other_control  postura, bipe, Marksmanship, perks  -- a pericia
+    ---- str_control    Forca contra o breakpoint DESTE calibre -- o musculo, ja relativo a arma
+    return mod, metaText, control, gun, other_control, str_control
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -596,8 +598,11 @@ function Rat_GetRecoilControl(attacker, action, weapon, num_shots, metaText, dua
         table.insert(metaText, text)
     end
 
-    ---- base 100 so na saida: acumular em fracao aqui mantem o numero identico ao de antes
-    return cRound(control * 100), situation_mod, metaText
+    ---- base 100 so na saida: acumular em fracao aqui mantem o numero identico ao de antes.
+    ---- Os dois fatores saem TAMBEM separados: o modelo angular de recuo precisa deles em papeis
+    ---- diferentes -- forca contra o calibre e uma coisa, pericia de trazer essa forca e outra.
+    return cRound(control * 100), situation_mod, metaText, cRound(other_control * 100),
+           cRound(str_control * 100)
 end
 
 

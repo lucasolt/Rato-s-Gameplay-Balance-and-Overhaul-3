@@ -363,34 +363,44 @@ A.MaxCTH = 97
 ---- ~174 no MP5, ~230 no MG42/AK47, ~275 na Auto5. E uma ACELERACAO, nao um deslocamento: a
 ---- posicao cresce com o quadrado do numero de tiros se ninguem segurar, e por isso a escala e bem
 ---- menor que a do RecoilClimbBase antigo (98), que era deslocamento direto.
----- MEDIDO: 52 poe o coice do MP5 em 90'/tiro, que e onde o portao do calibre cai no meio da faixa
----- de pericia -- o merc ruim nao estabiliza a arma e o bom estabiliza com folga.
-A.RecoilKickBase = 52
+---- MEDIDO: 95 poe o coice do MP5 em 165'/tiro, quase o theta de um torso em pe a 10 tiles. Tem
+---- de ser dessa ordem: o 2o tiro sai de `kick - cf1`, e se isso for pequeno em relacao ao cone o
+---- CTH nao se mexe e o 2o tiro fica igual para todos, por mais que a pericia varie.
+A.RecoilKickBase = 95
 
 ---- Direcao do coice, em graus a direita da vertical. E um TORQUE: tem lado fixo, nao e sorteado.
 ---- Global por enquanto; virar campo por arma exige preset no editor do jogo.
 A.RecoilKickAngle = 12
 
----- Forca que um atirador NEUTRO (control 100) consegue opor, em minutos/tiro. Comparar com
----- KickMag: e este par que abre ou fecha o portao do calibre. Em 78 o atirador neutro fica ABAIXO
----- do coice do MP5 (90) -- estabilizar uma automatica e privilegio de quem tem stats, nao o padrao.
-A.RecoilCFMaxBase = 78
+---- FORCA -- o portao do calibre. Teto do contra-esforco como % do coice DESTA arma: em 130 o
+---- atirador com Forca de sobra opoe 1,3x o coice e estabiliza qualquer calibre que ele aguente.
+---- Nao e "o calibre e grande", e "voce tem musculo para ele": o tamanho do calibre ja esta no
+---- breakpoint de Forca da arma (MP5 48, AK47 71, MG42 77, Auto5 86) e no coice bruto, que decide
+---- quanto o cano passeia enquanto a pegada sobe.
+A.RecoilCFHeadroom = 130
 
----- `control` real so anda entre ~85 (agachado, Marks alta, Forca boa) e ~117 (em pe, Forca abaixo
----- do breakpoint). Sem ganho, a forca do atirador varia so +/-18% e a pericia nunca decide de que
----- lado do portao ele cai. 200 dobra a faixa. Se as linhas do meio da calibracao nao caem entre
----- as extremas, o errado e ESTE numero, nao o coice. Em 260 a faixa util de forca fica 60..122
----- no MP5, ou seja o portao (coice 90) cai dentro dela.
-A.RecoilControlGain = 260
+---- Afia a penalidade de Forca. `str_control` vem de GetCaliberStrRecoil em base 100 e ja e
+---- relativo ao breakpoint: 100 = Forca sobrando, ~109 = em cima do breakpoint, ~171 = muito
+---- abaixo. Em 200 a penalidade dobra, entao quem esta bem abaixo do breakpoint nao estabiliza.
+A.RecoilStrGain = 200
 
----- Quanto a pegada muda de um tiro para o outro, em minutos/tiro. E "nao da tempo de mudar a
----- pegada", nao "nao tem forca" -- as duas coisas juntas num numero so deixam ambas intunaveis.
----- Tambem e o teto do erro: `delta` nunca passa disto, entao ErrorRatio le sempre a mesma escala.
-A.RecoilMaxIncrement = 60
+---- PERICIA -- de onde sai o gradiente do 2o tiro. Quanto da pegada entra no cano por tiro, em
+---- minutos/tiro, com `other_control` neutro. O coice e igual para todos (e da arma); o que muda
+---- entre mercs e quanto dele ja foi cancelado quando a bala 2 sai. Tambem e o teto de `delta`,
+---- entao e a escala que RecoilErrorRatio le.
+A.RecoilMaxIncBase = 70
+
+---- Estica `other_control` (postura, bipe, Marksmanship, perks), que so anda entre ~63 (deitado
+---- com bipe, Marks alta) e 100 (Marks <= 50 em pe). Sem ganho a diferenca de pericia no 2o tiro
+---- seria de 15% e invisivel. 300 abre a faixa util.
+A.RecoilOtherGain = 300
 
 ---- T: em quantos tiros o atirador TENTA zerar (p, v). Ganhos do duplo polo em 1 - 1/T:
 ---- Kd = 2/T, Kp = 1/T^2. Manda a FORMA da queda, nao os extremos dela.
-A.RecoilSettleShots = 3
+---- 6 e deliberadamente lento: em 3 o cano assenta antes do fim da rajada e a escada FLATTENA --
+---- os tiros 4, 5 e 6 ficam todos iguais e nao ha mais razao para parar de atirar. Com T = 6 o
+---- transiente dura a rajada inteira e a escada continua caindo, como no modelo antigo.
+A.RecoilSettleShots = 6
 
 ---- % de amortecimento critico. Em 100 a trajetoria nominal nao passa do alvo, e entao TODA
 ---- supercompensacao no jogo e um erro do atirador -- que e o comportamento pedido. Abaixo de 100
@@ -403,12 +413,13 @@ A.RecoilDamping = 100
 ---- Destreza some: o portao do calibre e deterministico e domina o ruido. Em 140 os dois convivem.
 A.RecoilErrorRatio = 140
 
----- Piso do erro, em % de RecoilMaxIncrement. NUNCA reduzido pela pericia: e por aqui que
+---- Piso do erro, em % de RecoilMaxIncBase. NUNCA reduzido pela pericia: e por aqui que
 ---- "mercs muito bons nao podem ficar PERFEITOS" fica dito, e um piso no erro e mais limpo que um
 ---- teto artificial no atributo. accuracy vem da Destreza crua (o unico atributo que a cadeia
 ---- tunada ainda nao gasta, entao nada e contado duas vezes).
----- MEDIDO: em 10 o merc completo (M100 S100 D90) trava em 59% do 3o tiro em diante -- imune ao
----- recuo, que e exatamente o que nao pode. Em 25 ele cai para 44% e continua sendo o melhor.
+---- MEDIDO: em 10 o merc completo trava e fica imune ao recuo, que e exatamente o que nao pode.
+---- O piso sai de RecoilMaxIncBase (o valor NEUTRO) e nunca do `max_inc` deste merc: `max_inc` e
+---- dirigido por pericia, entao escalar o piso nele faria a pericia levantar o proprio erro.
 A.RecoilMinErrorPct = 25
 
 ---- Estimador (Rat_EstimateBurst): Monte Carlo em cima do MESMO passo que a bala usa, entao nao
