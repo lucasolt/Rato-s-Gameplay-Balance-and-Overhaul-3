@@ -744,9 +744,9 @@ function Rat_SigmaForCTH(theta, cth)
 end
 
 ---- Pontos de CTH -> multiplicador de cone (%, 100 neutro, >100 abre). A moeda dos residuais.
----- A leitura de sempre ("penalidade tira uma FRACAO da chance, bonus fecha parte do que falta")
----- e avaliada num CTH de REFERENCIA fixo, nao no CTH do alvo: theta se cancela na razao de k,
----- e so por isso o cone sai igual em todas as partes do corpo. Ver A.ConeRefCTH.
+---- Os pontos sao ABSOLUTOS: +18 leva o CTH de REFERENCIA de 50 para 68, nao uma fracao do que
+---- falta. Avaliar num CTH fixo faz theta se cancelar na razao de k, e so por isso o mesmo cone
+---- vale para todas as partes do corpo. Longe de ConeRefCTH a entrega diverge da face. Ver A.ConeRefCTH.
 function Rat_ConeMulForPoints(points)
     local a = P()
     if not points or points == 0 then
@@ -754,14 +754,9 @@ function Rat_ConeMulForPoints(points)
     end
 
     local ref = Clamp(a.ConeRefCTH or 50, 2, 98)
-    local target
-    if points < 0 then
-        target = MulDivRound(ref, 100 + Max(points, -100), 100)
-    else
-        target = ref + MulDivRound(100 - ref, Min(points, 100), 100)
-    end
+    local target = Clamp(ref + points, 1, 99)
 
-    local k_ref, k_tgt = Rat_KForCTH(ref), Rat_KForCTH(Clamp(target, 1, 99))
+    local k_ref, k_tgt = Rat_KForCTH(ref), Rat_KForCTH(target)
     if not k_ref or not k_tgt or k_tgt < 1 then
         return a.ConeMulMax
     end

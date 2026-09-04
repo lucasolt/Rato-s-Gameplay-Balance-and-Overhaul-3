@@ -429,9 +429,9 @@ A.CrosshairRingSegments = 32
 ---- Residuais (recoil permanente, Dazed, perks, TargetedShot, componentes) entram como
 ---- MULTIPLICADOR DE CONE, nao como pontos somados por cima. A traducao pontos -> cone e avaliada
 ---- neste CTH de referencia; theta se cancela na razao de k, entao o cone sai igual em toda parte
----- do corpo. Em CTH = ConeRefCTH o resultado bate exatamente com o modelo de pontos antigo.
----- 65 e onde a escala e ~simetrica: em 80, +20 pontos valia cone 94 e -20 valia 125.
-A.ConeRefCTH = 50--50
+---- do corpo. Os pontos sao absolutos e valem sua face exata AQUI; acima deste CTH entregam
+---- menos, abaixo entregam menos ainda. Em 50 bonus e penalidade saturam a mesma distancia (+-49).
+A.ConeRefCTH = 50
 
 ---- Teto e piso do multiplicador de UM residual. Sem eles -100 pontos daria cone infinito.
 A.ConeMulMin = 25
