@@ -313,7 +313,9 @@ local function sim_ctx_for(attacker, target, target_spot, aim, burst)
         step_pos = attacker:GetPos(), target_pos = target:GetPos(),
         cth = cth, cth_source = "GetShotChanceToHit(CalcChanceToHit)",
         ---- a rajada REAL que se quer inspecionar -- nao o numero de amostras
-        num_shots = burst, args = args
+        num_shots = burst, args = args,
+        ---- o tiro real nao paga o estimador; aqui a escada de CTH e o que se veio ver
+        want_cth = true
     }, args_src, spot_pos
 end
 
@@ -409,7 +411,7 @@ function Rat_DbgShots(count, aim, target_spot, target, attacker, shot_idx, burst
                "%s (%s) -> %s [%s] a %.1f tiles, aim %d, alvo %s\n" ..
                    "  amostras: %d do tiro %d de %d  |  CTH %d%% (o mesmo do tiro real)\n" ..
                    "  %d/%d acertaram (%d%% do total) | %d erraram\n" ..
-                   "  sigma %d' (tiro 1 = %d', subida %d'/tiro, controle %d%%)  theta %d'\n" ..
+                   "  sigma %d' (tiro 1 = %d', coice %d'/tiro, forca %d'/tiro)  theta %d'\n" ..
                    "  centro de mira %+dcm vs spot (AimCentroidPct %d)  |  args: %s\n" ..
                    "  distribuicao por membro:\n%s\n" ..
                    "  verde = acertou, vermelho = errou; ciano = silhueta, amarelo = 96%% dos tiros",
@@ -417,7 +419,8 @@ function Rat_DbgShots(count, aim, target_spot, target, attacker, shot_idx, burst
                tostring(target:GetHitStance()), attacker:GetDist(target) / const.SlabSizeX, aim,
                tostring(target_spot), count, shot_idx, burst, cth,
                hits, count, MulDivRound(hits, 100, count), count - hits,
-               sigma_i, ctx.sigma, ctx.climb or 0, ctx.control_chance or 0, ctx.theta,
+               sigma_i, ctx.sigma, ctx.recoil and ctx.recoil.kick_min or 0,
+               ctx.recoil and ctx.recoil.cf_min or 0, ctx.theta,
                dz, a.AimCentroidPct or 0, args_src, table.concat(ps, "\n"))
 end
 
@@ -540,7 +543,7 @@ function Rat_DbgBurst(bursts, burst, aim, target_spot, target, attacker)
     a.Enabled = was
     return string.format("%s (%s) -> %s [%s] a %.1f tiles, aim %d, alvo %s\n" ..
                              "  %d rajadas de %d  |  CTH da UI %d%%  |  args: %s\n" ..
-                             "  cone %d'  subida %d'/tiro  controle %d%%  theta %d'\n" ..
+                             "  cone %d'  coice %d'/tiro  forca %d'/tiro  theta %d'\n" ..
                              "  tiro | prev | med  |    mu | cone\n%s\n" ..
                              "  acertos por rajada (media %d.%02d de %d; ao menos 1 em %d%%):\n%s\n" ..
                              "  distribuicao por membro:\n%s\n" ..
@@ -549,7 +552,8 @@ function Rat_DbgBurst(bursts, burst, aim, target_spot, target, attacker)
                          tostring(target.session_id), tostring(target:GetHitStance()),
                          attacker:GetDist(target) / const.SlabSizeX, aim, tostring(target_spot),
                          bursts, burst, ctx.cth, args_src,
-                         ctx.sigma, ctx.climb or 0, ctx.control_chance or 0, ctx.theta,
+                         ctx.sigma, ctx.recoil and ctx.recoil.kick_min or 0,
+                         ctx.recoil and ctx.recoil.cf_min or 0, ctx.theta,
                          table.concat(rows, "\n"),
                          avg100 / 100, avg100 % 100, burst,
                          100 - MulDivRound(per_burst[1], 100, bursts),
@@ -861,7 +865,7 @@ function Rat_DbgLastShots(rings)
     return string.format(
                "ultimo ataque REAL: %s (%s, %s) -> %s [%s]\n" ..
                    "  aim %s  alvo %s  |  CTH %s%%  <- %s\n" ..
-                   "  theta %s'  sigma %s' (crua %s')  subida %s'/tiro (controle %s%%)  mira %s\n" ..
+                   "  theta %s'  sigma %s' (crua %s')  coice %s'/tiro (forca %s')  mira %s\n" ..
                    "  LoF: pen %s  range %s  ignore_los %s  clamp %s  covers %s  stuck_unit %s\n" ..
                    "       fire_rel %s  area_check %s  eye_contact %s  add_colliders %s  ignore %s\n" ..
                    "  %d/%d acertaram (%d%% do total) | %d erraram | %d criticos\n" ..
@@ -872,7 +876,7 @@ function Rat_DbgLastShots(rings)
                tostring(rec.target and rec.target:GetHitStance()),
                tostring(rec.aim), tostring(rec.spot), tostring(rec.cth), tostring(rec.cth_source),
                tostring(rec.theta), tostring(rec.sigma), tostring(rec.geo_sigma),
-               tostring(rec.climb), tostring(rec.control_chance), tostring(rec.aim_centroid_pct),
+               tostring(rec.kick), tostring(rec.cf_max), tostring(rec.aim_centroid_pct),
                tostring(l.penetration_class), tostring(l.range), tostring(l.ignore_los),
                tostring(l.clamp_to_target), tostring(l.can_use_covers),
                tostring(l.can_stuck_on_unit), tostring(l.fire_relative_point_attack),
@@ -931,16 +935,19 @@ function Rat_DbgVerifySim()
     debug_table.sigma = Rat_AttackCone(attacker, target, action, rec.spot, rec.aim,
                                        rec.opportunity_attack, rec.step_pos, rec.target_pos) or
                             rec.geo_sigma
-    local _, dbg_climb, dbg_chance = Rat_SimRecoilLadder(attacker, action, weapon, rec.sigma or 1,
-                                                         rec.num_shots or 1)
-    debug_table.climb, debug_table.control_chance = dbg_climb, dbg_chance
+    local _, dbg_prof = Rat_SimRecoilLadder(attacker, action, weapon, rec.sigma or 1,
+                                            rec.num_shots or 1)
+    debug_table.kick = dbg_prof and dbg_prof.kick_min
+    debug_table.cf_max = dbg_prof and dbg_prof.cf_min
+    debug_table.accuracy = dbg_prof and dbg_prof.accuracy
 
     hard[#hard + 1] = string.format("  %-22s %-26s %-26s", "campo", "tiro REAL", "caminho DEBUG")
     cmp(hard, "attack_pos", rec.attack_pos, debug_table.attack_pos, true)
     cmp(hard, "aim_pos", rec.aim_pos, debug_table.aim_pos, true)
     cmp(hard, "sigma (cone final)", rec.sigma, debug_table.sigma, true)
-    cmp(hard, "subida (min/tiro)", rec.climb, debug_table.climb, true)
-    cmp(hard, "controle (%)", rec.control_chance, debug_table.control_chance, true)
+    cmp(hard, "coice (min/tiro)", rec.kick, debug_table.kick, true)
+    cmp(hard, "forca max (min/tiro)", rec.cf_max, debug_table.cf_max, true)
+    cmp(hard, "destreza (%)", rec.accuracy, debug_table.accuracy, true)
     cmp(hard, "theta", rec.theta, debug_table.theta, true)
     cmp(hard, "geo_sigma", rec.geo_sigma, debug_table.geo_sigma, true)
 
@@ -1191,22 +1198,10 @@ end
 ---- Mira em QUALQUER ponto -- subida e controle nao dependem do alvo, so a distancia, que o cursor
 ---- ja da. Havendo unidade sob o cursor entram tambem theta, o cone e o CTH por tiro.
 ---- Dois modos. O MODELO (Rat_DbgRecoilAt) nao consome random: em vez de sortear uma rajada,
----- desenha o leque de eixos possiveis (+/- A.RecoilWalkYaw) e a escada de mu nos tres ramos
----- deterministicos -- nunca segurou, esperado, sempre segurou. A RAJADA (Rat_DbgRecoilShots)
----- sorteia de verdade e desenha um vetor por bala; consome random sincronizado, entao no modo
----- mouse ela so e re-sorteada quando o cursor anda.
----------------------------------------------------------------------------------------------------
-
+---- desenha, por tiro, o ponto MEDIO do cano e a largura do grupo ali (Rat_EstimateBurst)
 g_RatDbgRecoilThread = false
 
 ---- v * pct / 100 preservando o sinal: o passo segurado e negativo quando a correcao supera o residual
-local function scale_pct(v, pct)
-    if v >= 0 then
-        return MulDivRound(v, pct, 100)
-    end
-    return -MulDivRound(-v, pct, 100)
-end
-
 ---- Unidade sob o ponto do cursor. GetCursorPos ja encosta o ponto na malha, entao basta a
 ---- vizinhanca do pe da unidade mais o vao vertical do corpo.
 local function unit_under(pos, attacker)
@@ -1236,17 +1231,16 @@ end
 
 ---------------------------------------------------------------------------------------------------
 ---- OVERRIDES. Substituem o que a cadeia tunada entregaria, para isolar UM lever:
-----   climb   subida do cano em minutos/tiro (o recuo da arma)
-----   chance  chance de segurar em % -- 0 = sem controle nenhum, 100 = segura sempre
-----   control recuo NAO cancelado em BASE 100 (85 tipico), mapeado por Rat_RecoilHoldChance;
-----           `chance` ganha se os dois vierem
-----   sigma   cone em minutos    theta  meia-largura do alvo em minutos
+----   kick      coice bruto da arma em minutos/tiro
+----   cf_max    forca maxima que o atirador opoe, em minutos/tiro. kick > cf_max = nao estabiliza
+----   control   recuo NAO cancelado em BASE 100 (85 tipico); remapeado em cf_max pela mesma conta
+----   accuracy  0..100, quanto do erro acima do piso a pericia tira
+----   sigma     cone em minutos    theta  meia-largura do alvo em minutos
 ---- theta/sigma destravam a escada de CTH em pontos SEM alvo, onde ela nao existiria.
 ----
----- So estes cinco de proposito: todos sao PARAMETROS de Rat_BurstShotCTH, entao o CTH acompanha
----- o what-if. RecoilControlResidual, RecoilCorrectPct e RecoilWalkYaw ficaram de fora porque sao
----- params globais -- so dariam para sobrescrever mutando const.Combat.Aperture, e ai a escada de
----- CTH (que le o global por dentro) ignoraria o override e mostraria numero de outro cenario.
+---- Aplicados sobre o PERFIL e nao sobre o resultado: tudo o que o modelo le sai de la, entao o
+---- what-if e o mesmo calculo com outro insumo. Os params globais (SettleShots, ErrorRatio,
+---- MinErrorPct, Damping) ficam de fora -- so dariam para sobrescrever mutando const.Combat.
 ---------------------------------------------------------------------------------------------------
 
 ---- Console: as funcoes aceitam posicional OU uma tabela unica -- Rat_DbgRecoilShots{burst = 10,
@@ -1255,16 +1249,29 @@ local function is_opts(v)
     return type(v) == "table" and not IsPoint(v)
 end
 
-local function apply_over(over, climb, chance, sigma, theta)
+local function apply_over(prof, sigma, theta, over)
     if not over then
-        return climb, chance, sigma, theta
+        return prof, sigma, theta
     end
-    if over.chance then
-        chance = over.chance
-    elseif over.control then
-        chance = Rat_RecoilHoldChance(over.control)
+    if prof then
+        local a = const.Combat.Aperture
+        prof = table.copy(prof)
+        if over.control then
+            local ctl = Max(30, 100 + MulDivRound(over.control - 100,
+                                                  a.RecoilControlGain or 100, 100))
+            prof.control = over.control
+            prof.cf_min = MulDivRound(a.RecoilCFMaxBase or 0, 100, ctl)
+        end
+        prof.kick_min = over.kick or prof.kick_min
+        prof.cf_min = over.cf_max or prof.cf_min
+        prof.accuracy = over.accuracy and Clamp(over.accuracy, 0, 100) or prof.accuracy
+        ---- recompoe o que o passo le de verdade
+        local ang = Clamp(a.RecoilKickAngle or 0, -90, 90) * 60
+        prof.kick_x = MulDivRound(prof.kick_min * 100, sin(ang), 4096)
+        prof.kick_y = MulDivRound(prof.kick_min * 100, cos(ang), 4096)
+        prof.cf_max = prof.cf_min * 100
     end
-    return over.climb or climb, chance, over.sigma or sigma, over.theta or theta
+    return prof, over.sigma or sigma, over.theta or theta
 end
 
 ---- Sem esta linha um what-if passa por medicao.
@@ -1273,19 +1280,13 @@ local function over_line(over)
         return nil
     end
     local ks = {}
-    for _, k in ipairs({"climb", "chance", "control", "sigma", "theta"}) do
+    for _, k in ipairs({"kick", "cf_max", "control", "accuracy", "sigma", "theta"}) do
         if over[k] then
             ks[#ks + 1] = k .. " = " .. tostring(over[k])
         end
     end
     return (#ks > 0) and ("*** OVERRIDE: " .. table.concat(ks, ", ") ..
                " -- nao e o que esta arma faz ***") or nil
-end
-
----- Traco atravessado no eixo: marca um degrau da escada sem o peso de um disco inteiro.
-local function draw_tick(pt, dir, axis, len, color)
-    local h = SetLen(RotateAxis(axis, dir, 90 * 60), len)
-    DbgAddSegment(pt - h, pt + h, color)
 end
 
 ---- Cena comum aos dois visualizadores de recuo: quem atira, para onde, e de onde a bala sai.
@@ -1359,88 +1360,49 @@ function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker, over)
 
     ---- cone e CTH normalmente so existem contra um alvo -- e theta que da escala ao desvio.
     ---- Os overrides destravam os dois em qualquer ponto.
-    local sigma, theta, cth = nil, nil, {}
+    local sigma, theta
     if target then
         sigma, theta = Rat_AttackCone(attacker, target, action, spot, aim, false, attacker:GetPos(),
                                       target:GetPos())
     end
 
-    local climb, chance = Rat_GetRecoilClimb(attacker, action, weapon, burst)
-    climb, chance, sigma, theta = apply_over(over, climb, chance, sigma, theta)
-
-    local held = Rat_RecoilHeldStep(climb)
-    local step_avg = scale_pct(climb, 100 - chance) + scale_pct(held, chance)
-    local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
-
-    if theta and theta >= 1 and sigma and sigma >= 1 then
-        for i = 1, burst do
-            cth[i] = Rat_BurstShotCTH(theta, sigma, i - 1, climb, chance)
-        end
+    local prof = Rat_RecoilProfile(attacker, action, weapon, burst, true)
+    prof, sigma, theta = apply_over(prof, sigma, theta, over)
+    if not prof then
+        return "sem perfil de recuo para esta arma"
     end
 
-    ---- DERIVA por ramo: so E[cos phi] do passo empurra o cano, e so ate max_idx coices.
-    ---- ESPALHAMENTO: o resto do coice, que nao tem direcao preferida -- cresce com a raiz do
-    ---- numero de coices e nao para no plato, porque chacoalhar nao e derivar.
-    local cbar, spread = Rat_RecoilYawFactors()
-    local s2bar = MulDivRound(held * held, chance, 100) +
-                      MulDivRound(climb * climb, 100 - chance, 100)
-    local mu_hi, mu_avg, mu_lo, band = {}, {}, {}, {}
-    local h, v, l = 0, 0, 0
-    for i = 1, burst do
-        mu_hi[i], mu_avg[i], mu_lo[i] = h, v, l
-        band[i] = Rat_ISqrt(MulDivRound((i - 1) * s2bar, spread, 1000))
-        if i <= max_idx then
-            h = h + MulDivRound(climb, cbar, 1000)
-            v = v + MulDivRound(step_avg, cbar, 1000)
-            l = l + MulDivRound(held, cbar, 1000)
-        end
-    end
+    ---- o MESMO estimador que alimenta a escada de CTH: ponto medio do cano e largura do grupo
+    local est = Rat_EstimateBurst(prof, theta, sigma, burst)
 
     DbgClearVectors()
     DbgClearTexts()
     DbgAddSegment(attack_pos, aim_pos, clrAxis)
 
     local up = SetLen(Rat_PerpUp(dir), 1000)
-    local yaw = Clamp(a.RecoilWalkYaw or 0, 0, 180) * 60
+    local lat_ax = Rat_RecoilLateralAxis(up, dir)
 
-    ---- leque: a faixa de direcoes que CADA coice pode tomar (+/- RecoilWalkYaw). Nao e mais um
-    ---- eixo por rajada -- e sorteado a cada coice, e e dai que sai a largura do grupo.
-    local tip = cone_radius(dist, Max(mu_hi[burst], 1))
-    if tip > 0 then
-        DbgAddVector(aim_pos, SetLen(up, tip), clrCone)
-        if yaw > 0 then
-            DbgAddVector(aim_pos, SetLen(RotateAxis(up, dir, -yaw), tip), clrSilh)
-            DbgAddVector(aim_pos, SetLen(RotateAxis(up, dir, yaw), tip), clrSilh)
-        end
-    end
-
-    ---- silhueta do alvo: a referencia contra a qual a subida vale ou nao
+    ---- silhueta do alvo: a referencia contra a qual o passeio do cano vale ou nao
     if theta and theta >= 1 then
         draw_disc(aim_pos, cone_radius(dist, theta), dir, clrSilh, 32)
     end
 
-    ---- degraus: disco numerado na DERIVA esperada, traco nos dois extremos da deriva, e a barra
-    ---- horizontal do ESPALHAMENTO (+/-1 desvio) naquela altura -- e a largura do grupo ali.
-    local tick = Max(150, dist / 40)
-    local lat_ax = Rat_RecoilLateralAxis(up, dir)
-    local disp = sigma and cone_radius(dist, MulDivRound(sigma, a.CrosshairSigmaMul or 250, 100))
+    ---- por tiro: o cano no ponto MEDIO, e um disco que e a largura do GRUPO ali (o que o erro
+    ---- obrigatorio acumulou), nao o cone da arma. O tiro 1 sai sempre do centro.
     for i = 1, burst do
         local c = recoil_ring_color(i, burst)
-        local p_avg = Rat_RecoilWalkPoint(attack_pos, aim_pos, up, mu_avg[i])
-        if disp and disp > 0 then
-            draw_disc(p_avg, disp, dir, c, 24)
+        local p = Rat_RecoilWalkPoint(attack_pos, aim_pos, up, est.py[i], lat_ax, est.px[i])
+        if est.spread[i] > 0 then
+            draw_disc(p, cone_radius(dist, est.spread[i]), dir, c, 24)
         end
-        ---- os extremos sao da DERIVA; passado o plato ela para e os tres ramos ficam parados
-        if i <= max_idx + 1 then
-            draw_tick(Rat_RecoilWalkPoint(attack_pos, aim_pos, up, mu_hi[i]), dir, up, tick, clrMiss)
-            draw_tick(Rat_RecoilWalkPoint(attack_pos, aim_pos, up, mu_lo[i]), dir, up, tick, clrHit)
-        end
-        if lat_ax and band[i] > 0 then
-            DbgAddSegment(Rat_RecoilWalkPoint(attack_pos, aim_pos, up, mu_avg[i], lat_ax, band[i]),
-                          Rat_RecoilWalkPoint(attack_pos, aim_pos, up, mu_avg[i], lat_ax, -band[i]),
-                          c)
-        end
-        DbgAddText(tostring(i), p_avg, c)
+        DbgAddText(tostring(i), p, c)
+    end
+
+    local rows = {}
+    for i = 1, burst do
+        rows[#rows + 1] = string.format("    %2d  | %+6d | %+6d | %6d | %6d | %5s", i, est.px[i],
+                                        est.py[i], est.speed[i], est.spread[i],
+                                        est.cth[i] and (tostring(est.cth[i]) .. "%") or "-")
     end
 
     local t10 = MulDivRound(dist, 10, const.SlabSizeX)
@@ -1448,38 +1410,31 @@ function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker, over)
         string.format("%s (%s) -- %s, aim %d, rajada de %d, %d.%d tiles",
                       tostring(attacker.session_id), tostring(weapon.class), tostring(action.id),
                       aim, burst, t10 / 10, t10 % 10),
-        string.format(
-            "subida %d'/tiro   segura %d%%   passo segurado %+d'   cano sobe ate o tiro %d",
-            climb, chance, held, max_idx + 1),
-        string.format(
-            "mu no tiro %d:  nunca segura %d' (%dcm)   esperado %d' (%dcm)   sempre segura %d' (%dcm)",
-            burst, mu_hi[burst], cone_radius(dist, mu_hi[burst]) / 10, mu_avg[burst],
-            cone_radius(dist, mu_avg[burst]) / 10, mu_lo[burst],
-            cone_radius(dist, mu_lo[burst]) / 10)
+        string.format("coice %d'/tiro a %d graus da vertical   forca max %d'/tiro   destreza %d",
+                      prof.kick_min, a.RecoilKickAngle or 0, prof.cf_min, prof.accuracy),
+        (prof.cf_min < prof.kick_min) and
+            "*** PORTAO DO CALIBRE: forca < coice, o cano NUNCA estabiliza (v cresce todo tiro) ***" or
+            string.format("estabilizavel: sobra %d'/tiro de forca sobre o coice",
+                          prof.cf_min - prof.kick_min),
+        string.format("assentar em %d tiros (Kp %d/1000, Kd %d/1000)   piso de erro %d'  " ..
+                          "erro proporcional %d%%", a.RecoilSettleShots or 0, prof.kp, prof.kd,
+                      MulDivRound(prof.min_err, 1, 100), prof.err_ratio),
+        "    tiro | lateral |  subiu |    |v| |  grupo |   CTH", table.concat(rows, "\n"),
+        string.format("medias de %d amostras, em minutos. `grupo` = desvio radial em torno do " ..
+                          "ponto medio", est.samples)
     }
-    lines[#lines + 1] = string.format(
-                            "yaw +/-%d graus por coice: so %d%% do passo vira deriva, o resto vira " ..
-                                "espalhamento -- +/-%d' (%dcm) no tiro %d   |   a deriva trava no tiro %d",
-                            a.RecoilWalkYaw or 0, cbar / 10, band[burst],
-                            cone_radius(dist, band[burst]) / 10, burst, max_idx + 1)
     if theta and sigma then
-        local cs = {}
-        for i = 1, burst do
-            cs[i] = tostring(cth[i] or "-")
-        end
-        lines[#lines + 1] = string.format("alvo %s   theta %d'   cone %d'   CTH por tiro: %s%%",
+        lines[#lines + 1] = string.format("alvo %s   theta %d'   cone %d'",
                                           target and (tostring(target.session_id) .. " [" ..
                                               tostring(target:GetHitStance()) .. "]") or
-                                              "(theta de override)", theta, sigma,
-                                          table.concat(cs, "/"))
+                                              "(theta de override)", theta, sigma)
     else
         lines[#lines + 1] =
             "sem unidade sob o cursor: so a geometria do recuo (passe theta e sigma para ver CTH aqui)"
     end
     lines[#lines + 1] = over_line(over)
     lines[#lines + 1] =
-        "amarelo->vermelho = tiro 1..N na deriva esperada | traco vermelho nunca segura, verde sempre | " ..
-            "ciano = leque de direcao do coice | barra horizontal = espalhamento (+/-1 desvio)"
+        "amarelo->vermelho = tiro 1..N no ponto medio do cano | disco = largura do grupo ali"
 
     for i, s in ipairs(lines) do
         DbgAddText(s, aim_pos:SetZ(aim_pos:z() + (#lines - i + 2) * 300), clrAxis)
@@ -1523,16 +1478,17 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker, over)
     local cone_src = sigma and "cone final" or "abertura crua (sem residuais)"
     sigma = sigma or Rat_GetAperture(weapon, attacker, action, aim, false)
 
-    local climb, chance = Rat_GetRecoilClimb(attacker, action, weapon, burst)
-    climb, chance, sigma, theta = apply_over(over, climb, chance, sigma, theta)
+    local prof = Rat_RecoilProfile(attacker, action, weapon, burst, true)
+    prof, sigma, theta = apply_over(prof, sigma, theta, over)
+    if not prof then
+        a.Enabled = was
+        return "sem perfil de recuo para esta arma"
+    end
     if over and over.sigma then
         cone_src = "override"
     end
 
-    local held_step = Rat_RecoilHeldStep(climb)
-    local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
-
-    ---- UM eixo para a rajada inteira, como no tiro real: e o que faz o grupo virar risco
+    ---- os dois eixos do plano do alvo: `p.y` sobe por `axis`, `p.x` anda por `lat_ax`
     local axis = Rat_RecoilWalkAxis(attacker, attack_pos, aim_pos)
     local lat_ax = Rat_RecoilLateralAxis(axis, dir)
     local args = Rat_SimBaseArgs(attacker, target, weapon, sc.spot, dist + 20 * const.SlabSizeX)
@@ -1543,10 +1499,16 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker, over)
         draw_disc(aim_pos, cone_radius(dist, theta), dir, clrSilh, 32)
     end
 
-    local cbar = Rat_RecoilYawFactors()
-    local mu, lat, rows, nhit, nheld = 0, 0, {}, 0, 0
+    ---- MESMO passo que a bala usa, com o MESMO random sincronizado: uma rajada de verdade
+    local st = Rat_RecoilState()
+    local rnd = function(n)
+        return attacker:Random(n)
+    end
+
+    local rows, nhit, nsat = {}, 0, 0
     for i = 1, burst do
-        local mu_i, lat_i = mu, lat
+        local lat, mu, off = Rat_RecoilPoint(st)
+        local spd = Rat_RecoilSpeed(st)
         local aimed = Rat_RecoilWalkPoint(attack_pos, aim_pos, axis, mu, lat_ax, lat)
         if scatter and sigma and sigma >= 1 then
             aimed = Rat_ShotScatterPoint(attacker, attack_pos, aimed, sigma)
@@ -1568,19 +1530,17 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker, over)
         DbgAddVector(attack_pos, end_pos - attack_pos, c)
         DbgAddText(tostring(i), end_pos, target and (hit and clrHit or clrMiss) or c)
 
-        ---- MESMA funcao que a bala usa: passado o plato so a deriva e descontada, o cano segue
-        ---- sendo chacoalhado nos dois eixos.
-        local dv, dl, step, held = Rat_RecoilKick(attacker, climb, chance)
-        if held then
-            nheld = nheld + 1
+        ---- cf no teto = o atirador ja esta dando tudo o que tem; se isso persistir e o coice
+        ---- ainda vencer, e o portao do calibre acontecendo tiro a tiro
+        local sat = (Rat_ISqrt(st.cx * st.cx + st.cy * st.cy) >= prof.cf_max - 1)
+        if sat then
+            nsat = nsat + 1
         end
-        mu = mu + dv - ((i > max_idx) and MulDivRound(step, cbar, 1000) or 0)
-        lat = lat + dl
-        rows[#rows + 1] = string.format("    %2d  | %+6d' | %+6d' | %-12s | %s", i, mu_i, lat_i,
-                                        (i > max_idx) and "so chacoalha" or
-                                            (held and "segurou" or "subiu"),
+        rows[#rows + 1] = string.format("    %2d  | %+6d | %+6d | %6d | %6d | %-8s | %s", i, lat,
+                                        mu, off, spd, sat and "no teto" or "sobra",
                                         target and (hit and ("acerto " .. tostring(part or "?")) or
                                             "erro") or "-")
+        Rat_RecoilStep(prof, st, rnd)
     end
 
     local t10 = MulDivRound(dist, 10, const.SlabSizeX)
@@ -1588,15 +1548,18 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker, over)
         string.format("%s (%s) -- %s, aim %d, rajada de %d, %d.%d tiles",
                       tostring(attacker.session_id), tostring(weapon.class), tostring(action.id),
                       aim, burst, t10 / 10, t10 % 10),
-        string.format("subida %d'/tiro   segura %d%%   passo segurado %+d'   segurou %d de %d",
-                      climb, chance, held_step, nheld, burst),
+        string.format("coice %d'/tiro a %d graus   forca max %d'/tiro   destreza %d   " ..
+                          "no teto em %d de %d", prof.kick_min, a.RecoilKickAngle or 0,
+                      prof.cf_min, prof.accuracy, nsat, burst),
+        (prof.cf_min < prof.kick_min) and
+            "*** PORTAO DO CALIBRE: forca < coice, o cano NUNCA estabiliza ***" or
+            string.format("estabilizavel: sobra %d'/tiro de forca sobre o coice",
+                          prof.cf_min - prof.kick_min),
         string.format("cone %d' (%s)   %s", sigma, cone_src,
                       scatter and "dispersao LIGADA: o tiro 1 tambem sai do centro" or
                           "dispersao desligada: so o passeio do cano"),
-        string.format("yaw +/-%d graus por coice (%d%% do passo vira deriva); a deriva trava no %d",
-                      a.RecoilWalkYaw or 0, cbar / 10, max_idx + 1),
-        "    tiro |     mu | lateral | coice        | resultado", table.concat(rows, "\n")
-    }
+        "    tiro | lateral |  subiu |   |p| |   |v| | forca    | resultado",
+        table.concat(rows, "\n")    }
     if target then
         lines[#lines + 1] = string.format("alvo %s [%s]   theta %d'   %d de %d acertos",
                                           tostring(target.session_id),

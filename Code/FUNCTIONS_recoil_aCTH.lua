@@ -1,126 +1,226 @@
 ---------------------------------------------------------------------------------------------------
----- Recoil no modelo angular: SUBIDA DO CANO por tiro, e a chance de o atirador segura-la.
+---- RECOIL, SECOND ORDER -- the muzzle has a POSITION and a VELOCITY, and the shooter's
+---- counter-force acts on the VELOCITY. Modelled on JA2 1.13 NCTH (CalcCounterForceChange).
 ----
----- O modelo somado vira `cth_loss_per_shot` e subtrai pontos em linha
----- (SOURCE_FirearmGetAttackResults.lua:260). O modelo de cone anterior alargava o cone. Nenhum
----- dos dois e recuo: recuo nao espalha o grupo em volta do alvo, ele LEVANTA o cano numa direcao
----- e a rajada anda por ali. E o que a vanilla desenha em Firearm:CalcShotVectors (Weapon.lua:1612),
----- so que la e enfeite -- acerto e erro ja tinham sido sorteados. Aqui a bala e a verdade, entao a
----- caminhada precisa vir com a probabilidade que lhe corresponde (Rat_SimRecoilLadder).
+---- Why velocity: with position alone, control can only be a coin -- there is nothing continuous
+---- to modulate -- and overshoot is impossible, because subtracting from a position never sweeps
+---- past the target and out the other side. Here the shooter runs a PD controller trying to put
+---- (p, v) back at (0, 0) and misses it by a mandatory error. Undershoot the correction and the
+---- muzzle stays on the kick side; overshoot it and the muzzle crosses the target and keeps going.
+---- Same mechanism, two signs.
 ----
----- A cadeia tunada se parte em DOIS papeis, sem recopiar constante nenhuma:
-----   arma  = mod / control -- cano, mecanismo, cartucho, ROF, deltas de rajada: quanto sobe
-----   control              -- Marksmanship, postura, bipe, Forca vs breakpoint, perks: o atirador
----- e `control` deixa de ser um desconto garantido e vira CHANCE de o tiro sair controlado:
-----     chance = 100 - control    (control 0.65 -> 35% dos tiros nao sobem)
----- A media sobrevive intacta -- gun * (1 - chance) = mod -- entao toda a escala ja tunada continua
----- valendo; o que muda e a variancia, e ela entra no CTH pelo segundo momento, nao a esmo.
----- Um atirador de moeda-ao-ar fica pior que um confiavel de mesma media, que e o certo.
+---- UNITS: everything is angular, in MINUTES of arc and minutes per shot -- the same unit as theta
+---- (167' for a standing torso at 10 tiles). "The second shot must still threaten" is then a
+---- direct comparison and not a guess. INTERNALLY the state is in centiminutes: the gains are 1/T
+---- and 1/T^2 and would round to zero in whole minutes. The conversion lives in Rat_RecoilProfile
+---- and in the two readouts, nowhere else.
 ----
----- A distancia continua mandando, pela via correta: a mesma subida custa pouco de perto, onde a
----- silhueta e maior que ela, e muito de longe. Nao precisa de rampa tabelada -- emerge de theta ~ 1/d.
+---- THE CALIBER GATE: at steady state the shooter needs |cf| = |kick|, but |cf| is capped at
+---- CFMax. So if CFMax < KickMag the muzzle can NEVER be stabilised -- v grows every shot and the
+---- burst runs off the target however well the correction is aimed. That is "not strong enough for
+---- this caliber", stated as two numbers in the same unit instead of as a stat breakpoint.
 ----
----- Retorna a subida por tiro em MINUTOS de angulo e a chance de controle em % (0..100).
+---- The dispersion cone is untouched and still applies around p on every shot: recoil moves where
+---- the gun points, it does not widen the cone.
 ---------------------------------------------------------------------------------------------------
----- Modo "growth" (A.RecoilMode): o recuo ALARGA o cone por tiro em vez de levantar o cano.
----- Retorna o multiplicador de sigma por tiro em % (100 = sem recuo).
-function Rat_GetRecoilConeGrowth(attacker, action, weapon, num_shots, test)
-    local a = const.Combat.Aperture
-    if not attacker or not IsKindOf(weapon, "Firearm") then
-        return 100
-    end
 
-    local mod = Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
-
-    ---- cadencia: mais tiros no mesmo tempo, menos tempo para reassentar a arma
-    if not IsKindOf(weapon, "Shotgun") then
-        local action_id_rof = (action and action.id) or ""
-        if action_id_rof == "GrizzlyPerk" then
-            action_id_rof = "MGBurstFire"
-        end
-        local ROF = Rat_GetROF(weapon, action_id_rof)
-        if ROF and ROF > 1 then
-            mod = mod * ROF
-        end
-    end
-
-    ---- MG montada absorve recoil; MG na mao, nao
-    local aid = action and action.id
-    if aid == "MGBurstFire" then
-        if test or (g_Overwatch[attacker] and g_Overwatch[attacker].permanent) then
-            mod = mod * const.Combat.Recoil.MGSetupMul
-        end
-    elseif aid == "GrizzlyPerk" then
-        mod = mod * const.Combat.Recoil.MGSetupMul
-    end
-
-    local excess = Clamp(MulDivRound(a.RecoilGrowthBase, cRound(mod), 100), 0, a.RecoilGrowthMax)
-    excess = MulDivRound(excess, const.Combat.R_Recoil or 100, 100)
-    return 100 + excess
+local function P()
+    return const.Combat.Aperture
 end
 
----- `control` em BASE 100 (recuo que o atirador NAO cancelou; 100 = nao cancela nada) -> chance de
----- segurar o cano, em %. O mapa antigo era chance = 100 - control, e control real so anda entre 85
----- e 117: a chance nunca passava de 15% e o lado estocastico era decorativo. Pivot/Gain esticam a
----- MESMA faixa; Pivot 100 / Gain 100 reproduz o mapa antigo exatamente.
-function Rat_RecoilHoldChance(control)
-    local a = const.Combat.Aperture
-    return Clamp(MulDivRound(a.RecoilControlGain or 100,
-                             (a.RecoilControlPivot or 100) - (control or 100), 100),
-                 0, a.RecoilControlMax or 90)
+---------------------------------------------------------------------------------------------------
+---- Integer vector helpers. Centiminutes throughout.
+---------------------------------------------------------------------------------------------------
+
+local function vlen(x, y)
+    return Rat_ISqrt(x * x + y * y)
 end
 
-function Rat_GetRecoilClimb(attacker, action, weapon, num_shots, test)
-    local a = const.Combat.Aperture
-    if not attacker or not IsKindOf(weapon, "Firearm") then
+---- Pythagorean, never per-axis: these are forces, and a per-axis cap would make the diagonal
+---- stronger than the vertical. Compares SQUARES first -- Rat_ISqrt is the hot spot of the whole
+---- model and the vector is under the cap on most shots.
+local function vclamp(x, y, maxlen)
+    if maxlen <= 0 then
         return 0, 0
     end
+    local d2 = x * x + y * y
+    if d2 <= maxlen * maxlen then
+        return x, y
+    end
+    local len = Rat_ISqrt(d2)
+    return MulDivRound(x, maxlen, len), MulDivRound(y, maxlen, len)
+end
 
-    local mod, _, control = Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
+---- One axis of the mandatory error, 1.13's shape verbatim: always at least `floor_err`, sign free.
+local function err_term(rnd, floor_err, mag)
+    local e = floor_err + ((mag > 0) and rnd(mag + 1) or 0)
+    return (rnd(2) == 0) and e or -e
+end
 
-    ---- control > 100 (Marks baixa, Forca abaixo do breakpoint) nao e "controle negativo": e a ARMA
-    ---- subindo mais. O clamp sozinho DESCARTAVA esse excesso -- cortava antes da divisao e a
-    ---- penalidade de estar abaixo do breakpoint nunca chegava ao climb. Agora o excesso e
-    ---- separado e multiplica a arma, que e o que o paragrafo acima sempre disse que fazia.
-    local excess = Max(100, control)
-    control = Min(control, 100)
-
-    local chance = Rat_RecoilHoldChance(control)
-
-    ---- gun is the kick a LOST shot delivers, and nothing more. It used to be divided by (1-chance)
-    ---- so the mean stayed at `mod` whatever the hold map said -- but that inflated the kick of the
-    ---- mercs who hold most, so the best shooter had the wildest single shot. Skill now lowers the
-    ---- kick (via mod) AND raises the hold chance; the mean is no longer pinned, it just falls.
-    local gun = mod * excess / 100.00
-
-    ---- cadencia: mais tiros no mesmo tempo, menos tempo para reassentar a arma
-    if not IsKindOf(weapon, "Shotgun") then
-        local action_id_rof = (action and action.id) or ""
-        if action_id_rof == "GrizzlyPerk" then
-            action_id_rof = "MGBurstFire"
-        end
-        local ROF = Rat_GetROF(weapon, action_id_rof)
-        if ROF and ROF > 1 then
-            gun = gun * ROF
-        end
+---------------------------------------------------------------------------------------------------
+---- PROFILE: the constants of one attack, resolved once. Everything the shooter and the weapon
+---- contribute enters here and nowhere else.
+----
+---- The tuned chain in FUNCTIONS_recoil.lua survives whole; only its two outputs get pointed at
+---- different things:
+----   gun = mod / control  -- the weapon alone (stance-invariant, measured) -> KickMag
+----   control              -- everything the shooter brings, base 100      -> CFMax, inverted
+---------------------------------------------------------------------------------------------------
+function Rat_RecoilProfile(attacker, action, weapon, num_shots, test)
+    local a = P()
+    if not attacker or not IsKindOf(weapon, "Firearm") then
+        return nil
     end
 
-    ---- MG montada absorve recoil; MG na mao, nao. E apoio do atirador -> entra no controle.
-    ---- Sobe SO a chance, sem refazer o gun: aqui a media cai de verdade, que e o beneficio.
+    local _, _, control, gun = Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
+    control = cRound(control)
+
+    local kick = MulDivRound(a.RecoilKickBase or 0, cRound(gun), 100)
+    kick = Max(0, MulDivRound(kick, const.Combat.R_Recoil or 100, 100))
+
+    ---- a mounted MG holds itself: the mount is force the shooter did not have to bring
     local aid = action and action.id
-    if aid == "MGBurstFire" then
-        if test or (g_Overwatch[attacker] and g_Overwatch[attacker].permanent) then
-            chance = Rat_RecoilHoldChance(cRound(control * const.Combat.Recoil.MGSetupMul))
-        end
-    elseif aid == "GrizzlyPerk" then
-        chance = Rat_RecoilHoldChance(cRound(control * const.Combat.Recoil.MGSetupMul))
+    if aid == "GrizzlyPerk" or
+        (aid == "MGBurstFire" and
+            (test or (g_Overwatch[attacker] and g_Overwatch[attacker].permanent))) then
+        control = cRound(control * const.Combat.Recoil.MGSetupMul)
     end
 
-    local climb = MulDivRound(a.RecoilClimbBase, cRound(gun), 100)
-    climb = Clamp(climb, 0, a.RecoilClimbMax)
+    ---- control only spans ~85..117 in practice; the gain stretches that band around 100 before it
+    ---- inverts into force, so skill can decide the marginal calibers instead of nothing.
+    ---- The floor caps CFMax at 100/30 of the base: a mounted MG sends control near 50, which the
+    ---- gain drives negative, and without it one point of control would swing the force wildly.
+    local ctl = Max(30, 100 + MulDivRound(control - 100, a.RecoilControlGain or 100, 100))
+    local cf_max = MulDivRound(a.RecoilCFMaxBase or 0, 100, ctl)
+    local max_inc = Max(1, a.RecoilMaxIncrement or 1)
 
-    ---- o dial global de recoil do jogador continua valendo
-    climb = MulDivRound(climb, const.Combat.R_Recoil or 100, 100)
+    ---- rate of fire shortens the time between shots, so it shrinks the SHOOTER's side. The
+    ---- cartridge's kick does not change with how fast the trigger is pulled.
+    if not IsKindOf(weapon, "Shotgun") then
+        local ROF = Rat_GetROF(weapon, (aid == "GrizzlyPerk") and "MGBurstFire" or (aid or ""))
+        local rof100 = ROF and cRound(ROF * 100) or 100
+        if rof100 > 100 then
+            cf_max = MulDivRound(cf_max, 100, rof100)
+            max_inc = Max(1, MulDivRound(max_inc, 100, rof100))
+        end
+    end
 
-    return climb, chance
+    local T = Max(1, a.RecoilSettleShots or 3)
+    local ang = Clamp(a.RecoilKickAngle or 0, -90, 90) * 60
+
+    return {
+        ---- centiminutes per shot, which is what the step runs in
+        kick_x = MulDivRound(kick * 100, sin(ang), 4096),
+        kick_y = MulDivRound(kick * 100, cos(ang), 4096),
+        cf_max = cf_max * 100,
+        max_inc = max_inc * 100,
+        min_err = MulDivRound(max_inc * 100, a.RecoilMinErrorPct or 0, 100),
+        ---- gains by 1000. Double root at 1 - 1/T gives Kd = 2/T and Kp = 1/T^2.
+        kp = MulDivRound(1000, 1, T * T),
+        kd = MulDivRound(2000, a.RecoilDamping or 100, 100 * T),
+        err_ratio = a.RecoilErrorRatio or 0,
+        ---- Dexterity raw: the one stat the tuned chain does not already spend, so nothing is
+        ---- counted twice. It never removes the floor, only the error above it.
+        accuracy = Clamp(attacker.Dexterity or 0, 0, 100),
+        ---- minutes, for reading and for the gate: kick_min > cf_min means unstabilisable
+        kick_min = kick,
+        cf_min = cf_max,
+        control = control
+    }
+end
+
+---------------------------------------------------------------------------------------------------
+---- STATE AND STEP
+---------------------------------------------------------------------------------------------------
+
+function Rat_RecoilState()
+    return {px = 0, py = 0, vx = 0, vy = 0, cx = 0, cy = 0}
+end
+
+---- One shot of dynamics; `st` advances in place. The bullet leaves from `st` BEFORE this runs.
+---- `rnd(n)` returns 0..n-1 -- the real shot passes the synced rng and the estimator a seeded one,
+---- so there is exactly one implementation of the recoil and prediction cannot drift from it.
+function Rat_RecoilStep(prof, st, rnd)
+    ---- where the shooter wants the velocity to go: PD aiming (p, v) at (0, 0)
+    local ax = -(MulDivRound(st.px, prof.kp, 1000) + MulDivRound(st.vx, prof.kd, 1000))
+    local ay = -(MulDivRound(st.py, prof.kp, 1000) + MulDivRound(st.vy, prof.kd, 1000))
+
+    ---- the counter-force also has to cancel the incoming kick, and the grip cannot change
+    ---- instantly, so only max_inc of the shortfall is attempted this shot
+    local dx, dy = vclamp(ax - prof.kick_x - st.cx, ay - prof.kick_y - st.cy, prof.max_inc)
+
+    ---- error on the CHANGE, proportional to the size of the correction attempted: hauling a big
+    ---- caliber back generates more of it than nudging a small one, so caliber difficulty falls
+    ---- out of the mechanism instead of being tuned in per weapon
+    local mag = Max(prof.min_err, MulDivRound(MulDivRound(vlen(dx, dy), prof.err_ratio, 100),
+                                              100 - prof.accuracy, 100))
+    dx = dx + err_term(rnd, prof.min_err, mag)
+    dy = dy + err_term(rnd, prof.min_err, mag)
+
+    st.cx, st.cy = vclamp(st.cx + dx, st.cy + dy, prof.cf_max)
+
+    st.vx, st.vy = st.vx + prof.kick_x + st.cx, st.vy + prof.kick_y + st.cy
+    st.px, st.py = st.px + st.vx, st.py + st.vy
+end
+
+---- Muzzle offset in MINUTES: lateral, vertical, radial. The only part of the state the bullet reads.
+function Rat_RecoilPoint(st)
+    local x, y = MulDivRound(st.px, 1, 100), MulDivRound(st.py, 1, 100)
+    return x, y, Rat_ISqrt(x * x + y * y)
+end
+
+---- Muzzle angular speed in minutes/shot. The hit percentage says a burst went wrong; this says why.
+function Rat_RecoilSpeed(st)
+    return MulDivRound(vlen(st.vx, st.vy), 1, 100)
+end
+
+---------------------------------------------------------------------------------------------------
+---- ESTIMATOR: runs the same step and measures. A second-order stochastic system has no closed
+---- form per-shot hit probability and needs none -- nobody displays this number, it exists to
+---- balance against. Seeded, so the same profile always gives the same ladder: it does not flicker
+---- between calls, it cannot desync co-op, and a specific bad volley can be replayed exactly.
+---------------------------------------------------------------------------------------------------
+function Rat_EstimateBurst(prof, theta, sigma, num_shots, samples, seed)
+    local a = P()
+    num_shots = Max(1, num_shots or 1)
+    samples = Max(1, samples or a.RecoilEstimateSamples or 128)
+    local rnd = BraidRandomCreate(seed or a.RecoilEstimateSeed or 1)
+
+    local cth, sx, sy, s2, off, spd = {}, {}, {}, {}, {}, {}
+    for i = 1, num_shots do
+        cth[i], sx[i], sy[i], s2[i], off[i], spd[i] = 0, 0, 0, 0, 0, 0
+    end
+
+    ---- the cone is drawn analytically instead of sampled: it is the same Rayleigh LUT the bullet
+    ---- inverts, so this costs no fidelity and removes the noise the samples would have to beat
+    local measure = theta and theta >= 1 and sigma and sigma >= 1
+
+    local st = Rat_RecoilState()
+    for _ = 1, samples do
+        st.px, st.py, st.vx, st.vy, st.cx, st.cy = 0, 0, 0, 0, 0, 0
+        for i = 1, num_shots do
+            local x, y, r = Rat_RecoilPoint(st)
+            if measure then
+                cth[i] = cth[i] + Rat_RiceCTH(theta, sigma, r)
+            end
+            sx[i], sy[i] = sx[i] + x, sy[i] + y
+            s2[i] = s2[i] + x * x + y * y
+            off[i] = off[i] + r
+            spd[i] = spd[i] + Rat_RecoilSpeed(st)
+            Rat_RecoilStep(prof, st, rnd)
+        end
+    end
+
+    local out = {cth = {}, px = {}, py = {}, spread = {}, offset = {}, speed = {},
+                 samples = samples}
+    for i = 1, num_shots do
+        out.cth[i] = measure and MulDivRound(cth[i], 1, samples) or nil
+        out.px[i], out.py[i] = MulDivRound(sx[i], 1, samples), MulDivRound(sy[i], 1, samples)
+        out.offset[i] = MulDivRound(off[i], 1, samples)
+        out.speed[i] = MulDivRound(spd[i], 1, samples)
+        ---- radial spread about the MEAN point, E[|p|^2] - |E[p]|^2: the width of the group there
+        out.spread[i] = Rat_ISqrt(Max(0, MulDivRound(s2[i], 1, samples) - out.px[i] * out.px[i] -
+                                          out.py[i] * out.py[i]))
+    end
+    return out
 end

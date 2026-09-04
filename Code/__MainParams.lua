@@ -16,9 +16,8 @@ const.Combat.MultishotGrazeThreshold = 18 -- 12
 const.Combat.SingleShotGrazeThreshold = 10
 const.Combat.PelletShotGrazeThreshold = 22
 const.Combat.MultishotMinCTH = 4
----- Quantos coices ainda EMPURRAM o cano para cima. Passado isso o modelo angular nao congela o
----- recuo: o coice continua chacoalhando o cano nos dois eixos, so a deriva e descontada
----- (Rat_RecoilKick). O cano para de piorar mas continua se mexendo.
+---- Teto do desconto de CTH por tiro do pipeline VANILLA. O modelo angular nao usa: la o cano
+---- se assenta sozinho pelo contra-esforco, sem plato tabelado.
 const.Combat.MaxShotIndexForRecoilCTHLoss = 6
 
 ---- Unidade so re-encara o inimigo mais proximo no PROPRIO turno. Ver

@@ -692,64 +692,6 @@ function Rat_RiceCTH(theta, sigma, mu)
     return MulDivRound(permil, 100, 1000)
 end
 
----- Coeficientes binomiais ate n = MaxShotIndexForRecoilCTHLoss (6). C[n][j + 1].
-local Rat_Binomial = {
-    [0] = {1}, {1, 1}, {1, 2, 1}, {1, 3, 3, 1}, {1, 4, 6, 4, 1}, {1, 5, 10, 10, 5, 1},
-    {1, 6, 15, 20, 15, 6, 1}
-}
-
----- CTH do tiro que ja levou `n` coices, cada um sorteado contra `chance` de ser segurado.
----- `mu` nao e um numero, e uma distribuicao -- com n <= 6 ela tem no maximo 7 valores, entao a
----- esperanca sai EXATA pela mistura binomial em vez de por um mu medio (que subestimaria a
----- perda: P e concava em mu no regime que interessa).
-----
----- Cada coice tem direcao propria (+/- A.RecoilWalkYaw), entao ele se parte em DERIVA e ESPALHAMENTO:
-----   deriva     = E[cos phi] * passo, e o unico pedaco que empurra o cano para um lado so
-----   espalhamento = o resto, que nao tem direcao preferida e portanto e VARIANCIA, nao deslocamento
----- Isso mantem a forma fechada nos mesmos 7 termos: a mistura binomial continua dando a deriva, e
----- o espalhamento entra inflando o cone daquele termo. Rice ja e exatamente "gaussiana de desvio
----- sigma centrada a mu do alvo" -- e so somar a variancia da caminhada dentro de sigma.
-----
----- APROXIMACAO, e a unica do modelo: o espalhamento real e anisotropico (mais largo de lado que
----- na vertical em yaw pequeno) e aqui entra como a MEDIA dos dois eixos, porque Rice pressupoe
----- sigma isotropico. Medir com Rat_DbgBurst, que dispara de verdade e nao usa esta conta.
-----
----- O plato trava a DERIVA e nada mais: os coices seguintes continuam somando espalhamento, que e
----- o cano sendo chacoalhado sem ser empurrado.
-function Rat_BurstShotCTH(theta, sigma, n, climb, chance)
-    if n <= 0 or not climb or climb <= 0 then
-        return Rat_RayleighCTH(theta, sigma)
-    end
-    local nv = Min(n, #Rat_Binomial) --- coices que ainda derivam
-    local cbar, spread = Rat_RecoilYawFactors()
-    local held = Rat_RecoilHeldStep(climb)
-
-    ---- coices passado o plato: so variancia, com o passo quadratico esperado
-    local extra = (n > nv) and
-                      (n - nv) * (MulDivRound(held * held, chance, 100) +
-                          MulDivRound(climb * climb, 100 - chance, 100)) or 0
-
-    local row = Rat_Binomial[nv]
-    local acc, wsum = 0, 0
-    for j = 0, nv do
-        local w = row[j + 1] * 10000
-        for _ = 1, j do
-            w = MulDivRound(w, chance, 100)
-        end
-        for _ = 1, nv - j do
-            w = MulDivRound(w, 100 - chance, 100)
-        end
-        if w > 0 then
-            local mu = j * held + (nv - j) * climb
-            local s2 = j * held * held + (nv - j) * climb * climb + extra
-            local sig = Max(1, Rat_ISqrt(sigma * sigma + MulDivRound(s2, spread, 1000)))
-            acc = acc + w * Rat_RiceCTH(theta, sig, MulDivRound(mu, cbar, 1000))
-            wsum = wsum + w
-        end
-    end
-    return (wsum > 0) and MulDivRound(acc, 1, wsum) or 0
-end
-
 ---- Inversa da LUT: k*1000 que produz exatamente `cth`. Nao depende de theta -- e o que permite
 ---- traduzir pontos de CTH em multiplicador de cone sem olhar para o tamanho do alvo.
 function Rat_KForCTH(cth)
@@ -893,66 +835,19 @@ function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma)
 end
 
 ---------------------------------------------------------------------------------------------------
----- RECUO: o cano sobe numa direcao e a rajada anda por ela. E a estrutura de
----- Firearm:CalcShotVectors (Weapon.lua:1612) -- UM eixo sorteado por ataque, deslocamento
----- crescente ao longo dele, dispersao redonda pequena por cima -- so que la e enfeite sobre um
----- resultado ja sorteado e aqui e a bala de verdade. Ver Rat_GetRecoilClimb.
+---- RECUO: GEOMETRIA. A dinamica esta em FUNCTIONS_recoil_aCTH.lua -- aqui so o que traduz o
+---- deslocamento angular `p` num ponto de mira. E a estrutura de Firearm:CalcShotVectors
+---- (Weapon.lua:1612), so que la e enfeite sobre um resultado ja sorteado e aqui e a bala.
 ---------------------------------------------------------------------------------------------------
 
----- Referencial do recuo: "para cima" no plano do alvo. O yaw NAO entra aqui -- e sorteado por
----- COICE (Rat_RecoilKick), nao por rajada, entao este eixo e so a base. Puro: sem random.
+---- Referencial do recuo: "para cima" no plano do alvo. `p.y` anda por este eixo e `p.x` pelo
+---- lateral (Rat_RecoilLateralAxis) -- o coice tem lado fixo, entao o grupo sai inclinado. Puro.
 function Rat_RecoilWalkAxis(attacker, attack_pos, aim_pos)
     local dir = Rat_ValidZ(aim_pos) - Rat_ValidZ(attack_pos)
     if dir:Len() < 1 then
         return point(0, 0, 1000)
     end
     return SetLen(Rat_PerpUp(SetLen(dir, 1000)), 1000)
-end
-
----- E[cos phi] = sin(Y)/Y para phi uniforme em +/- Y, por 1000, de 10 em 10 graus. E a fracao do
----- passo que de fato SOBE: o resto do coice virou espalhamento.
-local Rat_YawCos = {
-    [0] = 1000, 995, 980, 955, 921, 878, 827, 769, 705, 637, 564, 489, 413, 338, 263, 191, 122, 59,
-    0
-}
-
----- Devolve E[cos phi] (por 1000) e a variancia MEDIA por eixo de um passo unitario, (1-E[cos]^2)/2
----- (por 1000). A media por eixo sai de graca: Var(cos) + Var(sin) = 1 - E[cos]^2, sempre.
-function Rat_RecoilYawFactors()
-    local y = Clamp(P().RecoilWalkYaw or 0, 0, 180)
-    local i = y / 10
-    local lo = Rat_YawCos[i] or 0
-    local cbar = lo + MulDivRound((Rat_YawCos[Min(i + 1, 18)] or lo) - lo, y - i * 10, 10)
-    return cbar, (1000 - MulDivRound(cbar, cbar, 1000)) / 2
-end
-
----- UM coice, decomposto: quanto SOBE e quanto vai de LADO, em minutos. A moeda de controle decide
----- o TAMANHO do passo; um yaw proprio decide para onde ele aponta. Devolve tambem o passo cru
----- (o plato usa para descontar so a deriva) e se o tiro foi segurado, que o visualizador mostra --
----- sem isso ele reimplementaria o coice e as duas copias divergiriam.
----- Consome random sincronizado.
-function Rat_RecoilKick(attacker, climb, chance)
-    local held = Rat_RecoilHeld(attacker, chance)
-    local step = held and Rat_RecoilHeldStep(climb) or climb
-    local yaw = Clamp(P().RecoilWalkYaw or 0, 0, 180) * 60
-    local phi = (yaw > 0) and attacker:RandRange(-yaw, yaw) or 0
-    return MulDivRound(step, cos(phi), 4096), MulDivRound(step, sin(phi), 4096), step, held
-end
-
----- Rolagem de controle de UM tiro: o atirador segurou o cano? Consome random sincronizado.
----- Global porque Rat_RecoilKick e o visualizador precisam do resultado da moeda separado.
-function Rat_RecoilHeld(attacker, chance)
-    return chance > 0 and attacker:Random(100) < chance
-end
-
----- Delta de UM tiro segurado: passa o residual e ainda PUXA de volta RecoilCorrectPct de `climb`.
----- Negativo quando a correcao supera o residual -- e por onde o mu acumulado desce e cruza zero.
----- Global porque Rat_BurstShotCTH usa o MESMO passo: se os dois lados calcularem separado,
----- previsao e bala divergem sem avisar.
-function Rat_RecoilHeldStep(climb)
-    local a = P()
-    return MulDivRound(climb, Clamp(a.RecoilControlResidual or 0, 0, 100), 100) -
-               MulDivRound(climb, Clamp(a.RecoilCorrectPct or 0, 0, 100), 100)
 end
 
 ---- Desvio angular ao longo de um eixo. SetLen nao aceita comprimento negativo, dai os dois ramos.
@@ -1024,7 +919,7 @@ end
 ---- Plano de tiro: theta, sigma, ponto sorteado de cada tiro. Consome random sincronizado,
 ---- so na resolucao. ctx ENTRA: attacker target action weapon aim opportunity_attack spot
 ---- attack_pos aim_pos step_pos target_pos cth num_shots [sigma]. ctx SAI: theta geo_sigma sigma
----- climb control_chance walk_axis shots[i] = {sigma, mu, target_pos}
+---- recoil recoil_est walk_axis lat_axis shots[i] = {sigma, cth, mu, lat, target_pos}
 function Rat_SimPlanShots(ctx)
     local _, geo_sigma, theta = Rat_AngularCTH(ctx.attacker, ctx.target, ctx.spot, ctx.action,
                                                ctx.weapon, ctx.aim or 0, ctx.opportunity_attack,
@@ -1046,150 +941,120 @@ function Rat_SimPlanShots(ctx)
     ctx.attack_pos, ctx.aim_pos = Rat_ValidZ(ctx.attack_pos), Rat_ValidZ(ctx.aim_pos)
 
     local num_shots = Max(1, ctx.num_shots or 1)
-    local cth, climb, chance, sigma_disp =
-        Rat_SimRecoilLadder(ctx.attacker, ctx.action, ctx.weapon, sigma, num_shots, theta)
-    ctx.climb, ctx.control_chance, ctx.num_shots = climb, chance, num_shots
+    local cth, prof, est, sigma_disp = Rat_SimRecoilLadder(ctx.attacker, ctx.action, ctx.weapon,
+                                                            sigma, num_shots, theta, ctx.want_cth)
+    ctx.recoil, ctx.recoil_est, ctx.sigma_disp, ctx.num_shots = prof, est, sigma_disp, num_shots
 
-    ---- UM eixo para a rajada inteira: e o que faz o grupo virar risco em vez de nuvem
-    local axis = (climb > 0 and num_shots > 1) and
+    local axis = (prof and num_shots > 1) and
                      Rat_RecoilWalkAxis(ctx.attacker, ctx.attack_pos, ctx.aim_pos) or nil
-    ctx.walk_axis = axis
     local lat_axis = Rat_RecoilLateralAxis(axis, SetLen(ctx.aim_pos - ctx.attack_pos, 1000))
-    ctx.lat_axis = lat_axis
+    ctx.walk_axis, ctx.lat_axis = axis, lat_axis
 
-    local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
+    ---- random SINCRONIZADO, e a rajada de verdade. O estimador roda o MESMO passo com um `rnd`
+    ---- semeado, entao nao existe segunda implementacao do recuo para divergir desta.
+    local st = axis and Rat_RecoilState() or nil
+    local rnd = axis and function(n)
+        return ctx.attacker:Random(n)
+    end or nil
 
-    ---- em "growth" o recuo esta NO CONE, entao a bala tem de sair do cone alargado do tiro i
-    local growth_mode = (P().RecoilMode == "growth")
-    ctx.sigma_disp = sigma_disp
-
-    local cbar = Rat_RecoilYawFactors()
-    local shots, mu, lat = {}, 0, 0
+    local shots = {}
     for i = 1, num_shots do
+        local lat, mu = 0, 0
+        if st then
+            lat, mu = Rat_RecoilPoint(st)
+        end
         ---- a mira do tiro i sai de onde o recuo ja deixou o cano; a dispersao continua sendo o
         ---- cone da arma, do mesmo tamanho em todos os tiros -- recuo desloca, nao espalha.
         local aim_pos = axis and
                             Rat_RecoilWalkPoint(ctx.attack_pos, ctx.aim_pos, axis, mu, lat_axis, lat) or
                             ctx.aim_pos
-        local disp = growth_mode and (sigma_disp[i] or sigma) or sigma
         shots[i] = {
             ---- cone de EXIBICAO: o que daria este mesmo CTH contra este alvo. A dispersao que a
-            ---- bala usa e sempre `sigma` -- o recuo esta em `mu`, nao no cone.
+            ---- bala usa e sempre `sigma` -- o recuo esta em `mu`/`lat`, nao no cone.
             sigma = sigma_disp[i] or sigma,
             cth = cth[i],
             mu = mu,
             lat = lat,
-            target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, disp)
+            target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, sigma)
         }
-        ---- o coice deste tiro so move o PROXIMO. Passado o plato ele ainda CHACOALHA o cano nos
-        ---- dois eixos -- so a deriva (E[cos phi] * passo) e descontada, que e o "para de subir".
-        if axis then
-            local dv, dl, step = Rat_RecoilKick(ctx.attacker, climb, chance)
-            mu = mu + dv - ((i > max_idx) and MulDivRound(step, cbar, 1000) or 0)
-            lat = lat + dl
+        if st then
+            Rat_RecoilStep(prof, st, rnd)
         end
     end
     ctx.shots = shots
     return shots
 end
 
----- UMA realizacao independente do tiro `idx` da mesma rajada: eixo e rolagens de controle
----- proprios. E como o visualizador amostra a distribuicao do tiro N sem repetir a rajada inteira.
----- Exige ctx ja resolvido por Rat_SimPlanShots (sigma, climb, control_chance).
+---- UMA realizacao independente do tiro `idx` da mesma rajada, com rolagens de erro proprias.
+---- E como o visualizador amostra a distribuicao do tiro N sem repetir a rajada inteira.
+---- Exige ctx ja resolvido por Rat_SimPlanShots (sigma, recoil).
 function Rat_SimReplanShot(ctx, idx)
     idx = Max(1, idx or 1)
-    local climb, chance = ctx.climb or 0, ctx.control_chance or 0
-    local axis = (climb > 0 and idx > 1) and
+    local prof = ctx.recoil
+    local axis = (prof and idx > 1) and
                      Rat_RecoilWalkAxis(ctx.attacker, ctx.attack_pos, ctx.aim_pos) or nil
-    local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
 
-    local cbar = Rat_RecoilYawFactors()
     local mu, lat = 0, 0
-    for i = 1, idx - 1 do
-        if axis then
-            local dv, dl, step = Rat_RecoilKick(ctx.attacker, climb, chance)
-            mu = mu + dv - ((i > max_idx) and MulDivRound(step, cbar, 1000) or 0)
-            lat = lat + dl
+    if axis then
+        local st = Rat_RecoilState()
+        local rnd = function(n)
+            return ctx.attacker:Random(n)
         end
+        for _ = 1, idx - 1 do
+            Rat_RecoilStep(prof, st, rnd)
+        end
+        lat, mu = Rat_RecoilPoint(st)
     end
 
     local lat_axis = Rat_RecoilLateralAxis(axis, SetLen(ctx.aim_pos - ctx.attack_pos, 1000))
     local aim_pos = axis and
                         Rat_RecoilWalkPoint(ctx.attack_pos, ctx.aim_pos, axis, mu, lat_axis, lat) or
                         ctx.aim_pos
-    local disp = ctx.sigma
-    if P().RecoilMode == "growth" and ctx.sigma_disp then
-        disp = ctx.sigma_disp[idx] or disp
-    end
     return {
         mu = mu,
         lat = lat,
-        target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, disp)
+        target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, ctx.sigma)
     }
-end
-
-
----- Modo "growth": o sigma de cada tiro da rajada. O recuo alarga o cone, o cano nao anda.
-function Rat_SimSigmaLadder(attacker, action, weapon, sigma0, num_shots)
-    num_shots = Max(1, num_shots or 1)
-    local growth = (num_shots > 1) and
-                       Rat_GetRecoilConeGrowth(attacker, action, weapon, num_shots) or 100
-    local max_idx = const.Combat.MaxShotIndexForRecoilCTHLoss or 6
-    local out, s = {}, sigma0
-    for i = 1, num_shots do
-        if i > 1 and (i - 1) <= max_idx then
-            s = MulDivRound(s, growth, 100)
-        end
-        out[i] = s
-    end
-    return out, growth
 end
 
 
 ---------------------------------------------------------------------------------------------------
 ---- Escada do recuo: o CTH de cada tiro da rajada, e o cone que o representa na UI.
 ----
----- O tiro i sai de um cano ja levantado `mu_i`: e uma gaussiana 2D de desvio `sigma` centrada FORA
----- do alvo, nao uma Rayleigh mais larga. Quem le isso e Rat_RiceCTH. E `mu_i` nao e um numero --
----- cada coice foi uma moeda contra a chance de controle -- entao o CTH sai da mistura binomial
----- exata (Rat_BurstShotCTH), no maximo 7 termos.
+---- O tiro i sai de um cano ja deslocado de `p`: uma gaussiana 2D de desvio `sigma` centrada FORA
+---- do alvo, nao uma Rayleigh mais larga -- quem le isso e Rat_RiceCTH. E `p` nao e um numero, e
+---- uma distribuicao; um sistema de segunda ordem com ruido nao tem forma fechada e nao precisa
+---- ter, porque ninguem exibe este numero. Ele sai do estimador, que roda o MESMO passo da bala.
 ----
 ---- O cone continua sendo a moeda unica: `sigma_disp` e o sigma que produziria aquele mesmo CTH
 ---- contra este alvo (Rat_SigmaForCTH). UI, anel e bala saem todos da mesma probabilidade.
----- Sem theta so `climb` e `chance` fazem sentido -- e o que Rat_DbgVerifySim precisa.
+---- Sem theta so o perfil faz sentido -- e o que Rat_DbgVerifySim precisa.
 ---------------------------------------------------------------------------------------------------
-function Rat_SimRecoilLadder(attacker, action, weapon, sigma0, num_shots, theta)
+function Rat_SimRecoilLadder(attacker, action, weapon, sigma0, num_shots, theta, want_cth)
     num_shots = Max(1, num_shots or 1)
 
-    ---- modo antigo: sem caminhada e sem mu -- o cone de cada tiro JA e a perda.
-    if P().RecoilMode == "growth" then
-        local ladder = Rat_SimSigmaLadder(attacker, action, weapon, sigma0, num_shots)
-        local cth = {}
-        if theta and theta >= 1 then
-            for i = 1, num_shots do
-                cth[i] = Rat_RayleighCTH(theta, ladder[i])
-            end
-        end
-        return cth, 0, 0, ladder
-    end
-
-    local climb, chance = 0, 0
-    if num_shots > 1 then
-        climb, chance = Rat_GetRecoilClimb(attacker, action, weapon, num_shots)
-    end
-
+    local prof = (num_shots > 1) and Rat_RecoilProfile(attacker, action, weapon, num_shots) or nil
     local cth, sigma_disp = {}, {}
-    if not theta or theta < 1 then
-        return cth, climb, chance, sigma_disp
+    ---- o estimador e caro (Monte Carlo, Rat_ISqrt no laco) e o CTH por tiro so serve para exibir:
+    ---- a bala le `p`, nao a probabilidade. Quem precisa da escada pede, e pode pedir com menos
+    ---- amostras passando um numero em `want_cth`.
+    if not want_cth or not theta or theta < 1 or not sigma0 or sigma0 < 1 then
+        return cth, prof, nil, sigma_disp
+    end
+    if not prof then
+        for i = 1, num_shots do
+            cth[i], sigma_disp[i] = Rat_RayleighCTH(theta, sigma0), sigma0
+        end
+        return cth, prof, nil, sigma_disp
     end
 
-    ---- `n` vai CRU: quem corta no plato e Rat_BurstShotCTH, que passado ele troca a subida pelo
-    ---- passo lateral. Cortar aqui congelaria o CTH do 7o tiro em diante.
+    local est = Rat_EstimateBurst(prof, theta, sigma0, num_shots,
+                                  (type(want_cth) == "number") and want_cth or nil)
     for i = 1, num_shots do
-        cth[i] = Rat_BurstShotCTH(theta, sigma0, i - 1, climb, chance)
+        cth[i] = est.cth[i]
         sigma_disp[i] = Rat_SigmaForCTH(theta, Clamp(cth[i], 1, 99)) or sigma0
     end
-    return cth, climb, chance, sigma_disp
+    return cth, prof, est, sigma_disp
 end
 
 ---- Overrides EXATOS que o tiro real aplica por tiro (ramo `if sim then`). Nada alem disso.
@@ -1232,7 +1097,9 @@ function Rat_SimSnapshot(ctx)
         spot = ctx.spot, aim = ctx.aim, opportunity_attack = ctx.opportunity_attack,
         cth = ctx.cth, cth_source = ctx.cth_source,
         theta = ctx.theta, geo_sigma = ctx.geo_sigma, sigma = ctx.sigma,
-        climb = ctx.climb, control_chance = ctx.control_chance, num_shots = ctx.num_shots,
+        num_shots = ctx.num_shots,
+        kick = ctx.recoil and ctx.recoil.kick_min, cf_max = ctx.recoil and ctx.recoil.cf_min,
+        accuracy = ctx.recoil and ctx.recoil.accuracy, control = ctx.recoil and ctx.recoil.control,
         action_id = ctx.action and ctx.action.id,
         weapon_class = ctx.weapon and ctx.weapon.class,
         aim_centroid_pct = P().AimCentroidPct,
@@ -1258,8 +1125,17 @@ function Rat_SimSnapshot(ctx)
         },
         shots = {}
     }
+    ---- o tiro real nao roda o estimador, entao o CTH e o cone de exibicao sao derivados AQUI, do
+    ---- `p` que aquela bala teve de verdade. Sai mais exato que a media da escada e custa 6 Rice.
+    local th, sg = ctx.theta, ctx.sigma
     for i, s in ipairs(ctx.shots or empty_table) do
-        rec.shots[i] = {target_pos = s.target_pos, sigma = s.sigma, mu = s.mu, cth = s.cth}
+        local cth, disp = s.cth, s.sigma
+        if th and th >= 1 and sg and sg >= 1 then
+            cth = Rat_RiceCTH(th, sg, Rat_ISqrt((s.mu or 0) * (s.mu or 0) +
+                                                    (s.lat or 0) * (s.lat or 0)))
+            disp = Rat_SigmaForCTH(th, Clamp(cth, 1, 99)) or sg
+        end
+        rec.shots[i] = {target_pos = s.target_pos, sigma = disp, mu = s.mu, lat = s.lat, cth = cth}
     end
     ---- copia dos args ANTES do laco de tiros (que os muta): permite o visualizador replay-ar o tiro real.
     rec.replay_args = ctx.args and table.copy(ctx.args) or nil
@@ -1318,8 +1194,10 @@ function Rat_GetShotConeRatios(attacker, target, body_part_def, action, weapon, 
         return ratios
     end
 
-    local cth, climb = Rat_SimRecoilLadder(attacker, action, weapon, sigma, num_shots, theta)
-    if climb <= 0 then
+    ---- poucas amostras de proposito: o que sai daqui e uma RAZAO entre CTHs, nao um absoluto, e
+    ---- isto roda no caminho do tiro do pipeline vanilla. Semente fixa, entao nao treme.
+    local cth, prof = Rat_SimRecoilLadder(attacker, action, weapon, sigma, num_shots, theta, 48)
+    if not prof or prof.kick_min <= 0 then
         return ratios
     end
 

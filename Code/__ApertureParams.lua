@@ -9,8 +9,8 @@
 --TODO: Fix shots being too accurate? for AI? (aim is too strong)
 
 
---TODO: Tune Recoil. Posicoes compensadas (mu < 0) ja saem via A.RecoilCorrectPct; falta VALIDAR
---TODO: no processo vivo e recalibrar A.RecoilClimbBase, que ainda e do modelo so-para-cima.
+--TODO: Calibrar o recuo de segunda ordem. Ancorar KickBase e o mapa control -> CFMax nas duas
+--TODO: linhas extremas do ladder do 1cc229c, depois conferir um calibre pesado. Ver RECOIL MODEL.md.
 
 
 --TODO: Strays were fixed. Need to check if different body parts are being processed differently
@@ -347,83 +347,78 @@ A.OffsetCircle = {
 A.MinCTH = 1
 A.MaxCTH = 97
 
----- Recoil: o cano SOBE, o cone nao alarga. Ver Rat_GetRecoilClimb / Rat_SimRecoilLadder.
----- subida por tiro = RecoilClimbBase * mod / 100, em MINUTOS de angulo -- so o tiro PERDIDO,
----- o segurado usa RecoilCorrectPct (mod vem de FUNCTIONS_recoil; ~130 MP5, ~230 AK47/MG42;
----- control acima de 100 entra por `excess`). A distancia entra pela
----- geometria: a mesma subida e inofensiva de perto e fatal de longe, porque theta cai com 1/d.
-
-A.RecoilClimbBase = 98 --80--98 --- minutos com mod 100 (~1.6 graus). MEDIDO no processo vivo: iguala o CTH
---- medio da rajada do modelo de growth antigo em sigma 143 (AutoFire, aim 1) nas duas silhuetas
---- testadas -- 46 vs 42 e 19 vs 19. O FORMATO muda, e e a assinatura da caminhada: o tiro 2 fica
---- mais perto (90 vs 78) e a partir do 4o a rajada ja saiu do alvo (5 vs 9). Uma arma que sobe sai;
---- um cone que so alarga nunca sai de vez.
---- 2026-09-03, medido (Grizzly Mk79 Str95 agachado, AutoFire aim 1, MP5 a 10 tiles): em 40 a
---- rajada dava 86/76/53/30/15/6 -- do 4o tiro em diante era desperdicio puro. Em 25 da
---- 86/82/72/57/41/27: os quatro primeiros ainda valem e a cauda decai em vez de morrer.
---- Em sigma alto (hipfire, 262) o modelo novo e bem mais brando (36 vs 22): a subida do cano nao
---- depende de quao aberto o cone ja estava, e o modelo antigo cobrava o recuo em cima da propria
---- imprecisao da arma. E a unica mudanca de balance deliberada da troca.
-A.RecoilClimbMax = 400--400 --- teto por tiro. Frouxo de proposito: o teto antigo (60%) era atingido por
---- quase toda arma automatica e achatava as diferencas que a cadeia de recoil existe para produzir.
-
----- Chance de o atirador SEGURAR o cano naquele tiro = 100 - control (Marks, postura, bipe, Forca,
----- perks). Media identica ao desconto deterministico antigo; o que entra e a variancia.
----- Teto da chance de segurar. Desde que o gun deixou de ser derivado da chance, uma chance alta
----- nao estoura mais o climb -- ela so baixa a media. O limite agora e o break-even de
----- RecoilCorrectPct: em corr 16 a deriva media zera em 90%, e este teto esta EM CIMA dele.
----- Mexer em RecoilCorrectPct sem mexer aqui deixa o merc completo com deriva negativa.
-A.RecoilControlMax = 90--70--90 --- ninguem segura sempre
-A.RecoilControlResidual = 5--15 --- % da subida que passa mesmo num tiro controlado
-
----- control -> chance de segurar o cano: chance = Gain * (Pivot - control*100) / 100.
----- Pivot 100 / Gain 100 e o mapa antigo (chance = 100 - control*100), e ele nao servia: control
----- real so anda entre 0.85 (agachado, Marks alta, Forca boa) e 1.17 (em pe, Forca abaixo do
----- breakpoint), entao a chance ficava em 0-15% e o recuo era deterministico na pratica -- toda a
----- maquina de RecoilCorrectPct nunca engatava. Pivot 105 poe o atirador neutro em ~8% em vez de
----- 0%, e Gain 150 estica a faixa util para ~8-70%. Isto move a MEDIA de verdade: o gun nao sobe
----- mais junto para compensar, entao Pivot/Gain sao o lever de pericia, nao so de variancia.
-A.RecoilControlPivot = 105
-A.RecoilControlGain = 150
-
----- "walk" = o cano sobe e a rajada anda por ele. "growth" = o cone alarga por tiro (modelo
----- antigo, ate b0d9b99). Ver Rat_SimRecoilLadder.
-A.RecoilMode = "walk"
-
----- Feedback: num tiro SEGURADO o atirador PUXA o cano de volta esta % de `climb`. Acima do
----- residual o tiro segurado DESCE o cano e o mu acumulado cruza zero -- a supercompensacao.
----- Fracao de `climb` e nao do mu acumulado de proposito: mantem o passo com dois valores so, que
----- e o que deixa Rat_BurstShotCTH continuar exato pela binomial em vez de virar Monte Carlo.
----- 0 = comportamento antigo (o cano so sobe).
----- Deriva do teto de controle, nao e chute: a deriva media por tiro e
-----     climb * (1 - c * (100 + corr - residual) / 100)
----- e zera em c = 100 / (95 + corr). Em 16 isso cai em c = 0.90. O texto antigo dizia que esse
----- ponto era RecoilControlMax e que portanto o melhor atirador possivel segurava a linha -- era
----- falso duas vezes: o mapa control -> chance so chegava a 15%, e o teto era 90 justamente onde a
----- deriva zera. Continua 90, ou seja EM CIMA do break-even: um merc que chegue la fica com deriva
----- media ~0. Baixar corr ou o teto afasta disso; subir corr sem baixar o teto enterra o cano.
-A.RecoilCorrectPct = 16
-
----- Modo "growth": excesso de cone por tiro = RecoilGrowthBase * mod / 100, teto RecoilGrowthMax.
-A.RecoilGrowthBase = 40
-A.RecoilGrowthMax = 60
-
----- Direcao de CADA COICE: "para cima" no plano do alvo, girado por um yaw aleatorio de ate
----- +/- este angulo (graus). Sorteado por coice, nao por rajada -- e o que faz a subida e o
----- balanco lateral sairem do MESMO parametro, em vez de precisarem de dois.
----- 0 = subida pura, sem largura nenhuma; 180 = direcao totalmente aleatoria, como a vanilla faz
----- em CalcShotVectors.
+---------------------------------------------------------------------------------------------------
+---- RECUO, SEGUNDA ORDEM. Ver Code/FUNCTIONS_recoil_aCTH.lua e RECOIL MODEL.md.
 ----
----- A componente que SOBE vale cos(phi) e a que vai de lado vale sin(phi). Como |phi| <= 40 deixa
----- cos >= 0.77, o grupo continua sendo um RISCO para cima -- so que agora com largura, que era o
----- que faltava. Em 40: a subida efetiva fica em 92% do passo (E[cos phi] = sin(Y)/Y) e o resto
----- vira espalhamento.
-----
----- Antes disto o yaw girava o eixo UMA vez por rajada: os tiros de uma mesma rajada ficavam todos
----- numa reta, e como girar o eixo nao muda a DISTANCIA ao ponto de mira -- que e a unica coisa
----- que Rat_RiceCTH le -- o parametro nao tinha efeito nenhum no CTH. Agora tem: a dispersao
----- angular entra como variancia extra no cone (ver Rat_BurstShotCTH).
-A.RecoilWalkYaw = 40
+---- O cano tem POSICAO e VELOCIDADE, e o contra-esforco do atirador age na VELOCIDADE. Tudo aqui
+---- esta em MINUTOS de angulo ou minutos/tiro -- a MESMA unidade de theta (torso em pe a 10 tiles
+---- = 167'), entao cada limite de balance e uma comparacao direta:
+----   "o tiro 2 ainda ameaca"          -> |v| depois do tiro 1 bem abaixo de theta
+----   "o merc competente segura ate 4" -> |p| no tiro 4 abaixo de theta/2
+----   "esse calibre e grande demais"   -> CFMax < KickMag, e a rajada foge sozinha
+---------------------------------------------------------------------------------------------------
+
+---- Coice bruto de um tiro, com gun 100. `gun` e a parte da ARMA isolada (mod / control): cano,
+---- mecanismo, cartucho, componentes e deltas de rajada, invariante a postura e a pericia.
+---- ~174 no MP5, ~230 no MG42/AK47, ~275 na Auto5. E uma ACELERACAO, nao um deslocamento: a
+---- posicao cresce com o quadrado do numero de tiros se ninguem segurar, e por isso a escala e bem
+---- menor que a do RecoilClimbBase antigo (98), que era deslocamento direto.
+---- MEDIDO: 52 poe o coice do MP5 em 90'/tiro, que e onde o portao do calibre cai no meio da faixa
+---- de pericia -- o merc ruim nao estabiliza a arma e o bom estabiliza com folga.
+A.RecoilKickBase = 52
+
+---- Direcao do coice, em graus a direita da vertical. E um TORQUE: tem lado fixo, nao e sorteado.
+---- Global por enquanto; virar campo por arma exige preset no editor do jogo.
+A.RecoilKickAngle = 12
+
+---- Forca que um atirador NEUTRO (control 100) consegue opor, em minutos/tiro. Comparar com
+---- KickMag: e este par que abre ou fecha o portao do calibre. Em 78 o atirador neutro fica ABAIXO
+---- do coice do MP5 (90) -- estabilizar uma automatica e privilegio de quem tem stats, nao o padrao.
+A.RecoilCFMaxBase = 78
+
+---- `control` real so anda entre ~85 (agachado, Marks alta, Forca boa) e ~117 (em pe, Forca abaixo
+---- do breakpoint). Sem ganho, a forca do atirador varia so +/-18% e a pericia nunca decide de que
+---- lado do portao ele cai. 200 dobra a faixa. Se as linhas do meio da calibracao nao caem entre
+---- as extremas, o errado e ESTE numero, nao o coice. Em 260 a faixa util de forca fica 60..122
+---- no MP5, ou seja o portao (coice 90) cai dentro dela.
+A.RecoilControlGain = 260
+
+---- Quanto a pegada muda de um tiro para o outro, em minutos/tiro. E "nao da tempo de mudar a
+---- pegada", nao "nao tem forca" -- as duas coisas juntas num numero so deixam ambas intunaveis.
+---- Tambem e o teto do erro: `delta` nunca passa disto, entao ErrorRatio le sempre a mesma escala.
+A.RecoilMaxIncrement = 60
+
+---- T: em quantos tiros o atirador TENTA zerar (p, v). Ganhos do duplo polo em 1 - 1/T:
+---- Kd = 2/T, Kp = 1/T^2. Manda a FORMA da queda, nao os extremos dela.
+A.RecoilSettleShots = 3
+
+---- % de amortecimento critico. Em 100 a trajetoria nominal nao passa do alvo, e entao TODA
+---- supercompensacao no jogo e um erro do atirador -- que e o comportamento pedido. Abaixo de 100
+---- a arma oscila ate para o atirador perfeito, que e outra afirmacao (e pior) sobre o mundo.
+A.RecoilDamping = 100
+
+---- % da correcao TENTADA que vira erro quando accuracy = 0. Proporcional ao tamanho da correcao,
+---- como no 1.13: puxar um calibre grande de volta erra mais que ajeitar um pequeno, entao a
+---- dificuldade do calibre sai do mecanismo em vez de ser tunada arma a arma. Abaixo de ~100 a
+---- Destreza some: o portao do calibre e deterministico e domina o ruido. Em 140 os dois convivem.
+A.RecoilErrorRatio = 140
+
+---- Piso do erro, em % de RecoilMaxIncrement. NUNCA reduzido pela pericia: e por aqui que
+---- "mercs muito bons nao podem ficar PERFEITOS" fica dito, e um piso no erro e mais limpo que um
+---- teto artificial no atributo. accuracy vem da Destreza crua (o unico atributo que a cadeia
+---- tunada ainda nao gasta, entao nada e contado duas vezes).
+---- MEDIDO: em 10 o merc completo (M100 S100 D90) trava em 59% do 3o tiro em diante -- imune ao
+---- recuo, que e exatamente o que nao pode. Em 25 ele cai para 44% e continua sendo o melhor.
+A.RecoilMinErrorPct = 25
+
+---- Estimador (Rat_EstimateBurst): Monte Carlo em cima do MESMO passo que a bala usa, entao nao
+---- existe segunda implementacao do recuo para divergir. Semente FIXA de proposito -- a escada
+---- vira funcao determinista do perfil, nao treme entre chamadas e nao dessincroniza co-op.
+---- O tiro real NAO paga isto: a escada de CTH so serve para exibir, e a bala le `p` direto.
+---- MEDIDO contra 3000 rajadas do random sincronizado: 128 amostras erram 5% no |p| do 6o tiro,
+---- 384 erram 1%. ~100 ms, e so ferramenta de debug chega aqui.
+A.RecoilEstimateSamples = 384
+A.RecoilEstimateSeed = 20260904
 
 ---- Anel de mira: desenhado NO MUNDO com o raio real do cone (ver UI_aperture_ring.lua).
 ---- QUANTOS SIGMAS o anel representa. 1 sigma contem 39% dos tiros; 2.5 contem 96%.
