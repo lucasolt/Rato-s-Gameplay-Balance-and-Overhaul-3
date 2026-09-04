@@ -1238,7 +1238,7 @@ end
 ---- OVERRIDES. Substituem o que a cadeia tunada entregaria, para isolar UM lever:
 ----   climb   subida do cano em minutos/tiro (o recuo da arma)
 ----   chance  chance de segurar em % -- 0 = sem controle nenhum, 100 = segura sempre
-----   control fracao do recuo NAO cancelada (0.85 tipico), mapeada por Rat_RecoilHoldChance;
+----   control recuo NAO cancelado em BASE 100 (85 tipico), mapeado por Rat_RecoilHoldChance;
 ----           `chance` ganha se os dois vierem
 ----   sigma   cone em minutos    theta  meia-largura do alvo em minutos
 ---- theta/sigma destravam a escada de CTH em pontos SEM alvo, onde ela nao existiria.
