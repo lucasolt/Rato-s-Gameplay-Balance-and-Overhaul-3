@@ -264,36 +264,73 @@ pre-compensated by experienced shooters). Nice flavour, orthogonal to this, sepa
 ## 9. Calibration — done
 
 Anchored on MP5 / BurstFire / theta 167' / sigma 115'. Shipped: `KickBase 95`, `CFHeadroom 170`,
-`StrGain 200`, `MaxIncBase 70`, `OtherGain 300`, `SettleShots 6`, `Damping 100`, `ErrorRatio 140`,
+`StrGain 200`, `MaxIncBase 70`, `OtherGain 250`, `SettleShots 3`, `Damping 100`, `ErrorRatio 140`,
 `MinErrorPct 25`, `KickAngle 12`.
 
-At Dexterity 60, against the `1cc229c` ladder:
+### The old-CTH reference, measured properly
 
-| | old | new |
+Earlier revisions of this file quoted a synthetic M50-M100 / S50-S100 sweep. That sweep **crosses
+caliber breakpoints**, so it attributed the breakpoint cliff to Strength as a smooth gradient. The
+numbers below come from `get_recoil` on real mercs, bare weapons, aperture off, 8 tiles.
+
+Old CTH resolves to a single linear law:
+
+```
+loss = round( 0.5 * ( mod/100 * -90 * dist/36  -  5 ) )      dist in tiles, clamped at 36
+```
+
+Three consequences worth keeping in mind:
+
+* **Distance is a plain multiplier.** 8 -> 14 tiles is x1.6 on every merc and every weapon at once;
+  it changes no ordering. Field numbers taken at different ranges are not comparable.
+* **The merc axis is nearly flat.** Barry / Grizzly / MD on the AK47: -24 / -23 / -23, about 5 %
+  apart. `mod` spans 160 -> 150 across the whole roster.
+* **The caliber axis is the strong one.** Barry, 8 tiles: MP40 -20, AK47 -24, FNFAL -27, G3 -30.
+
+### Strength above the breakpoint, in the OLD model
+
+Grizzly, Strength swept, per weapon (breakpoint in brackets):
+
+| | S50 | S70 | S80 | S95 |
+|---|---|---|---|---|
+| MP40 (48) | -20 | -19 | -19 | -19 |
+| AK47 (71) | -30 | -24 | -24 | -23 |
+| FNFAL (77) | -34 | -28 | -26 | -26 |
+
+**Old CTH flattens above the breakpoint as well** — 1-2 points out of 26, while the cliff at the
+breakpoint is worth ~24 %. `other_control` stays pinned at 91 through the entire sweep, so Strength
+reaches the old model through exactly one channel. A heavier caliber moves *where* the cliff sits,
+not what muscle above it buys.
+
+So `MaxIncrement` reading the full `control` is a **departure** from old CTH, not a reproduction of
+it: it is what gives Strength above the breakpoint a small continuous benefit the old model never
+had. Same sweep through the new model — FNFAL S80 65/37/7/3/2/3, S95 65/38/9/5/5/5.
+
+### New vs old, same mercs and weapons
+
+Barry, 8 tiles, ladder from base 65:
+
+| | old (linear) | new |
 |---|---|---|
-| M50  | 65/42/20/8/3/1 (M50 S50)   | 65/50/21/12/10/9 |
-| M100 | 65/55/45/35/28/21 (M100 S100) | 65/57/44/35/30/27 |
+| MP40  | 65/45/25/5/0/0 | 65/54/28/18/16/15 |
+| AK47  | 65/41/17/0/0/0 | 65/43/8/2/1/2 |
+| FNFAL | 65/38/11/0/0/0 | 65/36/3/0/0/0 |
 
-**Strength no longer separates the MP5 rows at all** — S50 and S100 give identical ladders,
-because both clear the 9mm breakpoint of 48. That is the fix, not a regression: the old model
-separated them only because it conflated muscle with marksmanship.
-
-The gate, measured, closes exactly where the breakpoints are: MP5 below Str 50 (bp 48), AK47 and
-MG42 below 70 (bp 71, 77), Auto5 below 80 (bp 86).
-
-Heavy calibers still hurt, but through the **transient** rather than the gate. The Auto5 kicks
-260'/shot, so even the merc who can hold it (338' of force) gets 65/43/15/8/6/6 — the muzzle
-travels a long way before the grip catches up. Previously it was unstabilisable by anyone, which
-was a bug, not a balance choice.
+The heavy calibers track old CTH closely on shots 2-3. The MP40 is where they part: kinder early,
+and it keeps a floor where the old ladder runs to zero.
 
 Two scale facts that are not obvious and cost time:
 
 * **`KickBase` has to put the kick near theta.** Shot 2 fires from `kick - cf1`; if that is small
   next to the cone, Rice barely moves and shot 2 is the same for everyone no matter how much skill
   varies. 165' against a 167' torso is the right order.
-* **`SettleShots` is deliberately slow (6, not 3).** At 3 the muzzle settles before the burst ends
-  and the ladder *flattens* — shots 4, 5 and 6 identical, so there is never a reason to stop
-  firing. At 6 the transient lasts the whole burst and the ladder keeps falling.
+* **`SettleShots` is small (3) on purpose.** `Kp = 1/T^2` is the ONLY term that pulls the muzzle
+  back to the target; `Kd = 2/T` merely brakes it. At T = 6 Kp is 12x weaker than Kd and the muzzle
+  coasts to a halt wherever it happens to be — which reads, correctly, as compensating against the
+  previous shot rather than against the original aim. At T = 3 the return is real: |p| for a
+  complete merc goes 0 -> 53 -> 83 -> 95 -> 97 -> 97. The cost is that his ladder converges instead
+  of falling forever, which is the direct consequence of "aim back at the target" and is a
+  deliberate trade, not a bug.
 
 ## 10. Decisions taken
 
@@ -316,11 +353,18 @@ Also changed from the spec while building:
 
 ## 11. Open for the author
 
+* **The merc axis is amplified relative to old CTH.** Sitting near the stability gate turns a 6 %
+  spread in `control` into roughly 2x on the tail. Measured on real mercs (MP40, shot 6, Barry vs
+  MD): `OtherGain` 250 -> 15 vs 28, 150 -> 15 vs 20, 100 -> 14 vs 17. Old CTH's own spread is ~5 %,
+  so 100 is the faithful setting and 250 is a deliberate choice to give bursts a skill gradient.
 * **Shot 2 is kinder than the old ladder for a poor shooter** — 50 % against 42 %. Reproducing 42
   would need a kick larger than any shooter can oppose on the first bullet, which is the
   "second shot can barely hit anything" the rewrite was asked to remove.
 * **The tails floor rather than reaching zero** (9 % at shot 6 for the worst merc, against 1 %
   before). That is the settled state of a stabilised muzzle plus the error floor. Raising
   `MinErrorPct` deepens the tail but flattens the skill spread with it.
+* **Distance bites harder here than in old CTH at shot 2.** The offset is angular and the target's
+  angular radius shrinks with range, so the penalty compounds rather than scaling linearly. Barry
+  with an AK at 14 tiles: old 65/25/0, new 66/19/0.
 * `CalcPreRecoilOffset` — the first bullet pre-compensated by experienced shooters — is still
   deferred, and still orthogonal.
