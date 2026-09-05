@@ -138,7 +138,7 @@ function Rat_UpdateConeRing(crosshair)
     ---- UM cone so, o mesmo que Rat_SimPlanShots dispara: quem o resolve e CalcChanceToHit
     ---- (geometria + residuais ja em cone) e ele o devolve nos proprios args.
     local target_pos = target:GetPos()
-    local sigma, theta, cth, sy = Rat_AttackCone(attacker, target, action, part, aim, false,
+    local sigma, theta, cth, sy, sy_dn = Rat_AttackCone(attacker, target, action, part, aim, false,
                                                  step_pos, target_pos)
     if not sigma or not theta or theta < 1 then
         return false
@@ -166,12 +166,16 @@ function Rat_UpdateConeRing(crosshair)
 
     ---- o eixo VERTICAL do cone, ja com o recuo herdado (alonga) e a postura (achata). Mesma
     ---- funcao que o CTH e a bala leem -- se o anel desenhasse outra elipse ele nao valeria nada.
-    local sigma_y = sy or sigma
-    local radius_y = (sigma_y ~= sigma) and
-                         Rat_ConeRadius(dist, MulDivRound(sigma_y, a.CrosshairSigmaMul, 100)) or nil
+    local sigma_y, sigma_y_dn = sy or sigma, sy_dn or sy or sigma
+    local eliptico = (sigma_y ~= sigma) or (sigma_y_dn ~= sigma)
+    local function ray(s)
+        return Rat_ConeRadius(dist, MulDivRound(s, a.CrosshairSigmaMul, 100))
+    end
+    local radius_y = eliptico and ray(sigma_y) or nil
+    local radius_y_dn = eliptico and ray(sigma_y_dn) or nil
 
     if not a.CrosshairRecoilLadder then
-        Rat_ShowConeRing(center, radius, dir, color, nil, radius_y)
+        Rat_ShowConeRing(center, radius, dir, color, nil, radius_y, radius_y_dn)
         return true
     end
 
@@ -189,7 +193,7 @@ function Rat_UpdateConeRing(crosshair)
 
     ---- o anel fica NO ALVO, so mais alto: o recuo herdado e incerteza, nao um cano parado fora
     ---- do alvo. A regua da rajada nasce dele, e dentro da rajada sim o cano anda de verdade.
-    Rat_ShowConeRing(center, radius, dir, color, nil, radius_y)
+    Rat_ShowConeRing(center, radius, dir, color, nil, radius_y, radius_y_dn)
 
     local est = (num_shots > 1) and ladder_estimate(attacker, action, weapon, aim, num_shots)
     if not est then

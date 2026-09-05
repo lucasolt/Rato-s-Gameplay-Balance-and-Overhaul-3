@@ -1696,12 +1696,13 @@ local function persist_cth(att, tgt, weapon, action, spot, aim, vsigma)
     data.rat_vsigma = 0
     local clean = Rat_ConeCTH(data)
     data.rat_vsigma = vsigma or 0
-    return Rat_ConeCTH(data), clean, data.rat_sigma, Rat_ConeSigmaY(data)
+    local sy_up, sy_dn = Rat_ConeSigmaY(data)
+    return Rat_ConeCTH(data), clean, data.rat_sigma, sy_up, sy_dn
 end
 
 ---- A elipse do cone, no plano do alvo. Segmentos soltos porque aqui e DbgAddSegment, nao Polyline.
-local function draw_ellipse(center, rx, ry, dir, color)
-    local pts = Rat_RingPoints(center, rx, dir, 24, ry)
+local function draw_ellipse(center, rx, ry, dir, color, ry_down)
+    local pts = Rat_RingPoints(center, rx, dir, 24, ry, ry_down)
     for i = 1, (pts and #pts or 0) - 1 do
         DbgAddSegment(pts[i], pts[i + 1], color)
     end
@@ -1811,7 +1812,7 @@ function Rat_DbgPersist(attacker, target, action_id)
         local ap = Rat_RecoilPersistAP(att, action, weapon, aim, tgt)
         local ox, oy = Rat_RecoilPersistOffset(att, action, weapon, aim, tgt)
         local vs = Rat_RecoilPersistSigma(att, action, weapon, aim, tgt)
-        local cth, clean, sg, sy = persist_cth(att, tgt, weapon, action, ctx.spot, aim, vs)
+        local cth, clean, sg, sy, sy_dn = persist_cth(att, tgt, weapon, action, ctx.spot, aim, vs)
         local game = IsValid(tgt) and
                          select(3, Rat_AttackCone(att, tgt, action, ctx.spot, aim, false,
                                                   att:GetPos(), tgt:GetPos())) or nil
@@ -1826,7 +1827,8 @@ function Rat_DbgPersist(attacker, target, action_id)
             local col = recoil_ring_color(aim + 1, max_aim + 1)
             local mul = const.Combat.Aperture.CrosshairSigmaMul or 250
             draw_ellipse(sc.aim_pos, cone_radius(sc.dist, MulDivRound(sg, mul, 100)),
-                         cone_radius(sc.dist, MulDivRound(sy, mul, 100)), sc.dir, col)
+                         cone_radius(sc.dist, MulDivRound(sy, mul, 100)), sc.dir, col,
+                         cone_radius(sc.dist, MulDivRound(sy_dn or sy, mul, 100)))
         end
     end
 
@@ -1910,13 +1912,14 @@ function Rat_DbgPersistChain(attacks, aim, attacker, target, action_id)
         local start = MulDivRound(vabs(px, py), 1, 100)
         ---- o mesmo mapa de Rat_RecoilPersistSigma, so que sobre um offset projetado
         local vs = MulDivRound(start, a.RecoilPersistSigmaPct or 0, 100)
-        local cth, _, sg, sy = persist_cth(att, tgt, weapon, action, ctx.spot, aim, vs)
+        local cth, _, sg, sy, sy_dn = persist_cth(att, tgt, weapon, action, ctx.spot, aim, vs)
 
         if sc and sg then
             local mul = a.CrosshairSigmaMul or 250
             draw_ellipse(sc.aim_pos, cone_radius(sc.dist, MulDivRound(sg, mul, 100)),
                          cone_radius(sc.dist, MulDivRound(sy, mul, 100)), sc.dir,
-                         recoil_ring_color(n, attacks))
+                         recoil_ring_color(n, attacks),
+                         cone_radius(sc.dist, MulDivRound(sy_dn or sy, mul, 100)))
         end
 
         local st = Rat_RecoilState(px, py)

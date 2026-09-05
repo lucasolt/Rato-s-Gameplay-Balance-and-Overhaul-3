@@ -276,6 +276,13 @@ A.RecoilPersistAimMul = {[0] = 100, [1] = 66, [2] = 33, [3] = 0}
 ---- ja no quarto ataque e achatava a curva que RecoilPersistSigmaPct acabou de calibrar.
 A.RecoilPersistStretchMax = 700
 
+---- VIES do tremor, em % que vai para CIMA (50 = simetrico). O recuo empurra o cano para cima,
+---- entao errar por cima e o erro natural -- mas como MEDIA deslocada o modelo se inverteria de
+---- novo (cone apertado centrado fora do alvo erra de proposito). Aqui o vies e de FORMA: o
+---- centro continua no alvo e os dois meios-eixos verticais e que ficam diferentes, um ovo em vez
+---- de elipse. A soma e preservada, entao a calibracao de RecoilPersistSigmaPct nao se mexe.
+A.RecoilPersistUpBias = 70
+
 ---- Teto do cano guardado, em coices da propria arma. Segura o ESTADO; o de cima segura o que
 ---- ele faz na tela. CORRECAO: o modelo antigo dava UM stack por ataque, tiro simples ou rajada
 ---- de dez -- o recuo da rajada era resolvido dentro dela. O max_stacks = 6 nao separava os dois,

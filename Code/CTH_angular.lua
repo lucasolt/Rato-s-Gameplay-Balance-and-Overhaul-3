@@ -114,17 +114,19 @@ end
 function Rat_ConeCTH(data)
     local a = const.Combat.Aperture
     local sigma = data.rat_sigma
-    local sigma_y = Rat_ConeSigmaY(data)
+    local sigma_y, sigma_y_dn = Rat_ConeSigmaY(data)
     local cth
     if data.rat_ext_up then
         cth = Clamp(Rat_SeparableCTH(sigma, data.rat_ext_up, data.rat_ext_down, data.rat_ext_right,
-                                     data.rat_ext_left, data.rat_ext_head, sigma_y), a.MinCTH,
+                                     data.rat_ext_left, data.rat_ext_head, sigma_y, sigma_y_dn),
+                    a.MinCTH,
                     a.MaxCTH)
         data.rat_theta = Rat_ThetaEquivalent(sigma, cth) or data.rat_theta
     else
         ---- sem extensoes nao ha eixo a distinguir: o circulo de mesma AREA entrega a mesma
         ---- chance media contra um alvo cuja forma nao se conhece.
-        cth = Clamp(Rat_RayleighCTH(data.rat_theta, Rat_ISqrt(sigma * sigma_y)), a.MinCTH, a.MaxCTH)
+        cth = Clamp(Rat_RayleighCTH(data.rat_theta, Rat_ISqrt(MulDivRound(sigma * (sigma_y + sigma_y_dn), 1, 2))),
+                    a.MinCTH, a.MaxCTH)
     end
     return cth
 end

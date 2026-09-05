@@ -599,11 +599,13 @@ end
 ---- Px(sigma) * Py(sigma) por eixo, entao cone eliptico e Px(sigma_x) * Py(sigma_y) e nada mais --
 ---- sem rotacao e sem LUT nova, porque o eixo do recuo e o mesmo eixo do `up` da silhueta.
 ---- Quem escreve nele: o recuo persistente (alonga) e a postura (achata). Ver Rat_ConeSigmaY.
-function Rat_SeparableCTH(sigma, up, down, right, left, head, sigma_y)
+function Rat_SeparableCTH(sigma, up, down, right, left, head, sigma_y, sigma_y_down)
     if not sigma or sigma < 1 then
         return 100
     end
     sigma_y = (sigma_y and sigma_y >= 1) and sigma_y or sigma
+    ---- meio-eixo de baixo: so difere quando RecoilPersistUpBias sai de 50
+    sigma_y_down = (sigma_y_down and sigma_y_down >= 1) and sigma_y_down or sigma_y
     local body_up = up
     local p_head = 0
     if head then
@@ -621,7 +623,9 @@ function Rat_SeparableCTH(sigma, up, down, right, left, head, sigma_y)
         end
     end
     local px = normal_band(-left, right, sigma)
-    local py = normal_band(-down, body_up, sigma_y)
+    ---- duas metades coladas no zero: cada lado leva metade da massa com o SEU sigma. Com os dois
+    ---- iguais isto e identico a uma faixa so, porque normal_band e aditiva em intervalos vizinhos.
+    local py = normal_band(0, body_up, sigma_y) + normal_band(-down, 0, sigma_y_down)
     return MulDivRound(MulDivRound(px, py, 1000) + p_head, 100, 1000)
 end
 
@@ -638,20 +642,29 @@ end
 ---- como no 1.13 -- menos desvio vertical, e de proposito sem preservar a area, porque a posicao
 ---- e mais precisa e nao apenas de outro formato.
 ---------------------------------------------------------------------------------------------------
+---- Devolve os DOIS meios-eixos verticais, para cima e para baixo. Iguais quando o vies e 50.
 function Rat_ConeSigmaY(data)
     local a = P()
     local s = data.rat_sigma or 0
     local r = data.rat_vsigma or 0
-    local y = (r > 0) and Rat_ISqrt(s * s + r * r) or s
+    ---- viés de FORMA: reparte o tremor entre os dois lados mantendo a soma, entao o centro
+    ---- continua no alvo (pericia nunca inverte) e mesmo assim erra-se mais por cima.
+    local bias = Clamp(a.RecoilPersistUpBias or 50, 0, 100)
+    local r_up, r_dn = MulDivRound(r, bias, 50), MulDivRound(r, 100 - bias, 50)
+
     ---- TETO do alongamento. E o analogo do max_stacks = 6 do efeito antigo: o recuo acumula a
     ---- cada ataque e sem teto a elipse cresce ate sair da tela. Em multiplo do PROPRIO cone, que
     ---- e o unico jeito de o limite querer dizer a mesma coisa perto e longe.
     local mx = a.RecoilPersistStretchMax or 0
-    if mx > 0 and s > 0 then
-        y = Min(y, MulDivRound(s, mx, 100))
-    end
     local st = data.rat_stretch or 100
-    return (st == 100) and y or Max(1, MulDivRound(y, st, 100))
+    local function axis(rr)
+        local y = (rr > 0) and Rat_ISqrt(s * s + rr * rr) or s
+        if mx > 0 and s > 0 then
+            y = Min(y, MulDivRound(s, mx, 100))
+        end
+        return (st == 100) and y or Max(1, MulDivRound(y, st, 100))
+    end
+    return axis(r_up), axis(r_dn)
 end
 
 ---- Raio EQUIVALENTE EM PROBABILIDADE: o circulo que, neste sigma, teria exatamente este CTH.
@@ -822,8 +835,13 @@ function Rat_AttackCone(attacker, target, action, spot, aim, opportunity_attack,
                   step_pos = step_pos or attacker:GetPos(),
                   target_pos = target_pos or (IsPoint(target) and target) or target:GetPos()}
     local cth = attacker:CalcChanceToHit(target, action, args, "chance_only")
-    ---- o quarto valor e o eixo VERTICAL do cone: sem ele quem desenha ou dispara volta ao circulo
-    return args.rat_sigma, args.rat_theta, cth, args.rat_sigma and Rat_ConeSigmaY(args) or nil
+    ---- o quarto e o quinto sao os meios-eixos VERTICAIS (cima, baixo): sem eles quem desenha ou
+    ---- dispara volta ao circulo
+    if not args.rat_sigma then
+        return args.rat_sigma, args.rat_theta, cth
+    end
+    local sy_up, sy_dn = Rat_ConeSigmaY(args)
+    return args.rat_sigma, args.rat_theta, cth, sy_up, sy_dn
 end
 
 
@@ -885,7 +903,7 @@ end
 ---- Com `sigma_y` diferente de `sigma` a nuvem e ELIPTICA: sorteia o raio isotropico e depois
 ---- encolhe/estica so a componente vertical. Tem de ser a mesma elipse que Rat_ConeSigmaY entrega
 ---- ao CTH -- se a bala e o numero discordarem no formato, o numero volta a nao ser o que acontece.
-function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma, sigma_y)
+function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma, sigma_y, sigma_y_down)
     if not attack_pos or not aim_pos then
         return aim_pos
     end
@@ -910,14 +928,17 @@ function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma, sigma_y)
     dir = SetLen(dir, 1000)
     local up = Rat_PerpUp(dir)
 
-    if not sigma_y or sigma_y == sigma or not sigma or sigma < 1 then
+    sigma_y_down = sigma_y_down or sigma_y
+    if not sigma_y or (sigma_y == sigma and sigma_y_down == sigma) or not sigma or sigma < 1 then
         return aim_pos + RotateAxis(SetLen(up, radius), dir, attacker:Random(360 * 60))
     end
 
-    ---- por componente, para poder escalar so uma delas
+    ---- por componente, para poder escalar so uma delas. O sinal escolhe o meio-eixo, que e o
+    ---- mesmo par de metades que Rat_SeparableCTH integra -- bala e numero contam a mesma coisa.
     local ang = attacker:Random(360 * 60)
     local cx = MulDivRound(radius, sin(ang), 4096)
-    local cy = MulDivRound(MulDivRound(radius, cos(ang), 4096), sigma_y, sigma)
+    local cy = MulDivRound(radius, cos(ang), 4096)
+    cy = MulDivRound(cy, (cy >= 0) and sigma_y or sigma_y_down, sigma)
     return shift_along(shift_along(aim_pos, up, cy), Rat_RecoilLateralAxis(up, dir), cx)
 end
 
@@ -1031,14 +1052,14 @@ function Rat_SimPlanShots(ctx)
     ---- de partida da rajada; a postura ainda vai achatar pelo mesmo canal (Rat_ConeSigmaY).
     local vs = (ctx.args and ctx.args.rat_vsigma) or
                    Rat_RecoilPersistSigma(ctx.attacker, ctx.action, ctx.weapon, ctx.aim, ctx.target)
-    local sigma_y = Rat_ConeSigmaY({rat_sigma = sigma, rat_vsigma = vs,
-                                    rat_stretch = ctx.args and ctx.args.rat_stretch})
-    ctx.sigma_y, ctx.vsigma = sigma_y, vs
+    local sigma_y, sigma_y_dn = Rat_ConeSigmaY({rat_sigma = sigma, rat_vsigma = vs,
+                                                rat_stretch = ctx.args and ctx.args.rat_stretch})
+    ctx.sigma_y, ctx.sigma_y_dn, ctx.vsigma = sigma_y, sigma_y_dn, vs
 
     local num_shots = Max(1, ctx.num_shots or 1)
     local cth, prof, est, sigma_disp = Rat_SimRecoilLadder(ctx.attacker, ctx.action, ctx.weapon,
                                                            sigma, num_shots, theta, ctx.want_cth,
-                                                           ctx.aim, ctx.target, sigma_y)
+                                                           ctx.aim, ctx.target, sigma_y, sigma_y_dn)
     ctx.recoil, ctx.recoil_est, ctx.sigma_disp, ctx.num_shots = prof, est, sigma_disp, num_shots
 
     ---- a rajada SEMPRE comeca do alvo: entre ataques o atirador reencara, e o que o ataque
@@ -1074,7 +1095,7 @@ function Rat_SimPlanShots(ctx)
             mu = mu,
             lat = lat,
             target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, sigma,
-                                              sigma_y)
+                                              sigma_y, sigma_y_dn)
         }
         if st then
             Rat_RecoilStep(prof, st, rnd)
@@ -1118,7 +1139,7 @@ function Rat_SimReplanShot(ctx, idx)
         mu = mu,
         lat = lat,
         target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, ctx.sigma,
-                                          ctx.sigma_y)
+                                          ctx.sigma_y, ctx.sigma_y_dn)
     }
 end
 
@@ -1142,7 +1163,7 @@ end
 ---- Sem theta so o perfil faz sentido -- e o que Rat_DbgVerifySim precisa.
 ---------------------------------------------------------------------------------------------------
 function Rat_SimRecoilLadder(attacker, action, weapon, sigma0, num_shots, theta, want_cth,
-                             aim, target, sigma_y)
+                             aim, target, sigma_y, sigma_y_down)
     num_shots = Max(1, num_shots or 1)
 
     local prof = (num_shots > 1) and Rat_RecoilProfile(attacker, action, weapon, num_shots) or nil
@@ -1156,8 +1177,9 @@ function Rat_SimRecoilLadder(attacker, action, weapon, sigma0, num_shots, theta,
 
     ---- a escada e radial (Rayleigh/Rice) e o cone pode ser eliptico: entra o circulo de mesma
     ---- AREA. So o numero por tiro passa por aqui -- a bala dispara na elipse de verdade.
-    local sigma_eff = (sigma_y and sigma_y >= 1 and sigma_y ~= sigma0) and
-                          Max(1, Rat_ISqrt(sigma0 * sigma_y)) or sigma0
+    ---- os dois meios-eixos entram pela media: a escada e radial e nao sabe de cima e baixo
+    local sy = sigma_y and Max(1, MulDivRound(sigma_y + (sigma_y_down or sigma_y), 1, 2)) or nil
+    local sigma_eff = (sy and sy >= 1 and sy ~= sigma0) and Max(1, Rat_ISqrt(sigma0 * sy)) or sigma0
 
     if not prof then
         for i = 1, num_shots do

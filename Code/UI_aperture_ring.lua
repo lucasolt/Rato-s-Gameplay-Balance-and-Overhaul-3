@@ -72,7 +72,9 @@ end
 ---- `radius_y` diferente de `radius` desenha ELIPSE: o cone tem eixos diferentes quando o recuo
 ---- herdado o alonga ou a postura o achata (Rat_ConeSigmaY). O eixo esticado e sempre o vertical
 ---- do plano do alvo, que e exatamente o eixo em que o recuo trabalha.
-function Rat_RingPoints(center, radius, dir, segments, radius_y)
+---- `radius_y_down` diferente dele desenha um OVO: os dois meios-eixos verticais sao diferentes
+---- quando RecoilPersistUpBias sai de 50. O centro nao se move -- so a metade de cima cresce mais.
+function Rat_RingPoints(center, radius, dir, segments, radius_y, radius_y_down)
     if not center or not radius or radius < 1 then
         return
     end
@@ -96,7 +98,8 @@ function Rat_RingPoints(center, radius, dir, segments, radius_y)
     end
     local full = 360 * 60
     local pts = {}
-    if not radius_y or radius_y == radius then
+    radius_y_down = radius_y_down or radius_y
+    if not radius_y or (radius_y == radius and radius_y_down == radius) then
         perp = SetLen(perp, radius)
         for i = 0, segments do
             pts[i + 1] = center + RotateAxis(perp, dir, MulDivRound(full, i, segments))
@@ -110,7 +113,8 @@ function Rat_RingPoints(center, radius, dir, segments, radius_y)
     local lat = RotateAxis(vert, dir, 90 * 60)
     for i = 0, segments do
         local ang = MulDivRound(full, i, segments)
-        local cy = MulDivRound(radius_y, cos(ang), 4096)
+        local c = cos(ang)
+        local cy = MulDivRound((c >= 0) and radius_y or radius_y_down, c, 4096)
         local cx = MulDivRound(radius, sin(ang), 4096)
         local p = center
         if cy ~= 0 then
@@ -155,8 +159,8 @@ function Rat_HideStroke(id)
     strokes[id] = nil
 end
 
-function Rat_ShowConeRing(center, radius, dir, color, segments, radius_y)
-    local pts = Rat_RingPoints(center, radius, dir, segments, radius_y)
+function Rat_ShowConeRing(center, radius, dir, color, segments, radius_y, radius_y_down)
+    local pts = Rat_RingPoints(center, radius, dir, segments, radius_y, radius_y_down)
     if not pts then
         return Rat_HideConeRing()
     end
