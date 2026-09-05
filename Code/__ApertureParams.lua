@@ -164,6 +164,14 @@ A.CrosshairRecoilMeanDistance = true
 ---- Meia-largura da barra de cada tiro, em % do raio do anel. So legibilidade.
 A.CrosshairRecoilTickPct = 22
 
+---- Envelope da CUNHA do recuo herdado. 200% e ~95% de UM eixo; o anel usa 250% porque la o
+---- envelope e de uma Rayleigh 2D. Ver persist_wedge.
+A.CrosshairWedgeSigmaMul = 200
+
+---- Altura maxima DESENHADA da cunha, em % do raio do anel. So teto de desenho: passando dele a
+---- cunha aparece com o topo ABERTO, que e como ela avisa que continua para cima.
+A.CrosshairWedgeMaxPct = 400
+
 
 ---- Teto e piso do multiplicador de UM residual. Sem eles -100 pontos daria cone infinito.
 A.ConeMulMin = 25

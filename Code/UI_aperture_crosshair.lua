@@ -103,18 +103,39 @@ end
 ---- que ainda nao aconteceu.
 local function persist_wedge(at, dist, sigma, sy, fan, radius, color, anchor)
     if not sy or not fan or sy <= sigma or fan < 1 then
-        Rat_HideStroke("pfanl")
-        Rat_HideStroke("pfanr")
-        return
+        return Rat_HideStroke("wedge")
     end
     local a = const.Combat.Aperture
-    local mul = a.CrosshairSigmaMul or 250
+
+    ---- 200%, nao os 250% do anel: aquilo e o envelope de uma Rayleigh 2D, e a altura da cunha e
+    ---- UM eixo -- 2 sigma ja e 95% dele. Com 250 a ponta subia meia tela.
+    local mul = a.CrosshairWedgeSigmaMul or 200
     local top = Rat_ConeRadius(dist, MulDivRound(sy, mul, 100))
     local wide = radius + Rat_ConeRadius(dist, MulDivRound(fan, mul, 100))
-    ---- nasce na borda do anel, nao no centro: dentro do anel a cunha nao acrescenta nada e so
-    ---- suja o circulo que ja diz qual e o cone limpo.
-    Rat_ShowStroke("pfanl", {at(0, -radius), at(top, -wide)}, color, anchor)
-    Rat_ShowStroke("pfanr", {at(0, radius), at(top, wide)}, color, anchor)
+
+    ---- Teto de DESENHO. sigma_y chega a seis vezes o cone, e a ponta fiel saia do alvo, passava
+    ---- por tras dos widgets do crosshair e nao dizia mais nada. Cortar calado seria mentir, entao
+    ---- a convencao e o TOPO: fechado, a cunha inteira cabe; aberto, ela continua para cima.
+    local lim = MulDivRound(radius, a.CrosshairWedgeMaxPct or 400, 100)
+    local cut = top > lim
+    if cut then
+        wide = radius + MulDivRound(wide - radius, lim, top)
+        top = lim
+    end
+
+    ---- Um traco so, porque um mesh de Polyline e uma tira continua. Sai da ORIGEM e volta a ela:
+    ---- o que se quer dizer e "a mira pode estar em qualquer lugar DESTA regiao", e duas diagonais
+    ---- soltas comecando na borda do anel nao fecham regiao nenhuma -- eram so duas linhas.
+    local pts = {at(0, 0), at(top, -wide)}
+    if not cut then
+        pts[#pts + 1] = at(top, wide)
+    else
+        ---- topo aberto: sobe mais um pouco de cada lado, sem fechar, e volta pelo meio
+        pts[#pts + 1] = at(0, 0)
+        pts[#pts + 1] = at(top, wide)
+    end
+    pts[#pts + 1] = at(0, 0)
+    Rat_ShowStroke("wedge", pts, color, anchor)
 end
 
 ---- Sai do caminho: devolve o circulo 2D e apaga o anel do mundo.
