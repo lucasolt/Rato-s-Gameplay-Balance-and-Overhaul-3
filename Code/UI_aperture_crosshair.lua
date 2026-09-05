@@ -69,7 +69,7 @@ end
 ---- descontam o tiro 1. O anel e uma posicao de verdade, com lado e tudo; a regua e reta. Medir a
 ---- regua a partir do alvo deixaria as duas separadas sempre que o recuo herdado tivesse
 ---- componente lateral, e o desenho pareceria quebrado em vez de ser uma coisa so.
-local function ladder_strokes(est, num_shots, at, tick)
+local function ladder_strokes(est, num_shots, at, tick, spread)
     local mean_dist = const.Combat.Aperture.CrosshairRecoilMeanDistance
     local function reach(i)
         return mean_dist and est.offset[i] or
@@ -91,6 +91,16 @@ local function ladder_strokes(est, num_shots, at, tick)
         path[#path + 1] = p
         fan_l[#fan_l + 1] = at(dy, -widest)
         fan_r[#fan_r + 1] = at(dy, widest)
+    end
+
+    ---- Comprimento minimo do leque. Em distancia curta o passeio inteiro cabe em poucos minutos:
+    ---- o leque encolhe para dentro das barras da regua e sobra pouco tipFade para calibrar. Estende
+    ---- reto para cima ate o piso na largura final -- o envelope so continua aberto, nao mente sobre
+    ---- tiro nenhum. Piso em % do raio do anel, como os outros limites de desenho da rajada.
+    local floor = MulDivRound(spread or 0, const.Combat.Aperture.CrosshairFanMinPct or 0, 100)
+    if floor > Max(0, reach(num_shots) - base) then
+        fan_l[#fan_l + 1] = at(floor, -widest)
+        fan_r[#fan_r + 1] = at(floor, widest)
     end
     return path, fan_l, fan_r
 end
@@ -267,7 +277,8 @@ function Rat_UpdateConeRing(crosshair)
     end
 
     local path, fan_l, fan_r = ladder_strokes(est, num_shots, at,
-                                              MulDivRound(spread, a.CrosshairRecoilTickPct or 0, 100))
+                                              MulDivRound(spread, a.CrosshairRecoilTickPct or 0, 100),
+                                              spread)
     Rat_ShowStroke("climb", path, faded, center)
     Rat_ShowStroke("fanl", fan_l, faded, center)
     Rat_ShowStroke("fanr", fan_r, faded, center)
