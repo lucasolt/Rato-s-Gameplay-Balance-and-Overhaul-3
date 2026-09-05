@@ -1091,10 +1091,18 @@ function Rat_SimPlanShots(ctx)
 
     ---- o eixo vertical do cone. O recuo herdado ALONGA o cone aqui em vez de deslocar o ponto
     ---- de partida da rajada; a postura ainda vai achatar pelo mesmo canal (Rat_ConeSigmaY).
-    local vs = (ctx.args and ctx.args.rat_vsigma) or
-                   Rat_RecoilPersistSigma(ctx.attacker, ctx.action, ctx.weapon, ctx.aim, ctx.target)
-    local cone = {rat_sigma = sigma, rat_vsigma = vs,
-                  rat_stretch = ctx.args and ctx.args.rat_stretch}
+    ----
+    ---- A fonte e `ctx.cone`: a tabela de args que CalcChanceToHit resolveu para ESTE ataque, com
+    ---- ESTA mira. NAO `ctx.args` -- aqueles sao args de LoF, e no visualizador vem do replay do
+    ---- ultimo tiro REAL (sim_args_for), de outra mira e de antes do ultimo commit do offset.
+    ---- E o teste e `== nil`, nunca `or`: rat_vsigma = 0 e valor legitimo ("nao ha recuo herdado"),
+    ---- mas em Lua 0 e verdadeiro, entao `0 or recomputa` devolvia 0 e o recuo herdado sumia calado.
+    local src = ctx.cone or ctx.args
+    local vs = src and src.rat_vsigma
+    if vs == nil then
+        vs = Rat_RecoilPersistSigma(ctx.attacker, ctx.action, ctx.weapon, ctx.aim, ctx.target)
+    end
+    local cone = {rat_sigma = sigma, rat_vsigma = vs, rat_stretch = src and src.rat_stretch}
     local sigma_y, sigma_y_dn = Rat_ConeSigmaY(cone)
     local fan = Rat_ConeFanX(cone)
     ctx.sigma_y, ctx.sigma_y_dn, ctx.fan, ctx.vsigma = sigma_y, sigma_y_dn, fan, vs

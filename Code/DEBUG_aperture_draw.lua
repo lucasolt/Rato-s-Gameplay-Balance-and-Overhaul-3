@@ -315,6 +315,10 @@ local function sim_ctx_for(attacker, target, target_spot, aim, burst)
         attack_pos = attack_pos, aim_pos = aim_pos,
         step_pos = attacker:GetPos(), target_pos = target:GetPos(),
         cth = cth, cth_source = "GetShotChanceToHit(CalcChanceToHit)",
+        ---- o cone que a chamada acima acabou de resolver para ESTA mira e para o estado de AGORA
+        ---- do Rat_recoil. Sem isto Rat_SimPlanShots caia nos args de LoF, que no replay do ultimo
+        ---- tiro real trazem um rat_vsigma velho -- e o recuo herdado nao aparecia na amostragem.
+        cone = cth_args, sigma = cth_args.rat_sigma,
         ---- a rajada REAL que se quer inspecionar -- nao o numero de amostras
         num_shots = burst, args = args,
         ---- o tiro real nao paga o estimador; aqui a escada de CTH e o que se veio ver
@@ -415,6 +419,7 @@ function Rat_DbgShots(count, aim, target_spot, target, attacker, shot_idx, burst
                    "  amostras: %d do tiro %d de %d  |  CTH %d%% (o mesmo do tiro real)\n" ..
                    "  %d/%d acertaram (%d%% do total) | %d erraram\n" ..
                    "  sigma %d' (tiro 1 = %d', coice %d'/tiro, forca %d'/tiro)  theta %d'\n" ..
+                   "  cone: lateral %d'  cima %d'  baixo %d'  leque +%d'  <- recuo herdado %d'\n" ..
                    "  centro de mira %+dcm vs spot (AimCentroidPct %d)  |  args: %s\n" ..
                    "  distribuicao por membro:\n%s\n" ..
                    "  verde = acertou, vermelho = errou; ciano = silhueta, amarelo = 96%% dos tiros",
@@ -424,6 +429,7 @@ function Rat_DbgShots(count, aim, target_spot, target, attacker, shot_idx, burst
                hits, count, MulDivRound(hits, 100, count), count - hits,
                sigma_i, ctx.sigma, ctx.recoil and ctx.recoil.kick_min or 0,
                ctx.recoil and ctx.recoil.cf_min or 0, ctx.theta,
+               ctx.sigma, ctx.sigma_y or 0, ctx.sigma_y_dn or 0, ctx.fan or 0, ctx.vsigma or 0,
                dz, a.AimCentroidPct or 0, args_src, table.concat(ps, "\n"))
 end
 

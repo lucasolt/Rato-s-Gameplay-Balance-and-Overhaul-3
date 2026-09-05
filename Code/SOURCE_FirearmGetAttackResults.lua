@@ -403,6 +403,9 @@ function Firearm:GetAttackResults(action, attack_args)
             cth_source = "GetShotChanceToHit(attack_results.chance_to_hit)",
             ---- o cone que CalcChanceToHit resolveu para ESTE ataque; sem ele Rat_SimPlanShots sonda
             sigma = shot_attack_args.rat_sigma,
+            ---- e de onde saem rat_vsigma / rat_stretch: aqui os args de LoF e os do CTH sao a
+            ---- MESMA tabela, mas Rat_SimPlanShots nao pode depender disso -- ver `cone` la.
+            cone = shot_attack_args,
             num_shots = num_shots,
             ---- o unico caminho autorizado a gravar o offset persistente
             persist = true,
