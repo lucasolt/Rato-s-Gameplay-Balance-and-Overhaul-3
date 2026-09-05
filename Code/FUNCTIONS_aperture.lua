@@ -592,10 +592,15 @@ end
 ----     P = Px_tronco * Py_tronco + Px_cabeca * Py_cabeca
 ---- Um retangulo so assumia largura de ombro na altura da cabeca -- 35% previsto contra 18%
 ---- medido em tiro na cabeca de alvo de pe, longe, com cone apertado.
-function Rat_SeparableCTH(sigma, up, down, right, left, head)
+---- `mx`/`my` deslocam o CENTRO da nuvem (o cano herdado do ataque anterior), nao a largura dela.
+---- A DECISAO de forma -- separar cabeca do tronco -- fica na geometria crua: e sobre o alvo, nao
+---- sobre onde a arma esta apontando. So a integracao anda, e ai as extensoes passam a ter sinal
+---- (o centro pode cair fora do alvo), que e por isso que px vira banda em vez de duas metades.
+function Rat_SeparableCTH(sigma, up, down, right, left, head, mx, my)
     if not sigma or sigma < 1 then
         return 100
     end
+    mx, my = mx or 0, my or 0
     local body_up = up
     local p_head = 0
     if head then
@@ -608,12 +613,12 @@ function Rat_SeparableCTH(sigma, up, down, right, left, head)
         ---- cabeca sobra igual a de pe, e ai separa.
         if hu + hh >= up - hh and down > right + left then
             body_up = Min(up, hu - hh) --- o tronco comeca no ombro, abaixo da cabeca
-            p_head = MulDivRound(normal_band(hr - hw, hr + hw, sigma),
-                                 normal_band(hu - hh, hu + hh, sigma), 1000)
+            p_head = MulDivRound(normal_band(hr - hw - mx, hr + hw - mx, sigma),
+                                 normal_band(hu - hh - my, hu + hh - my, sigma), 1000)
         end
     end
-    local px = normal_half(right, sigma) + normal_half(left, sigma)
-    local py = normal_band(-down, body_up, sigma)
+    local px = normal_band(-left - mx, right - mx, sigma)
+    local py = normal_band(-down - my, body_up - my, sigma)
     return MulDivRound(MulDivRound(px, py, 1000) + p_head, 100, 1000)
 end
 
@@ -1241,7 +1246,10 @@ function Rat_GetShotConeRatios(attacker, target, body_part_def, action, weapon, 
 
     ---- poucas amostras de proposito: o que sai daqui e uma RAZAO entre CTHs, nao um absoluto, e
     ---- isto roda no caminho do tiro do pipeline vanilla. Semente fixa, entao nao treme.
-    local cth, prof = Rat_SimRecoilLadder(attacker, action, weapon, sigma, num_shots, theta, 48)
+    ---- `aim` e `target` vao junto: e deles que sai o offset herdado (nivel de mira que zera, AP
+    ---- que recupera). Sem eles a escada partiria de um cano limpo que a bala nao tem.
+    local cth, prof = Rat_SimRecoilLadder(attacker, action, weapon, sigma, num_shots, theta, 48,
+                                          aim, target)
     if not prof or prof.kick_min <= 0 then
         return ratios
     end
@@ -1256,6 +1264,44 @@ function Rat_GetShotConeRatios(attacker, target, body_part_def, action, weapon, 
     end
 
     return ratios
+end
+
+---------------------------------------------------------------------------------------------------
+---- ACERTOS ESPERADOS do ataque inteiro, em centesimos de tiro (100 = um acerto esperado).
+----
+---- O CTH e por TIRO, e sempre foi. Multiplica-lo por num_shots supoe que os seis tiros da rajada
+---- tem a mesma chance -- e desde que o cano passou a subir eles nao tem, nem entre si nem contra
+---- um tiro simples que sai de um cano ainda deslocado pelo ataque anterior. Quem escolhe entre
+---- rajada e tiro simples pelo CTH exibido escolhe pelo numero errado; a IA e quem faz isso.
+----
+---- Le a MESMA escada que a bala dispara (Rat_GetShotConeRatios -> Rat_SimRecoilLadder), com o
+---- mesmo offset herdado: decisao e execucao nao podem divergir. O segundo retorno e o CTH do
+---- primeiro tiro, que continua sendo o numero exibido -- esta funcao nao o substitui.
+---------------------------------------------------------------------------------------------------
+function Rat_ExpectedHits(attacker, target, body_part_def, action, weapon, aim, opportunity_attack,
+                          attacker_pos, target_pos, num_shots)
+    num_shots = Max(1, num_shots or 1)
+    if not Rat_AngularActive(weapon, action, attacker) then
+        return nil
+    end
+    local sigma, _, cth1 = Rat_AttackCone(attacker, target, action, body_part_def, aim,
+                                          opportunity_attack, attacker_pos, target_pos)
+    if not cth1 or cth1 <= 0 then
+        return 0, cth1 or 0
+    end
+    if num_shots < 2 then
+        return cth1, cth1
+    end
+
+    local ratios = Rat_GetShotConeRatios(attacker, target, body_part_def, action, weapon, aim,
+                                         opportunity_attack, attacker_pos, target_pos, num_shots,
+                                         sigma)
+    local total = cth1
+    for i = 2, num_shots do
+        ---- sem escada (arma sem recuo modelado) o tiro i vale o mesmo que o primeiro
+        total = total + MulDivRound(cth1, ratios[i] or 100, 100)
+    end
+    return total, cth1
 end
 
 ---------------------------------------------------------------------------------------------------

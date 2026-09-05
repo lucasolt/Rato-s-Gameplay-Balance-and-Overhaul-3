@@ -85,23 +85,48 @@ function Rat_ResolveAngular(data)
     data.rat_theta, data.rat_meta, data.rat_parts = theta, meta, parts
     data.rat_aim, data.rat_geo_sigma, data.rat_cone_mul = aim, sigma, 100
     data.rat_sigma = sigma
-    data.rat_cth = Rat_ConeCTH(data)
+
+    ---- O CANO HERDADO do ataque anterior. Nao e residual e nao passa por Rat_ConeAbsorb: ele
+    ---- move o CENTRO do cone, e alargar o cone para representa-lo cobraria o mesmo recuo duas
+    ---- vezes -- a bala ja sai deslocada (Rat_SimPlanShots semeia o passo com o mesmo offset).
+    ---- Sai da MESMA funcao que o tiro le, com a mesma mira efetiva, senao o numero exibido
+    ---- deixa de ser o que a bala faz.
+    data.rat_mu_x, data.rat_mu_y = Rat_RecoilPersistOffsetMin(attacker, action, weapon1, aim,
+                                                              target)
+    if data.rat_mu_x ~= 0 or data.rat_mu_y ~= 0 then
+        local mx, my = data.rat_mu_x, data.rat_mu_y
+        data.rat_mu_x, data.rat_mu_y = 0, 0
+        local clean = Rat_ConeCTH(data)
+        data.rat_mu_x, data.rat_mu_y = mx, my
+        data.rat_cth = Rat_ConeCTH(data)
+        ---- quanto o cano custou, em pontos: e o que a linha do overlay mostra e o que
+        ---- Rat_ConeMulForPoints traduz para o mesmo % de cone que todo o resto usa
+        data.rat_recoil_pts = data.rat_cth - clean
+    else
+        data.rat_cth = Rat_ConeCTH(data)
+    end
     return data
 end
 
 ---- CTH no sigma ATUAL de `data`. As extensoes sao geometria e nao mexem quando um residual fecha
 ---- o cone, entao recalcular por elas e exato -- e mais barato que reabrir Rat_AngularCTH.
 ---- `rat_theta` sai junto porque e raio EQUIVALENTE EM PROBABILIDADE: depende do sigma.
+---- `rat_mu_x/y` e o cano herdado, em minutos: desloca o centro da nuvem sem mexer no sigma.
+---- Nas extensoes isso e uma translacao exata; no caminho radial e Rice, que degenera em Rayleigh
+---- quando o deslocamento e zero -- entao o tiro sem recuo acumulado continua bit a bit o de antes.
 function Rat_ConeCTH(data)
     local a = const.Combat.Aperture
     local sigma = data.rat_sigma
+    local mx, my = data.rat_mu_x or 0, data.rat_mu_y or 0
     local cth
     if data.rat_ext_up then
         cth = Clamp(Rat_SeparableCTH(sigma, data.rat_ext_up, data.rat_ext_down, data.rat_ext_right,
-                                     data.rat_ext_left, data.rat_ext_head), a.MinCTH, a.MaxCTH)
+                                     data.rat_ext_left, data.rat_ext_head, mx, my), a.MinCTH,
+                    a.MaxCTH)
         data.rat_theta = Rat_ThetaEquivalent(sigma, cth) or data.rat_theta
     else
-        cth = Clamp(Rat_RayleighCTH(data.rat_theta, sigma), a.MinCTH, a.MaxCTH)
+        cth = Clamp(Rat_RiceCTH(data.rat_theta, sigma, Rat_ISqrt(mx * mx + my * my)), a.MinCTH,
+                    a.MaxCTH)
     end
     return cth
 end
@@ -254,6 +279,17 @@ function Rat_ConeFactors(data)
                          tag = Rat_ConeMulTag(parts.step)}
     end
 
+    ---- o cano herdado nao alarga o cone, desloca o centro -- mas a coluna aqui e toda em % de
+    ---- cone, entao entra traduzido pela MESMA porta dos residuais (Rat_ConeMulForPoints): o cone
+    ---- que, centrado no alvo, custaria estes mesmos pontos. A sub-nota diz o que ele e de verdade.
+    if data.rat_recoil_pts and data.rat_recoil_pts ~= 0 then
+        local mx, my = data.rat_mu_x or 0, data.rat_mu_y or 0
+        out[#out + 1] = {name = T(574718433471, "Recoil"),
+                         tag = Rat_ConeMulTag(Rat_ConeMulForPoints(data.rat_recoil_pts)),
+                         sub = {T {306184275930, "Muzzle <r>' off the aim point",
+                                   r = Rat_ISqrt(mx * mx + my * my)}}}
+    end
+
     ---- o piso nao e multiplicador -- e a assintota, em minutos. Fica indentado, como nota da
     ---- linha Aperture, em vez de fingir ser um fator na enumeracao.
     local meta = {}
@@ -339,6 +375,13 @@ function Rat_ConeMetaText(data)
         end
     end
 
+    ---- o cano que o ataque anterior deixou: em minutos, que e a unidade do cone e do alvo ao lado
+    if data.rat_recoil_pts and data.rat_recoil_pts ~= 0 then
+        local mx, my = data.rat_mu_x or 0, data.rat_mu_y or 0
+        meta[#meta + 1] = T {306184275930, "Muzzle <r>' off the aim point",
+                             r = Rat_ISqrt(mx * mx + my * my)}
+    end
+
     ---- tudo o que entrou depois da geometria (recoil, Dazed, perks, componentes), ja em cone
     if data.rat_cone_mul and data.rat_cone_mul ~= 100 then
         meta[#meta + 1] = T {714038265194, "Modifiers <pct>", pct = Rat_ConeMulTag(data.rat_cone_mul)}
@@ -407,7 +450,9 @@ local t_id_table = {
     [603847265139] = "Aim x<n> (<pct> per level)",
     [825069487351] = "Range floor <f>'",
     [714038265194] = "Modifiers <pct>",
-    [402715896331] = "No exposed silhouette"
+    [402715896331] = "No exposed silhouette",
+    [574718433471] = "Recoil",
+    [306184275930] = "Muzzle <r>' off the aim point"
 }
 
 ratG_T_table['CTH_angular.lua'] = t_id_table

@@ -211,14 +211,28 @@ function Rat_RecoilPersistOn()
     return (a.Enabled and a.RecoilPersistOffset) and true or false
 end
 
+---- One-entry memo for the offset, and a re-entrancy latch for the AP query. Both exist because
+---- the offset is now read from inside CalcChanceToHit, which runs on every mouse-over and on
+---- every attack the AI weighs: without the memo each of those prices the whole attack again
+---- through GetAPCost, which drags in the mod's AP chain and stance-rotation geometry. The latch
+---- is the other half -- that chain is free to reach back into an attack, and one level is all
+---- this needs to stay finite. The memo keys on the STORED offset too, so a commit expires it.
+---- GameTime is in the key because the AP cost also moves with things the offset cannot see --
+---- taking a stance, spending the turn. It only advances while an action resolves, so hovering
+---- the crosshair still hits the memo, and anything that could have changed the price expires it.
+local m_att, m_act, m_wep, m_aim, m_tgt, m_px, m_py, m_time, m_ox, m_oy
+local ap_busy
+
 ---- AP this attack costs: the recovery currency. Not a proxy for it -- the actual cost, so every
 ---- surcharge already in the AP economy shows up here for free.
 function Rat_RecoilPersistAP(attacker, action, weapon, aim, target)
-    if not attacker or not action or not action.GetAPCost then
+    if ap_busy or not attacker or not action or not action.GetAPCost then
         return 0
     end
+    ap_busy = true
     local ok, cost = pcall(action.GetAPCost, action, attacker,
                            {weapon = weapon, target = target or attacker, aim = aim or 0})
+    ap_busy = false
     if not ok or type(cost) ~= "number" or cost <= 0 then
         return 0
     end
@@ -236,18 +250,38 @@ function Rat_RecoilPersistOffset(attacker, action, weapon, aim, target)
         return 0, 0
     end
     local a = P()
-    if (aim or 0) >= (a.RecoilPersistAimReset or 3) then
+    ---- the aim the GEOMETRY will use, never the raw one: stance and overwatch shoot from the
+    ---- shoulder. The CTH resolves the cone through Rat_EffectiveAim, so an offset resolved off
+    ---- the raw level would put the bullet somewhere the displayed number never saw.
+    aim = Rat_EffectiveAim and Rat_EffectiveAim(attacker, action, aim, nil, target) or (aim or 0)
+    if aim >= (a.RecoilPersistAimReset or 3) then
         return 0, 0
     end
     local px, py = eff:ResolveValue("offset_x") or 0, eff:ResolveValue("offset_y") or 0
     if px == 0 and py == 0 then
         return 0, 0
     end
+    local now = GameTime()
+    if m_att == attacker and m_act == action and m_wep == weapon and m_aim == aim and
+        m_tgt == target and m_px == px and m_py == py and m_time == now then
+        return m_ox, m_oy
+    end
+    m_att, m_act, m_wep, m_aim, m_tgt, m_px, m_py, m_time = attacker, action, weapon, aim, target,
+                                                            px, py, now
+
     local retain = a.RecoilPersistRetainPerAP or 100
     for _ = 1, Min(Rat_RecoilPersistAP(attacker, action, weapon, aim, target), 24) do
         px, py = MulDivRound(px, retain, 100), MulDivRound(py, retain, 100)
     end
+    m_ox, m_oy = px, py
     return px, py
+end
+
+---- The same offset in MINUTES, which is the unit every CTH consumer speaks. Centiminutes exist
+---- for the step alone -- nothing outside the dynamics should have to know about the finer scale.
+function Rat_RecoilPersistOffsetMin(attacker, action, weapon, aim, target)
+    local px, py = Rat_RecoilPersistOffset(attacker, action, weapon, aim, target)
+    return MulDivRound(px, 1, 100), MulDivRound(py, 1, 100)
 end
 
 function Rat_RecoilPersistStash(attacker, st)
