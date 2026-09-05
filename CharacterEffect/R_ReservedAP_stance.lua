@@ -4,6 +4,7 @@ DefineClass.R_ReservedAP_stance = {
 	__generated_by_class = "ModItemCharacterEffectCompositeDef",
 
 
+	comment = "--- Check, I dont think this is used anymore",
 	object_class = "CharacterEffect",
 	unit_reactions = {
 		PlaceObj('UnitReaction', {

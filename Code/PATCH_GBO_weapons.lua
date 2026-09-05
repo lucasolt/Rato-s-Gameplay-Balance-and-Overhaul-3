@@ -41,86 +41,8 @@ function RatoGBO_WepPatch()
 	BarretM82.rat_barrel_len = 730
 	BarretM82.rat_weigth = 14000
 	BarretM82.is_vanilla_firearm = true
-	BarretM82.ApertureSnapHipMul = 125
+	BarretM82.ApertureHandlingHeavyMul = 125
 	BarretM82.PenetrationClass = 1
-
-
-	MG42.Cost = 2520
-	MG42.WeaponRange = 30
-	MG42.ShootAP = 4000
-	MG42.ReloadAP = 5000
-	MG42.Reliability = 85
-	MG42.AvailableAttacks = {"MGBurstFire"}
-	MG42.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'Bipod_MG42', Modifiable = false, AvailableComponents = {'Bipod_MG42', }}}
-	MG42.OverwatchAngle = 571
-	MG42.Damage = 28
-	MG42.MagazineSize = 50
-	MG42.RepairCost = 80
-	MG42.RestockWeight = 80
-	MG42.ScrapParts = 12
-	MG42.AdditionalHint = T{386845693893,[[<description_hints>]]}
-	MG42.Noise = 22
-	MG42.CritChanceScaled = 10
-	MG42.AimAccuracy = 2
-	MG42.Cumbersome = 1
-	MG42.PreparedAttackType = "Machine Gun"
-	MG42.PointBlankBonus = 1
-	MG42.CategoryPair = "MachineGuns"
-	MG42.CanAppearInShop = true
-	MG42.MaxStock = 1
-	MG42.Tier = 1
-	MG42.APStance = 5
-	MG42.PBbonus_base = -4
-	MG42.Rat_swap_ap = 3
-	MG42.recoil_mechanism = "Short_Recoil"
-	MG42.Rat_cycling = "Auto"
-	MG42.wep_base_recoil_mul = 82
-	MG42.wep_base_hip_mul = 92
-	MG42.wep_base_snapshot_mul = 138
-	MG42.weigth_held_mul = 182
-	MG42.rat_barrel_len = 550
-	MG42.rat_weigth = 11600
-	MG42.is_vanilla_firearm = true
-	MG42.ApertureSnapHipMul = 125
-	MG42.PenetrationClass = 1
-
-
-	MG58.Cost = 720
-	MG58.WeaponRange = 32
-	MG58.ShootAP = 4000
-	MG58.ReloadAP = 5000
-	MG58.Reliability = 88
-	MG58.AvailableAttacks = {"MGBurstFire"}
-	MG58.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'Bipod_MG42', Modifiable = false, AvailableComponents = {'Bipod_MG42', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'ImprovedIronsight', Modifiable = false, AvailableComponents = {'ImprovedIronsight', }}}
-	MG58.OverwatchAngle = 571
-	MG58.Damage = 30
-	MG58.MagazineSize = 50
-	MG58.RepairCost = 80
-	MG58.ScrapParts = 12
-	MG58.AdditionalHint = T{240845249658,[[<description_hints>]]}
-	MG58.Valuable = 1
-	MG58.Noise = 22
-	MG58.CritChanceScaled = 10
-	MG58.AimAccuracy = 2
-	MG58.Cumbersome = 1
-	MG58.PreparedAttackType = "Machine Gun"
-	MG58.PointBlankBonus = 1
-	MG58.Tier = 1
-	MG58.APStance = 5
-	MG58.PBbonus_base = -3
-	MG58.Rat_swap_ap = 3
-	MG58.recoil_mechanism = "Gas_Operated"
-	MG58.Rat_cycling = "Auto"
-	MG58.wep_base_recoil_mul = 82
-	MG58.wep_base_hip_mul = 92
-	MG58.wep_base_snapshot_mul = 138
-	MG58.weigth_held_mul = 182
-	MG58.long_shots = 7
-	MG58.rat_barrel_len = 550
-	MG58.rat_weigth = 11600
-	MG58.is_vanilla_firearm = true
-	MG58.ApertureSnapHipMul = 125
-	MG58.PenetrationClass = 1
 
 
 	PSG1.Cost = 12540
@@ -161,8 +83,86 @@ function RatoGBO_WepPatch()
 	PSG1.rat_barrel_len = 650
 	PSG1.rat_weigth = 7000
 	PSG1.is_vanilla_firearm = true
-	PSG1.ApertureSnapHipMul = 125
+	PSG1.ApertureHandlingHeavyMul = 125
 	PSG1.PenetrationClass = 1
+
+
+	MG58.Cost = 720
+	MG58.WeaponRange = 32
+	MG58.ShootAP = 4000
+	MG58.ReloadAP = 5000
+	MG58.Reliability = 88
+	MG58.AvailableAttacks = {"MGBurstFire"}
+	MG58.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'Bipod_MG42', Modifiable = false, AvailableComponents = {'Bipod_MG42', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'ImprovedIronsight', Modifiable = false, AvailableComponents = {'ImprovedIronsight', }}}
+	MG58.OverwatchAngle = 571
+	MG58.Damage = 30
+	MG58.MagazineSize = 50
+	MG58.RepairCost = 80
+	MG58.ScrapParts = 12
+	MG58.AdditionalHint = T{240845249658,[[<description_hints>]]}
+	MG58.Valuable = 1
+	MG58.Noise = 22
+	MG58.CritChanceScaled = 10
+	MG58.AimAccuracy = 2
+	MG58.Cumbersome = 1
+	MG58.PreparedAttackType = "Machine Gun"
+	MG58.PointBlankBonus = 1
+	MG58.Tier = 1
+	MG58.APStance = 5
+	MG58.PBbonus_base = -3
+	MG58.Rat_swap_ap = 3
+	MG58.recoil_mechanism = "Gas_Operated"
+	MG58.Rat_cycling = "Auto"
+	MG58.wep_base_recoil_mul = 82
+	MG58.wep_base_hip_mul = 92
+	MG58.wep_base_snapshot_mul = 138
+	MG58.weigth_held_mul = 182
+	MG58.long_shots = 7
+	MG58.rat_barrel_len = 550
+	MG58.rat_weigth = 11600
+	MG58.is_vanilla_firearm = true
+	MG58.ApertureHandlingHeavyMul = 125
+	MG58.PenetrationClass = 1
+
+
+	MG42.Cost = 2520
+	MG42.WeaponRange = 30
+	MG42.ShootAP = 4000
+	MG42.ReloadAP = 5000
+	MG42.Reliability = 85
+	MG42.AvailableAttacks = {"MGBurstFire"}
+	MG42.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'Bipod_MG42', Modifiable = false, AvailableComponents = {'Bipod_MG42', }}}
+	MG42.OverwatchAngle = 571
+	MG42.Damage = 28
+	MG42.MagazineSize = 50
+	MG42.RepairCost = 80
+	MG42.RestockWeight = 80
+	MG42.ScrapParts = 12
+	MG42.AdditionalHint = T{386845693893,[[<description_hints>]]}
+	MG42.Noise = 22
+	MG42.CritChanceScaled = 10
+	MG42.AimAccuracy = 2
+	MG42.Cumbersome = 1
+	MG42.PreparedAttackType = "Machine Gun"
+	MG42.PointBlankBonus = 1
+	MG42.CategoryPair = "MachineGuns"
+	MG42.CanAppearInShop = true
+	MG42.MaxStock = 1
+	MG42.Tier = 1
+	MG42.APStance = 5
+	MG42.PBbonus_base = -4
+	MG42.Rat_swap_ap = 3
+	MG42.recoil_mechanism = "Short_Recoil"
+	MG42.Rat_cycling = "Auto"
+	MG42.wep_base_recoil_mul = 82
+	MG42.wep_base_hip_mul = 92
+	MG42.wep_base_snapshot_mul = 138
+	MG42.weigth_held_mul = 182
+	MG42.rat_barrel_len = 550
+	MG42.rat_weigth = 11600
+	MG42.is_vanilla_firearm = true
+	MG42.ApertureHandlingHeavyMul = 125
+	MG42.PenetrationClass = 1
 
 
 	Gewehr98.Cost = 1200
@@ -202,7 +202,7 @@ function RatoGBO_WepPatch()
 	Gewehr98.rat_barrel_len = 740
 	Gewehr98.rat_weigth = 4500
 	Gewehr98.is_vanilla_firearm = true
-	Gewehr98.ApertureSnapHipMul = 122
+	Gewehr98.ApertureHandlingHeavyMul = 122
 	Gewehr98.PenetrationClass = 1
 
 
@@ -243,48 +243,8 @@ function RatoGBO_WepPatch()
 	HK21.rat_barrel_len = 530
 	HK21.rat_weigth = 8000
 	HK21.is_vanilla_firearm = true
-	HK21.ApertureSnapHipMul = 120
+	HK21.ApertureHandlingHeavyMul = 120
 	HK21.PenetrationClass = 1
-
-
-	FNMinimi.Cost = 11220
-	FNMinimi.WeaponRange = 28
-	FNMinimi.ShootAP = 4000
-	FNMinimi.ReloadAP = 5000
-	FNMinimi.Reliability = 85
-	FNMinimi.AvailableAttacks = {"MGBurstFire"}
-	FNMinimi.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong', 'BarrelLongImproved', 'BarrelNormal', 'BarrelNormalImproved', 'BarrelShort', 'BarrelShortImproved', 'long_barrel_light', 'BarrelLight', 'BarrelShort_Light', }}, {CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'Bipod', Modifiable = true, AvailableComponents = {'Bipod', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = true, AvailableComponents = {'StockHeavy', 'StockNormal', 'StockLight', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ImprovedIronsight', 'ReflexSight', 'ReflexSightAdvanced', 'LROptics', 'LROpticsAdvanced', 'ScopeCOG', 'ScopeCOGQuick', 'ThermalScope', 'WideScope', '_ReflexSIghtVigilance', 'PSG_DefaultScope', 'UVDot_Anaconda', 'LaserDot_Anaconda', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge_12', }}}
-	FNMinimi.OverwatchAngle = 781
-	FNMinimi.Damage = 23
-	FNMinimi.MagazineSize = 100
-	FNMinimi.RepairCost = 120
-	FNMinimi.RestockWeight = 25
-	FNMinimi.ScrapParts = 16
-	FNMinimi.AdditionalHint = T{616169182043,[[<description_hints>]]}
-	FNMinimi.Noise = 22
-	FNMinimi.CritChanceScaled = 10
-	FNMinimi.AimAccuracy = 3
-	FNMinimi.Cumbersome = 0
-	FNMinimi.PreparedAttackType = "Machine Gun"
-	FNMinimi.PointBlankBonus = 1
-	FNMinimi.CategoryPair = "MachineGuns"
-	FNMinimi.CanAppearInShop = true
-	FNMinimi.MaxStock = 1
-	FNMinimi.Tier = 3
-	FNMinimi.APStance = 5
-	FNMinimi.PBbonus_base = 0
-	FNMinimi.Rat_swap_ap = 3
-	FNMinimi.recoil_mechanism = "Gas_Operated"
-	FNMinimi.Rat_cycling = "Auto"
-	FNMinimi.wep_base_recoil_mul = 91
-	FNMinimi.wep_base_hip_mul = 97
-	FNMinimi.wep_base_snapshot_mul = 119
-	FNMinimi.weigth_held_mul = 156
-	FNMinimi.rat_barrel_len = 460
-	FNMinimi.rat_weigth = 7900
-	FNMinimi.is_vanilla_firearm = true
-	FNMinimi.ApertureSnapHipMul = 116
-	FNMinimi.PenetrationClass = 1
 
 
 	M24Sniper.Cost = 4860
@@ -324,8 +284,48 @@ function RatoGBO_WepPatch()
 	M24Sniper.rat_barrel_len = 610
 	M24Sniper.rat_weigth = 5200
 	M24Sniper.is_vanilla_firearm = true
-	M24Sniper.ApertureSnapHipMul = 116
+	M24Sniper.ApertureHandlingHeavyMul = 116
 	M24Sniper.PenetrationClass = 1
+
+
+	FNMinimi.Cost = 11220
+	FNMinimi.WeaponRange = 28
+	FNMinimi.ShootAP = 4000
+	FNMinimi.ReloadAP = 5000
+	FNMinimi.Reliability = 85
+	FNMinimi.AvailableAttacks = {"MGBurstFire"}
+	FNMinimi.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong', 'BarrelLongImproved', 'BarrelNormal', 'BarrelNormalImproved', 'BarrelShort', 'BarrelShortImproved', 'long_barrel_light', 'BarrelLight', 'BarrelShort_Light', }}, {CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'Bipod', Modifiable = true, AvailableComponents = {'Bipod', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = true, AvailableComponents = {'StockHeavy', 'StockNormal', 'StockLight', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ImprovedIronsight', 'ReflexSight', 'ReflexSightAdvanced', 'LROptics', 'LROpticsAdvanced', 'ScopeCOG', 'ScopeCOGQuick', 'ThermalScope', 'WideScope', '_ReflexSIghtVigilance', 'PSG_DefaultScope', 'UVDot_Anaconda', 'LaserDot_Anaconda', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge_12', }}}
+	FNMinimi.OverwatchAngle = 781
+	FNMinimi.Damage = 23
+	FNMinimi.MagazineSize = 100
+	FNMinimi.RepairCost = 120
+	FNMinimi.RestockWeight = 25
+	FNMinimi.ScrapParts = 16
+	FNMinimi.AdditionalHint = T{616169182043,[[<description_hints>]]}
+	FNMinimi.Noise = 22
+	FNMinimi.CritChanceScaled = 10
+	FNMinimi.AimAccuracy = 3
+	FNMinimi.Cumbersome = 0
+	FNMinimi.PreparedAttackType = "Machine Gun"
+	FNMinimi.PointBlankBonus = 1
+	FNMinimi.CategoryPair = "MachineGuns"
+	FNMinimi.CanAppearInShop = true
+	FNMinimi.MaxStock = 1
+	FNMinimi.Tier = 3
+	FNMinimi.APStance = 5
+	FNMinimi.PBbonus_base = 0
+	FNMinimi.Rat_swap_ap = 3
+	FNMinimi.recoil_mechanism = "Gas_Operated"
+	FNMinimi.Rat_cycling = "Auto"
+	FNMinimi.wep_base_recoil_mul = 91
+	FNMinimi.wep_base_hip_mul = 97
+	FNMinimi.wep_base_snapshot_mul = 119
+	FNMinimi.weigth_held_mul = 156
+	FNMinimi.rat_barrel_len = 460
+	FNMinimi.rat_weigth = 7900
+	FNMinimi.is_vanilla_firearm = true
+	FNMinimi.ApertureHandlingHeavyMul = 116
+	FNMinimi.PenetrationClass = 1
 
 
 	DragunovSVD.Cost = 8440
@@ -365,7 +365,7 @@ function RatoGBO_WepPatch()
 	DragunovSVD.rat_barrel_len = 610
 	DragunovSVD.rat_weigth = 4500
 	DragunovSVD.is_vanilla_firearm = true
-	DragunovSVD.ApertureSnapHipMul = 114
+	DragunovSVD.ApertureHandlingHeavyMul = 114
 	DragunovSVD.PenetrationClass = 1
 
 
@@ -405,7 +405,7 @@ function RatoGBO_WepPatch()
 	RPK74.rat_barrel_len = 580
 	RPK74.rat_weigth = 5600
 	RPK74.is_vanilla_firearm = true
-	RPK74.ApertureSnapHipMul = 114
+	RPK74.ApertureHandlingHeavyMul = 114
 	RPK74.PenetrationClass = 1
 
 
@@ -440,7 +440,7 @@ function RatoGBO_WepPatch()
 	GoldenGun.wep_base_snapshot_mul = 100
 	GoldenGun.weigth_held_mul = 100
 	GoldenGun.is_vanilla_firearm = true
-	GoldenGun.ApertureSnapHipMul = 111
+	GoldenGun.ApertureHandlingHeavyMul = 111
 	GoldenGun.PenetrationClass = 1
 
 
@@ -482,7 +482,7 @@ function RatoGBO_WepPatch()
 	M14SAW.rat_barrel_len = 457
 	M14SAW.rat_weigth = 5220
 	M14SAW.is_vanilla_firearm = true
-	M14SAW.ApertureSnapHipMul = 111
+	M14SAW.ApertureHandlingHeavyMul = 111
 	M14SAW.PenetrationClass = 1
 
 
@@ -529,7 +529,7 @@ function RatoGBO_WepPatch()
 	M14SAW_AUTO.rat_barrel_len = 457
 	M14SAW_AUTO.rat_weigth = 5220
 	M14SAW_AUTO.is_vanilla_firearm = true
-	M14SAW_AUTO.ApertureSnapHipMul = 111
+	M14SAW_AUTO.ApertureHandlingHeavyMul = 111
 	M14SAW_AUTO.PenetrationClass = 1
 
 
@@ -572,7 +572,7 @@ function RatoGBO_WepPatch()
 	M41Shotgun.is_vanilla_firearm = true
 	M41Shotgun.BuckshotConeAngle = 240
 	M41Shotgun.BuckshotFalloffDamage = 50
-	M41Shotgun.ApertureSnapHipMul = 111
+	M41Shotgun.ApertureHandlingHeavyMul = 111
 	M41Shotgun.PenetrationClass = 1
 
 
@@ -614,7 +614,7 @@ function RatoGBO_WepPatch()
 	DoubleBarrelShotgun.is_vanilla_firearm = true
 	DoubleBarrelShotgun.BuckshotConeAngle = 390
 	DoubleBarrelShotgun.BuckshotFalloffDamage = 50
-	DoubleBarrelShotgun.ApertureSnapHipMul = 110
+	DoubleBarrelShotgun.ApertureHandlingHeavyMul = 110
 	DoubleBarrelShotgun.PenetrationClass = 1
 
 
@@ -656,7 +656,7 @@ function RatoGBO_WepPatch()
 	Auto5.is_vanilla_firearm = true
 	Auto5.BuckshotConeAngle = 300
 	Auto5.BuckshotFalloffDamage = 50
-	Auto5.ApertureSnapHipMul = 107
+	Auto5.ApertureHandlingHeavyMul = 107
 	Auto5.PenetrationClass = 1
 
 
@@ -693,7 +693,7 @@ function RatoGBO_WepPatch()
 	Auto5_quest.is_vanilla_firearm = true
 	Auto5_quest.BuckshotConeAngle = 300
 	Auto5_quest.BuckshotFalloffDamage = 100
-	Auto5_quest.ApertureSnapHipMul = 107
+	Auto5_quest.ApertureHandlingHeavyMul = 107
 	Auto5_quest.PenetrationClass = 1
 
 
@@ -736,7 +736,7 @@ function RatoGBO_WepPatch()
 	AUG.rat_barrel_len = 500
 	AUG.rat_weigth = 4200
 	AUG.is_vanilla_firearm = true
-	AUG.ApertureSnapHipMul = 106
+	AUG.ApertureHandlingHeavyMul = 106
 	AUG.PenetrationClass = 1
 
 
@@ -781,7 +781,7 @@ function RatoGBO_WepPatch()
 	AA12.is_vanilla_firearm = true
 	AA12.BuckshotConeAngle = 355
 	AA12.BuckshotFalloffDamage = 50
-	AA12.ApertureSnapHipMul = 105
+	AA12.ApertureHandlingHeavyMul = 105
 	AA12.PenetrationClass = 1
 
 
@@ -822,7 +822,7 @@ function RatoGBO_WepPatch()
 	FNFAL.rat_barrel_len = 450
 	FNFAL.rat_weigth = 4600
 	FNFAL.is_vanilla_firearm = true
-	FNFAL.ApertureSnapHipMul = 104
+	FNFAL.ApertureHandlingHeavyMul = 104
 	FNFAL.PenetrationClass = 1
 
 
@@ -869,7 +869,7 @@ function RatoGBO_WepPatch()
 	G36.is_vanilla_firearm = true
 	G36.AutoFireCustomDeltaAP = 1
 	G36.SingleShotCustomDeltaAP = 1
-	G36.ApertureSnapHipMul = 104
+	G36.ApertureHandlingHeavyMul = 104
 	G36.PenetrationClass = 1
 
 
@@ -913,7 +913,7 @@ function RatoGBO_WepPatch()
 	M16A2.rat_barrel_len = 500
 	M16A2.rat_weigth = 3600
 	M16A2.is_vanilla_firearm = true
-	M16A2.ApertureSnapHipMul = 104
+	M16A2.ApertureHandlingHeavyMul = 104
 	M16A2.PenetrationClass = 1
 
 
@@ -956,7 +956,7 @@ function RatoGBO_WepPatch()
 	FAMAS.rat_barrel_len = 510
 	FAMAS.rat_weigth = 3900
 	FAMAS.is_vanilla_firearm = true
-	FAMAS.ApertureSnapHipMul = 102
+	FAMAS.ApertureHandlingHeavyMul = 102
 	FAMAS.PenetrationClass = 1
 
 
@@ -998,7 +998,7 @@ function RatoGBO_WepPatch()
 	Galil.rat_barrel_len = 535
 	Galil.rat_weigth = 4450
 	Galil.is_vanilla_firearm = true
-	Galil.ApertureSnapHipMul = 102
+	Galil.ApertureHandlingHeavyMul = 102
 	Galil.PenetrationClass = 1
 
 
@@ -1040,8 +1040,41 @@ function RatoGBO_WepPatch()
 	Winchester1894.rat_barrel_len = 540
 	Winchester1894.rat_weigth = 3000
 	Winchester1894.is_vanilla_firearm = true
-	Winchester1894.ApertureSnapHipMul = 102
+	Winchester1894.ApertureHandlingHeavyMul = 102
 	Winchester1894.PenetrationClass = 1
+
+
+	Galil_FlagHill.Cost = 7860
+	Galil_FlagHill.WeaponRange = 30
+	Galil_FlagHill.ShootAP = 4000
+	Galil_FlagHill.ReloadAP = 3000
+	Galil_FlagHill.Reliability = 87
+	Galil_FlagHill.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
+	Galil_FlagHill.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'long_barrel_light', Modifiable = false, AvailableComponents = {'long_barrel_light', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = false, AvailableComponents = {'StockNormal', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'Galil_Brake_Default', Modifiable = false, AvailableComponents = {'Galil_Brake_Default', }}, {CanBeEmpty = false, SlotType = 'Under', DefaultComponent = 'Bipod_Galil', Modifiable = false, AvailableComponents = {'Bipod_Galil', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'WideScope', Modifiable = false, AvailableComponents = {'WideScope', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = false, AvailableComponents = {'MagNormal', }}}
+	Galil_FlagHill.OverwatchAngle = 1080
+	Galil_FlagHill.Damage = 30
+	Galil_FlagHill.MagazineSize = 25
+	Galil_FlagHill.RepairCost = 50
+	Galil_FlagHill.ScrapParts = 10
+	Galil_FlagHill.AdditionalHint = T{811371938636,[[<description_hints>]]}
+	Galil_FlagHill.Noise = 22
+	Galil_FlagHill.CritChanceScaled = 40
+	Galil_FlagHill.AimAccuracy = 4
+	Galil_FlagHill.Cumbersome = 0
+	Galil_FlagHill.PreparedAttackType = "Overwatch"
+	Galil_FlagHill.PointBlankBonus = 1
+	Galil_FlagHill.APStance = 4
+	Galil_FlagHill.PBbonus_base = 2
+	Galil_FlagHill.Rat_swap_ap = 3
+	Galil_FlagHill.recoil_mechanism = "Gas_Operated"
+	Galil_FlagHill.Rat_cycling = "Auto"
+	Galil_FlagHill.wep_base_recoil_mul = 100
+	Galil_FlagHill.wep_base_hip_mul = 93
+	Galil_FlagHill.wep_base_snapshot_mul = 106
+	Galil_FlagHill.weigth_held_mul = 100
+	Galil_FlagHill.is_vanilla_firearm = true
+	Galil_FlagHill.ApertureHandlingHeavyMul = 101
+	Galil_FlagHill.PenetrationClass = 1
 
 
 	AK47.Cost = 1680
@@ -1079,41 +1112,8 @@ function RatoGBO_WepPatch()
 	AK47.rat_barrel_len = 410
 	AK47.rat_weigth = 4400
 	AK47.is_vanilla_firearm = true
-	AK47.ApertureSnapHipMul = 101
+	AK47.ApertureHandlingHeavyMul = 101
 	AK47.PenetrationClass = 1
-
-
-	Galil_FlagHill.Cost = 7860
-	Galil_FlagHill.WeaponRange = 30
-	Galil_FlagHill.ShootAP = 4000
-	Galil_FlagHill.ReloadAP = 3000
-	Galil_FlagHill.Reliability = 87
-	Galil_FlagHill.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	Galil_FlagHill.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'long_barrel_light', Modifiable = false, AvailableComponents = {'long_barrel_light', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = false, AvailableComponents = {'StockNormal', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'Galil_Brake_Default', Modifiable = false, AvailableComponents = {'Galil_Brake_Default', }}, {CanBeEmpty = false, SlotType = 'Under', DefaultComponent = 'Bipod_Galil', Modifiable = false, AvailableComponents = {'Bipod_Galil', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'WideScope', Modifiable = false, AvailableComponents = {'WideScope', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = false, AvailableComponents = {'MagNormal', }}}
-	Galil_FlagHill.OverwatchAngle = 1080
-	Galil_FlagHill.Damage = 30
-	Galil_FlagHill.MagazineSize = 25
-	Galil_FlagHill.RepairCost = 50
-	Galil_FlagHill.ScrapParts = 10
-	Galil_FlagHill.AdditionalHint = T{811371938636,[[<description_hints>]]}
-	Galil_FlagHill.Noise = 22
-	Galil_FlagHill.CritChanceScaled = 40
-	Galil_FlagHill.AimAccuracy = 4
-	Galil_FlagHill.Cumbersome = 0
-	Galil_FlagHill.PreparedAttackType = "Overwatch"
-	Galil_FlagHill.PointBlankBonus = 1
-	Galil_FlagHill.APStance = 4
-	Galil_FlagHill.PBbonus_base = 2
-	Galil_FlagHill.Rat_swap_ap = 3
-	Galil_FlagHill.recoil_mechanism = "Gas_Operated"
-	Galil_FlagHill.Rat_cycling = "Auto"
-	Galil_FlagHill.wep_base_recoil_mul = 100
-	Galil_FlagHill.wep_base_hip_mul = 93
-	Galil_FlagHill.wep_base_snapshot_mul = 106
-	Galil_FlagHill.weigth_held_mul = 100
-	Galil_FlagHill.is_vanilla_firearm = true
-	Galil_FlagHill.ApertureSnapHipMul = 101
-	Galil_FlagHill.PenetrationClass = 1
 
 
 	AK74.Cost = 7500
@@ -1153,7 +1153,7 @@ function RatoGBO_WepPatch()
 	AK74.rat_barrel_len = 410
 	AK74.rat_weigth = 3800
 	AK74.is_vanilla_firearm = true
-	AK74.ApertureSnapHipMul = 98
+	AK74.ApertureHandlingHeavyMul = 100
 	AK74.PenetrationClass = 1
 
 
@@ -1194,8 +1194,45 @@ function RatoGBO_WepPatch()
 	AR15.rat_barrel_len = 450
 	AR15.rat_weigth = 3000
 	AR15.is_vanilla_firearm = true
-	AR15.ApertureSnapHipMul = 98
+	AR15.ApertureHandlingHeavyMul = 100
 	AR15.PenetrationClass = 1
+
+
+	Winchester_Quest.Cost = 1800
+	Winchester_Quest.object_class = "AssaultRifle"
+	Winchester_Quest.WeaponRange = 26
+	Winchester_Quest.ShootAP = 4000
+	Winchester_Quest.ReloadAP = 3000
+	Winchester_Quest.Reliability = 85
+	Winchester_Quest.AvailableAttacks = {"SingleShot", "CancelShot", "MobileShot"}
+	Winchester_Quest.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'barrel_confidante', Modifiable = false, AvailableComponents = {'barrel_confidante', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'stealth_ironsight_confidante', Modifiable = false, AvailableComponents = {'stealth_ironsight_confidante', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'Suppressor', Modifiable = false, AvailableComponents = {'Suppressor', }}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'lever_action', Modifiable = false, AvailableComponents = {'lever_action', }}}
+	Winchester_Quest.OverwatchAngle = 1320
+	Winchester_Quest.Damage = 27
+	Winchester_Quest.MagazineSize = 4
+	Winchester_Quest.RepairCost = 80
+	Winchester_Quest.ScrapParts = 8
+	Winchester_Quest.AdditionalHint = T{271837025192,[[<description_hints>
+ <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Backstabby and Silent
+ <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Lever action
+ ]]}
+	Winchester_Quest.Noise = 30
+	Winchester_Quest.CritChanceScaled = 40
+	Winchester_Quest.AimAccuracy = 3
+	Winchester_Quest.Cumbersome = 0
+	Winchester_Quest.PreparedAttackType = "Both"
+	Winchester_Quest.PointBlankBonus = 1
+	Winchester_Quest.APStance = 4
+	Winchester_Quest.PBbonus_base = 2
+	Winchester_Quest.Rat_swap_ap = 3
+	Winchester_Quest.recoil_mechanism = "Lever_Action"
+	Winchester_Quest.Rat_cycling = "LeverAction"
+	Winchester_Quest.wep_base_recoil_mul = 97
+	Winchester_Quest.wep_base_hip_mul = 93
+	Winchester_Quest.wep_base_snapshot_mul = 100
+	Winchester_Quest.weigth_held_mul = 100
+	Winchester_Quest.is_vanilla_firearm = true
+	Winchester_Quest.ApertureHandlingHeavyMul = 100
+	Winchester_Quest.PenetrationClass = 1
 
 
 	MP40.Cost = 720
@@ -1234,81 +1271,8 @@ function RatoGBO_WepPatch()
 	MP40.rat_barrel_len = 250
 	MP40.rat_weigth = 4000
 	MP40.is_vanilla_firearm = true
-	MP40.ApertureSnapHipMul = 89
+	MP40.ApertureHandlingHeavyMul = 100
 	MP40.PenetrationClass = 1
-
-
-	Winchester_Quest.Cost = 1800
-	Winchester_Quest.object_class = "AssaultRifle"
-	Winchester_Quest.WeaponRange = 26
-	Winchester_Quest.ShootAP = 4000
-	Winchester_Quest.ReloadAP = 3000
-	Winchester_Quest.Reliability = 85
-	Winchester_Quest.AvailableAttacks = {"SingleShot", "CancelShot", "MobileShot"}
-	Winchester_Quest.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'barrel_confidante', Modifiable = false, AvailableComponents = {'barrel_confidante', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'stealth_ironsight_confidante', Modifiable = false, AvailableComponents = {'stealth_ironsight_confidante', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'Suppressor', Modifiable = false, AvailableComponents = {'Suppressor', }}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'lever_action', Modifiable = false, AvailableComponents = {'lever_action', }}}
-	Winchester_Quest.OverwatchAngle = 1320
-	Winchester_Quest.Damage = 27
-	Winchester_Quest.MagazineSize = 4
-	Winchester_Quest.RepairCost = 80
-	Winchester_Quest.ScrapParts = 8
-	Winchester_Quest.AdditionalHint = T{271837025192,[[<description_hints>
- <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Backstabby and Silent
- <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Lever action
- ]]}
-	Winchester_Quest.Noise = 30
-	Winchester_Quest.CritChanceScaled = 40
-	Winchester_Quest.AimAccuracy = 3
-	Winchester_Quest.Cumbersome = 0
-	Winchester_Quest.PreparedAttackType = "Both"
-	Winchester_Quest.PointBlankBonus = 1
-	Winchester_Quest.APStance = 4
-	Winchester_Quest.PBbonus_base = 2
-	Winchester_Quest.Rat_swap_ap = 3
-	Winchester_Quest.recoil_mechanism = "Lever_Action"
-	Winchester_Quest.Rat_cycling = "LeverAction"
-	Winchester_Quest.wep_base_recoil_mul = 97
-	Winchester_Quest.wep_base_hip_mul = 93
-	Winchester_Quest.wep_base_snapshot_mul = 100
-	Winchester_Quest.weigth_held_mul = 100
-	Winchester_Quest.is_vanilla_firearm = true
-	Winchester_Quest.ApertureSnapHipMul = 89
-	Winchester_Quest.PenetrationClass = 1
-
-
-	LionRoar.Cost = 1800
-	LionRoar.WeaponRange = 22
-	LionRoar.ShootAP = 3000
-	LionRoar.ReloadAP = 3000
-	LionRoar.Reliability = 86
-	LionRoar.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "RunAndGun"}
-	LionRoar.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'LionRoar_compensator', Modifiable = false, AvailableComponents = {'LionRoar_compensator', }}, {CanBeEmpty = false, SlotType = 'Internal', DefaultComponent = 'Internal_plus_burstshot', Modifiable = false, AvailableComponents = {'Internal_plus_burstshot', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNo', Modifiable = false, AvailableComponents = {'StockNo', }}}
-	LionRoar.OverwatchAngle = 1410
-	LionRoar.Damage = 19
-	LionRoar.MagazineSize = 20
-	LionRoar.RepairCost = 80
-	LionRoar.ScrapParts = 10
-	LionRoar.AdditionalHint = T{901243090653,[[<description_hints>
- <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> OUR weapon
- <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Burst fire has 4 shots
- <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Limited ammo capacity]]}
-	LionRoar.Noise = 20
-	LionRoar.CritChanceScaled = 10
-	LionRoar.AimAccuracy = 4
-	LionRoar.Cumbersome = 0
-	LionRoar.PreparedAttackType = "Overwatch"
-	LionRoar.PointBlankBonus = 1
-	LionRoar.APStance = 2
-	LionRoar.PBbonus_base = 8
-	LionRoar.Rat_swap_ap = 1
-	LionRoar.recoil_mechanism = "Gas_Operated"
-	LionRoar.Rat_cycling = "Auto"
-	LionRoar.wep_base_recoil_mul = 108
-	LionRoar.wep_base_hip_mul = 110
-	LionRoar.wep_base_snapshot_mul = 95
-	LionRoar.weigth_held_mul = 100
-	LionRoar.is_vanilla_firearm = true
-	LionRoar.ApertureSnapHipMul = 84
-	LionRoar.PenetrationClass = 1
 
 
 	M4Commando.Cost = 10050
@@ -1348,8 +1312,44 @@ function RatoGBO_WepPatch()
 	M4Commando.rat_barrel_len = 250
 	M4Commando.rat_weigth = 2430
 	M4Commando.is_vanilla_firearm = true
-	M4Commando.ApertureSnapHipMul = 84
+	M4Commando.ApertureHandlingHeavyMul = 100
 	M4Commando.PenetrationClass = 1
+
+
+	LionRoar.Cost = 1800
+	LionRoar.WeaponRange = 22
+	LionRoar.ShootAP = 3000
+	LionRoar.ReloadAP = 3000
+	LionRoar.Reliability = 86
+	LionRoar.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "RunAndGun"}
+	LionRoar.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'LionRoar_compensator', Modifiable = false, AvailableComponents = {'LionRoar_compensator', }}, {CanBeEmpty = false, SlotType = 'Internal', DefaultComponent = 'Internal_plus_burstshot', Modifiable = false, AvailableComponents = {'Internal_plus_burstshot', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNo', Modifiable = false, AvailableComponents = {'StockNo', }}}
+	LionRoar.OverwatchAngle = 1410
+	LionRoar.Damage = 19
+	LionRoar.MagazineSize = 20
+	LionRoar.RepairCost = 80
+	LionRoar.ScrapParts = 10
+	LionRoar.AdditionalHint = T{901243090653,[[<description_hints>
+ <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> OUR weapon
+ <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Burst fire has 4 shots
+ <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Limited ammo capacity]]}
+	LionRoar.Noise = 20
+	LionRoar.CritChanceScaled = 10
+	LionRoar.AimAccuracy = 4
+	LionRoar.Cumbersome = 0
+	LionRoar.PreparedAttackType = "Overwatch"
+	LionRoar.PointBlankBonus = 1
+	LionRoar.APStance = 2
+	LionRoar.PBbonus_base = 8
+	LionRoar.Rat_swap_ap = 1
+	LionRoar.recoil_mechanism = "Gas_Operated"
+	LionRoar.Rat_cycling = "Auto"
+	LionRoar.wep_base_recoil_mul = 108
+	LionRoar.wep_base_hip_mul = 110
+	LionRoar.wep_base_snapshot_mul = 95
+	LionRoar.weigth_held_mul = 100
+	LionRoar.is_vanilla_firearm = true
+	LionRoar.ApertureHandlingHeavyMul = 100
+	LionRoar.PenetrationClass = 1
 
 
 	UZI.Cost = 960
@@ -1388,7 +1388,7 @@ function RatoGBO_WepPatch()
 	UZI.rat_barrel_len = 250
 	UZI.rat_weigth = 2700
 	UZI.is_vanilla_firearm = true
-	UZI.ApertureSnapHipMul = 84
+	UZI.ApertureHandlingHeavyMul = 100
 	UZI.PenetrationClass = 1
 
 
@@ -1429,7 +1429,7 @@ function RatoGBO_WepPatch()
 	AKSU.rat_barrel_len = 210
 	AKSU.rat_weigth = 2900
 	AKSU.is_vanilla_firearm = true
-	AKSU.ApertureSnapHipMul = 83
+	AKSU.ApertureHandlingHeavyMul = 100
 	AKSU.PenetrationClass = 1
 
 
@@ -1469,7 +1469,7 @@ function RatoGBO_WepPatch()
 	MP5.rat_barrel_len = 220
 	MP5.rat_weigth = 2880
 	MP5.is_vanilla_firearm = true
-	MP5.ApertureSnapHipMul = 83
+	MP5.ApertureHandlingHeavyMul = 100
 	MP5.PenetrationClass = 1
 
 
@@ -1512,49 +1512,8 @@ function RatoGBO_WepPatch()
 	MP5K.rat_barrel_len = 110
 	MP5K.rat_weigth = 2000
 	MP5K.is_vanilla_firearm = true
-	MP5K.ApertureSnapHipMul = 83
+	MP5K.ApertureHandlingHeavyMul = 100
 	MP5K.PenetrationClass = 1
-
-
-	Bereta92.Cost = 720
-	Bereta92.WeaponRange = 18
-	Bereta92.ShootAP = 4000
-	Bereta92.ReloadAP = 3000
-	Bereta92.Reliability = 81
-	Bereta92.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	Bereta92.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ReflexSight', '_ReflexSIghtVigilance', 'ReflexSightAdvanced_Glock', 'ImprovedIronsight', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'ImprovisedSuppressor', 'Suppressor', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagLarge', 'MagNormal', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong_handgun', 'BarrelNormal', 'long_barrel_light_handgun', 'BarrelLight', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'LaserDot', 'FlashlightDot', 'UVDot', }}}
-	Bereta92.OverwatchAngle = 2209
-	Bereta92.Damage = 17
-	Bereta92.MagazineSize = 15
-	Bereta92.RepairCost = 70
-	Bereta92.RestockWeight = 70
-	Bereta92.ScrapParts = 6
-	Bereta92.AdditionalHint = T{612920982302,[[<description_hints>
- <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Swapping to this weapon is free, as long it is not dual-wielded]]}
-	Bereta92.Noise = 18
-	Bereta92.CritChanceScaled = 30
-	Bereta92.AimAccuracy = 3
-	Bereta92.Cumbersome = 0
-	Bereta92.PreparedAttackType = "Overwatch"
-	Bereta92.PointBlankBonus = 1
-	Bereta92.CategoryPair = "Handguns"
-	Bereta92.CanAppearInShop = true
-	Bereta92.MaxStock = 3
-	Bereta92.Tier = 1
-	Bereta92.APStance = 1
-	Bereta92.PBbonus_base = 12
-	Bereta92.Rat_swap_ap = 1
-	Bereta92.recoil_mechanism = "Short_Recoil"
-	Bereta92.Rat_cycling = "SemiAuto"
-	Bereta92.wep_base_recoil_mul = 115
-	Bereta92.wep_base_hip_mul = 116
-	Bereta92.wep_base_snapshot_mul = 71
-	Bereta92.weigth_held_mul = 106
-	Bereta92.rat_barrel_len = 120
-	Bereta92.rat_weigth = 950
-	Bereta92.is_vanilla_firearm = true
-	Bereta92.ApertureSnapHipMul = 80
-	Bereta92.PenetrationClass = 1
 
 
 	BrowningM2HMG.Cost = 2520
@@ -1590,8 +1549,50 @@ function RatoGBO_WepPatch()
 	BrowningM2HMG.weigth_held_mul = 100
 	BrowningM2HMG.long_shots = 5
 	BrowningM2HMG.is_vanilla_firearm = true
-	BrowningM2HMG.ApertureSnapHipMul = 80
+	BrowningM2HMG.ApertureHandlingHeavyMul = 100
 	BrowningM2HMG.PenetrationClass = 1
+
+
+	DesertEagle.Cost = 3600
+	DesertEagle.WeaponRange = 24
+	DesertEagle.ShootAP = 4000
+	DesertEagle.ReloadAP = 3000
+	DesertEagle.Reliability = 68
+	DesertEagle.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
+	DesertEagle.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ReflexSight', 'ReflexSightAdvanced', 'ImprovedIronsight', '_ReflexSIghtVigilance', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong_handgun', 'BarrelNormal', 'Barrel50BMG_DesertEagle', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'Suppressor', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'FlashlightDot', 'Flashlight', 'LaserDot', 'UVDot', }}}
+	DesertEagle.OverwatchAngle = 1936
+	DesertEagle.Damage = 27
+	DesertEagle.MagazineSize = 8
+	DesertEagle.RepairCost = 70
+	DesertEagle.RestockWeight = 40
+	DesertEagle.ScrapParts = 10
+	DesertEagle.AdditionalHint = T{467653092333,[[<description_hints>
+ <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Swapping to this weapon is free, as long it is not dual-wielded]]}
+	DesertEagle.Valuable = 1
+	DesertEagle.Noise = 20
+	DesertEagle.CritChanceScaled = 20
+	DesertEagle.AimAccuracy = 4
+	DesertEagle.Cumbersome = 0
+	DesertEagle.PreparedAttackType = "Overwatch"
+	DesertEagle.PointBlankBonus = 1
+	DesertEagle.CategoryPair = "Handguns"
+	DesertEagle.CanAppearInShop = true
+	DesertEagle.MaxStock = 3
+	DesertEagle.Tier = 3
+	DesertEagle.APStance = 1
+	DesertEagle.PBbonus_base = 11
+	DesertEagle.Rat_swap_ap = 1
+	DesertEagle.recoil_mechanism = "Short_Recoil"
+	DesertEagle.Rat_cycling = "SemiAuto"
+	DesertEagle.wep_base_recoil_mul = 99
+	DesertEagle.wep_base_hip_mul = 114
+	DesertEagle.wep_base_snapshot_mul = 77
+	DesertEagle.weigth_held_mul = 115
+	DesertEagle.rat_barrel_len = 150
+	DesertEagle.rat_weigth = 2100
+	DesertEagle.is_vanilla_firearm = true
+	DesertEagle.ApertureHandlingHeavyMul = 100
+	DesertEagle.PenetrationClass = 1
 
 
 	ColtAnaconda.Cost = 2700
@@ -1633,7 +1634,7 @@ function RatoGBO_WepPatch()
 	ColtAnaconda.rat_barrel_len = 150
 	ColtAnaconda.rat_weigth = 1400
 	ColtAnaconda.is_vanilla_firearm = true
-	ColtAnaconda.ApertureSnapHipMul = 80
+	ColtAnaconda.ApertureHandlingHeavyMul = 100
 	ColtAnaconda.PenetrationClass = 1
 
 
@@ -1675,50 +1676,89 @@ function RatoGBO_WepPatch()
 	ColtPeacemaker.rat_barrel_len = 160
 	ColtPeacemaker.rat_weigth = 720
 	ColtPeacemaker.is_vanilla_firearm = true
-	ColtPeacemaker.ApertureSnapHipMul = 80
+	ColtPeacemaker.ApertureHandlingHeavyMul = 100
 	ColtPeacemaker.PenetrationClass = 1
 
 
-	DesertEagle.Cost = 3600
-	DesertEagle.WeaponRange = 24
-	DesertEagle.ShootAP = 4000
-	DesertEagle.ReloadAP = 3000
-	DesertEagle.Reliability = 68
-	DesertEagle.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	DesertEagle.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ReflexSight', 'ReflexSightAdvanced', 'ImprovedIronsight', '_ReflexSIghtVigilance', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong_handgun', 'BarrelNormal', 'Barrel50BMG_DesertEagle', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'Suppressor', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'FlashlightDot', 'Flashlight', 'LaserDot', 'UVDot', }}}
-	DesertEagle.OverwatchAngle = 1936
-	DesertEagle.Damage = 27
-	DesertEagle.MagazineSize = 8
-	DesertEagle.RepairCost = 70
-	DesertEagle.RestockWeight = 40
-	DesertEagle.ScrapParts = 10
-	DesertEagle.AdditionalHint = T{467653092333,[[<description_hints>
+	TexRevolver.Cost = 1200
+	TexRevolver.WeaponRange = 20
+	TexRevolver.ShootAP = 4000
+	TexRevolver.ReloadAP = 3000
+	TexRevolver.Reliability = 94
+	TexRevolver.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
+	TexRevolver.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Trigger', DefaultComponent = 'single_action_tex', Modifiable = false, AvailableComponents = {'single_action_tex', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong_handgun', 'BarrelNormal', 'BarrelShort_handgun', 'BarrelLight', 'long_barrel_light_handgun', 'BarrelShort_Light_handgun', }}}
+	TexRevolver.OverwatchAngle = 2162
+	TexRevolver.Damage = 24
+	TexRevolver.MagazineSize = 6
+	TexRevolver.RepairCost = 50
+	TexRevolver.ScrapParts = 8
+	TexRevolver.AdditionalHint = T{596143246468,[[<description_hints>
+ <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Tex has reduced penalty when using Dual Shot with his revolvers
+ <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Single action]]}
+	TexRevolver.Noise = 18
+	TexRevolver.CritChanceScaled = 60
+	TexRevolver.AimAccuracy = 3
+	TexRevolver.Cumbersome = 0
+	TexRevolver.PreparedAttackType = "Overwatch"
+	TexRevolver.PointBlankBonus = 1
+	TexRevolver.CategoryPair = "Handguns"
+	TexRevolver.MaxStock = 3
+	TexRevolver.Tier = 1
+	TexRevolver.APStance = 1
+	TexRevolver.PBbonus_base = 11
+	TexRevolver.Rat_swap_ap = 1
+	TexRevolver.recoil_mechanism = "Revolver"
+	TexRevolver.Rat_cycling = "SingleAction"
+	TexRevolver.wep_base_recoil_mul = 107
+	TexRevolver.wep_base_hip_mul = 110
+	TexRevolver.wep_base_snapshot_mul = 73
+	TexRevolver.weigth_held_mul = 100
+	TexRevolver.rat_barrel_len = 160
+	TexRevolver.rat_weigth = 720
+	TexRevolver.is_vanilla_firearm = true
+	TexRevolver.ApertureHandlingHeavyMul = 100
+	TexRevolver.PenetrationClass = 1
+
+
+	Bereta92.Cost = 720
+	Bereta92.WeaponRange = 18
+	Bereta92.ShootAP = 4000
+	Bereta92.ReloadAP = 3000
+	Bereta92.Reliability = 81
+	Bereta92.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
+	Bereta92.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ReflexSight', '_ReflexSIghtVigilance', 'ReflexSightAdvanced_Glock', 'ImprovedIronsight', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'ImprovisedSuppressor', 'Suppressor', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagLarge', 'MagNormal', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong_handgun', 'BarrelNormal', 'long_barrel_light_handgun', 'BarrelLight', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'LaserDot', 'FlashlightDot', 'UVDot', }}}
+	Bereta92.OverwatchAngle = 2209
+	Bereta92.Damage = 17
+	Bereta92.MagazineSize = 15
+	Bereta92.RepairCost = 70
+	Bereta92.RestockWeight = 70
+	Bereta92.ScrapParts = 6
+	Bereta92.AdditionalHint = T{612920982302,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Swapping to this weapon is free, as long it is not dual-wielded]]}
-	DesertEagle.Valuable = 1
-	DesertEagle.Noise = 20
-	DesertEagle.CritChanceScaled = 20
-	DesertEagle.AimAccuracy = 4
-	DesertEagle.Cumbersome = 0
-	DesertEagle.PreparedAttackType = "Overwatch"
-	DesertEagle.PointBlankBonus = 1
-	DesertEagle.CategoryPair = "Handguns"
-	DesertEagle.CanAppearInShop = true
-	DesertEagle.MaxStock = 3
-	DesertEagle.Tier = 3
-	DesertEagle.APStance = 1
-	DesertEagle.PBbonus_base = 11
-	DesertEagle.Rat_swap_ap = 1
-	DesertEagle.recoil_mechanism = "Short_Recoil"
-	DesertEagle.Rat_cycling = "SemiAuto"
-	DesertEagle.wep_base_recoil_mul = 99
-	DesertEagle.wep_base_hip_mul = 114
-	DesertEagle.wep_base_snapshot_mul = 77
-	DesertEagle.weigth_held_mul = 115
-	DesertEagle.rat_barrel_len = 150
-	DesertEagle.rat_weigth = 2100
-	DesertEagle.is_vanilla_firearm = true
-	DesertEagle.ApertureSnapHipMul = 80
-	DesertEagle.PenetrationClass = 1
+	Bereta92.Noise = 18
+	Bereta92.CritChanceScaled = 30
+	Bereta92.AimAccuracy = 3
+	Bereta92.Cumbersome = 0
+	Bereta92.PreparedAttackType = "Overwatch"
+	Bereta92.PointBlankBonus = 1
+	Bereta92.CategoryPair = "Handguns"
+	Bereta92.CanAppearInShop = true
+	Bereta92.MaxStock = 3
+	Bereta92.Tier = 1
+	Bereta92.APStance = 1
+	Bereta92.PBbonus_base = 12
+	Bereta92.Rat_swap_ap = 1
+	Bereta92.recoil_mechanism = "Short_Recoil"
+	Bereta92.Rat_cycling = "SemiAuto"
+	Bereta92.wep_base_recoil_mul = 115
+	Bereta92.wep_base_hip_mul = 116
+	Bereta92.wep_base_snapshot_mul = 71
+	Bereta92.weigth_held_mul = 106
+	Bereta92.rat_barrel_len = 120
+	Bereta92.rat_weigth = 950
+	Bereta92.is_vanilla_firearm = true
+	Bereta92.ApertureHandlingHeavyMul = 100
+	Bereta92.PenetrationClass = 1
 
 
 	Glock18.Cost = 1680
@@ -1766,7 +1806,7 @@ function RatoGBO_WepPatch()
 	Glock18.is_vanilla_firearm = true
 	Glock18.AutoFireCustomDeltaAP = 1
 	Glock18.SingleShotCustomDeltaAP = 1
-	Glock18.ApertureSnapHipMul = 80
+	Glock18.ApertureHandlingHeavyMul = 100
 	Glock18.PenetrationClass = 1
 
 
@@ -1807,48 +1847,8 @@ function RatoGBO_WepPatch()
 	HiPower.rat_barrel_len = 110
 	HiPower.rat_weigth = 1050
 	HiPower.is_vanilla_firearm = true
-	HiPower.ApertureSnapHipMul = 80
+	HiPower.ApertureHandlingHeavyMul = 100
 	HiPower.PenetrationClass = 1
-
-
-	TexRevolver.Cost = 1200
-	TexRevolver.WeaponRange = 20
-	TexRevolver.ShootAP = 4000
-	TexRevolver.ReloadAP = 3000
-	TexRevolver.Reliability = 94
-	TexRevolver.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	TexRevolver.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Trigger', DefaultComponent = 'single_action_tex', Modifiable = false, AvailableComponents = {'single_action_tex', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong_handgun', 'BarrelNormal', 'BarrelShort_handgun', 'BarrelLight', 'long_barrel_light_handgun', 'BarrelShort_Light_handgun', }}}
-	TexRevolver.OverwatchAngle = 2162
-	TexRevolver.Damage = 24
-	TexRevolver.MagazineSize = 6
-	TexRevolver.RepairCost = 50
-	TexRevolver.ScrapParts = 8
-	TexRevolver.AdditionalHint = T{596143246468,[[<description_hints>
- <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Tex has reduced penalty when using Dual Shot with his revolvers
- <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Single action]]}
-	TexRevolver.Noise = 18
-	TexRevolver.CritChanceScaled = 60
-	TexRevolver.AimAccuracy = 3
-	TexRevolver.Cumbersome = 0
-	TexRevolver.PreparedAttackType = "Overwatch"
-	TexRevolver.PointBlankBonus = 1
-	TexRevolver.CategoryPair = "Handguns"
-	TexRevolver.MaxStock = 3
-	TexRevolver.Tier = 1
-	TexRevolver.APStance = 1
-	TexRevolver.PBbonus_base = 11
-	TexRevolver.Rat_swap_ap = 1
-	TexRevolver.recoil_mechanism = "Revolver"
-	TexRevolver.Rat_cycling = "SingleAction"
-	TexRevolver.wep_base_recoil_mul = 107
-	TexRevolver.wep_base_hip_mul = 110
-	TexRevolver.wep_base_snapshot_mul = 73
-	TexRevolver.weigth_held_mul = 100
-	TexRevolver.rat_barrel_len = 160
-	TexRevolver.rat_weigth = 720
-	TexRevolver.is_vanilla_firearm = true
-	TexRevolver.ApertureSnapHipMul = 80
-	TexRevolver.PenetrationClass = 1
 
 
 	print("PATCH_GBO_weapons Done")

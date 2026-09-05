@@ -4,8 +4,8 @@ function rat_combat_actions()
     CombatActions.AutoFire.ActionPointDelta = 4000
     CombatActions.MGBurstFire.ActionPointDelta = 1000
 
-    CombatActions.Buckshot.ActionPointDelta = -1000
-    CombatActions.BuckshotBurst.ActionPointDelta = 1000
+    CombatActions.Buckshot.ActionPointDelta = -2000
+    CombatActions.BuckshotBurst.ActionPointDelta = 0
 
     CombatActions.DualShot.ActionPointDelta = 0
 

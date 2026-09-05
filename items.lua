@@ -725,6 +725,7 @@ return {
 				'Tag', "<action_ap_cost>",
 			}),
 		},
+		'comment', "--- Check, I dont think this is used anymore",
 		'object_class', "CharacterEffect",
 		'unit_reactions', {
 			PlaceObj('UnitReaction', {
@@ -907,6 +908,14 @@ return {
 	PlaceObj('ModItemCode', {
 		'name', "__ApertureParams",
 		'CodeFileName', "Code/__ApertureParams.lua",
+	}),
+	PlaceObj('ModItemCode', {
+		'name', "__ApertureCTHParams",
+		'CodeFileName', "Code/__ApertureCTHParams.lua",
+	}),
+	PlaceObj('ModItemCode', {
+		'name', "__ApertureEstimatorsParams",
+		'CodeFileName', "Code/__ApertureEstimatorsParams.lua",
 	}),
 	PlaceObj('ModItemCode', {
 		'name', "__JamParams",
@@ -1307,6 +1316,10 @@ return {
 	PlaceObj('ModItemCode', {
 		'name', "FUNCTIONS_recoil",
 		'CodeFileName', "Code/FUNCTIONS_recoil.lua",
+	}),
+	PlaceObj('ModItemCode', {
+		'name', "FUNCTIONS_recoil_aCTH",
+		'CodeFileName', "Code/FUNCTIONS_recoil_aCTH.lua",
 	}),
 	PlaceObj('ModItemCode', {
 		'name', "FUNCTIONS_Critical",
@@ -5112,9 +5125,9 @@ return {
 				"IncreaseRange",
 				"IgnoreInTheDarkWhenFullyAimed",
 				"DecreaseOverwatchAngle",
-				"_x2ScopeAimBonus",
 				"IncreaseMaxAimActions",
 				"IncreaseSnapshotMul",
+				"_x2ScopeAimBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5188,9 +5201,9 @@ return {
 				"IncreaseRange",
 				"IgnoreInTheDarkWhenFullyAimed",
 				"DecreaseOverwatchAngle",
-				"_x2ScopeAimBonus",
 				"IncreaseMaxAimActions",
 				"IncreaseSnapshotMul",
+				"_x2ScopeAimBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6040,9 +6053,9 @@ return {
 				"ScopePenalty1",
 				"DecreaseOverwatchAngle",
 				"critical_per_aim_scope",
-				"_x2ScopeAimBonus",
 				"IncreaseMaxAimActions",
 				"IncreaseSnapshotMul",
+				"_x2ScopeAimBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6251,8 +6264,8 @@ return {
 				"ScopePenalty1",
 				"scope_snapshot",
 				"IncreaseOverwatchAngle",
-				"_x2ScopeAimBonus",
 				"IncreaseMaxAimActions",
+				"_x2ScopeAimBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6460,8 +6473,8 @@ return {
 				"IncreaseRange",
 				"ScopePenalty1",
 				"scope_snapshot",
-				"_x2ScopeAimBonus",
 				"IncreaseMaxAimActions",
+				"_x2ScopeAimBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {

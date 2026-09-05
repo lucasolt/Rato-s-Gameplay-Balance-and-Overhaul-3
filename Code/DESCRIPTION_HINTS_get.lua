@@ -141,7 +141,7 @@ function rat_format_hints(self)
 	    },
 	    {
 	        id = "PointBlankRangeAccuracy",
-	        angularCTHActive and (TranslationTable[184329577856] or "Handling: ") or (TranslationTable[651371401489] or "Point Blank Range Accuracy: "),
+	        angularCTHActive and (TranslationTable[184329577856] or "Handling Penalty Multiplier: ") or (TranslationTable[651371401489] or "Point Blank Range Accuracy: "),
 			---- em aCTH o manejo e multiplicador de cone: mesma leitura de hipfire/snapshot/recoil, MENOR = melhor
 	        angularCTHActive and string.format("%.2f", Rat_ApertureHandlingMul(self) / 100.0)
 				or (GetPBbonus_display(self) or 0),
@@ -234,7 +234,7 @@ local t_id_table = {
     [785975283217] = " STR",
     [719583632117] = "Number of Pellets: ",
     [193184162359] = "Pellet Spread Angle: ",
-	[184329577856] = "Handling: "
+	[184329577856] = "Handling Penalty Multiplier: "
 }
 
 ratG_T_table['DESCRIPTION_HINTS_get.lua'] = t_id_table
