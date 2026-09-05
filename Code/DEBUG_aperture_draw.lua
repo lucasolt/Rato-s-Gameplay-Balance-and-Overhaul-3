@@ -6,6 +6,9 @@
 ---- Rat_DbgRecoilMouse{shots=true} rajada sorteada de verdade | Rat_DbgRecoilShots() uma rajada so
 ---- (os tres de recuo aceitam overrides: {chance=0} sem controle, {chance=100} controle total,
 ---- {climb=N} recuo da arma, {theta=N, sigma=N} CTH sem alvo) | Rat_DbgClear().
+---- RECUO PERSISTENTE (entre ataques): Rat_DbgPersist() estado guardado e o preco por nivel de
+---- mira | Rat_DbgPersistChain(6) seis ataques seguidos ate o regime permanente |
+---- Rat_DbgPersistOff() modelo de stacks x cano guardado, lado a lado.
 ---- Sem args: atirador = selecionado, alvo do
 ---- Crosshair UI ou o inimigo mais proximo. So Rat_DbgShots consome random sincronizado.
 ---------------------------------------------------------------------------------------------------
@@ -1633,4 +1636,357 @@ function Rat_DbgRecoilMouse(burst, aim, action_id, shots, scatter, over)
     return shots and
                "rajada sob o cursor: LIGADA -- re-sorteia quando o cursor anda. Chame de novo para desligar." or
                "recuo sob o cursor: LIGADO -- aponte o mouse. Chame de novo para desligar."
+end
+
+---------------------------------------------------------------------------------------------------
+---- RECUO PERSISTENTE -- o cano que sobra ENTRE ataques, nao dentro de um.
+---- Rat_DbgPersist()          o que esta guardado agora e o que cada nivel de mira paga por ele
+---- Rat_DbgPersistChain(n)    projeta n ataques seguidos, ate o regime permanente
+---- Rat_DbgPersistOff()       compara a escada com o modelo antigo de stacks, lado a lado
+---- Nenhum escreve no efeito. A projecao roda com semente fixa: nao consome random sincronizado,
+---- repete igual, e um caso ruim pode ser reproduzido.
+---------------------------------------------------------------------------------------------------
+
+---- Teto que Rat_RecoilPersistCommit aplica, em centiminutos. Radial, nunca por eixo.
+local function persist_cap(prof)
+    local a = const.Combat.Aperture
+    return Max(1, (prof and prof.kick_min or 1) * 100 * (a.RecoilPersistCapKicks or 3))
+end
+
+local function persist_clamp(px, py, maxlen)
+    local d2 = px * px + py * py
+    if d2 <= maxlen * maxlen then
+        return px, py
+    end
+    local len = Rat_ISqrt(d2)
+    return MulDivRound(px, maxlen, len), MulDivRound(py, maxlen, len)
+end
+
+local function vabs(x, y)
+    return Rat_ISqrt(x * x + y * y)
+end
+
+---- `is_opts` chama tabela tudo o que nao e ponto, e uma Unit e tabela: aqui o primeiro
+---- posicional E o atacante, entao a deteccao tem que excluir objetos do jogo tambem.
+local function is_persist_opts(v)
+    return type(v) == "table" and not IsPoint(v) and not IsValid(v)
+end
+
+---- Quantos tiros esta acao dispara com esta arma: e o que decide o quanto o cano sobe.
+local function persist_shots(weapon, action)
+    local ok, n = pcall(weapon.GetAutofireShots, weapon, action)
+    return (ok and type(n) == "number") and Max(1, n) or 1
+end
+
+---- Sem alvo nao ha escala: um deslocamento de 200' so quer dizer alguma coisa comparado com o
+---- tamanho do alvo. Devolve o CTH COM o cano deslocado e SEM ele, para o par ser lido junto.
+local function persist_pair(theta, sigma, r_min)
+    if not theta or theta < 1 or not sigma or sigma < 1 then
+        return nil, nil
+    end
+    return Rat_RiceCTH(theta, sigma, r_min), Rat_RayleighCTH(theta, sigma)
+end
+
+---- De onde a bala sai e para onde vai, para desenhar o deslocamento no mundo. Sem alvo, so texto.
+local function persist_scene(attacker, target, spot)
+    if not IsValid(target) then
+        return nil
+    end
+    local attack_pos = vz(attacker:GetPos())
+    local aim_pos = Rat_RingAnchor(target, spot)
+    if not aim_pos or attack_pos:Dist(aim_pos) < 1 then
+        return nil
+    end
+    local dir = SetLen(aim_pos - attack_pos, 1000)
+    local up = SetLen(Rat_PerpUp(dir), 1000)
+    return {attack_pos = attack_pos, aim_pos = aim_pos, dir = dir, up = up,
+            lat = Rat_RecoilLateralAxis(up, dir), dist = attack_pos:Dist(aim_pos)}
+end
+
+---- Marca no mundo de onde a bala sai: um disco do tamanho do GRUPO (o mesmo raio do anel do
+---- crosshair) centrado no ponto deslocado -- da para ver se ele ainda cobre o alvo.
+local function persist_mark(sc, sigma, mx, my, color, label)
+    if not sc then
+        return
+    end
+    local a = const.Combat.Aperture
+    local p = Rat_RecoilWalkPoint(sc.attack_pos, sc.aim_pos, sc.up, my, sc.lat, mx)
+    if sigma and sigma >= 1 then
+        draw_disc(p, cone_radius(sc.dist, MulDivRound(sigma, a.CrosshairSigmaMul or 250, 100)),
+                  sc.dir, color, 24)
+    end
+    DbgAddText(label, p, color)
+end
+
+---- Cabecalho comum: quem atira, com o que, e o estado guardado. Devolve o contexto e as linhas,
+---- ou nil e a razao -- os tres visualizadores abrem exatamente igual.
+local function persist_open(attacker, target, action_id)
+    attacker = pick_attacker(attacker)
+    if not attacker then
+        return nil, "sem atacante (selecione um merc)"
+    end
+    local weapon = attacker:GetActiveWeapons()
+    if not IsKindOf(weapon, "Firearm") then
+        return nil, "arma ativa nao e de fogo"
+    end
+    local action = pick_action(attacker, action_id)
+    if not action then
+        return nil, "sem acao de ataque"
+    end
+    local a = const.Combat.Aperture
+    if not Rat_RecoilPersistOn() then
+        return nil, string.format("recuo persistente DESLIGADO (A.Enabled = %s, " ..
+                                      "A.RecoilPersistOffset = %s)", tostring(a.Enabled),
+                                  tostring(a.RecoilPersistOffset))
+    end
+
+    target = pick_target(attacker, target)
+    local spot = g_DefaultShotBodyPart or "Torso"
+    local num_shots = persist_shots(weapon, action)
+    local prof = Rat_RecoilProfile(attacker, action, weapon, num_shots)
+    if not prof then
+        return nil, "sem perfil de recuo para esta arma"
+    end
+
+    local eff = attacker:GetStatusEffect("Rat_recoil")
+    local px = eff and (eff:ResolveValue("offset_x") or 0) or 0
+    local py = eff and (eff:ResolveValue("offset_y") or 0) or 0
+
+    local head = {
+        string.format("%s (%s) -- %s, %d tiro(s) por ataque%s", tostring(attacker.session_id),
+                      tostring(weapon.class), tostring(action.id), num_shots,
+                      IsValid(target) and (" -> " .. tostring(target.session_id)) or
+                          "  (sem alvo: so geometria, sem CTH)"),
+        eff and
+            string.format("guardado: lateral %+d'  subiu %+d'  ->  |p| %d'   " ..
+                              "(teto %d' = %d x coice %d')", MulDivRound(px, 1, 100),
+                          MulDivRound(py, 1, 100), MulDivRound(vabs(px, py), 1, 100),
+                          MulDivRound(persist_cap(prof), 1, 100), a.RecoilPersistCapKicks or 3,
+                          prof.kick_min) or
+            "guardado: NADA -- o efeito Rat_recoil nao esta neste merc (nenhum tiro ainda, ou foi " ..
+                "limpo por movimento/recarga/mira 3)",
+        string.format("retencao %d%% por AP gasto, zera em mira %d, coice %d'/tiro",
+                      a.RecoilPersistRetainPerAP or 100, a.RecoilPersistAimReset or 3,
+                      prof.kick_min)
+    }
+
+    return {attacker = attacker, weapon = weapon, action = action, target = target, spot = spot,
+            num_shots = num_shots, prof = prof, eff = eff, px = px, py = py, head = head}
+end
+
+---------------------------------------------------------------------------------------------------
+---- Rat_DbgPersist(attacker, target, action_id) ou Rat_DbgPersist{action_id = "AutoFire"}
+---- Estado guardado AGORA e, por nivel de mira, de onde o proximo tiro sai. Mira entra duas vezes e
+---- as duas aparecem na mesma linha: fecha o cone (menor sigma) E paga mais AP, que e a moeda da
+---- recuperacao. `CTH` e o do modelo; `jogo` e o que CalcChanceToHit devolve hoje -- enquanto os
+---- dois divergirem, a UI esta prometendo um tiro que a bala nao faz.
+---------------------------------------------------------------------------------------------------
+function Rat_DbgPersist(attacker, target, action_id)
+    if is_persist_opts(attacker) then
+        local o = attacker
+        attacker, target, action_id = o.attacker, o.target, o.action_id
+    end
+    local ctx, err = persist_open(attacker, target, action_id)
+    if not ctx then
+        return err
+    end
+    local att, weapon, action, tgt = ctx.attacker, ctx.weapon, ctx.action, ctx.target
+    local lines = ctx.head
+
+    local sc = persist_scene(att, tgt, ctx.spot)
+    if sc then
+        DbgClearVectors()
+        DbgClearTexts()
+        DbgAddSegment(sc.attack_pos, sc.aim_pos, clrAxis)
+    end
+
+    local max_aim = Max(1, const.Combat.Aperture.RecoilPersistAimReset or 3)
+    lines[#lines + 1] = "  mira | AP | sai de | cone | CTH  | sem recuo | custo | jogo"
+    for aim = 0, max_aim do
+        local ap = Rat_RecoilPersistAP(att, action, weapon, aim, tgt)
+        local ox, oy = Rat_RecoilPersistOffset(att, action, weapon, aim, tgt)
+        local r = MulDivRound(vabs(ox, oy), 1, 100)
+        local sigma, theta, game
+        if IsValid(tgt) then
+            sigma, theta, game = Rat_AttackCone(att, tgt, action, ctx.spot, aim, false,
+                                                att:GetPos(), tgt:GetPos())
+        end
+        local cth, clean = persist_pair(theta, sigma, r)
+        lines[#lines + 1] = string.format("   %d   | %2d | %5d' | %4s | %4s | %8s  | %5s | %s", aim,
+                                          ap, r, sigma and (sigma .. "'") or "-",
+                                          cth and (cth .. "%") or "-",
+                                          clean and (clean .. "%") or "-",
+                                          (cth and clean) and string.format("%+d", cth - clean) or
+                                              "-", game and (game .. "%") or "-")
+        if sc then
+            persist_mark(sc, sigma, MulDivRound(ox, 1, 100), MulDivRound(oy, 1, 100),
+                         recoil_ring_color(aim + 1, max_aim + 1), "mira " .. aim)
+        end
+    end
+
+    if sc then
+        local sigma0, theta0 = Rat_AttackCone(att, tgt, action, ctx.spot, 0, false, att:GetPos(),
+                                              tgt:GetPos())
+        if theta0 and theta0 >= 1 then
+            draw_disc(sc.aim_pos, cone_radius(sc.dist, theta0), sc.dir, clrSilh, 32)
+        end
+        lines[#lines + 1] = "ciano = alvo | amarelo->vermelho = mira 0..N de onde a bala sai"
+    end
+    lines[#lines + 1] =
+        "`custo` = pontos de CTH que o cano deslocado tira. `jogo` deveria ser igual a `CTH`."
+
+    if sc then
+        for i, s in ipairs(lines) do
+            DbgAddText(s, sc.aim_pos:SetZ(sc.aim_pos:z() + (#lines - i + 2) * 300), clrAxis)
+        end
+    end
+    return table.concat(lines, "\n")
+end
+
+---------------------------------------------------------------------------------------------------
+---- Rat_DbgPersistChain(attacks, aim, attacker, target, action_id) ou tabela unica.
+---- N ataques SEGUIDOS, o cano de cada um comecando onde o anterior parou e recuperando pelo AP
+---- gasto. E a pergunta que o modelo de stacks respondia com uma escada linear ate o teto: quanto
+---- custa o quarto ataque? A resposta aqui e um regime permanente -- o ponto em que o que a rajada
+---- sobe iguala o que o AP devolve -- e ele nao depende de quantos ataques ja aconteceram.
+---- Semente fixa: nao consome random sincronizado e repete igual.
+---------------------------------------------------------------------------------------------------
+function Rat_DbgPersistChain(attacks, aim, attacker, target, action_id)
+    if is_opts(attacks) then
+        local o = attacks
+        attacks, aim, attacker, target, action_id = o.attacks, o.aim, o.attacker, o.target,
+                                                    o.action_id
+    end
+    local ctx, err = persist_open(attacker, target, action_id)
+    if not ctx then
+        return err
+    end
+    local a = const.Combat.Aperture
+    local att, weapon, action, tgt = ctx.attacker, ctx.weapon, ctx.action, ctx.target
+    attacks, aim = Clamp(attacks or 6, 1, 40), aim or 0
+
+    local lines = ctx.head
+    local sigma, theta
+    if IsValid(tgt) then
+        sigma, theta = Rat_AttackCone(att, tgt, action, ctx.spot, aim, false, att:GetPos(),
+                                      tgt:GetPos())
+    end
+    local ap = Rat_RecoilPersistAP(att, action, weapon, aim, tgt)
+    local retain = a.RecoilPersistRetainPerAP or 100
+    local cap = persist_cap(ctx.prof)
+    local reset = (aim >= (a.RecoilPersistAimReset or 3))
+
+    lines[#lines + 1] = string.format("projecao: %d x %s com mira %d (%d AP cada, retencao " ..
+                                          "%d%%/AP)%s", attacks, tostring(action.id), aim, ap,
+                                      retain,
+                                      reset and "   *** esta mira zera o cano todo ataque ***" or "")
+    lines[#lines + 1] = "  ataque | comeca em | CTH do 1o tiro | termina em"
+
+    local sc = persist_scene(att, tgt, ctx.spot)
+    if sc then
+        DbgClearVectors()
+        DbgClearTexts()
+        DbgAddSegment(sc.attack_pos, sc.aim_pos, clrAxis)
+        if theta and theta >= 1 then
+            draw_disc(sc.aim_pos, cone_radius(sc.dist, theta), sc.dir, clrSilh, 32)
+        end
+    end
+
+    ---- comeca do que esta guardado de verdade: a projecao continua a partida em curso
+    local px, py = ctx.px, ctx.py
+    local rnd = BraidRandomCreate(a.RecoilEstimateSeed or 1)
+    local prev_end
+    for n = 1, attacks do
+        if reset then
+            px, py = 0, 0
+        else
+            for _ = 1, Min(ap, 24) do
+                px, py = MulDivRound(px, retain, 100), MulDivRound(py, retain, 100)
+            end
+        end
+        local start = MulDivRound(vabs(px, py), 1, 100)
+        local cth = persist_pair(theta, sigma, start)
+
+        if sc then
+            persist_mark(sc, sigma, MulDivRound(px, 1, 100), MulDivRound(py, 1, 100),
+                         recoil_ring_color(n, attacks), tostring(n))
+        end
+
+        local st = Rat_RecoilState(px, py)
+        for _ = 1, ctx.num_shots do
+            Rat_RecoilStep(ctx.prof, st, rnd)
+        end
+        px, py = persist_clamp(st.px, st.py, cap)
+        local fin = MulDivRound(vabs(px, py), 1, 100)
+
+        lines[#lines + 1] = string.format("    %2d   |   %5d'  |      %4s     |   %5d'%s", n, start,
+                                          cth and (cth .. "%") or "-", fin,
+                                          (prev_end and fin == prev_end) and "   <- estavel" or "")
+        prev_end = fin
+    end
+    lines[#lines + 1] = "`comeca em` ja desconta a recuperacao por AP; `termina em` e depois do teto."
+    if sc then
+        lines[#lines + 1] = "ciano = alvo | amarelo->vermelho = ataque 1..N de onde a bala sai"
+        for i, s in ipairs(lines) do
+            DbgAddText(s, sc.aim_pos:SetZ(sc.aim_pos:z() + (#lines - i + 2) * 300), clrAxis)
+        end
+    end
+    return table.concat(lines, "\n")
+end
+
+---------------------------------------------------------------------------------------------------
+---- Rat_DbgPersistOff(attacker, target, action_id): o mesmo ataque cobrado pelos DOIS modelos.
+---- A esquerda o de stacks (penalidade plana por ataque, cega a quantos tiros sairam), a direita o
+---- cano guardado. E a comparacao que diz se a rajada ficou cara demais: no modelo antigo ela
+---- custava ao proximo tiro exatamente o mesmo que um tiro simples.
+---- Mexe em A.RecoilPersistOffset durante a leitura -- o portao de get_recoil devolve 0 com o
+---- offset ligado -- e restaura antes de sair.
+---------------------------------------------------------------------------------------------------
+function Rat_DbgPersistOff(attacker, target, action_id)
+    if is_persist_opts(attacker) then
+        local o = attacker
+        attacker, target, action_id = o.attacker, o.target, o.action_id
+    end
+    local ctx, err = persist_open(attacker, target, action_id)
+    if not ctx then
+        return err
+    end
+    local a = const.Combat.Aperture
+    local att, weapon, action, tgt = ctx.attacker, ctx.weapon, ctx.action, ctx.target
+    if not IsValid(tgt) then
+        return "sem alvo: o modelo antigo cobra em pontos de CTH e precisa de um"
+    end
+
+    local lines = ctx.head
+    lines[#lines + 1] = string.format("stacks: %d no efeito, StacksMultiplier %s",
+                                      ctx.eff and ctx.eff.stacks or 0,
+                                      tostring(const.Combat.Recoil.StacksMultiplier))
+    lines[#lines + 1] = "  mira | ANTIGO por stacks       | NOVO cano guardado"
+
+    local was = a.RecoilPersistOffset
+    for aim = 0, Max(1, a.RecoilPersistAimReset or 3) do
+        local sigma, theta = Rat_AttackCone(att, tgt, action, ctx.spot, aim, false, att:GetPos(),
+                                            tgt:GetPos())
+        local old = {}
+        a.RecoilPersistOffset = false
+        for _, st in ipairs({1, 3, 6}) do
+            local pts = get_recoil(att, tgt, tgt:GetPos(), action, weapon, aim, false, st) or 0
+            ---- a reducao por mira do efeito antigo, verbatim de Rat_recoil.OnCalcChanceToHit
+            if aim > 0 then
+                pts = cRound(pts * Max(0, (1 - (0.34 * Min(aim, 3)))))
+            end
+            old[#old + 1] = string.format("x%d %+d", st, pts)
+        end
+        a.RecoilPersistOffset = was
+
+        local ox, oy = Rat_RecoilPersistOffset(att, action, weapon, aim, tgt)
+        local r = MulDivRound(vabs(ox, oy), 1, 100)
+        local cth, clean = persist_pair(theta, sigma, r)
+        lines[#lines + 1] = string.format("   %d   | %-23s | %+d pts (|p| %d')", aim,
+                                          table.concat(old, "  "),
+                                          (cth and clean) and (cth - clean) or 0, r)
+    end
+    a.RecoilPersistOffset = was
+    lines[#lines + 1] = "ANTIGO: um ataque = um stack, tiro simples ou rajada de 10, o mesmo preco."
+    return table.concat(lines, "\n")
 end
