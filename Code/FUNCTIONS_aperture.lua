@@ -654,7 +654,10 @@ end
 function Rat_ConeFanX(data)
     local a = P()
     local r = data.rat_vsigma or 0
-    return (r > 0) and MulDivRound(r, a.RecoilPersistFanPct or 0, 100) or 0
+    if r <= 0 or a.RecoilPersistShape ~= "wedge" then
+        return 0
+    end
+    return MulDivRound(r, a.RecoilPersistFanPct or 0, 100)
 end
 
 ---------------------------------------------------------------------------------------------------

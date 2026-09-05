@@ -123,18 +123,24 @@ local function persist_wedge(at, dist, sigma, sy, fan, radius, color, anchor)
         top = lim
     end
 
-    ---- Um traco so, porque um mesh de Polyline e uma tira continua. Sai da ORIGEM e volta a ela:
-    ---- o que se quer dizer e "a mira pode estar em qualquer lugar DESTA regiao", e duas diagonais
-    ---- soltas comecando na borda do anel nao fecham regiao nenhuma -- eram so duas linhas.
-    local pts = {at(0, 0), at(top, -wide)}
-    if not cut then
-        pts[#pts + 1] = at(top, wide)
-    else
-        ---- topo aberto: sobe mais um pouco de cada lado, sem fechar, e volta pelo meio
-        pts[#pts + 1] = at(0, 0)
-        pts[#pts + 1] = at(top, wide)
+    ---- ABERTA em cima: fechar dava uma barra atravessada bem onde esta o alvo. Os dois bracos
+    ---- saem da ORIGEM -- e o ponto comum que faz duas diagonais virarem uma regiao -- e o traco
+    ---- volta pelo meio, porque um mesh de Polyline e uma tira continua e o retrace repinta os
+    ---- mesmos pixels.
+    ---- Trinco no fim de cada braco quando a cunha cabe inteira; sem trinco ela continua para
+    ---- cima. E a mesma convencao das barras da regua da rajada, e substitui o topo fechado.
+    local tick = cut and 0 or MulDivRound(wide - radius, a.CrosshairRecoilTickPct or 0, 100)
+    local function arm(sign)
+        local p = at(top, sign * wide)
+        if tick > 0 then
+            return {at(0, 0), p, at(top, sign * (wide - tick)), p, at(0, 0)}
+        end
+        return {at(0, 0), p, at(0, 0)}
     end
-    pts[#pts + 1] = at(0, 0)
+    local pts = arm(-1)
+    for _, p in ipairs(arm(1)) do
+        pts[#pts + 1] = p
+    end
     Rat_ShowStroke("wedge", pts, color, anchor)
 end
 
@@ -207,13 +213,21 @@ function Rat_UpdateConeRing(crosshair)
     local radius = Rat_ConeRadius(dist, spread)
     local dir = center - origin
 
-    ---- O anel volta a ser CIRCULO. O recuo herdado nao e mais uma elipse desenhada por cima
-    ---- dele: um circulo num plano vertical, visto pela camera inclinada, projeta a metade de
+    ---- Em "wedge" o anel e CIRCULO e quem mostra o recuo herdado e a cunha. O ovo so volta em
+    ---- "egg": um circulo num plano vertical, visto pela camera inclinada, projeta a metade de
     ---- baixo para PERTO e ela le como se fosse a mais larga -- medido, malha topo +3014 base
-    ---- -1772, e na tela parecia o contrario. A cunha abaixo diz a mesma coisa sem depender do
-    ---- angulo da camera, e no mesmo idioma da V da rajada.
+    ---- -1772, e na tela parecia o contrario. A cunha nao depende do angulo da camera.
+    local ovo = a.RecoilPersistShape == "egg"
+    local ry, ry_dn
+    if ovo and sy and sy_dn then
+        local function ray(s)
+            return Rat_ConeRadius(dist, MulDivRound(s, a.CrosshairSigmaMul, 100))
+        end
+        ry, ry_dn = ray(sy), ray(sy_dn)
+    end
+
     if not a.CrosshairRecoilLadder then
-        Rat_ShowConeRing(center, radius, dir, color)
+        Rat_ShowConeRing(center, radius, dir, color, nil, ry, ry_dn)
         return true
     end
 
@@ -231,10 +245,14 @@ function Rat_UpdateConeRing(crosshair)
 
     ---- o anel fica NO ALVO, so mais alto: o recuo herdado e incerteza, nao um cano parado fora
     ---- do alvo. A regua da rajada nasce dele, e dentro da rajada sim o cano anda de verdade.
-    Rat_ShowConeRing(center, radius, dir, color)
+    Rat_ShowConeRing(center, radius, dir, color, nil, ry, ry_dn)
 
     local faded = tint(cr, cg, cb)
-    persist_wedge(at, dist, sigma, sy, fan, radius, faded, center)
+    if ovo then
+        Rat_HideStroke("wedge")
+    else
+        persist_wedge(at, dist, sigma, sy, fan, radius, faded, center)
+    end
 
     local est = (num_shots > 1) and ladder_estimate(attacker, action, weapon, aim, num_shots)
     if not est then

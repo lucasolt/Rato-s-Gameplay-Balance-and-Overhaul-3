@@ -295,6 +295,14 @@ A.RecoilPersistUpBias = 70
 ---- Em 0 a cunha some e o CTH volta a ser Px(sigma) * Py(sigma_y), identico ao que era.
 A.RecoilPersistFanPct = 150
 
+---- FORMA do recuo herdado. Muda o MODELO junto com o desenho, de proposito: com "egg" a
+---- abertura lateral zera, o somatorio de Rat_SeparableCTH telescopa de volta para Px * Py e o
+---- anel volta a ser a elipse de dois meios-eixos. Desenhar ovo sobre um CTH de cunha seria o
+---- anel mentindo sobre o numero ao lado dele.
+----   "wedge" -- triangulo saindo do ponto de mira, no idioma da V da rajada
+----   "egg"   -- elipse de dois meios-eixos, larga em cima
+A.RecoilPersistShape = "wedge"
+
 ---- Fatias em que a faixa de CIMA e integrada. A largura muda ao longo do eixo vertical, entao
 ---- Px nao sai mais do somatorio -- cada fatia paga um lookup na LUT, que e tabela.
 A.RecoilPersistFanSteps = 6
