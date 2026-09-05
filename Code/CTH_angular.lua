@@ -221,7 +221,7 @@ function Rat_ConeFactors(data)
 
     ---- quadro de visada: uma linha POR COMPONENTE em A.ConeMulEffects, com o nome que o proprio
     ---- componente declara -- nunca um rotulo fixo tipo "Sight" escondendo qual optica agiu.
-    for _, eff in ipairs(parts.sight_effects or empty_table) do
+    for _, eff in ipairs(parts.cone_mul_effects or empty_table) do
         out[#out + 1] = {name = eff.name, tag = Rat_ConeMulTag(eff.mul)}
     end
 
@@ -318,7 +318,7 @@ function Rat_ConeMetaText(data)
         ---- quadro de visada da mira: uma linha por componente (nunca piora, por isso o PctTag
         ---- normal ja basta -- abaixo de 100 sai verde). Nome vem do componente, nao hardcoded.
         if aim > 0 then
-            for _, eff in ipairs(parts.sight_effects or empty_table) do
+            for _, eff in ipairs(parts.cone_mul_effects or empty_table) do
                 meta[#meta + 1] = T {862915037462, "<name> <pct>", name = eff.name,
                                      pct = Rat_ConeMulTag(eff.mul)}
             end
