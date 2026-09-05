@@ -219,9 +219,7 @@ function Rat_StyleDemo(unit, shots)
     local mul = a.CrosshairWedgeSigmaMul or 200
     local top, wide = MulDivRound(sy, mul, 100), spread + MulDivRound(fan, mul, 100)
     local tick = MulDivRound(wide - spread, a.CrosshairRecoilTickPct or 22, 100)
-    Rat_ShowStroke("wedge", {at(0, 0), at(top, -wide), at(top, -wide + tick), at(top, -wide),
-                             at(0, 0), at(top, wide), at(top, wide - tick), at(top, wide), at(0, 0)},
-                   RGB(230, 200, 90), center)
+    Rat_ShowStroke("wedge", Rat_WedgeContour(at, spread, top, wide, tick), RGB(230, 200, 90), center)
 
     ---- a regua da rajada, com uma subida qualquer que cresce e um leque que abre
     shots = Max(2, shots or 5)

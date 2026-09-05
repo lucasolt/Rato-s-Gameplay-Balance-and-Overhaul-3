@@ -788,10 +788,18 @@ A.CrosshairWedgeSigmaMul = 200
 ---- cunha aparece com o topo ABERTO, que e como ela avisa que continua para cima.
 A.CrosshairWedgeMaxPct = 400
 
+---- Onde comeca o APEX da cunha, em % da altura dela (0 = na mira, como antes). Sobe o vertice
+---- comum dos dois bracos para a cunha nao pintar em cima do alvo nem sobre a base da regua.
+A.CrosshairWedgeInnerPct = 0
+
+---- true sobe o apex ate pelo menos o topo do anel: a cunha so aparece ONDE PASSA do circulo.
+---- Combina com WedgeInnerPct -- vale o que for mais alto. Ver Rat_WedgeContour.
+A.CrosshairWedgeClipRing = false
+
 ---- Comprimento MINIMO do leque da rajada, em % do raio do anel. Em distancia curta o passeio
 ---- inteiro cabe em poucos minutos e o leque some dentro das barras da regua -- e curto demais
 ---- para o tipFade dele. Estende reto para cima ate este piso; 0 desliga. Ver ladder_strokes.
-A.CrosshairFanMinPct = 90
+A.CrosshairFanMinPct = 50
 
 ---- ESTILO por traco, para poder mexer no visual sem recompilar nada. A chave e o id do traco:
 ---- "ring" (o anel), "wedge" (a cunha do recuo herdado), "climb" (a regua da rajada), "fanl" e
@@ -821,6 +829,8 @@ A.MeshStyle = {
         color = false,
         width = 12,--18,
         halo = 12,--22,
+		fill = true, 
+		fillAlpha = 10,
         coreAlpha = 235,
         haloAlpha = 45
     },
@@ -828,20 +838,21 @@ A.MeshStyle = {
     wedge = {
         shader = "default_polyline",
         depth = false,
-        color = const.clrRed,--RGBA(120, 165, 255, 255),
-        width = 6,--12,
+        color = false,
+        width = 12,--12,
         fill = true,
-        fillAlpha = 0,--10, --55
-        coreAlpha = 0,--120,--230,
+        fillAlpha = 10,--10, --55
+        coreAlpha = 150,--120,--230,
+		halo = 12,
+		dash = 110,
         tipFade = 35
     },
-    ---- regua da rajada: fita fina na cor do CTH, continua -- e um caminho, nao uma zona
     climb = {
         shader = "default_polyline",
         depth = false,
         color = RGB(0, 0, 0),--false,--RGB(143, 51, 41),--const.clrRed,--false,
         width = 10,--3
-        coreAlpha = 200--235,
+        coreAlpha = 150,--235,
     }, 
     ---- leque: tracejado e desbotando na ponta -- "envelope, pode abrir para qualquer lado"
     fanl = {
