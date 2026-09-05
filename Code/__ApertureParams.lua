@@ -172,18 +172,37 @@ A.CrosshairWedgeSigmaMul = 200
 ---- cunha aparece com o topo ABERTO, que e como ela avisa que continua para cima.
 A.CrosshairWedgeMaxPct = 400
 
----- ESTILO por traco, para poder trocar shader sem recompilar nada. A chave e o id do traco:
+---- ESTILO por traco, para poder mexer no visual sem recompilar nada. A chave e o id do traco:
 ---- "ring" (o anel), "wedge" (a cunha do recuo herdado), "climb" (a regua da rajada), "fanl" e
----- "fanr" (o leque dela). `shader` e um nome de ProceduralMeshShaders; `depth` so vale nos que
----- declaram depth_test = "runtime" -- nos outros o engine assere. `color` sobrepoe a cor que o
----- chamador passou, em RGBA, ou fica false para deixar a cor do CTH mandar.
+---- "fanr" (o leque dela).
+----   shader     nome de ProceduralMeshShaders. Um Polyline so aceita os de topologia de linha
+----              (default_polyline, mesh_linelist, blended_linelist); width/fill trocam para o
+----              shader de fita (A.StrokeMeshShader) sozinhos.
+----   depth      so vale nos shaders com depth_test = "runtime"; nos outros o engine assere.
+----   color      RGBA que sobrepoe a cor do chamador, ou false para deixar a cor do CTH mandar.
+----   width      meia-largura da FITA em unidades de mundo. 0/nil = linha de 1px de sempre.
+----   halo       largura extra de um passe externo translucido, somada a width.
+----   coreAlpha  alpha do nucleo (0-255); haloAlpha o do passe externo.
+----   tipFade    % final do comprimento que desbota ate transparente.
+----   dash       comprimento de traco e vao em unidades de mundo; 0 = continua.
+----   fill       true desenha a REGIAO fechada do contorno (leque de triangulos) + contorno.
+----   fillAlpha  alpha do preenchimento.
 ---- Ver DEBUG_aperture_style.lua: Rat_StyleHelp() no console lista tudo e troca ao vivo.
 A.MeshStyle = {
-    ring = {shader = "default_polyline", depth = false, color = false},
-    wedge = {shader = "default_polyline", depth = false, color = false},
-    climb = {shader = "default_polyline", depth = false, color = false},
-    fanl = {shader = "default_polyline", depth = false, color = false},
-    fanr = {shader = "default_polyline", depth = false, color = false},
+    ---- anel: fita fina neutra com um halo de leitura contra o terreno
+    ring = {shader = "default_polyline", depth = false, color = false,
+            width = 18, halo = 22, coreAlpha = 235, haloAlpha = 45},
+    ---- cunha: zona preenchida fria e continua -- "area de incerteza", nao trajetoria
+    wedge = {shader = "default_polyline", depth = false, color = RGBA(120, 165, 255, 255),
+             width = 12, fill = true, fillAlpha = 55, coreAlpha = 230, tipFade = 35},
+    ---- regua da rajada: fita fina na cor do CTH, continua -- e um caminho, nao uma zona
+    climb = {shader = "default_polyline", depth = false, color = false,
+             width = 14, coreAlpha = 235},
+    ---- leque: tracejado e desbotando na ponta -- "envelope, pode abrir para qualquer lado"
+    fanl = {shader = "default_polyline", depth = false, color = false,
+            width = 9, coreAlpha = 190, dash = 90, tipFade = 45},
+    fanr = {shader = "default_polyline", depth = false, color = false,
+            width = 9, coreAlpha = 190, dash = 90, tipFade = 45},
 }
 
 A.StrokeMeshShader = "soft_mesh"

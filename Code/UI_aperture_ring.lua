@@ -16,6 +16,7 @@ DefineClass.RatConeRing = {__parents = {const.Combat.Aperture.ConeRingParent or 
 ---- amarrar tudo num traco so (ou apostar em conectores transparentes, que dependem do shader),
 ---- cada traco e um objeto proprio com nome. A varredura por classe ja recolhe todos.
 local strokes = {} --- id -> objeto; "ring" e o anel de sempre
+local last = {} --- id -> {pts, color_raw, anchor}: ultimo desenho, para o afinador reemitir a geometria
 
 ---- Mata TODO anel no mapa, inclusive os que perderam a referencia. Um reload de mod (ou de Lua)
 ---- re-executa este arquivo e zera `ring_obj`, mas o objeto ja colocado continua no mundo -- sem
@@ -26,7 +27,7 @@ function Rat_SweepConeRings()
         n = n + 1
         DoneObject(o)
     end)
-    strokes = {}
+    strokes, last = {}, {}
     return n
 end
 
@@ -139,9 +140,18 @@ end
 ---- Shader/depth/cor deste traco, se houver estilo declarado em A.MeshStyle. O que ja foi
 ---- aplicado fica guardado no proprio objeto: SetShader escreve custom data e isto roda a cada
 ---- update do crosshair, entao so se paga quando algo mudou de verdade.
+---- Geometria SOLIDA (fita ou regiao) precisa de topologia de triangulo -- um shader de linha nao
+---- desenha nada com ela. Promove default_polyline ao shader de fita; um shader explicito e mantido.
+local function solid_style(st)
+    return st and (st.fill or (st.width or 0) > 0)
+end
+
 function Rat_StrokeStyle(obj, id)
     local st = (const.Combat.Aperture.MeshStyle or empty_table)[id]
     local name = (st and st.shader) or "default_polyline"
+    if solid_style(st) and name == "default_polyline" then
+        name = const.Combat.Aperture.StrokeMeshShader or "soft_mesh"
+    end
     local depth = (st and st.depth) or false
     if obj.rat_shader == name and obj.rat_depth == depth then
         return st
@@ -155,6 +165,120 @@ function Rat_StrokeStyle(obj, id)
     return st
 end
 
+---- Meia-largura perpendicular ao segmento a->b no plano que encara a camera. Fallback para o plano
+---- horizontal quando o segmento aponta para o olho.
+local function face_offset(a, b, eye, half)
+    local seg = b - a
+    if seg:Len() == 0 then
+        return
+    end
+    local n = Cross(seg, a - eye)
+    if n:Len() < 1 then
+        n = Cross(seg, axis_z)
+    end
+    if n:Len() < 1 then
+        return
+    end
+    return SetLen(n, half)
+end
+
+---- Um quad (dois triangulos) de a a b, meia-largura `o` para cada lado, alpha `aa`/`ab` nas pontas.
+local function quad(vpstr, a, b, o, r, g, bl, aa, ab)
+    local ca, cb = RGBA(r, g, bl, aa), RGBA(r, g, bl, ab)
+    AppendVertex(vpstr, a - o, ca)
+    AppendVertex(vpstr, b - o, cb)
+    AppendVertex(vpstr, a + o, ca)
+    AppendVertex(vpstr, a + o, ca)
+    AppendVertex(vpstr, b - o, cb)
+    AppendVertex(vpstr, b + o, cb)
+end
+
+---- Fita ao longo de `pts`: `half` meia-largura; `alpha` alpha do nucleo; `fade` % final do
+---- comprimento que desbota ate zero; `dash` comprimento de traco e vao (0 = continua).
+local function ribbon(vpstr, pts, color, half, alpha, fade, dash)
+    local r, g, bl = GetRGB(color)
+    local eye = camera.GetEye()
+    local seglen, total = {}, 0
+    for i = 2, #pts do
+        seglen[i] = pts[i]:Dist(pts[i - 1])
+        total = total + seglen[i]
+    end
+    if total == 0 then
+        return
+    end
+    local fade_from = (fade > 0) and MulDivRound(total, 100 - fade, 100) or total
+    local function alpha_at(run)
+        if run <= fade_from or total <= fade_from then
+            return alpha
+        end
+        return MulDivRound(alpha, total - run, total - fade_from)
+    end
+    local run = 0
+    for i = 2, #pts do
+        local a, c, len = pts[i - 1], pts[i], seglen[i]
+        local o = face_offset(a, c, eye, half)
+        if o and len > 0 then
+            if dash > 0 then
+                local d, k = 0, 0
+                while d < len do
+                    local d2 = Min(len, d + dash)
+                    if k % 2 == 0 then
+                        quad(vpstr, a + MulDivRound(c - a, d, len),
+                             a + MulDivRound(c - a, d2, len), o, r, g, bl,
+                             alpha_at(run + d), alpha_at(run + d2))
+                    end
+                    d, k = d2, k + 1
+                end
+            else
+                quad(vpstr, a, c, o, r, g, bl, alpha_at(run), alpha_at(run + len))
+            end
+        end
+        run = run + len
+    end
+end
+
+---- Regiao preenchida: leque de triangulos do 1o ponto. Descarta ocorrencias internas do 1o ponto
+---- (a cunha retorna por ele) e vertices repetidos, senao o leque degenera.
+local function fan(vpstr, pts, color, alpha)
+    local r, g, bl = GetRGB(color)
+    local c = RGBA(r, g, bl, alpha)
+    local poly = {pts[1]}
+    for i = 2, #pts do
+        local p = pts[i]
+        if p ~= pts[1] and p ~= poly[#poly] then
+            poly[#poly + 1] = p
+        end
+    end
+    for i = 3, #poly do
+        AppendVertex(vpstr, poly[1], c)
+        AppendVertex(vpstr, poly[i - 1], c)
+        AppendVertex(vpstr, poly[i], c)
+    end
+end
+
+---- Malha de um traco a partir da lista de pontos e do estilo. Sem width nem fill e a linha 1px
+---- de sempre; com qualquer um dos dois a topologia passa a triangulo (ver Rat_StrokeStyle).
+function Rat_StrokeMesh(id, pts, color, st)
+    local vpstr = pstr("", 1024)
+    local width = (st and st.width) or 0
+    if st and st.fill then
+        fan(vpstr, pts, color, st.fillAlpha or 60)
+        ribbon(vpstr, pts, color, (width > 0) and width or 8, st.coreAlpha or 255,
+               st.tipFade or 0, st.dash or 0)
+    elseif width > 0 then
+        local halo = st.halo or 0
+        if halo > 0 then
+            ribbon(vpstr, pts, color, width + halo, st.haloAlpha or 40, st.tipFade or 0, st.dash or 0)
+        end
+        ribbon(vpstr, pts, color, width, st.coreAlpha or 255, st.tipFade or 0, st.dash or 0)
+    else
+        for i = 1, #pts do
+            AppendVertex(vpstr, pts[i], color)
+        end
+    end
+    return vpstr
+end
+
 function Rat_ShowStroke(id, pts, color, anchor)
     if not pts or #pts < 2 then
         return Rat_HideStroke(id)
@@ -166,15 +290,18 @@ function Rat_ShowStroke(id, pts, color, anchor)
         strokes[id] = obj
     end
     local st = Rat_StrokeStyle(obj, id)
+    last[id] = {pts = pts, color_raw = color, anchor = anchor}
     color = (st and st.color) or color
 
-    local vpstr = pstr("", 1024)
-    for i = 1, #pts do
-        AppendVertex(vpstr, pts[i], color)
-    end
-    obj:SetMesh(vpstr)
+    obj:SetMesh(Rat_StrokeMesh(id, pts, color, st))
     obj:SetPos(anchor or pts[1]) --- so culling/ordenacao: com mfWorldSpace os vertices sao absolutos
     obj:SetVisible(true)
+end
+
+---- O ultimo desenho de um traco (ou de todos): o afinador reemitir a geometria sem esperar o
+---- proximo update do crosshair -- e a unica forma de comparar duas larguras lado a lado.
+function Rat_LastStroke(id)
+    return id and last[id] or last
 end
 
 ---- Os tracos que estao na tela AGORA, para o afinador de estilo reaplicar sem redesenhar.
@@ -187,7 +314,7 @@ function Rat_HideStroke(id)
     if IsValid(obj) then
         DoneObject(obj)
     end
-    strokes[id] = nil
+    strokes[id], last[id] = nil, nil
 end
 
 function Rat_ShowConeRing(center, radius, dir, color, segments, radius_y, radius_y_down)
@@ -208,7 +335,7 @@ function Rat_HideConeRing()
     for id in pairs(strokes) do
         Rat_HideStroke(id)
     end
-    strokes = {}
+    strokes, last = {}, {}
 end
 
 ---- O anel e um objeto de mapa: sem isto sobreviveria a troca de mapa e entraria no savegame.

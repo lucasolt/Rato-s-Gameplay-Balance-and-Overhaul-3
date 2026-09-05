@@ -56,18 +56,28 @@ function Rat_StyleApply()
     for id, obj in pairs(Rat_LiveStrokes()) do
         if IsValid(obj) then
             obj.rat_shader = false --- forca, senao o guarda de "nao mudou" engole a troca
-            Rat_StrokeStyle(obj, id)
+            local rec = Rat_LastStroke(id)
+            if rec then
+                Rat_ShowStroke(id, rec.pts, rec.color_raw, rec.anchor) --- reemitir: width/fill/dash mudam a geometria
+            else
+                Rat_StrokeStyle(obj, id)
+            end
             n = n + 1
         end
     end
     return n
 end
 
+local function shape_of(st)
+    local s = st.fill and "fill" or (((st.width or 0) > 0) and ("fita " .. st.width) or "linha")
+    return ((st.dash or 0) > 0) and (s .. " tracej") or s
+end
+
 local function apply_and_report(id)
     local st = style_of(id)
     local live = Rat_StyleApply()
-    return string.format("%-6s shader %-24s depth %-5s cor %s   (%d tracos na tela)", id,
-                         tostring(st.shader), tostring(st.depth),
+    return string.format("%-6s %-12s shader %-20s depth %-5s cor %s   (%d na tela)", id,
+                         shape_of(st), tostring(st.shader), tostring(st.depth),
                          st.color and string.format("%d", st.color) or "do CTH", live)
 end
 
@@ -135,6 +145,36 @@ end
 function Rat_StyleColor(id, r, g, b, alpha)
     local st = style_of(id or "wedge")
     st.color = r and (g and RGBA(r, g, b, alpha or 255) or r) or false
+    return apply_and_report(id or "wedge")
+end
+
+---- Largura da FITA (meia-largura, unidades de mundo). 0 volta a linha de 1px. `halo` e `alpha`
+---- opcionais afinam o passe externo translucido e o nucleo.
+function Rat_StyleWidth(id, width, halo, alpha)
+    local st = style_of(id or "wedge")
+    st.width = width
+    if halo ~= nil then st.halo = halo end
+    if alpha ~= nil then st.coreAlpha = alpha end
+    return apply_and_report(id or "wedge")
+end
+
+---- Tracejado: comprimento de traco e vao. 0 volta a continuo.
+function Rat_StyleDash(id, len)
+    style_of(id or "fanl").dash = len
+    return apply_and_report(id or "fanl")
+end
+
+---- Desbota o % final do comprimento ate transparente.
+function Rat_StyleFade(id, pct)
+    style_of(id or "wedge").tipFade = pct
+    return apply_and_report(id or "wedge")
+end
+
+---- Preenche a regiao fechada do contorno (leque de triangulos) alem do contorno.
+function Rat_StyleFill(id, on, alpha)
+    local st = style_of(id or "wedge")
+    st.fill = on or nil
+    if alpha ~= nil then st.fillAlpha = alpha end
     return apply_and_report(id or "wedge")
 end
 
@@ -212,13 +252,28 @@ end
 
 ---- O bloco pronto para colar em __ApertureParams.lua. Sem isto o ajuste morre com a sessao, que e
 ---- o jeito mais facil de perder meia hora de comparacao.
+local dump_keys = {"shader", "depth", "color", "width", "halo", "coreAlpha", "haloAlpha", "tipFade",
+                   "dash", "fill", "fillAlpha"}
+
 function Rat_StyleDump()
     local out = {"A.MeshStyle = {"}
     for _, k in ipairs(ids) do
         local st = style_of(k)
-        out[#out + 1] = string.format("    %s = {shader = %q, depth = %s, color = %s},", k,
-                                      tostring(st.shader), tostring(st.depth),
-                                      st.color and tostring(st.color) or "false")
+        local parts = {}
+        for _, key in ipairs(dump_keys) do
+            local v = st[key]
+            if v ~= nil then
+                if key == "shader" then
+                    v = string.format("%q", tostring(v))
+                elseif key == "color" then
+                    v = v and tostring(v) or "false"
+                else
+                    v = tostring(v)
+                end
+                parts[#parts + 1] = string.format("%s = %s", key, v)
+            end
+        end
+        out[#out + 1] = string.format("    %s = {%s},", k, table.concat(parts, ", "))
     end
     out[#out + 1] = "}"
     return table.concat(out, "\n")
@@ -239,6 +294,11 @@ function Rat_StyleHelp()
         "  Rat_Style(\"ring\", \"cone\", true) com depth test (so onde o shader deixa)",
         "  Rat_StyleColor(\"wedge\", 230, 200, 90)   cor fixa; sem argumentos volta a cor do CTH",
         "  Rat_StyleColor(\"wedge\", const.clrRed)   ou uma cor ja empacotada (RGB/RGBA/const.clr*)",
+        "",
+        "  Rat_StyleWidth(\"wedge\", 14, 20)  meia-largura da fita (+ halo); 0 volta a linha 1px",
+        "  Rat_StyleFill(\"wedge\", true, 55) preenche a regiao (alpha 55)",
+        "  Rat_StyleDash(\"fanl\", 90)        tracejado de 90; 0 continuo",
+        "  Rat_StyleFade(\"fanl\", 45)        desbota os 45% finais do comprimento",
         "",
         "  Rat_StyleList()                 todos os shaders do engine",
         "  Rat_StyleList(\"line\")           so os que tem \"line\" no nome",
