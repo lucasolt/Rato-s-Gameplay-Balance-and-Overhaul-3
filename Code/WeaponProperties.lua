@@ -37,8 +37,8 @@ function OnMsg.ClassesGenerate()
                 modifiable = true
 			}, {
 				category = "GBO_aCTH",
-                id = "ApertureHandlingHeavyMul",
-                name = "ApertureHandlingHeavyMul",
+                id = "HandlingBaseMul",
+                name = "HandlingBaseMul",
                 help = "",
                 editor = "number",
                 default = 100,

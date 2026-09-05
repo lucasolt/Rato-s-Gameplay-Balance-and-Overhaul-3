@@ -336,16 +336,22 @@ function Rat_ApertureHandlingMul(weapon)
         return 100
     end
     local pb = GetPBbonus(weapon) or 0
-    if pb == 0 then
-        return 100
-    end
 
-	local scale = 100 - MulDivRound(a.HandlingScale or 100, pb, 100)
-	if a.HandlingUseHeavyMul then
-		scale = MulDivRound(scale, weapon.ApertureHandlingHeavyMul, 100)
-	end
+    --if pb == 0 then
+    --    return 100
+    --end
+	local handling = a.HandlingUseBaseMul and weapon.HandlingBaseMul or 100
+	local pb_handling = pb == 0 and 100 or 100 - MulDivRound(a.PBHandlingScale or 100, pb, 100)
+	handling = MulDivRound(handling, pb_handling, 100)
+	
+	
+	--local scale = 100 - MulDivRound(a.PBHandlingScale or 100, pb, 100)
+	--if a.HandlingUseBaseMul then
+	--	scale = MulDivRound(scale, weapon.HandlingBaseMul, 100)
+	--end
 
-    return Clamp(scale, a.HandlingMin or 60,
+
+    return Clamp(handling, a.HandlingMin or 60,
                  a.HandlingMax or 140)
 end
 

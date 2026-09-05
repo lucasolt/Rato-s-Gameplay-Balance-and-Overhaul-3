@@ -4747,8 +4747,8 @@ return {
 				"ScopePenalty3",
 				"DecreaseOverwatchAngle",
 				"bodypart_scope",
-				"ScopeAimThresholdBonus",
 				"IncreaseSnapshotMul",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -4943,8 +4943,8 @@ return {
 				"ScopePenalty2",
 				"DecreaseOverwatchAngle",
 				"IncreaseMaxAimActions",
-				"ScopeAimThresholdBonus",
 				"IncreaseSnapshotMul",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5156,8 +5156,8 @@ return {
 				"IgnoreInTheDarkWhenFullyAimed",
 				"DecreaseOverwatchAngle",
 				"IncreaseMaxAimActions",
-				"ScopeAimThresholdBonus",
 				"IncreaseSnapshotMul",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5242,8 +5242,8 @@ return {
 				"IgnoreInTheDarkWhenFullyAimed",
 				"DecreaseOverwatchAngle",
 				"IncreaseMaxAimActions",
-				"ScopeAimThresholdBonus",
 				"IncreaseSnapshotMul",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6124,8 +6124,8 @@ return {
 				"DecreaseOverwatchAngle",
 				"critical_per_aim_scope",
 				"IncreaseMaxAimActions",
-				"ScopeAimThresholdBonus",
 				"IncreaseSnapshotMul",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6372,6 +6372,11 @@ return {
 					'Tag', "<aim_level_threshold>",
 				}),
 				PlaceObj('PresetParamNumber', {
+					'Name', "first_aim_bonus",
+					'Value', 3,
+					'Tag', "<first_aim_bonus>",
+				}),
+				PlaceObj('PresetParamNumber', {
 					'Name', "first_aim_bonus_acc",
 					'Value', 3,
 					'Tag', "<first_aim_bonus_acc>",
@@ -6591,6 +6596,11 @@ return {
 					'Tag', "<bonus_cth_interrupt>%",
 				}),
 				PlaceObj('PresetParamNumber', {
+					'Name', "first_aim_bonus",
+					'Value', 2,
+					'Tag', "<first_aim_bonus>",
+				}),
+				PlaceObj('PresetParamNumber', {
 					'Name', "snap_mul_reduc",
 					'Value', 95,
 					'Tag', "<snap_mul_reduc>",
@@ -6780,8 +6790,8 @@ return {
 				"ScopePenalty2",
 				"DecreaseOverwatchAngle",
 				"IncreaseMaxAimActions",
-				"ScopeAimThresholdBonus",
 				"IncreaseSnapshotMul",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6852,8 +6862,8 @@ return {
 				"IncreaseRange",
 				"ScopePenalty2",
 				"DecreaseOverwatchAngle",
-				"ScopeAimThresholdBonus",
 				"IncreaseSnapshotMul",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -7047,8 +7057,8 @@ return {
 				"IncreaseRange",
 				"ScopePenalty3",
 				"DecreaseOverwatchAngle",
-				"ScopeAimThresholdBonus",
 				"IncreaseSnapshotMul",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {

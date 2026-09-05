@@ -263,7 +263,7 @@ weapon.HandlingMul = Clamp(100 - MulDivRound(A.HandlingScale, GetPBbonus(weapon)
 
 3. Decide whether `PBbonus` should also drive hipfire/snapshot. It nearly does already:
    `wep_base_hip_mul` / `wep_base_snapshot_mul` are strongly anti-correlated with PB (Glock 116/70,
-   Barrett 83/159). And `A.UseHandling` is **nil**, so `Rat_ApertureSnapMul` / `ApertureHandlingHeavyMul`
+   Barrett 83/159). And `A.UseHandling` is **nil**, so `Rat_ApertureSnapMul` / `HandlingBaseMul`
    (the `OverwatchAngle`-seeded values in `PATCH_GBO_weapons.lua`) are currently **dead code** — the
    snapshot step ignores them entirely. Either turn `A.UseHandling` on or delete the branch; right
    now it is a third handling channel that silently does nothing.
@@ -472,10 +472,10 @@ extra aim levels the whole design depends on are not there.
 
 Fix: call `Rat_ReapplyApertureComponents()` from `GBO_ApplyApertureCTHMode` (guard on `g_Units`).
 
-### B3 — `A.UseHandling` is nil, so `ApertureHandlingHeavyMul` is dead
+### B3 — `A.UseHandling` is nil, so `HandlingBaseMul` is dead
 
 `FUNCTIONS_aperture.lua:323` multiplies the hipfire/snapshot excess by `Rat_ApertureSnapMul(weapon)`
-only when `a.UseHandling` is truthy. It is never set. The ~40 per-weapon `ApertureHandlingHeavyMul` values
+only when `a.UseHandling` is truthy. It is never set. The ~40 per-weapon `HandlingBaseMul` values
 in `PATCH_GBO_weapons.lua` (Barrett 125 … AKSU 83) have no effect. Decide and make it explicit; see
 §3.3.
 
@@ -501,7 +501,7 @@ Implemented and verified live (`ReloadLua` + `ApplyApertureItemParams` + `Rat_Re
 - `A.UseHandling`, `Rat_ApertureSnapMul`, `Rat_SeedSnapFromOverwatch`, `_test_SeedHandling` and the
   `SeedOW*` params are deleted. The step is scaled only by `GetWeaponHipfireOrSnapshotMul`, i.e. by
   `wep_base_hip_mul` / `wep_base_snapshot_mul` — stats the player already reads.
-- The ~40 `ApertureHandlingHeavyMul` assignments in `PATCH_GBO_weapons.lua` are left alone: that file is
+- The ~40 `HandlingBaseMul` assignments in `PATCH_GBO_weapons.lua` are left alone: that file is
   generated, and the property is now inert.
 
 **Scopes**
