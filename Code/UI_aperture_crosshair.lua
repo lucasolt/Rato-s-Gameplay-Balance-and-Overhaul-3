@@ -95,6 +95,28 @@ local function ladder_strokes(est, num_shots, at, tick)
     return path, fan_l, fan_r
 end
 
+---- A CUNHA do recuo herdado, no mesmo idioma da V da rajada: dois tracos saindo do ponto de mira
+---- para cima, abrindo. Diz as duas coisas de uma vez -- ate onde o cano pode ter subido (a altura)
+---- e o quanto ele pode ter vagado de lado la em cima (a abertura), que e exatamente a cunha que
+---- Rat_SeparableCTH integra e que a bala dispara.
+---- Sem recuo herdado nao ha o que desenhar e os tracos somem, senao mentiriam sobre um ataque
+---- que ainda nao aconteceu.
+local function persist_wedge(at, dist, sigma, sy, fan, radius, color, anchor)
+    if not sy or not fan or sy <= sigma or fan < 1 then
+        Rat_HideStroke("pfanl")
+        Rat_HideStroke("pfanr")
+        return
+    end
+    local a = const.Combat.Aperture
+    local mul = a.CrosshairSigmaMul or 250
+    local top = Rat_ConeRadius(dist, MulDivRound(sy, mul, 100))
+    local wide = radius + Rat_ConeRadius(dist, MulDivRound(fan, mul, 100))
+    ---- nasce na borda do anel, nao no centro: dentro do anel a cunha nao acrescenta nada e so
+    ---- suja o circulo que ja diz qual e o cone limpo.
+    Rat_ShowStroke("pfanl", {at(0, -radius), at(top, -wide)}, color, anchor)
+    Rat_ShowStroke("pfanr", {at(0, radius), at(top, wide)}, color, anchor)
+end
+
 ---- Sai do caminho: devolve o circulo 2D e apaga o anel do mundo.
 local function fallback(self, context, ...)
     Rat_HideConeRing()
@@ -138,8 +160,8 @@ function Rat_UpdateConeRing(crosshair)
     ---- UM cone so, o mesmo que Rat_SimPlanShots dispara: quem o resolve e CalcChanceToHit
     ---- (geometria + residuais ja em cone) e ele o devolve nos proprios args.
     local target_pos = target:GetPos()
-    local sigma, theta, cth, sy, sy_dn = Rat_AttackCone(attacker, target, action, part, aim, false,
-                                                 step_pos, target_pos)
+    local sigma, theta, cth, sy, sy_dn, fan = Rat_AttackCone(attacker, target, action, part, aim,
+                                                             false, step_pos, target_pos)
     if not sigma or not theta or theta < 1 then
         return false
     end
@@ -164,18 +186,13 @@ function Rat_UpdateConeRing(crosshair)
     local radius = Rat_ConeRadius(dist, spread)
     local dir = center - origin
 
-    ---- o eixo VERTICAL do cone, ja com o recuo herdado (alonga) e a postura (achata). Mesma
-    ---- funcao que o CTH e a bala leem -- se o anel desenhasse outra elipse ele nao valeria nada.
-    local sigma_y, sigma_y_dn = sy or sigma, sy_dn or sy or sigma
-    local eliptico = (sigma_y ~= sigma) or (sigma_y_dn ~= sigma)
-    local function ray(s)
-        return Rat_ConeRadius(dist, MulDivRound(s, a.CrosshairSigmaMul, 100))
-    end
-    local radius_y = eliptico and ray(sigma_y) or nil
-    local radius_y_dn = eliptico and ray(sigma_y_dn) or nil
-
+    ---- O anel volta a ser CIRCULO. O recuo herdado nao e mais uma elipse desenhada por cima
+    ---- dele: um circulo num plano vertical, visto pela camera inclinada, projeta a metade de
+    ---- baixo para PERTO e ela le como se fosse a mais larga -- medido, malha topo +3014 base
+    ---- -1772, e na tela parecia o contrario. A cunha abaixo diz a mesma coisa sem depender do
+    ---- angulo da camera, e no mesmo idioma da V da rajada.
     if not a.CrosshairRecoilLadder then
-        Rat_ShowConeRing(center, radius, dir, color, nil, radius_y, radius_y_dn)
+        Rat_ShowConeRing(center, radius, dir, color)
         return true
     end
 
@@ -193,7 +210,10 @@ function Rat_UpdateConeRing(crosshair)
 
     ---- o anel fica NO ALVO, so mais alto: o recuo herdado e incerteza, nao um cano parado fora
     ---- do alvo. A regua da rajada nasce dele, e dentro da rajada sim o cano anda de verdade.
-    Rat_ShowConeRing(center, radius, dir, color, nil, radius_y, radius_y_dn)
+    Rat_ShowConeRing(center, radius, dir, color)
+
+    local faded = tint(cr, cg, cb)
+    persist_wedge(at, dist, sigma, sy, fan, radius, faded, center)
 
     local est = (num_shots > 1) and ladder_estimate(attacker, action, weapon, aim, num_shots)
     if not est then
@@ -203,7 +223,6 @@ function Rat_UpdateConeRing(crosshair)
         return true
     end
 
-    local faded = tint(cr, cg, cb)
     local path, fan_l, fan_r = ladder_strokes(est, num_shots, at,
                                               MulDivRound(spread, a.CrosshairRecoilTickPct or 0, 100))
     Rat_ShowStroke("climb", path, faded, center)

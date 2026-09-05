@@ -260,9 +260,14 @@ A.RecoilPersistRetainPerAP = 100
 ---- cone apertado centrado fora do alvo erra de proposito, e quanto MELHOR o atirador, mais
 ---- certo o erro. Centrado, pericia volta a ajudar sempre e sempre resta uma chance -- que e o
 ---- que tornava o tiro rapido de semi-auto uma aposta que vale a pena.
----- Calibrado contra o modelo antigo no caso do Rato (pistola, 8 tiles, base 70, mira 1):
----- 70 -> 57 -> 40, batido exato. Mira 0 cai para 46/29, mira 2 segura em 67/59.
-A.RecoilPersistSigmaPct = 85
+---- Calibrado contra o modelo antigo no caso do Rato (pistola, 8 tiles, base 70, mira 1), sobre
+---- uma silhueta CONGELADA (152/215/111/65) -- medir no alvo vivo movia a referencia junto.
+----   mira 0 | 70 50 40 35 30 26
+----   mira 1 | 70 55 47 42 39 34     ANTIGO: 70 57 40
+----   mira 2 | 70 62 55 52 49 46
+---- O primeiro passo bate; dai em diante cai mais devagar e nunca chega a zero, que e a
+---- propriedade que se quis manter -- ate o tiro ruim guarda uma chance.
+A.RecoilPersistSigmaPct = 70
 
 ---- MIRA -> quanto do tremor ainda vale, por nivel. Explicito e multiplicativo, um numero por
 ---- linha, que e como o modelo antigo lia (`1 - 0.34 * aim`) e como da para tunar olhando.
@@ -282,6 +287,17 @@ A.RecoilPersistStretchMax = 700
 ---- centro continua no alvo e os dois meios-eixos verticais e que ficam diferentes, um ovo em vez
 ---- de elipse. A soma e preservada, entao a calibracao de RecoilPersistSigmaPct nao se mexe.
 A.RecoilPersistUpBias = 70
+
+---- ABERTURA LATERAL da cunha, em % do tremor, no TOPO dela. O cano sobe, e quanto mais subiu
+---- mais tempo o tremor lateral teve para crescer -- entao a possibilidade nao e uma elipse, e um
+---- triangulo invertido saindo do ponto de mira. E a mesma coisa que a V da rajada ja diz na tela,
+---- que era o motivo de o anel eliptico contar outra historia.
+---- Em 0 a cunha some e o CTH volta a ser Px(sigma) * Py(sigma_y), identico ao que era.
+A.RecoilPersistFanPct = 150
+
+---- Fatias em que a faixa de CIMA e integrada. A largura muda ao longo do eixo vertical, entao
+---- Px nao sai mais do somatorio -- cada fatia paga um lookup na LUT, que e tabela.
+A.RecoilPersistFanSteps = 6
 
 ---- Teto do cano guardado, em coices da propria arma. Segura o ESTADO; o de cima segura o que
 ---- ele faz na tela. CORRECAO: o modelo antigo dava UM stack por ataque, tiro simples ou rajada

@@ -599,7 +599,11 @@ end
 ---- Px(sigma) * Py(sigma) por eixo, entao cone eliptico e Px(sigma_x) * Py(sigma_y) e nada mais --
 ---- sem rotacao e sem LUT nova, porque o eixo do recuo e o mesmo eixo do `up` da silhueta.
 ---- Quem escreve nele: o recuo persistente (alonga) e a postura (achata). Ver Rat_ConeSigmaY.
-function Rat_SeparableCTH(sigma, up, down, right, left, head, sigma_y, sigma_y_down)
+---- `fan_top` (minutos) e o quanto a largura CRESCE no topo da cunha. Com ele a largura deixa de
+---- ser constante ao longo do eixo vertical e Px nao sai mais do somatorio: a metade de cima passa
+---- a ser integrada em fatias. Em 0 o somatorio telescopa de volta para Px(sigma) * Py, entao o
+---- caminho sem recuo continua sendo exatamente o mesmo numero de antes.
+function Rat_SeparableCTH(sigma, up, down, right, left, head, sigma_y, sigma_y_down, fan_top)
     if not sigma or sigma < 1 then
         return 100
     end
@@ -622,11 +626,35 @@ function Rat_SeparableCTH(sigma, up, down, right, left, head, sigma_y, sigma_y_d
                                  normal_band(hu - hh, hu + hh, sigma_y), 1000)
         end
     end
-    local px = normal_band(-left, right, sigma)
     ---- duas metades coladas no zero: cada lado leva metade da massa com o SEU sigma. Com os dois
     ---- iguais isto e identico a uma faixa so, porque normal_band e aditiva em intervalos vizinhos.
-    local py = normal_band(0, body_up, sigma_y) + normal_band(-down, 0, sigma_y_down)
-    return MulDivRound(MulDivRound(px, py, 1000) + p_head, 100, 1000)
+    local px = normal_band(-left, right, sigma)
+    local p_body = MulDivRound(px, normal_band(-down, 0, sigma_y_down), 1000)
+
+    if not fan_top or fan_top < 1 or body_up <= 0 then
+        return MulDivRound(p_body + MulDivRound(px, normal_band(0, body_up, sigma_y), 1000) + p_head,
+                           100, 1000)
+    end
+
+    ---- a cunha: cada fatia leva a SUA largura, pela altura do meio dela. A abertura para de
+    ---- crescer em 1 sigma_y -- acima disso quase nao ha massa e a largura viraria numero solto.
+    local steps = Max(1, P().RecoilPersistFanSteps or 6)
+    for k = 1, steps do
+        local y0 = MulDivRound(body_up, k - 1, steps)
+        local y1 = MulDivRound(body_up, k, steps)
+        local mid = MulDivRound(y0 + y1, 1, 2)
+        local sx = sigma + MulDivRound(fan_top, Min(mid, sigma_y), sigma_y)
+        p_body = p_body +
+                     MulDivRound(normal_band(-left, right, sx), normal_band(y0, y1, sigma_y), 1000)
+    end
+    return MulDivRound(p_body + p_head, 100, 1000)
+end
+
+---- Abertura lateral da cunha no topo, em minutos. Mesmo tremor que alonga o eixo vertical.
+function Rat_ConeFanX(data)
+    local a = P()
+    local r = data.rat_vsigma or 0
+    return (r > 0) and MulDivRound(r, a.RecoilPersistFanPct or 0, 100) or 0
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -841,7 +869,7 @@ function Rat_AttackCone(attacker, target, action, spot, aim, opportunity_attack,
         return args.rat_sigma, args.rat_theta, cth
     end
     local sy_up, sy_dn = Rat_ConeSigmaY(args)
-    return args.rat_sigma, args.rat_theta, cth, sy_up, sy_dn
+    return args.rat_sigma, args.rat_theta, cth, sy_up, sy_dn, Rat_ConeFanX(args)
 end
 
 
@@ -903,7 +931,7 @@ end
 ---- Com `sigma_y` diferente de `sigma` a nuvem e ELIPTICA: sorteia o raio isotropico e depois
 ---- encolhe/estica so a componente vertical. Tem de ser a mesma elipse que Rat_ConeSigmaY entrega
 ---- ao CTH -- se a bala e o numero discordarem no formato, o numero volta a nao ser o que acontece.
-function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma, sigma_y, sigma_y_down)
+function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma, sigma_y, sigma_y_down, fan_top)
     if not attack_pos or not aim_pos then
         return aim_pos
     end
@@ -939,6 +967,16 @@ function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma, sigma_y, sig
     local cx = MulDivRound(radius, sin(ang), 4096)
     local cy = MulDivRound(radius, cos(ang), 4096)
     cy = MulDivRound(cy, (cy >= 0) and sigma_y or sigma_y_down, sigma)
+
+    ---- a cunha, do mesmo jeito que Rat_SeparableCTH a integra: a largura do tiro sai da ALTURA
+    ---- que ele alcancou. So para cima -- para baixo o cano nao subiu e nao houve o que vagar.
+    if fan_top and fan_top > 0 and cy > 0 then
+        local ylin = MulDivRound(dist, sigma_y, 3438) --- 1 sigma vertical, em unidades de mundo
+        if ylin > 0 then
+            local sx = sigma + MulDivRound(fan_top, Min(cy, ylin), ylin)
+            cx = MulDivRound(cx, sx, sigma)
+        end
+    end
     return shift_along(shift_along(aim_pos, up, cy), Rat_RecoilLateralAxis(up, dir), cx)
 end
 
@@ -1052,9 +1090,11 @@ function Rat_SimPlanShots(ctx)
     ---- de partida da rajada; a postura ainda vai achatar pelo mesmo canal (Rat_ConeSigmaY).
     local vs = (ctx.args and ctx.args.rat_vsigma) or
                    Rat_RecoilPersistSigma(ctx.attacker, ctx.action, ctx.weapon, ctx.aim, ctx.target)
-    local sigma_y, sigma_y_dn = Rat_ConeSigmaY({rat_sigma = sigma, rat_vsigma = vs,
-                                                rat_stretch = ctx.args and ctx.args.rat_stretch})
-    ctx.sigma_y, ctx.sigma_y_dn, ctx.vsigma = sigma_y, sigma_y_dn, vs
+    local cone = {rat_sigma = sigma, rat_vsigma = vs,
+                  rat_stretch = ctx.args and ctx.args.rat_stretch}
+    local sigma_y, sigma_y_dn = Rat_ConeSigmaY(cone)
+    local fan = Rat_ConeFanX(cone)
+    ctx.sigma_y, ctx.sigma_y_dn, ctx.fan, ctx.vsigma = sigma_y, sigma_y_dn, fan, vs
 
     local num_shots = Max(1, ctx.num_shots or 1)
     local cth, prof, est, sigma_disp = Rat_SimRecoilLadder(ctx.attacker, ctx.action, ctx.weapon,
@@ -1095,7 +1135,7 @@ function Rat_SimPlanShots(ctx)
             mu = mu,
             lat = lat,
             target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, sigma,
-                                              sigma_y, sigma_y_dn)
+                                              sigma_y, sigma_y_dn, fan)
         }
         if st then
             Rat_RecoilStep(prof, st, rnd)
@@ -1139,7 +1179,7 @@ function Rat_SimReplanShot(ctx, idx)
         mu = mu,
         lat = lat,
         target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, ctx.sigma,
-                                          ctx.sigma_y, ctx.sigma_y_dn)
+                                          ctx.sigma_y, ctx.sigma_y_dn, ctx.fan)
     }
 end
 

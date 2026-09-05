@@ -115,11 +115,12 @@ function Rat_ConeCTH(data)
     local a = const.Combat.Aperture
     local sigma = data.rat_sigma
     local sigma_y, sigma_y_dn = Rat_ConeSigmaY(data)
+    local fan = Rat_ConeFanX(data)
     local cth
     if data.rat_ext_up then
         cth = Clamp(Rat_SeparableCTH(sigma, data.rat_ext_up, data.rat_ext_down, data.rat_ext_right,
-                                     data.rat_ext_left, data.rat_ext_head, sigma_y, sigma_y_dn),
-                    a.MinCTH,
+                                     data.rat_ext_left, data.rat_ext_head, sigma_y, sigma_y_dn,
+                                     fan), a.MinCTH,
                     a.MaxCTH)
         data.rat_theta = Rat_ThetaEquivalent(sigma, cth) or data.rat_theta
     else
