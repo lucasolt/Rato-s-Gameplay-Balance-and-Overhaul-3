@@ -101,25 +101,29 @@ end
 ---- Rat_SeparableCTH integra e que a bala dispara.
 ---- Sem recuo herdado nao ha o que desenhar e os tracos somem, senao mentiriam sobre um ataque
 ---- que ainda nao aconteceu.
-local function persist_wedge(at, dist, sigma, sy, fan, radius, color, anchor)
+---- `spread` e o raio do anel EM MINUTOS. Tudo aqui e angular: quem converte para mundo e o
+---- proprio `at` (offset_along faz dist * minutos / 3438). Passar comprimento ja convertido
+---- aplicava a conversao duas vezes e a cunha saia dist/3438 vezes maior do que e.
+local function persist_wedge(at, spread, sigma, sy, fan, color, anchor)
     if not sy or not fan or sy <= sigma or fan < 1 then
         return Rat_HideStroke("wedge")
     end
     local a = const.Combat.Aperture
 
     ---- 200%, nao os 250% do anel: aquilo e o envelope de uma Rayleigh 2D, e a altura da cunha e
-    ---- UM eixo -- 2 sigma ja e 95% dele. Com 250 a ponta subia meia tela.
+    ---- UM eixo -- 2 sigma ja e 95% dele.
     local mul = a.CrosshairWedgeSigmaMul or 200
-    local top = Rat_ConeRadius(dist, MulDivRound(sy, mul, 100))
-    local wide = radius + Rat_ConeRadius(dist, MulDivRound(fan, mul, 100))
+    local top = MulDivRound(sy, mul, 100)
+    local wide = spread + MulDivRound(fan, mul, 100)
 
     ---- Teto de DESENHO. sigma_y chega a seis vezes o cone, e a ponta fiel saia do alvo, passava
     ---- por tras dos widgets do crosshair e nao dizia mais nada. Cortar calado seria mentir, entao
-    ---- a convencao e o TOPO: fechado, a cunha inteira cabe; aberto, ela continua para cima.
-    local lim = MulDivRound(radius, a.CrosshairWedgeMaxPct or 400, 100)
+    ---- a convencao e o TRINCO no fim de cada braco: com trinco a cunha acaba ali, sem trinco ela
+    ---- continua para cima.
+    local lim = MulDivRound(spread, a.CrosshairWedgeMaxPct or 400, 100)
     local cut = top > lim
     if cut then
-        wide = radius + MulDivRound(wide - radius, lim, top)
+        wide = spread + MulDivRound(wide - spread, lim, top)
         top = lim
     end
 
@@ -129,7 +133,7 @@ local function persist_wedge(at, dist, sigma, sy, fan, radius, color, anchor)
     ---- mesmos pixels.
     ---- Trinco no fim de cada braco quando a cunha cabe inteira; sem trinco ela continua para
     ---- cima. E a mesma convencao das barras da regua da rajada, e substitui o topo fechado.
-    local tick = cut and 0 or MulDivRound(wide - radius, a.CrosshairRecoilTickPct or 0, 100)
+    local tick = cut and 0 or MulDivRound(wide - spread, a.CrosshairRecoilTickPct or 0, 100)
     local function arm(sign)
         local p = at(top, sign * wide)
         if tick > 0 then
@@ -251,7 +255,7 @@ function Rat_UpdateConeRing(crosshair)
     if ovo then
         Rat_HideStroke("wedge")
     else
-        persist_wedge(at, dist, sigma, sy, fan, radius, faded, center)
+        persist_wedge(at, spread, sigma, sy, fan, faded, center)
     end
 
     local est = (num_shots > 1) and ladder_estimate(attacker, action, weapon, aim, num_shots)
