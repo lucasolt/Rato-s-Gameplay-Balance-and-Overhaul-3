@@ -149,6 +149,16 @@ A.CrosshairRecoilLadder = true
 ---- a forma do traco, e ela e estavel bem antes das 128 amostras que o balanceamento pede.
 A.CrosshairRecoilSamples = 24
 
+---- Quanto a escada e CLAREADA em relacao a cor do anel (% do caminho ate o branco). Mesma cor,
+---- porque e o mesmo tiro -- so mais clara, para nao sumir contra o terreno.
+A.CrosshairRecoilTintPct = 45
+
+---- O que o traco mede: a DISTANCIA media ao alvo (true) ou a posicao media do cano (false).
+---- Nao e a mesma coisa numa rajada longa. A posicao media volta em direcao ao alvo no fim --
+---- e verdade que o atirador retoma o controle, mas mediar posicoes numa nuvem que se abre
+---- exagera isso em ~3x. A distancia e o que o CTH sente. Ver ladder_strokes.
+A.CrosshairRecoilMeanDistance = true
+
 ---- Meia-largura da barra de cada tiro, em % do raio do anel. So legibilidade.
 A.CrosshairRecoilTickPct = 22
 

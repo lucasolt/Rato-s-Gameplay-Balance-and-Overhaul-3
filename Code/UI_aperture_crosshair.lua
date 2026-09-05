@@ -35,18 +35,40 @@ local function ladder_estimate(attacker, action, weapon, aim, num_shots, p0x, p0
     return e_est
 end
 
----- Cor da escada: a mesma do anel, puxada para o fundo. Um segundo tom diria "outra coisa", e a
----- escada e o mesmo tiro; alpha ficaria a criterio do shader do Polyline.
-local function dim(r, g, b)
-    return RGB(MulDivRound(r, 55, 100), MulDivRound(g, 55, 100), MulDivRound(b, 55, 100))
+---- Cor da escada: a MESMA do anel, so clareada. Um segundo tom diria "outra coisa" e a escada e o
+---- mesmo tiro; alpha ficaria a criterio do shader do Polyline. Clareia em vez de escurecer --
+---- escurecendo, o traco sumia contra o terreno e ficava mais dificil de ler que o anel.
+local function tint(r, g, b)
+    local pct = const.Combat.Aperture.CrosshairRecoilTintPct or 0
+    local function up(c)
+        return Clamp(c + MulDivRound(255 - c, pct, 100), 0, 255)
+    end
+    return RGB(up(r), up(g), up(b))
 end
 
 ---- Tracos da rajada, em pontos de mundo. `at(dy, dx)` poe um desvio angular no plano do alvo.
 ---- Devolve o caminho (com uma barra por tiro) e as duas diagonais do grupo.
+----
+---- A DIRECAO vem do ponto medio; o COMPRIMENTO, de `offset` -- a distancia media ao alvo, nao a
+---- distancia do ponto medio. As duas divergem muito no fim de uma rajada longa: mediar uma nuvem
+---- que se abre puxa o ponto medio de volta para o alvo mesmo quando rajada nenhuma volta.
+---- MEDIDO (AK47, 14 tiros): o ponto medio vai de 407' a 239' entre os tiros 7 e 14 (-70%),
+---- enquanto a distancia media so cai de 534' a 408' (-24%). O atirador REALMENTE retoma o
+---- controle -- so que tres vezes menos do que o ponto medio sugere. E a distancia que o CTH
+---- sente, entao e ela que o traco tem que mostrar.
 local function ladder_strokes(est, num_shots, at, tick)
+    local mean_dist = const.Combat.Aperture.CrosshairRecoilMeanDistance
     local path, fan_l, fan_r = {}, {}, {}
     for i = 1, num_shots do
         local dy, dx, w = est.py[i], est.px[i], est.spread[i]
+        if mean_dist then
+            local len = Rat_ISqrt(dx * dx + dy * dy)
+            if len > 0 then
+                dx, dy = MulDivRound(dx, est.offset[i], len), MulDivRound(dy, est.offset[i], len)
+            else
+                dy = est.offset[i] --- tiro 1 sem offset herdado: nao ha direcao, so a subida
+            end
+        end
         local p = at(dy, dx)
         ---- ida e volta na barra: um mesh de Polyline e uma tira so, e o retrace repinta os
         ---- mesmos pixels -- na tela e uma linha com um trinco em cada tiro.
@@ -164,7 +186,7 @@ function Rat_UpdateConeRing(crosshair)
         return true
     end
 
-    local faded = dim(cr, cg, cb)
+    local faded = tint(cr, cg, cb)
     local path, fan_l, fan_r = ladder_strokes(est, num_shots, at,
                                               MulDivRound(spread, a.CrosshairRecoilTickPct or 0, 100))
     Rat_ShowStroke("climb", path, faded, center)
