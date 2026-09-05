@@ -88,6 +88,9 @@ function Rat_TargetExtents(attacker_pos, target, spot, exposed_pct, stance_overr
     if type(part) == "table" then
         part = part.id
     end
+    ---- sem parte escolhida o spot nulo devolve a ORIGEM (os pes), e a silhueta sai toda para cima
+    ---- do ponto de mira: medido up 826' contra down 19'. Mesmo default do engine em Rat_SimBaseArgs.
+    part = part or g_DefaultShotBodyPart
 
     local ang = o:GetOrientationAngle()
     local base = Rat_ValidZ(o:GetPos())

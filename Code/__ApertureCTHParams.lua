@@ -28,6 +28,11 @@
 --TODO: How to deal with scopes that give bonus to hit bodyparts or bypass cover? Handzolt, Scout scope
 --TODO: AI OVERHAUL: investigar o threshold de escolha de dar o tiro. ta em 1, talvez passar pra 2?
 
+--TODO: 05/09/2026
+--TODO: Stray shots should have lower chance to inflict status effect
+--TODO: what about grazing? is it possible to keep in the game?
+--TODO: Autofire shot count
+
 const.Combat.Aperture = const.Combat.Aperture or {}
 local A = const.Combat.Aperture
 ---------------------------------------------------------------------------------------------------
@@ -255,7 +260,9 @@ A.RecoilPersistRetainPerAP = 100
 ---- cone apertado centrado fora do alvo erra de proposito, e quanto MELHOR o atirador, mais
 ---- certo o erro. Centrado, pericia volta a ajudar sempre e sempre resta uma chance -- que e o
 ---- que tornava o tiro rapido de semi-auto uma aposta que vale a pena.
-A.RecoilPersistSigmaPct = 155
+---- Calibrado contra o modelo antigo no caso do Rato (pistola, 8 tiles, base 70, mira 1):
+---- 70 -> 57 -> 40, batido exato. Mira 0 cai para 46/29, mira 2 segura em 67/59.
+A.RecoilPersistSigmaPct = 85
 
 ---- MIRA -> quanto do tremor ainda vale, por nivel. Explicito e multiplicativo, um numero por
 ---- linha, que e como o modelo antigo lia (`1 - 0.34 * aim`) e como da para tunar olhando.
@@ -265,7 +272,9 @@ A.RecoilPersistAimMul = {[0] = 100, [1] = 66, [2] = 33, [3] = 0}
 ---- TETO do alongamento, em % do proprio cone. E o analogo do max_stacks = 6 do efeito antigo:
 ---- o cano acumula a cada ataque e sem teto a elipse cresce ate sair da tela. Em multiplo do
 ---- cone e nao em minutos, senao o mesmo limite seria frouxo de perto e absurdo de longe.
-A.RecoilPersistStretchMax = 500
+---- Valvula de seguranca, NAO alavanca de balanceamento: em 500 ele mordia a cadeia de mira 0
+---- ja no quarto ataque e achatava a curva que RecoilPersistSigmaPct acabou de calibrar.
+A.RecoilPersistStretchMax = 700
 
 ---- Teto do cano guardado, em coices da propria arma. Segura o ESTADO; o de cima segura o que
 ---- ele faz na tela. CORRECAO: o modelo antigo dava UM stack por ataque, tiro simples ou rajada
