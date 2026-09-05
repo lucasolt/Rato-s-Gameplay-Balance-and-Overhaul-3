@@ -243,26 +243,31 @@ function Rat_UpdateConeRing(crosshair)
     local dir = center - origin
 
     ---- FORMA DESENHADA, independente da forma do CALCULO. Rat_ConeSigmaY nao olha
-    ---- A.RecoilPersistShape: os dois meios-eixos verticais sao reais nos dois modos, entao a elipse
-    ---- e honesta tambem com CTH de cunha. O que ela NAO consegue dizer e a abertura lateral do topo
-    ---- (Rat_ConeFanX, que so existe em "wedge") -- um anel e simetrico e nao alarga so em cima.
-    ---- Por isso "both": a elipse da o alongamento vertical, os tracos da cunha dao o leque.
-    ---- Ver A.CrosshairRecoilShape.
+    ---- A.RecoilPersistShape: os dois meios-eixos verticais sao reais nos dois modos, entao o anel
+    ---- e honesto tambem com CTH de cunha. E ele diz o LEQUE tambem: `rfan` alarga a metade de cima
+    ---- com a mesma rampa que Rat_SeparableCTH integra -- cresce com a altura, satura em 1 sigma_y.
+    ---- Sem isso o anel afila no topo (meio-eixo maior, largura igual) e o ovo le mais largo
+    ---- EMBAIXO, que e o contrario do que o modelo diz. Ver A.CrosshairRecoilShape.
     local shape = a.CrosshairRecoilShape
     if not shape or shape == "auto" then
         shape = (a.RecoilPersistShape == "egg") and "ring" or "wedge"
     end
     local draw_wedge = (shape == "wedge" or shape == "both")
-    local ry, ry_dn
+    local ry, ry_dn, rfan, rfan_sat
     if (shape == "ring" or shape == "both") and sy and sy_dn then
         local function ray(s)
             return Rat_ConeRadius(dist, MulDivRound(s, a.CrosshairSigmaMul, 100))
         end
         ry, ry_dn = ray(sy), ray(sy_dn)
+        if fan and fan > 0 then
+            ---- o leque escala como todo o resto (2.5 sigma); a saturacao NAO -- ela e 1 sigma_y,
+            ---- que e onde o somatorio do CTH para de alargar.
+            rfan, rfan_sat = ray(fan), Rat_ConeRadius(dist, sy)
+        end
     end
 
     if not a.CrosshairRecoilLadder then
-        Rat_ShowConeRing(center, radius, dir, color, nil, ry, ry_dn)
+        Rat_ShowConeRing(center, radius, dir, color, nil, ry, ry_dn, rfan, rfan_sat)
         return true
     end
 
@@ -280,7 +285,7 @@ function Rat_UpdateConeRing(crosshair)
 
     ---- o anel fica NO ALVO, so mais alto: o recuo herdado e incerteza, nao um cano parado fora
     ---- do alvo. A regua da rajada nasce dele, e dentro da rajada sim o cano anda de verdade.
-    Rat_ShowConeRing(center, radius, dir, color, nil, ry, ry_dn)
+    Rat_ShowConeRing(center, radius, dir, color, nil, ry, ry_dn, rfan, rfan_sat)
 
     local faded = tint(cr, cg, cb)
     if draw_wedge then

@@ -95,6 +95,164 @@ function OnMsg.DataLoaded()
     apply_mode_and_field()
 end
 
+----------------
+---- Visual
+----------------
+
+---- Anel de mira: desenhado NO MUNDO com o raio real do cone (ver UI_aperture_ring.lua).
+---- QUANTOS SIGMAS o anel representa. 1 sigma contem 39% dos tiros; 2.5 contem 96%.
+A.CrosshairSigmaMul = 250
+
+---- Segmentos do anel de mira. Mais que isto nao se distingue; menos, vira poligono a queima-roupa.
+A.CrosshairRingSegments = 32
+
+---- ESCADA DO RECUO no crosshair: o caminho que o cano faz durante a rajada, com uma barra por
+---- tiro, e duas diagonais abrindo com a largura do grupo em cada tiro. O anel em si passa a ficar
+---- ONDE O CANO ESTA -- deslocado pelo recuo herdado -- em vez de sempre em cima do alvo: e de la
+---- que a bala sai, e um anel centrado no alvo desenharia um cone que a arma nao tem.
+---- false volta ao anel sozinho, sempre no alvo.
+A.CrosshairRecoilLadder = true
+
+---- Amostras do estimador para DESENHAR. O numero exibido nao sai daqui (isso e Rat_ConeCTH), so
+---- a forma do traco, e ela e estavel bem antes das 128 amostras que o balanceamento pede.
+A.CrosshairRecoilSamples = 24
+
+---- Quanto a escada e CLAREADA em relacao a cor do anel (% do caminho ate o branco). Mesma cor,
+---- porque e o mesmo tiro -- so mais clara, para nao sumir contra o terreno.
+A.CrosshairRecoilTintPct = 0
+
+---- O que a ALTURA da regua mede: a DISTANCIA media ao alvo (true) ou a posicao media do cano
+---- (false). A regua e reta e simetrica nos dois casos -- a deriva lateral do passeio nao entra no
+---- desenho, so a largura do grupo, que vai para os dois lados. Ver ladder_strokes.
+---- Nao e a mesma coisa numa rajada longa. A posicao media volta em direcao ao alvo no fim --
+---- e verdade que o atirador retoma o controle, mas mediar posicoes numa nuvem que se abre
+---- exagera isso em ~3x. A distancia e o que o CTH sente. Ver ladder_strokes.
+A.CrosshairRecoilMeanDistance = true
+
+---- Meia-largura da barra de cada tiro, em % do raio do anel. So legibilidade.
+A.CrosshairRecoilTickPct = 22
+
+---- COMO o recuo herdado aparece na tela -- so desenho, nao entra em conta nenhuma. Os dois
+---- meios-eixos verticais (Rat_ConeSigmaY) existem em qualquer A.RecoilPersistShape, e o anel
+---- tambem diz o LEQUE: Rat_RingPoints alarga a metade de cima com a MESMA rampa que
+---- Rat_SeparableCTH integra -- cresce com a altura, satura em 1 sigma_y. Entao "ring" e honesto
+---- tambem com CTH de cunha.
+----   "wedge"       circulo + os tracos da cunha
+----   "ring"        anel com os dois meios-eixos E o leque, sem os tracos
+----   "both"        os dois
+----   false/"auto"  segue A.RecoilPersistShape
+---- POR QUE o leque no anel importa: so esticar o meio-eixo de cima, com largura constante, AFILA
+---- o topo -- meio-eixo mais longo e mesma largura le como mais estreito, e o ovo aparece mais
+---- largo EMBAIXO, o contrario do que o modelo diz. Alargar o topo conserta a leitura e diz o
+---- leque de uma vez so. (Uma versao anterior culpava o angulo da camera; nao era isso. O unico
+---- numero medido ali, malha topo +3014 base -1772, e so a assimetria vertical -- o afilamento e
+---- da forma e vale de qualquer ponto de vista.)
+
+A.CrosshairRecoilShape = "ring"
+
+---- Envelope da CUNHA do recuo herdado. 200% e ~95% de UM eixo; o anel usa 250% porque la o
+---- envelope e de uma Rayleigh 2D. Ver persist_wedge.
+A.CrosshairWedgeSigmaMul = 200
+
+---- Altura maxima DESENHADA da cunha, em % do raio do anel. So teto de desenho: passando dele a
+---- cunha aparece com o topo ABERTO, que e como ela avisa que continua para cima.
+A.CrosshairWedgeMaxPct = 400
+
+---- Comprimento MINIMO do leque da rajada, em % do raio do anel. Em distancia curta o passeio
+---- inteiro cabe em poucos minutos e o leque some dentro das barras da regua -- e curto demais
+---- para o tipFade dele. Estende reto para cima ate este piso; 0 desliga. Ver ladder_strokes.
+A.CrosshairFanMinPct = 50
+
+---- ESTILO por traco, para poder mexer no visual sem recompilar nada. A chave e o id do traco:
+---- "ring" (o anel), "wedge" (a cunha do recuo herdado), "climb" (a regua da rajada), "fanl" e
+---- "fanr" (o leque dela).
+----   shader     nome de ProceduralMeshShaders. Um Polyline so aceita os de topologia de linha
+----              (default_polyline, mesh_linelist, blended_linelist); width/fill trocam para o
+----              shader de fita (A.StrokeMeshShader) sozinhos.
+----   depth      so vale nos shaders com depth_test = "runtime"; nos outros o engine assere.
+----   color      RGBA que sobrepoe a cor do chamador, ou false para deixar a cor do CTH mandar.
+----   width      meia-largura da FITA em unidades de mundo. 0/nil = linha de 1px de sempre.
+----   halo       largura extra de um passe externo translucido, somada a width.
+----   coreAlpha  alpha do nucleo (0-255); haloAlpha o do passe externo.
+----   tipFade    % final do comprimento que desbota ate transparente.
+----   baseFade   igual, mas na RAIZ: apaga o inicio do traco medindo distancia da origem (pts[1]).
+----              Na cunha, a origem e a mira -- e o jeito de a cunha nao pintar em cima do alvo.
+----   dash       comprimento de traco e vao em unidades de mundo; 0 = continua.
+----   fill       true desenha a REGIAO fechada do contorno (leque de triangulos) + contorno.
+----   fillAlpha  alpha do preenchimento.
+---- Ver DEBUG_aperture_style.lua: Rat_StyleHelp() no console lista tudo e troca ao vivo.
+
+
+
+
+A.MeshStyle = {
+    ---- anel: fita fina neutra com um halo de leitura contra o terreno
+    ring = {
+        shader = "default_polyline",
+        depth = false,
+        color = false,
+        width = 12,--18,
+        halo = 12,--22,
+		fill = false, 
+		fillAlpha = 10,
+        coreAlpha = 235,
+        haloAlpha = 45
+    },
+    wedge = {
+        shader = "default_polyline",
+        depth = false,
+        color = false,
+        width = 20,--12,
+        fill = false,
+        fillAlpha = 10,--10, --55
+        coreAlpha = 150,--120,--230,
+		halo = 12,
+		baseFade = 50,
+		--dash = 110,
+        tipFade = 0
+    },
+    climb = {
+        shader = "default_polyline",
+        depth = false,
+        color = RGB(0, 0, 0),--false,--RGB(143, 51, 41),--const.clrRed,--false,
+        width = 10,--3
+        coreAlpha = 150,--235,
+    }, 
+    ---- leque: tracejado e desbotando na ponta -- "envelope, pode abrir para qualquer lado"
+    fanl = {
+        shader = "default_polyline",
+        depth = false,
+        color = RGB(0, 0, 0),--false,
+        width = 20,--9,
+        coreAlpha = 200,--190,
+        dash = 110,--90,
+        tipFade = 10--45
+    },
+}
+
+
+A.MeshStyle.fanr = A.MeshStyle.fanl -- sao iguais, so mudam a orientacao do leque
+
+---- Shader das fitas (geometria de triangulo). "default_mesh": blend normal, depth test opcional.
+---- NAO "soft_mesh" -- o define SOFT le o depth da cena e a fita some atras da unidade, mesmo com
+---- depth = false. "default_mesh" com depth = false volta ao comportamento do default_polyline:
+---- desenha por cima de tudo, como o anel antigo.
+A.StrokeMeshShader = "default_mesh"
+A.ConeRingParent = "Polyline"
+
+---- Teto e piso do multiplicador de UM residual. Sem eles -100 pontos daria cone infinito.
+A.ConeMulMin = 25
+A.ConeMulMax = 1000
+
+---- SO COR, nao entra em conta nenhuma. Ancoras do gradiente de fator de cone no overlay
+---- (Rat_ConeMulTag): MetaScaleWorst = vermelho cheio, 100 = ambar, MetaScaleBest = verde cheio.
+---- Worst e o teto contra o qual hipfire/snapshot sao pintados, para 280 e 155 nao sairem iguais.
+A.MetaScaleWorst = 300 -- 300
+A.MetaScaleBest = 60 -- 60
+
+---------------------------------------------------------------------------------------------------
+
+
 ---- LUT de Rayleigh -- P(acerto) = 1 - exp(-k^2 / 2), k = theta_alvo / sigma (dispersao radial 2D).
 ---- Tabulada por mil, indice = k*8 (passo 0.125), interpolada. Fora da tabela (k > 4) retorna 1000.
 
@@ -742,156 +900,3 @@ A.OffsetCircle = {
         475
     }
 }
-
-----------------
----- Visual
-----------------
-
----- Anel de mira: desenhado NO MUNDO com o raio real do cone (ver UI_aperture_ring.lua).
----- QUANTOS SIGMAS o anel representa. 1 sigma contem 39% dos tiros; 2.5 contem 96%.
-A.CrosshairSigmaMul = 250
-
----- Segmentos do anel de mira. Mais que isto nao se distingue; menos, vira poligono a queima-roupa.
-A.CrosshairRingSegments = 32
-
----- ESCADA DO RECUO no crosshair: o caminho que o cano faz durante a rajada, com uma barra por
----- tiro, e duas diagonais abrindo com a largura do grupo em cada tiro. O anel em si passa a ficar
----- ONDE O CANO ESTA -- deslocado pelo recuo herdado -- em vez de sempre em cima do alvo: e de la
----- que a bala sai, e um anel centrado no alvo desenharia um cone que a arma nao tem.
----- false volta ao anel sozinho, sempre no alvo.
-A.CrosshairRecoilLadder = true
-
----- Amostras do estimador para DESENHAR. O numero exibido nao sai daqui (isso e Rat_ConeCTH), so
----- a forma do traco, e ela e estavel bem antes das 128 amostras que o balanceamento pede.
-A.CrosshairRecoilSamples = 24
-
----- Quanto a escada e CLAREADA em relacao a cor do anel (% do caminho ate o branco). Mesma cor,
----- porque e o mesmo tiro -- so mais clara, para nao sumir contra o terreno.
-A.CrosshairRecoilTintPct = 0
-
----- O que a ALTURA da regua mede: a DISTANCIA media ao alvo (true) ou a posicao media do cano
----- (false). A regua e reta e simetrica nos dois casos -- a deriva lateral do passeio nao entra no
----- desenho, so a largura do grupo, que vai para os dois lados. Ver ladder_strokes.
----- Nao e a mesma coisa numa rajada longa. A posicao media volta em direcao ao alvo no fim --
----- e verdade que o atirador retoma o controle, mas mediar posicoes numa nuvem que se abre
----- exagera isso em ~3x. A distancia e o que o CTH sente. Ver ladder_strokes.
-A.CrosshairRecoilMeanDistance = true
-
----- Meia-largura da barra de cada tiro, em % do raio do anel. So legibilidade.
-A.CrosshairRecoilTickPct = 22
-
----- COMO o recuo herdado aparece na tela -- so desenho, nao entra em conta nenhuma. Os dois
----- meios-eixos verticais (Rat_ConeSigmaY) existem em qualquer A.RecoilPersistShape, entao o anel
----- eliptico e honesto mesmo com CTH de cunha; o que ele nao mostra e a abertura lateral do topo,
----- que so a cunha diz.
-----   "wedge"       circulo + os tracos da cunha (o de sempre em CTH de cunha)
-----   "ring"        anel ELIPTICO com os dois meios-eixos, sem os tracos
-----   "both"        anel eliptico E os tracos: a elipse da o alongamento, a cunha da o leque
-----   false/"auto"  segue A.RecoilPersistShape, como era antes
----- Cuidado com "ring" puro: um circulo em plano vertical visto pela camera inclinada projeta a
----- metade de baixo para PERTO e ela le como se fosse a mais larga -- medido, malha topo +3014
----- base -1772. Os tracos da cunha nao dependem do angulo da camera.
-A.CrosshairRecoilShape = "auto"
-
----- Envelope da CUNHA do recuo herdado. 200% e ~95% de UM eixo; o anel usa 250% porque la o
----- envelope e de uma Rayleigh 2D. Ver persist_wedge.
-A.CrosshairWedgeSigmaMul = 200
-
----- Altura maxima DESENHADA da cunha, em % do raio do anel. So teto de desenho: passando dele a
----- cunha aparece com o topo ABERTO, que e como ela avisa que continua para cima.
-A.CrosshairWedgeMaxPct = 400
-
----- Comprimento MINIMO do leque da rajada, em % do raio do anel. Em distancia curta o passeio
----- inteiro cabe em poucos minutos e o leque some dentro das barras da regua -- e curto demais
----- para o tipFade dele. Estende reto para cima ate este piso; 0 desliga. Ver ladder_strokes.
-A.CrosshairFanMinPct = 50
-
----- ESTILO por traco, para poder mexer no visual sem recompilar nada. A chave e o id do traco:
----- "ring" (o anel), "wedge" (a cunha do recuo herdado), "climb" (a regua da rajada), "fanl" e
----- "fanr" (o leque dela).
-----   shader     nome de ProceduralMeshShaders. Um Polyline so aceita os de topologia de linha
-----              (default_polyline, mesh_linelist, blended_linelist); width/fill trocam para o
-----              shader de fita (A.StrokeMeshShader) sozinhos.
-----   depth      so vale nos shaders com depth_test = "runtime"; nos outros o engine assere.
-----   color      RGBA que sobrepoe a cor do chamador, ou false para deixar a cor do CTH mandar.
-----   width      meia-largura da FITA em unidades de mundo. 0/nil = linha de 1px de sempre.
-----   halo       largura extra de um passe externo translucido, somada a width.
-----   coreAlpha  alpha do nucleo (0-255); haloAlpha o do passe externo.
-----   tipFade    % final do comprimento que desbota ate transparente.
-----   baseFade   igual, mas na RAIZ: apaga o inicio do traco medindo distancia da origem (pts[1]).
-----              Na cunha, a origem e a mira -- e o jeito de a cunha nao pintar em cima do alvo.
-----   dash       comprimento de traco e vao em unidades de mundo; 0 = continua.
-----   fill       true desenha a REGIAO fechada do contorno (leque de triangulos) + contorno.
-----   fillAlpha  alpha do preenchimento.
----- Ver DEBUG_aperture_style.lua: Rat_StyleHelp() no console lista tudo e troca ao vivo.
-
-
-
-
-A.MeshStyle = {
-    ---- anel: fita fina neutra com um halo de leitura contra o terreno
-    ring = {
-        shader = "default_polyline",
-        depth = false,
-        color = false,
-        width = 12,--18,
-        halo = 12,--22,
-		fill = false, 
-		fillAlpha = 10,
-        coreAlpha = 235,
-        haloAlpha = 45
-    },
-    wedge = {
-        shader = "default_polyline",
-        depth = false,
-        color = false,
-        width = 20,--12,
-        fill = false,
-        fillAlpha = 10,--10, --55
-        coreAlpha = 150,--120,--230,
-		halo = 12,
-		baseFade = 50,
-		--dash = 110,
-        tipFade = 0
-    },
-    climb = {
-        shader = "default_polyline",
-        depth = false,
-        color = RGB(0, 0, 0),--false,--RGB(143, 51, 41),--const.clrRed,--false,
-        width = 10,--3
-        coreAlpha = 150,--235,
-    }, 
-    ---- leque: tracejado e desbotando na ponta -- "envelope, pode abrir para qualquer lado"
-    fanl = {
-        shader = "default_polyline",
-        depth = false,
-        color = RGB(0, 0, 0),--false,
-        width = 20,--9,
-        coreAlpha = 200,--190,
-        dash = 110,--90,
-        tipFade = 10--45
-    },
-}
-
-
-A.MeshStyle.fanr = A.MeshStyle.fanl -- sao iguais, so mudam a orientacao do leque
-
----- Shader das fitas (geometria de triangulo). "default_mesh": blend normal, depth test opcional.
----- NAO "soft_mesh" -- o define SOFT le o depth da cena e a fita some atras da unidade, mesmo com
----- depth = false. "default_mesh" com depth = false volta ao comportamento do default_polyline:
----- desenha por cima de tudo, como o anel antigo.
-A.StrokeMeshShader = "default_mesh"
-A.ConeRingParent = "Polyline"
-
----- Teto e piso do multiplicador de UM residual. Sem eles -100 pontos daria cone infinito.
-A.ConeMulMin = 25
-A.ConeMulMax = 1000
-
----- SO COR, nao entra em conta nenhuma. Ancoras do gradiente de fator de cone no overlay
----- (Rat_ConeMulTag): MetaScaleWorst = vermelho cheio, 100 = ambar, MetaScaleBest = verde cheio.
----- Worst e o teto contra o qual hipfire/snapshot sao pintados, para 280 e 155 nao sairem iguais.
-A.MetaScaleWorst = 300 -- 300
-A.MetaScaleBest = 60 -- 60
-
----------------------------------------------------------------------------------------------------
-

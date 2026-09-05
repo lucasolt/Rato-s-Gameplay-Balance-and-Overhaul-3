@@ -76,7 +76,11 @@ end
 ---- do plano do alvo, que e exatamente o eixo em que o recuo trabalha.
 ---- `radius_y_down` diferente dele desenha um OVO: os dois meios-eixos verticais sao diferentes
 ---- quando RecoilPersistUpBias sai de 50. O centro nao se move -- so a metade de cima cresce mais.
-function Rat_RingPoints(center, radius, dir, segments, radius_y, radius_y_down)
+---- `fan` (unidades de mundo) alarga a metade de CIMA: o raio horizontal cresce com a altura ate
+---- saturar em `fan_sat`, que e a mesma rampa de Rat_SeparableCTH (sigma + fan_top * min(y,sy)/sy).
+---- E o que torna o anel capaz de dizer o leque -- e o que conserta a leitura: so esticar o
+---- meio-eixo de cima AFILA o topo com largura constante, e ai o ovo parece mais largo embaixo.
+function Rat_RingPoints(center, radius, dir, segments, radius_y, radius_y_down, fan, fan_sat)
     if not center or not radius or radius < 1 then
         return
     end
@@ -101,7 +105,8 @@ function Rat_RingPoints(center, radius, dir, segments, radius_y, radius_y_down)
     local full = 360 * 60
     local pts = {}
     radius_y_down = radius_y_down or radius_y
-    if not radius_y or (radius_y == radius and radius_y_down == radius) then
+    fan = (fan and fan > 0) and fan or 0
+    if fan == 0 and (not radius_y or (radius_y == radius and radius_y_down == radius)) then
         perp = SetLen(perp, radius)
         for i = 0, segments do
             pts[i + 1] = center + RotateAxis(perp, dir, MulDivRound(full, i, segments))
@@ -111,13 +116,21 @@ function Rat_RingPoints(center, radius, dir, segments, radius_y, radius_y_down)
 
     ---- eliptica: monta cada ponto pelos DOIS meios-eixos. Rodar um vetor ja esticado devolveria
     ---- o circulo de volta -- o raio tem de acompanhar o angulo, nao so a direcao.
+    radius_y = radius_y or radius
+    radius_y_down = radius_y_down or radius_y
     local vert = SetLen(perp, 1000)
     local lat = RotateAxis(vert, dir, 90 * 60)
     for i = 0, segments do
         local ang = MulDivRound(full, i, segments)
         local c = cos(ang)
         local cy = MulDivRound((c >= 0) and radius_y or radius_y_down, c, 4096)
-        local cx = MulDivRound(radius, sin(ang), 4096)
+        ---- so a metade de cima abre, e so ate saturar -- abaixo do centro o cone e o cone limpo
+        local rx = radius
+        if fan > 0 and cy > 0 then
+            rx = radius + ((fan_sat and fan_sat > 0) and MulDivRound(fan, Min(cy, fan_sat), fan_sat) or
+                              fan)
+        end
+        local cx = MulDivRound(rx, sin(ang), 4096)
         local p = center
         if cy ~= 0 then
             p = (cy > 0) and (p + SetLen(vert, cy)) or (p - SetLen(vert, -cy))
@@ -339,8 +352,8 @@ function Rat_HideStroke(id)
     strokes[id], last[id] = nil, nil
 end
 
-function Rat_ShowConeRing(center, radius, dir, color, segments, radius_y, radius_y_down)
-    local pts = Rat_RingPoints(center, radius, dir, segments, radius_y, radius_y_down)
+function Rat_ShowConeRing(center, radius, dir, color, segments, radius_y, radius_y_down, fan, fan_sat)
+    local pts = Rat_RingPoints(center, radius, dir, segments, radius_y, radius_y_down, fan, fan_sat)
     if not pts then
         return Rat_HideConeRing()
     end
