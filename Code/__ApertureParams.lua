@@ -138,6 +138,20 @@ A.CrosshairSigmaMul = 250
 ---- Segmentos do anel de mira. Mais que isto nao se distingue; menos, vira poligono a queima-roupa.
 A.CrosshairRingSegments = 32
 
+---- ESCADA DO RECUO no crosshair: o caminho que o cano faz durante a rajada, com uma barra por
+---- tiro, e duas diagonais abrindo com a largura do grupo em cada tiro. O anel em si passa a ficar
+---- ONDE O CANO ESTA -- deslocado pelo recuo herdado -- em vez de sempre em cima do alvo: e de la
+---- que a bala sai, e um anel centrado no alvo desenharia um cone que a arma nao tem.
+---- false volta ao anel sozinho, sempre no alvo.
+A.CrosshairRecoilLadder = true
+
+---- Amostras do estimador para DESENHAR. O numero exibido nao sai daqui (isso e Rat_ConeCTH), so
+---- a forma do traco, e ela e estavel bem antes das 128 amostras que o balanceamento pede.
+A.CrosshairRecoilSamples = 24
+
+---- Meia-largura da barra de cada tiro, em % do raio do anel. So legibilidade.
+A.CrosshairRecoilTickPct = 22
+
 
 ---- Teto e piso do multiplicador de UM residual. Sem eles -100 pontos daria cone infinito.
 A.ConeMulMin = 25

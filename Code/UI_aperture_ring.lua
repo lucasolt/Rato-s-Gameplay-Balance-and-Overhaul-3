@@ -11,7 +11,10 @@ local AppendVertex = pstr().AppendVertex
 ---- Varrer "Polyline" mataria junto o contorno de movimento e os visuais de AOE do jogo.
 DefineClass.RatConeRing = {__parents = {"Polyline"}}
 
-local ring_obj --- um anel vivo por vez (so o jogador local ve crosshair)
+---- Um mesh de Polyline e UMA tira continua, e a escada do recuo sao tracos soltos. Em vez de
+---- amarrar tudo num traco so (ou apostar em conectores transparentes, que dependem do shader),
+---- cada traco e um objeto proprio com nome. A varredura por classe ja recolhe todos.
+local strokes = {} --- id -> objeto; "ring" e o anel de sempre
 
 ---- Mata TODO anel no mapa, inclusive os que perderam a referencia. Um reload de mod (ou de Lua)
 ---- re-executa este arquivo e zera `ring_obj`, mas o objeto ja colocado continua no mundo -- sem
@@ -22,7 +25,7 @@ function Rat_SweepConeRings()
         n = n + 1
         DoneObject(o)
     end)
-    ring_obj = nil
+    strokes = {}
     return n
 end
 
@@ -100,32 +103,54 @@ end
 
 ---- Cria/atualiza o anel do jogador. Recria a malha em vez de mover o objeto: o raio muda a
 ---- cada nivel de mira, e e o mesmo custo que o jogo paga no contorno de movimento.
-function Rat_ShowConeRing(center, radius, dir, color, segments)
-    local pts = Rat_RingPoints(center, radius, dir, segments)
-    if not pts then
-        return Rat_HideConeRing()
+---- Um traco qualquer: a lista de pontos ja pronta, em mundo. Recria a malha em vez de mover o
+---- objeto, pela mesma razao do anel -- a forma muda a cada update, nao so a posicao.
+function Rat_ShowStroke(id, pts, color, anchor)
+    if not pts or #pts < 2 then
+        return Rat_HideStroke(id)
     end
-
     local vpstr = pstr("", 1024)
     for i = 1, #pts do
         AppendVertex(vpstr, pts[i], color)
     end
 
-    if not IsValid(ring_obj) then
-        ---- se ha anel no mapa sem `ring_obj` valido, e orfao de um reload: limpa antes de criar
-        Rat_SweepConeRings()
-        ring_obj = PlaceObject("RatConeRing") --- herda mfWorldSpace e o shader default_polyline
+    local obj = strokes[id]
+    if not IsValid(obj) then
+        obj = PlaceObject("RatConeRing") --- herda mfWorldSpace e o shader default_polyline
+        strokes[id] = obj
     end
-    ring_obj:SetMesh(vpstr)
-    ring_obj:SetPos(center) --- so culling/ordenacao: com mfWorldSpace os vertices sao absolutos
-    ring_obj:SetVisible(true)
+    obj:SetMesh(vpstr)
+    obj:SetPos(anchor or pts[1]) --- so culling/ordenacao: com mfWorldSpace os vertices sao absolutos
+    obj:SetVisible(true)
 end
 
-function Rat_HideConeRing()
-    if IsValid(ring_obj) then
-        DoneObject(ring_obj)
+function Rat_HideStroke(id)
+    local obj = strokes[id]
+    if IsValid(obj) then
+        DoneObject(obj)
     end
-    ring_obj = nil
+    strokes[id] = nil
+end
+
+function Rat_ShowConeRing(center, radius, dir, color, segments)
+    local pts = Rat_RingPoints(center, radius, dir, segments)
+    if not pts then
+        return Rat_HideConeRing()
+    end
+    ---- orfao de reload: ha anel no mapa e ninguem aponta para ele. Varre antes de criar o primeiro.
+    if not IsValid(strokes.ring) then
+        Rat_SweepConeRings()
+    end
+    Rat_ShowStroke("ring", pts, color, center)
+end
+
+---- Leva TUDO junto: quem esconde o anel esta saindo do modelo, e uma escada de recuo orfa na
+---- tela mentiria sobre um ataque que nao existe mais.
+function Rat_HideConeRing()
+    for id in pairs(strokes) do
+        Rat_HideStroke(id)
+    end
+    strokes = {}
 end
 
 ---- O anel e um objeto de mapa: sem isto sobreviveria a troca de mapa e entraria no savegame.

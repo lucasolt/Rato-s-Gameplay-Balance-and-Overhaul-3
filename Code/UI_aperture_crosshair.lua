@@ -9,6 +9,56 @@
 local vanilla_update --- OnContextUpdate original do template, para o fallback
 local debug = Platform.developer and Platform.rat
 
+---------------------------------------------------------------------------------------------------
+---- ESCADA DO RECUO. O anel sempre disse a largura do cone e nunca disse para ONDE ele aponta --
+---- coisa que so passou a existir quando o cano ganhou posicao propria. Duas informacoes entram:
+---- o anel vai para onde o cano ESTA (recuo herdado do ataque anterior), e a rajada ganha o
+---- caminho que ele vai fazer, uma barra por tiro, entre duas diagonais que abrem com a largura
+---- do grupo ali. Sao os mesmos numeros de Rat_DbgRecoilAt, sem os discos e sem a tabela.
+---------------------------------------------------------------------------------------------------
+
+---- Memo do estimador: o crosshair atualiza a cada hover de body part e a cada nivel de mira, e
+---- Monte Carlo por frame nao se paga para desenhar um traco. A FORMA nao depende do alvo -- ela
+---- sai so do perfil e do offset -- entao a chave nao precisa de theta nem de sigma.
+local e_att, e_wep, e_act, e_aim, e_n, e_px, e_py, e_est
+
+local function ladder_estimate(attacker, action, weapon, aim, num_shots, p0x, p0y)
+    if e_att == attacker and e_wep == weapon and e_act == action and e_aim == aim and
+        e_n == num_shots and e_px == p0x and e_py == p0y then
+        return e_est
+    end
+    local prof = Rat_RecoilProfile(attacker, action, weapon, num_shots)
+    ---- sem theta/sigma o estimador pula o Rice por tiro: aqui so a geometria do passeio interessa
+    e_est = prof and Rat_EstimateBurst(prof, nil, nil, num_shots,
+                                       const.Combat.Aperture.CrosshairRecoilSamples, nil, p0x, p0y)
+    e_att, e_wep, e_act, e_aim, e_n, e_px, e_py = attacker, weapon, action, aim, num_shots, p0x, p0y
+    return e_est
+end
+
+---- Cor da escada: a mesma do anel, puxada para o fundo. Um segundo tom diria "outra coisa", e a
+---- escada e o mesmo tiro; alpha ficaria a criterio do shader do Polyline.
+local function dim(r, g, b)
+    return RGB(MulDivRound(r, 55, 100), MulDivRound(g, 55, 100), MulDivRound(b, 55, 100))
+end
+
+---- Tracos da rajada, em pontos de mundo. `at(dy, dx)` poe um desvio angular no plano do alvo.
+---- Devolve o caminho (com uma barra por tiro) e as duas diagonais do grupo.
+local function ladder_strokes(est, num_shots, at, tick)
+    local path, fan_l, fan_r = {}, {}, {}
+    for i = 1, num_shots do
+        local dy, dx, w = est.py[i], est.px[i], est.spread[i]
+        local p = at(dy, dx)
+        ---- ida e volta na barra: um mesh de Polyline e uma tira so, e o retrace repinta os
+        ---- mesmos pixels -- na tela e uma linha com um trinco em cada tiro.
+        path[#path + 1] = p
+        path[#path + 1] = at(dy, dx + tick)
+        path[#path + 1] = p
+        fan_l[#fan_l + 1] = at(dy, dx - w)
+        fan_r[#fan_r + 1] = at(dy, dx + w)
+    end
+    return path, fan_l, fan_r
+end
+
 ---- Sai do caminho: devolve o circulo 2D e apaga o anel do mundo.
 local function fallback(self, context, ...)
     Rat_HideConeRing()
@@ -64,7 +114,8 @@ function Rat_UpdateConeRing(crosshair)
 
     ---- mesma escala de cor da linha Aperture no overlay (Rat_QualityColor): o anel e o texto
     ---- respondem ao mesmo numero, entao a cor quer dizer a mesma coisa nos dois.
-    local color = RGB(Rat_QualityColor(cth))
+    local cr, cg, cb = Rat_QualityColor(cth)
+    local color = RGB(cr, cg, cb)
 
     ---- ancora no spot da parte mirada; plano perpendicular a linha de tiro. `dist` vai ate o pe
     ---- do alvo, como no CTH: a diferenca de altura nao move o raio 1 cm.
@@ -73,7 +124,52 @@ function Rat_UpdateConeRing(crosshair)
         return false
     end
 
-    Rat_ShowConeRing(center, Rat_ConeRadius(dist, spread), center - Rat_RingValidZ(step_pos), color)
+    local origin = Rat_RingValidZ(step_pos)
+    local radius = Rat_ConeRadius(dist, spread)
+    local dir = center - origin
+
+    if not a.CrosshairRecoilLadder then
+        Rat_ShowConeRing(center, radius, dir, color)
+        return true
+    end
+
+    ---- MESMA funcao que a bala le (Rat_SimPlanShots semeia o passo com ela), e com a mesma mira:
+    ---- se o anel e o tiro discordarem aqui, o anel deixa de valer alguma coisa.
+    ---- centiminutos para semear o passo, minutos para desenhar: converter uma vez so aqui evita
+    ---- que o anel e a escada partam de pontos com arredondamentos diferentes.
+    local c0x, c0y = Rat_RecoilPersistOffset(attacker, action, weapon, aim, target)
+    local p0x, p0y = MulDivRound(c0x, 1, 100), MulDivRound(c0y, 1, 100)
+    local num_shots = 1
+    local ok, n = pcall(weapon.GetAutofireShots, weapon, action)
+    if ok and type(n) == "number" then
+        num_shots = Max(1, n)
+    end
+
+    local up = SetLen(Rat_PerpUp(SetLen(dir, 1000)), 1000)
+    local lat = Rat_RecoilLateralAxis(up, dir)
+    local function at(dy, dx)
+        return Rat_RecoilWalkPoint(origin, center, up, dy, lat, dx)
+    end
+
+    ---- o anel vai para onde o cano ESTA: e de la que a bala sai, e um anel em cima do alvo
+    ---- desenharia um cone que a arma nao tem apontada para ele.
+    Rat_ShowConeRing(at(p0y, p0x), radius, dir, color)
+
+    local est = (num_shots > 1) and
+                    ladder_estimate(attacker, action, weapon, aim, num_shots, c0x, c0y)
+    if not est then
+        Rat_HideStroke("climb")
+        Rat_HideStroke("fanl")
+        Rat_HideStroke("fanr")
+        return true
+    end
+
+    local faded = dim(cr, cg, cb)
+    local path, fan_l, fan_r = ladder_strokes(est, num_shots, at,
+                                              MulDivRound(spread, a.CrosshairRecoilTickPct or 0, 100))
+    Rat_ShowStroke("climb", path, faded, center)
+    Rat_ShowStroke("fanl", fan_l, faded, center)
+    Rat_ShowStroke("fanr", fan_r, faded, center)
     return true
 end
 
