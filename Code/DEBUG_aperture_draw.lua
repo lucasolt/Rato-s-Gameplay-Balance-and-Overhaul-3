@@ -1678,13 +1678,33 @@ local function persist_shots(weapon, action)
     return (ok and type(n) == "number") and Max(1, n) or 1
 end
 
----- Sem alvo nao ha escala: um deslocamento de 200' so quer dizer alguma coisa comparado com o
----- tamanho do alvo. Devolve o CTH COM o cano deslocado e SEM ele, para o par ser lido junto.
-local function persist_pair(theta, sigma, r_min)
-    if not theta or theta < 1 or not sigma or sigma < 1 then
-        return nil, nil
+---- CTH COM e SEM a dispersao extra do recuo. Constroi o MESMO `data` que o jogo constroi e
+---- chama a mesma funcao -- uma reimplementacao radial aqui divergiria do cone eliptico e o
+---- visualizador passaria a mentir exatamente sobre o que existe para conferir.
+---- Devolve: cth, cth_limpo, sigma horizontal, sigma vertical.
+local function persist_cth(att, tgt, weapon, action, spot, aim, vsigma)
+    if not IsValid(tgt) then
+        return nil, nil, nil, nil
     end
-    return Rat_RiceCTH(theta, sigma, r_min), Rat_RayleighCTH(theta, sigma)
+    local data = {attacker = att, target = tgt, action = action, weapon1 = weapon, aim = aim,
+                  target_spot_group = spot, attacker_pos = att:GetPos(),
+                  target_pos = tgt:GetPos()}
+    Rat_ResolveAngular(data)
+    if not data.rat_sigma then
+        return nil, nil, nil, nil
+    end
+    data.rat_vsigma = 0
+    local clean = Rat_ConeCTH(data)
+    data.rat_vsigma = vsigma or 0
+    return Rat_ConeCTH(data), clean, data.rat_sigma, Rat_ConeSigmaY(data)
+end
+
+---- A elipse do cone, no plano do alvo. Segmentos soltos porque aqui e DbgAddSegment, nao Polyline.
+local function draw_ellipse(center, rx, ry, dir, color)
+    local pts = Rat_RingPoints(center, rx, dir, 24, ry)
+    for i = 1, (pts and #pts or 0) - 1 do
+        DbgAddSegment(pts[i], pts[i + 1], color)
+    end
 end
 
 ---- De onde a bala sai e para onde vai, para desenhar o deslocamento no mundo. Sem alvo, so texto.
@@ -1701,21 +1721,6 @@ local function persist_scene(attacker, target, spot)
     local up = SetLen(Rat_PerpUp(dir), 1000)
     return {attack_pos = attack_pos, aim_pos = aim_pos, dir = dir, up = up,
             lat = Rat_RecoilLateralAxis(up, dir), dist = attack_pos:Dist(aim_pos)}
-end
-
----- Marca no mundo de onde a bala sai: um disco do tamanho do GRUPO (o mesmo raio do anel do
----- crosshair) centrado no ponto deslocado -- da para ver se ele ainda cobre o alvo.
-local function persist_mark(sc, sigma, mx, my, color, label)
-    if not sc then
-        return
-    end
-    local a = const.Combat.Aperture
-    local p = Rat_RecoilWalkPoint(sc.attack_pos, sc.aim_pos, sc.up, my, sc.lat, mx)
-    if sigma and sigma >= 1 then
-        draw_disc(p, cone_radius(sc.dist, MulDivRound(sigma, a.CrosshairSigmaMul or 250, 100)),
-                  sc.dir, color, 24)
-    end
-    DbgAddText(label, p, color)
 end
 
 ---- Cabecalho comum: quem atira, com o que, e o estado guardado. Devolve o contexto e as linhas,
@@ -1801,39 +1806,40 @@ function Rat_DbgPersist(attacker, target, action_id)
     end
 
     local max_aim = Max(1, const.Combat.Aperture.RecoilPersistAimReset or 3)
-    lines[#lines + 1] = "  mira | AP | sai de | cone | CTH  | sem recuo | custo | jogo"
+    lines[#lines + 1] = "  mira | AP | resta | tremor | cone h x v  | CTH  | sem recuo | custo | jogo"
     for aim = 0, max_aim do
         local ap = Rat_RecoilPersistAP(att, action, weapon, aim, tgt)
         local ox, oy = Rat_RecoilPersistOffset(att, action, weapon, aim, tgt)
-        local r = MulDivRound(vabs(ox, oy), 1, 100)
-        local sigma, theta, game
-        if IsValid(tgt) then
-            sigma, theta, game = Rat_AttackCone(att, tgt, action, ctx.spot, aim, false,
-                                                att:GetPos(), tgt:GetPos())
-        end
-        local cth, clean = persist_pair(theta, sigma, r)
-        lines[#lines + 1] = string.format("   %d   | %2d | %5d' | %4s | %4s | %8s  | %5s | %s", aim,
-                                          ap, r, sigma and (sigma .. "'") or "-",
-                                          cth and (cth .. "%") or "-",
-                                          clean and (clean .. "%") or "-",
-                                          (cth and clean) and string.format("%+d", cth - clean) or
-                                              "-", game and (game .. "%") or "-")
-        if sc then
-            persist_mark(sc, sigma, MulDivRound(ox, 1, 100), MulDivRound(oy, 1, 100),
-                         recoil_ring_color(aim + 1, max_aim + 1), "mira " .. aim)
+        local vs = Rat_RecoilPersistSigma(att, action, weapon, aim, tgt)
+        local cth, clean, sg, sy = persist_cth(att, tgt, weapon, action, ctx.spot, aim, vs)
+        local game = IsValid(tgt) and
+                         select(3, Rat_AttackCone(att, tgt, action, ctx.spot, aim, false,
+                                                  att:GetPos(), tgt:GetPos())) or nil
+        lines[#lines + 1] = string.format(
+            "   %d   | %2d | %4d' | %5d' | %s | %4s | %8s  | %5s | %s", aim, ap,
+            MulDivRound(vabs(ox, oy), 1, 100), vs,
+            sg and string.format("%4d' x %4d'", sg, sy) or "     -      ",
+            cth and (cth .. "%") or "-", clean and (clean .. "%") or "-",
+            (cth and clean) and string.format("%+d", cth - clean) or "-",
+            game and (game .. "%") or "-")
+        if sc and sg then
+            local col = recoil_ring_color(aim + 1, max_aim + 1)
+            local mul = const.Combat.Aperture.CrosshairSigmaMul or 250
+            draw_ellipse(sc.aim_pos, cone_radius(sc.dist, MulDivRound(sg, mul, 100)),
+                         cone_radius(sc.dist, MulDivRound(sy, mul, 100)), sc.dir, col)
         end
     end
 
     if sc then
-        local sigma0, theta0 = Rat_AttackCone(att, tgt, action, ctx.spot, 0, false, att:GetPos(),
-                                              tgt:GetPos())
+        local _, theta0 = Rat_AttackCone(att, tgt, action, ctx.spot, 0, false, att:GetPos(),
+                                         tgt:GetPos())
         if theta0 and theta0 >= 1 then
             draw_disc(sc.aim_pos, cone_radius(sc.dist, theta0), sc.dir, clrSilh, 32)
         end
-        lines[#lines + 1] = "ciano = alvo | amarelo->vermelho = mira 0..N de onde a bala sai"
+        lines[#lines + 1] = "ciano = alvo | amarelo->vermelho = elipse do cone por mira 0..N"
     end
-    lines[#lines + 1] =
-        "`custo` = pontos de CTH que o cano deslocado tira. `jogo` deveria ser igual a `CTH`."
+    lines[#lines + 1] = "`tremor` = dispersao vertical A MAIS, somada em quadratura ao cone -- o " ..
+                            "cano NAO fica parado fora do alvo. `jogo` deveria ser igual a `CTH`."
 
     if sc then
         for i, s in ipairs(lines) do
@@ -1866,11 +1872,6 @@ function Rat_DbgPersistChain(attacks, aim, attacker, target, action_id)
     attacks, aim = Clamp(attacks or 6, 1, 40), aim or 0
 
     local lines = ctx.head
-    local sigma, theta
-    if IsValid(tgt) then
-        sigma, theta = Rat_AttackCone(att, tgt, action, ctx.spot, aim, false, att:GetPos(),
-                                      tgt:GetPos())
-    end
     local ap = Rat_RecoilPersistAP(att, action, weapon, aim, tgt)
     local retain = a.RecoilPersistRetainPerAP or 100
     local cap = persist_cap(ctx.prof)
@@ -1880,15 +1881,17 @@ function Rat_DbgPersistChain(attacks, aim, attacker, target, action_id)
                                           "%d%%/AP)%s", attacks, tostring(action.id), aim, ap,
                                       retain,
                                       reset and "   *** esta mira zera o cano todo ataque ***" or "")
-    lines[#lines + 1] = "  ataque | comeca em | CTH do 1o tiro | termina em"
+    lines[#lines + 1] = "  ataque | resta | tremor | CTH do 1o tiro | termina em"
 
     local sc = persist_scene(att, tgt, ctx.spot)
     if sc then
         DbgClearVectors()
         DbgClearTexts()
         DbgAddSegment(sc.attack_pos, sc.aim_pos, clrAxis)
-        if theta and theta >= 1 then
-            draw_disc(sc.aim_pos, cone_radius(sc.dist, theta), sc.dir, clrSilh, 32)
+        local _, th0 = Rat_AttackCone(att, tgt, action, ctx.spot, aim, false, att:GetPos(),
+                                      tgt:GetPos())
+        if th0 and th0 >= 1 then
+            draw_disc(sc.aim_pos, cone_radius(sc.dist, th0), sc.dir, clrSilh, 32)
         end
     end
 
@@ -1905,11 +1908,15 @@ function Rat_DbgPersistChain(attacks, aim, attacker, target, action_id)
             end
         end
         local start = MulDivRound(vabs(px, py), 1, 100)
-        local cth = persist_pair(theta, sigma, start)
+        ---- o mesmo mapa de Rat_RecoilPersistSigma, so que sobre um offset projetado
+        local vs = MulDivRound(start, a.RecoilPersistSigmaPct or 0, 100)
+        local cth, _, sg, sy = persist_cth(att, tgt, weapon, action, ctx.spot, aim, vs)
 
-        if sc then
-            persist_mark(sc, sigma, MulDivRound(px, 1, 100), MulDivRound(py, 1, 100),
-                         recoil_ring_color(n, attacks), tostring(n))
+        if sc and sg then
+            local mul = a.CrosshairSigmaMul or 250
+            draw_ellipse(sc.aim_pos, cone_radius(sc.dist, MulDivRound(sg, mul, 100)),
+                         cone_radius(sc.dist, MulDivRound(sy, mul, 100)), sc.dir,
+                         recoil_ring_color(n, attacks))
         end
 
         local st = Rat_RecoilState(px, py)
@@ -1919,14 +1926,14 @@ function Rat_DbgPersistChain(attacks, aim, attacker, target, action_id)
         px, py = persist_clamp(st.px, st.py, cap)
         local fin = MulDivRound(vabs(px, py), 1, 100)
 
-        lines[#lines + 1] = string.format("    %2d   |   %5d'  |      %4s     |   %5d'%s", n, start,
-                                          cth and (cth .. "%") or "-", fin,
+        lines[#lines + 1] = string.format("    %2d   | %4d' | %5d' |      %4s     |   %5d'%s", n,
+                                          start, vs, cth and (cth .. "%") or "-", fin,
                                           (prev_end and fin == prev_end) and "   <- estavel" or "")
         prev_end = fin
     end
     lines[#lines + 1] = "`comeca em` ja desconta a recuperacao por AP; `termina em` e depois do teto."
     if sc then
-        lines[#lines + 1] = "ciano = alvo | amarelo->vermelho = ataque 1..N de onde a bala sai"
+        lines[#lines + 1] = "ciano = alvo | amarelo->vermelho = elipse do cone no ataque 1..N"
         for i, s in ipairs(lines) do
             DbgAddText(s, sc.aim_pos:SetZ(sc.aim_pos:z() + (#lines - i + 2) * 300), clrAxis)
         end
@@ -1965,8 +1972,6 @@ function Rat_DbgPersistOff(attacker, target, action_id)
 
     local was = a.RecoilPersistOffset
     for aim = 0, Max(1, a.RecoilPersistAimReset or 3) do
-        local sigma, theta = Rat_AttackCone(att, tgt, action, ctx.spot, aim, false, att:GetPos(),
-                                            tgt:GetPos())
         local old = {}
         a.RecoilPersistOffset = false
         for _, st in ipairs({1, 3, 6}) do
@@ -1979,12 +1984,11 @@ function Rat_DbgPersistOff(attacker, target, action_id)
         end
         a.RecoilPersistOffset = was
 
-        local ox, oy = Rat_RecoilPersistOffset(att, action, weapon, aim, tgt)
-        local r = MulDivRound(vabs(ox, oy), 1, 100)
-        local cth, clean = persist_pair(theta, sigma, r)
-        lines[#lines + 1] = string.format("   %d   | %-23s | %+d pts (|p| %d')", aim,
+        local vs = Rat_RecoilPersistSigma(att, action, weapon, aim, tgt)
+        local cth, clean = persist_cth(att, tgt, weapon, action, ctx.spot, aim, vs)
+        lines[#lines + 1] = string.format("   %d   | %-23s | %+d pts (tremor %d')", aim,
                                           table.concat(old, "  "),
-                                          (cth and clean) and (cth - clean) or 0, r)
+                                          (cth and clean) and (cth - clean) or 0, vs)
     end
     a.RecoilPersistOffset = was
     lines[#lines + 1] = "ANTIGO: um ataque = um stack, tiro simples ou rajada de 10, o mesmo preco."

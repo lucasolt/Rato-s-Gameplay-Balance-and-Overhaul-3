@@ -26,6 +26,7 @@
 --TODO: Camouflage
 --TODO: AI OVERHAUL: Implement Smoke usage
 --TODO: How to deal with scopes that give bonus to hit bodyparts or bypass cover? Handzolt, Scout scope
+--TODO: AI OVERHAUL: investigar o threshold de escolha de dar o tiro. ta em 1, talvez passar pra 2?
 
 const.Combat.Aperture = const.Combat.Aperture or {}
 local A = const.Combat.Aperture
@@ -243,9 +244,27 @@ A.RecoilPersistOffset = true
 ---- 0.35 (o ramo da rajada divide por 2 no fim e o ramo de stacks nao, entao 0.35 vale 0.70).
 A.RecoilPersistRetainPerAP = 92
 
----- Teto do offset carregado, em coices. Impede que uma rajada longa entregue a escalada inteira
----- ao proximo tiro simples -- e disto que o max_stacks = 6 do efeito protegia.
-A.RecoilPersistCapKicks = 3
+---- Quanto do cano guardado vira DISPERSAO VERTICAL no proximo ataque, em % -- somada em
+---- quadratura ao cone (Rat_ConeSigmaY), nunca como deslocamento do ponto de mira.
+----
+---- Porque nao deslocamento: entre ataques o atirador reencara o alvo, ele nao fica parado com o
+---- cano onde a rajada o largou. O que sobra e ele reencarar PIOR no eixo em que estava lutando --
+---- pode continuar por baixo, pode ter puxado demais e passado, igual a forca de reacao que
+---- sub e sobrecompensa dentro da rajada. Como deslocamento conhecido o modelo se invertia: um
+---- cone apertado centrado fora do alvo erra de proposito, e quanto MELHOR o atirador, mais certo
+---- o erro. Centrado, pericia volta a ajudar sempre e sempre resta uma chance -- que e o que
+---- tornava o tiro rapido de semi-auto uma aposta que vale a pena.
+---- MEDIDO (AK47, mira 1, 13 tiles, teto 2 coices): 400% poe um tiro simples em -13 pontos de CTH
+---- e as rajadas entre -17 e -20. O modelo antigo de stacks cobrava -12 a -18 conforme a distancia
+---- e cobrava o MESMO dos dois -- tiro simples e rajada de dez saiam pelo mesmo preco. A soma em
+---- quadratura satura sozinha, entao nem a rajada mais longa zera o proximo tiro.
+A.RecoilPersistSigmaPct = 400
+
+---- Teto do cano guardado, em coices. Impede que uma rajada longa entregue a escalada inteira ao
+---- proximo tiro -- e disto que o max_stacks = 6 do efeito protegia. Em 3 uma rajada de dez
+---- guardava 4,6x o de um tiro simples e levava o proximo tiro ao piso (-32 medidos); em 2 a
+---- razao fica perto de 2x, e a rajada custa -17 a -20 contra os -13 do tiro simples.
+A.RecoilPersistCapKicks = 2
 
 ---- Nivel de mira que zera o offset, para casar com a descricao do proprio efeito.
 A.RecoilPersistAimReset = 3

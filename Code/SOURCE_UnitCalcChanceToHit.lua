@@ -279,6 +279,9 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 		if type(args) == "table" then
 			args.rat_sigma, args.rat_theta = mod_data.rat_sigma, mod_data.rat_theta
 			args.rat_cone_mul, args.rat_geo_sigma = mod_data.rat_cone_mul, mod_data.rat_geo_sigma
+			---- os dois eixos do cone: sem eles a bala e o anel voltam ao circulo e param de
+			---- concordar com o CTH que acabou de sair daqui (Rat_ConeSigmaY le os dois)
+			args.rat_vsigma, args.rat_stretch = mod_data.rat_vsigma, mod_data.rat_stretch
 		end
 	else
 		base = Max(0, mod_data.enabled and MulDivRound(base + mod_data.mod_add, mod_data.mod_mul, 100) or 0)

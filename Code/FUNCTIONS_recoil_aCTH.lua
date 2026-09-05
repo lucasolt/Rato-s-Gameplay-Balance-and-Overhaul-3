@@ -284,6 +284,29 @@ function Rat_RecoilPersistOffsetMin(attacker, action, weapon, aim, target)
     return MulDivRound(px, 1, 100), MulDivRound(py, 1, 100)
 end
 
+---- What the carried recoil costs the NEXT attack: extra dispersion on the recoil axis, in minutes,
+---- to be added in quadrature to the cone. NOT a displacement of the aim point.
+----
+---- Between attacks the shooter re-acquires the target -- they are not standing there with the
+---- muzzle parked where the last burst left it. What survives is that the re-acquisition is worse
+---- along the axis they were just fighting: they may still be under it, or they may have hauled it
+---- past, exactly like the counter-force under- and overshooting inside a burst. That is a spread
+---- about the target, not a known offset, and modelling it as a known offset had it backwards --
+---- a tight cone centred off-target misses ON PURPOSE, so the better the shooter the surer the
+---- miss. Centred, skill is monotone again and there is always a chance, which is what the cone
+---- multiplier gave and what makes rapid semi-auto fire a gamble worth taking.
+----
+---- The magnitude still comes from where the muzzle ENDED, so a long burst leaves more than one
+---- shot does, and it still recovers per AP spent.
+function Rat_RecoilPersistSigma(attacker, action, weapon, aim, target)
+    local px, py = Rat_RecoilPersistOffset(attacker, action, weapon, aim, target)
+    if px == 0 and py == 0 then
+        return 0
+    end
+    local r = Rat_ISqrt(px * px + py * py) --- centiminutes
+    return MulDivRound(r, P().RecoilPersistSigmaPct or 0, 100 * 100)
+end
+
 function Rat_RecoilPersistStash(attacker, st)
     stash_unit, stash_px, stash_py = attacker, st.px, st.py
 end

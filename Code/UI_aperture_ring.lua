@@ -69,7 +69,10 @@ end
 
 ---- Pontos de um circulo de `radius` em `center`, no plano perpendicular a `dir` (alvo de papel
 ---- de frente para o atirador). Laco fechado: o ultimo ponto repete o primeiro. Degenerado -> nil.
-function Rat_RingPoints(center, radius, dir, segments)
+---- `radius_y` diferente de `radius` desenha ELIPSE: o cone tem eixos diferentes quando o recuo
+---- herdado o alonga ou a postura o achata (Rat_ConeSigmaY). O eixo esticado e sempre o vertical
+---- do plano do alvo, que e exatamente o eixo em que o recuo trabalha.
+function Rat_RingPoints(center, radius, dir, segments, radius_y)
     if not center or not radius or radius < 1 then
         return
     end
@@ -91,12 +94,32 @@ function Rat_RingPoints(center, radius, dir, segments)
         --- tiro quase vertical: usa a horizontal como referencia
         perp = point(-dir:y(), dir:x(), 0)
     end
-    perp = SetLen(perp, radius)
-
     local full = 360 * 60
     local pts = {}
+    if not radius_y or radius_y == radius then
+        perp = SetLen(perp, radius)
+        for i = 0, segments do
+            pts[i + 1] = center + RotateAxis(perp, dir, MulDivRound(full, i, segments))
+        end
+        return pts
+    end
+
+    ---- eliptica: monta cada ponto pelos DOIS meios-eixos. Rodar um vetor ja esticado devolveria
+    ---- o circulo de volta -- o raio tem de acompanhar o angulo, nao so a direcao.
+    local vert = SetLen(perp, 1000)
+    local lat = RotateAxis(vert, dir, 90 * 60)
     for i = 0, segments do
-        pts[i + 1] = center + RotateAxis(perp, dir, MulDivRound(full, i, segments))
+        local ang = MulDivRound(full, i, segments)
+        local cy = MulDivRound(radius_y, cos(ang), 4096)
+        local cx = MulDivRound(radius, sin(ang), 4096)
+        local p = center
+        if cy ~= 0 then
+            p = (cy > 0) and (p + SetLen(vert, cy)) or (p - SetLen(vert, -cy))
+        end
+        if cx ~= 0 then
+            p = (cx > 0) and (p + SetLen(lat, cx)) or (p - SetLen(lat, -cx))
+        end
+        pts[i + 1] = p
     end
     return pts
 end
@@ -132,8 +155,8 @@ function Rat_HideStroke(id)
     strokes[id] = nil
 end
 
-function Rat_ShowConeRing(center, radius, dir, color, segments)
-    local pts = Rat_RingPoints(center, radius, dir, segments)
+function Rat_ShowConeRing(center, radius, dir, color, segments, radius_y)
+    local pts = Rat_RingPoints(center, radius, dir, segments, radius_y)
     if not pts then
         return Rat_HideConeRing()
     end

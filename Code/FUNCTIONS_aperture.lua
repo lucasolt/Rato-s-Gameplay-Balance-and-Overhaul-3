@@ -592,15 +592,15 @@ end
 ----     P = Px_tronco * Py_tronco + Px_cabeca * Py_cabeca
 ---- Um retangulo so assumia largura de ombro na altura da cabeca -- 35% previsto contra 18%
 ---- medido em tiro na cabeca de alvo de pe, longe, com cone apertado.
----- `mx`/`my` deslocam o CENTRO da nuvem (o cano herdado do ataque anterior), nao a largura dela.
----- A DECISAO de forma -- separar cabeca do tronco -- fica na geometria crua: e sobre o alvo, nao
----- sobre onde a arma esta apontando. So a integracao anda, e ai as extensoes passam a ter sinal
----- (o centro pode cair fora do alvo), que e por isso que px vira banda em vez de duas metades.
-function Rat_SeparableCTH(sigma, up, down, right, left, head, mx, my)
+---- `sigma_y` e a dispersao do eixo VERTICAL, quando ela difere da horizontal. O modelo ja era
+---- Px(sigma) * Py(sigma) por eixo, entao cone eliptico e Px(sigma_x) * Py(sigma_y) e nada mais --
+---- sem rotacao e sem LUT nova, porque o eixo do recuo e o mesmo eixo do `up` da silhueta.
+---- Quem escreve nele: o recuo persistente (alonga) e a postura (achata). Ver Rat_ConeSigmaY.
+function Rat_SeparableCTH(sigma, up, down, right, left, head, sigma_y)
     if not sigma or sigma < 1 then
         return 100
     end
-    mx, my = mx or 0, my or 0
+    sigma_y = (sigma_y and sigma_y >= 1) and sigma_y or sigma
     local body_up = up
     local p_head = 0
     if head then
@@ -613,13 +613,34 @@ function Rat_SeparableCTH(sigma, up, down, right, left, head, mx, my)
         ---- cabeca sobra igual a de pe, e ai separa.
         if hu + hh >= up - hh and down > right + left then
             body_up = Min(up, hu - hh) --- o tronco comeca no ombro, abaixo da cabeca
-            p_head = MulDivRound(normal_band(hr - hw - mx, hr + hw - mx, sigma),
-                                 normal_band(hu - hh - my, hu + hh - my, sigma), 1000)
+            p_head = MulDivRound(normal_band(hr - hw, hr + hw, sigma),
+                                 normal_band(hu - hh, hu + hh, sigma_y), 1000)
         end
     end
-    local px = normal_band(-left - mx, right - mx, sigma)
-    local py = normal_band(-down - my, body_up - my, sigma)
+    local px = normal_band(-left, right, sigma)
+    local py = normal_band(-down, body_up, sigma_y)
     return MulDivRound(MulDivRound(px, py, 1000) + p_head, 100, 1000)
+end
+
+---------------------------------------------------------------------------------------------------
+---- Sigma do eixo VERTICAL. Duas portas, porque sao duas fisicas diferentes.
+----
+---- `rat_vsigma` (minutos) e um erro PROPRIO, que soma em quadratura: o recuo do ataque anterior
+---- deixou a mao instavel NAQUELE eixo. E absoluto -- nao encolhe porque o merc e bom -- mas
+---- tambem nao inverte a pericia, que era o defeito de tratar o recuo como DESLOCAMENTO: um cone
+---- apertado centrado fora do alvo errava de proposito, e quanto melhor o atirador, mais certo o
+---- erro. Como dispersao centrada, o alvo volta a ser a moda e sigma menor sempre ajuda.
+----
+---- `rat_stretch` (%, 100 neutro) e um FATOR, para a postura: agachado e deitado achatam o cone
+---- como no 1.13 -- menos desvio vertical, e de proposito sem preservar a area, porque a posicao
+---- e mais precisa e nao apenas de outro formato.
+---------------------------------------------------------------------------------------------------
+function Rat_ConeSigmaY(data)
+    local s = data.rat_sigma or 0
+    local r = data.rat_vsigma or 0
+    local y = (r > 0) and Rat_ISqrt(s * s + r * r) or s
+    local st = data.rat_stretch or 100
+    return (st == 100) and y or Max(1, MulDivRound(y, st, 100))
 end
 
 ---- Raio EQUIVALENTE EM PROBABILIDADE: o circulo que, neste sigma, teria exatamente este CTH.
@@ -790,7 +811,8 @@ function Rat_AttackCone(attacker, target, action, spot, aim, opportunity_attack,
                   step_pos = step_pos or attacker:GetPos(),
                   target_pos = target_pos or (IsPoint(target) and target) or target:GetPos()}
     local cth = attacker:CalcChanceToHit(target, action, args, "chance_only")
-    return args.rat_sigma, args.rat_theta, cth
+    ---- o quarto valor e o eixo VERTICAL do cone: sem ele quem desenha ou dispara volta ao circulo
+    return args.rat_sigma, args.rat_theta, cth, args.rat_sigma and Rat_ConeSigmaY(args) or nil
 end
 
 
@@ -840,8 +862,19 @@ function Rat_PerpUp(dir)
     return perp
 end
 
+---- Desvio ao longo de um eixo, com sinal. SetLen nao aceita comprimento negativo, dai os ramos.
+local function shift_along(pos, axis, len)
+    if not axis or len == 0 then
+        return pos
+    end
+    return (len > 0) and (pos + SetLen(axis, len)) or (pos - SetLen(axis, -len))
+end
+
 ---- Desvio angular -> ponto no plano perpendicular a linha de tiro (RotateAxis, como os pellets).
-function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma)
+---- Com `sigma_y` diferente de `sigma` a nuvem e ELIPTICA: sorteia o raio isotropico e depois
+---- encolhe/estica so a componente vertical. Tem de ser a mesma elipse que Rat_ConeSigmaY entrega
+---- ao CTH -- se a bala e o numero discordarem no formato, o numero volta a nao ser o que acontece.
+function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma, sigma_y)
     if not attack_pos or not aim_pos then
         return aim_pos
     end
@@ -864,9 +897,17 @@ function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma)
     end
 
     dir = SetLen(dir, 1000)
-    local perp = SetLen(Rat_PerpUp(dir), radius)
+    local up = Rat_PerpUp(dir)
 
-    return aim_pos + RotateAxis(perp, dir, attacker:Random(360 * 60))
+    if not sigma_y or sigma_y == sigma or not sigma or sigma < 1 then
+        return aim_pos + RotateAxis(SetLen(up, radius), dir, attacker:Random(360 * 60))
+    end
+
+    ---- por componente, para poder escalar so uma delas
+    local ang = attacker:Random(360 * 60)
+    local cx = MulDivRound(radius, sin(ang), 4096)
+    local cy = MulDivRound(MulDivRound(radius, cos(ang), 4096), sigma_y, sigma)
+    return shift_along(shift_along(aim_pos, up, cy), Rat_RecoilLateralAxis(up, dir), cx)
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -975,22 +1016,30 @@ function Rat_SimPlanShots(ctx)
     ---- uma so vez: o eixo do recuo, a caminhada e a dispersao tem de ver a MESMA geometria
     ctx.attack_pos, ctx.aim_pos = Rat_ValidZ(ctx.attack_pos), Rat_ValidZ(ctx.aim_pos)
 
-    local num_shots = Max(1, ctx.num_shots or 1)
-    local cth, prof, est, sigma_disp, p0x, p0y = Rat_SimRecoilLadder(ctx.attacker, ctx.action,
-                                                    ctx.weapon, sigma, num_shots, theta,
-                                                    ctx.want_cth, ctx.aim, ctx.target)
-    ctx.recoil, ctx.recoil_est, ctx.sigma_disp, ctx.num_shots = prof, est, sigma_disp, num_shots
-    ctx.p0x, ctx.p0y = p0x, p0y
+    ---- o eixo vertical do cone. O recuo herdado ALONGA o cone aqui em vez de deslocar o ponto
+    ---- de partida da rajada; a postura ainda vai achatar pelo mesmo canal (Rat_ConeSigmaY).
+    local vs = (ctx.args and ctx.args.rat_vsigma) or
+                   Rat_RecoilPersistSigma(ctx.attacker, ctx.action, ctx.weapon, ctx.aim, ctx.target)
+    local sigma_y = Rat_ConeSigmaY({rat_sigma = sigma, rat_vsigma = vs,
+                                    rat_stretch = ctx.args and ctx.args.rat_stretch})
+    ctx.sigma_y, ctx.vsigma = sigma_y, vs
 
-    ---- um tiro so tambem anda, se ja saiu de um cano deslocado pelo tiro anterior
-    local axis = (prof and (num_shots > 1 or p0x ~= 0 or p0y ~= 0)) and
+    local num_shots = Max(1, ctx.num_shots or 1)
+    local cth, prof, est, sigma_disp = Rat_SimRecoilLadder(ctx.attacker, ctx.action, ctx.weapon,
+                                                           sigma, num_shots, theta, ctx.want_cth,
+                                                           ctx.aim, ctx.target, sigma_y)
+    ctx.recoil, ctx.recoil_est, ctx.sigma_disp, ctx.num_shots = prof, est, sigma_disp, num_shots
+
+    ---- a rajada SEMPRE comeca do alvo: entre ataques o atirador reencara, e o que o ataque
+    ---- anterior deixou ja esta no cone. Dentro da rajada, sim, o cano anda de tiro em tiro.
+    local axis = (prof and num_shots > 1) and
                      Rat_RecoilWalkAxis(ctx.attacker, ctx.attack_pos, ctx.aim_pos) or nil
     local lat_axis = Rat_RecoilLateralAxis(axis, SetLen(ctx.aim_pos - ctx.attack_pos, 1000))
     ctx.walk_axis, ctx.lat_axis = axis, lat_axis
 
     ---- random SINCRONIZADO, e a rajada de verdade. O estimador roda o MESMO passo com um `rnd`
     ---- semeado, entao nao existe segunda implementacao do recuo para divergir desta.
-    local st = axis and Rat_RecoilState(p0x, p0y) or nil
+    local st = axis and Rat_RecoilState() or nil
     local rnd = axis and function(n)
         return ctx.attacker:Random(n)
     end or nil
@@ -1013,7 +1062,8 @@ function Rat_SimPlanShots(ctx)
             cth = cth[i],
             mu = mu,
             lat = lat,
-            target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, sigma)
+            target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, sigma,
+                                              sigma_y)
         }
         if st then
             Rat_RecoilStep(prof, st, rnd)
@@ -1034,13 +1084,12 @@ end
 function Rat_SimReplanShot(ctx, idx)
     idx = Max(1, idx or 1)
     local prof = ctx.recoil
-    local p0x, p0y = ctx.p0x or 0, ctx.p0y or 0
-    local axis = (prof and (idx > 1 or p0x ~= 0 or p0y ~= 0)) and
+    local axis = (prof and idx > 1) and
                      Rat_RecoilWalkAxis(ctx.attacker, ctx.attack_pos, ctx.aim_pos) or nil
 
     local mu, lat = 0, 0
     if axis then
-        local st = Rat_RecoilState(p0x, p0y)
+        local st = Rat_RecoilState()
         local rnd = function(n)
             return ctx.attacker:Random(n)
         end
@@ -1057,7 +1106,8 @@ function Rat_SimReplanShot(ctx, idx)
     return {
         mu = mu,
         lat = lat,
-        target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, ctx.sigma)
+        target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, ctx.sigma,
+                                          ctx.sigma_y)
     }
 end
 
@@ -1065,46 +1115,53 @@ end
 ---------------------------------------------------------------------------------------------------
 ---- Escada do recuo: o CTH de cada tiro da rajada, e o cone que o representa na UI.
 ----
----- O tiro i sai de um cano ja deslocado de `p`: uma gaussiana 2D de desvio `sigma` centrada FORA
----- do alvo, nao uma Rayleigh mais larga -- quem le isso e Rat_RiceCTH. E `p` nao e um numero, e
----- uma distribuicao; um sistema de segunda ordem com ruido nao tem forma fechada e nao precisa
----- ter, porque ninguem exibe este numero. Ele sai do estimador, que roda o MESMO passo da bala.
+---- O tiro i sai de um cano ja deslocado de `p` -- DENTRO da rajada o cano esta mesmo em algum
+---- lugar, e os tiros andam junto: uma gaussiana 2D de desvio `sigma` centrada FORA do alvo, nao
+---- uma Rayleigh mais larga, e quem le isso e Rat_RiceCTH. E `p` nao e um numero, e uma
+---- distribuicao; um sistema de segunda ordem com ruido nao tem forma fechada e nao precisa ter,
+---- porque ninguem exibe este numero. Ele sai do estimador, que roda o MESMO passo da bala.
+----
+---- A rajada comeca do ALVO, sempre. O recuo herdado do ataque ANTERIOR nao e um deslocamento --
+---- entre ataques o atirador reencara o alvo, e o que sobra e ele reencarar pior no eixo em que
+---- estava lutando. Isso entra no CONE (`sigma_y`, eliptico), nao no ponto de partida. Ver
+---- Rat_RecoilPersistSigma.
 ----
 ---- O cone continua sendo a moeda unica: `sigma_disp` e o sigma que produziria aquele mesmo CTH
 ---- contra este alvo (Rat_SigmaForCTH). UI, anel e bala saem todos da mesma probabilidade.
 ---- Sem theta so o perfil faz sentido -- e o que Rat_DbgVerifySim precisa.
 ---------------------------------------------------------------------------------------------------
 function Rat_SimRecoilLadder(attacker, action, weapon, sigma0, num_shots, theta, want_cth,
-                             aim, target)
+                             aim, target, sigma_y)
     num_shots = Max(1, num_shots or 1)
 
-    ---- UM lugar resolve o offset carregado; quem precisa dele recebe de volta. Um tiro
-    ---- simples com offset tambem precisa de perfil -- e dele que sai o coice e o passo.
-    local p0x, p0y = Rat_RecoilPersistOffset(attacker, action, weapon, aim, target)
-    local prof = (num_shots > 1 or p0x ~= 0 or p0y ~= 0) and
-                     Rat_RecoilProfile(attacker, action, weapon, num_shots) or nil
+    local prof = (num_shots > 1) and Rat_RecoilProfile(attacker, action, weapon, num_shots) or nil
     local cth, sigma_disp = {}, {}
     ---- o estimador e caro (Monte Carlo, Rat_ISqrt no laco) e o CTH por tiro so serve para exibir:
     ---- a bala le `p`, nao a probabilidade. Quem precisa da escada pede, e pode pedir com menos
     ---- amostras passando um numero em `want_cth`.
     if not want_cth or not theta or theta < 1 or not sigma0 or sigma0 < 1 then
-        return cth, prof, nil, sigma_disp, p0x, p0y
-    end
-    if not prof then
-        for i = 1, num_shots do
-            cth[i], sigma_disp[i] = Rat_RayleighCTH(theta, sigma0), sigma0
-        end
-        return cth, prof, nil, sigma_disp, p0x, p0y
+        return cth, prof, nil, sigma_disp
     end
 
-    local est = Rat_EstimateBurst(prof, theta, sigma0, num_shots,
-                                  (type(want_cth) == "number") and want_cth or nil, nil,
-                                  p0x, p0y)
+    ---- a escada e radial (Rayleigh/Rice) e o cone pode ser eliptico: entra o circulo de mesma
+    ---- AREA. So o numero por tiro passa por aqui -- a bala dispara na elipse de verdade.
+    local sigma_eff = (sigma_y and sigma_y >= 1 and sigma_y ~= sigma0) and
+                          Max(1, Rat_ISqrt(sigma0 * sigma_y)) or sigma0
+
+    if not prof then
+        for i = 1, num_shots do
+            cth[i], sigma_disp[i] = Rat_RayleighCTH(theta, sigma_eff), sigma_eff
+        end
+        return cth, prof, nil, sigma_disp
+    end
+
+    local est = Rat_EstimateBurst(prof, theta, sigma_eff, num_shots,
+                                  (type(want_cth) == "number") and want_cth or nil)
     for i = 1, num_shots do
         cth[i] = est.cth[i]
-        sigma_disp[i] = Rat_SigmaForCTH(theta, Clamp(cth[i], 1, 99)) or sigma0
+        sigma_disp[i] = Rat_SigmaForCTH(theta, Clamp(cth[i], 1, 99)) or sigma_eff
     end
-    return cth, prof, est, sigma_disp, p0x, p0y
+    return cth, prof, est, sigma_disp
 end
 
 ---- Overrides EXATOS que o tiro real aplica por tiro (ramo `if sim then`). Nada alem disso.

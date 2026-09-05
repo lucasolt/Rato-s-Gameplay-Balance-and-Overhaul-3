@@ -10,28 +10,28 @@ local vanilla_update --- OnContextUpdate original do template, para o fallback
 local debug = Platform.developer and Platform.rat
 
 ---------------------------------------------------------------------------------------------------
----- ESCADA DO RECUO. O anel sempre disse a largura do cone e nunca disse para ONDE ele aponta --
----- coisa que so passou a existir quando o cano ganhou posicao propria. Duas informacoes entram:
----- o anel vai para onde o cano ESTA (recuo herdado do ataque anterior), e a rajada ganha o
----- caminho que ele vai fazer, uma barra por tiro, entre duas diagonais que abrem com a largura
----- do grupo ali. Sao os mesmos numeros de Rat_DbgRecoilAt, sem os discos e sem a tabela.
+---- ESCADA DO RECUO. Duas coisas que o anel redondo nao conseguia dizer:
+---- o recuo herdado do ataque anterior ALONGA o anel no eixo vertical -- o atirador reencara o
+---- alvo, so que pior naquele eixo, entao a elipse fica em cima do inimigo e nao ao lado dele;
+---- e a rajada ganha a regua do que o cano vai subir, uma barra por tiro, entre duas diagonais
+---- simetricas. Mesmos numeros de Rat_DbgRecoilAt, sem os discos e sem a tabela.
 ---------------------------------------------------------------------------------------------------
 
 ---- Memo do estimador: o crosshair atualiza a cada hover de body part e a cada nivel de mira, e
 ---- Monte Carlo por frame nao se paga para desenhar um traco. A FORMA nao depende do alvo -- ela
 ---- sai so do perfil e do offset -- entao a chave nao precisa de theta nem de sigma.
-local e_att, e_wep, e_act, e_aim, e_n, e_px, e_py, e_est
+local e_att, e_wep, e_act, e_aim, e_n, e_est
 
-local function ladder_estimate(attacker, action, weapon, aim, num_shots, p0x, p0y)
+local function ladder_estimate(attacker, action, weapon, aim, num_shots)
     if e_att == attacker and e_wep == weapon and e_act == action and e_aim == aim and
-        e_n == num_shots and e_px == p0x and e_py == p0y then
+        e_n == num_shots then
         return e_est
     end
     local prof = Rat_RecoilProfile(attacker, action, weapon, num_shots)
     ---- sem theta/sigma o estimador pula o Rice por tiro: aqui so a geometria do passeio interessa
     e_est = prof and Rat_EstimateBurst(prof, nil, nil, num_shots,
-                                       const.Combat.Aperture.CrosshairRecoilSamples, nil, p0x, p0y)
-    e_att, e_wep, e_act, e_aim, e_n, e_px, e_py = attacker, weapon, action, aim, num_shots, p0x, p0y
+                                       const.Combat.Aperture.CrosshairRecoilSamples)
+    e_att, e_wep, e_act, e_aim, e_n = attacker, weapon, action, aim, num_shots
     return e_est
 end
 
@@ -138,8 +138,8 @@ function Rat_UpdateConeRing(crosshair)
     ---- UM cone so, o mesmo que Rat_SimPlanShots dispara: quem o resolve e CalcChanceToHit
     ---- (geometria + residuais ja em cone) e ele o devolve nos proprios args.
     local target_pos = target:GetPos()
-    local sigma, theta, cth = Rat_AttackCone(attacker, target, action, part, aim, false, step_pos,
-                                             target_pos)
+    local sigma, theta, cth, sy = Rat_AttackCone(attacker, target, action, part, aim, false,
+                                                 step_pos, target_pos)
     if not sigma or not theta or theta < 1 then
         return false
     end
@@ -164,17 +164,17 @@ function Rat_UpdateConeRing(crosshair)
     local radius = Rat_ConeRadius(dist, spread)
     local dir = center - origin
 
+    ---- o eixo VERTICAL do cone, ja com o recuo herdado (alonga) e a postura (achata). Mesma
+    ---- funcao que o CTH e a bala leem -- se o anel desenhasse outra elipse ele nao valeria nada.
+    local sigma_y = sy or sigma
+    local radius_y = (sigma_y ~= sigma) and
+                         Rat_ConeRadius(dist, MulDivRound(sigma_y, a.CrosshairSigmaMul, 100)) or nil
+
     if not a.CrosshairRecoilLadder then
-        Rat_ShowConeRing(center, radius, dir, color)
+        Rat_ShowConeRing(center, radius, dir, color, nil, radius_y)
         return true
     end
 
-    ---- MESMA funcao que a bala le (Rat_SimPlanShots semeia o passo com ela), e com a mesma mira:
-    ---- se o anel e o tiro discordarem aqui, o anel deixa de valer alguma coisa.
-    ---- centiminutos para semear o passo, minutos para desenhar: converter uma vez so aqui evita
-    ---- que o anel e a escada partam de pontos com arredondamentos diferentes.
-    local c0x, c0y = Rat_RecoilPersistOffset(attacker, action, weapon, aim, target)
-    local p0x, p0y = MulDivRound(c0x, 1, 100), MulDivRound(c0y, 1, 100)
     local num_shots = 1
     local ok, n = pcall(weapon.GetAutofireShots, weapon, action)
     if ok and type(n) == "number" then
@@ -187,17 +187,11 @@ function Rat_UpdateConeRing(crosshair)
         return Rat_RecoilWalkPoint(origin, center, up, dy, lat, dx)
     end
 
-    ---- o anel vai para onde o cano ESTA: e de la que a bala sai, e um anel em cima do alvo
-    ---- desenharia um cone que a arma nao tem apontada para ele.
-    local muzzle = at(p0y, p0x)
-    Rat_ShowConeRing(muzzle, radius, dir, color)
-    ---- a regua nasce no anel, nao no alvo: as duas coisas juntas sao um desenho so
-    local function at_muzzle(dy, dx)
-        return Rat_RecoilWalkPoint(origin, muzzle, up, dy, lat, dx)
-    end
+    ---- o anel fica NO ALVO, so mais alto: o recuo herdado e incerteza, nao um cano parado fora
+    ---- do alvo. A regua da rajada nasce dele, e dentro da rajada sim o cano anda de verdade.
+    Rat_ShowConeRing(center, radius, dir, color, nil, radius_y)
 
-    local est = (num_shots > 1) and
-                    ladder_estimate(attacker, action, weapon, aim, num_shots, c0x, c0y)
+    local est = (num_shots > 1) and ladder_estimate(attacker, action, weapon, aim, num_shots)
     if not est then
         Rat_HideStroke("climb")
         Rat_HideStroke("fanl")
@@ -206,11 +200,11 @@ function Rat_UpdateConeRing(crosshair)
     end
 
     local faded = tint(cr, cg, cb)
-    local path, fan_l, fan_r = ladder_strokes(est, num_shots, at_muzzle,
+    local path, fan_l, fan_r = ladder_strokes(est, num_shots, at,
                                               MulDivRound(spread, a.CrosshairRecoilTickPct or 0, 100))
-    Rat_ShowStroke("climb", path, faded, muzzle)
-    Rat_ShowStroke("fanl", fan_l, faded, muzzle)
-    Rat_ShowStroke("fanr", fan_r, faded, muzzle)
+    Rat_ShowStroke("climb", path, faded, center)
+    Rat_ShowStroke("fanl", fan_l, faded, center)
+    Rat_ShowStroke("fanr", fan_r, faded, center)
     return true
 end
 

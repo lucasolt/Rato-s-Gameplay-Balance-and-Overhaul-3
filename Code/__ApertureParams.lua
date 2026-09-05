@@ -151,7 +151,7 @@ A.CrosshairRecoilSamples = 24
 
 ---- Quanto a escada e CLAREADA em relacao a cor do anel (% do caminho ate o branco). Mesma cor,
 ---- porque e o mesmo tiro -- so mais clara, para nao sumir contra o terreno.
-A.CrosshairRecoilTintPct = 45
+A.CrosshairRecoilTintPct = 0
 
 ---- O que a ALTURA da regua mede: a DISTANCIA media ao alvo (true) ou a posicao media do cano
 ---- (false). A regua e reta e simetrica nos dois casos -- a deriva lateral do passeio nao entra no
