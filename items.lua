@@ -557,7 +557,7 @@ return {
 			PlaceObj('UnitReaction', {
 				Event = "OnCalcChanceToHit",
 				Handler = function (self, target, attacker, action, attack_target, weapon1, weapon2, data)
-					if target == attacker then
+					if target == attacker and not const.Combat.Aperture.RecoilPersistOffset then
 						local effect = target:GetStatusEffect("Rat_recoil")
 						local target_pos =  IsValid(attack_target) and attack_target:GetPos() or attack_target
 					
@@ -1356,6 +1356,10 @@ return {
 	PlaceObj('ModItemCode', {
 		'name', "DEBUG_aperture_draw",
 		'CodeFileName', "Code/DEBUG_aperture_draw.lua",
+	}),
+	PlaceObj('ModItemCode', {
+		'name', "DEBUG_aperture_style",
+		'CodeFileName', "Code/DEBUG_aperture_style.lua",
 	}),
 	PlaceObj('ModItemCode', {
 		'name', "UI_aperture_crosshair",
@@ -4942,9 +4946,9 @@ return {
 				"IncreaseRange",
 				"ScopePenalty2",
 				"DecreaseOverwatchAngle",
-				"IncreaseMaxAimActions",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
+				"IncreaseMaxAimActions",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5155,9 +5159,9 @@ return {
 				"IncreaseRange",
 				"IgnoreInTheDarkWhenFullyAimed",
 				"DecreaseOverwatchAngle",
-				"IncreaseMaxAimActions",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
+				"IncreaseMaxAimActions",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5241,9 +5245,9 @@ return {
 				"IncreaseRange",
 				"IgnoreInTheDarkWhenFullyAimed",
 				"DecreaseOverwatchAngle",
-				"IncreaseMaxAimActions",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
+				"IncreaseMaxAimActions",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6123,9 +6127,9 @@ return {
 				"ScopePenalty1",
 				"DecreaseOverwatchAngle",
 				"critical_per_aim_scope",
-				"IncreaseMaxAimActions",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
+				"IncreaseMaxAimActions",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6570,9 +6574,9 @@ return {
 				"OpportunityAttackBonusCth",
 				"IncreaseRange",
 				"ScopePenalty1",
+				"FirstAimBonusModifier",
 				"IncreaseMaxAimActions",
 				"DecreaseSnapshotMul",
-				"FirstAimBonusModifier",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {

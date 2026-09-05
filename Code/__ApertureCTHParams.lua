@@ -15,7 +15,7 @@
 --TODO: Check how the aCTH deals with out of sight targets (wallbang)
 --TODO: AI OVERHAUL - make sure AI will not try to shoot through the walls
 --TODO: AI OVERHAUL - Enemy LastPos should generate threat. They should also try to "chase" the last pos
---TODO: General balancing - OW tuning - maybe snapshot should not scale with distance. instead it could decrease total cth by a %.. 
+--TODO: General balancing - OW tuning 
 
 
 --TODO: 03/09/2026
@@ -293,7 +293,7 @@ A.RecoilPersistUpBias = 70
 ---- triangulo invertido saindo do ponto de mira. E a mesma coisa que a V da rajada ja diz na tela,
 ---- que era o motivo de o anel eliptico contar outra historia.
 ---- Em 0 a cunha some e o CTH volta a ser Px(sigma) * Py(sigma_y), identico ao que era.
-A.RecoilPersistFanPct = 150
+A.RecoilPersistFanPct = 30--150
 
 ---- FORMA do recuo herdado. Muda o MODELO junto com o desenho, de proposito: com "egg" a
 ---- abertura lateral zera, o somatorio de Rat_SeparableCTH telescopa de volta para Px * Py e o

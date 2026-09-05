@@ -9,7 +9,8 @@ local AppendVertex = pstr().AppendVertex
 
 ---- Classe propria em vez de Polyline cru: e o que torna a varredura de orfaos POSSIVEL e segura.
 ---- Varrer "Polyline" mataria junto o contorno de movimento e os visuais de AOE do jogo.
-DefineClass.RatConeRing = {__parents = {"Polyline"}}
+DefineClass.RatConeRing = {__parents = {const.Combat.Aperture.ConeRingParent or "Polyline"},
+                           rat_shader = false, rat_depth = false}
 
 ---- Um mesh de Polyline e UMA tira continua, e a escada do recuo sao tracos soltos. Em vez de
 ---- amarrar tudo num traco so (ou apostar em conectores transparentes, que dependem do shader),
@@ -132,13 +133,31 @@ end
 ---- cada nivel de mira, e e o mesmo custo que o jogo paga no contorno de movimento.
 ---- Um traco qualquer: a lista de pontos ja pronta, em mundo. Recria a malha em vez de mover o
 ---- objeto, pela mesma razao do anel -- a forma muda a cada update, nao so a posicao.
+
+
+
+---- Shader/depth/cor deste traco, se houver estilo declarado em A.MeshStyle. O que ja foi
+---- aplicado fica guardado no proprio objeto: SetShader escreve custom data e isto roda a cada
+---- update do crosshair, entao so se paga quando algo mudou de verdade.
+function Rat_StrokeStyle(obj, id)
+    local st = (const.Combat.Aperture.MeshStyle or empty_table)[id]
+    local name = (st and st.shader) or "default_polyline"
+    local depth = (st and st.depth) or false
+    if obj.rat_shader == name and obj.rat_depth == depth then
+        return st
+    end
+    local sh = ProceduralMeshShaders[name]
+    if sh then
+        ---- o engine assere se o depth_test contrariar o que o shader declara
+        obj:SetShader(sh, (sh.depth_test == "runtime") and depth or nil)
+        obj.rat_shader, obj.rat_depth = name, depth
+    end
+    return st
+end
+
 function Rat_ShowStroke(id, pts, color, anchor)
     if not pts or #pts < 2 then
         return Rat_HideStroke(id)
-    end
-    local vpstr = pstr("", 1024)
-    for i = 1, #pts do
-        AppendVertex(vpstr, pts[i], color)
     end
 
     local obj = strokes[id]
@@ -146,9 +165,21 @@ function Rat_ShowStroke(id, pts, color, anchor)
         obj = PlaceObject("RatConeRing") --- herda mfWorldSpace e o shader default_polyline
         strokes[id] = obj
     end
+    local st = Rat_StrokeStyle(obj, id)
+    color = (st and st.color) or color
+
+    local vpstr = pstr("", 1024)
+    for i = 1, #pts do
+        AppendVertex(vpstr, pts[i], color)
+    end
     obj:SetMesh(vpstr)
     obj:SetPos(anchor or pts[1]) --- so culling/ordenacao: com mfWorldSpace os vertices sao absolutos
     obj:SetVisible(true)
+end
+
+---- Os tracos que estao na tela AGORA, para o afinador de estilo reaplicar sem redesenhar.
+function Rat_LiveStrokes()
+    return strokes
 end
 
 function Rat_HideStroke(id)

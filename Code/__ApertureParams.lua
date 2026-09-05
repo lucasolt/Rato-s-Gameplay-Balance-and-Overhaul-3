@@ -172,6 +172,22 @@ A.CrosshairWedgeSigmaMul = 200
 ---- cunha aparece com o topo ABERTO, que e como ela avisa que continua para cima.
 A.CrosshairWedgeMaxPct = 400
 
+---- ESTILO por traco, para poder trocar shader sem recompilar nada. A chave e o id do traco:
+---- "ring" (o anel), "wedge" (a cunha do recuo herdado), "climb" (a regua da rajada), "fanl" e
+---- "fanr" (o leque dela). `shader` e um nome de ProceduralMeshShaders; `depth` so vale nos que
+---- declaram depth_test = "runtime" -- nos outros o engine assere. `color` sobrepoe a cor que o
+---- chamador passou, em RGBA, ou fica false para deixar a cor do CTH mandar.
+---- Ver DEBUG_aperture_style.lua: Rat_StyleHelp() no console lista tudo e troca ao vivo.
+A.MeshStyle = {
+    ring = {shader = "default_polyline", depth = false, color = false},
+    wedge = {shader = "default_polyline", depth = false, color = false},
+    climb = {shader = "default_polyline", depth = false, color = false},
+    fanl = {shader = "default_polyline", depth = false, color = false},
+    fanr = {shader = "default_polyline", depth = false, color = false},
+}
+
+A.StrokeMeshShader = "soft_mesh"
+A.ConeRingParent = "Polyline"
 
 ---- Teto e piso do multiplicador de UM residual. Sem eles -100 pontos daria cone infinito.
 A.ConeMulMin = 25
