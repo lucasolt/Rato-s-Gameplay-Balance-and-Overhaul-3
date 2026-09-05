@@ -130,9 +130,11 @@ function Rat_StylePrev(id)
 end
 
 ---- Cor fixa para o traco, ou nil para devolver o comando a cor do CTH.
+---- `r` aceita OU os componentes (r, g, b[, alpha]) OU uma cor ja empacotada (const.clrRed,
+---- RGB(...), RGBA(...)) -- e um numero dos dois jeitos, entao so g decide qual e.
 function Rat_StyleColor(id, r, g, b, alpha)
     local st = style_of(id or "wedge")
-    st.color = r and RGBA(r, g, b, alpha or 255) or false
+    st.color = r and (g and RGBA(r, g, b, alpha or 255) or r) or false
     return apply_and_report(id or "wedge")
 end
 
@@ -236,6 +238,7 @@ function Rat_StyleHelp()
         "  Rat_Style(\"all\", \"soft_mesh\")   todos de uma vez",
         "  Rat_Style(\"ring\", \"cone\", true) com depth test (so onde o shader deixa)",
         "  Rat_StyleColor(\"wedge\", 230, 200, 90)   cor fixa; sem argumentos volta a cor do CTH",
+        "  Rat_StyleColor(\"wedge\", const.clrRed)   ou uma cor ja empacotada (RGB/RGBA/const.clr*)",
         "",
         "  Rat_StyleList()                 todos os shaders do engine",
         "  Rat_StyleList(\"line\")           so os que tem \"line\" no nome",
