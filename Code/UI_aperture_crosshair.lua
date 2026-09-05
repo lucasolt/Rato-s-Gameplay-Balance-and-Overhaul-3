@@ -242,13 +242,19 @@ function Rat_UpdateConeRing(crosshair)
     local radius = Rat_ConeRadius(dist, spread)
     local dir = center - origin
 
-    ---- Em "wedge" o anel e CIRCULO e quem mostra o recuo herdado e a cunha. O ovo so volta em
-    ---- "egg": um circulo num plano vertical, visto pela camera inclinada, projeta a metade de
-    ---- baixo para PERTO e ela le como se fosse a mais larga -- medido, malha topo +3014 base
-    ---- -1772, e na tela parecia o contrario. A cunha nao depende do angulo da camera.
-    local ovo = a.RecoilPersistShape == "egg"
+    ---- FORMA DESENHADA, independente da forma do CALCULO. Rat_ConeSigmaY nao olha
+    ---- A.RecoilPersistShape: os dois meios-eixos verticais sao reais nos dois modos, entao a elipse
+    ---- e honesta tambem com CTH de cunha. O que ela NAO consegue dizer e a abertura lateral do topo
+    ---- (Rat_ConeFanX, que so existe em "wedge") -- um anel e simetrico e nao alarga so em cima.
+    ---- Por isso "both": a elipse da o alongamento vertical, os tracos da cunha dao o leque.
+    ---- Ver A.CrosshairRecoilShape.
+    local shape = a.CrosshairRecoilShape
+    if not shape or shape == "auto" then
+        shape = (a.RecoilPersistShape == "egg") and "ring" or "wedge"
+    end
+    local draw_wedge = (shape == "wedge" or shape == "both")
     local ry, ry_dn
-    if ovo and sy and sy_dn then
+    if (shape == "ring" or shape == "both") and sy and sy_dn then
         local function ray(s)
             return Rat_ConeRadius(dist, MulDivRound(s, a.CrosshairSigmaMul, 100))
         end
@@ -277,10 +283,10 @@ function Rat_UpdateConeRing(crosshair)
     Rat_ShowConeRing(center, radius, dir, color, nil, ry, ry_dn)
 
     local faded = tint(cr, cg, cb)
-    if ovo then
-        Rat_HideStroke("wedge")
-    else
+    if draw_wedge then
         persist_wedge(at, spread, sigma, sy, fan, faded, center)
+    else
+        Rat_HideStroke("wedge")
     end
 
     local est = (num_shots > 1) and ladder_estimate(attacker, action, weapon, aim, num_shots)

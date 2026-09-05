@@ -293,14 +293,16 @@ A.RecoilPersistUpBias = 70
 ---- triangulo invertido saindo do ponto de mira. E a mesma coisa que a V da rajada ja diz na tela,
 ---- que era o motivo de o anel eliptico contar outra historia.
 ---- Em 0 a cunha some e o CTH volta a ser Px(sigma) * Py(sigma_y), identico ao que era.
-A.RecoilPersistFanPct = 30--150
+A.RecoilPersistFanPct = 150--150
 
----- FORMA do recuo herdado. Muda o MODELO junto com o desenho, de proposito: com "egg" a
----- abertura lateral zera, o somatorio de Rat_SeparableCTH telescopa de volta para Px * Py e o
----- anel volta a ser a elipse de dois meios-eixos. Desenhar ovo sobre um CTH de cunha seria o
----- anel mentindo sobre o numero ao lado dele.
+---- FORMA do recuo herdado no MODELO. Com "egg" a abertura lateral zera (Rat_ConeFanX) e o
+---- somatorio de Rat_SeparableCTH telescopa de volta para Px * Py; com "wedge" a metade de cima e
+---- integrada em fatias que alargam.
 ----   "wedge" -- triangulo saindo do ponto de mira, no idioma da V da rajada
 ----   "egg"   -- elipse de dois meios-eixos, larga em cima
+---- O DESENHO nao esta mais preso a isto: Rat_ConeSigmaY ignora a forma, entao os dois meios-eixos
+---- verticais sao reais tambem em "wedge" e a elipse pode ser desenhada por cima dele sem mentir --
+---- so nao diz o leque. Ver A.CrosshairRecoilShape em __ApertureParams.lua.
 A.RecoilPersistShape = "wedge"
 
 ---- Fatias em que a faixa de CIMA e integrada. A largura muda ao longo do eixo vertical, entao

@@ -780,6 +780,19 @@ A.CrosshairRecoilMeanDistance = true
 ---- Meia-largura da barra de cada tiro, em % do raio do anel. So legibilidade.
 A.CrosshairRecoilTickPct = 22
 
+---- COMO o recuo herdado aparece na tela -- so desenho, nao entra em conta nenhuma. Os dois
+---- meios-eixos verticais (Rat_ConeSigmaY) existem em qualquer A.RecoilPersistShape, entao o anel
+---- eliptico e honesto mesmo com CTH de cunha; o que ele nao mostra e a abertura lateral do topo,
+---- que so a cunha diz.
+----   "wedge"       circulo + os tracos da cunha (o de sempre em CTH de cunha)
+----   "ring"        anel ELIPTICO com os dois meios-eixos, sem os tracos
+----   "both"        anel eliptico E os tracos: a elipse da o alongamento, a cunha da o leque
+----   false/"auto"  segue A.RecoilPersistShape, como era antes
+---- Cuidado com "ring" puro: um circulo em plano vertical visto pela camera inclinada projeta a
+---- metade de baixo para PERTO e ela le como se fosse a mais larga -- medido, malha topo +3014
+---- base -1772. Os tracos da cunha nao dependem do angulo da camera.
+A.CrosshairRecoilShape = "auto"
+
 ---- Envelope da CUNHA do recuo herdado. 200% e ~95% de UM eixo; o anel usa 250% porque la o
 ---- envelope e de uma Rayleigh 2D. Ver persist_wedge.
 A.CrosshairWedgeSigmaMul = 200
@@ -823,7 +836,7 @@ A.MeshStyle = {
         color = false,
         width = 12,--18,
         halo = 12,--22,
-		fill = true, 
+		fill = false, 
 		fillAlpha = 10,
         coreAlpha = 235,
         haloAlpha = 45
@@ -832,11 +845,12 @@ A.MeshStyle = {
         shader = "default_polyline",
         depth = false,
         color = false,
-        width = 12,--12,
-        fill = true,
+        width = 20,--12,
+        fill = false,
         fillAlpha = 10,--10, --55
         coreAlpha = 150,--120,--230,
 		halo = 12,
+		baseFade = 50,
 		--dash = 110,
         tipFade = 0
     },
