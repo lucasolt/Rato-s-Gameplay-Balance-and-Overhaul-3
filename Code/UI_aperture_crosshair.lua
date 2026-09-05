@@ -77,10 +77,12 @@ local function ladder_strokes(est, num_shots, at, tick, spread)
     end
     local base = reach(1)
     local path, fan_l, fan_r = {}, {}, {}
-    local widest = 0
+    local widest, first_w, last_dy = 0, nil, 0
     for i = 1, num_shots do
         local dy = Max(0, reach(i) - base)
         widest = Max(widest, est.spread[i])
+        first_w = first_w or widest
+        last_dy = dy
         local p = at(dy, 0)
         ---- barra para os DOIS lados, e volta: um mesh de Polyline e uma tira so, e o retrace
         ---- repinta os mesmos pixels -- na tela e uma regua com um trinco em cada tiro. Uma barra
@@ -94,13 +96,20 @@ local function ladder_strokes(est, num_shots, at, tick, spread)
     end
 
     ---- Comprimento minimo do leque. Em distancia curta o passeio inteiro cabe em poucos minutos:
-    ---- o leque encolhe para dentro das barras da regua e sobra pouco tipFade para calibrar. Estende
-    ---- reto para cima ate o piso na largura final -- o envelope so continua aberto, nao mente sobre
-    ---- tiro nenhum. Piso em % do raio do anel, como os outros limites de desenho da rajada.
+    ---- o leque encolhe para dentro das barras da regua e sobra pouco tipFade para calibrar.
+    ---- Prolonga a MESMA diagonal -- a reta de (0, w1) a (last_dy, widest) -- ate o piso, em vez de
+    ---- subir reto: a largura verdadeira ja esta nas barras da regua, entao continuar o angulo so da
+    ---- espaco ao tipFade sem afirmar largura nova. Teto de 2x na largura para o passeio quase nulo
+    ---- (diagonal quase vertical) nao esparramar. Piso em % do raio do anel.
     local floor = MulDivRound(spread or 0, const.Combat.Aperture.CrosshairFanMinPct or 0, 100)
-    if floor > Max(0, reach(num_shots) - base) then
-        fan_l[#fan_l + 1] = at(floor, -widest)
-        fan_r[#fan_r + 1] = at(floor, widest)
+    if floor > last_dy then
+        local w_ext = widest
+        if last_dy > 0 and widest > first_w then
+            w_ext = Min(2 * widest,
+                        widest + MulDivRound(widest - first_w, floor - last_dy, last_dy))
+        end
+        fan_l[#fan_l + 1] = at(floor, -w_ext)
+        fan_r[#fan_r + 1] = at(floor, w_ext)
     end
     return path, fan_l, fan_r
 end
