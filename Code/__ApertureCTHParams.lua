@@ -237,34 +237,41 @@ A.RecoilLateralPct = 40
 ---- what separates them is only how much recovery time passes. False restores the stacks model.
 A.RecoilPersistOffset = true
 
----- % of the offset surviving ONE AP of recovery. Time on the target is AP, so aiming, cycling a
----- bolt and a slow trigger all buy recovery through the same channel and the hand-rolled
----- bolt discount in Rat_GetRecoilAimCost stops being needed.
----- MEDIDO: 84 deixa 70% atravessados num tiro de 2 AP, que e o ancoradouro do StacksMultiplier
----- 0.35 (o ramo da rajada divide por 2 no fim e o ramo de stacks nao, entao 0.35 vale 0.70).
-A.RecoilPersistRetainPerAP = 92
+---- % do cano guardado que sobrevive a UM AP gasto. DESLIGADO em 100: a mira agora tem canal
+---- proprio e explicito (RecoilPersistAimMul), e ter os dois cobrava a mira duas vezes -- mirar
+---- gasta AP, entao o AP ja era um multiplicador de mira disfarcado, e disfarcado e por que o
+---- nivel 2 nao rendia nada visivel: quatro AP a mais a 92% cada cortam 28%, e ninguem consegue
+---- ler isso na tela. Abaixo de 100 volta a valer, e ai cada AP alem do ataque (ferrolho,
+---- gatilho pesado, montar a arma) compra recuperacao junto com a mira.
+A.RecoilPersistRetainPerAP = 100
 
 ---- Quanto do cano guardado vira DISPERSAO VERTICAL no proximo ataque, em % -- somada em
 ---- quadratura ao cone (Rat_ConeSigmaY), nunca como deslocamento do ponto de mira.
 ----
 ---- Porque nao deslocamento: entre ataques o atirador reencara o alvo, ele nao fica parado com o
----- cano onde a rajada o largou. O que sobra e ele reencarar PIOR no eixo em que estava lutando --
----- pode continuar por baixo, pode ter puxado demais e passado, igual a forca de reacao que
+---- cano onde a rajada o largou. O que sobra e ele reencarar PIOR no eixo em que estava lutando
+---- -- pode continuar por baixo, pode ter puxado demais e passado, igual a forca de reacao que
 ---- sub e sobrecompensa dentro da rajada. Como deslocamento conhecido o modelo se invertia: um
----- cone apertado centrado fora do alvo erra de proposito, e quanto MELHOR o atirador, mais certo
----- o erro. Centrado, pericia volta a ajudar sempre e sempre resta uma chance -- que e o que
----- tornava o tiro rapido de semi-auto uma aposta que vale a pena.
----- MEDIDO (AK47, mira 1, 13 tiles, teto 2 coices): 400% poe um tiro simples em -13 pontos de CTH
----- e as rajadas entre -17 e -20. O modelo antigo de stacks cobrava -12 a -18 conforme a distancia
----- e cobrava o MESMO dos dois -- tiro simples e rajada de dez saiam pelo mesmo preco. A soma em
----- quadratura satura sozinha, entao nem a rajada mais longa zera o proximo tiro.
-A.RecoilPersistSigmaPct = 400
+---- cone apertado centrado fora do alvo erra de proposito, e quanto MELHOR o atirador, mais
+---- certo o erro. Centrado, pericia volta a ajudar sempre e sempre resta uma chance -- que e o
+---- que tornava o tiro rapido de semi-auto uma aposta que vale a pena.
+A.RecoilPersistSigmaPct = 155
 
----- Teto do cano guardado, em coices. Impede que uma rajada longa entregue a escalada inteira ao
----- proximo tiro -- e disto que o max_stacks = 6 do efeito protegia. Em 3 uma rajada de dez
----- guardava 4,6x o de um tiro simples e levava o proximo tiro ao piso (-32 medidos); em 2 a
----- razao fica perto de 2x, e a rajada custa -17 a -20 contra os -13 do tiro simples.
-A.RecoilPersistCapKicks = 2
+---- MIRA -> quanto do tremor ainda vale, por nivel. Explicito e multiplicativo, um numero por
+---- linha, que e como o modelo antigo lia (`1 - 0.34 * aim`) e como da para tunar olhando.
+---- Zerar no 3 casa com RecoilPersistAimReset e com o que a descricao do efeito promete.
+A.RecoilPersistAimMul = {[0] = 100, [1] = 66, [2] = 33, [3] = 0}
+
+---- TETO do alongamento, em % do proprio cone. E o analogo do max_stacks = 6 do efeito antigo:
+---- o cano acumula a cada ataque e sem teto a elipse cresce ate sair da tela. Em multiplo do
+---- cone e nao em minutos, senao o mesmo limite seria frouxo de perto e absurdo de longe.
+A.RecoilPersistStretchMax = 500
+
+---- Teto do cano guardado, em coices da propria arma. Segura o ESTADO; o de cima segura o que
+---- ele faz na tela. CORRECAO: o modelo antigo dava UM stack por ataque, tiro simples ou rajada
+---- de dez -- o recuo da rajada era resolvido dentro dela. O max_stacks = 6 nao separava os dois,
+---- so impedia o crescimento indefinido.
+A.RecoilPersistCapKicks = 3
 
 ---- Nivel de mira que zera o offset, para casar com a descricao do proprio efeito.
 A.RecoilPersistAimReset = 3

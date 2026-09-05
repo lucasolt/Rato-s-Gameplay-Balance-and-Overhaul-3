@@ -636,9 +636,17 @@ end
 ---- e mais precisa e nao apenas de outro formato.
 ---------------------------------------------------------------------------------------------------
 function Rat_ConeSigmaY(data)
+    local a = P()
     local s = data.rat_sigma or 0
     local r = data.rat_vsigma or 0
     local y = (r > 0) and Rat_ISqrt(s * s + r * r) or s
+    ---- TETO do alongamento. E o analogo do max_stacks = 6 do efeito antigo: o recuo acumula a
+    ---- cada ataque e sem teto a elipse cresce ate sair da tela. Em multiplo do PROPRIO cone, que
+    ---- e o unico jeito de o limite querer dizer a mesma coisa perto e longe.
+    local mx = a.RecoilPersistStretchMax or 0
+    if mx > 0 and s > 0 then
+        y = Min(y, MulDivRound(s, mx, 100))
+    end
     local st = data.rat_stretch or 100
     return (st == 100) and y or Max(1, MulDivRound(y, st, 100))
 end
