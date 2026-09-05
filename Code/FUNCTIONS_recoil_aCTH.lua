@@ -303,8 +303,18 @@ function Rat_RecoilPersistSigma(attacker, action, weapon, aim, target)
     if px == 0 and py == 0 then
         return 0
     end
+    local a = P()
+    ---- Aim is an explicit multiplier per level, not just the AP it costs: the AP channel alone
+    ---- bought almost nothing at level 2 and could not be read off the screen. Zero at 3, which is
+    ---- what RecoilPersistAimReset and the effect's own description already promise.
+    local eff = Rat_EffectiveAim and Rat_EffectiveAim(attacker, action, aim, nil, target) or
+                    (aim or 0)
+    local mul = (a.RecoilPersistAimMul or empty_table)[Clamp(eff, 0, 3)] or 0
+    if mul <= 0 then
+        return 0
+    end
     local r = Rat_ISqrt(px * px + py * py) --- centiminutes
-    return MulDivRound(r, P().RecoilPersistSigmaPct or 0, 100 * 100)
+    return MulDivRound(MulDivRound(r, a.RecoilPersistSigmaPct or 0, 100 * 100), mul, 100)
 end
 
 function Rat_RecoilPersistStash(attacker, st)
