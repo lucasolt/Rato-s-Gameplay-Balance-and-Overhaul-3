@@ -170,6 +170,12 @@ function Rat_StyleFade(id, pct)
     return apply_and_report(id or "wedge")
 end
 
+---- Igual, mas apaga a RAIZ: % da distancia da origem (pts[1]) que sobe de transparente ate cheio.
+function Rat_StyleBaseFade(id, pct)
+    style_of(id or "wedge").baseFade = pct
+    return apply_and_report(id or "wedge")
+end
+
 ---- Preenche a regiao fechada do contorno (leque de triangulos) alem do contorno.
 function Rat_StyleFill(id, on, alpha)
     local st = style_of(id or "wedge")
@@ -219,7 +225,7 @@ function Rat_StyleDemo(unit, shots)
     local mul = a.CrosshairWedgeSigmaMul or 200
     local top, wide = MulDivRound(sy, mul, 100), spread + MulDivRound(fan, mul, 100)
     local tick = MulDivRound(wide - spread, a.CrosshairRecoilTickPct or 22, 100)
-    Rat_ShowStroke("wedge", Rat_WedgeContour(at, spread, top, wide, tick), RGB(230, 200, 90), center)
+    Rat_ShowStroke("wedge", Rat_WedgeContour(at, top, wide, tick), RGB(230, 200, 90), center)
 
     ---- a regua da rajada, com uma subida qualquer que cresce e um leque que abre
     shots = Max(2, shots or 5)
@@ -251,6 +257,7 @@ end
 ---- O bloco pronto para colar em __ApertureParams.lua. Sem isto o ajuste morre com a sessao, que e
 ---- o jeito mais facil de perder meia hora de comparacao.
 local dump_keys = {"shader", "depth", "color", "width", "halo", "coreAlpha", "haloAlpha", "tipFade",
+                   "baseFade",
                    "dash", "fill", "fillAlpha"}
 
 function Rat_StyleDump()
@@ -297,6 +304,7 @@ function Rat_StyleHelp()
         "  Rat_StyleFill(\"wedge\", true, 55) preenche a regiao (alpha 55)",
         "  Rat_StyleDash(\"fanl\", 90)        tracejado de 90; 0 continuo",
         "  Rat_StyleFade(\"fanl\", 45)        desbota os 45% finais do comprimento",
+        "  Rat_StyleBaseFade(\"wedge\", 30)   desbota a raiz: apaga o inicio (30% da origem)",
         "",
         "  Rat_StyleList()                 todos os shaders do engine",
         "  Rat_StyleList(\"line\")           so os que tem \"line\" no nome",

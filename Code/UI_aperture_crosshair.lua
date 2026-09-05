@@ -114,25 +114,17 @@ local function ladder_strokes(est, num_shots, at, tick, spread)
     return path, fan_l, fan_r
 end
 
----- Contorno da cunha: dois bracos de um APEX (na linha central, altura y0) ate as pontas em
----- (top, +-wide), com trinco opcional. O apex sobe com CrosshairWedgeInnerPct (% da altura) e,
----- com CrosshairWedgeClipRing, ao menos ate o topo do anel -- assim a cunha nao pinta em cima do
----- alvo nem sobre a base da regua da rajada, so o que passa do circulo. Compartilhado com o
----- afinador (Rat_StyleDemo), por isso e global e recebe top/wide ja calculados.
-function Rat_WedgeContour(at, spread, top, wide, tick)
-    local a = const.Combat.Aperture
-    local hi = MulDivRound(top, 90, 100) --- apex nunca encosta na ponta: braco degenerado some
-    local y0 = Min(hi, MulDivRound(top, Clamp(a.CrosshairWedgeInnerPct or 0, 0, 90), 100))
-    if a.CrosshairWedgeClipRing then
-        y0 = Clamp(spread, y0, hi)
-    end
-    local apex = at(y0, 0)
+---- Contorno da cunha: dois bracos da MIRA (at(0,0)) ate as pontas em (top, +-wide), com trinco
+---- opcional. Apagar o inicio (a cunha em cima do alvo) e trabalho do baseFade no desenho, nao da
+---- geometria -- ver A.MeshStyle.wedge. Compartilhado com o afinador (Rat_StyleDemo), por isso e
+---- global e recebe top/wide ja calculados.
+function Rat_WedgeContour(at, top, wide, tick)
     local function arm(sign)
         local p = at(top, sign * wide)
         if tick and tick > 0 then
-            return {apex, p, at(top, sign * (wide - tick)), p, apex}
+            return {at(0, 0), p, at(top, sign * (wide - tick)), p, at(0, 0)}
         end
-        return {apex, p, apex}
+        return {at(0, 0), p, at(0, 0)}
     end
     local pts = arm(-1)
     for _, p in ipairs(arm(1)) do
@@ -178,7 +170,7 @@ local function persist_wedge(at, spread, sigma, sy, fan, color, anchor)
     ---- por ele, porque um mesh de Polyline e uma tira continua e o retrace repinta os mesmos pixels.
     ---- Trinco no fim de cada braco quando a cunha cabe inteira; sem trinco ela continua para cima.
     local tick = cut and 0 or MulDivRound(wide - spread, a.CrosshairRecoilTickPct or 0, 100)
-    Rat_ShowStroke("wedge", Rat_WedgeContour(at, spread, top, wide, tick), color, anchor)
+    Rat_ShowStroke("wedge", Rat_WedgeContour(at, top, wide, tick), color, anchor)
 end
 
 ---- Sai do caminho: devolve o circulo 2D e apaga o anel do mundo.

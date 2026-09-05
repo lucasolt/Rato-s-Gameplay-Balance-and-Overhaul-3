@@ -193,25 +193,39 @@ local function quad(vpstr, a, b, o, r, g, bl, aa, ab)
     AppendVertex(vpstr, b + o, cb)
 end
 
----- Fita ao longo de `pts`: `half` meia-largura; `alpha` alpha do nucleo; `fade` % final do
----- comprimento que desbota ate zero; `dash` comprimento de traco e vao (0 = continua).
-local function ribbon(vpstr, pts, color, half, alpha, fade, dash)
+---- Fator de alpha do desbote de RAIZ: 0 na origem (pts[1]) subindo a 1 alem de `bref`. bref ja e
+---- a fracao aplicada; d e a distancia do ponto a origem. Serve os dois bracos da cunha de uma vez,
+---- porque os dois saem do mesmo ponto -- e o "tipFade ao contrario" que apaga so o inicio.
+local function root_mul(d, bref)
+    return (bref > 0 and d < bref) and MulDivRound(d, 1000, bref) or 1000
+end
+
+---- Fita ao longo de `pts`: `half` meia-largura; `alpha` alpha do nucleo; `fade`/`bfade` % do
+---- comprimento que desbota na PONTA / na RAIZ (distancia da origem); `dash` traco e vao (0 = cheio).
+local function ribbon(vpstr, pts, color, half, alpha, fade, dash, bfade)
     local r, g, bl = GetRGB(color)
     local eye = camera.GetEye()
-    local seglen, total = {}, 0
+    local p1 = pts[1]
+    local seglen, total, far = {}, 0, 0
     for i = 2, #pts do
         seglen[i] = pts[i]:Dist(pts[i - 1])
         total = total + seglen[i]
+        far = Max(far, pts[i]:Dist(p1))
     end
     if total == 0 then
         return
     end
     local fade_from = (fade > 0) and MulDivRound(total, 100 - fade, 100) or total
-    local function alpha_at(run)
-        if run <= fade_from or total <= fade_from then
-            return alpha
+    local bref = (bfade and bfade > 0) and MulDivRound(far, bfade, 100) or 0
+    local function alpha_at(run, p)
+        local av = alpha
+        if run > fade_from then
+            av = MulDivRound(av, total - run, total - fade_from)
         end
-        return MulDivRound(alpha, total - run, total - fade_from)
+        if bref > 0 then
+            av = MulDivRound(av, root_mul(p:Dist(p1), bref), 1000)
+        end
+        return av
     end
     local run = 0
     for i = 2, #pts do
@@ -223,14 +237,13 @@ local function ribbon(vpstr, pts, color, half, alpha, fade, dash)
                 while d < len do
                     local d2 = Min(len, d + dash)
                     if k % 2 == 0 then
-                        quad(vpstr, a + MulDivRound(c - a, d, len),
-                             a + MulDivRound(c - a, d2, len), o, r, g, bl,
-                             alpha_at(run + d), alpha_at(run + d2))
+                        local pa, pc = a + MulDivRound(c - a, d, len), a + MulDivRound(c - a, d2, len)
+                        quad(vpstr, pa, pc, o, r, g, bl, alpha_at(run + d, pa), alpha_at(run + d2, pc))
                     end
                     d, k = d2, k + 1
                 end
             else
-                quad(vpstr, a, c, o, r, g, bl, alpha_at(run), alpha_at(run + len))
+                quad(vpstr, a, c, o, r, g, bl, alpha_at(run, a), alpha_at(run + len, c))
             end
         end
         run = run + len
@@ -238,10 +251,10 @@ local function ribbon(vpstr, pts, color, half, alpha, fade, dash)
 end
 
 ---- Regiao preenchida: leque de triangulos do 1o ponto. Descarta ocorrencias internas do 1o ponto
----- (a cunha retorna por ele) e vertices repetidos, senao o leque degenera.
-local function fan(vpstr, pts, color, alpha)
+---- (a cunha retorna por ele) e vertices repetidos, senao o leque degenera. `bfade` desbota os
+---- vertices proximos da origem, igual a fita.
+local function fan(vpstr, pts, color, alpha, bfade)
     local r, g, bl = GetRGB(color)
-    local c = RGBA(r, g, bl, alpha)
     local poly = {pts[1]}
     for i = 2, #pts do
         local p = pts[i]
@@ -249,10 +262,19 @@ local function fan(vpstr, pts, color, alpha)
             poly[#poly + 1] = p
         end
     end
+    local far = 0
+    for i = 2, #poly do
+        far = Max(far, poly[i]:Dist(poly[1]))
+    end
+    local bref = (bfade and bfade > 0) and MulDivRound(far, bfade, 100) or 0
+    local function col(p)
+        return RGBA(r, g, bl,
+                    bref > 0 and MulDivRound(alpha, root_mul(p:Dist(poly[1]), bref), 1000) or alpha)
+    end
     for i = 3, #poly do
-        AppendVertex(vpstr, poly[1], c)
-        AppendVertex(vpstr, poly[i - 1], c)
-        AppendVertex(vpstr, poly[i], c)
+        AppendVertex(vpstr, poly[1], col(poly[1]))
+        AppendVertex(vpstr, poly[i - 1], col(poly[i - 1]))
+        AppendVertex(vpstr, poly[i], col(poly[i]))
     end
 end
 
@@ -261,16 +283,16 @@ end
 function Rat_StrokeMesh(id, pts, color, st)
     local vpstr = pstr("", 1024)
     local width = (st and st.width) or 0
+    local tf, bf = (st and st.tipFade) or 0, (st and st.baseFade) or 0
     if st and st.fill then
-        fan(vpstr, pts, color, st.fillAlpha or 60)
-        ribbon(vpstr, pts, color, (width > 0) and width or 8, st.coreAlpha or 255,
-               st.tipFade or 0, st.dash or 0)
+        fan(vpstr, pts, color, st.fillAlpha or 60, bf)
+        ribbon(vpstr, pts, color, (width > 0) and width or 8, st.coreAlpha or 255, tf, st.dash or 0, bf)
     elseif width > 0 then
         local halo = st.halo or 0
         if halo > 0 then
-            ribbon(vpstr, pts, color, width + halo, st.haloAlpha or 40, st.tipFade or 0, st.dash or 0)
+            ribbon(vpstr, pts, color, width + halo, st.haloAlpha or 40, tf, st.dash or 0, bf)
         end
-        ribbon(vpstr, pts, color, width, st.coreAlpha or 255, st.tipFade or 0, st.dash or 0)
+        ribbon(vpstr, pts, color, width, st.coreAlpha or 255, tf, st.dash or 0, bf)
     else
         for i = 1, #pts do
             AppendVertex(vpstr, pts[i], color)
