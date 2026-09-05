@@ -156,8 +156,8 @@ end
 ---- STATE AND STEP
 ---------------------------------------------------------------------------------------------------
 
-function Rat_RecoilState()
-    return {px = 0, py = 0, vx = 0, vy = 0, cx = 0, cy = 0}
+function Rat_RecoilState(px, py)
+    return {px = px or 0, py = py or 0, vx = 0, vy = 0, cx = 0, cy = 0}
 end
 
 ---- One shot of dynamics; `st` advances in place. The bullet leaves from `st` BEFORE this runs.
@@ -196,6 +196,96 @@ function Rat_RecoilStep(prof, st, rnd)
     st.px, st.py = st.px + st.vx, st.py + st.vy
 end
 
+---------------------------------------------------------------------------------------------------
+---- PERSISTENT OFFSET: the same muzzle position, carried between attacks instead of thrown away.
+---- The shooter walks it back with time, and in this game time is AP -- so an expensive attack
+---- (aimed, bolt-cycled, heavy trigger) recovers more than a cheap one without a rule of its own.
+---------------------------------------------------------------------------------------------------
+
+---- the ending state of the REAL shots. The commit stores what the bullets did instead of
+---- re-rolling the same process with different draws and quietly disagreeing with them.
+local stash_unit, stash_px, stash_py
+
+function Rat_RecoilPersistOn()
+    local a = P()
+    return (a.Enabled and a.RecoilPersistOffset) and true or false
+end
+
+---- AP this attack costs: the recovery currency. Not a proxy for it -- the actual cost, so every
+---- surcharge already in the AP economy shows up here for free.
+function Rat_RecoilPersistAP(attacker, action, weapon, aim, target)
+    if not attacker or not action or not action.GetAPCost then
+        return 0
+    end
+    local ok, cost = pcall(action.GetAPCost, action, attacker,
+                           {weapon = weapon, target = target or attacker, aim = aim or 0})
+    if not ok or type(cost) ~= "number" or cost <= 0 then
+        return 0
+    end
+    return MulDivRound(cost, 1, const.Scale.AP or 1000)
+end
+
+---- Offset the next attack fires from, in centiminutes. PURE: prediction and the real shot both
+---- call it and have to agree, so it must never write.
+function Rat_RecoilPersistOffset(attacker, action, weapon, aim, target)
+    if not Rat_RecoilPersistOn() or not attacker then
+        return 0, 0
+    end
+    local eff = attacker:GetStatusEffect("Rat_recoil")
+    if not eff then
+        return 0, 0
+    end
+    local a = P()
+    if (aim or 0) >= (a.RecoilPersistAimReset or 3) then
+        return 0, 0
+    end
+    local px, py = eff:ResolveValue("offset_x") or 0, eff:ResolveValue("offset_y") or 0
+    if px == 0 and py == 0 then
+        return 0, 0
+    end
+    local retain = a.RecoilPersistRetainPerAP or 100
+    for _ = 1, Min(Rat_RecoilPersistAP(attacker, action, weapon, aim, target), 24) do
+        px, py = MulDivRound(px, retain, 100), MulDivRound(py, retain, 100)
+    end
+    return px, py
+end
+
+function Rat_RecoilPersistStash(attacker, st)
+    stash_unit, stash_px, stash_py = attacker, st.px, st.py
+end
+
+---- Writes where the muzzle ended. Uses the stash when the real shots ran; otherwise advances the
+---- same model here, so the offset never silently stops moving when the sim path is off.
+function Rat_RecoilPersistCommit(attacker, action, weapon, aim, num_shots, target)
+    if not Rat_RecoilPersistOn() then
+        return
+    end
+    local eff = attacker and attacker:GetStatusEffect("Rat_recoil")
+    if not eff then
+        return
+    end
+    num_shots = Max(1, num_shots or 1)
+    local prof = Rat_RecoilProfile(attacker, action, weapon, num_shots)
+    local px, py
+    if stash_unit == attacker then
+        px, py = stash_px, stash_py
+    else
+        local st = Rat_RecoilState(Rat_RecoilPersistOffset(attacker, action, weapon, aim, target))
+        local rnd = function(n)
+            return attacker:Random(n)
+        end
+        for _ = 1, num_shots do
+            Rat_RecoilStep(prof, st, rnd)
+        end
+        px, py = st.px, st.py
+    end
+    stash_unit, stash_px, stash_py = nil, nil, nil
+
+    px, py = vclamp(px, py, Max(1, prof.kick_min * 100 * (P().RecoilPersistCapKicks or 3)))
+    eff:SetParameter("offset_x", px)
+    eff:SetParameter("offset_y", py)
+end
+
 ---- Muzzle offset in MINUTES: lateral, vertical, radial. The only part of the state the bullet reads.
 function Rat_RecoilPoint(st)
     local x, y = MulDivRound(st.px, 1, 100), MulDivRound(st.py, 1, 100)
@@ -213,7 +303,7 @@ end
 ---- balance against. Seeded, so the same profile always gives the same ladder: it does not flicker
 ---- between calls, it cannot desync co-op, and a specific bad volley can be replayed exactly.
 ---------------------------------------------------------------------------------------------------
-function Rat_EstimateBurst(prof, theta, sigma, num_shots, samples, seed)
+function Rat_EstimateBurst(prof, theta, sigma, num_shots, samples, seed, p0x, p0y)
     local a = P()
     num_shots = Max(1, num_shots or 1)
     samples = Max(1, samples or a.RecoilEstimateSamples or 128)
@@ -230,7 +320,8 @@ function Rat_EstimateBurst(prof, theta, sigma, num_shots, samples, seed)
 
     local st = Rat_RecoilState()
     for _ = 1, samples do
-        st.px, st.py, st.vx, st.vy, st.cx, st.cy = 0, 0, 0, 0, 0, 0
+        st.px, st.py = p0x or 0, p0y or 0
+        st.vx, st.vy, st.cx, st.cy = 0, 0, 0, 0
         for i = 1, num_shots do
             local x, y, r = Rat_RecoilPoint(st)
             if measure then

@@ -404,6 +404,8 @@ function Firearm:GetAttackResults(action, attack_args)
             ---- o cone que CalcChanceToHit resolveu para ESTE ataque; sem ele Rat_SimPlanShots sonda
             sigma = shot_attack_args.rat_sigma,
             num_shots = num_shots,
+            ---- o unico caminho autorizado a gravar o offset persistente
+            persist = true,
             args = shot_attack_args
         }
         sim_shots = Rat_SimPlanShots(sim_ctx)

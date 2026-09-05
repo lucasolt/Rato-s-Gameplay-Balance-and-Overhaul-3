@@ -79,6 +79,9 @@ function Unit:ApplyPersistantRecoilEffects(aim, action, weapon, attack_args)
     effect:SetParameter("Recoil_value", recoil_value)
     effect:SetParameter("aim_cost", aim_cost)
     effect:SetParameter("movement", 0)
+
+    ---- onde o cano parou: e o que o proximo ataque le, e o que a proxima rajada semeia
+    Rat_RecoilPersistCommit(self, action, weapon, aim, num_shots, attack_args and attack_args.target)
 end
 
 function GetWepRecoil(weapon, attacker, display)
@@ -614,6 +617,12 @@ function get_recoil(attacker, target, target_pos, action, weapon, aim, num_shots
     end
 
     if not IsKindOf(weapon, "Firearm") then
+        return 0
+    end
+
+    ---- com o offset persistente ligado o recuo acumulado ja esta em `p` e a bala sai de la;
+    ---- somar tambem a penalidade de stacks cobraria o mesmo recuo duas vezes.
+    if stacks and Rat_RecoilPersistOn() then
         return 0
     end
 

@@ -971,18 +971,21 @@ function Rat_SimPlanShots(ctx)
     ctx.attack_pos, ctx.aim_pos = Rat_ValidZ(ctx.attack_pos), Rat_ValidZ(ctx.aim_pos)
 
     local num_shots = Max(1, ctx.num_shots or 1)
-    local cth, prof, est, sigma_disp = Rat_SimRecoilLadder(ctx.attacker, ctx.action, ctx.weapon,
-                                                            sigma, num_shots, theta, ctx.want_cth)
+    local cth, prof, est, sigma_disp, p0x, p0y = Rat_SimRecoilLadder(ctx.attacker, ctx.action,
+                                                    ctx.weapon, sigma, num_shots, theta,
+                                                    ctx.want_cth, ctx.aim, ctx.target)
     ctx.recoil, ctx.recoil_est, ctx.sigma_disp, ctx.num_shots = prof, est, sigma_disp, num_shots
+    ctx.p0x, ctx.p0y = p0x, p0y
 
-    local axis = (prof and num_shots > 1) and
+    ---- um tiro so tambem anda, se ja saiu de um cano deslocado pelo tiro anterior
+    local axis = (prof and (num_shots > 1 or p0x ~= 0 or p0y ~= 0)) and
                      Rat_RecoilWalkAxis(ctx.attacker, ctx.attack_pos, ctx.aim_pos) or nil
     local lat_axis = Rat_RecoilLateralAxis(axis, SetLen(ctx.aim_pos - ctx.attack_pos, 1000))
     ctx.walk_axis, ctx.lat_axis = axis, lat_axis
 
     ---- random SINCRONIZADO, e a rajada de verdade. O estimador roda o MESMO passo com um `rnd`
     ---- semeado, entao nao existe segunda implementacao do recuo para divergir desta.
-    local st = axis and Rat_RecoilState() or nil
+    local st = axis and Rat_RecoilState(p0x, p0y) or nil
     local rnd = axis and function(n)
         return ctx.attacker:Random(n)
     end or nil
@@ -1011,6 +1014,11 @@ function Rat_SimPlanShots(ctx)
             Rat_RecoilStep(prof, st, rnd)
         end
     end
+    ---- so o tiro de verdade guarda: o visualizador e a previsao rodam o mesmo caminho e
+    ---- nao podem mexer no estado que o proximo ataque vai ler.
+    if st and ctx.persist then
+        Rat_RecoilPersistStash(ctx.attacker, st)
+    end
     ctx.shots = shots
     return shots
 end
@@ -1021,12 +1029,13 @@ end
 function Rat_SimReplanShot(ctx, idx)
     idx = Max(1, idx or 1)
     local prof = ctx.recoil
-    local axis = (prof and idx > 1) and
+    local p0x, p0y = ctx.p0x or 0, ctx.p0y or 0
+    local axis = (prof and (idx > 1 or p0x ~= 0 or p0y ~= 0)) and
                      Rat_RecoilWalkAxis(ctx.attacker, ctx.attack_pos, ctx.aim_pos) or nil
 
     local mu, lat = 0, 0
     if axis then
-        local st = Rat_RecoilState()
+        local st = Rat_RecoilState(p0x, p0y)
         local rnd = function(n)
             return ctx.attacker:Random(n)
         end
@@ -1060,31 +1069,37 @@ end
 ---- contra este alvo (Rat_SigmaForCTH). UI, anel e bala saem todos da mesma probabilidade.
 ---- Sem theta so o perfil faz sentido -- e o que Rat_DbgVerifySim precisa.
 ---------------------------------------------------------------------------------------------------
-function Rat_SimRecoilLadder(attacker, action, weapon, sigma0, num_shots, theta, want_cth)
+function Rat_SimRecoilLadder(attacker, action, weapon, sigma0, num_shots, theta, want_cth,
+                             aim, target)
     num_shots = Max(1, num_shots or 1)
 
-    local prof = (num_shots > 1) and Rat_RecoilProfile(attacker, action, weapon, num_shots) or nil
+    ---- UM lugar resolve o offset carregado; quem precisa dele recebe de volta. Um tiro
+    ---- simples com offset tambem precisa de perfil -- e dele que sai o coice e o passo.
+    local p0x, p0y = Rat_RecoilPersistOffset(attacker, action, weapon, aim, target)
+    local prof = (num_shots > 1 or p0x ~= 0 or p0y ~= 0) and
+                     Rat_RecoilProfile(attacker, action, weapon, num_shots) or nil
     local cth, sigma_disp = {}, {}
     ---- o estimador e caro (Monte Carlo, Rat_ISqrt no laco) e o CTH por tiro so serve para exibir:
     ---- a bala le `p`, nao a probabilidade. Quem precisa da escada pede, e pode pedir com menos
     ---- amostras passando um numero em `want_cth`.
     if not want_cth or not theta or theta < 1 or not sigma0 or sigma0 < 1 then
-        return cth, prof, nil, sigma_disp
+        return cth, prof, nil, sigma_disp, p0x, p0y
     end
     if not prof then
         for i = 1, num_shots do
             cth[i], sigma_disp[i] = Rat_RayleighCTH(theta, sigma0), sigma0
         end
-        return cth, prof, nil, sigma_disp
+        return cth, prof, nil, sigma_disp, p0x, p0y
     end
 
     local est = Rat_EstimateBurst(prof, theta, sigma0, num_shots,
-                                  (type(want_cth) == "number") and want_cth or nil)
+                                  (type(want_cth) == "number") and want_cth or nil, nil,
+                                  p0x, p0y)
     for i = 1, num_shots do
         cth[i] = est.cth[i]
         sigma_disp[i] = Rat_SigmaForCTH(theta, Clamp(cth[i], 1, 99)) or sigma0
     end
-    return cth, prof, est, sigma_disp
+    return cth, prof, est, sigma_disp, p0x, p0y
 end
 
 ---- Overrides EXATOS que o tiro real aplica por tiro (ramo `if sim then`). Nada alem disso.

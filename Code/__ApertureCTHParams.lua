@@ -230,3 +230,22 @@ A.RecoilMinErrorPct = 25
 ---- MEDIDO: sem isto, 15% das rajadas ficam com os 6 tiros dentro do alvo, porque o erro so
 ---- perturba o INCREMENTO da forca e um `cf` bem apontado no tiro 2 sobrevive ate o 6.
 A.RecoilLateralPct = 40
+
+---- PERSISTENT RECOIL AS AN OFFSET. The muzzle keeps the position it ended at instead of the shot
+---- being summarised into stacks, so a burst and a string of single shots stop being two systems:
+---- what separates them is only how much recovery time passes. False restores the stacks model.
+A.RecoilPersistOffset = true
+
+---- % of the offset surviving ONE AP of recovery. Time on the target is AP, so aiming, cycling a
+---- bolt and a slow trigger all buy recovery through the same channel and the hand-rolled
+---- bolt discount in Rat_GetRecoilAimCost stops being needed.
+---- MEDIDO: 84 deixa 70% atravessados num tiro de 2 AP, que e o ancoradouro do StacksMultiplier
+---- 0.35 (o ramo da rajada divide por 2 no fim e o ramo de stacks nao, entao 0.35 vale 0.70).
+A.RecoilPersistRetainPerAP = 92
+
+---- Teto do offset carregado, em coices. Impede que uma rajada longa entregue a escalada inteira
+---- ao proximo tiro simples -- e disto que o max_stacks = 6 do efeito protegia.
+A.RecoilPersistCapKicks = 3
+
+---- Nivel de mira que zera o offset, para casar com a descricao do proprio efeito.
+A.RecoilPersistAimReset = 3
