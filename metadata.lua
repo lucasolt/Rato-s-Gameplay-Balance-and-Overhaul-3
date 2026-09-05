@@ -5,7 +5,7 @@ return PlaceObj('ModDef', {
 	'external_links', {
 		"https://www.buymeacoffee.com/rato_modder",
 	},
-	'last_changes', "3.60\n- When set up, MGs will have lower snapshot penalty for interrupt attacks at long distances\n- Setting up MG now costs more if you are not prone. This extra cost can be paid with free move ap.\n- Components and perks effect on recoil/snapshot/hipfire and aim tweaked\n- Snipe action bonus crit per aim from 5 to 4.\n- Heavy rain no longer increases aim AP. Instead, it makes aiming less effective \n- Reflex sights no longer increase range\n- Snapshot penalty for opportunity attacks was decreased (from extra +20% to +10%). Reflex will grant bigger boost\n- NEW MECHANIC: Redesign reliability mechanics. The value will now govern the chance of jamming instead of condition degradation by shot. The formula was changed, high reliability weapons will be able to perform even when in lower condition.\n- Changed fog vision radius reduction. Fog no longer causes grazing hits\n- Critical chance based on aim levels was tuned down\n- First Dex threshold for bolt action AP reduction from 85 to 80\n- Shotgun attack AP cost reduced, same value as single shot",
+	'last_changes', "3.60\n- When set up, MGs will have lower snapshot penalty for interrupt attacks at long distances\n- Setting up MG now costs more if you are not prone. This extra cost can be paid with free move ap.\n- Components and perks effect on recoil/snapshot/hipfire and aim tweaked\n- Snipe action bonus crit per aim from 5 to 4.\n- Heavy rain no longer increases aim AP. Instead, it makes aiming less effective \n- Reflex sights no longer increase range\n- Snapshot penalty for opportunity attacks was decreased (from extra +20% to +10%). Reflex will grant bigger boost\n- NEW MECHANIC: Redesign reliability mechanics. The value will now govern the chance of jamming instead of condition degradation by shot. The formula was changed, high reliability weapons will be able to perform even when in lower condition.\n- Changed fog vision radius reduction. Fog no longer causes grazing hits\n- Critical chance based on aim levels was tuned down\n- First Dex threshold for bolt action AP reduction from 85 to 80\n- Shotgun attack AP cost reduced, same value as single shot\n- Other balance tweaks that I forgot",
 	'SpellCheck', true,
 	'dependencies', {
 		PlaceObj('ModDependency', {
@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 12985,
+	'version', 13000,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -154,7 +154,7 @@ return PlaceObj('ModDef', {
 		"Code/CONSTANTS_mod_options.lua",
 		"Code/OPTIONS_GunsHurt.lua",
 		"InventoryItem/M14SAW_AUTO.lua",
-		"Code/SetScopeEffects.lua",
+		"Code/aCTH_PATCH_ScopesAndComponents.lua",
 	},
 	'default_options', {
 		AIWeaponStanceMul = 100,
@@ -178,8 +178,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1788572455,
-	'code_hash', 4476234624418296616,
+	'saved', 1788582186,
+	'code_hash', 4404018078253231224,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",
@@ -263,12 +263,7 @@ return PlaceObj('ModDef', {
 		}),
 		PlaceObj('ModResourcePreset', {
 			'Class', "WeaponComponentEffect",
-			'Id', "_x2ScopeAimBonus",
-			'ClassDisplayName', "Modification Effects",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponentEffect",
-			'Id', "SightAccBonus",
+			'Id', "ScopeAimThresholdBonus",
 			'ClassDisplayName', "Modification Effects",
 		}),
 		PlaceObj('ModResourcePreset', {

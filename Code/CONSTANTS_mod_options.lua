@@ -23,7 +23,7 @@ function GBO_ApplyOptions(current_mod)
 			end
 		end
 	end
-	if not GBOMOD_Options then 
+	if not next(GBOMOD_Options) then 
 		return 
 	end
 

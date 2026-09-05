@@ -21,8 +21,11 @@
 --TODO: 03/09/2026
 
 --TODO: AI OVERHAUL - check grenade distribution. Give more timed to enemies. Less frustrating but still a challenge to the player
---TODO: Debug - make a way to check recoil vectors at any time, at mouse location for example
 
+--TODO: 04/09/2026
+--TODO: Camouflage
+--TODO: AI OVERHAUL: Implement Smoke usage
+--TODO: How to deal with scopes that give bonus to hit bodyparts or bypass cover? Handzolt, Scout scope
 
 const.Combat.Aperture = const.Combat.Aperture or {}
 local A = const.Combat.Aperture

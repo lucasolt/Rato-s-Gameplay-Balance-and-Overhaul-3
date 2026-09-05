@@ -140,11 +140,11 @@ function aim_cth()
             --------------------------
             local modifyVal, compDef
 
-            -- Forward Grip
+            -- QuickScope
             local modifyVal, compDef = GetComponentEffectValue(weapon1, "FirstAimBonusModifier",
-                                                               "first_aim_bonus")
+                                                               "first_aim_bonus_acc")
             if modifyVal then
-                bonus = bonus + (min_bonus * 0.3) + 2.1
+                bonus = bonus + modifyVal --(min_bonus * 0.3) + 2.1
                 metaText[#metaText + 1] = compDef.DisplayName
             end
 
@@ -208,16 +208,13 @@ function aim_cth()
             if IsKindOf(weapon1, "Firearm") then
                 if attacker.stance == "Crouch" then
                     bonus = bonus * const.Combat.CrouchAimMul / 100.0
-                    metaText[#metaText + 1] = T {688848752517, "Crouching"}
+                    metaText[#metaText + 1] = T (688848752517, "Crouching")
                 elseif attacker.stance == "Prone" then
                     bonus = bonus * const.Combat.ProneAimMul / 100.0
-                    metaText[#metaText + 1] = T {271472323596, "Prone"}
+                    metaText[#metaText + 1] = T (271472323596, "Prone")
                     if weapon1:HasComponent("grip_prone_penalty") then
-                        -- GetComponentEffectValue(weapon1, "grip_prone_penalty")
                         bonus = bonus * const.Combat.ProneGripAimMul / 100.0
-                        -- local neg = TranslationTable[676119455163] or "(-) "
-                        -- local meta = neg .. componentdef.DisplayName
-                        -- metaText[#metaText + 1] = meta
+                        metaText[#metaText + 1] = T(856431894569, "(-) Grip while prone")
                     end
                 end
             end
@@ -381,7 +378,8 @@ local t_id_table = {
     [688848752517] = "Crouching",
     [271472323596] = "Prone",
     [742118639405] = "Aiming (x<aim_mod>, 1st shot only)",
-    [901477523654] = "(-) Heavy Rain"
+    [901477523654] = "(-) Heavy Rain",
+	[856431894569] = "(-) Grip while prone"
 }
 
 ratG_T_table['CTH_aim.lua'] = t_id_table

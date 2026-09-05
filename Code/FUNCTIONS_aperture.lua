@@ -200,7 +200,6 @@ function GetApertureAimComponentEffects(weapon)
     end
     local list, meta
     for _, eff in ipairs(a.ComponentEffectsAimBonus or empty_table) do
-		--local modifyVal, compDef =GetComponentEffectValue(weapon, eff, "bonus_cth_v")
 		local has, comp = weapon:HasComponent(eff.id)
         if has then
             list = list or {}
@@ -209,6 +208,24 @@ function GetApertureAimComponentEffects(weapon)
 			meta[#meta +1] = comp.DisplayName or ""
         end
     end
+
+	local modifyVal, comp = GetComponentEffectValue(weapon, "ScopeAimThresholdBonus", "threshold_bonus_acc")
+	if modifyVal then
+		local from = GetComponentEffectValue(weapon, "ScopeAimThresholdBonus", "aim_level_threshold") 
+		list = list or {}
+		list[#list + 1] = {id = "ScopeAimThresholdBonus", from = from or 4, to = from, acc = modifyVal}
+		meta = meta or {}
+		meta[#meta +1] = comp.DisplayName or ""
+	end
+
+
+	modifyVal, comp = GetComponentEffectValue(weapon, "FirstAimBonusModifier", "first_aim_bonus_acc")
+	if modifyVal then
+		list = list or {}
+		list[#list + 1] = {id = "FirstAimBonusModifier", from = 1 , to = 1, acc = modifyVal}
+		meta = meta or {}
+		meta[#meta +1] = comp.DisplayName or ""
+	end
     return list or empty_table, meta or empty_table
 end
 
@@ -270,8 +287,9 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
 	for eff, data in pairs(decay_muls.CompEffects) do
 		local has, compDef = weapon:HasComponent(eff)
     	if has then
+			local sign_string = data.mul > 100 and "(-) " or ""
     		decay = MulDivRound(decay, data.mul, 100)
-        	local m = data.meta and Untranslated(data.meta) or (compDef and compDef.DisplayName)
+        	local m = data.meta and Untranslated(data.meta) or (sign_string ..(compDef and compDef.DisplayName))
         	if m then meta[#meta + 1] = m end
     	end
 	end
@@ -287,7 +305,7 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
             meta[#meta + 1] = T {271472323596, "Prone"}
         	if decay_muls.ProneGripPenalty and weapon:HasComponent("grip_prone_penalty") then
             	decay = MulDivRound(decay, decay_muls.ProneGripPenalty or 100, 100)
-				meta[#meta + 1] = T {85643189456, "(-) Grip while prone"}
+				meta[#meta + 1] = T {856431894569, "(-) Grip while prone"}
 			end
 		end
 	end
@@ -392,15 +410,16 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     ---    ate o piso, ou seja e ganho de velocidade de convergencia, nao assintota nova. Table-driven:
     ---    cada componente listado em A.ConeMulEffects entra aqui sozinho, sem bloco de codigo proprio --
     ---    o nome exibido vem do proprio componente (comp.DisplayName), nunca hardcoded.
-    local sight_effects
-    if aim > 0 and a.SightAimBonus and IsKindOf(weapon, "Firearm") then
+    local cone_mul_effects
+    if aim > 0 and a.ConeMulBonus and IsKindOf(weapon, "Firearm") then
         for _, eff in ipairs(a.ConeMulEffects or empty_table) do
             local points, comp = GetComponentEffectValue(weapon, eff.id, eff.param)
-            if points and points ~= 0 then
+			local apply = not eff.required_aim or aim >= eff.required_aim
+            if apply and points and points ~= 0 then
                 local mul = Rat_ConeMulForPoints(points)
                 s = MulDivRound(s, mul, 100)
-                sight_effects = sight_effects or {}
-                sight_effects[#sight_effects + 1] = {name = comp.DisplayName, mul = mul}
+                cone_mul_effects = cone_mul_effects or {}
+                cone_mul_effects[#cone_mul_effects + 1] = {name = comp.DisplayName, mul = mul}
             end
         end
     end
@@ -462,7 +481,6 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
             meta[#meta + 1] = (aim == 0) and T {936174028553, "Hipfire <pct>", pct = tag} or
                                   T {418205963714, "Snapshot <pct>", pct = tag}
 
-			--print(meta[#meta][2], "hipsnap = ", hipsnap, "excess = ", excess, "step = ", step, "s = ", s, "original = ", original_s_debug)
         end
     end
 
@@ -492,7 +510,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
         base_mul = base_mul,
         hipsnap = hipsnap,
         skill = skill_mul,
-        sight_effects = sight_effects,
+        cone_mul_effects = cone_mul_effects,
         pre_aim = pre_aim,
         decay = decay,
         decay_ladder = ladder,
@@ -1357,7 +1375,7 @@ local t_id_table = {
     [688848752517] = "Crouching",
     [271472323596] = "Prone",
     [195655494642] = "(-) Handgun",
-    [85643189456] = "(-) Grip while prone"
+    [856431894569] = "(-) Grip while prone"
 }
 
 ratG_T_table['FUNCTIONS_aperture.lua'] = t_id_table
