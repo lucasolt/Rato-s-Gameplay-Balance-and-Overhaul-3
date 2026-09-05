@@ -205,7 +205,11 @@ A.MeshStyle = {
             width = 9, coreAlpha = 190, dash = 90, tipFade = 45},
 }
 
-A.StrokeMeshShader = "soft_mesh"
+---- Shader das fitas (geometria de triangulo). "default_mesh": blend normal, depth test opcional.
+---- NAO "soft_mesh" -- o define SOFT le o depth da cena e a fita some atras da unidade, mesmo com
+---- depth = false. "default_mesh" com depth = false volta ao comportamento do default_polyline:
+---- desenha por cima de tudo, como o anel antigo.
+A.StrokeMeshShader = "default_mesh"
 A.ConeRingParent = "Polyline"
 
 ---- Teto e piso do multiplicador de UM residual. Sem eles -100 pontos daria cone infinito.
