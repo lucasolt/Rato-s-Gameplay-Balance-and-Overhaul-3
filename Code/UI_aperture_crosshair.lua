@@ -47,36 +47,50 @@ local function tint(r, g, b)
 end
 
 ---- Tracos da rajada, em pontos de mundo. `at(dy, dx)` poe um desvio angular no plano do alvo.
----- Devolve o caminho (com uma barra por tiro) e as duas diagonais do grupo.
+---- Uma regua reta para cima com uma barra por tiro, e duas diagonais simetricas em volta dela.
 ----
----- A DIRECAO vem do ponto medio; o COMPRIMENTO, de `offset` -- a distancia media ao alvo, nao a
----- distancia do ponto medio. As duas divergem muito no fim de uma rajada longa: mediar uma nuvem
----- que se abre puxa o ponto medio de volta para o alvo mesmo quando rajada nenhuma volta.
----- MEDIDO (AK47, 14 tiros): o ponto medio vai de 407' a 239' entre os tiros 7 e 14 (-70%),
----- enquanto a distancia media so cai de 534' a 408' (-24%). O atirador REALMENTE retoma o
----- controle -- so que tres vezes menos do que o ponto medio sugere. E a distancia que o CTH
----- sente, entao e ela que o traco tem que mostrar.
+---- RETA E SIMETRICA de proposito, e nao pelo caminho que o cano faz de verdade. O passeio tem uma
+---- deriva lateral -- o coice sai a RecoilKickAngle da vertical, e a media de poucas amostras
+---- treme por cima disso -- entao o traco saia torto ja com tres tiros e numa rajada de dez se
+---- dobrava sobre si mesmo. Nada disso e leitura util: ninguem planeja um tiro pelo lado para o
+---- qual o cano vai puxar. O que se le aqui e QUANTO, e para os lados isso e "pode ir para
+---- qualquer um dos dois", que e o que duas diagonais simetricas dizem.
+----
+---- ALTURA = distancia media ao alvo, nao distancia do ponto medio. As duas divergem no fim de uma
+---- rajada longa: mediar uma nuvem que se abre puxa o ponto medio de volta para o alvo bem mais do
+---- que qualquer rajada volta. MEDIDO (AK47, 14 tiros): entre os tiros 7 e 14 o ponto medio cai de
+---- 407' para 239' (-70%) e a distancia media so de 534' para 408' (-24%). O atirador retoma o
+---- controle de verdade -- so que tres vezes menos. A distancia e o que o CTH sente.
+----
+---- LARGURA = maximo corrido do grupo. E envelope, nao serie: "ate aqui pode abrir" nao volta a
+---- fechar so porque o tiro seguinte, na media, agrupa um pouco melhor. Tambem e o que impede o V
+---- de estrangular no meio de uma rajada longa.
+---- Sai DO ANEL, e as alturas sao o quanto a rajada afasta ALEM de onde o cano ja esta -- por isso
+---- descontam o tiro 1. O anel e uma posicao de verdade, com lado e tudo; a regua e reta. Medir a
+---- regua a partir do alvo deixaria as duas separadas sempre que o recuo herdado tivesse
+---- componente lateral, e o desenho pareceria quebrado em vez de ser uma coisa so.
 local function ladder_strokes(est, num_shots, at, tick)
     local mean_dist = const.Combat.Aperture.CrosshairRecoilMeanDistance
+    local function reach(i)
+        return mean_dist and est.offset[i] or
+                   Rat_ISqrt(est.px[i] * est.px[i] + est.py[i] * est.py[i])
+    end
+    local base = reach(1)
     local path, fan_l, fan_r = {}, {}, {}
+    local widest = 0
     for i = 1, num_shots do
-        local dy, dx, w = est.py[i], est.px[i], est.spread[i]
-        if mean_dist then
-            local len = Rat_ISqrt(dx * dx + dy * dy)
-            if len > 0 then
-                dx, dy = MulDivRound(dx, est.offset[i], len), MulDivRound(dy, est.offset[i], len)
-            else
-                dy = est.offset[i] --- tiro 1 sem offset herdado: nao ha direcao, so a subida
-            end
-        end
-        local p = at(dy, dx)
-        ---- ida e volta na barra: um mesh de Polyline e uma tira so, e o retrace repinta os
-        ---- mesmos pixels -- na tela e uma linha com um trinco em cada tiro.
+        local dy = Max(0, reach(i) - base)
+        widest = Max(widest, est.spread[i])
+        local p = at(dy, 0)
+        ---- barra para os DOIS lados, e volta: um mesh de Polyline e uma tira so, e o retrace
+        ---- repinta os mesmos pixels -- na tela e uma regua com um trinco em cada tiro. Uma barra
+        ---- so para a direita ja seria um vies lateral, que e justamente o que nao se quer dizer.
         path[#path + 1] = p
-        path[#path + 1] = at(dy, dx + tick)
+        path[#path + 1] = at(dy, -tick)
+        path[#path + 1] = at(dy, tick)
         path[#path + 1] = p
-        fan_l[#fan_l + 1] = at(dy, dx - w)
-        fan_r[#fan_r + 1] = at(dy, dx + w)
+        fan_l[#fan_l + 1] = at(dy, -widest)
+        fan_r[#fan_r + 1] = at(dy, widest)
     end
     return path, fan_l, fan_r
 end
@@ -175,7 +189,12 @@ function Rat_UpdateConeRing(crosshair)
 
     ---- o anel vai para onde o cano ESTA: e de la que a bala sai, e um anel em cima do alvo
     ---- desenharia um cone que a arma nao tem apontada para ele.
-    Rat_ShowConeRing(at(p0y, p0x), radius, dir, color)
+    local muzzle = at(p0y, p0x)
+    Rat_ShowConeRing(muzzle, radius, dir, color)
+    ---- a regua nasce no anel, nao no alvo: as duas coisas juntas sao um desenho so
+    local function at_muzzle(dy, dx)
+        return Rat_RecoilWalkPoint(origin, muzzle, up, dy, lat, dx)
+    end
 
     local est = (num_shots > 1) and
                     ladder_estimate(attacker, action, weapon, aim, num_shots, c0x, c0y)
@@ -187,11 +206,11 @@ function Rat_UpdateConeRing(crosshair)
     end
 
     local faded = tint(cr, cg, cb)
-    local path, fan_l, fan_r = ladder_strokes(est, num_shots, at,
+    local path, fan_l, fan_r = ladder_strokes(est, num_shots, at_muzzle,
                                               MulDivRound(spread, a.CrosshairRecoilTickPct or 0, 100))
-    Rat_ShowStroke("climb", path, faded, center)
-    Rat_ShowStroke("fanl", fan_l, faded, center)
-    Rat_ShowStroke("fanr", fan_r, faded, center)
+    Rat_ShowStroke("climb", path, faded, muzzle)
+    Rat_ShowStroke("fanl", fan_l, faded, muzzle)
+    Rat_ShowStroke("fanr", fan_r, faded, muzzle)
     return true
 end
 

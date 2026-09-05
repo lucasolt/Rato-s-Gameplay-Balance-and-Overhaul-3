@@ -153,7 +153,9 @@ A.CrosshairRecoilSamples = 24
 ---- porque e o mesmo tiro -- so mais clara, para nao sumir contra o terreno.
 A.CrosshairRecoilTintPct = 45
 
----- O que o traco mede: a DISTANCIA media ao alvo (true) ou a posicao media do cano (false).
+---- O que a ALTURA da regua mede: a DISTANCIA media ao alvo (true) ou a posicao media do cano
+---- (false). A regua e reta e simetrica nos dois casos -- a deriva lateral do passeio nao entra no
+---- desenho, so a largura do grupo, que vai para os dois lados. Ver ladder_strokes.
 ---- Nao e a mesma coisa numa rajada longa. A posicao media volta em direcao ao alvo no fim --
 ---- e verdade que o atirador retoma o controle, mas mediar posicoes numa nuvem que se abre
 ---- exagera isso em ~3x. A distancia e o que o CTH sente. Ver ladder_strokes.
