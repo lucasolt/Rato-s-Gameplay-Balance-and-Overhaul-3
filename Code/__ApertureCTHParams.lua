@@ -58,16 +58,31 @@ A.DecayScale = 6--4
 ---- unico nivel com optica de limiar fecha quase todo o gap e vira degrau, nao curva.
 A.DecayMinPct = 10--30 --20
 
-A.AimDecayMuls ={
-	HeavyRainAim = 120,
-	Crouch = 100,--97,--95
-	Prone = 100,--95,--90
-	ProneGripPenalty = 105,
-	HandgunPenalty = 150, ---- 100 is disabled
-	CompEffects = { -- {mul = 90, meta = "string"}
-		light_stock_aim_reduce = {mul = 110}, 
-		ReduceAimAccuracy = {mul = 150} -- nostock
-	}
+---- Multiplicadores do DECAY da mira. Uma entrada por modificador, tudo declarado AQUI -- nenhum
+---- deles tem bloco de codigo proprio em Rat_ApertureAimDecay. mul 100 = desligado, > 100 piora.
+---- Condicoes (todas opcionais, somam-se; sem nenhuma a entrada vale sempre):
+----   stance     = "Crouch"|"Prone"|"Standing"   postura do atirador
+----   classes    = {"Pistol", "Revolver"}        basta UMA bater
+----   component  = "component_id"                componente montado na arma
+----   game_state = "RainHeavy"                   flag de GameState
+----   indoors    = false                         exige estar fora de abrigo (true exige dentro)
+----   cond       = function(weapon, attacker)    escape hatch, para o que nao couber acima
+---- Rotulo do overlay: `meta`, T ou string crua. Sem `meta`, uma entrada com `component` usa o
+---- DisplayName do proprio componente (com "(-) " quando piora); meta = false cala a entrada.
+---- Ordem de aplicacao = alfabetica pela chave (sorted_pairs) para o co-op nao divergir.
+A.AimDecayMuls = {
+	HeavyRainAim = {mul = 120, game_state = "RainHeavy", indoors = false,
+	                meta = T {901477523654, "(-) Heavy Rain"}},
+	HandgunPenalty = {mul = 150, classes = {"Pistol", "Revolver"}, ---- 100 is disabled
+	                  meta = T {195655494642, "(-) Handgun"}},
+	Crouch = {mul = 100, stance = "Crouch", --97,--95
+	          meta = T {688848752517, "Crouching"}},
+	Prone = {mul = 100, stance = "Prone", --95,--90
+	         meta = T {271472323596, "Prone"}},
+	ProneGripPenalty = {mul = 105, stance = "Prone", component = "grip_prone_penalty",
+	                    meta = T {856431894569, "(-) Grip while prone"}},
+	LightStock = {mul = 110, component = "light_stock_aim_reduce"},
+	NoStock = {mul = 150, component = "ReduceAimAccuracy"}
 }
 
 ---- Stance flattens the cone on the VERTICAL axis, as % of sigma. See Rat_ConeSigmaY.
@@ -85,6 +100,16 @@ A.AimStep = {
     [2] = 110--110,--118--130--118 --- snapshot 2 niveis: x1.18
 }
 A.AimStepMaxLevel = 2 --- acima disso a arma esta encostada: alargamento 100
+
+---- Rotulo do degrau, por nivel de mira. `<pct>` recebe o alargamento que o degrau aplicou. Nivel
+---- sem entrada cai no [1]; a lista e o que decide o nome, nao um if aim == 0 dentro da funcao.
+A.AimStepMeta = {
+    [0] = {id = 936174028553, text = "Hipfire <pct>"},
+    [1] = {id = 418205963714, text = "Snapshot <pct>"}
+}
+
+---- Rotulo do piso mecanico (so aparece no modelo nao-assintotico, quando o cone bate no piso).
+A.FloorMeta = T {353401714895, "Range"}
 
 --------------------------------------------------------------------------------------------------
 ---------- OTHER ACCURACY MODIFIERS
@@ -112,16 +137,25 @@ A.ConeRefCTH = 50
 --------------------------------------------------------------------------------------------------
 A.PBHandlingScale = 100--150
 A.HandlingMin = 60
-A.HandlingMax = 140
+A.HandlingMax = 160
 A.HandlingUseBaseMul = true
 
 ---- Standing widens the cone for a heavy gun, same weigth_held_mul ladder as the recoil weight
 ---- penalty (RecoilHeldPivot). LIGHT by default -- LOWER slope than recoil on purpose, this is
 ---- aim, not muzzle control -- and it only bites past the pivot, so most guns pay nothing.
 A.HandlingHeldPivot = 130
-A.HandlingHeldSlope = 30
+A.HandlingHeldSlope = 100--30
 A.HandlingHeldStrRelief = 50
 A.HandlingHeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
+
+---- Rotulo da penalidade de peso, POR POSTURA -- antes era sempre "(-) Standing", inclusive
+---- agachado, onde HandlingHeldStanceMul ainda cobra 60%. Sem entrada, a postura nao rotula.
+A.HandlingHeldStanceMeta = {
+    Standing = T {511836641651, "(-) Standing"},
+    Crouch = T {274905618332, "(-) Crouching"}
+}
+A.HandlingHeldLowStrMeta = T {599531270289, "(-) Low Strength"}
+A.HandlingHeldMinStr = 50
 
 ---------------------------------------------------------------------------------------------------
 
@@ -307,3 +341,23 @@ A.RecoilPersistCapKicks = 3
 
 ---- Nivel de mira que zera o offset, para casar com a descricao do proprio efeito.
 A.RecoilPersistAimReset = 3
+
+---------------------------------------------------------------------------------------------------
+
+---- Strings dos rotulos declarados acima (AimDecayMuls, AimStepMeta, Handling): vivem AQUI agora,
+---- entao a exportacao da tabela de traducao tem de le-las daqui. Ver Code/T_ID_enforcement.lua.
+local t_id_table = {
+    [901477523654] = "(-) Heavy Rain",
+    [195655494642] = "(-) Handgun",
+    [688848752517] = "Crouching",
+    [271472323596] = "Prone",
+    [856431894569] = "(-) Grip while prone",
+    [936174028553] = "Hipfire <pct>",
+    [418205963714] = "Snapshot <pct>",
+    [353401714895] = "Range",
+    [511836641651] = "(-) Standing",
+    [274905618332] = "(-) Crouching",
+    [599531270289] = "(-) Low Strength"
+}
+
+ratG_T_table['__ApertureCTHParams.lua'] = t_id_table

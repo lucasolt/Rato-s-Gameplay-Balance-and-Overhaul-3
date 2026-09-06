@@ -199,7 +199,7 @@ end
 function GetApertureAimComponentEffects(weapon, attacker)
     local a = P()
     if not IsKindOf(weapon, "Firearm") then
-        return empty_table
+        return empty_table, empty_table
     end
     local list, meta
     for _, eff in ipairs(a.ComponentEffectsAimBonus or empty_table) do
@@ -260,6 +260,63 @@ end
 
 
 
+---- Uma entrada de A.AimDecayMuls vale AGORA? Condicao ausente nao restringe. Devolve tambem o
+---- componente que a satisfez, para o rotulo cair no DisplayName dele quando `meta` nao existir.
+function Rat_ApertureDecayApplies(e, weapon, attacker)
+    if e.stance and (not attacker or attacker.stance ~= e.stance) then
+        return false
+    end
+    if e.game_state and not GameState[e.game_state] then
+        return false
+    end
+    ---- tri-estado: nil nao restringe, true exige abrigo, false exige ceu aberto
+    if e.indoors ~= nil and (attacker and attacker.indoors and true or false) ~= e.indoors then
+        return false
+    end
+    if e.classes then
+        local hit
+        for _, c in ipairs(e.classes) do
+            hit = hit or IsKindOf(weapon, c)
+        end
+        if not hit then
+            return false
+        end
+    end
+    local compDef
+    if e.component then
+        if not IsKindOf(weapon, "Firearm") then
+            return false
+        end
+        local has, comp = weapon:HasComponent(e.component)
+        if not has then
+            return false
+        end
+        compDef = comp
+    end
+    if e.cond and not e.cond(weapon, attacker) then
+        return false
+    end
+    return true, compDef
+end
+
+---- Rotulo da entrada. `meta = false` cala; string crua vira Untranslated; sem nada, o nome do
+---- componente. O sinal entra como T -- concatenar string com T dispara assert no engine.
+function Rat_ApertureDecayMeta(e, compDef)
+    if e.meta == false then
+        return nil
+    end
+    if e.meta then
+        return type(e.meta) == "string" and Untranslated(e.meta) or e.meta
+    end
+    if not compDef or not compDef.DisplayName then
+        return nil
+    end
+    if (e.mul or 100) > 100 then
+        return Untranslated("(-) ") .. compDef.DisplayName
+    end
+    return compDef.DisplayName
+end
+
 function Rat_ApertureAimDecay(weapon, attacker, level, optics)
     local a = P()
 
@@ -280,49 +337,22 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
 
     local decay = 100 - (a.DecayBase + a.DecayScale * acc)
 
-	local decay_muls = const.Combat.Aperture and const.Combat.Aperture.AimDecayMuls or {}
-	
-	local indoors = attacker and attacker.indoors
-	if GameState.RainHeavy and not indoors then
-		decay = MulDivRound(decay, decay_muls.HeavyRainAim, 100)
-        meta[#meta + 1] = T {901477523654, "(-) Heavy Rain"}
+    ---- chuva, postura, classe, componentes: TUDO vem de A.AimDecayMuls, entrada a entrada.
+    ---- sorted_pairs e nao pairs: a ordem do produto inteiro entra no NetUpdateHash do co-op.
+    for _, e in sorted_pairs(a.AimDecayMuls or empty_table) do
+        ---- entrada crua (numero solto, o formato antigo) e ignorada em vez de estourar no combate
+        local mul = type(e) == "table" and (e.mul or 100) or 100
+        if mul ~= 100 then
+            local ok, compDef = Rat_ApertureDecayApplies(e, weapon, attacker)
+            if ok then
+                decay = MulDivRound(decay, mul, 100)
+                local m = Rat_ApertureDecayMeta(e, compDef)
+                if m then
+                    meta[#meta + 1] = m
+                end
+            end
+        end
     end
-	
-	if IsKindOfClasses(weapon, "Pistol", "Revolver") 
-	and decay_muls.HandgunPenalty and decay_muls.HandgunPenalty ~= 100 then
-        decay = MulDivRound(decay, decay_muls.HandgunPenalty, 100)
-		meta[#meta + 1] = T {195655494642, "(-) Handgun"}
-    end
-
-	--- Comps
-
-	for eff, data in pairs(decay_muls.CompEffects) do
-		local has, compDef = weapon:HasComponent(eff)
-    	if has then
-			local sign_string = data.mul > 100 and "(-) " or ""
-    		decay = MulDivRound(decay, data.mul, 100)
-        	local m = data.meta and Untranslated(data.meta) or (sign_string ..(compDef and compDef.DisplayName))
-        	if m then meta[#meta + 1] = m end
-    	end
-	end
-	
-	----- Stance aim bonus
-	
-	if attacker then
-	    if (decay_muls.Crouch or 100) ~= 100  and attacker.stance == "Crouch"  then
-            decay = MulDivRound(decay, decay_muls.Crouch or 100, 100)
-            meta[#meta + 1] = T {688848752517, "Crouching"}
-        elseif attacker.stance == "Prone" then
-			if (decay_muls.Prone or 100) ~= 100 then
-            	decay = MulDivRound(decay, decay_muls.Prone or 100, 100)
-            	meta[#meta + 1] = T {271472323596, "Prone"}
-			end
-        	if (decay_muls.ProneGripPenalty or 100) ~= 100 and weapon:HasComponent("grip_prone_penalty") then
-            	decay = MulDivRound(decay, decay_muls.ProneGripPenalty or 100, 100)
-				meta[#meta + 1] = T {856431894569, "(-) Grip while prone"}
-			end
-		end
-	end
 
     decay = Max(a.DecayMinPct, decay)
 
@@ -367,17 +397,21 @@ function Rat_ApertureHandlingMul(weapon, attacker)
         if stance_mul > 0 then
             local excess = Max(0, (weapon.weigth_held_mul or 100) - (a.HandlingHeldPivot or 100))
             local str = attacker.Strength or 0
-            local low_str = str <= 50
-            if str > 50 then
+			local min_str = a.HandlingHeldMinStr or 50
+            local low_str = str <= min_str
+            if str > min_str then
                 excess = MulDivRound(excess, 100 - MulDivRound(a.HandlingHeldStrRelief or 0,
-                                                               Min(str, 100) - 50, 50), 100)
+                                                               Min(str, 100) - min_str, min_str), 100)
             end
             local pen = MulDivRound(MulDivRound(excess, a.HandlingHeldSlope or 0, 100), stance_mul, 100)
             if pen > 0 then
                 handling = MulDivRound(handling, 100 + pen, 100)
-                meta = {T(511836641651, "(-) Standing")}
-                if low_str then
-                    meta[#meta + 1] = T(599531270289, "(-) Low Strength")
+                ---- rotulo pela postura que cobrou, nao "Standing" fixo: agachado tambem paga
+                local tag = (a.HandlingHeldStanceMeta or empty_table)[attacker.stance]
+                meta = tag and {tag} or nil
+                if low_str and a.HandlingHeldLowStrMeta then
+                    meta = meta or {}
+                    meta[#meta + 1] = a.HandlingHeldLowStrMeta
                 end
             end
         end
@@ -519,8 +553,10 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
             s = MulDivRound(s, step, 100)
             ---- o % vai no proprio rotulo: e o alargamento que ESTE degrau aplicou ao cone
             local tag = Rat_PctTagPenaltyOnly(step, a.MetaScaleWorst)
-            meta[#meta + 1] = (aim == 0) and T {936174028553, "Hipfire <pct>", pct = tag} or
-                                  T {418205963714, "Snapshot <pct>", pct = tag}
+            local lbl = (a.AimStepMeta or empty_table)[aim] or (a.AimStepMeta or empty_table)[1]
+            if lbl then
+                meta[#meta + 1] = T {lbl.id, lbl.text, pct = tag}
+            end
 
         end
     end
@@ -529,7 +565,9 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     ---    ja entrou como assintota no passo 4)
     if not a.ApertureAsymptotic and s < floor then
         s = floor
-        meta[#meta + 1] = T(353401714895, "Range")
+        if a.FloorMeta then
+            meta[#meta + 1] = a.FloorMeta
+        end
     end
 
 	---- opticas (limiar), stance, handgun, grip: so mexem no DECAY, entao ficam SOB a linha Aim
@@ -1611,17 +1649,5 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
----- Strings que Rat_GetAperture poe no metaText do modifier Aperture (ver CTH_angular.lua).
-local t_id_table = {
-    [936174028553] = "Hipfire <pct>",
-    [418205963714] = "Snapshot <pct>",
-    [353401714895] = "Range",
-    [688848752517] = "Crouching",
-    [271472323596] = "Prone",
-    [195655494642] = "(-) Handgun",
-    [856431894569] = "(-) Grip while prone",
-    [511836641651] = "(-) Standing",
-    [599531270289] = "(-) Low Strength"
-}
-
-ratG_T_table['FUNCTIONS_aperture.lua'] = t_id_table
+---- Este arquivo nao declara mais string nenhuma: todo rotulo que Rat_GetAperture poe no metaText
+---- do modifier Aperture vem das tabelas de __ApertureCTHParams.lua, e os ids estao registrados la.
