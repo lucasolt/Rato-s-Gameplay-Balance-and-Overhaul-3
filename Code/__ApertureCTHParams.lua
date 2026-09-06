@@ -218,6 +218,15 @@ A.MGSetupSideBiasMul = 120
 A.RecoilBipodKickYMul = 60
 A.RecoilBipodLatMul = 200
 
+---- Weight above the pivot is paid in grip and force, never in kick. weigth_held_mul is
+---- already authored on every weapon, so the ladder needs no per-gun data.
+A.RecoilHeldPivot = 130
+A.RecoilHeldSlope = 60 ---- RecoilOtherGain re-amplifies this by 2.5x into max_inc
+A.RecoilHeldStrRelief = 50
+A.RecoilHeldLatPct = 100
+---- how much of that penalty each stance still pays: prone rests the gun, standing carries it
+A.RecoilHeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
+
 
 ----------------------------------------------------------------------------------------
 ---- Persitant Recoil

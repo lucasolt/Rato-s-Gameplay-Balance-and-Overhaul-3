@@ -103,6 +103,27 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test)
 		lat = MulDivRound(lat, a.MGSetupSideBiasMul, 100)
     end
 
+    ---- WEIGHT. Unsupported, a heavy gun is not harder to fire, it is harder to FIGHT: the kick is
+    ---- the cartridge, and mass already helped there. Grizzly is the perk that waives this.
+    local stance_mul = (a.RecoilHeldStanceMul and a.RecoilHeldStanceMul[attacker.stance]) or 100
+    if aid ~= "GrizzlyPerk" and stance_mul > 0 then
+        local excess = Max(0, (weapon.weigth_held_mul or 100) - (a.RecoilHeldPivot or 100))
+        local str = attacker.Strength or 0
+        if str > 50 then
+            excess = MulDivRound(excess, 100 - MulDivRound(a.RecoilHeldStrRelief or 0,
+                                                           Min(str, 100) - 50, 50), 100)
+        end
+        local pen = MulDivRound(MulDivRound(excess, a.RecoilHeldSlope or 0, 100), stance_mul, 100)
+        if pen > 0 then
+            ---- one application each: these are three separate outputs, and `control` is a lever of
+            ---- its own here -- it is NOT re-derived from the other two
+            control = MulDivRound(control, 100 + pen, 100)
+            str_control = MulDivRound(str_control, 100 + pen, 100)
+            other_control = MulDivRound(other_control, 100 + pen, 100)
+            lat = MulDivRound(lat, 100 + MulDivRound(pen, a.RecoilHeldLatPct or 0, 100), 100)
+        end
+    end
+
     ---- FORCE. As a fraction of THIS weapon's kick, so a shooter strong enough for the caliber
     ---- stabilises it whatever the caliber is, and one below its breakpoint cannot.
     local str_eff = Max(30, 100 + MulDivRound(str_control - 100, a.RecoilStrGain or 100, 100))
