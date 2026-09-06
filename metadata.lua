@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 13031,
+	'version', 13081,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -179,8 +179,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1788640772,
-	'code_hash', -325061692656388373,
+	'saved', 1788666683,
+	'code_hash', -5915524586849084396,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",
@@ -265,6 +265,11 @@ return PlaceObj('ModDef', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "WeaponComponentEffect",
 			'Id', "ScopeAimThresholdBonus",
+			'ClassDisplayName', "Modification Effects",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponentEffect",
+			'Id', "RecoilControlWhenProne",
 			'ClassDisplayName', "Modification Effects",
 		}),
 		PlaceObj('ModResourcePreset', {

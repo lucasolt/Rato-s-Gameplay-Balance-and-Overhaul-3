@@ -451,6 +451,7 @@ end
 ---- ATENCAO: consome random sincronizado; em co-op nao use no turno de outro jogador.
 ---------------------------------------------------------------------------------------------------
 function Rat_DbgBurst(bursts, burst, aim, target_spot, target, attacker)
+	SuspendThreadDebugHook("Rat_DbgBurst") 
     attacker = pick_attacker(attacker)
     if not attacker then
         return "sem atacante (selecione um merc)"
@@ -550,6 +551,7 @@ function Rat_DbgBurst(bursts, burst, aim, target_spot, target, attacker)
     end
 
     a.Enabled = was
+	ResumeThreadDebugHook("Rat_DbgBurst")
     return string.format("%s (%s) -> %s [%s] a %.1f tiles, aim %d, alvo %s\n" ..
                              "  %d rajadas de %d  |  CTH da UI %d%%  |  args: %s\n" ..
                              "  cone %d'  coice %d'/tiro  forca %d'/tiro  theta %d'\n" ..

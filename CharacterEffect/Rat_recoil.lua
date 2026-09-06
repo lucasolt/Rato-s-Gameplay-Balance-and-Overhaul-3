@@ -130,7 +130,7 @@ DefineClass.Rat_recoil = {
 		PlaceObj('UnitReaction', {
 			Event = "OnCalcChanceToHit",
 			Handler = function (self, target, attacker, action, attack_target, weapon1, weapon2, data)
-				if target == attacker then
+				if target == attacker and not const.Combat.Aperture.RecoilPersistOffset then
 					local effect = target:GetStatusEffect("Rat_recoil")
 					local target_pos =  IsValid(attack_target) and attack_target:GetPos() or attack_target
 				

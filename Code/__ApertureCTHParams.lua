@@ -60,8 +60,8 @@ A.DecayMinPct = 10--30 --20
 
 A.AimDecayMuls ={
 	HeavyRainAim = 120,
-	Crouch = 97,--95
-	Prone = 95,--90
+	Crouch = 100,--97,--95
+	Prone = 100,--95,--90
 	ProneGripPenalty = 105,
 	HandgunPenalty = 150, ---- 100 is disabled
 	CompEffects = { -- {mul = 90, meta = "string"}

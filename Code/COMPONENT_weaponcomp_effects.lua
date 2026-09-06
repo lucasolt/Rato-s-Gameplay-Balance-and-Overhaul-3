@@ -1096,21 +1096,6 @@ function weapon_components_rat()
     })
 
     PlaceObj('WeaponComponentEffect', {
-        Description = T(547256645082,
-                        "Increases Accuracy and reduces Recoil when Prone"),
-        Parameters = {
-            PlaceObj(
-                'PresetParamPercent', {
-                    'Name', "bonus_cth",
-                    'Value', 20, 'Tag',
-                    "<bonus_cth>%"
-                })
-        },
-        group = "ChanceToHit",
-        id = "AccuracyBonusProne"
-    })
-
-    PlaceObj('WeaponComponentEffect', {
         Description = T(897995963554,
                         "Increases Point Blank Range accuracy bonus by 1"),
         group = "ChanceToHit",
@@ -1381,7 +1366,6 @@ local t_table = {
     [695581761922] = 'After firing, needs to be manually cycled using <ap_manual> AP\nHigh <em>Dexterity</em> can reduce this cost',
     [646661766533] = 'After firing, increases attack AP cost by <ap_double_action>\nCan be manually cycled using <ap_manual> AP\nHigh <em>Dexterity</em> can reduce this cost',
     [212821718310] = 'Increase Stance AP cost by <StanceIncreaseSTR>, can be negated with <STR_threshold> Strength',
-    [547256645082] = 'Increases Accuracy and reduces Recoil when Prone',
     [897995963554] = 'Increases Point Blank Range accuracy bonus by 1',
     [236633317127] = 'Decreases weapon length, affecting Recoil, Snapshot, Hipfire accuracy penalties and Point Blank Range accuracy modifiers',
     [219179226706] = 'Increases weapon length, affecting Recoil, Snapshot, Hipfire accuracy penalties and Point Blank Range accuracy modifiers',

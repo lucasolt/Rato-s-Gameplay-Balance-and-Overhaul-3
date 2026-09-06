@@ -300,21 +300,20 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
 	----- Stance aim bonus
 	
 	if attacker then
-	    if decay_muls.Crouch  and attacker.stance == "Crouch"  then
+	    if (decay_muls.Crouch or 100) ~= 100  and attacker.stance == "Crouch"  then
             decay = MulDivRound(decay, decay_muls.Crouch or 100, 100)
             meta[#meta + 1] = T {688848752517, "Crouching"}
-        elseif decay_muls.Prone and attacker.stance == "Prone" then
-            decay = MulDivRound(decay, decay_muls.Prone or 100, 100)
-            meta[#meta + 1] = T {271472323596, "Prone"}
-        	if decay_muls.ProneGripPenalty and weapon:HasComponent("grip_prone_penalty") then
+        elseif attacker.stance == "Prone" then
+			if (decay_muls.Prone or 100) ~= 100 then
+            	decay = MulDivRound(decay, decay_muls.Prone or 100, 100)
+            	meta[#meta + 1] = T {271472323596, "Prone"}
+			end
+        	if (decay_muls.ProneGripPenalty or 100) ~= 100 and weapon:HasComponent("grip_prone_penalty") then
             	decay = MulDivRound(decay, decay_muls.ProneGripPenalty or 100, 100)
 				meta[#meta + 1] = T {856431894569, "(-) Grip while prone"}
 			end
 		end
 	end
-
-
-
 
     decay = Max(a.DecayMinPct, decay)
 
@@ -340,20 +339,10 @@ function Rat_ApertureHandlingMul(weapon)
     end
     local pb = GetPBbonus(weapon) or 0
 
-    --if pb == 0 then
-    --    return 100
-    --end
 	local handling = a.HandlingUseBaseMul and weapon.HandlingBaseMul or 100
 	local pb_handling = pb == 0 and 100 or 100 - MulDivRound(a.PBHandlingScale or 100, pb, 100)
 	handling = MulDivRound(handling, pb_handling, 100)
 	
-	
-	--local scale = 100 - MulDivRound(a.PBHandlingScale or 100, pb, 100)
-	--if a.HandlingUseBaseMul then
-	--	scale = MulDivRound(scale, weapon.HandlingBaseMul, 100)
-	--end
-
-
     return Clamp(handling, a.HandlingMin or 60,
                  a.HandlingMax or 140)
 end

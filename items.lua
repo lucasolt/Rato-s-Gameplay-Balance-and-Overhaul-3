@@ -1000,6 +1000,11 @@ return {
 		group = "Default",
 		id = "ScopeAimThresholdBonus",
 	}),
+	PlaceObj('ModItemWeaponComponentEffect', {
+		Description = T(136851478092, --[[ModItemWeaponComponentEffect RecoilControlWhenProne Description]] "Decreases <em>Recoil Penalty</em> while prone"),
+		group = "Default",
+		id = "RecoilControlWhenProne",
+	}),
 	PlaceObj('ModItemFolder', {
 		'name', "CombatActions",
 	}, {
@@ -4946,9 +4951,9 @@ return {
 				"IncreaseRange",
 				"ScopePenalty2",
 				"DecreaseOverwatchAngle",
+				"IncreaseMaxAimActions",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
-				"IncreaseMaxAimActions",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5159,9 +5164,9 @@ return {
 				"IncreaseRange",
 				"IgnoreInTheDarkWhenFullyAimed",
 				"DecreaseOverwatchAngle",
+				"IncreaseMaxAimActions",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
-				"IncreaseMaxAimActions",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5245,9 +5250,9 @@ return {
 				"IncreaseRange",
 				"IgnoreInTheDarkWhenFullyAimed",
 				"DecreaseOverwatchAngle",
+				"IncreaseMaxAimActions",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
-				"IncreaseMaxAimActions",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6127,9 +6132,9 @@ return {
 				"ScopePenalty1",
 				"DecreaseOverwatchAngle",
 				"critical_per_aim_scope",
+				"IncreaseMaxAimActions",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
-				"IncreaseMaxAimActions",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6574,9 +6579,9 @@ return {
 				"OpportunityAttackBonusCth",
 				"IncreaseRange",
 				"ScopePenalty1",
-				"FirstAimBonusModifier",
 				"IncreaseMaxAimActions",
 				"DecreaseSnapshotMul",
+				"FirstAimBonusModifier",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -10303,6 +10308,7 @@ return {
 			"AccuracyBonusProne",
 			"bipod_penalty",
 			"rotate_ap_bipod",
+			"RecoilControlWhenProne",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -10418,6 +10424,7 @@ return {
 			"AccuracyBonusProne",
 			"bipod_penalty",
 			"rotate_ap_bipod",
+			"RecoilControlWhenProne",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -10449,6 +10456,7 @@ return {
 			"AccuracyBonusProne",
 			"bipod_penalty",
 			"rotate_ap_bipod",
+			"RecoilControlWhenProne",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -10544,6 +10552,7 @@ return {
 			"AccuracyBonusProne",
 			"bipod_penalty",
 			"rotate_ap_bipod",
+			"RecoilControlWhenProne",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
