@@ -549,6 +549,10 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     return Max(1, s), meta, {
         base = a.Base,
         base_mul = base_mul,
+        ---- Rat_ConeFactors reads this to explain the Handling row (sub); Rat_ConeMetaText never
+        ---- reaches parts at all for its OWN flat list, so this is ALSO kept in top-level `meta`
+        ---- above for that path -- same dual representation Hipfire/Snapshot already use.
+        handling_meta = handling_meta,
         hipsnap = hipsnap,
         skill = skill_mul,
         cone_mul_effects = cone_mul_effects,

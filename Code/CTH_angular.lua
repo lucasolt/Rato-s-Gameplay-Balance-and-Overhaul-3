@@ -250,7 +250,8 @@ function Rat_ConeFactors(data)
     end
 
     if parts.base_mul and parts.base_mul ~= 100 then
-        out[#out + 1] = {name = T(268301947512, "Handling"), tag = Rat_ConeMulTag(parts.base_mul)}
+        out[#out + 1] = {name = T(268301947512, "Handling"), tag = Rat_ConeMulTag(parts.base_mul),
+                         sub = parts.handling_meta}
     end
 
     ---- skill_mul vive em [SkillMin, SkillMax]: pode fechar (Marks alto, SkillMin<100) ou abrir
