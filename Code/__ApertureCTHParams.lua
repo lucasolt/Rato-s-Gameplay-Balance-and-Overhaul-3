@@ -115,6 +115,14 @@ A.HandlingMin = 60
 A.HandlingMax = 140
 A.HandlingUseBaseMul = true
 
+---- Standing widens the cone for a heavy gun, same weigth_held_mul ladder as the recoil weight
+---- penalty (RecoilHeldPivot). LIGHT by default -- LOWER slope than recoil on purpose, this is
+---- aim, not muzzle control -- and it only bites past the pivot, so most guns pay nothing.
+A.HandlingHeldPivot = 130
+A.HandlingHeldSlope = 30
+A.HandlingHeldStrRelief = 50
+A.HandlingHeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
+
 ---------------------------------------------------------------------------------------------------
 
 ---- Centro de mira: quanto puxar do spot alvo para o CENTROIDE vertical dos spots do LoF (0 = spot cru).
@@ -212,8 +220,6 @@ A.RecoilMinErrorPct = 25
 ---- MEDIDO: sem isto, 15% das rajadas ficam com os 6 tiros dentro do alvo, porque o erro so
 ---- perturba o INCREMENTO da forca e um `cf` bem apontado no tiro 2 sobrevive ate o 6.
 A.RecoilLateralPct = 40
----- unused: RecoilBipodLatMul now covers it, and MG setup is always prone on a bipod
-A.MGSetupSideBiasMul = 120
 
 ---- firing on the move: no brace at all, and the stride throws the muzzle sideways
 A.RecoilMovingCtlPct = 25

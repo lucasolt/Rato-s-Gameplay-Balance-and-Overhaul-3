@@ -196,7 +196,7 @@ end
 
 ---- Opticas com limiar presentes NESTA arma (A.ComponentEffectsAimBonus). Resolvido uma vez por chamada:
 ---- HasComponent dentro do laco de niveis sai caro no caminho quente (previsao, varredura da IA).
-function GetApertureAimComponentEffects(weapon)
+function GetApertureAimComponentEffects(weapon, attacker)
     local a = P()
     if not IsKindOf(weapon, "Firearm") then
         return empty_table
@@ -212,6 +212,7 @@ function GetApertureAimComponentEffects(weapon)
         end
     end
 
+--TODO: MsgReaction so i could use component reaction instead of coding it here
 	local modifyVal, comp = GetComponentEffectValue(weapon, "ScopeAimThresholdBonus", "threshold_bonus_acc")
 	if modifyVal then
 		local from = GetComponentEffectValue(weapon, "ScopeAimThresholdBonus", "aim_level_threshold") 
@@ -229,6 +230,14 @@ function GetApertureAimComponentEffects(weapon)
 		meta = meta or {}
 		meta[#meta +1] = comp.DisplayName or ""
 	end
+
+	--modifyVal, comp = GetComponentEffectValue(weapon, "AimAccBonusWhenProne", "aim_bonus_prone")
+	--if modifyVal and attacker.stance == "Prone" then
+	--	list = list or {}
+	--	list[#list + 1] = {id = "AimAccBonusWhenProne", from = 1 , to = nil, acc = modifyVal}
+	--	meta = meta or {}
+	--	meta[#meta +1] = comp.DisplayName or ""
+	--end
     return list or empty_table, meta or empty_table
 end
 
@@ -257,7 +266,7 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
     local acc = (weapon and weapon.AimAccuracy) or 3
 	local meta = {}
 
-    acc = acc + GetApertureComponentAccBonus(optics or GetApertureAimComponentEffects(weapon), level or 1)
+    acc = acc + GetApertureComponentAccBonus(optics or GetApertureAimComponentEffects(weapon, attacker), level or 1)
 
     ---- target camo
     --if IsKindOf(target, "Unit") then
@@ -332,7 +341,11 @@ end
 ---- MANEJO -> multiplicador da abertura base. GetPBbonus ja soma classe + arma + componentes
 ---- (cano, bullpup, grips, handguard), entao todo componente que dava Point Blank Accuracy passa
 ---- a dar manejo sem nenhum trabalho por componente. MENOR = melhor.
-function Rat_ApertureHandlingMul(weapon)
+----
+---- `attacker` e opcional -- DESCRIPTION_HINTS_get.lua chama isto sem merc, so para o tooltip da
+---- arma, e sem postura nao ha o que penalizar. Devolve o multiplicador e, se houve penalidade de
+---- peso, o metaText dela (mesmo weigth_held_mul do recuo, ver RecoilHeldPivot em FUNCTIONS_recoil_aCTH.lua).
+function Rat_ApertureHandlingMul(weapon, attacker)
     local a = P()
     if not IsKindOf(weapon, "FirearmProperties") or not GetPBbonus then
         return 100
@@ -342,9 +355,31 @@ function Rat_ApertureHandlingMul(weapon)
 	local handling = a.HandlingUseBaseMul and weapon.HandlingBaseMul or 100
 	local pb_handling = pb == 0 and 100 or 100 - MulDivRound(a.PBHandlingScale or 100, pb, 100)
 	handling = MulDivRound(handling, pb_handling, 100)
-	
+
+    local meta
+    if attacker then
+        local stance_mul = (a.HandlingHeldStanceMul and a.HandlingHeldStanceMul[attacker.stance]) or 100
+        if stance_mul > 0 then
+            local excess = Max(0, (weapon.weigth_held_mul or 100) - (a.HandlingHeldPivot or 100))
+            local str = attacker.Strength or 0
+            local low_str = str <= 50
+            if str > 50 then
+                excess = MulDivRound(excess, 100 - MulDivRound(a.HandlingHeldStrRelief or 0,
+                                                               Min(str, 100) - 50, 50), 100)
+            end
+            local pen = MulDivRound(MulDivRound(excess, a.HandlingHeldSlope or 0, 100), stance_mul, 100)
+            if pen > 0 then
+                handling = MulDivRound(handling, 100 + pen, 100)
+                meta = {T(511836641651, "(-) Standing")}
+                if low_str then
+                    meta[#meta + 1] = T(599531270289, "(-) Low Strength")
+                end
+            end
+        end
+    end
+
     return Clamp(handling, a.HandlingMin or 60,
-                 a.HandlingMax or 140)
+                 a.HandlingMax or 140), meta
 end
 
 ---- Ampliacao da optica montada -> multiplicador do PISO (A.ScopeFloorMul). Le o tier pelo id do
@@ -395,9 +430,12 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
 
     --- 1. manejo da arma (o antigo Point Blank Accuracy). Multiplica sigma_0, entao o efeito
     ---    decai a cada nivel de mira em vez de ser um desconto fixo no cone final.
-    local base_mul = Rat_ApertureHandlingMul(weapon)
+    local base_mul, handling_meta = Rat_ApertureHandlingMul(weapon, attacker)
     if base_mul ~= 100 then
         s = MulDivRound(s, base_mul, 100)
+    end
+    for _, v in ipairs(handling_meta or empty_table) do
+        meta[#meta + 1] = v
     end
 
     --- 2. Marksmanship escala o cone inteiro
@@ -423,7 +461,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     end
 
     --- 4. cada nivel de mira FECHA o cone, em direcao ao piso da arma
-    local comps, metaTextComps = GetApertureAimComponentEffects(weapon)
+    local comps, metaTextComps = GetApertureAimComponentEffects(weapon, attacker)
     local floor = Rat_ApertureFloor(weapon)
     ---- escada de decay: com limiar de optica cada nivel fecha um tanto diferente. Guardada
     ---- inteira para o overlay enumerar nivel a nivel (ver Rat_ConeFactors).
@@ -1572,7 +1610,9 @@ local t_id_table = {
     [688848752517] = "Crouching",
     [271472323596] = "Prone",
     [195655494642] = "(-) Handgun",
-    [856431894569] = "(-) Grip while prone"
+    [856431894569] = "(-) Grip while prone",
+    [511836641651] = "(-) Standing",
+    [599531270289] = "(-) Low Strength"
 }
 
 ratG_T_table['FUNCTIONS_aperture.lua'] = t_id_table
