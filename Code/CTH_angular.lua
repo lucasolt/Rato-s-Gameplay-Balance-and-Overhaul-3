@@ -82,6 +82,20 @@ function Rat_ResolveAngular(data)
     --    sigma = Max(1, a.Base + MulDivRound(sigma - a.Base, pct, 100))
     --end
 
+    ---- alvo camuflado: mirar rende so parte (modelo antigo, ChanceToHitModifier "Aim"). Devolve
+    ---- ao cone parte do que a mira fechou -- sigma0 e a mesma abertura sem nenhum nivel de mira.
+    if aim > 0 and (const.Combat.CamoAimPenalty or 0) > 0 and IsKindOf(target, "Unit") then
+        local armor = target:GetItemInSlot("Torso", "Armor")
+        if armor and armor.Camouflage then
+            local sigma0 = Rat_GetAperture(weapon1, attacker, action, 0, opportunity_attack)
+            if sigma0 and sigma0 > sigma then
+                sigma = sigma + MulDivRound(sigma0 - sigma, const.Combat.CamoAimPenalty, 100)
+                meta = meta or {}
+                meta[#meta + 1] = T(396692757033, "Camouflaged - aiming is less effective")
+            end
+        end
+    end
+
     data.rat_theta, data.rat_meta, data.rat_parts = theta, meta, parts
     data.rat_aim, data.rat_geo_sigma, data.rat_cone_mul = aim, sigma, 100
     data.rat_sigma = sigma
@@ -450,7 +464,8 @@ local t_id_table = {
     [714038265194] = "Modifiers <pct>",
     [402715896331] = "No exposed silhouette",
     [574718433471] = "Recoil",
-    [306184275930] = "<v>' of vertical wander"
+    [306184275930] = "<v>' of vertical wander",
+    [396692757033] = "Camouflaged - aiming is less effective"
 }
 
 ratG_T_table['CTH_angular.lua'] = t_id_table
