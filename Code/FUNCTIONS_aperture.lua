@@ -355,6 +355,11 @@ function Rat_ApertureHandlingMul(weapon, attacker)
 	local handling = a.HandlingUseBaseMul and weapon.HandlingBaseMul or 100
 	local pb_handling = pb == 0 and 100 or 100 - MulDivRound(a.PBHandlingScale or 100, pb, 100)
 	handling = MulDivRound(handling, pb_handling, 100)
+    ---- the weapon's OWN quality is capped here, same as before this penalty existed. The standing
+    ---- malus below applies AFTER, uncapped -- a weapon already sitting at the ceiling (Barrett:
+    ---- 141 pre-clamp) would otherwise absorb the whole penalty into the clamp and show the meta
+    ---- tag with zero actual effect, same as AimStep's hipfire/snapshot excess a few steps down.
+    handling = Clamp(handling, a.HandlingMin or 60, a.HandlingMax or 140)
 
     local meta
     if attacker then
@@ -378,8 +383,8 @@ function Rat_ApertureHandlingMul(weapon, attacker)
         end
     end
 
-    return Clamp(handling, a.HandlingMin or 60,
-                 a.HandlingMax or 140), meta
+    ---- no second clamp here: the standing malus is meant to push past HandlingMax, see above
+    return handling, meta
 end
 
 ---- Ampliacao da optica montada -> multiplicador do PISO (A.ScopeFloorMul). Le o tier pelo id do
