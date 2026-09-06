@@ -758,6 +758,8 @@ function rat_combat_actions()
         if unit:HasStatusEffect("ManningEmplacement") then
             return -1
         end
+
+
         local cost_setup = CombatActions.MGSetup:GetAPCost(unit, args)
 
         local target = args and args.target -- or GetCursorPos(true)
@@ -1410,25 +1412,6 @@ function rat_combat_actions()
         return 0
     end
 
-    --[[CombatActions.MGBurstFire.GetActionDescription = function(self,units,args)
-		local description = self.Description
-		if (description or "") == "" then
-			description = self:GetActionDisplayName()
-		end
-
-		local unit = units[1]
-		local coneDescription = T{264452658232, ""}
-		local interrupts_info = ""
-		local overwatch = g_Overwatch[unit]
-		if overwatch and overwatch.permanent then
-			local attacks = overwatch.num_shots
-			coneDescription = T(480046777812, " within the set cone")
-			interrupts_info = T{757307734445, "<newline><newline>Remaining interrupt attacks: <interrupts>", interrupts = unit:GetNumMGInterruptAttacks()}
-			--interrupts_info = T{889817517679, "<newline><newline>Remaining interrupt attacks: <interrupts>", interrupts = attacks}
-		end
-
-		return T{description, coneDescription = coneDescription, interrupts_info = interrupts_info}
-	end]]
 
     CombatActions.MGBurstFire.GetActionDamage = function(self, unit, target, args)
         local weapon = args and args.weapon or self:GetAttackWeapons(unit, args)
@@ -1524,6 +1507,8 @@ function rat_MGSetup_StanceAP(unit, from_stance, ignore_free_move)
 	--	return 0
 	--end 
 
+
+
     local ap = Max(0, unit:GetStanceToStanceAP("Prone", from_stance))
 
     -----------------------------------------------------------------------------------------------
@@ -1587,34 +1572,25 @@ function rat_MGSetup_StanceAP(unit, from_stance, ignore_free_move)
 end
 
 function rat_MGSetup_getap()
+	CombatActions.MGSetup.ActionPointDelta = 1000--2000
     CombatActions.MGSetup.GetAPCost = function(self, unit, args)
 
         local weapon = args and args.weapon or self:GetAttackWeapons(unit, args) -- unit:GetActiveWeapons()
-
-        local ap_extra = GetWeapon_StanceAP(unit, weapon)
-
-        --[[local base = self:ResolveValue("max_cost") * const.Scale.AP
-        local min = self:ResolveValue("min_cost") * const.Scale.AP
-        local min_str = self:ResolveValue("min_str")
-
-        ic(base, min, min_str)
-        base = ap_extra
-        ic(base)
-        local cost = base - MulDivRound(Max(0, unit.Strength - min_str), base - min, 100 - min_str)
-        ic(cost)
-        cost = Max(min, (cost / const.Scale.AP) * const.Scale.AP)
-        ic(cost)]]
-
-        local cost = ap_extra + (2 * const.Scale.AP)
+		--local in_stance = HasPerk(unit, "shooting_stance") 
+        --local stance = unit:GetShootingStanceAP(args and args.target or false, weapon,
+        --                                      args and args.aim or 0, self, in_stance and "rotate" or "stance" ) or 0
+--
+        --stance = stance + (not in_stance and Get_AimCost(unit)) or 0
+		local stance_ap = GetWeapon_StanceAP(unit, weapon)
+        local cost = stance_ap + self.ActionPointDelta
 
         if HasPerk(unit, "HeavyWeaponsTraining") then
             local effect = unit:GetStatusEffect("HeavyWeaponsTraining")
             local reduction = effect:ResolveValue("ap_cost_reduction") * const.Scale.AP
             local minCost = effect:ResolveValue("min_ap_cost") * const.Scale.AP
-
             cost = Max(minCost, cost - reduction)
-
         end
+		
 
         -------------------------------------------------------------------------------------------
         ---- O CUSTO DE DEITAR, QUE NUNCA FOI COBRADO DE NINGUEM

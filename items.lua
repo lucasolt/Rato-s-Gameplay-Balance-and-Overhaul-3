@@ -1400,6 +1400,10 @@ return {
 			'name', "UI_aperture_crosshair",
 			'CodeFileName', "Code/UI_aperture_crosshair.lua",
 		}),
+		PlaceObj('ModItemCode', {
+			'name', "UI_shot_history",
+			'CodeFileName', "Code/UI_shot_history.lua",
+		}),
 		}),
 	PlaceObj('ModItemFolder', {
 		'name', "Shotgun Rework",
@@ -6404,11 +6408,6 @@ return {
 					'Tag', "<aim_level_threshold>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "first_aim_bonus",
-					'Value', 3,
-					'Tag', "<first_aim_bonus>",
-				}),
-				PlaceObj('PresetParamNumber', {
 					'Name', "first_aim_bonus_acc",
 					'Value', 3,
 					'Tag', "<first_aim_bonus_acc>",
@@ -6628,9 +6627,9 @@ return {
 					'Tag', "<bonus_cth_interrupt>%",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "first_aim_bonus",
+					'Name', "first_aim_bonus_acc",
 					'Value', 2,
-					'Tag', "<first_aim_bonus>",
+					'Tag', "<first_aim_bonus_acc>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "snap_mul_reduc",

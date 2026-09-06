@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 13108,
+	'version', 13118,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -107,6 +107,7 @@ return PlaceObj('ModDef', {
 		"Code/UI_aperture_ring.lua",
 		"Code/UI_aperture_breakdown.lua",
 		"Code/UI_aperture_crosshair.lua",
+		"Code/UI_shot_history.lua",
 		"Code/FUNCTIONS_FirearmFirePellet.lua",
 		"Code/FUNCTIONS_Pellets.lua",
 		"Code/FX_inherit.lua",
@@ -178,8 +179,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1788675379,
-	'code_hash', 6832840851791368540,
+	'saved', 1788678689,
+	'code_hash', 7176740056971660022,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",

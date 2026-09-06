@@ -233,6 +233,40 @@ A.MeshStyle = {
 
 A.MeshStyle.fanr = A.MeshStyle.fanl -- sao iguais, so mudam a orientacao do leque
 
+---- Rastro dos tiros ja disparados (UI_shot_history). Mais fino que o anel: sao varias linhas
+---- longas na tela ao mesmo tempo, e a largura do anel viraria uma mancha.
+A.MeshStyle.shot_hit = {
+    shader = "default_polyline",
+    depth = false,
+    color = false,
+    width = 7,
+    halo = 7,
+    coreAlpha = 235,
+    haloAlpha = 40,
+    baseFade = 4 -- a raiz sai do peito do atirador; sem isto a linha pinta em cima dele
+}
+
+A.MeshStyle.shot_miss = {
+    shader = "default_polyline",
+    depth = false,
+    color = false,
+    width = 5,
+    halo = 6,
+    coreAlpha = 170,
+    haloAlpha = 30,
+    dash = 140,
+    baseFade = 4
+}
+
+---- Quantos ataques por unidade o rastro guarda. Cada ataque sao varios tiros.
+A.ShotHistoryAttacks = 4
+
+---- Alpha do ataque mais VELHO em % do mais novo; os do meio interpolam.
+A.ShotHistoryOldPct = 35
+
+---- Tecla que liga/desliga o rastro da unidade selecionada.
+A.ShotHistoryKey = "Ctrl-Alt-H"
+
 ---- Shader das fitas (geometria de triangulo). "default_mesh": blend normal, depth test opcional.
 ---- NAO "soft_mesh" -- o define SOFT le o depth da cena e a fita some atras da unidade, mesmo com
 ---- depth = false. "default_mesh" com depth = false volta ao comportamento do default_polyline:

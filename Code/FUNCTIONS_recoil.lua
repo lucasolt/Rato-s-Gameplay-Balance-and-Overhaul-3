@@ -42,13 +42,13 @@ function Rat_GetRecoilAimCost(attacker, action, weapon, stacks)
 
     local aim_cost = ((-recoil_value * 0.7 * aim_mul / 30.00) * (option_mul or 100)) / 100.0
     local bolt_cost_adj = 0
-	if not const.Combat.ApertureRecoilPersistOffset then
+	--if not const.Combat.Aperture.RecoilPersistOffset then
     	if rat_canBolt(weapon) then
     	    bolt_cost_adj = rat_get_manual_cyclingAP(attacker, weapon, true) * 0.6
     	end
 	
     	aim_cost = Max(0, aim_cost - bolt_cost_adj)
-	end
+	--end
     aim_cost = cRoundFlt(aim_cost, 0.5)
     aim_cost = Min(5, aim_cost)
 

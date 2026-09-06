@@ -1419,7 +1419,10 @@ function Rat_SimSnapshot(ctx)
     end
     ---- copia dos args ANTES do laco de tiros (que os muta): permite o visualizador replay-ar o tiro real.
     rec.replay_args = ctx.args and table.copy(ctx.args) or nil
+    rec.time = GameTime()
     g_RatLastSimShots = rec
+    ---- mesma tabela, nao copia: o laco de tiros ainda vai escrever miss/end_pos/dano nela
+    Rat_ShotHistoryPush(rec)
     return rec
 end
 
