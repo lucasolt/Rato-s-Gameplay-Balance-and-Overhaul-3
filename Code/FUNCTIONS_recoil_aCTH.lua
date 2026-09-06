@@ -88,6 +88,8 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test)
     local kick = MulDivRound(a.RecoilKickBase or 0, cRound(gun), 100)
     kick = Max(0, MulDivRound(kick, const.Combat.R_Recoil or 100, 100))
 
+	local lat = a.RecoilLateralPct or 0
+
     ---- a mounted MG holds itself: the mount brings force AND steadies the grip
     local aid = action and action.id
     if aid == "GrizzlyPerk" or
@@ -96,6 +98,9 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test)
         local mul = cRound(const.Combat.Recoil.MGSetupMul * 100)
         str_control = MulDivRound(str_control, mul, 100)
         other_control = MulDivRound(other_control, mul, 100)
+		--- I want MG whilst setup to be able to control vertical recoil, but not so much lateral, so it will be good against groups
+--TODO: Check if this is working as intended
+		lat = MulDivRound(lat, a.MGSetupSideBiasMul, 100)
     end
 
     ---- FORCE. As a fraction of THIS weapon's kick, so a shooter strong enough for the caliber
@@ -124,10 +129,21 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test)
     local T = Max(1, a.RecoilSettleShots or 3)
     local ang = Clamp(a.RecoilKickAngle or 0, -90, 90) * 60
 
+    ---- a bipod is a vertical constraint: it stops the climb, never the yaw
+    local kick_y_mul = 100
+    if attacker.stance == "Prone" and weapon:HasComponent("AccuracyBonusProne") then
+        kick_y_mul = a.RecoilBipodKickYMul or 100
+        ---- lat is a fraction of |cf|, which the smaller kick already shrank -- raise it or the
+        ---- group merely gets smaller instead of flatter and wider
+        lat = MulDivRound(lat, a.RecoilBipodLatMul or 100, 100)
+    end
+
+
+
     return {
         ---- centiminutes per shot, which is what the step runs in
         kick_x = MulDivRound(kick * 100, sin(ang), 4096),
-        kick_y = MulDivRound(kick * 100, cos(ang), 4096),
+        kick_y = MulDivRound(MulDivRound(kick * 100, cos(ang), 4096), kick_y_mul, 100),
         cf_max = cf_max * 100,
         max_inc = max_inc * 100,
         ---- floor off the NEUTRAL increment, never off this merc's: `max_inc` is skill-driven now,
@@ -137,7 +153,7 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test)
         kp = MulDivRound(1000, 1, T * T),
         kd = MulDivRound(2000, a.RecoilDamping or 100, 100 * T),
         err_ratio = a.RecoilErrorRatio or 0,
-        lat = a.RecoilLateralPct or 0,
+        lat = lat,
         ---- Dexterity is the hands; `other_control` is stance and training steadying them. Without
         ---- the second term skill buys a bigger correction AND a proportionally bigger error, and
         ---- cancels itself. Never removes the floor, only the error above it.

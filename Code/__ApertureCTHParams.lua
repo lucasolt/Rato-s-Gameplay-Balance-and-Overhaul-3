@@ -70,7 +70,7 @@ A.AimDecayMuls ={
 	}
 }
 
----- Postura achata o cone no eixo VERTICAL, em % do sigma. Ver Rat_ConeSigmaY.
+---- Stance flattens the cone on the VERTICAL axis, as % of sigma. See Rat_ConeSigmaY.
 A.ConeStretch = {Standing = 100, Crouch = 85, Prone = 70}
 
 ---------------------------------------------------------------------------------------------------
@@ -213,6 +213,10 @@ A.RecoilMinErrorPct = 25
 ---- perturba o INCREMENTO da forca e um `cf` bem apontado no tiro 2 sobrevive ate o 6.
 A.RecoilLateralPct = 40
 A.MGSetupSideBiasMul = 120
+
+---- Prone on a bipod: the legs stop the climb, not the yaw, so the gun sweeps sideways.
+A.RecoilBipodKickYMul = 60
+A.RecoilBipodLatMul = 200
 
 
 ----------------------------------------------------------------------------------------
