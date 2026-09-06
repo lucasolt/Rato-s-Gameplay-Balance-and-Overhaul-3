@@ -1263,6 +1263,11 @@ function weapon_components_rat()
             }
         end
 
+		if WeaponComponentEffects.AccuracyBonusProne then
+			local prone = WeaponComponentEffects.AccuracyBonusProne
+			prone.Description = T(999879465877, "Grants <em>Accuracy</em> bonus when prone")
+		end
+
         if WeaponComponentEffects.FirstAimBonusModifier then
             local firstaim =
                 WeaponComponentEffects.FirstAimBonusModifier
@@ -1374,7 +1379,8 @@ local t_table = {
     [674215963791] = "Changes pellet spread pattern, reducing vertical spread",
     [156932878971] = "Decreases Point-Blank range accuracy bonus",
     [912316475877] = "Increases Point-Blank range accuracy bonus",
-    [645613895578] = "Increases weapon condition degradation"
+    [645613895578] = "Increases weapon condition degradation",
+	[999879465877] = "Grants <em>Accuracy</em> bonus when prone"
 }
 
 ratG_T_table['COMPONENT_weaponcomp_effects.lua'] =

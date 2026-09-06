@@ -1,5 +1,9 @@
 # TODO
 
+```lua
+CheatAddItem("itemid")
+```
+
 ## Reimplementation necessary
 - [ ] Camouflage.
 - [ ] How to deal with scopes that give bonuses to hit body parts or bypass cover?
@@ -23,7 +27,8 @@
 
 ## New mechanics intended
 - [ ] Autofire shot count.
-- [ ] MG Recoil/setup rework
+- [x] MG Recoil/setup rework (needs further testing)
+- [x] Crouch and prone effect on the aperture, elliptical
 
 ## New mechanics (luxury)
 - [ ] MG and bipods setting up on cover/crouch

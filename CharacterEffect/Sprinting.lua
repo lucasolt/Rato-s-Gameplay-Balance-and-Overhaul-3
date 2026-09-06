@@ -29,8 +29,11 @@ DefineClass.Sprinting = {
 	},
 	DisplayName = T(889022208419, --[[ModItemCharacterEffectCompositeDef Sprinting DisplayName]] "Sprinting"),
 	Description = T(519374788491, --[[ModItemCharacterEffectCompositeDef Sprinting Description]] "The character is sprinting and is harder to hit."),
+	Icon = "Mod/cfahRED/Images/sprint 3.dds",
 	RemoveOnEndCombat = true,
 	RemoveOnSatViewTravel = true,
 	RemoveOnCampaignTimeAdvance = true,
+	Shown = true,
+	HasFloatingText = true,
 }
 

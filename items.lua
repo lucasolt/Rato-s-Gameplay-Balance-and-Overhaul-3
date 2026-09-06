@@ -703,7 +703,7 @@ return {
 			end
 		end,
 		'type', "Debuff",
-		'Icon', "UI/Hud/Status effects/tired",
+		'Icon', "Mod/cfahRED/Images/out_of_breath.dds",
 		'max_stacks', 2,
 		'RemoveOnEndCombat', true,
 		'RemoveOnSatViewTravel', true,
@@ -795,9 +795,12 @@ return {
 		},
 		'DisplayName', T(889022208419, --[[ModItemCharacterEffectCompositeDef Sprinting DisplayName]] "Sprinting"),
 		'Description', T(519374788491, --[[ModItemCharacterEffectCompositeDef Sprinting Description]] "The character is sprinting and is harder to hit."),
+		'Icon', "Mod/cfahRED/Images/sprint 3.dds",
 		'RemoveOnEndCombat', true,
 		'RemoveOnSatViewTravel', true,
 		'RemoveOnCampaignTimeAdvance', true,
+		'Shown', true,
+		'HasFloatingText', true,
 	}),
 	PlaceObj('ModItemCharacterEffectCompositeDef', {
 		'Id', "grunty_bonus",
@@ -926,10 +929,6 @@ return {
 		'CodeFileName', "Code/CaliberApplyParams.lua",
 	}),
 	PlaceObj('ModItemCode', {
-		'name', "ZULIBCalibers_GBOconfigs",
-		'CodeFileName', "Code/ZULIBCalibers_GBOconfigs.lua",
-	}),
-	PlaceObj('ModItemCode', {
 		'name', "UPDATE_Change components",
 		'CodeFileName', "Code/UPDATE_Change components.lua",
 	}),
@@ -942,8 +941,9 @@ return {
 		'CodeFileName', "Code/Assign_magsize.lua",
 	}),
 	PlaceObj('ModItemCode', {
-		'name', "UnitDataDef_changes",
-		'CodeFileName', "Code/UnitDataDef_changes.lua",
+		'name', "COMPONENT_weaponcomp_effects",
+		'comment', "------------------ COMPONENT EFFECT",
+		'CodeFileName', "Code/COMPONENT_weaponcomp_effects.lua",
 	}),
 	PlaceObj('ModItemWeaponComponentEffect', {
 		Comment = "-- changes the property instead of being hardcoded",
@@ -1001,13 +1001,33 @@ return {
 		id = "ScopeAimThresholdBonus",
 	}),
 	PlaceObj('ModItemWeaponComponentEffect', {
+		Comment = "--- Bipod",
 		Description = T(136851478092, --[[ModItemWeaponComponentEffect RecoilControlWhenProne Description]] "Decreases <em>Recoil Penalty</em> while prone"),
+		comment = "--- Bipod",
 		group = "Default",
 		id = "RecoilControlWhenProne",
+	}),
+	PlaceObj('ModItemWeaponComponentEffect', {
+		Comment = "-- created, functional, not used",
+		Description = T(549549439952, --[[ModItemWeaponComponentEffect AimAccBonusWhenProne Description]] "Increases <em>Aim Accuracy</em> when prone"),
+		Parameters = {
+			PlaceObj('PresetParamNumber', {
+				'Name', "aim_bonus_prone",
+				'Value', 3,
+				'Tag', "<aim_bonus_prone>",
+			}),
+		},
+		comment = "-- created, functional, not used",
+		group = "Default",
+		id = "AimAccBonusWhenProne",
 	}),
 	PlaceObj('ModItemFolder', {
 		'name', "CombatActions",
 	}, {
+		PlaceObj('ModItemCode', {
+			'name', "shooting_stance_prepare_weapon_action",
+			'CodeFileName', "Code/shooting_stance_prepare_weapon_action.lua",
+		}),
 		PlaceObj('ModItemCombatAction', {
 			ActionCamera = true,
 			ActionPoints = 2000,
@@ -1183,6 +1203,10 @@ return {
 		'name', "Compatibility",
 	}, {
 		PlaceObj('ModItemCode', {
+			'name', "ZULIBCalibers_GBOconfigs",
+			'CodeFileName', "Code/ZULIBCalibers_GBOconfigs.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "FUNCTION_disable_unpatched_shop",
 			'CodeFileName', "Code/FUNCTION_disable_unpatched_shop.lua",
 		}),
@@ -1210,11 +1234,6 @@ return {
 	PlaceObj('ModItemCode', {
 		'name', "BOBBYRAY_category_pairs",
 		'CodeFileName', "Code/BOBBYRAY_category_pairs.lua",
-	}),
-	PlaceObj('ModItemCode', {
-		'name', "COMPONENT_weaponcomp_effects",
-		'comment', "------------------ COMPONENT EFFECT",
-		'CodeFileName', "Code/COMPONENT_weaponcomp_effects.lua",
 	}),
 	PlaceObj('ModItemCode', {
 		'name', "CTH_2weaponfire",
@@ -1291,10 +1310,6 @@ return {
 		'CodeFileName', "Code/CTH_angular.lua",
 	}),
 	PlaceObj('ModItemCode', {
-		'name', "SOURCE_UnitCalcChanceToHit",
-		'CodeFileName', "Code/SOURCE_UnitCalcChanceToHit.lua",
-	}),
-	PlaceObj('ModItemCode', {
 		'name', "UTIL",
 		'CodeFileName', "Code/UTIL.lua",
 	}),
@@ -1354,30 +1369,38 @@ return {
 		'name', "FUNCTIONS_cover_silhouette",
 		'CodeFileName', "Code/FUNCTIONS_cover_silhouette.lua",
 	}),
-	PlaceObj('ModItemCode', {
-		'name', "UI_aperture_ring",
-		'CodeFileName', "Code/UI_aperture_ring.lua",
-	}),
-	PlaceObj('ModItemCode', {
-		'name', "DEBUG_aperture_draw",
-		'CodeFileName', "Code/DEBUG_aperture_draw.lua",
-	}),
-	PlaceObj('ModItemCode', {
-		'name', "DEBUG_aperture_style",
-		'CodeFileName', "Code/DEBUG_aperture_style.lua",
-	}),
-	PlaceObj('ModItemCode', {
-		'name', "UI_aperture_crosshair",
-		'CodeFileName', "Code/UI_aperture_crosshair.lua",
-	}),
-	PlaceObj('ModItemCode', {
-		'name', "UI_aperture_breakdown",
-		'CodeFileName', "Code/UI_aperture_breakdown.lua",
-	}),
-	PlaceObj('ModItemCode', {
-		'name', "XTEMP_recoil",
-		'CodeFileName', "Code/XTEMP_recoil.lua",
-	}),
+	PlaceObj('ModItemFolder', {
+		'name', "DEBUG",
+	}, {
+		PlaceObj('ModItemCode', {
+			'name', "DEBUG_aperture_style",
+			'CodeFileName', "Code/DEBUG_aperture_style.lua",
+		}),
+		PlaceObj('ModItemCode', {
+			'name', "DEBUG_aperture_draw",
+			'CodeFileName', "Code/DEBUG_aperture_draw.lua",
+		}),
+		}),
+	PlaceObj('ModItemFolder', {
+		'name', "UI and CROSSHAIR",
+	}, {
+		PlaceObj('ModItemCode', {
+			'name', "XTEMP_recoil",
+			'CodeFileName', "Code/XTEMP_recoil.lua",
+		}),
+		PlaceObj('ModItemCode', {
+			'name', "UI_aperture_ring",
+			'CodeFileName', "Code/UI_aperture_ring.lua",
+		}),
+		PlaceObj('ModItemCode', {
+			'name', "UI_aperture_breakdown",
+			'CodeFileName', "Code/UI_aperture_breakdown.lua",
+		}),
+		PlaceObj('ModItemCode', {
+			'name', "UI_aperture_crosshair",
+			'CodeFileName', "Code/UI_aperture_crosshair.lua",
+		}),
+		}),
 	PlaceObj('ModItemFolder', {
 		'name', "Shotgun Rework",
 	}, {
@@ -1402,6 +1425,10 @@ return {
 	PlaceObj('ModItemCode', {
 		'name', "REACTIONS_ShootingStance",
 		'CodeFileName', "Code/REACTIONS_ShootingStance.lua",
+	}),
+	PlaceObj('ModItemCode', {
+		'name', "SOURCE_UnitCalcChanceToHit",
+		'CodeFileName', "Code/SOURCE_UnitCalcChanceToHit.lua",
 	}),
 	PlaceObj('ModItemCode', {
 		'name', "SOURCE_ Unit:EnterCombat",
@@ -1510,10 +1537,6 @@ return {
 	PlaceObj('ModItemCode', {
 		'name', "shooting_stance_functions",
 		'CodeFileName', "Code/shooting_stance_functions.lua",
-	}),
-	PlaceObj('ModItemCode', {
-		'name', "shooting_stance_prepare_weapon_action",
-		'CodeFileName', "Code/shooting_stance_prepare_weapon_action.lua",
 	}),
 	PlaceObj('ModItemFolder', {
 		'name', "Properties",
@@ -6579,8 +6602,8 @@ return {
 				"OpportunityAttackBonusCth",
 				"IncreaseRange",
 				"ScopePenalty1",
-				"IncreaseMaxAimActions",
 				"DecreaseSnapshotMul",
+				"IncreaseMaxAimActions",
 				"FirstAimBonusModifier",
 			},
 			Parameters = {
@@ -18179,7 +18202,7 @@ return {
 		Parameters = {
 			PlaceObj('PresetParamPercent', {
 				'Name', "bonus_cth",
-				'Value', 5,
+				'Value', 7,
 				'Tag', "<bonus_cth>%",
 			}),
 		},

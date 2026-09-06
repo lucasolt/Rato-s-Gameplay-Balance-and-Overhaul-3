@@ -128,6 +128,12 @@ function aim_cth()
                 num = Max(num, 1)
             end
 
+			local prone_bonus, comp = GetComponentEffectValue(weapon1, "AccuracyBonusProne", "bonus_acc")
+			if prone_bonus and attacker.stance == "Prone" then
+				metaText[#metaText + 1] = comp.DisplayName
+				min_bonus = min_bonus + prone_bonus
+			end
+
             local scale_factor = min_scale + (max_scale - min_scale) * (dex - min_dex) /
                                      (max_dex - min_dex)
             if scale_factor < min_scale then

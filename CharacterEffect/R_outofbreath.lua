@@ -66,7 +66,7 @@ DefineClass.R_outofbreath = {
 		end
 	end,
 	type = "Debuff",
-	Icon = "UI/Hud/Status effects/tired",
+	Icon = "Mod/cfahRED/Images/out_of_breath.dds",
 	max_stacks = 2,
 	RemoveOnEndCombat = true,
 	RemoveOnSatViewTravel = true,
