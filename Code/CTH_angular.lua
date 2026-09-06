@@ -90,7 +90,7 @@ function Rat_ResolveAngular(data)
     ---- alarga o cone dos dois lados, so o ALONGA no eixo em que o atirador estava lutando. Entra
     ---- em quadratura (Rat_ConeSigmaY), nunca como deslocamento do centro -- ver
     ---- Rat_RecoilPersistSigma. Sai da MESMA funcao que o tiro le, com a mesma mira efetiva.
-    data.rat_stretch = 100 --- porta da postura: agachado/deitado achatam. Ver Rat_ConeSigmaY.
+    data.rat_stretch = (a.ConeStretch and a.ConeStretch[attacker.stance]) or 100
     data.rat_vsigma = Rat_RecoilPersistSigma(attacker, action, weapon1, aim, target)
     if data.rat_vsigma > 0 then
         data.rat_vsigma = 0

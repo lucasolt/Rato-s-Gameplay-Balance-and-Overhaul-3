@@ -4,34 +4,7 @@
 ---- Aritmetica INTEIRA (NetUpdateHash em co-op). Inerte com A.Enabled = false.
 ---------------------------------------------------------------------------------------------------
 
---TODO: 02/09/2026 list
---TODO: make sure AI will orient before checking for cover in LOF
 
---TODO: Calibrar o recuo de segunda ordem. Ancorar KickBase e o mapa control -> CFMax nas duas
---TODO: linhas extremas do ladder do 1cc229c, depois conferir um calibre pesado. Ver RECOIL MODEL.md.
-
---TODO: Strays were fixed. Need to check if different body parts are being processed differently
-
---TODO: Check how the aCTH deals with out of sight targets (wallbang)
---TODO: AI OVERHAUL - make sure AI will not try to shoot through the walls
---TODO: AI OVERHAUL - Enemy LastPos should generate threat. They should also try to "chase" the last pos
---TODO: General balancing - OW tuning 
-
-
---TODO: 03/09/2026
-
---TODO: AI OVERHAUL - check grenade distribution. Give more timed to enemies. Less frustrating but still a challenge to the player
-
---TODO: 04/09/2026
---TODO: Camouflage
---TODO: AI OVERHAUL: Implement Smoke usage
---TODO: How to deal with scopes that give bonus to hit bodyparts or bypass cover? Handzolt, Scout scope
---TODO: AI OVERHAUL: investigar o threshold de escolha de dar o tiro. ta em 1, talvez passar pra 2?
-
---TODO: 05/09/2026
---TODO: Stray shots should have lower chance to inflict status effect
---TODO: what about grazing? is it possible to keep in the game?
---TODO: Autofire shot count
 
 const.Combat.Aperture = const.Combat.Aperture or {}
 local A = const.Combat.Aperture
@@ -87,8 +60,8 @@ A.DecayMinPct = 10--30 --20
 
 A.AimDecayMuls ={
 	HeavyRainAim = 120,
-	Crouch = 95,
-	Prone = 90,
+	Crouch = 97,--95
+	Prone = 95,--90
 	ProneGripPenalty = 105,
 	HandgunPenalty = 150, ---- 100 is disabled
 	CompEffects = { -- {mul = 90, meta = "string"}
@@ -96,6 +69,9 @@ A.AimDecayMuls ={
 		ReduceAimAccuracy = {mul = 150} -- nostock
 	}
 }
+
+---- Postura achata o cone no eixo VERTICAL, em % do sigma. Ver Rat_ConeSigmaY.
+A.ConeStretch = {Standing = 100, Crouch = 85, Prone = 70}
 
 ---------------------------------------------------------------------------------------------------
 ---- Degrau de "arma no ombro" -- hipfire / snapshot. So ate aim 2 (aim 3+ a arma esta encostada).
@@ -236,7 +212,12 @@ A.RecoilMinErrorPct = 25
 ---- MEDIDO: sem isto, 15% das rajadas ficam com os 6 tiros dentro do alvo, porque o erro so
 ---- perturba o INCREMENTO da forca e um `cf` bem apontado no tiro 2 sobrevive ate o 6.
 A.RecoilLateralPct = 40
+A.MGSetupSideBiasMul = 120
 
+
+----------------------------------------------------------------------------------------
+---- Persitant Recoil
+----------------------------------------------------------------------------------------
 ---- PERSISTENT RECOIL AS AN OFFSET. The muzzle keeps the position it ended at instead of the shot
 ---- being summarised into stacks, so a burst and a string of single shots stop being two systems:
 ---- what separates them is only how much recovery time passes. False restores the stacks model.
@@ -252,21 +233,6 @@ A.RecoilPersistRetainPerAP = 100
 
 ---- Quanto do cano guardado vira DISPERSAO VERTICAL no proximo ataque, em % -- somada em
 ---- quadratura ao cone (Rat_ConeSigmaY), nunca como deslocamento do ponto de mira.
-----
----- Porque nao deslocamento: entre ataques o atirador reencara o alvo, ele nao fica parado com o
----- cano onde a rajada o largou. O que sobra e ele reencarar PIOR no eixo em que estava lutando
----- -- pode continuar por baixo, pode ter puxado demais e passado, igual a forca de reacao que
----- sub e sobrecompensa dentro da rajada. Como deslocamento conhecido o modelo se invertia: um
----- cone apertado centrado fora do alvo erra de proposito, e quanto MELHOR o atirador, mais
----- certo o erro. Centrado, pericia volta a ajudar sempre e sempre resta uma chance -- que e o
----- que tornava o tiro rapido de semi-auto uma aposta que vale a pena.
----- Calibrado contra o modelo antigo no caso do Rato (pistola, 8 tiles, base 70, mira 1), sobre
----- uma silhueta CONGELADA (152/215/111/65) -- medir no alvo vivo movia a referencia junto.
-----   mira 0 | 70 50 40 35 30 26
-----   mira 1 | 70 55 47 42 39 34     ANTIGO: 70 57 40
-----   mira 2 | 70 62 55 52 49 46
----- O primeiro passo bate; dai em diante cai mais devagar e nunca chega a zero, que e a
----- propriedade que se quis manter -- ate o tiro ruim guarda uma chance.
 A.RecoilPersistSigmaPct = 70
 
 ---- MIRA -> quanto do tremor ainda vale, por nivel. Explicito e multiplicativo, um numero por
@@ -286,14 +252,14 @@ A.RecoilPersistStretchMax = 700
 ---- novo (cone apertado centrado fora do alvo erra de proposito). Aqui o vies e de FORMA: o
 ---- centro continua no alvo e os dois meios-eixos verticais e que ficam diferentes, um ovo em vez
 ---- de elipse. A soma e preservada, entao a calibracao de RecoilPersistSigmaPct nao se mexe.
-A.RecoilPersistUpBias = 70
+A.RecoilPersistUpBias = 80--70
 
 ---- ABERTURA LATERAL da cunha, em % do tremor, no TOPO dela. O cano sobe, e quanto mais subiu
 ---- mais tempo o tremor lateral teve para crescer -- entao a possibilidade nao e uma elipse, e um
 ---- triangulo invertido saindo do ponto de mira. E a mesma coisa que a V da rajada ja diz na tela,
 ---- que era o motivo de o anel eliptico contar outra historia.
 ---- Em 0 a cunha some e o CTH volta a ser Px(sigma) * Py(sigma_y), identico ao que era.
-A.RecoilPersistFanPct = 150--150
+A.RecoilPersistFanPct = 50--150
 
 ---- FORMA do recuo herdado no MODELO. Com "egg" a abertura lateral zera (Rat_ConeFanX) e o
 ---- somatorio de Rat_SeparableCTH telescopa de volta para Px * Py; com "wedge" a metade de cima e
