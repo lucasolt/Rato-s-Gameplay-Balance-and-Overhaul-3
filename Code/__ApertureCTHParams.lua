@@ -85,6 +85,14 @@ A.AimDecayMuls = {
 	NoStock = {mul = 150, component = "ReduceAimAccuracy"}
 }
 
+---- CAMUFLAGEM. Alvo camuflado e mais dificil de VER, entao encolhe a SILHUETA -- nao alarga o
+---- cone e nao mexe na mira. Assim vale em todo nivel de mira (inclusive hipfire), empilha com
+---- cobertura pela mesma porta (exposicao), e o produto das linhas do overlay continua fechando
+---- no Total, coisa que o modelo antigo quebrava.
+---- Valor = % da AREA que ainda se enxerga; entra como raiz (area -> raio), entao 60 = raio x0.77.
+A.CamoExposedPct = 60 --- 100 desliga
+A.CamoMeta = T {617384902551, "(-) Camouflaged"}
+
 ---- Stance flattens the cone on the VERTICAL axis, as % of sigma. See Rat_ConeSigmaY.
 A.ConeStretch = {Standing = 100, Crouch = 85, Prone = 70}
 
@@ -155,7 +163,7 @@ A.HandlingHeldStanceMeta = {
     Crouch = T {274905618332, "(-) Crouching"}
 }
 A.HandlingHeldLowStrMeta = T {599531270289, "(-) Low Strength"}
-A.HandlingHeldMinStr = 50
+A.HandlingHeldMinStr = 70
 
 ---------------------------------------------------------------------------------------------------
 
@@ -357,7 +365,8 @@ local t_id_table = {
     [353401714895] = "Range",
     [511836641651] = "(-) Standing",
     [274905618332] = "(-) Crouching",
-    [599531270289] = "(-) Low Strength"
+    [599531270289] = "(-) Low Strength",
+    [617384902551] = "(-) Camouflaged"
 }
 
 ratG_T_table['__ApertureCTHParams.lua'] = t_id_table

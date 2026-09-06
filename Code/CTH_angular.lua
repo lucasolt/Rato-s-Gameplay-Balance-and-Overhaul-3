@@ -82,19 +82,10 @@ function Rat_ResolveAngular(data)
     --    sigma = Max(1, a.Base + MulDivRound(sigma - a.Base, pct, 100))
     --end
 
-    ---- alvo camuflado: mirar rende so parte (modelo antigo, ChanceToHitModifier "Aim"). Devolve
-    ---- ao cone parte do que a mira fechou -- sigma0 e a mesma abertura sem nenhum nivel de mira.
-    if aim > 0 and (const.Combat.CamoAimPenalty or 0) > 0 and IsKindOf(target, "Unit") then
-        local armor = target:GetItemInSlot("Torso", "Armor")
-        if armor and armor.Camouflage then
-            local sigma0 = Rat_GetAperture(weapon1, attacker, action, 0, opportunity_attack)
-            if sigma0 and sigma0 > sigma then
-                sigma = sigma + MulDivRound(sigma0 - sigma, const.Combat.CamoAimPenalty, 100)
-                meta = meta or {}
-                meta[#meta + 1] = T(396692757033, "Camouflaged - aiming is less effective")
-            end
-        end
-    end
+    ---- camuflagem NAO entra aqui: ela encolhe a silhueta dentro de Rat_AngularCTH (A.CamoExposedPct).
+    ---- Alargar o cone por ela usava o cone de aim 0 como base -- que ja carrega o degrau de
+    ---- hipfire -- entao mirar 3 niveis num alvo camuflado saia PIOR que nao mirar num alvo limpo,
+    ---- e o fator nao aparecia em Rat_ConeFactors: as linhas do overlay nao fechavam mais no Total.
 
     data.rat_theta, data.rat_meta, data.rat_parts = theta, meta, parts
     data.rat_aim, data.rat_geo_sigma, data.rat_cone_mul = aim, sigma, 100
@@ -308,6 +299,10 @@ function Rat_ConeFactors(data)
     ---- o piso nao e multiplicador -- e a assintota, em minutos. Fica indentado, como nota da
     ---- linha Aperture, em vez de fingir ser um fator na enumeracao.
     local meta = {}
+    ---- camuflagem nao e fator de cone -- mudou o TAMANHO do alvo. Entra como nota, junto do piso.
+    if parts.camo and a.CamoMeta then
+        meta[#meta + 1] = a.CamoMeta
+    end
     if parts.floor then
         ---- em grupo (2.5 sigma), mesma escala da linha Aperture
         meta[#meta + 1] = T {825069487351, "Range floor <f>'",
@@ -465,8 +460,7 @@ local t_id_table = {
     [714038265194] = "Modifiers <pct>",
     [402715896331] = "No exposed silhouette",
     [574718433471] = "Recoil",
-    [306184275930] = "<v>' of vertical wander",
-    [396692757033] = "Camouflaged - aiming is less effective"
+    [306184275930] = "<v>' of vertical wander"
 }
 
 ratG_T_table['CTH_angular.lua'] = t_id_table

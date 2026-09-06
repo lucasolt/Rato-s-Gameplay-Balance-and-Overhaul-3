@@ -60,6 +60,17 @@ function Rat_TargetSilhouette(target, body_part_def, exposed_pct, stance_overrid
     return Max(1, r)
 end
 
+---- Camuflagem no torso -> quanto da AREA do alvo ainda se enxerga (100 = nenhuma). Mesma porta
+---- da cobertura: camuflagem encolhe o alvo, nao piora a mira. Ver A.CamoExposedPct.
+function Rat_CamoExposedPct(target)
+    local pct = P().CamoExposedPct or 100
+    if pct >= 100 or not IsKindOf(target, "Unit") then
+        return 100
+    end
+    local armor = target:GetItemInSlot("Torso", "Armor")
+    return (armor and armor.Camouflage) and Clamp(pct, 1, 100) or 100
+end
+
 ---- Quatro meias-extensoes do alvo vistas DESTE ponto, em minutos de angulo, mais o ponto de
 ---- mira, a distancia ate ele e um theta geometrico (equivalente em area) para exibicao.
 ----
@@ -324,16 +335,6 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
 	local meta = {}
 
     acc = acc + GetApertureComponentAccBonus(optics or GetApertureAimComponentEffects(weapon, attacker), level or 1)
-
-    ---- target camo
-    --if IsKindOf(target, "Unit") then
-    --    local armor = target:GetItemInSlot("Torso", "Armor")
-    --    if armor and armor.Camouflage then
-    --        bonus = bonus * Max(0, 100 - const.Combat.CamoAimPenalty) / 100.0 -- MulDivRound(bonus, Max(0, 100 - const.Combat.CamoAimPenalty), 100)
-    --        meta[#meta + 1] =
-    --            T(396692757033, "Camouflaged - aiming is less effective")
-    --    end
-    --end
 
     local decay = 100 - (a.DecayBase + a.DecayScale * acc)
 
@@ -808,6 +809,20 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
     if exposed_pct == nil and a.CoverRaycast then
         exposed_pct = Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_part_def,
                                           weapon)
+    end
+
+    ---- camuflagem entra como MENOS area exposta, junto com a cobertura: theta, o anel e a bala
+    ---- simulada leem todos o mesmo alvo encolhido, e o cone fica intocado.
+    local camo = Rat_CamoExposedPct(target)
+    if camo < 100 and (exposed_pct or 100) > 0 then
+        exposed_pct = Max(1, MulDivRound(exposed_pct or 100, camo, 100))
+        if parts then
+            parts.camo = camo
+        end
+        local tag = P().CamoMeta
+        if tag then
+            meta[#meta + 1] = tag
+        end
     end
 
     ---- totalmente ocluido: CTH 0 exato (AIPrecalcConeTargetZones descarta o alvo; UI mostra sem tiro).
