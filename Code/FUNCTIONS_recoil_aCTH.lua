@@ -90,17 +90,19 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test)
 
 	local lat = a.RecoilLateralPct or 0
 
-    ---- a mounted MG holds itself: the mount brings force AND steadies the grip
+    ---- MG setup no longer has a multiplier of its own: it forces prone and MG bipods are not
+    ---- removable, so setting up IS how the vertical kick gets killed. See the bipod block below.
     local aid = action and action.id
-    if aid == "GrizzlyPerk" or
-        (aid == "MGBurstFire" and
-            (test or (g_Overwatch[attacker] and g_Overwatch[attacker].permanent))) then
-        local mul = cRound(const.Combat.Recoil.MGSetupMul * 100)
-        str_control = MulDivRound(str_control, mul, 100)
-        other_control = MulDivRound(other_control, mul, 100)
-		--- I want MG whilst setup to be able to control vertical recoil, but not so much lateral, so it will be good against groups
---TODO: Check if this is working as intended
-		lat = MulDivRound(lat, a.MGSetupSideBiasMul, 100)
+
+    ---- moving fire: nothing is braced, and the muzzle wanders with the stride. Not str_control --
+    ---- muscle is not what is missing while running.
+    local cmd = attacker.action_command
+    if cmd == "RunAndGun" or cmd == "RecklessAssault" or aid == "RunAndGun" or
+        aid == "RecklessAssault" then
+        local mv = a.RecoilMovingCtlPct or 0
+        control = MulDivRound(control, 100 + mv, 100)
+        other_control = MulDivRound(other_control, 100 + mv, 100)
+        lat = MulDivRound(lat, 100 + (a.RecoilMovingLatPct or 0), 100)
     end
 
     ---- WEIGHT. Unsupported, a heavy gun is not harder to fire, it is harder to FIGHT: the kick is

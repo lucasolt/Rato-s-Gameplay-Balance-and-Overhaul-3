@@ -212,7 +212,12 @@ A.RecoilMinErrorPct = 25
 ---- MEDIDO: sem isto, 15% das rajadas ficam com os 6 tiros dentro do alvo, porque o erro so
 ---- perturba o INCREMENTO da forca e um `cf` bem apontado no tiro 2 sobrevive ate o 6.
 A.RecoilLateralPct = 40
+---- unused: RecoilBipodLatMul now covers it, and MG setup is always prone on a bipod
 A.MGSetupSideBiasMul = 120
+
+---- firing on the move: no brace at all, and the stride throws the muzzle sideways
+A.RecoilMovingCtlPct = 25
+A.RecoilMovingLatPct = 50
 
 ---- Prone on a bipod: the legs stop the climb, not the yaw, so the gun sweeps sideways.
 A.RecoilBipodKickYMul = 60
