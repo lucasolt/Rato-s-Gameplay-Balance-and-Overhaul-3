@@ -110,7 +110,7 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
     end
     local head = (part_id == "Head" or part_id == "Neck")
 
-    local stance = target:GetHitStance()
+    local stance = Rat_StanceKey(target)
     att_stance = att_stance or attacker.stance
 
     ---- BUGFIX: a chave nao levava a postura do ATIRADOR, embora o GetLoFData abaixo leve -- duas

@@ -1133,7 +1133,7 @@ function Rat_DbgSilhouette(target, attacker, body_part, half_cm, steps)
                    "  exposicao %d%%%s\n" ..
                    "  verde = colisao aceita, amarelo = disco de area equivalente",
                tostring(attacker.session_id), tostring(target.session_id),
-               tostring(target:GetHitStance()), attacker:GetDist(target) / const.SlabSizeX,
+               Rat_StanceKey(target), attacker:GetDist(target) / const.SlabSizeX,
                tostring(body_part), 2 * steps + 1, 2 * steps + 1, cell_cm,
                minx * cell_cm, maxx * cell_cm, miny * cell_cm, maxy * cell_cm,
                clipped and "   *** TRUNCADO: aumente half_cm ***" or "",
@@ -1160,7 +1160,7 @@ function Rat_DbgSilhouetteCalib(attacker, body_part)
             local r = tonumber(txt:match("raio equivalente (%d+)cm"))
             local expo = tonumber(txt:match("exposicao (%d+)%%"))
             local trunc = txt:find("TRUNCADO") and true or false
-            local st = tostring(o:GetHitStance())
+            local st = Rat_StanceKey(o)
             local d = attacker:GetDist(o) / const.SlabSizeX
             if r and expo == 100 and not trunc then
                 by_stance[st] = by_stance[st] or {}

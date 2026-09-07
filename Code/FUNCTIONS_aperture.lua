@@ -39,16 +39,26 @@ end
 ---- Silhueta do alvo
 ---------------------------------------------------------------------------------------------------
 
+---- Chave de postura das tabelas por postura. Animais devolvem GetHitStance() vazio e caiam no
+---- fallback `Standing` de cada tabela -- uma hiena media como um homem em pe. "Animal" e explicito.
+function Rat_StanceKey(target, override)
+    if override then
+        return override
+    end
+    if not IsKindOf(target, "Unit") then
+        return "Standing"
+    end
+    local stance = target:GetHitStance()
+    return (stance ~= "" and stance) or "Animal"
+end
+
 ---- Raio equivalente do alvo em cm, por postura. `body_part_def` continua no perfil porque meia
 ---- duzia de chamadas passam a parte, mas NAO muda mais o tamanho: CTH e P(acertar o alvo), e a
 ---- parte atingida sai da trajetoria. exposed_pct: 0..100 nao ocluido, entra como raiz (area -> raio).
 function Rat_TargetSilhouette(target, body_part_def, exposed_pct, stance_override)
     local a = P()
 
-    local stance = stance_override
-    if not stance and IsKindOf(target, "Unit") then
-        stance = target:GetHitStance()
-    end
+    local stance = Rat_StanceKey(target, stance_override)
     local r = a.Silhouette[stance] or a.Silhouette.Standing
 
     if exposed_pct and exposed_pct < 100 then
@@ -91,10 +101,7 @@ function Rat_TargetExtents(attacker_pos, target, spot, exposed_pct, stance_overr
         return nil
     end
 
-    local stance = stance_override
-    if not stance and IsKindOf(target, "Unit") then
-        stance = target:GetHitStance()
-    end
+    local stance = Rat_StanceKey(target, stance_override)
     local part = spot
     if type(part) == "table" then
         part = part.id

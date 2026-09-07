@@ -25,10 +25,17 @@ A.CoverRaycast = true
 ---- Caixa -> corpo, em %. Os cantos da caixa sao vazios: de pe ela tem 93 cm de largura e o
 ---- homem tem ~50. E a UNICA constante ajustavel deste caminho -- calibrada contra tiro simulado,
 ---- nao contra o modelo antigo. Maior = alvo maior = mais CTH.
+---- Animal: quadrupede nao tem postura (GetHitStance() vazio -> chave "Animal", ver Rat_StanceKey).
+---- Medido na hiena: caixa da animacao 125x47x74 cm, mas o corpo que colide ocupa 73% da largura
+---- e 66% da altura dela, e o retangulo projetado ainda sobra nos cantos porque o corpo e uma
+---- barra deitada. Area medida por tiro simulado / caixa com fill 100 = 40%, contra 55% do homem
+---- em pe na mesma cena -- 77 x 40/55 = 56. Confere com o raio equivalente (21-29 cm medidos
+---- contra 25-39 do modelo, +19 a +34%): 77 / 1,27 = 61. Adotado o meio.
 A.BodyFill = {
     Standing = 77,
     Crouch = 72,
     Prone = 56,
+    Animal = 58,
 }
 
 ---- Meia-largura e meia-altura da CABECA, em mm de verdade. E o segundo retangulo: sem ele o
@@ -49,10 +56,14 @@ A.NormalBand = {
 ---- Geometria da silhueta para a SONDAGEM DE COBERTURA: meia-largura/altura da caixa (1000 = 1 m),
 ---- extensao da grade fina ao redor do spot. Altura do centro nao entra (ancora nos spots do GetLoFData).
 
+---- Animal: com halfw 380 os desvios de +-80% jogam a sonda a 30 cm do eixo, fora de uma hiena de
+---- 47 cm de largura -- 9 dos 15 raios saiam no ar. A normalizacao salva o numero, mas sobram 6
+---- raios de resolucao atras de cobertura. 200 mantem o desvio dentro do corpo.
 A.Box = {
     Standing = {halfw = 380, halfh = 475},
     Crouch = {halfw = 295, halfh = 360},
-    Prone = {halfw = 370, halfh = 255}
+    Prone = {halfw = 370, halfh = 255},
+    Animal = {halfw = 200, halfh = 250}
 }
 
 ---- Desvios LATERAIS de sondagem em % da meia-largura, por spot. 5 spots x 5 desvios = 25 raios/chamada.
@@ -80,10 +91,13 @@ A.ExposureBlockedPct = 6
 ---- a ~20-25 tiles: pe 76x95 (42), agachado 59x72 (33), prone 74x51 (31), cabeca 20x22 (11).
 ---- Prone entra ABAIXO do medido de proposito (sonda pegou perfil; preserva o -30 flat de CTH_cover_prone.lua).
 
+---- Animal: raio equivalente medido na hiena por sondagem de grade, 21 cm de frente e 29 cm de
+---- flanco a 100% de exposicao. So o fallback do circulo -- o caminho normal usa Rat_TargetExtents.
 A.Silhouette = {
     Standing = 42,
     Crouch = 37,--33,
-    Prone = 31 --26
+    Prone = 31, --26
+    Animal = 25
 }
 
 
