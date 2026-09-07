@@ -352,6 +352,26 @@ A.RecoilPersistCapKicks = 3
 A.RecoilPersistAimReset = 3
 
 ---------------------------------------------------------------------------------------------------
+---- OFF-PART STRAY. aCTH flies the bullet, so it lands on whatever body part the trajectory crossed
+---- -- often not the one aimed at. Vanilla only calls a hit "stray" when it lands on ANOTHER unit
+---- (-50% dmg, no crit, no effects); hitting the wrong part of the intended target was impossible.
+---- Here the wrong part is a soft stray: crit chance and the body part status effect are scaled,
+---- damage is a separate knob. Untargeted shots aim Torso (g_DefaultShotBodyPart), so they pay too.
+---------------------------------------------------------------------------------------------------
+A.OffPartStray = true
+
+---- Crit chance multiplier when the bullet hit a part other than the aimed one. 100 disables.
+A.OffPartCritPct = 33
+
+---- Chance (%) that the body part status effect (Inaccurate/Slowed/Suppressed) still lands on an
+---- off-part hit. Ammo effects are untouched. 100 disables.
+A.OffPartEffectPct = 33
+
+---- Damage multiplier for an off-part hit, applied before armor like the vanilla stray -50%.
+---- 100 = no reduction (default); 50 reproduces vanilla stray damage.
+A.OffPartDamagePct = 100
+
+---------------------------------------------------------------------------------------------------
 
 ---- Strings dos rotulos declarados acima (AimDecayMuls, AimStepMeta, Handling): vivem AQUI agora,
 ---- entao a exportacao da tabela de traducao tem de le-las daqui. Ver Code/T_ID_enforcement.lua.

@@ -61,7 +61,9 @@ function Firearm:BulletCalcDamage(hit_data, ricochet_idx)
 		hit.damage = dmg
 
 		local breakdown = obj == target and record_breakdown -- We only care about the damage breakdown on the target, not objects in the way.
-		self:PrecalcDamageAndStatusEffects(attacker, obj, hit_data.step_pos, hit.damage, hit, hit_data.applied_status, hit_data, breakdown, action, prediction)
+		---- off-part hit (flagged in GetAttackResults): scaled here, before armor, like the vanilla stray
+		self:PrecalcDamageAndStatusEffects(attacker, obj, hit_data.step_pos, Rat_OffPartDamage(hit.damage, hit.rat_offpart), hit, hit_data.applied_status, hit_data, breakdown, action, prediction)
+		Rat_OffPartRollEffects(attacker, hit, prediction)
 
 		hit.impact_force = hit.damage > 0 and impact_force + self:GetDistanceImpactForce(hit.distance) or 0
 

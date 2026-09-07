@@ -71,6 +71,9 @@ function Firearm:GetAttackResults(action, attack_args)
     shot_attack_args.target_pos = target_pos
     shot_attack_args.target_spot_group = shot_attack_args.target_spot_group or target_unit and
                                              g_DefaultShotBodyPart
+    ---- Rat_SimLoFOverrides clears target_spot_group on the copy (see FUNCTIONS_aperture), so the
+    ---- aimed part has to be read before the shot loop starts.
+    local rat_aimed_part = shot_attack_args.target_spot_group
     shot_attack_args.aim = shot_attack_args.aim or 0
     shot_attack_args.damage_bonus = shot_attack_args.damage_bonus or 0
     shot_attack_args.cth_loss_per_shot = shot_attack_args.cth_loss_per_shot or 0
@@ -549,7 +552,7 @@ function Firearm:GetAttackResults(action, attack_args)
         local precalc_shot = precalc_shots and precalc_shots[i]
         local shot_data = precalc_shot and precalc_shot.shot_data or shots_data[i]
 
-        local shot_cth, shot_miss, shot_crit, allow_grazing, shot_hit_spot
+        local shot_cth, shot_miss, shot_crit, allow_grazing, shot_hit_spot, shot_off_part
         shot_cth = band(shot_data, sfCthMask)
         shot_miss = band(shot_data, sfHit) == 0
         shot_crit = band(shot_data, sfCrit) ~= 0
@@ -665,6 +668,10 @@ function Firearm:GetAttackResults(action, attack_args)
                 shot_attack_args.target_spot_group = aimed
             end
 
+            ---- wrong part of the right target: soft stray, the crit is mostly taken away.
+            shot_off_part = (not shot_miss) and Rat_IsOffPart(rat_aimed_part, shot_hit_spot)
+            shot_crit_chance = Rat_OffPartCritChance(shot_crit_chance, shot_off_part)
+
             ---- crit rolado por tiro, so vale se a bala chegou. Sem multishot (Buckshot, DoubleBarrel,
             ---- DualShot) o roll e UM para o ataque inteiro: sem o limite de um crit o mesmo sorteio
             ---- critava toda bala que chegasse. Vanilla amarra em `i == 1`; aqui, na 1a que chegou.
@@ -735,6 +742,8 @@ function Firearm:GetAttackResults(action, attack_args)
                 if IsKindOf(hit.obj, "Unit") then
                     hit.stray = nil
                 end
+                ---- read back in GetBulletDamage, where damage and effects are still open
+                hit.rat_offpart = (hit.obj == target) and shot_off_part or nil
             end
         end
 
@@ -759,6 +768,7 @@ function Firearm:GetAttackResults(action, attack_args)
             for _, hit in ipairs(hit_data.hits or empty_table) do
                 if hit.obj == target then
                     dbg_rec.stray = hit.stray and true or false
+                    dbg_rec.off_part = hit.rat_offpart and true or false
                     dbg_rec.damage = hit.damage
                     break
                 end

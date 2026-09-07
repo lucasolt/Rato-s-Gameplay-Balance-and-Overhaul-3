@@ -1398,6 +1398,58 @@ function Rat_SimHitSpot(lof, target)
     return false, nil
 end
 
+---- Off-part stray: the bullet crossed the target somewhere other than the aimed part. Needs both
+---- spots, so a hit without spot_group never turns into a stray by accident.
+function Rat_IsOffPart(aimed_spot, hit_spot)
+    local a = P()
+    if not a.OffPartStray or not aimed_spot or not hit_spot then
+        return false
+    end
+    return hit_spot ~= aimed_spot
+end
+
+---- Crit chance already scaled for an off-part hit. Kept here so the shot loop and any UI read one rule.
+function Rat_OffPartCritChance(chance, off_part)
+    local a = P()
+    if not off_part or not a.OffPartStray then
+        return chance
+    end
+    return MulDivRound(chance, a.OffPartCritPct or 100, 100)
+end
+
+---- Damage of an off-part hit, BEFORE armor -- same point where vanilla charges the stray -50%.
+function Rat_OffPartDamage(damage, off_part)
+    local a = P()
+    if not off_part or not a.OffPartStray then
+        return damage
+    end
+    return MulDivRound(damage, a.OffPartDamagePct or 100, 100)
+end
+
+---- The body part status effect (Inaccurate/Slowed/Suppressed) only survives a roll on an off-part
+---- hit. Ammo and perk effects stay: the penalty is for hitting the wrong part, not for the ammo.
+function Rat_OffPartRollEffects(attacker, hit, prediction)
+    local a = P()
+    local pct = a.OffPartEffectPct or 100
+    ---- prediction has no roll; the UI keeps showing what a clean hit would inflict
+    if not a.OffPartStray or prediction or pct >= 100 or not hit.rat_offpart then
+        return
+    end
+    local part = hit.spot_group and Presets.TargetBodyPart.Default[hit.spot_group]
+    local eff = part and part.applied_effect
+    if not eff or eff == "" then
+        return
+    end
+    if attacker:Random(100) < pct then
+        return
+    end
+    if type(hit.effects) == "table" then
+        table.remove_value(hit.effects, eff)
+    elseif hit.effects == eff then
+        hit.effects = {}
+    end
+end
+
 ---- Registro do ataque para visualizador e comparador. Guarda todo o insumo; nao altera calculo.
 function Rat_SimSnapshot(ctx)
     local args = ctx.args or empty_table
