@@ -233,21 +233,50 @@ A.MeshStyle = {
 
 A.MeshStyle.fanr = A.MeshStyle.fanl -- sao iguais, so mudam a orientacao do leque
 
----- Rastro dos tiros ja disparados (UI_shot_history): linha estilo Pindown (CRM_VisionLinePreset
----- + CRTrail). `preset` e a base clonada; fill_color/glow_color/fill_width sobrescrevem. Miss
----- nao tem tracejado (o shader vision_line nao suporta), so cor e alpha diferentes.
+---- Rastro dos tiros: true = linha estilo Pindown (CRM_VisionLinePreset + CRTrail, A.ShotTraceStyle);
+---- false = fita de Polyline antiga (A.MeshStyle.shot_hit / shot_miss).
+A.ShotTracePindown = true
+
+---- Fita de Polyline (usada so quando A.ShotTracePindown = false). Mais fina que o anel: sao
+---- varias linhas longas na tela ao mesmo tempo, e a largura do anel viraria uma mancha.
+A.MeshStyle.shot_hit = {
+    shader = "default_polyline",
+    depth = false,
+    color = false,
+    width = 7,
+    halo = 7,
+    coreAlpha = 235,
+    haloAlpha = 40,
+    baseFade = 4 -- a raiz sai do peito do atirador; sem isto a linha pinta em cima dele
+}
+
+A.MeshStyle.shot_miss = {
+    shader = "default_polyline",
+    depth = false,
+    color = false,
+    width = 5,
+    halo = 6,
+    coreAlpha = 170,
+    haloAlpha = 30,
+    dash = 140,
+    baseFade = 4
+}
+
+---- Linha estilo Pindown (CRM_VisionLinePreset + CRTrail). `preset` e a base clonada;
+---- fill_color/glow_color/fill_width sobrescrevem. Miss nao tem tracejado (o shader vision_line
+---- nao suporta), so cor e alpha diferentes.
 A.ShotTraceStyle = {
     hit = {
-        preset = "PreparedAttack",
-        fill_color = RGBA(70, 230, 120, 200),
-        glow_color = RGBA(190, 255, 210, 255),
-        fill_width = 20,
+        preset = "RangeContourPreset", --"DefaultVision"
+        fill_color = RGB(244,149, 57),
+        glow_color = RGBA(0, 0, 0, 0),--RGBA(190, 255, 210, 255),
+        fill_width = 14,
     },
     miss = {
-        preset = "PreparedAttack",
-        fill_color = RGBA(235, 80, 60, 150),
-        glow_color = RGBA(255, 170, 150, 220),
-        fill_width = 16,
+        preset = "RangeContourPreset",
+        fill_color = RGB(244, 149, 57),--RGBA(235, 80, 60, 150),
+        glow_color = RGB(0,0,0, 0),--RGBA(255, 170, 150, 220),
+        fill_width = 14,
     },
 }
 

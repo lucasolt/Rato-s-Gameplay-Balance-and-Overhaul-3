@@ -17,13 +17,16 @@ end
 
 ---- Classe propria, IRMA de RatConeRing e nao filha: Rat_SweepConeRings varre por classe e
 ---- levaria o rastro junto toda vez que o crosshair fechasse.
+---- Duas malhas: a linha estilo Pindown (Mesh + CRMaterial) e a fita antiga (Polyline). O flag
+---- A.ShotTracePindown escolhe qual; ambas varridas juntas.
 DefineClass.RatShotTrace = {__parents = {"Mesh"}}
+DefineClass.RatShotTraceLine = {__parents = {"Polyline"}, rat_shader = false, rat_depth = false}
 
 local traces = {} --- os objetos na tela agora
 
 function Rat_SweepShotTraces()
     local n = 0
-    MapForEach("map", "RatShotTrace", function(o)
+    MapForEach("map", "RatShotTrace", "RatShotTraceLine", function(o)
         n = n + 1
         DoneObject(o)
     end)
@@ -57,7 +60,9 @@ end
 ---- `pct` (idade do ataque). Clone: a base e preset compartilhado e nao pode ser mutada.
 local function trace_material(kind, pct)
     local st = (P().ShotTraceStyle or empty_table)[kind] or empty_table
-    local mat = CRM_VisionLinePreset:GetById(st.preset or "PreparedAttack"):Clone()
+    local base = CRM_VisionLinePreset:GetById(st.preset or "PreparedAttack")
+              or CRM_VisionLinePreset:GetById("PreparedAttack")
+    local mat = base:Clone()
     local fill = st.fill_color or mat.fill_color
     local glow = st.glow_color or mat.glow_color
     if pct < 100 then
@@ -72,9 +77,10 @@ local function trace_material(kind, pct)
     return mat
 end
 
-local function show_trace(key, from, to, kind, pct)
+local function show_trace_pindown(key, from, to, kind, pct)
     local obj = traces[key]
-    if not IsValid(obj) then
+    if not IsKindOf(obj, "RatShotTrace") then
+        if IsValid(obj) then DoneObject(obj) end
         obj = PlaceObject("RatShotTrace")
         obj:SetMeshFlags(const.mfWorldSpace)
         traces[key] = obj
@@ -87,6 +93,54 @@ local function show_trace(key, from, to, kind, pct)
     obj:SetMesh(meshPtr)
     obj:SetPos(from) --- so culling: com mfWorldSpace os vertices ja sao absolutos
     obj:SetVisible(true)
+end
+
+---- Subdivide o segmento: a fita monta um quad por par de pontos e o alpha interpola nas pontas,
+---- entao uma reta de 2 pontos desbotaria ao longo do tiro inteiro em vez de so na raiz.
+local function trace_points(from, to, steps)
+    local pts = {}
+    for i = 0, steps do
+        pts[i + 1] = from + MulDivRound(to - from, i, steps)
+    end
+    return pts
+end
+
+---- Estilo da fita com os alphas escalados por `pct` (idade do ataque). Copia rasa: A.MeshStyle
+---- e config compartilhada e mexer nela aqui vazaria para o proximo desenho.
+local function aged_style(obj, id, pct)
+    local st = Rat_StrokeStyle(obj, id)
+    if not st or pct >= 100 then
+        return st
+    end
+    local out = table.copy(st)
+    out.coreAlpha = MulDivRound(st.coreAlpha or 255, pct, 100)
+    out.haloAlpha = MulDivRound(st.haloAlpha or 40, pct, 100)
+    out.fillAlpha = MulDivRound(st.fillAlpha or 60, pct, 100)
+    return out
+end
+
+local function show_trace_line(key, from, to, kind, pct)
+    local obj = traces[key]
+    if not IsKindOf(obj, "RatShotTraceLine") then
+        if IsValid(obj) then DoneObject(obj) end
+        obj = PlaceObject("RatShotTraceLine")
+        traces[key] = obj
+    end
+    local id = kind == "miss" and "shot_miss" or "shot_hit"
+    local color = kind == "miss" and const.clrRed or const.clrGreen
+    local pts = trace_points(from, to, 8)
+    local st = aged_style(obj, id, pct)
+    obj:SetMesh(Rat_StrokeMesh(id, pts, (st and st.color) or color, st))
+    obj:SetPos(pts[1]) --- so culling: com mfWorldSpace os vertices ja sao absolutos
+    obj:SetVisible(true)
+end
+
+local function show_trace(key, from, to, kind, pct)
+    if P().ShotTracePindown ~= false then
+        show_trace_pindown(key, from, to, kind, pct)
+    else
+        show_trace_line(key, from, to, kind, pct)
+    end
 end
 
 function Rat_HideShotTraces()
