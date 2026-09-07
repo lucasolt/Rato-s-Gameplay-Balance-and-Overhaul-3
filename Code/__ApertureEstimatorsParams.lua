@@ -26,11 +26,19 @@ A.CoverRaycast = true
 ---- homem tem ~50. E a UNICA constante ajustavel deste caminho -- calibrada contra tiro simulado,
 ---- nao contra o modelo antigo. Maior = alvo maior = mais CTH.
 ---- Animal: quadrupede nao tem postura (GetHitStance() vazio -> chave "Animal", ver Rat_StanceKey).
----- Medido na hiena: caixa da animacao 125x47x74 cm, mas o corpo que colide ocupa 73% da largura
----- e 66% da altura dela, e o retangulo projetado ainda sobra nos cantos porque o corpo e uma
----- barra deitada. Area medida por tiro simulado / caixa com fill 100 = 40%, contra 55% do homem
----- em pe na mesma cena -- 77 x 40/55 = 56. Confere com o raio equivalente (21-29 cm medidos
----- contra 25-39 do modelo, +19 a +34%): 77 / 1,27 = 61. Adotado o meio.
+---- Calibrado do jeito certo, com o proprio amostrador (Rat_DbgShots): o fill que faz o CTH do
+---- modelo bater com a fracao de tiros simulados que acertam. Cena limpa e plana, 4 hienas e 3
+---- crocodilos, azimutes de 45 em 45, 3 a 16 tiles, elevacao do atirador de -1,2 a +5 m,
+---- 300-500 amostras por cenario. Na faixa em que o CTH decide alguma coisa (10-16 tiles) as
+---- duas especies dao a mesma media: hiena 56, crocodilo 58.
+----
+---- Comparar AREA projetada nao serve de calibracao -- da 40% para a hiena e 55% para o homem em
+---- pe, quando o fill de verdade e 58 e 77. O CTH e massa gaussiana no centro, nao area.
+----
+---- Residual conhecido, e do formato, nao do numero: o fill que bateria varia com o azimute
+---- (medido na hiena a 6 tiles, 76 de tras, 62 de frente, 38 de flanco) porque o retangulo
+---- circunscreve mal um corpo deitado. Elevacao NAO entra nisso -- a projecao dos 8 cantos ja
+---- resolve o desnivel, medido estavel de 0 a +5 m.
 A.BodyFill = {
     Standing = 77,
     Crouch = 72,
