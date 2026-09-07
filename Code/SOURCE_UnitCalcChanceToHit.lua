@@ -123,6 +123,14 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 		---- lugar em que este ataque aconteceria, em vez de no lugar onde o atirador esta agora.
 		---- So a IA passa; o jogador mira sempre de onde a unidade esta. Ver Rat_EffectiveAim.
 		mod_data.rat_stance = args and args.rat_stance
+
+		---- `args.rat_exposed` (0..100) e a fracao exposta JA MEDIDA por quem chama, e substitui a
+		---- sondagem de silhueta. So a IA passa: o laco de destinos dela ja dispara um GetLoFData
+		---- batelado por destino contra todos os alvos, e a contagem de spots alcancados que sai
+		---- dele responde a mesma pergunta de graca -- ver RATOAI_LoFExposure no mod de IA. Sem
+		---- isto a IA cai em A.CoverAIFallback, que usa GetCoverPercentage e devolve 100% em
+		---- terreno entulhado (medido: 5 de 5 linhas com exposicao real de 0 a 80%).
+		mod_data.rat_exposed = args and args.rat_exposed
 		Rat_ResolveAngular(mod_data)
 		rat_cone = not mod_data.rat_blocked
 	end

@@ -170,6 +170,11 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
     ---------------------------------------------------------------------------------------
     local base = GetLoFData(attacker, target, {
         obj = attacker, weapon = weapon, stance = att_stance,
+        ---- BUGFIX: a funcao recebia `attacker_pos` e so o usava na chave do cache e na base
+        ---- ortonormal -- os raios saiam da posicao REAL da unidade. Perguntar pela exposicao de
+        ---- um destino candidato devolvia a do tile onde ela esta. Medido: 18 destinos diferentes,
+        ---- 18 respostas iguais; com step_pos, 5/5, 5/5, 0/5, 0/5, 1/5, 0/5.
+        step_pos = attacker_pos,
         prediction = true, output_collisions = true,
         force_hit_seen_target = false
     })

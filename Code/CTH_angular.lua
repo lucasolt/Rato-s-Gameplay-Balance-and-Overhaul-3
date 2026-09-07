@@ -47,7 +47,7 @@ function Rat_ResolveAngular(data)
 
     local _, sigma, theta, meta, parts, _, _, up, down, right, left, theta_geo, head =
         Rat_AngularCTH(attacker, target, data.target_spot_group, action, weapon1, aim,
-                       opportunity_attack, data.attacker_pos, data.target_pos, nil)
+                       opportunity_attack, data.attacker_pos, data.target_pos, data.rat_exposed)
     data.rat_ext_up, data.rat_ext_down, data.rat_ext_right, data.rat_ext_left = up, down, right, left
     data.rat_ext_head = head
     ---- tamanho do alvo para EXIBIR: geometria pura. rat_theta e equivalente em probabilidade e
@@ -72,7 +72,7 @@ function Rat_ResolveAngular(data)
     if action and action.id == "DualShot" and weapon2 then
         local _, sigma2 = Rat_AngularCTH(attacker, target, data.target_spot_group, action, weapon2,
                                          aim, opportunity_attack, data.attacker_pos,
-                                         data.target_pos, nil)
+                                         data.target_pos, data.rat_exposed)
         if sigma2 and sigma2 > 0 then
             sigma = MulDivRound(sigma + sigma2, 100, 200)
         end
