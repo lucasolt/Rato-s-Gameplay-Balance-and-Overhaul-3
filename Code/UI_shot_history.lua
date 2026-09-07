@@ -3,8 +3,8 @@
 ---- por bala, da arma ate onde a bala parou. Verde acertou, vermelho tracejado errou.
 ---- Fonte: g_RatShotHistory, alimentado por Rat_SimSnapshot (FUNCTIONS_aperture) -- o MESMO
 ---- registro que Rat_DbgLastShots le, so que por unidade e guardando os N ultimos ataques.
----- Malha de Polyline como o anel de abertura (UI_aperture_ring), nao DbgAdd*: aqueles somem
----- na Gold Master e sao ferramenta de dev, isto e para o jogador.
+---- Linha estilo Pindown (CRM_VisionLinePreset + CRTrail), nao DbgAdd*: aqueles somem na
+---- Gold Master e sao ferramenta de dev, isto e para o jogador.
 ---------------------------------------------------------------------------------------------------
 
 ---- unit -> array de records, mais novo por ultimo. Chave fraca: o rastro nao segura um morto.
@@ -17,7 +17,7 @@ end
 
 ---- Classe propria, IRMA de RatConeRing e nao filha: Rat_SweepConeRings varre por classe e
 ---- levaria o rastro junto toda vez que o crosshair fechasse.
-DefineClass.RatShotTrace = {__parents = {"Polyline"}, rat_shader = false, rat_depth = false}
+DefineClass.RatShotTrace = {__parents = {"Mesh"}}
 
 local traces = {} --- os objetos na tela agora
 
@@ -53,39 +53,39 @@ function Rat_ShotHistoryPush(rec)
     end
 end
 
----- Subdivide o segmento: a fita monta um quad por par de pontos e o alpha interpola nas pontas,
----- entao uma reta de 2 pontos desbotaria ao longo do tiro inteiro em vez de so na raiz.
-local function trace_points(from, to, steps)
-    local pts = {}
-    for i = 0, steps do
-        pts[i + 1] = from + MulDivRound(to - from, i, steps)
+---- Material da linha (A.ShotTraceStyle) por tipo, com os alphas de fill/glow escalados por
+---- `pct` (idade do ataque). Clone: a base e preset compartilhado e nao pode ser mutada.
+local function trace_material(kind, pct)
+    local st = (P().ShotTraceStyle or empty_table)[kind] or empty_table
+    local mat = CRM_VisionLinePreset:GetById(st.preset or "PreparedAttack"):Clone()
+    local fill = st.fill_color or mat.fill_color
+    local glow = st.glow_color or mat.glow_color
+    if pct < 100 then
+        fill = SetA(fill, MulDivRound(select(4, GetRGBA(fill)), pct, 100))
+        glow = SetA(glow, MulDivRound(select(4, GetRGBA(glow)), pct, 100))
     end
-    return pts
+    mat.fill_color = fill
+    mat.glow_color = glow
+    if st.fill_width then
+        mat.fill_width = st.fill_width
+    end
+    return mat
 end
 
----- Estilo do traco com os alphas escalados por `pct` (idade do ataque). Copia rasa: A.MeshStyle
----- e config compartilhada e mexer nela aqui vazaria para o proximo desenho.
-local function aged_style(obj, id, pct)
-    local st = Rat_StrokeStyle(obj, id)
-    if not st or pct >= 100 then
-        return st
-    end
-    local out = table.copy(st)
-    out.coreAlpha = MulDivRound(st.coreAlpha or 255, pct, 100)
-    out.haloAlpha = MulDivRound(st.haloAlpha or 40, pct, 100)
-    out.fillAlpha = MulDivRound(st.fillAlpha or 60, pct, 100)
-    return out
-end
-
-local function show_trace(key, pts, color, id, pct)
+local function show_trace(key, from, to, kind, pct)
     local obj = traces[key]
     if not IsValid(obj) then
         obj = PlaceObject("RatShotTrace")
+        obj:SetMeshFlags(const.mfWorldSpace)
         traces[key] = obj
     end
-    local st = aged_style(obj, id, pct)
-    obj:SetMesh(Rat_StrokeMesh(id, pts, (st and st.color) or color, st))
-    obj:SetPos(pts[1]) --- so culling: com mfWorldSpace os vertices ja sao absolutos
+    local meshPtr = pstr("")
+    CRTrail_AppendLineSegment(meshPtr, from, to, false, false, false)
+    local mat = trace_material(kind, pct)
+    mat.length = from:Dist(to)
+    obj:SetCRMaterial(mat)
+    obj:SetMesh(meshPtr)
+    obj:SetPos(from) --- so culling: com mfWorldSpace os vertices ja sao absolutos
     obj:SetVisible(true)
 end
 
@@ -125,9 +125,7 @@ function Rat_DrawShotTraces(unit)
             local to = sh.end_pos or sh.target_pos
             to = to and Rat_RingValidZ(to)
             if from and to and from:Dist(to) > 0 then
-                local id = sh.miss and "shot_miss" or "shot_hit"
-                local color = sh.miss and const.clrRed or const.clrGreen
-                show_trace(string.format("%d_%d", a, i), trace_points(from, to, 8), color, id, pct)
+                show_trace(string.format("%d_%d", a, i), from, to, sh.miss and "miss" or "hit", pct)
                 n = n + 1
             end
         end
