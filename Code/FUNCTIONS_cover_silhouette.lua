@@ -168,13 +168,23 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
     ----    disparada de uma origem estimada, divergia do engine -- a 3 tiles ela via
     ----    parede onde o engine tinha linha limpa nos cinco spots.
     ---------------------------------------------------------------------------------------
+    ---- BUGFIX: a funcao recebia `attacker_pos` e so o usava na chave do cache e na base
+    ---- ortonormal -- os raios saiam da posicao REAL da unidade. Perguntar pela exposicao de
+    ---- um destino candidato devolvia a do tile onde ela esta. Medido: 18 destinos diferentes,
+    ---- 18 respostas iguais; com step_pos, 5/5, 5/5, 0/5, 0/5, 1/5, 0/5.
+    ----
+    ---- BUGFIX 2: com `step_pos` o engine devolve a boca do cano na altura de AGACHADO mesmo
+    ---- com stance = "Prone" -- medido, 7931 contra 7338, 59 cm alto demais, e com o dummy do
+    ---- atirador deitado de verdade. Deitado atras de cobertura baixa e exatamente onde isso
+    ---- importa: a sondagem via linha limpa por cima do obstaculo e devolvia exposicao 100%
+    ---- onde a bala parava num crocodilo no meio do caminho -- CTH 49%, 0 de 300 tiros.
+    ---- Na posicao ATUAL da unidade o step_pos e redundante, entao some com ele e o engine
+    ---- resolve a postura certa. Num destino candidato (so a IA pergunta isso) ele continua,
+    ---- porque sem ele a resposta seria do tile errado, que e o erro maior dos dois.
+    local own_pos = attacker_pos == attacker:GetPos()
     local base = GetLoFData(attacker, target, {
         obj = attacker, weapon = weapon, stance = att_stance,
-        ---- BUGFIX: a funcao recebia `attacker_pos` e so o usava na chave do cache e na base
-        ---- ortonormal -- os raios saiam da posicao REAL da unidade. Perguntar pela exposicao de
-        ---- um destino candidato devolvia a do tile onde ela esta. Medido: 18 destinos diferentes,
-        ---- 18 respostas iguais; com step_pos, 5/5, 5/5, 0/5, 0/5, 1/5, 0/5.
-        step_pos = attacker_pos,
+        step_pos = (not own_pos) and attacker_pos or nil,
         prediction = true, output_collisions = true,
         force_hit_seen_target = false
     })
