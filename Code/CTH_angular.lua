@@ -38,8 +38,12 @@ function Rat_ResolveAngular(data)
 
     ---- MGSetup / MGRotate / stance / overwatch / Snipe: a PREVISAO tem que medir o tiro que a arma
     ---- vai fazer de verdade -- montar a arma nao e tiro de quadril. Ver Rat_EffectiveAim.
+    ---- `data.rat_stance` vem de `args.rat_stance` (SOURCE_UnitCalcChanceToHit) e so a IA o
+    ---- preenche: e ela que pergunta sobre um lugar onde a unidade ainda nao esta, e onde a
+    ---- stance que ela tem agora pode nao existir. nil = ler o atirador, como sempre.
     local aim, opportunity_attack = Rat_EffectiveAim(attacker, action, data.aim,
-                                                     data.opportunity_attack, target)
+                                                     data.opportunity_attack, target,
+                                                     data.rat_stance)
 
     local _, sigma, theta, meta, parts, _, _, up, down, right, left, theta_geo, head =
         Rat_AngularCTH(attacker, target, data.target_spot_group, action, weapon1, aim,
@@ -96,11 +100,13 @@ function Rat_ResolveAngular(data)
     ---- em quadratura (Rat_ConeSigmaY), nunca como deslocamento do centro -- ver
     ---- Rat_RecoilPersistSigma. Sai da MESMA funcao que o tiro le, com a mesma mira efetiva.
     data.rat_stretch = (a.ConeStretch and a.ConeStretch[attacker.stance]) or 100
-    data.rat_vsigma = Rat_RecoilPersistSigma(attacker, action, weapon1, aim, target)
+    data.rat_vsigma = Rat_RecoilPersistSigma(attacker, action, weapon1, aim, target,
+                                             data.rat_stance)
     if data.rat_vsigma > 0 then
         data.rat_vsigma = 0
         local clean = Rat_ConeCTH(data)
-        data.rat_vsigma = Rat_RecoilPersistSigma(attacker, action, weapon1, aim, target)
+        data.rat_vsigma = Rat_RecoilPersistSigma(attacker, action, weapon1, aim, target,
+                                                 data.rat_stance)
         data.rat_cth = Rat_ConeCTH(data)
         ---- quanto o recuo custou, em pontos: e o que a linha do overlay mostra e o que
         ---- Rat_ConeMulForPoints traduz para o mesmo % de cone que todo o resto usa

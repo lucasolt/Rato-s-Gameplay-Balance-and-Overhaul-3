@@ -119,6 +119,10 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 	---- nao poderia fazer isto sozinho: efeitos de status e componentes so rodam depois dele.
 	local rat_entry, rat_cone = nil, false
 	if IsValidTarget(target) and Rat_AngularActive(weapon1, action, self) then
+		---- `args.rat_stance` (tri-estado: nil / false / true) diz se a arma esta no ombro no
+		---- lugar em que este ataque aconteceria, em vez de no lugar onde o atirador esta agora.
+		---- So a IA passa; o jogador mira sempre de onde a unidade esta. Ver Rat_EffectiveAim.
+		mod_data.rat_stance = args and args.rat_stance
 		Rat_ResolveAngular(mod_data)
 		rat_cone = not mod_data.rat_blocked
 	end

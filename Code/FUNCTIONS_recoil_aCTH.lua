@@ -257,7 +257,10 @@ end
 ---- GameTime is in the key because the AP cost also moves with things the offset cannot see --
 ---- taking a stance, spending the turn. It only advances while an action resolves, so hovering
 ---- the crosshair still hits the memo, and anything that could have changed the price expires it.
-local m_att, m_act, m_wep, m_aim, m_tgt, m_px, m_py, m_time, m_ox, m_oy
+---- `m_st` entrou junto com o override de stance do Rat_EffectiveAim: duas consultas com o MESMO
+---- `aim` cru dao offsets diferentes se uma delas disser "fora de stance", entao sem esta chave a
+---- segunda receberia em silencio o resultado da primeira.
+local m_att, m_act, m_wep, m_aim, m_tgt, m_px, m_py, m_time, m_ox, m_oy, m_st
 local ap_busy
 
 ---- AP this attack costs: the recovery currency. Not a proxy for it -- the actual cost, so every
@@ -278,7 +281,9 @@ end
 
 ---- Offset the next attack fires from, in centiminutes. PURE: prediction and the real shot both
 ---- call it and have to agree, so it must never write.
-function Rat_RecoilPersistOffset(attacker, action, weapon, aim, target)
+---- `stance` (tri-estado) e repassado ao Rat_EffectiveAim -- ver o cabecalho dele. Chega do
+---- Rat_ResolveAngular, que por sua vez o recebe em `args.rat_stance`.
+function Rat_RecoilPersistOffset(attacker, action, weapon, aim, target, stance)
     if not Rat_RecoilPersistOn() or not attacker then
         return 0, 0
     end
@@ -290,7 +295,8 @@ function Rat_RecoilPersistOffset(attacker, action, weapon, aim, target)
     ---- the aim the GEOMETRY will use, never the raw one: stance and overwatch shoot from the
     ---- shoulder. The CTH resolves the cone through Rat_EffectiveAim, so an offset resolved off
     ---- the raw level would put the bullet somewhere the displayed number never saw.
-    aim = Rat_EffectiveAim and Rat_EffectiveAim(attacker, action, aim, nil, target) or (aim or 0)
+    aim = Rat_EffectiveAim and Rat_EffectiveAim(attacker, action, aim, nil, target, stance) or
+              (aim or 0)
     if aim >= (a.RecoilPersistAimReset or 3) then
         return 0, 0
     end
@@ -300,11 +306,11 @@ function Rat_RecoilPersistOffset(attacker, action, weapon, aim, target)
     end
     local now = GameTime()
     if m_att == attacker and m_act == action and m_wep == weapon and m_aim == aim and
-        m_tgt == target and m_px == px and m_py == py and m_time == now then
+        m_tgt == target and m_px == px and m_py == py and m_time == now and m_st == stance then
         return m_ox, m_oy
     end
-    m_att, m_act, m_wep, m_aim, m_tgt, m_px, m_py, m_time = attacker, action, weapon, aim, target,
-                                                            px, py, now
+    m_att, m_act, m_wep, m_aim, m_tgt, m_px, m_py, m_time, m_st = attacker, action, weapon, aim,
+                                                                  target, px, py, now, stance
 
     local retain = a.RecoilPersistRetainPerAP or 100
     for _ = 1, Min(Rat_RecoilPersistAP(attacker, action, weapon, aim, target), 24) do
@@ -316,8 +322,8 @@ end
 
 ---- The same offset in MINUTES, which is the unit every CTH consumer speaks. Centiminutes exist
 ---- for the step alone -- nothing outside the dynamics should have to know about the finer scale.
-function Rat_RecoilPersistOffsetMin(attacker, action, weapon, aim, target)
-    local px, py = Rat_RecoilPersistOffset(attacker, action, weapon, aim, target)
+function Rat_RecoilPersistOffsetMin(attacker, action, weapon, aim, target, stance)
+    local px, py = Rat_RecoilPersistOffset(attacker, action, weapon, aim, target, stance)
     return MulDivRound(px, 1, 100), MulDivRound(py, 1, 100)
 end
 
@@ -335,8 +341,8 @@ end
 ----
 ---- The magnitude still comes from where the muzzle ENDED, so a long burst leaves more than one
 ---- shot does, and it still recovers per AP spent.
-function Rat_RecoilPersistSigma(attacker, action, weapon, aim, target)
-    local px, py = Rat_RecoilPersistOffset(attacker, action, weapon, aim, target)
+function Rat_RecoilPersistSigma(attacker, action, weapon, aim, target, stance)
+    local px, py = Rat_RecoilPersistOffset(attacker, action, weapon, aim, target, stance)
     if px == 0 and py == 0 then
         return 0
     end
@@ -344,8 +350,8 @@ function Rat_RecoilPersistSigma(attacker, action, weapon, aim, target)
     ---- Aim is an explicit multiplier per level, not just the AP it costs: the AP channel alone
     ---- bought almost nothing at level 2 and could not be read off the screen. Zero at 3, which is
     ---- what RecoilPersistAimReset and the effect's own description already promise.
-    local eff = Rat_EffectiveAim and Rat_EffectiveAim(attacker, action, aim, nil, target) or
-                    (aim or 0)
+    local eff = Rat_EffectiveAim and
+                    Rat_EffectiveAim(attacker, action, aim, nil, target, stance) or (aim or 0)
     local mul = (a.RecoilPersistAimMul or empty_table)[Clamp(eff, 0, 3)] or 0
     if mul <= 0 then
         return 0

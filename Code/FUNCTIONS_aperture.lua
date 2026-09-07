@@ -1545,7 +1545,25 @@ end
 ---- Nivel de mira que a GEOMETRIA vai usar de fato. Stance/overwatch/interrupt sobem para 1
 ---- (a arma esta no ombro), Snipe vai ao maximo. Quem le `aim` cru fora daqui fica dessincronizado
 ---- do cone -- foi o que deixava o tiro de overwatch com luneta escapar da penalidade de perto.
-function Rat_EffectiveAim(attacker, action, aim, opportunity_attack, target)
+----
+---- `stance` (tri-estado, opcional) -- QUEM PERGUNTA DIZ SE A ARMA ESTA NO OMBRO:
+----     nil   = ler o estado do atirador (comportamento de sempre; e o que o jogador usa)
+----     false = tratar como fora de stance
+----     true  = tratar como em stance
+----
+---- Existe porque `HasStatusEffect` responde sobre o atirador AGORA, e ha um chamador que
+---- pergunta sobre outro lugar: a IA avalia centenas de destinos, e mover-se DESTROI a stance
+---- (REACTIONS_ShootingStance.lua, OnMsg.UnitMovementDone). Sem o override, o cone de um tile
+---- que so se alcanca andando era resolvido como se a arma continuasse no ombro la -- medido com
+---- o Raider 775 (AK47, alvo a 5 tiles): a IA lia CTH 67 (sigma 131) num tiro de quadril que
+---- vale 27 (sigma 264). Mira 0 e mira 1 devolviam o MESMO numero, entao a IA nao conseguia
+---- distinguir uma posicao preparada de qualquer tile ao lado dela, e mover saia de graca.
+----
+---- So os TRES efeitos de postura entram no override -- sao os que o movimento tira. Ataque de
+---- oportunidade, Overwatch e overwatch permanente ficam fora: nao dependem de onde se esta.
+----
+---- O jogador nunca passa `stance`: a mira dele e sempre avaliada de onde a unidade esta.
+function Rat_EffectiveAim(attacker, action, aim, opportunity_attack, target, stance)
     aim = aim or 0
     if not attacker then
         return aim, opportunity_attack
@@ -1555,9 +1573,16 @@ function Rat_EffectiveAim(attacker, action, aim, opportunity_attack, target)
         return Max(aim, 1), true
     end
 
-    if opportunity_attack or attacker:HasStatusEffect("shooting_stance") or
-        attacker:HasStatusEffect("ManningEmplacement") or
-        attacker:HasStatusEffect("StationedMachineGun") or (action and action.id == "Overwatch") or
+    local shouldered
+    if stance == nil then
+        shouldered = attacker:HasStatusEffect("shooting_stance") or
+                         attacker:HasStatusEffect("ManningEmplacement") or
+                         attacker:HasStatusEffect("StationedMachineGun")
+    else
+        shouldered = stance and true or false
+    end
+
+    if opportunity_attack or shouldered or (action and action.id == "Overwatch") or
         (g_Overwatch[attacker] and g_Overwatch[attacker].permanent) then
         aim = Max(1, aim)
     end
