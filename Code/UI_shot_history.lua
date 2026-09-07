@@ -21,16 +21,20 @@ end
 ---- A.ShotTracePindown escolhe qual; ambas varridas juntas.
 DefineClass.RatShotTrace = {__parents = {"Mesh"}}
 DefineClass.RatShotTraceLine = {__parents = {"Polyline"}, rat_shader = false, rat_depth = false}
+---- Anel de impacto: sempre Polyline, encara a camera. Ver show_mark.
+DefineClass.RatShotMark = {__parents = {"Polyline"}, rat_shader = false, rat_depth = false}
 
 local traces = {} --- os objetos na tela agora
+local marks = {} --- os aneis de impacto na tela agora
 
 function Rat_SweepShotTraces()
     local n = 0
-    MapForEach("map", "RatShotTrace", "RatShotTraceLine", function(o)
+    MapForEach("map", "RatShotTrace", "RatShotTraceLine", "RatShotMark", function(o)
         n = n + 1
         DoneObject(o)
     end)
     traces = {}
+    marks = {}
     return n
 end
 
@@ -143,13 +147,43 @@ local function show_trace(key, from, to, kind, pct)
     end
 end
 
+---- Anel no ponto de impacto, no plano que encara a camera (dir = olho -> ponto), para ler como
+---- anel de qualquer angulo. Sempre Polyline: e pequeno e por cima de tudo, como o anel de mira.
+local function show_mark(key, at, kind, pct)
+    local obj = marks[key]
+    if not IsValid(obj) then
+        obj = PlaceObject("RatShotMark")
+        marks[key] = obj
+    end
+    local dir = camera.GetEye() - at
+    local radius = P().ShotTraceMarkRadius or 120
+    if kind == "miss" then
+        radius = MulDivRound(radius, 60, 100)
+    end
+    local pts = Rat_RingPoints(at, radius, dir, P().CrosshairRingSegments or 32)
+    if not pts then
+        return
+    end
+    local color = kind == "miss" and const.clrRed or const.clrGreen
+    local st = aged_style(obj, "shot_mark", pct)
+    obj:SetMesh(Rat_StrokeMesh("shot_mark", pts, (st and st.color) or color, st))
+    obj:SetPos(pts[1])
+    obj:SetVisible(true)
+end
+
 function Rat_HideShotTraces()
     for _, obj in pairs(traces) do
         if IsValid(obj) then
             DoneObject(obj)
         end
     end
+    for _, obj in pairs(marks) do
+        if IsValid(obj) then
+            DoneObject(obj)
+        end
+    end
     traces = {}
+    marks = {}
 end
 
 ---- Redesenha do zero. Nao ha estado incremental: a fila muda inteira a cada ataque e a
@@ -179,7 +213,12 @@ function Rat_DrawShotTraces(unit)
             local to = sh.end_pos or sh.target_pos
             to = to and Rat_RingValidZ(to)
             if from and to and from:Dist(to) > 0 then
-                show_trace(string.format("%d_%d", a, i), from, to, sh.miss and "miss" or "hit", pct)
+                local key, kind = string.format("%d_%d", a, i), sh.miss and "miss" or "hit"
+                show_trace(key, from, to, kind, pct)
+                ---- marca o impacto: so acertos por padrao (P().ShotTraceHitMarks pode incluir erros)
+                if P().ShotTraceHitMarks ~= false and (kind == "hit" or P().ShotTraceHitMarks == "all") then
+                    show_mark(key, to, kind, pct)
+                end
                 n = n + 1
             end
         end

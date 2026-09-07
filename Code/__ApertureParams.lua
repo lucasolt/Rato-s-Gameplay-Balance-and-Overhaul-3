@@ -235,30 +235,30 @@ A.MeshStyle.fanr = A.MeshStyle.fanl -- sao iguais, so mudam a orientacao do lequ
 
 ---- Rastro dos tiros: true = linha estilo Pindown (CRM_VisionLinePreset + CRTrail, A.ShotTraceStyle);
 ---- false = fita de Polyline antiga (A.MeshStyle.shot_hit / shot_miss).
-A.ShotTracePindown = true
+A.ShotTracePindown = false
 
 ---- Fita de Polyline (usada so quando A.ShotTracePindown = false). Mais fina que o anel: sao
 ---- varias linhas longas na tela ao mesmo tempo, e a largura do anel viraria uma mancha.
 A.MeshStyle.shot_hit = {
     shader = "default_polyline",
     depth = false,
-    color = false,
-    width = 7,
+    color = RGB(0,0,0),
+    width = 16,
     halo = 7,
     coreAlpha = 235,
-    haloAlpha = 40,
+    haloAlpha = 200,
     baseFade = 4 -- a raiz sai do peito do atirador; sem isto a linha pinta em cima dele
 }
 
 A.MeshStyle.shot_miss = {
     shader = "default_polyline",
     depth = false,
-    color = false,
-    width = 5,
+    color = RGB(0,0,0),
+    width = 16,
     halo = 6,
-    coreAlpha = 170,
-    haloAlpha = 30,
-    dash = 140,
+    coreAlpha = 235,
+    haloAlpha = 200,
+    dash = 0,
     baseFade = 4
 }
 
@@ -278,6 +278,23 @@ A.ShotTraceStyle = {
         glow_color = RGB(0,0,0, 0),--RGBA(255, 170, 150, 220),
         fill_width = 14,
     },
+}
+
+---- Anel no ponto de impacto de cada tiro. true = so acertos | "all" = acertos e erros |
+---- false = nenhum. Sempre Polyline (A.MeshStyle.shot_mark), encara a camera.
+A.ShotTraceHitMarks = true
+
+---- Raio do anel de impacto, em unidades de mundo (guim = 1000 ~ 1 m). Erro usa 60% disto.
+A.ShotTraceMarkRadius = 120
+
+A.MeshStyle.shot_mark = {
+    shader = "default_polyline",
+    depth = false,
+    color = false,
+    width = 8,
+    halo = 6,
+    coreAlpha = 235,
+    haloAlpha = 45
 }
 
 ---- Quantos ataques por unidade o rastro guarda. Cada ataque sao varios tiros.
