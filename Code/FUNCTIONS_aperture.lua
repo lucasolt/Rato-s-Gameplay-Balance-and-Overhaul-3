@@ -167,8 +167,16 @@ function Rat_TargetExtents(attacker_pos, target, spot, exposed_pct, stance_overr
         expo = Rat_ISqrt(Max(0, exposed_pct) * 100)
     end
     local fill = MulDivRound(a.BodyFill[stance] or a.BodyFill.Standing, expo, 100)
-    local function minutes(x)
-        return Max(1, MulDivRound(MulDivRound(x, fill, 100), 3438, dist))
+    ---- Bicho deitado visto de lado: a caixa fica larga e baixa e o retangulo sobra em cima e
+    ---- embaixo, porque so o tronco preenche a faixa vertical. Encolhe o eixo vertical na raiz da
+    ---- razao de aspecto, com piso. So a chave Animal -- humano deitado ja tem A.BodyFill.Prone.
+    local fill_v = fill
+    if stance == "Animal" and right + left > up + down then
+        fill_v = MulDivRound(fill, Max(a.BodyFillFlatMin or 100,
+                                       Rat_ISqrt(MulDivRound(up + down, 10000, right + left))), 100)
+    end
+    local function minutes(x, f)
+        return Max(1, MulDivRound(MulDivRound(x, f or fill, 100), 3438, dist))
     end
     ---- deslocamento COM SINAL, sem piso: posicao dentro da silhueta, nao tamanho
     local function offset_min(x, scale)
@@ -191,7 +199,8 @@ function Rat_TargetExtents(attacker_pos, target, spot, exposed_pct, stance_overr
                      Max(1, offset_min(a.HeadHalfW, expo)), Max(1, offset_min(a.HeadHalfH, expo)) }
         end
     end
-    up, down, right, left = minutes(up), minutes(down), minutes(right), minutes(left)
+    up, down = minutes(up, fill_v), minutes(down, fill_v)
+    right, left = minutes(right), minutes(left)
 
     ---- theta GEOMETRICO (equivalente em area) so para exibicao: nao depende de sigma, entao o
     ---- tamanho do alvo mostrado na UI para de encolher quando o jogador mira.

@@ -43,12 +43,20 @@ A.BodyFill = {
     Standing = 77,
     Crouch = 72,
     Prone = 56,
-    Animal = 58,
+    Animal = 60,
 }
 
 ---- Meia-largura e meia-altura da CABECA, em mm de verdade. E o segundo retangulo: sem ele o
 ---- modelo assume largura de ombro na altura da cabeca. Nao passa por BodyFill -- a cabeca
 ---- preenche a propria caixa; so a cobertura a encolhe.
+---- Piso do encolhimento vertical de A.BodyFill.Animal (ver Rat_TargetExtents). Sem piso o
+---- crocodilo, cuja caixa e 3,8x mais longa que alta, perdia altura demais e o modelo passava a
+---- mentir para o outro lado. Ajustado com 68 cenarios amostrados (2 especies, 8 azimutes,
+---- 4-16 tiles): o pior vies de QUALQUER recorte -- especie, azimute ou faixa de distancia --
+---- cai de 9,8 para 8,1 pontos, o vies global de +4,4 para +0,2 e o erro medio de 9,3 para 7,3.
+---- Sobra +8 a 4 tiles (o retangulo satura antes do corpo) e -8 de frente/de tras.
+A.BodyFillFlatMin = 80
+
 A.HeadHalfW = 90
 A.HeadHalfH = 115
 
