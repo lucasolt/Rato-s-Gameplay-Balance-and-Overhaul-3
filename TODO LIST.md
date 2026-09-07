@@ -3,9 +3,54 @@
 ```lua
 CheatAddItem("itemid")
 ```
+## aCTH Possible fragilities
+- [ ] Make sure AI will orient before checking for cover in LOF.
+- [ ] Check how the `aCTH` deals with out-of-sight targets (wallbang).
+- [X] Check how it works agains non-humanoids
+- [ ] does the night vision penalty affects it?
+- [ ] check if AI is considering bonus from crouch
+
+## AI OVERHAUL - other mod 
+- [ ] Mechanics check
+- [ ] Grenade range policy bugged/grenadiers?
+- [ ] Take cover action is more important, should be used
+- [ ] in aCTH they should try to shoot the head if its the only part out of cover
+- [ ] Implement smoke usage.
+- [ ] Make sure AI will not try to shoot through walls. (especially with aCTH)
+- [X] Enemy `LastPos` should generate threat. They should also try to "chase" the last position.
+- [ ] Investigate the shot-selection threshold in regards to aCTH. Enemies are shooting "0%" shots in aCTH
+- [ ] in aCTH, they should not use autofire from the hip unless very close
+- [x]  Check grenade distribution.
+  - Give more timed grenades to enemies.
+  - Less frustrating, but still a challenge to the player.
+- [ ] Tune `Threat Exposure`, possibly simplify
+	- [X] Fix LOS 
+	- [X] Fix Debug overlay not decomposing ready curve 
+- [X] Check recoil calc for AI when using aCTH
+- [X] Fix AI trying to shoot prone when there is a very small cover in front of it, making impossible to actually hit (see savegame) **---> Done. Needs testing**
+
+## AI Overhaul new stuff
+- [ ] Overwatch against last target pos when unit is hidden. also make them throw grenades at it, specially when at a rooftop
+
+
+## aCTH Balancing
+
+- [ ] Close range might get _too_ strong
+- [ ] review the no-stock/handgun aim penalties. Maybe its a bit too much. Could use the _range_ as a penalty, instead 
+- [ ] Re-scale Aim Accuracy bonus for more gradient
+- [ ] review the Handling while standing penalty
+- [ ] Stray shots should have a lower chance to inflict status effects. 
+	- General inquiring about how strays are working now. Maybe be stray when hit other bodyparts of the same target? I am not even sure how the damage is being calculated right now.
+- [ ] Calibrar o recuo de segunda ordem.
+  - Ancorar `KickBase` e o mapa `control -> CFMax` nas duas.
+  - Ver linhas extremas do ladder do `1cc229c`.
+  - Depois conferir um calibre pesado.
+  - Ver `RECOIL MODEL.md`.
 
 ## Reimplementation necessary
-- [X] Camouflage. DONE: needs rewriting of descriptions
+- [ ] CQC bonus perk?
+- [X] low profile cth mod for crocs disabled when using aCTH
+- [X] Camouflage. **DONE: needs rewriting of descriptions**
 - [ ] How to deal with scopes that give bonuses to hit body parts or bypass cover?
   - Handzolt.
   - Scout Scope.
@@ -15,38 +60,24 @@ CheatAddItem("itemid")
 - [ ] MGSetup Get AP (Should be the same as overwatch??) PS: Fix bug in the rotate button using max AP
 - [ ] Check if Run and Gun penalty modifier for recoil was implemented
 - [ ] out of breath impact on aim
- 
-## QOL
-- [ ] Implement F1 "wiki"
-
-## aCTH Balancing
-
-- [ ] Stray shots should have a lower chance to inflict status effects. General inquiring about how strays are working now. Maybe be stray when hit other bodyparts of the same target? I am not even sure how the damage is being calculated right now.
-- [ ] Calibrar o recuo de segunda ordem.
-  - Ancorar `KickBase` e o mapa `control -> CFMax` nas duas.
-  - Ver linhas extremas do ladder do `1cc229c`.
-  - Depois conferir um calibre pesado.
-  - Ver `RECOIL MODEL.md`.
-
-## aCTH Possible fragilities
-- [ ] Make sure AI will orient before checking for cover in LOF.
-- [ ] Check how the `aCTH` deals with out-of-sight targets (wallbang).
-- [ ] Check how it works agains non-humanoids
-- [ ] does the night vision penalty affects it
-
+------------------------------------------------------------------------------------------------------------------------------
+# Later Stuff
 ## aCTH Descriptions that need change
-
+- [ ] DualShot max aim = 3
 - [ ] Autofire max aim levels
 - [ ] Burst and aim bonus
 - [ ] Camouflage effect
 - [ ] MG Setup and set up bonuses/held gun
+- [ ] UI CTH should change, put aperture in a differnt setting, also recoil
  
 ## New mechanics intended
 - [ ] Autofire shot count.
 - [x] MG Recoil/setup rework (needs further testing)
 - [x] Crouch and prone effect on the aperture, elliptical
 
+
 ## New mechanics (luxury)
+
 - [ ] MG and bipods setting up on cover/crouch
 - [ ] Change AP scale for more gradient AP costs, specially for stance, rotation etc
 - [ ] **MEGA LUXURY** Vision cones/directional vision. Would need to make AI take this into account.
@@ -55,23 +86,14 @@ CheatAddItem("itemid")
 - [ ] Shotgun pellet balancing.
 - [ ] **General balancing:** OW tuning — minor.
 
-## AI OVERHAUL - other mod 
-- [ ] Implement smoke usage.
-- [ ] Make sure AI will not try to shoot through walls. (especially with aCTH)
-- [ ] Enemy `LastPos` should generate threat. They should also try to "chase" the last position.
-- [ ] Investigate the shot-selection threshold.
-  - Currently at `1`.
-  - Consider increasing it to `2`.
-- [x]  Check grenade distribution.
-  - Give more timed grenades to enemies.
-  - Less frustrating, but still a challenge to the player.
-- [ ] Need to simplify `Threat Exposure`, remove the stuff that is just leftovers and tune the policy
-	- [X] Fix LOS 
-	- [ ] Fix Debug overlay not decomposing ready curve 
-- [ ] Check recoil calc for AI when using aCTH
+## QOL
+- [ ] Implement F1 "wiki"
 
 
-## Threat Exposure 
+------------------------------------------------------------------------------------------------------------------------------
+
+
+# Threat Exposure 
 # Range / Falloff Shape — "How Much Does Distance Matter"
 
 - `PlateauTiles` — **CORE.** Distance where weight stays at 100 before decay starts. Fixes the "linear from zero" mismatch with real accuracy curves.

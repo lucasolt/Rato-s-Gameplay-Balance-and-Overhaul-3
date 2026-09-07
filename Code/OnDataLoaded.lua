@@ -9,6 +9,7 @@ function rat_apply_changes()
     runandgun_cth()
     targeted_noburst()
     point_blank_cth()
+	GBO_changeLowProfileCTHmod()
 
     ------ Combat Actions
     rat_combat_actions()
@@ -36,6 +37,8 @@ function rat_apply_changes()
     place_angular_cth()
     ---- o circulo de mira do crosshair passa a mostrar a abertura real
     Rat_PatchCrosshairAimCircle()
+
+
     -- add_recalcUI() ----smart ow compatibility
 end
 

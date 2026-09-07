@@ -233,69 +233,105 @@ A.MeshStyle = {
 
 A.MeshStyle.fanr = A.MeshStyle.fanl -- sao iguais, so mudam a orientacao do leque
 
----- Rastro dos tiros: true = linha estilo Pindown (CRM_VisionLinePreset + CRTrail, A.ShotTraceStyle);
----- false = fita de Polyline antiga (A.MeshStyle.shot_hit / shot_miss).
-A.ShotTracePindown = false
+
 
 ---- Fita de Polyline (usada so quando A.ShotTracePindown = false). Mais fina que o anel: sao
 ---- varias linhas longas na tela ao mesmo tempo, e a largura do anel viraria uma mancha.
+local mesh_shader = "default_polyline" or "default_polyline"
+
+local line_color = RGB(207, 206, 198)--RGB(173, 189, 204)
+function def_mesh_shots(args)
+	for k,v in pairs(args) do
+		A.MeshStyle.shot_hit[k] = v
+		A.MeshStyle.shot_miss[k] = v
+	end
+	print(A.MeshStyle.shot_hit)
+end 
+
 A.MeshStyle.shot_hit = {
-    shader = "default_polyline",
-    depth = false,
-    color = RGB(0,0,0),
-    width = 16,
-    halo = 7,
-    coreAlpha = 235,
-    haloAlpha = 200,
-    baseFade = 4 -- a raiz sai do peito do atirador; sem isto a linha pinta em cima dele
+    shader = mesh_shader,
+    depth = true,
+    color = line_color,
+    width = 10,
+    halo = 10,
+    coreAlpha = 100,
+    haloAlpha = 50,
+    baseFade = 3 -- a raiz sai do peito do atirador; sem isto a linha pinta em cima dele
 }
 
-A.MeshStyle.shot_miss = {
-    shader = "default_polyline",
-    depth = false,
-    color = RGB(0,0,0),
-    width = 16,
-    halo = 6,
-    coreAlpha = 235,
-    haloAlpha = 200,
-    dash = 0,
-    baseFade = 4
-}
+A.MeshStyle.shot_miss = A.MeshStyle.shot_hit 
+
+--= {
+--    shader = mesh_shader,
+--    depth = false,
+--    color = RGB(0,0,0),
+--    width = 16,
+--    halo = 6,
+--    coreAlpha = 235,
+--    haloAlpha = 200,
+--    dash = 0,
+--    baseFade = 4
+--}
 
 ---- Linha estilo Pindown (CRM_VisionLinePreset + CRTrail). `preset` e a base clonada;
 ---- fill_color/glow_color/fill_width sobrescrevem. Miss nao tem tracejado (o shader vision_line
 ---- nao suporta), so cor e alpha diferentes.
+
+local pnd_color = RGBA(176, 196, 216, 150)
+local pnd_glow_clr = RGBA(255,255,255, 255)
+
+
+function def_pd_mesh_shots(args)
+	for k,v in pairs(args) do
+		A.ShotTraceStyle.shot_hit[k] = v
+		A.ShotTraceStyle.shot_miss[k] = v
+	end
+	print(A.ShotTraceStyle.shot_hit)
+end 
+
+---- Rastro dos tiros: true = linha estilo Pindown (CRM_VisionLinePreset + CRTrail, A.ShotTraceStyle);
+---- false = fita de Polyline antiga (A.MeshStyle.shot_hit / shot_miss).
+A.ShotTracePindown = false
+
 A.ShotTraceStyle = {
     hit = {
-        preset = "RangeContourPreset", --"DefaultVision"
-        fill_color = RGB(244,149, 57),
-        glow_color = RGBA(0, 0, 0, 0),--RGBA(190, 255, 210, 255),
-        fill_width = 14,
+        preset = "DefaultVision", --"DefaultVision"
+        fill_color = pnd_color,
+        glow_color = pnd_glow_clr,--RGBA(190, 255, 210, 255),
+        fill_width = 16,
     },
     miss = {
-        preset = "RangeContourPreset",
-        fill_color = RGB(244, 149, 57),--RGBA(235, 80, 60, 150),
-        glow_color = RGB(0,0,0, 0),--RGBA(255, 170, 150, 220),
-        fill_width = 14,
+        preset = "DefaultVision",
+        fill_color = pnd_color,--RGBA(235, 80, 60, 150),
+        glow_color = pnd_glow_clr,--RGBA(255, 170, 150, 220),
+        fill_width = 16,
     },
 }
 
 ---- Anel no ponto de impacto de cada tiro. true = so acertos | "all" = acertos e erros |
 ---- false = nenhum. Sempre Polyline (A.MeshStyle.shot_mark), encara a camera.
-A.ShotTraceHitMarks = true
+A.ShotTraceHitMarks = "all"
 
 ---- Raio do anel de impacto, em unidades de mundo (guim = 1000 ~ 1 m). Erro usa 60% disto.
 A.ShotTraceMarkRadius = 120
 
 A.MeshStyle.shot_mark = {
     shader = "default_polyline",
-    depth = false,
+    depth = true,
     color = false,
-    width = 8,
+    width = 10,--8,
     halo = 6,
     coreAlpha = 235,
     haloAlpha = 45
 }
+
+---- Fita gorda: em cruz ao redor do eixo do tiro em vez de um plano so, para nao afinar de
+---- perfil. false volta ao Rat_StrokeMesh (plano unico encarando a camera).
+A.ShotTraceFatTube = true
+
+---- Raio da bolinha de acerto, em unidades de mundo (guim = 1000 ~ 1 m). Pequena e solida,
+---- no plano perpendicular ao tiro. O erro continua anel oco, com 60% de A.ShotTraceMarkRadius.
+A.ShotTraceBallRadius = 45
 
 ---- Quantos ataques por unidade o rastro guarda. Cada ataque sao varios tiros.
 A.ShotHistoryAttacks = 4

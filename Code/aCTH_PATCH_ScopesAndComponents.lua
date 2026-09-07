@@ -830,7 +830,7 @@ RAT_APERTURE_WEAPON_RANGE = {
     Groza_1 = {22, 24},
     ---- Submetralhadoras (so as de cano longo mudam)
     HK53_1 = {28, 30},
-    AKSU = {24, 26},
+    AKSU = {24, 24}, -- second was 26
     M4Commando = {24, 26},
 
     --

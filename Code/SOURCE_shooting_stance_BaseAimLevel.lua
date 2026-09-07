@@ -11,8 +11,12 @@ function Unit:GetBaseAimLevelRange(action, target)
 				["GrizzlyPerk"]= true
 			}
 
-			if const.Combat.Aperture.SimulateShots then
+			if const.Combat.Aperture.Enabled then
 				singleMaxActions["AutoFire"] = nil
+				singleMaxActions["DualShot"] = nil
+				if action.id == "DualShot" then
+					max = Min(3, max)
+				end
 				--singleMaxActions["GrizzlyPerk"] = nil
 			end
             if singleMaxActions[action.id] then

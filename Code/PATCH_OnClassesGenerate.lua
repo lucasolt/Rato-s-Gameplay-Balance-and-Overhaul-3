@@ -172,7 +172,7 @@ function OnMsg.ClassesGenerate(classdefs)
             Handler = function(self, target, attacker, attack_target, action, attack_args)
                 if target == attacker and attack_args.gruntyPerk then
                     target:AddStatusEffect("grunty_bonus")
-                    attack_args.aim = 1
+                    attack_args.aim = Max(1, attack_args.aim)
                 end
             end
         })

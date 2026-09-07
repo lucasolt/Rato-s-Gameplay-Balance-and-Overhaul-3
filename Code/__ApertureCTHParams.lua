@@ -75,6 +75,7 @@ A.AimDecayMuls = {
 	                meta = T {901477523654, "(-) Heavy Rain"}},
 	HandgunPenalty = {mul = 150, classes = {"Pistol", "Revolver"}, ---- 100 is disabled
 	                  meta = T {195655494642, "(-) Handgun"}},
+	NoStock = {mul = 150, component = "ReduceAimAccuracy"},
 	Crouch = {mul = 100, stance = "Crouch", --97,--95
 	          meta = T {688848752517, "Crouching"}},
 	Prone = {mul = 100, stance = "Prone", --95,--90
@@ -82,7 +83,7 @@ A.AimDecayMuls = {
 	ProneGripPenalty = {mul = 105, stance = "Prone", component = "grip_prone_penalty",
 	                    meta = T {856431894569, "(-) Grip while prone"}},
 	LightStock = {mul = 110, component = "light_stock_aim_reduce"},
-	NoStock = {mul = 150, component = "ReduceAimAccuracy"}
+
 }
 
 ---- CAMUFLAGEM. Alvo camuflado e mais dificil de VER, entao encolhe a SILHUETA -- nao alarga o
@@ -152,7 +153,7 @@ A.HandlingUseBaseMul = true
 ---- penalty (RecoilHeldPivot). LIGHT by default -- LOWER slope than recoil on purpose, this is
 ---- aim, not muzzle control -- and it only bites past the pivot, so most guns pay nothing.
 A.HandlingHeldPivot = 130
-A.HandlingHeldSlope = 100--30
+A.HandlingHeldSlope = 80--30
 A.HandlingHeldStrRelief = 50
 A.HandlingHeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
 

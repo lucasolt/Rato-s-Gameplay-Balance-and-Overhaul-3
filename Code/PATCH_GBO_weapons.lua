@@ -1,7 +1,7 @@
 -- ========== THIS IS AN AUTOMATICALLY GENERATED FILE! ==========
 
 function RatoGBO_WepPatch()
-	print("Running PATCH_GBO_weapons Done")
+	print("Running PATCH_GBO_weapons...")
 	BarretM82.Cost = 15940
 	BarretM82.WeaponRange = 40
 	BarretM82.ShootAP = 4000
