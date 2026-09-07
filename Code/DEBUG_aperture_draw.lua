@@ -20,8 +20,9 @@ local clrSilh = const.clrCyan
 local clrAxis = const.clrWhite
 
 ---- Geometria em UI_aperture_ring.lua: o anel do jogador e estes discos sao o MESMO circulo.
-local cone_radius = Rat_ConeRadius
-local vz = Rat_RingValidZ
+---- Resolvido na chamada, nao no load -- UI_aperture_ring.lua carrega depois deste arquivo.
+local function cone_radius(dist, minutes) return Rat_ConeRadius(dist, minutes) end
+local function vz(pos) return Rat_RingValidZ(pos) end
 
 ---- Disco no plano perpendicular a linha de tiro (alvo de papel de frente).
 local function draw_disc(center, radius, dir, color, segments)
