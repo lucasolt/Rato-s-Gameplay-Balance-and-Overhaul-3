@@ -49,6 +49,9 @@ function Rat_InvalidateExposureCache()
     exposure_cache = {}
     cache_count = 0
     cache_gen = cache_gen + 1
+    if Rat_ResetClearanceCache then
+        Rat_ResetClearanceCache()
+    end
 end
 
 function OnMsg.NewMap()
@@ -82,7 +85,11 @@ end
 ---- raio (origem, destino, se chegou, o que bloqueou) para o visualizador desenhar.
 ---- Passar `dbg_table` tambem ignora o cache e forca o caminho completo de sondagem, senao
 ---- nao haveria raio nenhum para mostrar quando a resposta ja estivesse memoizada.
-function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_part, weapon, dbg_table)
+---- `att_stance` pergunta por uma postura que o atirador ainda NAO tem (a IA compara posturas
+---- antes de atirar); nil = ler a unidade. `force_full` ignora A.CoverAIFallback -- a IA usa na
+---- EXECUCAO, onde 10 ms uma vez por ataque cabem e o palpite do fallback nao serve.
+function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_part, weapon,
+                             dbg_table, att_stance, force_full)
     local a = P()
     if not a.Enabled or not a.CoverRaycast then
         return 100
@@ -104,7 +111,15 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
     local head = (part_id == "Head" or part_id == "Neck")
 
     local stance = target:GetHitStance()
-    local key = xxhash(attacker_pos, target.handle, target_pos, stance, head and 1 or 0, cache_gen)
+    att_stance = att_stance or attacker.stance
+
+    ---- BUGFIX: a chave nao levava a postura do ATIRADOR, embora o GetLoFData abaixo leve -- duas
+    ---- perguntas sobre o mesmo par de tiles de posturas diferentes colidiam. Nem distinguia o
+    ---- palpite do fallback da sondagem completa, entao uma consulta do jogador e uma da IA na
+    ---- mesma linha se sobrescreviam.
+    local full = force_full or not P().CoverAIFallback
+    local key = xxhash(attacker_pos, target.handle, target_pos, stance, head and 1 or 0, cache_gen,
+                       att_stance, full and 1 or 0)
     if not dbg_table then
         local hit = exposure_cache[key]
         if hit then
@@ -128,7 +143,8 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
     ---- O jogador (crosshair e tiro de verdade) fica com a sondagem completa.
     ---------------------------------------------------------------------------------------
     local side = attacker.team and attacker.team.side or ''
-    if a.CoverAIFallback and not dbg_table and not (side == 'player1' or side == 'player2') then
+    if a.CoverAIFallback and not force_full and not dbg_table and
+        not (side == 'player1' or side == 'player2') then
         local _, _, coverage = target:GetCoverPercentage(attacker_pos, target_pos)
         local p = Clamp(100 - (coverage or 0), 0, 100)
         if p < a.ExposureBlockedPct then
@@ -153,7 +169,7 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
     ----    parede onde o engine tinha linha limpa nos cinco spots.
     ---------------------------------------------------------------------------------------
     local base = GetLoFData(attacker, target, {
-        obj = attacker, weapon = weapon, stance = attacker.stance,
+        obj = attacker, weapon = weapon, stance = att_stance,
         prediction = true, output_collisions = true,
         force_hit_seen_target = false
     })
@@ -419,6 +435,129 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
         cache_count = cache_count + 1
     end
 
+    return pct
+end
+
+---------------------------------------------------------------------------------------------------
+---- OCLUSAO PROXIMA DO CANO -- o que a silhueta nao pode ver
+----
+---- Rat_MeasureExposure sonda o ALVO: 25 raios do cano ate pontos do corpo. Eles abrem no fim da
+---- linha e ficam colineares no comeco dela, entao um obstaculo encostado no atirador passa pelos
+---- 25 pelo mesmo vao. So que a bala nao anda na silhueta, anda no CONE -- raio sigma, tipicamente
+---- o dobro de theta_geo -- e o que cobre o cone perto do cano nao deixa NADA sair.
+----
+---- Aqui o anel: A.MuzzleProbeRays raios em angulos fixos no plano perpendicular a linha de tiro,
+---- no raio angular A.MuzzleProbeArcmin, disparados INTEIROS (encurtar o alvo faz o GetLoFData
+---- parar de reportar colisao -- medido) e julgados por ONDE PARARAM. Parada dentro do campo
+---- proximo = raio morto. Devolve a fracao viva, em %.
+----
+---- Angulo fixo, e nao sigma, por dois motivos: a resposta nao depende do nivel de mira, entao
+---- vale para os seis com uma sondagem em cache; e o cache do CTH nao precisa de bucket de sigma.
+----
+---- Determinista: os angulos sao k*360/N, nao ha sorteio. Seguro em previsao, em IA e em co-op.
+---------------------------------------------------------------------------------------------------
+
+local clearance_cache = {}
+local clearance_count = 0
+
+---- global e nao upvalue: Rat_InvalidateExposureCache esta ACIMA neste arquivo e um local
+---- declarado aqui nao existiria la. Ela chama por nome, entao a ordem de carga nao importa.
+function Rat_ResetClearanceCache()
+    clearance_cache = {}
+    clearance_count = 0
+end
+
+function Rat_MuzzleClearance(attacker, target, attacker_pos, target_pos, weapon, att_stance,
+                             dbg_table, force)
+    local a = P()
+    if not a.MuzzleProbe or not IsValid(attacker) or not IsValid(target) then
+        return 100
+    end
+
+    attacker_pos = attacker_pos or attacker:GetPos()
+    target_pos = target_pos or target:GetPos()
+    att_stance = att_stance or attacker.stance
+    if not attacker_pos or not target_pos then
+        return 100
+    end
+
+    ---- mesma divisao de A.CoverAIFallback: no PENSAMENTO a IA avalia centenas de destinos e
+    ---- 4 raios por destino estouram o turno. Quem quiser o numero na execucao chama com o
+    ---- gate ja aberto -- ver RATOAI_ClearShotStance no mod de IA.
+    local side = attacker.team and attacker.team.side or ''
+    if not a.MuzzleProbeAI and not force and not dbg_table and
+        not (side == 'player1' or side == 'player2') then
+        return 100
+    end
+
+    local key = xxhash(attacker_pos, target.handle, target_pos, att_stance, cache_gen)
+    if not dbg_table then
+        local hit = clearance_cache[key]
+        if hit then
+            return hit
+        end
+    end
+
+    weapon = weapon or attacker:GetActiveWeapons()
+
+    local args = {
+        obj = attacker, weapon = weapon, stance = att_stance,
+        target = target, step_pos = attacker_pos,
+        occupied_pos = attacker:GetOccupiedPos(),
+        prediction = true, output_collisions = true,
+        can_use_covers = false, force_hit_seen_target = false,
+        can_hit_attacker = false, clamp_to_target = false, aimIK = false,
+        penetration_class = a.CoverPenetrationClass,
+        range = weapon and weapon.GetMaxRange and (weapon:GetMaxRange() * const.SlabSizeX) or nil
+    }
+
+    local base = GetLoFData(attacker, target, args)
+    if not base or not base.lof or #base.lof == 0 then
+        return 100
+    end
+    local ap = Rat_ValidZ(base.lof[1].attack_pos)
+    local aim = Rat_ValidZ(Rat_SimAimPos(base.lof, args.target_spot_group, target_pos))
+    if not ap or not aim then
+        return 100
+    end
+
+    local dist = ap:Dist(aim)
+    if dist < 1 then
+        return 100
+    end
+    local dir = SetLen(aim - ap, 1000)
+    local up = Rat_PerpUp(dir)
+    local radius = MulDivRound(dist, a.MuzzleProbeArcmin, 3438)
+    ---- campo proximo: nunca alem de uma fracao da linha, senao o tiro curto trata o alvo como
+    ---- obstaculo e a cobertura do alvo entra duas vezes
+    local near = Min(a.MuzzleProbeNearTiles * const.SlabSizeX,
+                     MulDivRound(dist, a.MuzzleProbeNearPct, 100))
+
+    local rays = Max(1, a.MuzzleProbeRays)
+    local alive = 0
+    for i = 0, rays - 1 do
+        local p = aim + RotateAxis(SetLen(up, radius), dir, i * (360 * 60) / rays)
+        local probe = table.copy(args)
+        probe.target_pos = p
+        local data = GetLoFData(attacker, p, probe)
+        local l = data and data.lof and data.lof[1]
+        local stop = l and (l.stuck_pos or l.lof_pos2)
+        local dead = stop and ap:Dist(stop) < near
+        if not dead then
+            alive = alive + 1
+        end
+        if dbg_table then
+            dbg_table[#dbg_table + 1] = {
+                from = ap, to = p, reached = not dead, stuck = stop, label = "cone " .. i
+            }
+        end
+    end
+
+    local pct = MulDivRound(alive, 100, rays)
+    if not dbg_table and clearance_count < CACHE_MAX then
+        clearance_cache[key] = pct
+        clearance_count = clearance_count + 1
+    end
     return pct
 end
 

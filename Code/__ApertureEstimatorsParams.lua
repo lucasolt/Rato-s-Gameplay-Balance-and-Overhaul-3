@@ -95,3 +95,45 @@ A.Silhouette = {
 ---- 384 erram 1%. ~100 ms, e so ferramenta de debug chega aqui.
 A.RecoilEstimateSamples = 384
 A.RecoilEstimateSeed = 20260904
+
+---------------------------------------------------------------------------------------------------
+---- OCLUSAO PROXIMA DO CANO
+----
+---- A sondagem de silhueta mede o alvo: 25 raios do cano para pontos do CORPO. Perto do cano eles
+---- sao praticamente colineares, entao um obstaculo encostado no atirador atravessa os 25 pelo
+---- mesmo vao e a exposicao sai alta. Mas o CONE tem raio sigma, quase o dobro de theta_geo nas
+---- distancias tipicas, e uma pedra a 1,2 tile do cano cobre esse raio inteiro.
+----
+---- Medido (LegionRaider:772 deitado atras de TropicalRockSharp_01, Grizzly a 21 tiles):
+----     exposicao 80%, CTH 19%, e 118 de 120 balas simuladas morrem na pedra. Acerto real: ZERO.
+---- Agachado o mesmo tiro da 13 de 120. A diferenca que o modelo via entre as duas posturas era
+---- de 3 pontos de CTH.
+----
+---- O anel abaixo mede o que a silhueta nao pode: raios no PLANO PERPENDICULAR a linha de tiro,
+---- no raio angular do cone, julgados por onde PARAM. Determinista (angulos fixos), nao consome
+---- random. Discriminacao medida em 5 pares atirador/alvo: 0/4 no caso da pedra, 4/4 nos outros.
+---------------------------------------------------------------------------------------------------
+
+---- Liga o termo. Sem ele nada abaixo e lido e o CTH volta a ser so silhueta.
+A.MuzzleProbe = true
+
+---- Raios do anel. 4 bastam: o obstaculo que importa cobre o anel inteiro, nao um setor.
+A.MuzzleProbeRays = 4
+
+---- Raio ANGULAR do anel, em minutos de arco -- a mesma unidade de sigma e theta. Fixo de
+---- proposito, e nao `sigma`: "tem uma pedra na frente do cano" nao depende do nivel de mira, e
+---- um raio fixo deixa a resposta valer para os seis niveis com UMA sondagem em cache.
+A.MuzzleProbeArcmin = 90
+
+---- Profundidade do campo proximo, em tiles. Uma parada mais longe que isto e cobertura normal do
+---- alvo, que a silhueta ja mede -- contar duas vezes seria o erro oposto.
+A.MuzzleProbeNearTiles = 3
+
+---- ... limitada tambem a esta fracao da distancia ate o alvo, para que tiro de 2 tiles nao trate
+---- o proprio alvo como obstaculo proximo.
+A.MuzzleProbeNearPct = 25
+
+---- IA nao paga o anel no PENSAMENTO (4 raios x ~8 ms por destino candidato estouraria o turno),
+---- so na EXECUCAO, uma vez por ataque -- ver RATOAI_ClearShotStance no mod de IA. Mesma divisao
+---- de A.CoverAIFallback e pelo mesmo motivo.
+A.MuzzleProbeAI = false

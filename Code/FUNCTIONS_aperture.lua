@@ -809,6 +809,21 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
     if exposed_pct == nil and a.CoverRaycast then
         exposed_pct = Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_part_def,
                                           weapon)
+
+        ---- ... e o que a silhueta NAO ve: obstaculo encostado no cano. Os 25 raios dela saem
+        ---- colineares e passam pelo mesmo vao; o cone nao. Entra como MENOS area exposta, o
+        ---- mesmo slot da camuflagem, porque a consequencia e a mesma -- menos bala que pode
+        ---- chegar. Nao ha dupla contagem: o anel so conta parada no campo PROXIMO, e cobertura
+        ---- do alvo para longe dali. Ver Rat_MuzzleClearance.
+        if (exposed_pct or 0) > 0 then
+            local clear = Rat_MuzzleClearance(attacker, target, attacker_pos, target_pos, weapon)
+            if clear < 100 then
+                exposed_pct = MulDivRound(exposed_pct, clear, 100)
+                if parts then
+                    parts.muzzle = clear
+                end
+            end
+        end
     end
 
     ---- camuflagem entra como MENOS area exposta, junto com a cobertura: theta, o anel e a bala
