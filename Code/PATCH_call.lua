@@ -21,6 +21,7 @@ function GBO_GeneralComponentPatch()
     ApplyApertureItemParams() -- override de comps enquanto o aperture esta ligado
 	reapply_tog_components()
 	GBO_ApplyComponentAncestorEffect() -- Copies ancestor effect and param tables, should be after the ancestors are set
+	GBO_ApplyComponentCompose() -- last: composed traits are the source of truth for the ids that declare them
 end
 
 function OnMsg.ClassesGenerate()

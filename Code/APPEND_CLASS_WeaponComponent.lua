@@ -14,6 +14,16 @@ function OnMsg.ClassesGenerate()
             },
 			{
                 category = "GBO",
+                id = "GBO_ComponentTraits",
+                name = "Component Traits",
+                help = "Comma separated trait ids (GBO_COMP_TRAITS). Composed into effects and params; overrides the code side map",
+                editor = "text",
+                default = "",
+                template = true,
+                modifiable = true
+            },
+			{
+                category = "GBO",
                 id = "GBO_BarrelWeight",
                 --name = "GBO_BarrelWeight",
                 help = "",

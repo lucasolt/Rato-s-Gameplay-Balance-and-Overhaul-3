@@ -146,6 +146,7 @@ return PlaceObj('ModDef', {
 		"Code/UnitProperties.lua",
 		"Code/PATCH_GBOComponents.lua",
 		"Code/PATCH_GBO_ApplyComponentAncestorEffect.lua",
+		"Code/PATCH_GBO_ComponentCompose.lua",
 		"Code/OnDataLoaded.lua",
 		"Code/PATCH_WeaponsPresetClass.lua",
 		"Code/PATCH_GBO_weapons.lua",

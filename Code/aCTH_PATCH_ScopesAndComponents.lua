@@ -311,6 +311,8 @@ A.ApertureComponentTier = {
 ---- params por nome. So o que o restore/apply precisa; visuais, custo e tags ficam no preset.
 ---------------------------------------------------------------------------------------------------
 
+
+--TODO: Should have tables that can be joined to generate component effecs. Example: Long Barrel + Light Barrel; Reflex Scope + Laser dot (TAR scope); Long Barrel + Bipod (AUG barrel)
 GBO_AUXILIARY_EFFECTS_ORIGINALS = {
 	Barrel = {
 		Improved = {

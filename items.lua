@@ -1612,6 +1612,10 @@ return {
 			'CodeFileName', "Code/PATCH_GBO_ApplyComponentAncestorEffect.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "PATCH_GBO_ComponentCompose",
+			'CodeFileName', "Code/PATCH_GBO_ComponentCompose.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "OnDataLoaded",
 			'CodeFileName', "Code/OnDataLoaded.lua",
 		}),
