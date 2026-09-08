@@ -210,16 +210,6 @@ GBO_COMP_TRAITS = {
 	
 }
 
-
--- TODO: Temporary, need to implement better
-if const.Combat.Aperture and const.Combat.Aperture.SimulateShots and const.Combat.Aperture.Enabled then
-	for k, table in pairs(GBO_COMP_TRAITS) do
-		if table.params.AimAccuracyIncrease and table.params.AimAccuracyIncrease < 5 then
-			table.params.AimAccuracyIncrease = table.params.AimAccuracyIncrease * 5
-		end
-	end
-end
-
 ---- Componente -> tracos, para ids que ainda nao tem a propriedade GBO_ComponentTraits autorada.
 ---- A propriedade do preset SEMPRE ganha; este mapa e so o caminho de escape para testar um id
 ---- sem passar pelo editor. Componente ausente dos dois nao e tocado.
@@ -802,6 +792,16 @@ GBO_COMPONENT_TRAITS = {}
 ---- O arquivo do aperture registra o dele aqui; o compositor nao sabe o que e uma optica.
 GBO_COMPOSE_OVERLAYS = {}
 
+---- Reescalas condicionais ao modo, aplicadas sobre o param JA FUNDIDO -- depois dos tracos e do
+---- overlay, antes do emit. Cada entrada e uma funcao(params) que altera a tabela recebida.
+----
+---- Existem porque escalar a RECEITA e errado de tres jeitos: acumula (o valor escalado vira a
+---- nova base e o proximo load escala de novo), nao desfaz quando o modo desliga, e depende de a
+---- passada rodar depois de GBO_RegisterBaseRecipes -- foi assim que a versao anterior deixou
+---- toda luneta de fora e so escalou os tracos escritos a mao. Aqui nada disso pode acontecer: a
+---- receita nunca e tocada e a escala e recalculada em toda composicao.
+GBO_COMPOSE_SCALERS = {}
+
 ---- Toda receita base vira o traco "Base.<id>", e o componente de mesmo nome passa a declarar esse
 ---- traco por padrao. Assim um scope sem nada autorado continua sendo ele mesmo, e quem quiser
 ---- compor por cima e so listar mais tracos na propriedade.
@@ -899,6 +899,10 @@ function GBO_ComposeTraits(trait_list, overlay)
         for name, value in sorted_pairs(overlay.Parameters or overlay.params or empty_table) do
             params[name] = value -- sobrescreve, nao combina
         end
+    end
+
+    for _, fn in ipairs(GBO_COMPOSE_SCALERS) do
+        fn(params, trait_list, overlay)
     end
 
     ---- canonicos com sinal viram no maximo UM efeito cada

@@ -521,6 +521,26 @@ local function aperture_overlay(id)
 end
 GBO_COMPOSE_OVERLAYS[#GBO_COMPOSE_OVERLAYS + 1] = aperture_overlay
 
+---- Com tiro simulado o acerto sai da geometria do cone, e ai +1 de AimAccuracy quase nao mexe na
+---- assintota: o degrau entre uma optica e a seguinte some. Reescala a contribuicao de mira para o
+---- degrau voltar a ser perceptivel.
+----
+---- SO com SimulateShots. No CTH antigo AimAccuracy entra direto na conta do CTH e 5x seria
+---- absurdo -- por isso e escala de MODO e nao numero autorado na receita.
+A.SimAimAccuracyMul = 500
+
+local function sim_aim_accuracy_scale(params)
+    local ap = const.Combat.Aperture -- sempre a tabela viva
+    if not ap or not ap.Enabled or not ap.SimulateShots then
+        return
+    end
+    local v = params.AimAccuracyIncrease
+    if v then
+        params.AimAccuracyIncrease = MulDivRound(v, ap.SimAimAccuracyMul or 100, 100)
+    end
+end
+GBO_COMPOSE_SCALERS[#GBO_COMPOSE_SCALERS + 1] = sim_aim_accuracy_scale
+
 ---- Mantidas porque outros arquivos chamam: hoje so mexem no WeaponRange.
 function Rat_RestoreApertureItemParams()
     apply_range(1)
