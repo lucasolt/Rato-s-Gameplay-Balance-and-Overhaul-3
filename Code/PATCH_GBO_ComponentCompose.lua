@@ -121,20 +121,15 @@ GBO_COMP_TRAITS = {
     }
 }
 
----- Componente -> tracos. Fonte alternativa a propriedade GBO_ComponentTraits do preset: enquanto
----- os presets nao forem reautorados no editor, o mapa manda. Componente ausente nao e tocado.
----- So entram ids cujo resultado composto foi conferido no processo vivo e bate EXATAMENTE com o
----- que o preset ja tinha. Os divergentes estao listados no rodape deste arquivo.
-GBO_COMPONENT_TRAITS = {
-    BarrelLong = {"Barrel.Long"},
-    BarrelShort = {"Barrel.Short"},
-    BarrelShort_handgun = {"Barrel.ShortHandgun"},
-    BarrelShort_Winchester = {"Barrel.Short", "Mag.Reduced2"},
-    BarrelShortShotgun_Benelli = {"Barrel.Short", "Mag.Reduced2", "Shotgun.WideBuckshot"},
-    ---- compostos: o angulo sai do produto, nao mais setado na mao
-    BarrelLongImproved = {"Barrel.Long", "Barrel.Improved"}, -- 95 (Improved nao mexe no angulo)
-    BarrelHeavyLong = {"Barrel.Long", "Barrel.Heavy"} -- 95 x 95 = 90, igual ao autorado
-}
+---- Componente -> tracos, para ids que ainda nao tem a propriedade GBO_ComponentTraits autorada.
+---- A propriedade do preset SEMPRE ganha; este mapa e so o caminho de escape para testar um id
+---- sem passar pelo editor. Componente ausente dos dois nao e tocado.
+----
+---- Os sete barris de fundacao (BarrelLong, BarrelShort, BarrelShort_handgun,
+---- BarrelShort_Winchester, BarrelShortShotgun_Benelli, BarrelLongImproved, BarrelHeavyLong)
+---- migraram para a propriedade em 2026-09-08, depois de o diff no processo vivo dar IDENTICO
+---- nos sete -- composicao sem nenhuma mudanca de balance.
+GBO_COMPONENT_TRAITS = {}
 
 ---------------------------------------------------------------------------------------------------
 

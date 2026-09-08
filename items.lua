@@ -4190,6 +4190,7 @@ return {
 			},
 			Cost = 20,
 			DisplayName = T(779635556968, --[[ModItemWeaponComponent BarrelShort_handgun DisplayName]] "Short Barrel"),
+			GBO_ComponentTraits = "Barrel.ShortHandgun",
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 0,
 			ModificationEffects = {
@@ -4310,6 +4311,7 @@ return {
 			},
 			Cost = 30,
 			DisplayName = T(858531805288, --[[ModItemWeaponComponent BarrelShort DisplayName]] "Short Barrel"),
+			GBO_ComponentTraits = "Barrel.Short",
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
@@ -4559,6 +4561,7 @@ return {
 			},
 			Cost = 25,
 			DisplayName = T(586020270949, --[[ModItemWeaponComponent BarrelShortShotgun_Benelli DisplayName]] "Shortened Barrel"),
+			GBO_ComponentTraits = "Barrel.Short, Mag.Reduced2, Shotgun.WideBuckshot",
 			Icon = "UI/Icons/Upgrades/m1014_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
@@ -4624,6 +4627,7 @@ return {
 			},
 			Cost = 25,
 			DisplayName = T(385898999120, --[[ModItemWeaponComponent BarrelShort_Winchester DisplayName]] "Short Barrel"),
+			GBO_ComponentTraits = "Barrel.Short, Mag.Reduced2",
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
@@ -8439,6 +8443,7 @@ return {
 			},
 			Cost = 35,
 			DisplayName = T(981943480831, --[[ModItemWeaponComponent BarrelHeavyLong DisplayName]] "Extended Heavy Barrel"),
+			GBO_ComponentTraits = "Barrel.Long, Barrel.Heavy",
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
@@ -8762,6 +8767,7 @@ return {
 			},
 			Cost = 40,
 			DisplayName = T(360454194049, --[[ModItemWeaponComponent BarrelLongImproved DisplayName]] "Extended Gain-Twist Barrel"),
+			GBO_ComponentTraits = "Barrel.Long, Barrel.Improved",
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
@@ -9410,6 +9416,7 @@ return {
 			},
 			Cost = 35,
 			DisplayName = T(324271791107, --[[ModItemWeaponComponent BarrelLong DisplayName]] "Extended Barrel"),
+			GBO_ComponentTraits = "Barrel.Long",
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
