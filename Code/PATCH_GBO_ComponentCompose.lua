@@ -207,7 +207,18 @@ GBO_COMP_TRAITS = {
 		}
 	},
 	
+	
 }
+
+
+-- TODO: Temporary, need to implement better
+if const.Combat.Aperture and const.Combat.Aperture.SimulateShots and const.Combat.Aperture.Enabled then
+	for k, table in pairs(GBO_COMP_TRAITS) do
+		if table.params.AimAccuracyIncrease and table.params.AimAccuracyIncrease < 5 then
+			table.params.AimAccuracyIncrease = table.params.AimAccuracyIncrease * 5
+		end
+	end
+end
 
 ---- Componente -> tracos, para ids que ainda nao tem a propriedade GBO_ComponentTraits autorada.
 ---- A propriedade do preset SEMPRE ganha; este mapa e so o caminho de escape para testar um id

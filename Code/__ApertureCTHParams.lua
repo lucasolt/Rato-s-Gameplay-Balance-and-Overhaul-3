@@ -53,7 +53,7 @@ A.ApertureAsymptotic = true
 ---- Hand-Eye Coordination (Dex+Marks) escala quanto disso o atirador COBRA (= "Aiming Rework").
 
 A.DecayBase = 0 --8
-A.DecayScale = 6--4
+A.DecayScale = 1--6--4
 ---- teto de fechamento por nivel. nunca fecha mais que (100 - DecayMinPct) %. Abaixo de 30 um
 ---- unico nivel com optica de limiar fecha quase todo o gap e vira degrau, nao curva.
 A.DecayMinPct = 30--30 --20

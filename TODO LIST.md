@@ -42,7 +42,11 @@ CheatAddItem("itemid")
 
 - [ ] Close range might get _too_ strong
 - [ ] review the no-stock/handgun aim penalties. Maybe its a bit too much. Could use the _range_ as a penalty, instead 
-- [ ] Re-scale Aim Accuracy bonus for more gradient
+- [X] Re-scale Aim Accuracy bonus for more gradient
+	- [ ] - Match ammo
+	- [ ] - grips and stuff
+	- [ ] - better handling of the component aim multiplier
+	- [ ] - no stock 
 - [ ] review the Handling while standing penalty
 - [X] Stray shots should have a lower chance to inflict status effects. 
 	- General inquiring about how strays are working now. Maybe be stray when hit other bodyparts of the same target? I am not even sure how the damage is being calculated right now.

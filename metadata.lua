@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 13201,
+	'version', 13206,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -182,8 +182,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1788907003,
-	'code_hash', 7219635408550559622,
+	'saved', 1788908322,
+	'code_hash', 7994561923216329892,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",
@@ -397,76 +397,6 @@ return PlaceObj('ModDef', {
 		}),
 		PlaceObj('ModResourcePreset', {
 			'Class', "WeaponComponent",
-			'Id', "barrel_confidante",
-			'ClassDisplayName', "Weapon component",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponent",
-			'Id', "BarrelShort_AUG",
-			'ClassDisplayName', "Weapon component",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponent",
-			'Id', "BarrelShortImproved_AUG",
-			'ClassDisplayName', "Weapon component",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponent",
-			'Id', "BarrelShortImproved_handgun",
-			'ClassDisplayName', "Weapon component",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponent",
-			'Id', "BarrelShortImproved",
-			'ClassDisplayName', "Weapon component",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponent",
-			'Id', "BarrelShort_Light",
-			'ClassDisplayName', "Weapon component",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponent",
-			'Id', "BarrelShort_Light_handgun",
-			'ClassDisplayName', "Weapon component",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponent",
-			'Id', "BarrelShort_handgun",
-			'ClassDisplayName', "Weapon component",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponent",
-			'Id', "BarrelShort",
-			'ClassDisplayName', "Weapon component",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponent",
-			'Id', "Auto5_Short_NMag",
-			'ClassDisplayName', "Weapon component",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponent",
-			'Id', "BarrelShortShotgun",
-			'ClassDisplayName', "Weapon component",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponent",
-			'Id', "BarrelShortShotgun_Benelli",
-			'ClassDisplayName', "Weapon component",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponent",
-			'Id', "BarrelShort_Winchester",
-			'ClassDisplayName', "Weapon component",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponent",
-			'Id', "_Master_BarrelShort",
-			'ClassDisplayName', "Weapon component",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponent",
 			'Id', "PSG_DefaultScope",
 			'ClassDisplayName', "Weapon component",
 		}),
@@ -633,6 +563,76 @@ return PlaceObj('ModDef', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "WeaponComponent",
 			'Id', "BarrelLong",
+			'ClassDisplayName', "Weapon component",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponent",
+			'Id', "barrel_confidante",
+			'ClassDisplayName', "Weapon component",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponent",
+			'Id', "BarrelShort_AUG",
+			'ClassDisplayName', "Weapon component",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponent",
+			'Id', "BarrelShortImproved_AUG",
+			'ClassDisplayName', "Weapon component",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponent",
+			'Id', "BarrelShortImproved_handgun",
+			'ClassDisplayName', "Weapon component",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponent",
+			'Id', "BarrelShortImproved",
+			'ClassDisplayName', "Weapon component",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponent",
+			'Id', "BarrelShort_Light",
+			'ClassDisplayName', "Weapon component",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponent",
+			'Id', "BarrelShort_Light_handgun",
+			'ClassDisplayName', "Weapon component",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponent",
+			'Id', "BarrelShort_handgun",
+			'ClassDisplayName', "Weapon component",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponent",
+			'Id', "BarrelShort",
+			'ClassDisplayName', "Weapon component",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponent",
+			'Id', "Auto5_Short_NMag",
+			'ClassDisplayName', "Weapon component",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponent",
+			'Id', "BarrelShortShotgun",
+			'ClassDisplayName', "Weapon component",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponent",
+			'Id', "BarrelShortShotgun_Benelli",
+			'ClassDisplayName', "Weapon component",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponent",
+			'Id', "BarrelShort_Winchester",
+			'ClassDisplayName', "Weapon component",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponent",
+			'Id', "_Master_BarrelShort",
 			'ClassDisplayName', "Weapon component",
 		}),
 		PlaceObj('ModResourcePreset', {

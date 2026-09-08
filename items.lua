@@ -3454,1256 +3454,6 @@ return {
 		id = "Suppressor",
 	}),
 	PlaceObj('ModItemFolder', {
-		'name', "BarrelShort",
-	}, {
-		PlaceObj('ModItemWeaponComponent', {
-			AdditionalCosts = {
-				PlaceObj('WeaponComponentCost', {
-					'Amount', 1,
-					'Type', "FineSteelPipe",
-				}),
-			},
-			Cost = 15,
-			DisplayName = T(885663189178, --[[ModItemWeaponComponent barrel_confidante DisplayName]] "Short Barrel"),
-			Icon = "UI/Icons/Upgrades/galil_barrel_short",
-			ModificationDifficulty = 0,
-			ModificationEffects = {
-				"shortbarrel",
-				"StanceAPdecrease",
-			},
-			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
-				}),
-			},
-			Slot = "Barrel",
-			Tags = set( "CloseQuarters", "Intimate" ),
-			Visuals = {
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "Winchester_Quest",
-					Entity = "WeaponAttA_BarrelWinchester_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-			},
-			comment = "-------- BARRELLS",
-			id = "barrel_confidante",
-		}),
-		PlaceObj('ModItemWeaponComponent', {
-			AdditionalCosts = {
-				PlaceObj('WeaponComponentCost', {
-					'Amount', 1,
-					'Type', "FineSteelPipe",
-				}),
-			},
-			BlockSlots = {
-				"Grenadelauncher",
-			},
-			Cost = 30,
-			DisplayName = T(665287400339, --[[ModItemWeaponComponent BarrelShort_AUG DisplayName]] "Short Barrel"),
-			GBO_ComponentTraits = "Barrel.Short",
-			Icon = "UI/Icons/Upgrades/galil_barrel_short",
-			ModificationDifficulty = 10,
-			ModificationEffects = {
-				"shortbarrel",
-				"ReduceRange",
-				"ReduceDamage",
-				"StanceAPdecrease",
-				"IncreaseOverwatchAngle",
-			},
-			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleIncrease",
-					'Value', 107,
-					'Tag', "<OverwatchAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
-				}),
-			},
-			Slot = "Barrel",
-			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
-			Visuals = {
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "AUG",
-					Entity = "WeaponAttA_BarrelSteyr_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-			},
-			id = "BarrelShort_AUG",
-		}),
-		PlaceObj('ModItemWeaponComponent', {
-			AdditionalCosts = {
-				PlaceObj('WeaponComponentCost', {
-					'Amount', 1,
-					'Type', "FineSteelPipe",
-				}),
-			},
-			BlockSlots = {
-				"Grenadelauncher",
-			},
-			Cost = 35,
-			DisplayName = T(682092539169, --[[ModItemWeaponComponent BarrelShortImproved_AUG DisplayName]] "Short Gain-Twist Barrel"),
-			GBO_ComponentTraits = "Barrel.Short, Barrel.Improved",
-			Icon = "UI/Icons/Upgrades/galil_barrel_short",
-			ModificationDifficulty = 10,
-			ModificationEffects = {
-				"shortbarrel",
-				"ReduceRange",
-				"ReduceDamage",
-				"StanceAPdecrease",
-				"IncreaseReliability",
-				"IncreaseOverwatchAngle",
-			},
-			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleIncrease",
-					'Value', 107,
-					'Tag', "<OverwatchAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "ReliabilityIncrease",
-					'Value', 10,
-					'Tag', "<ReliabilityIncrease>",
-				}),
-			},
-			Slot = "Barrel",
-			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
-			Visuals = {
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "AUG",
-					Entity = "WeaponAttA_BarrelSteyr_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-			},
-			id = "BarrelShortImproved_AUG",
-		}),
-		PlaceObj('ModItemWeaponComponent', {
-			AdditionalCosts = {
-				PlaceObj('WeaponComponentCost', {
-					'Amount', 1,
-					'Type', "FineSteelPipe",
-				}),
-			},
-			Cost = 25,
-			DisplayName = T(627286028824, --[[ModItemWeaponComponent BarrelShortImproved_handgun DisplayName]] "Short Gain-Twist Barrel"),
-			GBO_ComponentTraits = "Barrel.ShortHandgun, Barrel.Improved",
-			Icon = "UI/Icons/Upgrades/galil_barrel_short",
-			ModificationDifficulty = 0,
-			ModificationEffects = {
-				"shortbarrel",
-				"ReduceRange",
-				"IncreaseReliability",
-				"IncreaseOverwatchAngle",
-			},
-			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleIncrease",
-					'Value', 105,
-					'Tag', "<OverwatchAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "ReliabilityIncrease",
-					'Value', 10,
-					'Tag', "<ReliabilityIncrease>",
-				}),
-			},
-			Slot = "Barrel",
-			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
-			Visuals = {
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "AUG",
-					Entity = "WeaponAttA_BarrelSteyr_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "Galil",
-					Entity = "WeaponAttA_BarrelGalil_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "MP5K",
-					Entity = "WeaponAttA_BarrelMP5_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "ColtPeacemaker",
-					Entity = "WeaponAttA_BarrelColt_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "TexRevolver",
-					Entity = "WeaponAttA_BarrelColt_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "M14SAW",
-					Entity = "WeaponAttA_BarrelM14_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "M14SAW_AUTO",
-					Entity = "WeaponAttA_BarrelM14_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "ColtAnaconda",
-					Entity = "WeaponAttA_BarrelAnaconda_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "HiPower",
-					Entity = "WeaponAttA_BarrelBHP_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "FNFAL",
-					Entity = "WeaponAttA_BarrelFNFal_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "FNMinimi",
-					Entity = "WeaponAttA_BarrelFNMinimi_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "HK21",
-					Entity = "WeaponAttA_BarrelHK21_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "AR15",
-					Entity = "WeaponAttA_BarrelAR15_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-			},
-			comment = "-------- BARRELLS",
-			group = "Default",
-			id = "BarrelShortImproved_handgun",
-		}),
-		PlaceObj('ModItemWeaponComponent', {
-			AdditionalCosts = {
-				PlaceObj('WeaponComponentCost', {
-					'Amount', 1,
-					'Type', "FineSteelPipe",
-				}),
-			},
-			Cost = 30,
-			DisplayName = T(559805386611, --[[ModItemWeaponComponent BarrelShortImproved DisplayName]] "Short Gain-Twist Barrel"),
-			GBO_ComponentTraits = "Barrel.Short, Barrel.Improved",
-			Icon = "UI/Icons/Upgrades/galil_barrel_short",
-			ModificationDifficulty = 10,
-			ModificationEffects = {
-				"shortbarrel",
-				"ReduceRange",
-				"ReduceDamage",
-				"StanceAPdecrease",
-				"IncreaseReliability",
-				"IncreaseOverwatchAngle",
-			},
-			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleIncrease",
-					'Value', 107,
-					'Tag', "<OverwatchAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "ReliabilityIncrease",
-					'Value', 10,
-					'Tag', "<ReliabilityIncrease>",
-				}),
-			},
-			Slot = "Barrel",
-			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
-			Visuals = {
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "AUG",
-					Entity = "WeaponAttA_BarrelSteyr_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "Galil",
-					Entity = "WeaponAttA_BarrelGalil_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "MP5K",
-					Entity = "WeaponAttA_BarrelMP5_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "ColtPeacemaker",
-					Entity = "WeaponAttA_BarrelColt_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "M14SAW",
-					Entity = "WeaponAttA_BarrelM14_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "M14SAW_AUTO",
-					Entity = "WeaponAttA_BarrelM14_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "ColtAnaconda",
-					Entity = "WeaponAttA_BarrelAnaconda_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "HiPower",
-					Entity = "WeaponAttA_BarrelBHP_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "FNFAL",
-					Entity = "WeaponAttA_BarrelFNFal_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "FNMinimi",
-					Entity = "WeaponAttA_BarrelFNMinimi_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "HK21",
-					Entity = "WeaponAttA_BarrelHK21_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "AR15",
-					Entity = "WeaponAttA_BarrelAR15_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-			},
-			comment = "-------- BARRELLS",
-			id = "BarrelShortImproved",
-		}),
-		PlaceObj('ModItemWeaponComponent', {
-			AdditionalCosts = {
-				PlaceObj('WeaponComponentCost', {
-					'Amount', 1,
-					'Type', "FineSteelPipe",
-				}),
-			},
-			Cost = 30,
-			DisplayName = T(701363011930, --[[ModItemWeaponComponent BarrelShort_Light DisplayName]] "Short Light Barrel"),
-			GBO_ComponentTraits = "Barrel.Light",
-			Icon = "UI/Icons/Upgrades/galil_barrel_short",
-			ModificationDifficulty = 10,
-			ModificationEffects = {
-				"hipfire_light_barrel",
-				"ExtraOverwatchShots",
-				"IncreaseOverwatchAngle",
-			},
-			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleIncrease",
-					'Value', 103,
-					'Tag', "<OverwatchAngleIncrease>",
-				}),
-			},
-			Slot = "Barrel",
-			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
-			Visuals = {
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "AUG",
-					Entity = "WeaponAttA_BarrelSteyr_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "Galil",
-					Entity = "WeaponAttA_BarrelGalil_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "MP5K",
-					Entity = "WeaponAttA_BarrelMP5_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "ColtPeacemaker",
-					Entity = "WeaponAttA_BarrelColt_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "M14SAW",
-					Entity = "WeaponAttA_BarrelM14_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "M14SAW_AUTO",
-					Entity = "WeaponAttA_BarrelM14_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "ColtAnaconda",
-					Entity = "WeaponAttA_BarrelAnaconda_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "HiPower",
-					Entity = "WeaponAttA_BarrelBHP_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "FNFAL",
-					Entity = "WeaponAttA_BarrelFNFal_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "FNMinimi",
-					Entity = "WeaponAttA_BarrelFNMinimi_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "HK21",
-					Entity = "WeaponAttA_BarrelHK21_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "Winchester1894",
-					Entity = "WeaponAttA_BarrelWinchester_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "AR15",
-					Entity = "WeaponAttA_BarrelAR15_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-			},
-			comment = "-------- BARRELLS",
-			id = "BarrelShort_Light",
-		}),
-		PlaceObj('ModItemWeaponComponent', {
-			AdditionalCosts = {
-				PlaceObj('WeaponComponentCost', {
-					'Amount', 1,
-					'Type', "FineSteelPipe",
-				}),
-			},
-			Cost = 20,
-			DisplayName = T(742559105706, --[[ModItemWeaponComponent BarrelShort_Light_handgun DisplayName]] "Short Light Barrel"),
-			GBO_ComponentTraits = "Barrel.ShortHandgun, Barrel.Light",
-			Icon = "UI/Icons/Upgrades/galil_barrel_short",
-			ModificationDifficulty = 0,
-			ModificationEffects = {
-				"shortbarrel",
-				"ReduceRange",
-				"hipfire_light_barrel",
-				"ExtraOverwatchShots",
-				"IncreaseOverwatchAngle",
-			},
-			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleIncrease",
-					'Value', 108,
-					'Tag', "<OverwatchAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
-				}),
-			},
-			Slot = "Barrel",
-			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
-			Visuals = {
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "AUG",
-					Entity = "WeaponAttA_BarrelSteyr_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "Galil",
-					Entity = "WeaponAttA_BarrelGalil_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "MP5K",
-					Entity = "WeaponAttA_BarrelMP5_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "ColtPeacemaker",
-					Entity = "WeaponAttA_BarrelColt_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "TexRevolver",
-					Entity = "WeaponAttA_BarrelColt_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "M14SAW",
-					Entity = "WeaponAttA_BarrelM14_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "M14SAW_AUTO",
-					Entity = "WeaponAttA_BarrelM14_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "ColtAnaconda",
-					Entity = "WeaponAttA_BarrelAnaconda_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "HiPower",
-					Entity = "WeaponAttA_BarrelBHP_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "FNFAL",
-					Entity = "WeaponAttA_BarrelFNFal_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "FNMinimi",
-					Entity = "WeaponAttA_BarrelFNMinimi_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "HK21",
-					Entity = "WeaponAttA_BarrelHK21_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "Winchester1894",
-					Entity = "WeaponAttA_BarrelWinchester_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "AR15",
-					Entity = "WeaponAttA_BarrelAR15_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-			},
-			comment = "-------- BARRELLS",
-			group = "Default",
-			id = "BarrelShort_Light_handgun",
-		}),
-		PlaceObj('ModItemWeaponComponent', {
-			AdditionalCosts = {
-				PlaceObj('WeaponComponentCost', {
-					'Amount', 1,
-					'Type', "FineSteelPipe",
-				}),
-			},
-			Cost = 20,
-			DisplayName = T(779635556968, --[[ModItemWeaponComponent BarrelShort_handgun DisplayName]] "Short Barrel"),
-			GBO_ComponentTraits = "Barrel.ShortHandgun",
-			Icon = "UI/Icons/Upgrades/galil_barrel_short",
-			ModificationDifficulty = 0,
-			ModificationEffects = {
-				"shortbarrel",
-				"ReduceRange",
-				"IncreaseOverwatchAngle",
-			},
-			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleIncrease",
-					'Value', 105,
-					'Tag', "<OverwatchAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
-				}),
-			},
-			Slot = "Barrel",
-			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
-			Visuals = {
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "AUG",
-					Entity = "WeaponAttA_BarrelSteyr_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "Galil",
-					Entity = "WeaponAttA_BarrelGalil_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "MP5K",
-					Entity = "WeaponAttA_BarrelMP5_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "ColtPeacemaker",
-					Entity = "WeaponAttA_BarrelColt_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "TexRevolver",
-					Entity = "WeaponAttA_BarrelColt_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "M14SAW",
-					Entity = "WeaponAttA_BarrelM14_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "M14SAW_AUTO",
-					Entity = "WeaponAttA_BarrelM14_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "ColtAnaconda",
-					Entity = "WeaponAttA_BarrelAnaconda_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "HiPower",
-					Entity = "WeaponAttA_BarrelBHP_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "FNFAL",
-					Entity = "WeaponAttA_BarrelFNFal_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "FNMinimi",
-					Entity = "WeaponAttA_BarrelFNMinimi_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "HK21",
-					Entity = "WeaponAttA_BarrelHK21_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "Winchester1894",
-					Entity = "WeaponAttA_BarrelWinchester_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "AR15",
-					Entity = "WeaponAttA_BarrelAR15_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-			},
-			comment = "-------- BARRELLS",
-			group = "Default",
-			id = "BarrelShort_handgun",
-		}),
-		PlaceObj('ModItemWeaponComponent', {
-			AdditionalCosts = {
-				PlaceObj('WeaponComponentCost', {
-					'Amount', 1,
-					'Type', "FineSteelPipe",
-				}),
-			},
-			Cost = 30,
-			DisplayName = T(858531805288, --[[ModItemWeaponComponent BarrelShort DisplayName]] "Short Barrel"),
-			GBO_ComponentTraits = "Barrel.Short",
-			Icon = "UI/Icons/Upgrades/galil_barrel_short",
-			ModificationDifficulty = 10,
-			ModificationEffects = {
-				"shortbarrel",
-				"ReduceRange",
-				"ReduceDamage",
-				"StanceAPdecrease",
-				"IncreaseOverwatchAngle",
-			},
-			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleIncrease",
-					'Value', 107,
-					'Tag', "<OverwatchAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
-				}),
-			},
-			Slot = "Barrel",
-			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
-			Visuals = {
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "AUG",
-					Entity = "WeaponAttA_BarrelSteyr_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "Galil",
-					Entity = "WeaponAttA_BarrelGalil_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "MP5K",
-					Entity = "WeaponAttA_BarrelMP5_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "ColtPeacemaker",
-					Entity = "WeaponAttA_BarrelColt_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "M14SAW",
-					Entity = "WeaponAttA_BarrelM14_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "M14SAW_AUTO",
-					Entity = "WeaponAttA_BarrelM14_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "ColtAnaconda",
-					Entity = "WeaponAttA_BarrelAnaconda_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "HiPower",
-					Entity = "WeaponAttA_BarrelBHP_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "FNFAL",
-					Entity = "WeaponAttA_BarrelFNFal_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "FNMinimi",
-					Entity = "WeaponAttA_BarrelFNMinimi_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "HK21",
-					Entity = "WeaponAttA_BarrelHK21_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "Winchester1894",
-					Entity = "WeaponAttA_BarrelWinchester_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "AR15",
-					Entity = "WeaponAttA_BarrelAR15_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-			},
-			comment = "-------- BARRELLS",
-			id = "BarrelShort",
-		}),
-		PlaceObj('ModItemWeaponComponent', {
-			AdditionalCosts = {
-				PlaceObj('WeaponComponentCost', {
-					'Amount', 1,
-					'Type', "FineSteelPipe",
-				}),
-			},
-			Comment = "consider reducing or disabling aiming?",
-			Cost = 20,
-			DisplayName = T(731483819647, --[[ModItemWeaponComponent Auto5_Short_NMag DisplayName]] "Short Barrel"),
-			GBO_ComponentTraits = "Barrel.ShortShotgun, Shotgun.WideBuckshot, General.ReduceReliability",
-			Icon = "UI/Icons/Upgrades/galil_barrel_short",
-			ModificationDifficulty = 0,
-			ModificationEffects = {
-				"shortbarrel",
-				"ReduceRange",
-				"StanceAPdecrease",
-				"IncreaseBuckshotAngle",
-				"ReduceReliability",
-				"IncreaseOverwatchAngle",
-			},
-			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "BuckshotAngleIncrease",
-					'Value', 122,
-					'Tag', "<BuckshotAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleIncrease",
-					'Value', 107,
-					'Tag', "<OverwatchAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "ReliabilityDecrease",
-					'Value', 10,
-					'Tag', "<ReliabilityDecrease>",
-				}),
-			},
-			Slot = "Barrel",
-			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
-			Visuals = {
-				PlaceObj('WeaponComponentVisual', {
-					Entity = "WeaponAttA_BarrelAuto5_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					Entity = "WeaponAttA_MagazineAuto5_01",
-					Slot = "Magazine",
-					param_bindings = false,
-				}),
-			},
-			comment = "-------- BARRELLS",
-			id = "Auto5_Short_NMag",
-			param_bindings = {},
-		}),
-		PlaceObj('ModItemWeaponComponent', {
-			AdditionalCosts = {
-				PlaceObj('WeaponComponentCost', {
-					'Amount', 1,
-					'Type', "FineSteelPipe",
-				}),
-			},
-			Cost = 25,
-			DisplayName = T(499785632845, --[[ModItemWeaponComponent BarrelShortShotgun DisplayName]] "Shortened Barrel"),
-			GBO_ComponentTraits = "Barrel.ShortShotgun",
-			Icon = "UI/Icons/Upgrades/galil_barrel_short",
-			ModificationDifficulty = 10,
-			ModificationEffects = {
-				"shortbarrel",
-				"ReduceRange",
-				"StanceAPdecrease",
-				"IncreaseOverwatchAngle",
-			},
-			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleIncrease",
-					'Value', 107,
-					'Tag', "<OverwatchAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
-				}),
-			},
-			Slot = "Barrel",
-			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
-			Visuals = {
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "M41Shotgun",
-					Entity = "WeaponAttA_BarrelBenelli_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "DoubleBarrelShotgun",
-					Entity = "WeaponAttA_BarrelDBS_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-			},
-			comment = "-------- BARRELLS",
-			id = "BarrelShortShotgun",
-		}),
-		PlaceObj('ModItemWeaponComponent', {
-			AdditionalCosts = {
-				PlaceObj('WeaponComponentCost', {
-					'Amount', 1,
-					'Type', "FineSteelPipe",
-				}),
-			},
-			Cost = 25,
-			DisplayName = T(586020270949, --[[ModItemWeaponComponent BarrelShortShotgun_Benelli DisplayName]] "Shortened Barrel"),
-			GBO_ComponentTraits = "Barrel.ShortShotgun, Mag.Reduced2, Shotgun.WideBuckshot",
-			Icon = "UI/Icons/Upgrades/m1014_barrel_short",
-			ModificationDifficulty = 10,
-			ModificationEffects = {
-				"shortbarrel",
-				"ReduceRange",
-				"StanceAPdecrease",
-				"ReduceMagazineSize",
-				"IncreaseBuckshotAngle",
-				"IncreaseOverwatchAngle",
-			},
-			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "BuckshotAngleIncrease",
-					'Value', 122,
-					'Tag', "<BuckshotAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "MagazineSizeDecrease",
-					'Value', 2,
-					'Tag', "<MagazineSizeDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleIncrease",
-					'Value', 107,
-					'Tag', "<OverwatchAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
-				}),
-			},
-			Slot = "Barrel",
-			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
-			Visuals = {
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "M41Shotgun",
-					Entity = "WeaponAttA_BarrelBenelli_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-			},
-			comment = "-------- BARRELLS",
-			id = "BarrelShortShotgun_Benelli",
-		}),
-		PlaceObj('ModItemWeaponComponent', {
-			AdditionalCosts = {
-				PlaceObj('WeaponComponentCost', {
-					'Amount', 1,
-					'Type', "FineSteelPipe",
-				}),
-			},
-			Cost = 25,
-			DisplayName = T(385898999120, --[[ModItemWeaponComponent BarrelShort_Winchester DisplayName]] "Short Barrel"),
-			GBO_ComponentTraits = "Barrel.Short, Mag.Reduced2",
-			Icon = "UI/Icons/Upgrades/galil_barrel_short",
-			ModificationDifficulty = 10,
-			ModificationEffects = {
-				"shortbarrel",
-				"ReduceRange",
-				"ReduceDamage",
-				"StanceAPdecrease",
-				"ReduceMagazineSize",
-				"IncreaseOverwatchAngle",
-			},
-			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "MagazineSizeDecrease",
-					'Value', 2,
-					'Tag', "<MagazineSizeDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleIncrease",
-					'Value', 107,
-					'Tag', "<OverwatchAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
-				}),
-			},
-			Slot = "Barrel",
-			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
-			Visuals = {
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "Winchester1894",
-					Entity = "WeaponAttA_BarrelWinchester_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-			},
-			comment = "-------- BARRELLS",
-			id = "BarrelShort_Winchester",
-		}),
-		PlaceObj('ModItemWeaponComponent', {
-			AdditionalCosts = {
-				PlaceObj('WeaponComponentCost', {
-					'Amount', 1,
-					'Type', "FineSteelPipe",
-				}),
-			},
-			Cost = 30,
-			DisplayName = T(599300881426, --[[ModItemWeaponComponent _Master_BarrelShort DisplayName]] "Short Barrel"),
-			GBO_ComponentTraits = "Barrel.Short",
-			Icon = "UI/Icons/Upgrades/galil_barrel_short",
-			ModificationDifficulty = 10,
-			ModificationEffects = {
-				"shortbarrel",
-				"ReduceRange",
-				"ReduceDamage",
-				"StanceAPdecrease",
-				"IncreaseOverwatchAngle",
-			},
-			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleIncrease",
-					'Value', 107,
-					'Tag', "<OverwatchAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
-				}),
-			},
-			Slot = "Barrel",
-			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
-			Visuals = {
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "AUG",
-					Entity = "WeaponAttA_BarrelSteyr_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "Galil",
-					Entity = "WeaponAttA_BarrelGalil_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "MP5K",
-					Entity = "WeaponAttA_BarrelMP5_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "ColtPeacemaker",
-					Entity = "WeaponAttA_BarrelColt_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "M14SAW",
-					Entity = "WeaponAttA_BarrelM14_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "M14SAW_AUTO",
-					Entity = "WeaponAttA_BarrelM14_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "ColtAnaconda",
-					Entity = "WeaponAttA_BarrelAnaconda_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "HiPower",
-					Entity = "WeaponAttA_BarrelBHP_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "FNFAL",
-					Entity = "WeaponAttA_BarrelFNFal_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "FNMinimi",
-					Entity = "WeaponAttA_BarrelFNMinimi_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "HK21",
-					Entity = "WeaponAttA_BarrelHK21_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "Winchester1894",
-					Entity = "WeaponAttA_BarrelWinchester_Short",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "AR15",
-					Entity = "WeaponAttA_BarrelAR15_01",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-			},
-			comment = "-------- BARRELLS",
-			group = "Default",
-			id = "_Master_BarrelShort",
-		}),
-		}),
-	PlaceObj('ModItemFolder', {
 		'name', "Scopes",
 	}, {
 		PlaceObj('ModItemCode', {
@@ -7389,7 +6139,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 2,
+					'Value', 12,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7893,7 +6643,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 1,
+					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7958,7 +6708,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 2,
+					'Value', 12,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8024,7 +6774,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 2,
+					'Value', 12,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8093,7 +6843,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 2,
+					'Value', 12,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8154,7 +6904,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 1,
+					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8317,7 +7067,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 1,
+					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8478,7 +7228,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 1,
+					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8642,7 +7392,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 2,
+					'Value', 12,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8806,7 +7556,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 2,
+					'Value', 12,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8968,7 +7718,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 2,
+					'Value', 12,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9132,7 +7882,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 2,
+					'Value', 12,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9304,7 +8054,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 2,
+					'Value', 12,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9467,7 +8217,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 2,
+					'Value', 12,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9623,7 +8373,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 2,
+					'Value', 12,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9751,6 +8501,1256 @@ return {
 			},
 			group = "Barrel",
 			id = "BarrelLong",
+		}),
+		}),
+	PlaceObj('ModItemFolder', {
+		'name', "BarrelShort",
+	}, {
+		PlaceObj('ModItemWeaponComponent', {
+			AdditionalCosts = {
+				PlaceObj('WeaponComponentCost', {
+					'Amount', 1,
+					'Type', "FineSteelPipe",
+				}),
+			},
+			Cost = 15,
+			DisplayName = T(885663189178, --[[ModItemWeaponComponent barrel_confidante DisplayName]] "Short Barrel"),
+			Icon = "UI/Icons/Upgrades/galil_barrel_short",
+			ModificationDifficulty = 0,
+			ModificationEffects = {
+				"shortbarrel",
+				"StanceAPdecrease",
+			},
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
+				}),
+			},
+			Slot = "Barrel",
+			Tags = set( "CloseQuarters", "Intimate" ),
+			Visuals = {
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "Winchester_Quest",
+					Entity = "WeaponAttA_BarrelWinchester_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+			},
+			comment = "-------- BARRELLS",
+			id = "barrel_confidante",
+		}),
+		PlaceObj('ModItemWeaponComponent', {
+			AdditionalCosts = {
+				PlaceObj('WeaponComponentCost', {
+					'Amount', 1,
+					'Type', "FineSteelPipe",
+				}),
+			},
+			BlockSlots = {
+				"Grenadelauncher",
+			},
+			Cost = 30,
+			DisplayName = T(665287400339, --[[ModItemWeaponComponent BarrelShort_AUG DisplayName]] "Short Barrel"),
+			GBO_ComponentTraits = "Barrel.Short",
+			Icon = "UI/Icons/Upgrades/galil_barrel_short",
+			ModificationDifficulty = 10,
+			ModificationEffects = {
+				"shortbarrel",
+				"ReduceRange",
+				"ReduceDamage",
+				"StanceAPdecrease",
+				"IncreaseOverwatchAngle",
+			},
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "DamageReduced",
+					'Value', 1,
+					'Tag', "<DamageReduced>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleIncrease",
+					'Value', 107,
+					'Tag', "<OverwatchAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
+				}),
+			},
+			Slot = "Barrel",
+			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
+			Visuals = {
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "AUG",
+					Entity = "WeaponAttA_BarrelSteyr_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+			},
+			id = "BarrelShort_AUG",
+		}),
+		PlaceObj('ModItemWeaponComponent', {
+			AdditionalCosts = {
+				PlaceObj('WeaponComponentCost', {
+					'Amount', 1,
+					'Type', "FineSteelPipe",
+				}),
+			},
+			BlockSlots = {
+				"Grenadelauncher",
+			},
+			Cost = 35,
+			DisplayName = T(682092539169, --[[ModItemWeaponComponent BarrelShortImproved_AUG DisplayName]] "Short Gain-Twist Barrel"),
+			GBO_ComponentTraits = "Barrel.Short, Barrel.Improved",
+			Icon = "UI/Icons/Upgrades/galil_barrel_short",
+			ModificationDifficulty = 10,
+			ModificationEffects = {
+				"shortbarrel",
+				"ReduceRange",
+				"ReduceDamage",
+				"StanceAPdecrease",
+				"IncreaseReliability",
+				"IncreaseOverwatchAngle",
+			},
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "DamageReduced",
+					'Value', 1,
+					'Tag', "<DamageReduced>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleIncrease",
+					'Value', 107,
+					'Tag', "<OverwatchAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "ReliabilityIncrease",
+					'Value', 10,
+					'Tag', "<ReliabilityIncrease>",
+				}),
+			},
+			Slot = "Barrel",
+			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
+			Visuals = {
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "AUG",
+					Entity = "WeaponAttA_BarrelSteyr_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+			},
+			id = "BarrelShortImproved_AUG",
+		}),
+		PlaceObj('ModItemWeaponComponent', {
+			AdditionalCosts = {
+				PlaceObj('WeaponComponentCost', {
+					'Amount', 1,
+					'Type', "FineSteelPipe",
+				}),
+			},
+			Cost = 25,
+			DisplayName = T(627286028824, --[[ModItemWeaponComponent BarrelShortImproved_handgun DisplayName]] "Short Gain-Twist Barrel"),
+			GBO_ComponentTraits = "Barrel.ShortHandgun, Barrel.Improved",
+			Icon = "UI/Icons/Upgrades/galil_barrel_short",
+			ModificationDifficulty = 0,
+			ModificationEffects = {
+				"shortbarrel",
+				"ReduceRange",
+				"IncreaseReliability",
+				"IncreaseOverwatchAngle",
+			},
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleIncrease",
+					'Value', 105,
+					'Tag', "<OverwatchAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "ReliabilityIncrease",
+					'Value', 10,
+					'Tag', "<ReliabilityIncrease>",
+				}),
+			},
+			Slot = "Barrel",
+			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
+			Visuals = {
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "AUG",
+					Entity = "WeaponAttA_BarrelSteyr_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "Galil",
+					Entity = "WeaponAttA_BarrelGalil_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "MP5K",
+					Entity = "WeaponAttA_BarrelMP5_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "ColtPeacemaker",
+					Entity = "WeaponAttA_BarrelColt_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "TexRevolver",
+					Entity = "WeaponAttA_BarrelColt_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "M14SAW",
+					Entity = "WeaponAttA_BarrelM14_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "M14SAW_AUTO",
+					Entity = "WeaponAttA_BarrelM14_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "ColtAnaconda",
+					Entity = "WeaponAttA_BarrelAnaconda_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "HiPower",
+					Entity = "WeaponAttA_BarrelBHP_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "FNFAL",
+					Entity = "WeaponAttA_BarrelFNFal_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "FNMinimi",
+					Entity = "WeaponAttA_BarrelFNMinimi_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "HK21",
+					Entity = "WeaponAttA_BarrelHK21_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "AR15",
+					Entity = "WeaponAttA_BarrelAR15_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+			},
+			comment = "-------- BARRELLS",
+			group = "Default",
+			id = "BarrelShortImproved_handgun",
+		}),
+		PlaceObj('ModItemWeaponComponent', {
+			AdditionalCosts = {
+				PlaceObj('WeaponComponentCost', {
+					'Amount', 1,
+					'Type', "FineSteelPipe",
+				}),
+			},
+			Cost = 30,
+			DisplayName = T(559805386611, --[[ModItemWeaponComponent BarrelShortImproved DisplayName]] "Short Gain-Twist Barrel"),
+			GBO_ComponentTraits = "Barrel.Short, Barrel.Improved",
+			Icon = "UI/Icons/Upgrades/galil_barrel_short",
+			ModificationDifficulty = 10,
+			ModificationEffects = {
+				"shortbarrel",
+				"ReduceRange",
+				"ReduceDamage",
+				"StanceAPdecrease",
+				"IncreaseReliability",
+				"IncreaseOverwatchAngle",
+			},
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "DamageReduced",
+					'Value', 1,
+					'Tag', "<DamageReduced>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleIncrease",
+					'Value', 107,
+					'Tag', "<OverwatchAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "ReliabilityIncrease",
+					'Value', 10,
+					'Tag', "<ReliabilityIncrease>",
+				}),
+			},
+			Slot = "Barrel",
+			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
+			Visuals = {
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "AUG",
+					Entity = "WeaponAttA_BarrelSteyr_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "Galil",
+					Entity = "WeaponAttA_BarrelGalil_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "MP5K",
+					Entity = "WeaponAttA_BarrelMP5_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "ColtPeacemaker",
+					Entity = "WeaponAttA_BarrelColt_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "M14SAW",
+					Entity = "WeaponAttA_BarrelM14_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "M14SAW_AUTO",
+					Entity = "WeaponAttA_BarrelM14_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "ColtAnaconda",
+					Entity = "WeaponAttA_BarrelAnaconda_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "HiPower",
+					Entity = "WeaponAttA_BarrelBHP_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "FNFAL",
+					Entity = "WeaponAttA_BarrelFNFal_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "FNMinimi",
+					Entity = "WeaponAttA_BarrelFNMinimi_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "HK21",
+					Entity = "WeaponAttA_BarrelHK21_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "AR15",
+					Entity = "WeaponAttA_BarrelAR15_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+			},
+			comment = "-------- BARRELLS",
+			id = "BarrelShortImproved",
+		}),
+		PlaceObj('ModItemWeaponComponent', {
+			AdditionalCosts = {
+				PlaceObj('WeaponComponentCost', {
+					'Amount', 1,
+					'Type', "FineSteelPipe",
+				}),
+			},
+			Cost = 30,
+			DisplayName = T(701363011930, --[[ModItemWeaponComponent BarrelShort_Light DisplayName]] "Short Light Barrel"),
+			GBO_ComponentTraits = "Barrel.Light",
+			Icon = "UI/Icons/Upgrades/galil_barrel_short",
+			ModificationDifficulty = 10,
+			ModificationEffects = {
+				"hipfire_light_barrel",
+				"ExtraOverwatchShots",
+				"IncreaseOverwatchAngle",
+			},
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleIncrease",
+					'Value', 103,
+					'Tag', "<OverwatchAngleIncrease>",
+				}),
+			},
+			Slot = "Barrel",
+			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
+			Visuals = {
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "AUG",
+					Entity = "WeaponAttA_BarrelSteyr_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "Galil",
+					Entity = "WeaponAttA_BarrelGalil_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "MP5K",
+					Entity = "WeaponAttA_BarrelMP5_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "ColtPeacemaker",
+					Entity = "WeaponAttA_BarrelColt_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "M14SAW",
+					Entity = "WeaponAttA_BarrelM14_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "M14SAW_AUTO",
+					Entity = "WeaponAttA_BarrelM14_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "ColtAnaconda",
+					Entity = "WeaponAttA_BarrelAnaconda_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "HiPower",
+					Entity = "WeaponAttA_BarrelBHP_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "FNFAL",
+					Entity = "WeaponAttA_BarrelFNFal_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "FNMinimi",
+					Entity = "WeaponAttA_BarrelFNMinimi_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "HK21",
+					Entity = "WeaponAttA_BarrelHK21_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "Winchester1894",
+					Entity = "WeaponAttA_BarrelWinchester_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "AR15",
+					Entity = "WeaponAttA_BarrelAR15_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+			},
+			comment = "-------- BARRELLS",
+			id = "BarrelShort_Light",
+		}),
+		PlaceObj('ModItemWeaponComponent', {
+			AdditionalCosts = {
+				PlaceObj('WeaponComponentCost', {
+					'Amount', 1,
+					'Type', "FineSteelPipe",
+				}),
+			},
+			Cost = 20,
+			DisplayName = T(742559105706, --[[ModItemWeaponComponent BarrelShort_Light_handgun DisplayName]] "Short Light Barrel"),
+			GBO_ComponentTraits = "Barrel.ShortHandgun, Barrel.Light",
+			Icon = "UI/Icons/Upgrades/galil_barrel_short",
+			ModificationDifficulty = 0,
+			ModificationEffects = {
+				"shortbarrel",
+				"ReduceRange",
+				"hipfire_light_barrel",
+				"ExtraOverwatchShots",
+				"IncreaseOverwatchAngle",
+			},
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleIncrease",
+					'Value', 108,
+					'Tag', "<OverwatchAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
+				}),
+			},
+			Slot = "Barrel",
+			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
+			Visuals = {
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "AUG",
+					Entity = "WeaponAttA_BarrelSteyr_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "Galil",
+					Entity = "WeaponAttA_BarrelGalil_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "MP5K",
+					Entity = "WeaponAttA_BarrelMP5_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "ColtPeacemaker",
+					Entity = "WeaponAttA_BarrelColt_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "TexRevolver",
+					Entity = "WeaponAttA_BarrelColt_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "M14SAW",
+					Entity = "WeaponAttA_BarrelM14_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "M14SAW_AUTO",
+					Entity = "WeaponAttA_BarrelM14_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "ColtAnaconda",
+					Entity = "WeaponAttA_BarrelAnaconda_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "HiPower",
+					Entity = "WeaponAttA_BarrelBHP_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "FNFAL",
+					Entity = "WeaponAttA_BarrelFNFal_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "FNMinimi",
+					Entity = "WeaponAttA_BarrelFNMinimi_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "HK21",
+					Entity = "WeaponAttA_BarrelHK21_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "Winchester1894",
+					Entity = "WeaponAttA_BarrelWinchester_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "AR15",
+					Entity = "WeaponAttA_BarrelAR15_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+			},
+			comment = "-------- BARRELLS",
+			group = "Default",
+			id = "BarrelShort_Light_handgun",
+		}),
+		PlaceObj('ModItemWeaponComponent', {
+			AdditionalCosts = {
+				PlaceObj('WeaponComponentCost', {
+					'Amount', 1,
+					'Type', "FineSteelPipe",
+				}),
+			},
+			Cost = 20,
+			DisplayName = T(779635556968, --[[ModItemWeaponComponent BarrelShort_handgun DisplayName]] "Short Barrel"),
+			GBO_ComponentTraits = "Barrel.ShortHandgun",
+			Icon = "UI/Icons/Upgrades/galil_barrel_short",
+			ModificationDifficulty = 0,
+			ModificationEffects = {
+				"shortbarrel",
+				"ReduceRange",
+				"IncreaseOverwatchAngle",
+			},
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleIncrease",
+					'Value', 105,
+					'Tag', "<OverwatchAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
+				}),
+			},
+			Slot = "Barrel",
+			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
+			Visuals = {
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "AUG",
+					Entity = "WeaponAttA_BarrelSteyr_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "Galil",
+					Entity = "WeaponAttA_BarrelGalil_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "MP5K",
+					Entity = "WeaponAttA_BarrelMP5_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "ColtPeacemaker",
+					Entity = "WeaponAttA_BarrelColt_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "TexRevolver",
+					Entity = "WeaponAttA_BarrelColt_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "M14SAW",
+					Entity = "WeaponAttA_BarrelM14_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "M14SAW_AUTO",
+					Entity = "WeaponAttA_BarrelM14_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "ColtAnaconda",
+					Entity = "WeaponAttA_BarrelAnaconda_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "HiPower",
+					Entity = "WeaponAttA_BarrelBHP_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "FNFAL",
+					Entity = "WeaponAttA_BarrelFNFal_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "FNMinimi",
+					Entity = "WeaponAttA_BarrelFNMinimi_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "HK21",
+					Entity = "WeaponAttA_BarrelHK21_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "Winchester1894",
+					Entity = "WeaponAttA_BarrelWinchester_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "AR15",
+					Entity = "WeaponAttA_BarrelAR15_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+			},
+			comment = "-------- BARRELLS",
+			group = "Default",
+			id = "BarrelShort_handgun",
+		}),
+		PlaceObj('ModItemWeaponComponent', {
+			AdditionalCosts = {
+				PlaceObj('WeaponComponentCost', {
+					'Amount', 1,
+					'Type', "FineSteelPipe",
+				}),
+			},
+			Cost = 30,
+			DisplayName = T(858531805288, --[[ModItemWeaponComponent BarrelShort DisplayName]] "Short Barrel"),
+			GBO_ComponentTraits = "Barrel.Short",
+			Icon = "UI/Icons/Upgrades/galil_barrel_short",
+			ModificationDifficulty = 10,
+			ModificationEffects = {
+				"shortbarrel",
+				"ReduceRange",
+				"ReduceDamage",
+				"StanceAPdecrease",
+				"IncreaseOverwatchAngle",
+			},
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "DamageReduced",
+					'Value', 1,
+					'Tag', "<DamageReduced>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleIncrease",
+					'Value', 107,
+					'Tag', "<OverwatchAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
+				}),
+			},
+			Slot = "Barrel",
+			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
+			Visuals = {
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "AUG",
+					Entity = "WeaponAttA_BarrelSteyr_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "Galil",
+					Entity = "WeaponAttA_BarrelGalil_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "MP5K",
+					Entity = "WeaponAttA_BarrelMP5_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "ColtPeacemaker",
+					Entity = "WeaponAttA_BarrelColt_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "M14SAW",
+					Entity = "WeaponAttA_BarrelM14_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "M14SAW_AUTO",
+					Entity = "WeaponAttA_BarrelM14_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "ColtAnaconda",
+					Entity = "WeaponAttA_BarrelAnaconda_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "HiPower",
+					Entity = "WeaponAttA_BarrelBHP_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "FNFAL",
+					Entity = "WeaponAttA_BarrelFNFal_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "FNMinimi",
+					Entity = "WeaponAttA_BarrelFNMinimi_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "HK21",
+					Entity = "WeaponAttA_BarrelHK21_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "Winchester1894",
+					Entity = "WeaponAttA_BarrelWinchester_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "AR15",
+					Entity = "WeaponAttA_BarrelAR15_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+			},
+			comment = "-------- BARRELLS",
+			id = "BarrelShort",
+		}),
+		PlaceObj('ModItemWeaponComponent', {
+			AdditionalCosts = {
+				PlaceObj('WeaponComponentCost', {
+					'Amount', 1,
+					'Type', "FineSteelPipe",
+				}),
+			},
+			Comment = "consider reducing or disabling aiming?",
+			Cost = 20,
+			DisplayName = T(731483819647, --[[ModItemWeaponComponent Auto5_Short_NMag DisplayName]] "Short Barrel"),
+			GBO_ComponentTraits = "Barrel.ShortShotgun, Shotgun.WideBuckshot, General.ReduceReliability",
+			Icon = "UI/Icons/Upgrades/galil_barrel_short",
+			ModificationDifficulty = 0,
+			ModificationEffects = {
+				"shortbarrel",
+				"ReduceRange",
+				"StanceAPdecrease",
+				"IncreaseBuckshotAngle",
+				"ReduceReliability",
+				"IncreaseOverwatchAngle",
+			},
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "BuckshotAngleIncrease",
+					'Value', 122,
+					'Tag', "<BuckshotAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleIncrease",
+					'Value', 107,
+					'Tag', "<OverwatchAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "ReliabilityDecrease",
+					'Value', 10,
+					'Tag', "<ReliabilityDecrease>",
+				}),
+			},
+			Slot = "Barrel",
+			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
+			Visuals = {
+				PlaceObj('WeaponComponentVisual', {
+					Entity = "WeaponAttA_BarrelAuto5_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					Entity = "WeaponAttA_MagazineAuto5_01",
+					Slot = "Magazine",
+					param_bindings = false,
+				}),
+			},
+			comment = "-------- BARRELLS",
+			id = "Auto5_Short_NMag",
+			param_bindings = {},
+		}),
+		PlaceObj('ModItemWeaponComponent', {
+			AdditionalCosts = {
+				PlaceObj('WeaponComponentCost', {
+					'Amount', 1,
+					'Type', "FineSteelPipe",
+				}),
+			},
+			Cost = 25,
+			DisplayName = T(499785632845, --[[ModItemWeaponComponent BarrelShortShotgun DisplayName]] "Shortened Barrel"),
+			GBO_ComponentTraits = "Barrel.ShortShotgun",
+			Icon = "UI/Icons/Upgrades/galil_barrel_short",
+			ModificationDifficulty = 10,
+			ModificationEffects = {
+				"shortbarrel",
+				"ReduceRange",
+				"StanceAPdecrease",
+				"IncreaseOverwatchAngle",
+			},
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleIncrease",
+					'Value', 107,
+					'Tag', "<OverwatchAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
+				}),
+			},
+			Slot = "Barrel",
+			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
+			Visuals = {
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "M41Shotgun",
+					Entity = "WeaponAttA_BarrelBenelli_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "DoubleBarrelShotgun",
+					Entity = "WeaponAttA_BarrelDBS_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+			},
+			comment = "-------- BARRELLS",
+			id = "BarrelShortShotgun",
+		}),
+		PlaceObj('ModItemWeaponComponent', {
+			AdditionalCosts = {
+				PlaceObj('WeaponComponentCost', {
+					'Amount', 1,
+					'Type', "FineSteelPipe",
+				}),
+			},
+			Cost = 25,
+			DisplayName = T(586020270949, --[[ModItemWeaponComponent BarrelShortShotgun_Benelli DisplayName]] "Shortened Barrel"),
+			GBO_ComponentTraits = "Barrel.ShortShotgun, Mag.Reduced2, Shotgun.WideBuckshot",
+			Icon = "UI/Icons/Upgrades/m1014_barrel_short",
+			ModificationDifficulty = 10,
+			ModificationEffects = {
+				"shortbarrel",
+				"ReduceRange",
+				"StanceAPdecrease",
+				"ReduceMagazineSize",
+				"IncreaseBuckshotAngle",
+				"IncreaseOverwatchAngle",
+			},
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "BuckshotAngleIncrease",
+					'Value', 122,
+					'Tag', "<BuckshotAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "MagazineSizeDecrease",
+					'Value', 2,
+					'Tag', "<MagazineSizeDecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleIncrease",
+					'Value', 107,
+					'Tag', "<OverwatchAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
+				}),
+			},
+			Slot = "Barrel",
+			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
+			Visuals = {
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "M41Shotgun",
+					Entity = "WeaponAttA_BarrelBenelli_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+			},
+			comment = "-------- BARRELLS",
+			id = "BarrelShortShotgun_Benelli",
+		}),
+		PlaceObj('ModItemWeaponComponent', {
+			AdditionalCosts = {
+				PlaceObj('WeaponComponentCost', {
+					'Amount', 1,
+					'Type', "FineSteelPipe",
+				}),
+			},
+			Cost = 25,
+			DisplayName = T(385898999120, --[[ModItemWeaponComponent BarrelShort_Winchester DisplayName]] "Short Barrel"),
+			GBO_ComponentTraits = "Barrel.Short, Mag.Reduced2",
+			Icon = "UI/Icons/Upgrades/galil_barrel_short",
+			ModificationDifficulty = 10,
+			ModificationEffects = {
+				"shortbarrel",
+				"ReduceRange",
+				"ReduceDamage",
+				"StanceAPdecrease",
+				"ReduceMagazineSize",
+				"IncreaseOverwatchAngle",
+			},
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "DamageReduced",
+					'Value', 1,
+					'Tag', "<DamageReduced>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "MagazineSizeDecrease",
+					'Value', 2,
+					'Tag', "<MagazineSizeDecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleIncrease",
+					'Value', 107,
+					'Tag', "<OverwatchAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
+				}),
+			},
+			Slot = "Barrel",
+			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
+			Visuals = {
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "Winchester1894",
+					Entity = "WeaponAttA_BarrelWinchester_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+			},
+			comment = "-------- BARRELLS",
+			id = "BarrelShort_Winchester",
+		}),
+		PlaceObj('ModItemWeaponComponent', {
+			AdditionalCosts = {
+				PlaceObj('WeaponComponentCost', {
+					'Amount', 1,
+					'Type', "FineSteelPipe",
+				}),
+			},
+			Cost = 30,
+			DisplayName = T(599300881426, --[[ModItemWeaponComponent _Master_BarrelShort DisplayName]] "Short Barrel"),
+			GBO_ComponentTraits = "Barrel.Short",
+			Icon = "UI/Icons/Upgrades/galil_barrel_short",
+			ModificationDifficulty = 10,
+			ModificationEffects = {
+				"shortbarrel",
+				"ReduceRange",
+				"ReduceDamage",
+				"StanceAPdecrease",
+				"IncreaseOverwatchAngle",
+			},
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "DamageReduced",
+					'Value', 1,
+					'Tag', "<DamageReduced>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleIncrease",
+					'Value', 107,
+					'Tag', "<OverwatchAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
+				}),
+			},
+			Slot = "Barrel",
+			Tags = set( "CloseQuarters", "Intimate", "Tactical" ),
+			Visuals = {
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "AUG",
+					Entity = "WeaponAttA_BarrelSteyr_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "Galil",
+					Entity = "WeaponAttA_BarrelGalil_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "MP5K",
+					Entity = "WeaponAttA_BarrelMP5_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "ColtPeacemaker",
+					Entity = "WeaponAttA_BarrelColt_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "M14SAW",
+					Entity = "WeaponAttA_BarrelM14_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "M14SAW_AUTO",
+					Entity = "WeaponAttA_BarrelM14_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "ColtAnaconda",
+					Entity = "WeaponAttA_BarrelAnaconda_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "HiPower",
+					Entity = "WeaponAttA_BarrelBHP_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "FNFAL",
+					Entity = "WeaponAttA_BarrelFNFal_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "FNMinimi",
+					Entity = "WeaponAttA_BarrelFNMinimi_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "HK21",
+					Entity = "WeaponAttA_BarrelHK21_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "Winchester1894",
+					Entity = "WeaponAttA_BarrelWinchester_Short",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "AR15",
+					Entity = "WeaponAttA_BarrelAR15_01",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+			},
+			comment = "-------- BARRELLS",
+			group = "Default",
+			id = "_Master_BarrelShort",
 		}),
 		}),
 	PlaceObj('ModItemWeaponComponent', {
