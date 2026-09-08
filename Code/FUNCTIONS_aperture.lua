@@ -381,8 +381,9 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
     --- decay_efetivo = 100 - (100 - decay) * he/100
     decay = 100 - MulDivRound(100 - decay, he, 100)
 
-	
-    return Clamp(decay, a.DecayMinPct, 99), meta
+	local final_decay = Clamp(decay, a.DecayMinPct, 99)
+	--print("---- APERTURE AIM DECAY -- Base Aim: ", weapon.AimAccuracy, "Total Aim: ", acc, "Level: ", level, "Decay unclamped: ", decay, "Effective decay: ",final_decay)
+    return decay, meta
 end
 
 ---- MANEJO -> multiplicador da abertura base. GetPBbonus ja soma classe + arma + componentes
@@ -413,13 +414,28 @@ function Rat_ApertureHandlingMul(weapon, attacker)
         local stance_mul = (a.HandlingHeldStanceMul and a.HandlingHeldStanceMul[attacker.stance]) or 100
         if stance_mul > 0 then
             local excess = Max(0, (weapon.weigth_held_mul or 100) - (a.HandlingHeldPivot or 100))
-            local str = attacker.Strength or 0
+			local str = attacker.Strength or 0
 			local min_str = a.HandlingHeldMinStr or 50
             local low_str = str <= min_str
             if str > min_str then
                 excess = MulDivRound(excess, 100 - MulDivRound(a.HandlingHeldStrRelief or 0,
                                                                Min(str, 100) - min_str, min_str), 100)
             end
+			
+			---- Absolute STR reduction
+			--local str = attacker.Strength or 0
+			--local min_str = a.HandlingHeldMinStr or 50
+			--local low_str = str <= min_str
+			--		
+			--if str > min_str then
+			--    local str_relief = MulDivRound(
+			--        a.HandlingHeldStrRelief or 0,
+			--        Min(str, 100) - min_str,
+			--        100 - min_str
+			--    )
+			--
+			--    excess = Max(0, excess - str_relief)
+			--end
             local pen = MulDivRound(MulDivRound(excess, a.HandlingHeldSlope or 0, 100), stance_mul, 100)
             if pen > 0 then
                 handling = MulDivRound(handling, 100 + pen, 100)

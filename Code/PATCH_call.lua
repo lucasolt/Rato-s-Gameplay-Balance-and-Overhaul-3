@@ -1,11 +1,35 @@
+
+local function reapply_tog_components()
+    local fn = rawget(_G,
+                      "RatoTOGComponents")
+    local comps = rawget(_G,
+                         "WeaponComponents")
+    if not fn or not comps or
+        not comps.WideScope then
+        return
+    end
+    local ok, err = pcall(fn)
+    if not ok then
+        print(
+            "GBO: RatoTOGComponents reapply failed --",
+            err)
+    end
+end
+
+function GBO_GeneralComponentPatch()
+    RatoGBOComponents()
+    ApplyApertureItemParams() -- override de comps enquanto o aperture esta ligado
+	reapply_tog_components()
+	GBO_ApplyComponentAncestorEffect() -- Copies ancestor effect and param tables, should be after the ancestors are set
+end
+
 function OnMsg.ClassesGenerate()
     RatoGBO_WepPatch()
 end
 
 function OnMsg.ModsReloaded()
-    RatoGBOComponents()
-    ApplyApertureItemParams() -- override de opticas enquanto o aperture esta ligado
-    GBO_patch_WeaponsPresetsClass()
+	GBO_GeneralComponentPatch()	
+	GBO_patch_WeaponsPresetsClass()
 end
 
 local function isModActiveInVersion(modId, version)

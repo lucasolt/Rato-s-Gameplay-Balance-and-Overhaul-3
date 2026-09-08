@@ -11,25 +11,7 @@ RAT_ApertureCTHMode =
         CurrentModOptions.ApertureCTH) or
         RAT_ApertureCTHMode or "aCTH"
 
----- Componentes do ToG espelham os efeitos das opticas base: so podem ser reescritos com os presets
----- ja carregados. No load deste arquivo WeaponComponents ainda esta vazio e a chamada rebentava.
----- rawget(_G): ler um global inexistente e erro neste engine, entao nada de `if RatoTOGComponents`.
-local function reapply_tog_components()
-    local fn = rawget(_G,
-                      "RatoTOGComponents")
-    local comps = rawget(_G,
-                         "WeaponComponents")
-    if not fn or not comps or
-        not comps.WideScope then
-        return
-    end
-    local ok, err = pcall(fn)
-    if not ok then
-        print(
-            "GBO aperture: RatoTOGComponents falhou --",
-            err)
-    end
-end
+
 
 ---- Unico escritor de A.Enabled / A.SimulateShots. `mode` opcional vira o novo modo. Deriva os
 ---- espelhos em const, limpa o combat_cache das unidades e reaplica as opticas -- idempotente.
@@ -47,13 +29,14 @@ function GBO_ApplyApertureCTHMode(mode)
                         empty_table) do
         u.combat_cache = nil
     end
-    local apply_items =
-        rawget(_G,
-               "ApplyApertureItemParams")
-    if apply_items then
-        apply_items()
-    end
 
+
+	local generalComponentPatch = rawget(_G,
+       					"GBO_GeneralComponentPatch") -- ApplyAperture, Tog, and Ancestry
+	if generalComponentPatch then
+        generalComponentPatch()
+    end
+	
     ---- Unidade so re-encara o inimigo mais proximo no PROPRIO turno. Ver
     ---- SOURCE_UnitSetTargetDummyFromPos: sem isto a silhueta exposta muda sozinha a cada
     ---- VisibilityUpdate, e com ela o CTH e a parte do corpo atingida.
@@ -62,7 +45,6 @@ function GBO_ApplyApertureCTHMode(mode)
             const.Combat.Aperture
                 .SimulateShots
 
-    reapply_tog_components()
     print("GBO Options - CTH mode:", m,
           "| Enabled:", const.Combat
               .Aperture.Enabled,

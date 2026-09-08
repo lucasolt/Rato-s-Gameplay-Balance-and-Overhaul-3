@@ -305,15 +305,181 @@ A.ApertureComponentTier = {
     ---- G11_Rail_7, G11_Rail_9. E sem arma nenhuma: AN94_Scope_1, ThermalScope_1, ThermalScope_2.
 }
 
+
 ---------------------------------------------------------------------------------------------------
 ---- PRISTINO HARDCODADO -- transcrito do items.lua (folder "Scopes"). effects em ordem de autoria,
 ---- params por nome. So o que o restore/apply precisa; visuais, custo e tags ficam no preset.
 ---------------------------------------------------------------------------------------------------
+
+GBO_AUXILIARY_EFFECTS_ORIGINALS = {
+	Barrel = {
+		Improved = {
+			effects = {"IncreaseReliability"},
+			params = {ReliabilityIncrease = 10}
+		},
+		light_barrel = {
+			effect = {"ExtraOverwatchShots", "hipfire_light_barrel", "IncreaseOverwatchAngle"},
+			params = {OverwatchAngleIncrease = 103}
+		},
+		ShortShotgun ={
+			effects = {
+				"ReduceMagazineSize",
+				"IncreaseBuckshotAngle",},
+			params = {
+				MagazineSizeDecrease = 2,
+				BuckshotAngleIncrease = 122,
+			}
+		},
+		Short_Winchester ={
+			effects = {"ReduceMagazineSize"},
+			params = {MagazineSizeDecrease = 2}
+		},
+		Auto5_Short_NMag = {
+			effects = {"ReduceReliability"},
+			params = {ReliabilityDecrease = 10}
+
+		},
+
+		Long_AUG = {
+			-- copy bipod effects
+		},
+		Heavy = {
+			effects = {"heavy_barrel_effect", "DecreaseOverwatchAngle"},
+			params = {OverwatchAngleDecrease = 95} -- Should sum with long or short effects
+		},
+		winni_to54r = { -- longbarrel
+			effects = {
+				"IncreaseDamage",
+				"ReduceReliabilityPercent",
+				"ChangeCaliberTo762_54r",
+				--"IncreaseRange",
+				--"StanceAPincrease",
+				--"DecreaseOverwatchAngle",
+				--"longbarrel",
+				--"IncreaseAimAccuracy",
+			},
+			params = {
+				DamageIncrease = 7, -- 5 + 2?
+				--RangeIncrease = 2, -- Should be more? caliber range
+				--APincrease = 1,
+				ReliabilityDecreasePercent = 50
+			}
+		}
+	}
+
+
+}
+
 RAT_SCOPE_ORIGINALS = {
     -- VerticalGrip = {
     --	effects = { "AccuracyBonusWhenAimed_vgrip", "Vert_grip_recoi",  "grip_prone_penalty"},
     --	params = { bonus_cth_v = 3 },
     -- },
+	UVDot = {
+		effects = {
+			--"hipfire_dot_effect_uv",
+			"DecreaseSnapshotMul",
+			"DecreaseHipfireMul",
+			"IncreaseAimAccuracy",
+			"body_part_uv"},
+		params = {
+			AimAccuracyIncrease = 1,
+			snap_mul_reduc = const.Combat.SnapshotHipfire.Components.LaserMul or 90,
+			hipfire_mul_reduc = const.Combat.SnapshotHipfire.Components.LaserMul or 90
+		},
+	},
+	LaserDot = {
+		effects = {
+			--"hipfire_dot_effect_uv",
+			"DecreaseSnapshotMul",
+			"DecreaseHipfireMul",
+			"IncreaseCritChangeScaled",
+			"critical_per_aim_laser"},
+		params = {
+			CritChangeScaledIncrease = 10,
+			snap_mul_reduc = const.Combat.SnapshotHipfire.Components.LaserMul or 90,
+			hipfire_mul_reduc = const.Combat.SnapshotHipfire.Components.LaserMul or 90
+		},
+	},
+	BarrelLong = {
+		effects = {
+			"IncreaseRange",
+			"IncreaseAimAccuracy",
+			"longbarrel",
+			"IncreaseDamage",
+			"StanceAPincrease",
+			"DecreaseOverwatchAngle",
+		},
+		params = {
+			RangeIncrease = 4,
+			DamageIncrease = 1,
+			AimAccuracyIncrease = 2,
+			APincrease = 1,
+			OverwatchAngleDecrease = 95,
+		}
+	},
+	BarrelShort = {
+		effects = {
+			"ReduceRange",
+			"shortbarrel",
+			"ReduceDamage",
+			"IncreaseOverwatchAngle",
+			"StanceAPdecrease",
+		},
+		params = {
+			DamageReduced = 1,
+			RangeDecrease = 2,
+			OverwatchAngleIncrease = 107,
+			APdecrease = 1
+		}
+	},
+	BarrelShort_handgun = {
+		effects = {
+		"ReduceRange",
+		"shortbarrel",
+		"IncreaseOverwatchAngle",},
+		params = {			
+			--DamageReduced = 1,
+			RangeDecrease = 2,
+			OverwatchAngleIncrease = 105,
+		}
+	},
+	BarrelShort_Winchester ={
+		effects = {
+			"ReduceRange",
+			"shortbarrel",
+			"ReduceDamage",
+			"IncreaseOverwatchAngle",
+			"StanceAPdecrease",
+			"ReduceMagazineSize"
+		},
+		params = {
+			DamageReduced = 1,
+			RangeDecrease = 2,
+			OverwatchAngleIncrease = 107,
+			APdecrease = 1,
+			MagazineSizeDecrease = 2
+		}
+	},
+	BarrelShortShotgun_Benelli  ={
+		effects = {
+			"ReduceRange",
+			"shortbarrel",
+			"ReduceDamage",
+			"IncreaseOverwatchAngle",
+			"StanceAPdecrease",
+			"ReduceMagazineSize",
+			"IncreaseBuckshotAngle"
+		},
+		params = {
+			DamageReduced = 1,
+			RangeDecrease = 2,
+			OverwatchAngleIncrease = 107,
+			APdecrease = 1,
+			MagazineSizeDecrease = 2,
+			BuckshotAngleIncrease = 122,
+		}
+	},
     PSG_DefaultScope = {
         effects = {
             "IncreaseMaxAimActions",

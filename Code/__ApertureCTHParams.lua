@@ -158,9 +158,11 @@ A.HandlingUseBaseMul = true
 ---- Standing widens the cone for a heavy gun, same weigth_held_mul ladder as the recoil weight
 ---- penalty (RecoilHeldPivot). LIGHT by default -- LOWER slope than recoil on purpose, this is
 ---- aim, not muzzle control -- and it only bites past the pivot, so most guns pay nothing.
-A.HandlingHeldPivot = 130
-A.HandlingHeldSlope = 80--30
-A.HandlingHeldStrRelief = 50
+A.HandlingHeldPivot = 130--130
+A.HandlingHeldSlope = 80--30 -- Mul the excess penalty
+
+--TODO: `HandlingHeldStrRelief` change from relative to absolute
+A.HandlingHeldStrRelief = 50 -- How many excess points a STR 100 merc removes. 
 A.HandlingHeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
 
 ---- Rotulo da penalidade de peso, POR POSTURA -- antes era sempre "(-) Standing", inclusive
@@ -171,6 +173,16 @@ A.HandlingHeldStanceMeta = {
 }
 A.HandlingHeldLowStrMeta = T {599531270289, "(-) Low Strength"}
 A.HandlingHeldMinStr = 70
+
+---- HELD RECOIL
+---- Weight above the pivot is paid in grip and force, never in kick. weigth_held_mul is
+---- already authored on every weapon, so the ladder needs no per-gun data.
+A.RecoilHeldPivot = 130
+A.RecoilHeldSlope = 60 ---- RecoilOtherGain re-amplifies this by 2.5x into max_inc
+A.RecoilHeldStrRelief = 50
+A.RecoilHeldLatPct = 100
+---- how much of that penalty each stance still pays: prone rests the gun, standing carries it
+A.RecoilHeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
 
 ---------------------------------------------------------------------------------------------------
 
@@ -278,14 +290,6 @@ A.RecoilMovingLatPct = 50
 A.RecoilBipodKickYMul = 60
 A.RecoilBipodLatMul = 200
 
----- Weight above the pivot is paid in grip and force, never in kick. weigth_held_mul is
----- already authored on every weapon, so the ladder needs no per-gun data.
-A.RecoilHeldPivot = 130
-A.RecoilHeldSlope = 60 ---- RecoilOtherGain re-amplifies this by 2.5x into max_inc
-A.RecoilHeldStrRelief = 50
-A.RecoilHeldLatPct = 100
----- how much of that penalty each stance still pays: prone rests the gun, standing carries it
-A.RecoilHeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
 
 
 ----------------------------------------------------------------------------------------

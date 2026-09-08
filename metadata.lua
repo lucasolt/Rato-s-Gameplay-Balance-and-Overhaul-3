@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 13173,
+	'version', 13193,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -145,6 +145,7 @@ return PlaceObj('ModDef', {
 		"Code/WeaponProperties.lua",
 		"Code/UnitProperties.lua",
 		"Code/PATCH_GBOComponents.lua",
+		"Code/PATCH_GBO_ApplyComponentAncestorEffect.lua",
 		"Code/OnDataLoaded.lua",
 		"Code/PATCH_WeaponsPresetClass.lua",
 		"Code/PATCH_GBO_weapons.lua",
@@ -180,8 +181,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1788819457,
-	'code_hash', 8966490093739952938,
+	'saved', 1788894901,
+	'code_hash', -141922429906133826,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",
@@ -260,7 +261,17 @@ return PlaceObj('ModDef', {
 		}),
 		PlaceObj('ModResourcePreset', {
 			'Class', "WeaponComponentEffect",
+			'Id', "IncreaseHipfireMul",
+			'ClassDisplayName', "Modification Effects",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponentEffect",
 			'Id', "DecreaseSnapshotMul",
+			'ClassDisplayName', "Modification Effects",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponentEffect",
+			'Id', "DecreaseHipfireMul",
 			'ClassDisplayName', "Modification Effects",
 		}),
 		PlaceObj('ModResourcePreset', {

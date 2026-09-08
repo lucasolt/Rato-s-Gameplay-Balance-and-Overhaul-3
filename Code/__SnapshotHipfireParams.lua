@@ -22,8 +22,9 @@ const.Combat.Snapshot.MGSetupInterruptMul = 80 -- MulDivRound
 const.Combat.Snapshot.InterruptMul = 110 --- MulDivRound
 ---------------
 
+-- TODO: Make a patch that set the constants as param, minding the Aperture change patch
 const.Combat.SnapshotHipfire.Components = {
-    LaserMul = 0.90, -- 0.88,
+    LaserMul = 90,--0.90, -- 0.88,
     VerticalGripMul = 0.97, -- 0.95,
     TacticalGripMul = 0.92, -- 0.90,
     LightStockMul = 0.94 -- 0.92
@@ -39,7 +40,7 @@ const.Combat.Hipfire.Components = {
     ShortBarrelMul = {Pistol = 1.04, Revolver = 1.06, Other = 1.10}
 }
 
-const.Combat.Hipfire.Other = {Prone = 1.06, Crouch = 1.02}
+const.Combat.Hipfire.Other = {Prone = 1.10, Crouch = 1.05}
 
 const.Combat.Snapshot.Components = {
     DrumMagMul = 1.05,

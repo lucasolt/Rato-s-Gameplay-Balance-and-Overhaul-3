@@ -5,7 +5,17 @@ function OnMsg.ClassesGenerate()
             {
                 category = "GBO",
                 id = "GBO_ComponentAncestor",
-                name = "component ancestor",
+                name = "Component Ancestor",
+                help = "Will inherit ComponentEffects and Params, not visuals or displayname",
+                editor = "text",
+                default = "",
+                template = true,
+                modifiable = true
+            },
+			{
+                category = "GBO",
+                id = "GBO_BarrelWeight",
+                --name = "GBO_BarrelWeight",
                 help = "",
                 editor = "text",
                 default = "",

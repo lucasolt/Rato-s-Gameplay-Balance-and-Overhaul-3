@@ -3,12 +3,17 @@
 ```lua
 CheatAddItem("itemid")
 ```
+## Housekeeping
+- [ ] Implement unified Component handling, with ancestor/CTH mode
+	- [ ] Verify if patch called from TOG is redundant.
+
 ## aCTH Possible fragilities
 - [ ] Make sure AI will orient before checking for cover in LOF.
 - [ ] Check how the `aCTH` deals with out-of-sight targets (wallbang).
 - [X] Check how it works agains non-humanoids
 - [ ] does the night vision penalty affects it?
 - [ ] check if AI is considering bonus from crouch
+- [ ] ricochets still work?
 
 ## AI OVERHAUL - other mod 
 - [ ] Mechanics check
@@ -49,6 +54,7 @@ CheatAddItem("itemid")
   - Ver `RECOIL MODEL.md`.
 
 ## Reimplementation necessary
+- [ ] gas, smoke, other grazing mechanics need to be changed
 - [ ] CQC bonus perk?
 - [X] low profile cth mod for crocs disabled when using aCTH
 - [X] Camouflage.
@@ -56,10 +62,11 @@ CheatAddItem("itemid")
   - Handzolt.
   - Scout Scope.
 - [ ] What about grazing? Is it possible to keep it in the game?
-- [ ] Grizzly Perk
+- [X] Grizzly Perk - **there is something in the recoil cacl, check if its enough**
 - [ ] Spiritual Perk
-- [ ] MGSetup Get AP (Should be the same as overwatch??) PS: Fix bug in the rotate button using max AP
-- [ ] Check if Run and Gun penalty modifier for recoil was implemented
+- [X] MGSetup Get AP (**ended up decreasing delta by 1**)
+	- [ ] Fix bug in the rotate button using max AP
+- [X] Check if Run and Gun penalty modifier for recoil was implemented
 - [ ] out of breath impact on aim
 ------------------------------------------------------------------------------------------------------------------------------
 # Later Stuff
