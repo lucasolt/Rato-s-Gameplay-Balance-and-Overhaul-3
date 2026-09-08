@@ -59,12 +59,18 @@ GBO_STAT_EMIT = {
     ---- recoil_mul ainda nao tem par Increase/Decrease autorado no editor.
 }
 
----- params que o motor le como PresetParamPercent. Os de barril sao todos Number.
+---- params escritos como PresetParamPercent (so muda a classe do PlaceObj e a tag; a conta do
+---- motor le Scale do EFEITO, nao daqui). `bonus_cth` fica de fora porque e percent em GW43 e em
+---- ImprovedIronsight_AR15 e number no resto -- essas receitas declaram `pct` proprio.
+----
+---- snap_mul_reduc / snap_mul_inc / hip_mul_inc / hipfire_mul_reduc NAO entram: o items.lua os
+---- autora como percent mas o caminho do aperture sempre os escreveu como number, e number e o que
+---- esta em campo. Divergencia herdada, mantida de proposito para o refactor nao mudar nada.
 GBO_COMPOSE_PCT = {
-    snap_mul_inc = true,
-    snap_mul_reduc = true,
-    hip_mul_inc = true,
-    hipfire_mul_reduc = true
+    crit = true,
+    crit_bonus = true,
+    bonus_cth_interrupt = true,
+    stealth_kill_bonus = true
 }
 
 ---------------------------------------------------------------------------------------------------
@@ -118,7 +124,11 @@ GBO_COMP_TRAITS = {
     ["Shotgun.WideBuckshot"] = {
         effects = {"IncreaseBuckshotAngle"},
         params = {BuckshotAngleIncrease = 122}
-    }
+    },
+	["Bipod"] ={
+		effects = {},
+		params = {}
+	}
 }
 
 ---- Componente -> tracos, para ids que ainda nao tem a propriedade GBO_ComponentTraits autorada.
@@ -129,7 +139,590 @@ GBO_COMP_TRAITS = {
 ---- BarrelShort_Winchester, BarrelShortShotgun_Benelli, BarrelLongImproved, BarrelHeavyLong)
 ---- migraram para a propriedade em 2026-09-08, depois de o diff no processo vivo dar IDENTICO
 ---- nos sete -- composicao sem nenhuma mudanca de balance.
+---------------------------------------------------------------------------------------------------
+---- RECEITAS BASE -- o que cada componente E, antes de qualquer modo de CTH. Vieram do
+---- RAT_SCOPE_ORIGINALS, o pristino hardcodado do aperture; mover para ca acabou com os
+---- dois sistemas paralelos escrevendo o mesmo preset.
+----
+---- Continuam hardcodadas de proposito: o compositor MUTA o preset vivo, e se a verdade
+---- fosse lida do preset em runtime um save no editor gravaria o resultado composto por
+---- cima da fonte. Com a fonte aqui, o items.lua vira saida derivada e descartavel.
+----
+---- Cada entrada vira o traco "Base.<id>" automaticamente (GBO_RegisterBaseRecipes).
+---------------------------------------------------------------------------------------------------
+GBO_BASE_RECIPES = {
+    -- VerticalGrip = {
+    --	effects = { "AccuracyBonusWhenAimed_vgrip", "Vert_grip_recoi",  "grip_prone_penalty"},
+    --	params = { bonus_cth_v = 3 },
+    -- },
+	UVDot = {
+		effects = {
+			--"hipfire_dot_effect_uv",
+			"DecreaseSnapshotMul",
+			"DecreaseHipfireMul",
+			"IncreaseAimAccuracy",
+			"body_part_uv"},
+		params = {
+			AimAccuracyIncrease = 1,
+			snap_mul_reduc = const.Combat.SnapshotHipfire.Components.LaserMul or 90,
+			hipfire_mul_reduc = const.Combat.SnapshotHipfire.Components.LaserMul or 90
+		},
+	},
+	LaserDot = {
+		effects = {
+			--"hipfire_dot_effect_uv",
+			"DecreaseSnapshotMul",
+			"DecreaseHipfireMul",
+			"IncreaseCritChangeScaled",
+			"critical_per_aim_laser"},
+		params = {
+			CritChangeScaledIncrease = 10,
+			snap_mul_reduc = const.Combat.SnapshotHipfire.Components.LaserMul or 90,
+			hipfire_mul_reduc = const.Combat.SnapshotHipfire.Components.LaserMul or 90
+		},
+	},
+	BarrelLong = {
+		effects = {
+			"IncreaseRange",
+			"IncreaseAimAccuracy",
+			"longbarrel",
+			"IncreaseDamage",
+			"StanceAPincrease",
+			"DecreaseOverwatchAngle",
+		},
+		params = {
+			RangeIncrease = 4,
+			DamageIncrease = 1,
+			AimAccuracyIncrease = 2,
+			APincrease = 1,
+			OverwatchAngleDecrease = 95,
+		}
+	},
+	BarrelShort = {
+		effects = {
+			"ReduceRange",
+			"shortbarrel",
+			"ReduceDamage",
+			"IncreaseOverwatchAngle",
+			"StanceAPdecrease",
+		},
+		params = {
+			DamageReduced = 1,
+			RangeDecrease = 2,
+			OverwatchAngleIncrease = 107,
+			APdecrease = 1
+		}
+	},
+	BarrelShort_handgun = {
+		effects = {
+		"ReduceRange",
+		"shortbarrel",
+		"IncreaseOverwatchAngle",},
+		params = {			
+			--DamageReduced = 1,
+			RangeDecrease = 2,
+			OverwatchAngleIncrease = 105,
+		}
+	},
+	BarrelShort_Winchester ={
+		effects = {
+			"ReduceRange",
+			"shortbarrel",
+			"ReduceDamage",
+			"IncreaseOverwatchAngle",
+			"StanceAPdecrease",
+			"ReduceMagazineSize"
+		},
+		params = {
+			DamageReduced = 1,
+			RangeDecrease = 2,
+			OverwatchAngleIncrease = 107,
+			APdecrease = 1,
+			MagazineSizeDecrease = 2
+		}
+	},
+	BarrelShortShotgun_Benelli  ={
+		effects = {
+			"ReduceRange",
+			"shortbarrel",
+			"ReduceDamage",
+			"IncreaseOverwatchAngle",
+			"StanceAPdecrease",
+			"ReduceMagazineSize",
+			"IncreaseBuckshotAngle"
+		},
+		params = {
+			DamageReduced = 1,
+			RangeDecrease = 2,
+			OverwatchAngleIncrease = 107,
+			APdecrease = 1,
+			MagazineSizeDecrease = 2,
+			BuckshotAngleIncrease = 122,
+		}
+	},
+    PSG_DefaultScope = {
+        effects = {
+            "IncreaseMaxAimActions",
+            "IncreaseRange",
+            "ScopePenalty3",
+            "DecreaseOverwatchAngle",
+            "bodypart_scope"
+        },
+        params = {
+            MaxAimActionsIncrease = 1,
+            RangeIncrease = 16,
+            crit = 15,
+            OverwatchAngleDecrease = 50,
+            APincrease = 1
+        }
+    },
+    ThermalScope = {
+        effects = {
+            "IgnoreInTheDarkWhenFullyAimed",
+            "IgnoreCoverCtHWhenFullyAimed",
+            "IgnoreLightOfSightWhenFullyAimed",
+            "IgnoreGrazingHitsWhenFullyAimed",
+            "IncreaseRange",
+            "ScopePenalty2",
+            "DecreaseOverwatchAngle"
+        },
+        params = {
+            RangeIncrease = 10,
+            OverwatchAngleDecrease = 50,
+            APincrease = 1
+        }
+    },
+    SCOPE_G36_2 = {
+        effects = {
+            "CritBonusWhenFullyAimed",
+            "ScopePenalty1",
+            "IncreaseRange",
+            "IgnoreInTheDarkWhenFullyAimed",
+            "DecreaseOverwatchAngle",
+            "IncreaseAimAccuracy"
+        },
+        params = {
+            RangeIncrease = 10,
+            AimAccuracyIncrease = 2,
+            crit = 15,
+            OverwatchAngleDecrease = 75
+        }
+    },
+    G36_SCOPE = {
+        effects = {
+            "CritBonusWhenFullyAimed",
+            "ScopePenalty1",
+            "IncreaseRange",
+            "IgnoreInTheDarkWhenFullyAimed",
+            "DecreaseOverwatchAngle",
+            "IncreaseAimAccuracy"
+        },
+        params = {
+            crit = 15,
+            AimAccuracyIncrease = 2,
+            RangeIncrease = 6,
+            OverwatchAngleDecrease = 75
+        }
+    },
+    AUGScope_Default = {
+        effects = {
+            "IncreaseAimAccuracy",
+            "IncreaseRange",
+            "DecreaseOverwatchAngle"
+        },
+        params = {
+            AimAccuracyIncrease = 3,
+            RangeIncrease = 4,
+            OverwatchAngleDecrease = 90
+        }
+    },
+    _ReflexSIghtVigilance = {
+        effects = {
+            "OpportunityAttackBonusCth",
+            "IncreaseOverwatchAngle",
+            "scope_snapshot",
+            "reflex_sight_close_range",
+            "AccuracyBonusWhenAimed"
+        },
+        params = {
+            bonus_cth = 3,
+            bonus_cth_interrupt = 10,
+            OverwatchAngleIncrease = 125,
+            Close_bonus = 5,
+            snap_reduc = 10,
+            RangeIncrease = 4
+        }
+    },
+    ReflexSightAdvanced_Glock = {
+        effects = {
+            "first_aim_crit",
+            "IncreaseOverwatchAngle",
+            "scope_snapshot",
+            "reflex_sight_close_range",
+            "AccuracyBonusWhenAimed"
+        },
+        params = {
+            RangeIncrease = 2,
+            OverwatchAngleIncrease = 115,
+            Close_bonus = 5,
+            bonus_cth = 3,
+            snap_reduc = 10
+        }
+    },
+    ReflexSightAdvanced = {
+        effects = {
+            "IncreaseOverwatchAngle",
+            "first_aim_crit",
+            "scope_snapshot",
+            "reflex_sight_close_range",
+            "AccuracyBonusWhenAimed"
+        },
+        params = {
+            RangeIncrease = 4,
+            bonus_cth = 3,
+            OverwatchAngleIncrease = 125,
+            Close_bonus = 5,
+            snap_reduc = 10
+        }
+    },
+    ReflexSight = {
+        effects = {
+            "AccuracyBonusWhenAimed",
+            "IncreaseOverwatchAngle",
+            "reflex_sight_close_range",
+            "scope_snapshot"
+        },
+        params = {
+            RangeIncrease = 2,
+            OverwatchAngleIncrease = 115,
+            Close_bonus = 10,
+            bonus_cth = 3,
+            snap_reduc = 10
+        }
+    },
+    ScopeCOG = {
+        effects = {
+            "IncreaseRange",
+            "ScopePenalty1",
+            "DecreaseOverwatchAngle",
+            "critical_per_aim_scope",
+            "IncreaseAimAccuracy"
+        },
+        params = {
+            RangeIncrease = 6,
+            OverwatchAngleDecrease = 90,
+            AimAccuracyIncrease = 2
+        }
+    },
+    ScopeCOGQuick = {
+        effects = {
+            "FirstAimBonusModifier",
+            "IncreaseRange",
+            "ScopePenalty1",
+            "IncreaseAimAccuracy",
+            "scope_snapshot",
+            "IncreaseOverwatchAngle"
+        },
+        params = {
+            RangeIncrease = 6,
+            AimAccuracyIncrease = 2,
+            snap_reduc = 5,
+            OverwatchAngleIncrease = 110,
+			first_aim_bonus_acc = 3
+        }
+    },
+    WideScope = {
+        effects = {
+            "OpportunityAttackBonusCth",
+            "IncreaseRange",
+            "ScopePenalty1",
+            "IncreaseAimAccuracy",
+            "scope_snapshot"
+        },
+        params = {
+            bonus_cth_interrupt = 8,
+            AimAccuracyIncrease = 2,
+            RangeIncrease = 6,
+            snap_reduc = 5
+        }
+    },
+    LROptics_DragunovDefault = {
+        effects = {
+            "IncreaseRange",
+            "pso_dragunov_scope_critical",
+            "ScopePenalty2",
+            "DecreaseOverwatchAngle",
+            "pso_dragunov_scope",
+            "IncreaseMaxAimActions"
+        },
+        params = {
+            crit_bonus = 15,
+            MaxAimActionsIncrease = 1,
+            RangeIncrease = 10,
+            OverwatchAngleDecrease = 68,
+            APincrease = 1
+        }
+    },
+    LROptics = {
+        effects = {
+            "IncreaseMaxAimActions",
+            "IncreaseRange",
+            "ScopePenalty2",
+            "DecreaseOverwatchAngle",
+            "sniper_aim_scope"
+        },
+        params = {
+            MaxAimActionsIncrease = 1,
+            RangeIncrease = 10,
+            OverwatchAngleDecrease = 65,
+            APincrease = 1
+        }
+    },
+    LROpticsAdvanced = {
+        effects = {
+            "IncreaseMaxAimActions",
+            "IncreaseRange",
+            "ScopePenalty3",
+            "DecreaseOverwatchAngle",
+            "sniper_adv_aim_scope"
+        },
+        params = {
+            MaxAimActionsIncrease = 2,
+            RangeIncrease = 16,
+            OverwatchAngleDecrease = 50,
+            APincrease = 1
+        }
+    },
+    ImprovedIronsight = {
+        effects = {
+            "AccuracyBonusWhenAimed"
+        },
+        params = {bonus_cth = 3}
+    },
+
+    ---- Opticas de ToG / armas modadas. Lidas do processo vivo ANTES de qualquer override
+    ---- (nao estavam em ApertureComponentTier, entao o que estava em memoria era o pristino).
+    SSG69_Scope_1 = {
+        effects = {
+            "IncreaseRange",
+            "IncreaseMaxAimActions",
+            "CritBonusWhenFullyAimed",
+            "ScopePenalty3",
+            "DecreaseOverwatchAngle"
+        },
+        params = {
+            RangeIncrease = 16,
+            MaxAimActionsIncrease = 1,
+            crit = 20,
+            OverwatchAngleDecrease = 60
+        }
+    },
+    _Master_SSG69_Scope_TOG = {
+        effects = {
+            "IncreaseRange",
+            "IncreaseMaxAimActions",
+            "CritBonusWhenFullyAimed",
+            "ScopePenalty3",
+            "DecreaseOverwatchAngle"
+        },
+        params = {
+            RangeIncrease = 16,
+            MaxAimActionsIncrease = 1,
+            crit = 20,
+            OverwatchAngleDecrease = 60
+        }
+    },
+    VSS_Scope_1 = {
+        effects = {
+            "pso_dragunov_scope",
+            "IncreaseRange",
+            "ScopePenalty2",
+            "DecreaseOverwatchAngle",
+            "StealthKillBonusPerAim",
+            "IncreaseMaxAimActions"
+        },
+        params = {
+            RangeIncrease = 10,
+            OverwatchAngleDecrease = 60,
+            APincrease = 1,
+            stealth_kill_bonus = 6,
+            MaxAimActionsIncrease = 1
+        }
+    },
+    ["_Master_PSO-1M2_Scope_TOG"] = {
+        effects = {
+            "pso_dragunov_scope",
+            "IncreaseRange",
+            "ScopePenalty2",
+            "DecreaseOverwatchAngle",
+            "StealthKillBonusPerAim",
+            "IncreaseMaxAimActions"
+        },
+        params = {
+            RangeIncrease = 10,
+            OverwatchAngleDecrease = 60,
+            APincrease = 1,
+            stealth_kill_bonus = 6,
+            MaxAimActionsIncrease = 1
+        }
+    },
+    SteyrS_Scope_1 = {
+        effects = {
+            "pso_dragunov_scope",
+            "IncreaseMaxAimActions",
+            "ScopePenalty2",
+            "scout_scope_crit",
+            "IncreaseRange",
+            "DecreaseOverwatchAngle"
+        },
+        params = {
+            RangeIncrease = 10,
+            OverwatchAngleDecrease = 60,
+            APincrease = 1,
+            MaxAimActionsIncrease = 1,
+            critical_head = 15
+        }
+    },
+    _Master_SteyrS_Scope_TOG = {
+        effects = {
+            "pso_dragunov_scope",
+            "IncreaseMaxAimActions",
+            "ScopePenalty2",
+            "scout_scope_crit",
+            "IncreaseRange",
+            "DecreaseOverwatchAngle"
+        },
+        params = {
+            RangeIncrease = 10,
+            OverwatchAngleDecrease = 60,
+            APincrease = 1,
+            MaxAimActionsIncrease = 1,
+            critical_head = 15
+        }
+    },
+    m76_scope_1 = {
+        effects = {
+            "IncreaseMaxAimActions",
+            "IncreaseRange",
+            "DecreaseOverwatchAngle",
+            "ScopePenalty2",
+            "pso_dragunov_scope",
+            "zrak_scope_crit"
+        },
+        params = {
+            MaxAimActionsIncrease = 1,
+            RangeIncrease = 10,
+            OverwatchAngleDecrease = 68,
+            crit_torso = 12
+        }
+    },
+    _Master_m76_scope_TOG = {
+        effects = {
+            "IncreaseMaxAimActions",
+            "IncreaseRange",
+            "DecreaseOverwatchAngle",
+            "ScopePenalty2",
+            "pso_dragunov_scope",
+            "zrak_scope_crit"
+        },
+        params = {
+            MaxAimActionsIncrease = 1,
+            RangeIncrease = 10,
+            OverwatchAngleDecrease = 68,
+            crit_torso = 12
+        }
+    },
+    G11_Scope_1 = {
+        effects = {
+            "IncreaseRange",
+            "AccuracyBonusWhenAimed"
+        },
+        params = {
+            RangeIncrease = 4,
+            bonus_cth = 10
+        }
+    },
+    _Master_G11_Scope_1 = {
+        effects = {
+            "IncreaseRange",
+            "AccuracyBonusWhenAimed"
+        },
+        params = {
+            RangeIncrease = 4,
+            bonus_cth = 10
+        }
+    },
+    GW43_Scope_1 = {
+        effects = {
+            "AccuracyBonusWhenAimed",
+            "DecreaseOverwatchAngle",
+            "IncreaseRange"
+        },
+        params = {
+            RangeIncrease = 4,
+            bonus_cth = 15,
+            OverwatchAngleDecrease = 85
+        },
+        pct = {bonus_cth = true}
+    },
+    _Master_GW43_Scope_TOG = {
+        effects = {
+            "AccuracyBonusWhenAimed",
+            "DecreaseOverwatchAngle",
+            "IncreaseRange"
+        },
+        params = {
+            RangeIncrease = 4,
+            bonus_cth = 15,
+            OverwatchAngleDecrease = 85
+        },
+        pct = {bonus_cth = true}
+    },
+    TAR21_Scope_Rflx_1 = {
+        effects = {
+            "IncreaseOverwatchAngle",
+            "hipfire_dot_effect_laser",
+            "IncreaseCritChangeScaled",
+            "critical_per_aim_laser",
+            "reflex_sight_close_range",
+            "AccuracyBonusWhenAimed"
+        },
+        params = {
+            bonus_cth = 10,
+            OverwatchAngleIncrease = 130,
+            Close_bonus = 5,
+            snap_reduc = 15,
+            CritChangeScaledIncrease = 10
+        }
+    },
+    ImprovedIronsight_AR15 = {
+        effects = {
+            "AccuracyBonusWhenAimed"
+        },
+        params = {bonus_cth = 5},
+        pct = {bonus_cth = true}
+    }
+}
+
 GBO_COMPONENT_TRAITS = {}
+
+---- Camadas condicionais ao modo de jogo. Cada overlay e uma funcao(id, comp) que devolve uma
+---- receita ou nil. Diferente de um traco, o overlay SOBRESCREVE params em vez de combinar, e o
+---- seu `effects` e um mapa {id = true|false} -- true garante presente, false garante ausente.
+---- O arquivo do aperture registra o dele aqui; o compositor nao sabe o que e uma optica.
+GBO_COMPOSE_OVERLAYS = {}
+
+---- Toda receita base vira o traco "Base.<id>", e o componente de mesmo nome passa a declarar esse
+---- traco por padrao. Assim um scope sem nada autorado continua sendo ele mesmo, e quem quiser
+---- compor por cima e so listar mais tracos na propriedade.
+function GBO_RegisterBaseRecipes()
+    for id, recipe in pairs(GBO_BASE_RECIPES or empty_table) do
+        local tname = "Base." .. id
+        GBO_COMP_TRAITS[tname] = recipe
+        GBO_COMPONENT_TRAITS[id] = GBO_COMPONENT_TRAITS[id] or {tname}
+    end
+end
+GBO_RegisterBaseRecipes()
 
 ---------------------------------------------------------------------------------------------------
 
@@ -170,33 +763,52 @@ local function traits_of(id, comp)
     return GBO_COMPONENT_TRAITS[id]
 end
 
----- Funde as receitas dos tracos num par {effects, params}. `extra` entra por ultimo com as mesmas
----- regras de combinacao -- e o gancho para os perfis de aperture entrarem como mais uma camada.
-function GBO_ComposeTraits(trait_list, extra)
-    local effects, seen, params = {}, {}, {}
-
-    local function absorb(recipe)
-        for _, eid in ipairs(recipe.effects or empty_table) do
-            if not seen[eid] then
-                seen[eid] = true
-                effects[#effects + 1] = eid
-            end
-        end
-        for name, value in sorted_pairs(recipe.params or empty_table) do
-            params[name] = combine(GBO_PARAM_COMBINE[name] or "set", params[name], value)
-        end
-    end
+---- Funde as receitas dos tracos num trio {effects, params, pct}. `overlay` entra depois de tudo
+---- com semantica de SOBRESCRITA (ver GBO_COMPOSE_OVERLAYS): params trocam de valor em vez de
+---- combinar, e effects e {id = true|false} para forcar presenca ou ausencia.
+function GBO_ComposeTraits(trait_list, overlay)
+    local effects, seen, params, pct = {}, {}, {}, {}
 
     for _, tname in ipairs(trait_list or empty_table) do
         local recipe = GBO_COMP_TRAITS[tname]
         if not recipe then
             print("GBO compose: traco inexistente --", tname)
         else
-            absorb(recipe)
+            for _, eid in ipairs(recipe.effects or empty_table) do
+                if not seen[eid] then
+                    seen[eid] = true
+                    effects[#effects + 1] = eid
+                end
+            end
+            for name, value in sorted_pairs(recipe.params or empty_table) do
+                params[name] = combine(GBO_PARAM_COMBINE[name] or "set", params[name], value)
+            end
+            for name in pairs(recipe.pct or empty_table) do
+                pct[name] = true
+            end
         end
     end
-    if extra then
-        absorb(extra)
+
+    if overlay then
+        local want = overlay.ModificationEffects or overlay.effects or empty_table
+        local kept = {}
+        for _, eid in ipairs(effects) do
+            if want[eid] == false then
+                seen[eid] = nil
+            else
+                kept[#kept + 1] = eid
+            end
+        end
+        effects = kept
+        for eid, on in sorted_pairs(want) do
+            if on and not seen[eid] then
+                seen[eid] = true
+                effects[#effects + 1] = eid
+            end
+        end
+        for name, value in sorted_pairs(overlay.Parameters or overlay.params or empty_table) do
+            params[name] = value -- sobrescreve, nao combina
+        end
     end
 
     ---- canonicos com sinal viram no maximo UM efeito cada
@@ -217,7 +829,7 @@ function GBO_ComposeTraits(trait_list, extra)
         params[name] = value
     end
 
-    return effects, params
+    return effects, params, pct
 end
 
 ---- Avisa quando dois efeitos do mesmo componente disputam o mesmo StatToModify -- nesse caso o
@@ -257,16 +869,20 @@ function GBO_WriteComponent(comp, effects, params_map, pct_map)
     comp:PostLoad()
 end
 
----- Passada principal. Roda DEPOIS de ApplyApertureItemParams: para todo componente que declara
----- tracos o compositor e a fonte da verdade, com aperture ligado ou desligado.
+---- Passada principal. UNICO escritor de componente do mod: le os tracos, aplica os overlays de
+---- modo e escreve. Roda no fim de GBO_GeneralComponentPatch e de novo a cada troca de modo.
 function GBO_ApplyComponentCompose()
     local n = 0
     for id, comp in sorted_pairs(WeaponComponents or empty_table) do
         local list = traits_of(id, comp)
         if list then
-            local effects, params = GBO_ComposeTraits(list)
+            local overlay
+            for _, fn in ipairs(GBO_COMPOSE_OVERLAYS) do
+                overlay = fn(id, comp) or overlay
+            end
+            local effects, params, pct = GBO_ComposeTraits(list, overlay)
             warn_stat_collisions(id, effects)
-            GBO_WriteComponent(comp, effects, params)
+            GBO_WriteComponent(comp, effects, params, pct)
             n = n + 1
         end
     end
@@ -281,7 +897,11 @@ function GBO_ComposeReport(id)
     if not list then
         return id .. ": sem tracos"
     end
-    local effects, params = GBO_ComposeTraits(list)
+    local overlay
+    for _, fn in ipairs(GBO_COMPOSE_OVERLAYS) do
+        overlay = fn(id, comp) or overlay
+    end
+    local effects, params = GBO_ComposeTraits(list, overlay)
     local out = {id .. " [" .. table.concat(list, ", ") .. "]"}
     out[#out + 1] = "  effects: " .. table.concat(effects, ", ")
     for name, value in sorted_pairs(params) do

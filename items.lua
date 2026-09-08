@@ -3557,6 +3557,7 @@ return {
 			},
 			Cost = 30,
 			DisplayName = T(665287400339, --[[ModItemWeaponComponent BarrelShort_AUG DisplayName]] "Short Barrel"),
+			GBO_ComponentTraits = "Barrel.Short",
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
@@ -3676,6 +3677,7 @@ return {
 			},
 			Cost = 25,
 			DisplayName = T(627286028824, --[[ModItemWeaponComponent BarrelShortImproved_handgun DisplayName]] "Short Gain-Twist Barrel"),
+			GBO_ComponentTraits = "Barrel.ShortHandgun, Barrel.Improved",
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 0,
 			ModificationEffects = {
@@ -3801,26 +3803,22 @@ return {
 			},
 			Cost = 30,
 			DisplayName = T(559805386611, --[[ModItemWeaponComponent BarrelShortImproved DisplayName]] "Short Gain-Twist Barrel"),
+			GBO_ComponentTraits = "Barrel.Short, Barrel.Improved",
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"ReduceRange",
 				"shortbarrel",
+				"ReduceRange",
 				"ReduceDamage",
-				"IncreaseOverwatchAngle",
 				"StanceAPdecrease",
 				"IncreaseReliability",
+				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "ReliabilityIncrease",
-					'Value', 10,
-					'Tag', "<ReliabilityIncrease>",
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "DamageReduced",
@@ -3833,9 +3831,14 @@ return {
 					'Tag', "<OverwatchAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "ReliabilityIncrease",
+					'Value', 10,
+					'Tag', "<ReliabilityIncrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -4194,8 +4197,8 @@ return {
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 0,
 			ModificationEffects = {
-				"ReduceRange",
 				"shortbarrel",
+				"ReduceRange",
 				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
@@ -4315,11 +4318,11 @@ return {
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"ReduceRange",
 				"shortbarrel",
+				"ReduceRange",
 				"ReduceDamage",
-				"IncreaseOverwatchAngle",
 				"StanceAPdecrease",
+				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -4565,13 +4568,13 @@ return {
 			Icon = "UI/Icons/Upgrades/m1014_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"ReduceRange",
 				"shortbarrel",
+				"ReduceRange",
 				"ReduceDamage",
-				"IncreaseOverwatchAngle",
 				"StanceAPdecrease",
 				"ReduceMagazineSize",
 				"IncreaseBuckshotAngle",
+				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -4631,12 +4634,12 @@ return {
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"ReduceRange",
 				"shortbarrel",
+				"ReduceRange",
 				"ReduceDamage",
-				"IncreaseOverwatchAngle",
 				"StanceAPdecrease",
 				"ReduceMagazineSize",
+				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5381,6 +5384,11 @@ return {
 					'Tag', "<OverwatchAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
+					'Name', "RangeIncrease",
+					'Value', 4,
+					'Tag', "<RangeIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
 					'Name', "bonus_cth",
 					'Value', 3,
 					'Tag', "<bonus_cth>",
@@ -5589,6 +5597,11 @@ return {
 					'Tag', "<OverwatchAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
+					'Name', "RangeIncrease",
+					'Value', 2,
+					'Tag', "<RangeIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
 					'Name', "bonus_cth",
 					'Value', 3,
 					'Tag', "<bonus_cth>",
@@ -5657,6 +5670,11 @@ return {
 					'Name', "OverwatchAngleIncrease",
 					'Value', 125,
 					'Tag', "<OverwatchAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeIncrease",
+					'Value', 4,
+					'Tag', "<RangeIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "bonus_cth",
@@ -5859,6 +5877,11 @@ return {
 					'Name', "OverwatchAngleIncrease",
 					'Value', 115,
 					'Tag', "<OverwatchAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeIncrease",
+					'Value', 2,
+					'Tag', "<RangeIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "bonus_cth",
@@ -8447,19 +8470,24 @@ return {
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"IncreaseRange",
-				"IncreaseDamage",
 				"longbarrel",
-				"DecreaseOverwatchAngle",
+				"IncreaseRange",
 				"IncreaseAimAccuracy",
+				"IncreaseDamage",
 				"StanceAPincrease",
 				"heavy_barrel_effect",
+				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
-					'Name', "RangeIncrease",
-					'Value', 4,
-					'Tag', "<RangeIncrease>",
+					'Name', "APincrease",
+					'Value', 1,
+					'Tag', "<APincrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyIncrease",
+					'Value', 2,
+					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "DamageIncrease",
@@ -8472,14 +8500,9 @@ return {
 					'Tag', "<OverwatchAngleDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "AimAccuracyIncrease",
-					'Value', 2,
-					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "APincrease",
-					'Value', 1,
-					'Tag', "<APincrease>",
+					'Name', "RangeIncrease",
+					'Value', 4,
+					'Tag', "<RangeIncrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -8771,24 +8794,19 @@ return {
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
+				"longbarrel",
 				"IncreaseRange",
 				"IncreaseAimAccuracy",
 				"IncreaseDamage",
-				"longbarrel",
-				"DecreaseOverwatchAngle",
-				"IncreaseReliability",
 				"StanceAPincrease",
+				"IncreaseReliability",
+				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
-					'Name', "RangeIncrease",
-					'Value', 4,
-					'Tag', "<RangeIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
+					'Name', "APincrease",
 					'Value', 1,
-					'Tag', "<DamageIncrease>",
+					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
@@ -8796,9 +8814,9 @@ return {
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "ReliabilityIncrease",
-					'Value', 10,
-					'Tag', "<ReliabilityIncrease>",
+					'Name', "DamageIncrease",
+					'Value', 1,
+					'Tag', "<DamageIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -8806,9 +8824,14 @@ return {
 					'Tag', "<OverwatchAngleDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "APincrease",
-					'Value', 1,
-					'Tag', "<APincrease>",
+					'Name', "RangeIncrease",
+					'Value', 4,
+					'Tag', "<RangeIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "ReliabilityIncrease",
+					'Value', 10,
+					'Tag', "<ReliabilityIncrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -9420,9 +9443,9 @@ return {
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
+				"longbarrel",
 				"IncreaseRange",
 				"IncreaseAimAccuracy",
-				"longbarrel",
 				"IncreaseDamage",
 				"StanceAPincrease",
 				"DecreaseOverwatchAngle",

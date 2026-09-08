@@ -22,15 +22,5 @@ function OnMsg.ClassesGenerate()
                 template = true,
                 modifiable = true
             },
-			{
-                category = "GBO",
-                id = "GBO_BarrelWeight",
-                --name = "GBO_BarrelWeight",
-                help = "",
-                editor = "text",
-                default = "",
-                template = true,
-                modifiable = true
-            }
 	}}
 end
