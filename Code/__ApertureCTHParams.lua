@@ -56,7 +56,7 @@ A.DecayBase = 0 --8
 A.DecayScale = 6--4
 ---- teto de fechamento por nivel. nunca fecha mais que (100 - DecayMinPct) %. Abaixo de 30 um
 ---- unico nivel com optica de limiar fecha quase todo o gap e vira degrau, nao curva.
-A.DecayMinPct = 10--30 --20
+A.DecayMinPct = 30--30 --20
 
 ---- Multiplicadores do DECAY da mira. Uma entrada por modificador, tudo declarado AQUI -- nenhum
 ---- deles tem bloco de codigo proprio em Rat_ApertureAimDecay. mul 100 = desligado, > 100 piora.
@@ -73,10 +73,16 @@ A.DecayMinPct = 10--30 --20
 A.AimDecayMuls = {
 	HeavyRainAim = {mul = 120, game_state = "RainHeavy", indoors = false,
 	                meta = T {901477523654, "(-) Heavy Rain"}},
-	HandgunPenalty = {mul = 150, classes = {"Pistol", "Revolver"}, ---- 100 is disabled
+	HandgunPenalty = {
+		mul = 100,--150,
+		classes = {"Pistol", "Revolver"}, ---- 100 is disabled
 	                  meta = T {195655494642, "(-) Handgun"}},
-	NoStock = {mul = 150, component = "ReduceAimAccuracy"},
-	Crouch = {mul = 100, stance = "Crouch", --97,--95
+	NoStock = {
+		mul = 100,--150,
+		component = "ReduceAimAccuracy"},
+	Crouch = {
+		mul = 100,
+		stance = "Crouch", --97,--95
 	          meta = T {688848752517, "Crouching"}},
 	Prone = {mul = 100, stance = "Prone", --95,--90
 	         meta = T {271472323596, "Prone"}},
@@ -144,7 +150,7 @@ A.ConeRefCTH = 50
 ---- nivel, entao manejo decide o tiro rapido e SOME quando o cone converge no piso. Como residual
 ---- final seria um % fixo em todo nivel e a arma longa nunca ultrapassaria a curta.
 --------------------------------------------------------------------------------------------------
-A.PBHandlingScale = 100--150
+A.PBHandlingScale = 80--150
 A.HandlingMin = 60
 A.HandlingMax = 160
 A.HandlingUseBaseMul = true
@@ -369,7 +375,7 @@ A.OffPartEffectPct = 33
 
 ---- Damage multiplier for an off-part hit, applied before armor like the vanilla stray -50%.
 ---- 100 = no reduction (default); 50 reproduces vanilla stray damage.
-A.OffPartDamagePct = 100
+A.OffPartDamagePct = 90--100
 
 ---------------------------------------------------------------------------------------------------
 

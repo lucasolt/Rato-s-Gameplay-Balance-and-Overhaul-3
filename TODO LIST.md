@@ -27,7 +27,7 @@ CheatAddItem("itemid")
 	- [X] Fix LOS 
 	- [X] Fix Debug overlay not decomposing ready curve 
 - [X] Check recoil calc for AI when using aCTH
-- [X] Fix AI trying to shoot prone when there is a very small cover in front of it, making impossible to actually hit (see savegame) **---> Done. Needs testing**
+- [X] Fix AI trying to shoot prone when there is a very small cover in front of it, making impossible to actually hit (see savegame) **---> Done. Needs testing - BTW, this could make AI incapable of wallbanging? check**
 
 ## AI Overhaul new stuff
 - [ ] Overwatch against last target pos when unit is hidden. also make them throw grenades at it, specially when at a rooftop
@@ -39,8 +39,9 @@ CheatAddItem("itemid")
 - [ ] review the no-stock/handgun aim penalties. Maybe its a bit too much. Could use the _range_ as a penalty, instead 
 - [ ] Re-scale Aim Accuracy bonus for more gradient
 - [ ] review the Handling while standing penalty
-- [ ] Stray shots should have a lower chance to inflict status effects. 
+- [X] Stray shots should have a lower chance to inflict status effects. 
 	- General inquiring about how strays are working now. Maybe be stray when hit other bodyparts of the same target? I am not even sure how the damage is being calculated right now.
+	[ ] - Pellets
 - [ ] Calibrar o recuo de segunda ordem.
   - Ancorar `KickBase` e o mapa `control -> CFMax` nas duas.
   - Ver linhas extremas do ladder do `1cc229c`.
@@ -50,7 +51,7 @@ CheatAddItem("itemid")
 ## Reimplementation necessary
 - [ ] CQC bonus perk?
 - [X] low profile cth mod for crocs disabled when using aCTH
-- [X] Camouflage. **DONE: needs rewriting of descriptions**
+- [X] Camouflage.
 - [ ] How to deal with scopes that give bonuses to hit body parts or bypass cover?
   - Handzolt.
   - Scout Scope.

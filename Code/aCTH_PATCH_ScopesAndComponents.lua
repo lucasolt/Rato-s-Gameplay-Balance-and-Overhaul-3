@@ -838,7 +838,22 @@ RAT_APERTURE_WEAPON_RANGE = {
     Auto5 = {20, 24},
     AA12 = {20, 24},
     DoubleBarrelShotgun = {18, 22},
-    Auto5_quest = {18, 22}
+    Auto5_quest = {18, 22},
+
+	TexRevolver= {20,18},
+	ColtPeacemaker= {20,18},
+	Bereta92= {18,16},
+	Glock18= {18,16},
+	HiPower= {18,16},
+	ColtAnaconda= {22,18},
+	DesertEagle= {24,20},
+
+	M1911_1 ={16, 14},
+	P08_1 ={18,16},
+	B93RR_1 ={18,16},
+	Glock17_1 ={18,16},
+	USP_1 ={18,16},
+	VikingMP446_1 ={18,16},
 }
 
 ---- params autorados como PresetParamPercent no items.lua (so muda o tipo do PlaceObj / a tag).
