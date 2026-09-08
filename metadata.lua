@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 13194,
+	'version', 13201,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -182,8 +182,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1788903385,
-	'code_hash', -1907202437555167198,
+	'saved', 1788907003,
+	'code_hash', 7219635408550559622,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",
@@ -363,11 +363,6 @@ return PlaceObj('ModDef', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "WeaponComponent",
 			'Id', "_Master_MagLarge",
-			'ClassDisplayName', "Weapon component",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponent",
-			'Id', "Barrel50BMG_DesertEagle",
 			'ClassDisplayName', "Weapon component",
 		}),
 		PlaceObj('ModResourcePreset', {
@@ -568,6 +563,11 @@ return PlaceObj('ModDef', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "WeaponComponent",
 			'Id', "BarrelLight",
+			'ClassDisplayName', "Weapon component",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponent",
+			'Id', "Barrel50BMG_DesertEagle",
 			'ClassDisplayName', "Weapon component",
 		}),
 		PlaceObj('ModResourcePreset', {

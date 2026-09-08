@@ -91,6 +91,18 @@ GBO_COMP_TRAITS = {
             APincrease = 1
         }
     },
+	["Barrel.LongShotgun"] = {
+        effects = {
+            "longbarrel", "IncreaseRange", "IncreaseAimAccuracy",
+            "StanceAPincrease"
+        },
+        params = {
+            OverwatchAngle = 95,
+            RangeIncrease = 4,
+            AimAccuracyIncrease = 2,
+            APincrease = 1
+        }
+    },
     ["Barrel.Short"] = {
         effects = {"shortbarrel", "ReduceRange", "ReduceDamage", "StanceAPdecrease"},
         params = {
@@ -100,15 +112,38 @@ GBO_COMP_TRAITS = {
             APdecrease = 1
         }
     },
+	    ["Barrel.ShortShotgun"] = {
+        effects = {"shortbarrel", "ReduceRange", "StanceAPdecrease"},
+        params = {
+            OverwatchAngle = 107,
+            RangeDecrease = 2,
+            APdecrease = 1
+        }
+    },
     ---- cano curto de pistola: sem perda de dano nem de AP de postura, e o cone abre menos.
     ["Barrel.ShortHandgun"] = {
         effects = {"shortbarrel", "ReduceRange"},
         params = {OverwatchAngle = 105, RangeDecrease = 2}
     },
+	["Barrel.LongHandgun"] ={
+		effects = {
+				"IncreaseRange",
+				"IncreaseAimAccuracy",
+				"longbarrel",
+				"DecreaseOverwatchAngle",
+			},
+		params = {
+			RangeIncrease = 2,
+			DamageIncrease = 1,
+			AimAccuracyIncrease = 1,
+			OverwatchAngle = 92
+		}
+	},
     ["Barrel.Light"] = {
         effects = {"hipfire_light_barrel", "ExtraOverwatchShots"},
         params = {OverwatchAngle = 103}
     },
+
     ["Barrel.Heavy"] = {
         effects = {"heavy_barrel_effect"},
         params = {OverwatchAngle = 95}
@@ -121,14 +156,57 @@ GBO_COMP_TRAITS = {
         effects = {"ReduceMagazineSize"},
         params = {MagazineSizeDecrease = 2}
     },
+	["General.ReduceReliability"]= {
+        effects = {"ReduceReliability"},
+        params = {ReliabilityDecrease = 10}
+    },
+	["Mag.Multiplier150"]= {
+        effects = {"MagazineSizeMultiplier"},
+        params = {MagazineSizeMultiplier = 150}
+    },
     ["Shotgun.WideBuckshot"] = {
         effects = {"IncreaseBuckshotAngle"},
         params = {BuckshotAngleIncrease = 122}
     },
+
+	["Shotgun.NarrowBuckshot"] = {
+        effects = {"DecreaseBuckshotAngle"},
+        params = {BuckshotAngleDecrease = 78}
+    },
 	["Bipod"] ={
-		effects = {},
-		params = {}
-	}
+		effects = {			
+			"AccuracyBonusProne",
+			"bipod_penalty",
+			"rotate_ap_bipod",
+			"RecoilControlWhenProne",
+		},
+		params = {bonus_cth = 10}
+	},
+	["Barrel.to50AE"]={
+		effects = {			
+			"IncreaseDamage",
+			"ChangeCaliberToBMG",
+			"ReduceReliability",
+			"StanceAPincrease" -- as it is a handgun, normally long barrel do not extend
+		},
+		params = {
+			DamageIncrease = 10,
+			ReliabilityDecrease = 10,
+			APincrease = 1,
+		}
+	},
+	["Barrel.to762_54R"]={
+		effects = {			
+			"IncreaseDamage",
+			"ChangeCaliberTo762_54r",
+			"ReduceReliabilityPercent",
+		},
+		params = {
+			DamageIncrease = 7,
+			ReliabilityDecreasePercent = 50,
+		}
+	},
+	
 }
 
 ---- Componente -> tracos, para ids que ainda nao tem a propriedade GBO_ComponentTraits autorada.
@@ -150,6 +228,7 @@ GBO_COMP_TRAITS = {
 ----
 ---- Cada entrada vira o traco "Base.<id>" automaticamente (GBO_RegisterBaseRecipes).
 ---------------------------------------------------------------------------------------------------
+--TODO: do I need to remove the entries here?
 GBO_BASE_RECIPES = {
     -- VerticalGrip = {
     --	effects = { "AccuracyBonusWhenAimed_vgrip", "Vert_grip_recoi",  "grip_prone_penalty"},

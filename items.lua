@@ -3007,60 +3007,6 @@ return {
 		id = "_Master_MagLarge",
 	}),
 	PlaceObj('ModItemWeaponComponent', {
-		AdditionalCosts = {
-			PlaceObj('WeaponComponentCost', {
-				'Amount', 1,
-				'Type', "FineSteelPipe",
-			}),
-		},
-		Cost = 40,
-		DisplayName = T(682294285321, --[[ModItemWeaponComponent Barrel50BMG_DesertEagle DisplayName]] ".50 AE Barrel"),
-		Icon = "UI/Icons/Upgrades/default_barrel",
-		ModificationDifficulty = 20,
-		ModificationEffects = {
-			"IncreaseDamage",
-			"ChangeCaliberToBMG",
-			"ReduceReliability",
-			"StanceAPincrease",
-			"IncreaseRange",
-			"longbarrel",
-		},
-		Parameters = {
-			PlaceObj('PresetParamNumber', {
-				'Name', "DamageIncrease",
-				'Value', 10,
-				'Tag', "<DamageIncrease>",
-			}),
-			PlaceObj('PresetParamNumber', {
-				'Name', "APincrease",
-				'Value', 1,
-				'Tag', "<APincrease>",
-			}),
-			PlaceObj('PresetParamNumber', {
-				'Name', "ReliabilityDecrease",
-				'Value', 10,
-				'Tag', "<ReliabilityDecrease>",
-			}),
-			PlaceObj('PresetParamNumber', {
-				'Name', "RangeIncrease",
-				'Value', 2,
-				'Tag', "<RangeIncrease>",
-			}),
-		},
-		Slot = "Barrel",
-		Tags = set( "Precision", "Strategic", "Tactical" ),
-		Visuals = {
-			PlaceObj('WeaponComponentVisual', {
-				ApplyTo = "DesertEagle",
-				Entity = "WeaponAttA_BarrelDesertEagle_02",
-				Slot = "Barrel",
-				param_bindings = false,
-			}),
-		},
-		group = "Barrel",
-		id = "Barrel50BMG_DesertEagle",
-	}),
-	PlaceObj('ModItemWeaponComponent', {
 		Cost = 25,
 		DisplayName = T(601660158852, --[[ModItemWeaponComponent LionRoar_compensator DisplayName]] "Compensator"),
 		Icon = "UI/Icons/Upgrades/m16_muzzle",
@@ -3561,18 +3507,17 @@ return {
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"IncreaseOverwatchAngle",
-				"ReduceRange",
-				"ReduceReliability",
-				"ReduceDamage",
 				"shortbarrel",
+				"ReduceRange",
+				"ReduceDamage",
 				"StanceAPdecrease",
+				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
-					'Name', "ReliabilityDecrease",
-					'Value', 10,
-					'Tag', "<ReliabilityDecrease>",
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "DamageReduced",
@@ -3580,19 +3525,14 @@ return {
 					'Tag', "<DamageReduced>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
 					'Value', 107,
 					'Tag', "<OverwatchAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -3619,21 +3559,22 @@ return {
 			},
 			Cost = 35,
 			DisplayName = T(682092539169, --[[ModItemWeaponComponent BarrelShortImproved_AUG DisplayName]] "Short Gain-Twist Barrel"),
+			GBO_ComponentTraits = "Barrel.Short, Barrel.Improved",
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"ReduceRange",
 				"shortbarrel",
+				"ReduceRange",
 				"ReduceDamage",
-				"IncreaseOverwatchAngle",
 				"StanceAPdecrease",
 				"IncreaseReliability",
+				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "DamageReduced",
@@ -3646,9 +3587,9 @@ return {
 					'Tag', "<OverwatchAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "ReliabilityIncrease",
@@ -3681,12 +3622,17 @@ return {
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 0,
 			ModificationEffects = {
-				"ReduceRange",
 				"shortbarrel",
-				"IncreaseOverwatchAngle",
+				"ReduceRange",
 				"IncreaseReliability",
+				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleIncrease",
+					'Value', 105,
+					'Tag', "<OverwatchAngleIncrease>",
+				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeDecrease",
 					'Value', 2,
@@ -3696,16 +3642,6 @@ return {
 					'Name', "ReliabilityIncrease",
 					'Value', 10,
 					'Tag', "<ReliabilityIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleIncrease",
-					'Value', 105,
-					'Tag', "<OverwatchAngleIncrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -3929,42 +3865,19 @@ return {
 			},
 			Cost = 30,
 			DisplayName = T(701363011930, --[[ModItemWeaponComponent BarrelShort_Light DisplayName]] "Short Light Barrel"),
+			GBO_ComponentTraits = "Barrel.Light",
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"ReduceRange",
-				"shortbarrel",
-				"ExtraOverwatchShots",
-				"ReduceDamage",
-				"IncreaseOverwatchAngle",
 				"hipfire_light_barrel",
-				"StanceAPdecrease",
+				"ExtraOverwatchShots",
+				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 4,
-					'Tag', "<RangeDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
-					'Value', 110,
+					'Value', 103,
 					'Tag', "<OverwatchAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "AimAccuracyDecrease",
-					'Value', 2,
-					'Tag', "<AimAccuracyDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -4061,35 +3974,26 @@ return {
 			},
 			Cost = 20,
 			DisplayName = T(742559105706, --[[ModItemWeaponComponent BarrelShort_Light_handgun DisplayName]] "Short Light Barrel"),
+			GBO_ComponentTraits = "Barrel.ShortHandgun, Barrel.Light",
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 0,
 			ModificationEffects = {
-				"ReduceRange",
 				"shortbarrel",
+				"ReduceRange",
+				"hipfire_light_barrel",
 				"ExtraOverwatchShots",
 				"IncreaseOverwatchAngle",
-				"hipfire_light_barrel",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
+					'Name', "OverwatchAngleIncrease",
+					'Value', 108,
+					'Tag', "<OverwatchAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeDecrease",
 					'Value', 2,
 					'Tag', "<RangeDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleIncrease",
-					'Value', 107,
-					'Tag', "<OverwatchAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "AimAccuracyDecrease",
-					'Value', 2,
-					'Tag', "<AimAccuracyDecrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -4441,21 +4345,22 @@ return {
 			Comment = "consider reducing or disabling aiming?",
 			Cost = 20,
 			DisplayName = T(731483819647, --[[ModItemWeaponComponent Auto5_Short_NMag DisplayName]] "Short Barrel"),
+			GBO_ComponentTraits = "Barrel.ShortShotgun, Shotgun.WideBuckshot, General.ReduceReliability",
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 0,
 			ModificationEffects = {
-				"ReduceRange",
-				"ReduceReliability",
-				"IncreaseBuckshotAngle",
 				"shortbarrel",
-				"IncreaseOverwatchAngle",
+				"ReduceRange",
 				"StanceAPdecrease",
+				"IncreaseBuckshotAngle",
+				"ReduceReliability",
+				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
-					'Name', "ReliabilityDecrease",
-					'Value', 10,
-					'Tag', "<ReliabilityDecrease>",
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "BuckshotAngleIncrease",
@@ -4463,19 +4368,19 @@ return {
 					'Tag', "<BuckshotAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
 					'Value', 107,
 					'Tag', "<OverwatchAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "ReliabilityDecrease",
+					'Value', 10,
+					'Tag', "<ReliabilityDecrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -4505,25 +4410,20 @@ return {
 			},
 			Cost = 25,
 			DisplayName = T(499785632845, --[[ModItemWeaponComponent BarrelShortShotgun DisplayName]] "Shortened Barrel"),
+			GBO_ComponentTraits = "Barrel.ShortShotgun",
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"ReduceRange",
-				"IncreaseBuckshotAngle",
 				"shortbarrel",
-				"IncreaseOverwatchAngle",
+				"ReduceRange",
 				"StanceAPdecrease",
+				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "BuckshotAngleIncrease",
-					'Value', 122,
-					'Tag', "<BuckshotAngleIncrease>",
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
@@ -4531,9 +4431,9 @@ return {
 					'Tag', "<OverwatchAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -4564,13 +4464,12 @@ return {
 			},
 			Cost = 25,
 			DisplayName = T(586020270949, --[[ModItemWeaponComponent BarrelShortShotgun_Benelli DisplayName]] "Shortened Barrel"),
-			GBO_ComponentTraits = "Barrel.Short, Mag.Reduced2, Shotgun.WideBuckshot",
+			GBO_ComponentTraits = "Barrel.ShortShotgun, Mag.Reduced2, Shotgun.WideBuckshot",
 			Icon = "UI/Icons/Upgrades/m1014_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
 				"shortbarrel",
 				"ReduceRange",
-				"ReduceDamage",
 				"StanceAPdecrease",
 				"ReduceMagazineSize",
 				"IncreaseBuckshotAngle",
@@ -4586,11 +4485,6 @@ return {
 					'Name', "BuckshotAngleIncrease",
 					'Value', 122,
 					'Tag', "<BuckshotAngleIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "MagazineSizeDecrease",
@@ -4690,25 +4584,26 @@ return {
 			},
 			Cost = 30,
 			DisplayName = T(599300881426, --[[ModItemWeaponComponent _Master_BarrelShort DisplayName]] "Short Barrel"),
+			GBO_ComponentTraits = "Barrel.Short",
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"ReduceRange",
 				"shortbarrel",
+				"ReduceRange",
 				"ReduceDamage",
-				"IncreaseOverwatchAngle",
 				"StanceAPdecrease",
+				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
+				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "DamageReduced",
 					'Value', 1,
 					'Tag', "<DamageReduced>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeDecrease",
-					'Value', 2,
-					'Tag', "<RangeDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
@@ -4716,9 +4611,9 @@ return {
 					'Tag', "<OverwatchAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "APdecrease",
-					'Value', 1,
-					'Tag', "<APdecrease>",
+					'Name', "RangeDecrease",
+					'Value', 2,
+					'Tag', "<RangeDecrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -4832,6 +4727,8 @@ return {
 				"ScopePenalty3",
 				"DecreaseOverwatchAngle",
 				"bodypart_scope",
+				"IncreaseSnapshotMul",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -4841,7 +4738,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "MaxAimActionsIncrease",
-					'Value', 1,
+					'Value', 3,
 					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -4854,10 +4751,25 @@ return {
 					'Value', 16,
 					'Tag', "<RangeIncrease>",
 				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "aim_level_threshold",
+					'Value', 6,
+					'Tag', "<aim_level_threshold>",
+				}),
 				PlaceObj('PresetParamPercent', {
 					'Name', "crit",
 					'Value', 15,
 					'Tag', "<crit>%",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_mul_inc",
+					'Value', 160,
+					'Tag', "<snap_mul_inc>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "threshold_bonus_acc",
+					'Value', 5,
+					'Tag', "<threshold_bonus_acc>",
 				}),
 			},
 			Slot = "Scope",
@@ -5010,12 +4922,20 @@ return {
 				"IncreaseRange",
 				"ScopePenalty2",
 				"DecreaseOverwatchAngle",
+				"IncreaseMaxAimActions",
+				"IncreaseSnapshotMul",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
 					'Value', 1,
 					'Tag', "<APincrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "MaxAimActionsIncrease",
+					'Value', 2,
+					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -5026,6 +4946,21 @@ return {
 					'Name', "RangeIncrease",
 					'Value', 10,
 					'Tag', "<RangeIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "aim_level_threshold",
+					'Value', 5,
+					'Tag', "<aim_level_threshold>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_mul_inc",
+					'Value', 140,
+					'Tag', "<snap_mul_inc>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "threshold_bonus_acc",
+					'Value', 5,
+					'Tag', "<threshold_bonus_acc>",
 				}),
 			},
 			Slot = "Scope",
@@ -5200,13 +5135,20 @@ return {
 				"IncreaseRange",
 				"IgnoreInTheDarkWhenFullyAimed",
 				"DecreaseOverwatchAngle",
-				"IncreaseAimAccuracy",
+				"IncreaseMaxAimActions",
+				"IncreaseSnapshotMul",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
 					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "MaxAimActionsIncrease",
+					'Value', 1,
+					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -5218,10 +5160,25 @@ return {
 					'Value', 10,
 					'Tag', "<RangeIncrease>",
 				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "aim_level_threshold",
+					'Value', 4,
+					'Tag', "<aim_level_threshold>",
+				}),
 				PlaceObj('PresetParamPercent', {
 					'Name', "crit",
 					'Value', 15,
 					'Tag', "<crit>%",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_mul_inc",
+					'Value', 125,
+					'Tag', "<snap_mul_inc>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "threshold_bonus_acc",
+					'Value', 3,
+					'Tag', "<threshold_bonus_acc>",
 				}),
 			},
 			Slot = "Scope",
@@ -5264,13 +5221,20 @@ return {
 				"IncreaseRange",
 				"IgnoreInTheDarkWhenFullyAimed",
 				"DecreaseOverwatchAngle",
-				"IncreaseAimAccuracy",
+				"IncreaseMaxAimActions",
+				"IncreaseSnapshotMul",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
 					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "MaxAimActionsIncrease",
+					'Value', 1,
+					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -5282,10 +5246,25 @@ return {
 					'Value', 6,
 					'Tag', "<RangeIncrease>",
 				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "aim_level_threshold",
+					'Value', 4,
+					'Tag', "<aim_level_threshold>",
+				}),
 				PlaceObj('PresetParamPercent', {
 					'Name', "crit",
 					'Value', 15,
 					'Tag', "<crit>%",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_mul_inc",
+					'Value', 125,
+					'Tag', "<snap_mul_inc>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "threshold_bonus_acc",
+					'Value', 3,
+					'Tag', "<threshold_bonus_acc>",
 				}),
 			},
 			Slot = "Scope",
@@ -5321,15 +5300,20 @@ return {
 			Icon = "UI/Icons/Upgrades/custom_Steyr_AUG_scope",
 			ModificationDifficulty = 0,
 			ModificationEffects = {
-				"IncreaseAimAccuracy",
 				"IncreaseRange",
 				"DecreaseOverwatchAngle",
+				"IncreaseMaxAimActions",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
 					'Value', 3,
 					'Tag', "<AimAccuracyIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "MaxAimActionsIncrease",
+					'Value', 1,
+					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -5368,9 +5352,8 @@ return {
 			ModificationEffects = {
 				"OpportunityAttackBonusCth",
 				"IncreaseOverwatchAngle",
-				"scope_snapshot",
-				"reflex_sight_close_range",
 				"AccuracyBonusWhenAimed",
+				"DecreaseSnapshotMul",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5390,13 +5373,18 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "bonus_cth",
-					'Value', 3,
+					'Value', 5,
 					'Tag', "<bonus_cth>",
 				}),
 				PlaceObj('PresetParamPercent', {
 					'Name', "bonus_cth_interrupt",
 					'Value', 10,
 					'Tag', "<bonus_cth_interrupt>%",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_mul_reduc",
+					'Value', 85,
+					'Tag', "<snap_mul_reduc>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "snap_reduc",
@@ -5581,9 +5569,8 @@ return {
 			ModificationEffects = {
 				"first_aim_crit",
 				"IncreaseOverwatchAngle",
-				"scope_snapshot",
-				"reflex_sight_close_range",
 				"AccuracyBonusWhenAimed",
+				"DecreaseSnapshotMul",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5603,8 +5590,13 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "bonus_cth",
-					'Value', 3,
+					'Value', 10,
 					'Tag', "<bonus_cth>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_mul_reduc",
+					'Value', 90,
+					'Tag', "<snap_mul_reduc>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "snap_reduc",
@@ -5656,9 +5648,8 @@ return {
 			ModificationEffects = {
 				"IncreaseOverwatchAngle",
 				"first_aim_crit",
-				"scope_snapshot",
-				"reflex_sight_close_range",
 				"AccuracyBonusWhenAimed",
+				"DecreaseSnapshotMul",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5678,8 +5669,13 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "bonus_cth",
-					'Value', 3,
+					'Value', 10,
 					'Tag', "<bonus_cth>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_mul_reduc",
+					'Value', 90,
+					'Tag', "<snap_mul_reduc>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "snap_reduc",
@@ -5864,8 +5860,7 @@ return {
 			ModificationEffects = {
 				"AccuracyBonusWhenAimed",
 				"IncreaseOverwatchAngle",
-				"reflex_sight_close_range",
-				"scope_snapshot",
+				"DecreaseSnapshotMul",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5885,8 +5880,13 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "bonus_cth",
-					'Value', 3,
+					'Value', 12,
 					'Tag', "<bonus_cth>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_mul_reduc",
+					'Value', 85,
+					'Tag', "<snap_mul_reduc>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "snap_reduc",
@@ -6103,13 +6103,20 @@ return {
 				"ScopePenalty1",
 				"DecreaseOverwatchAngle",
 				"critical_per_aim_scope",
-				"IncreaseAimAccuracy",
+				"IncreaseMaxAimActions",
+				"IncreaseSnapshotMul",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
 					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "MaxAimActionsIncrease",
+					'Value', 1,
+					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -6120,6 +6127,21 @@ return {
 					'Name', "RangeIncrease",
 					'Value', 6,
 					'Tag', "<RangeIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "aim_level_threshold",
+					'Value', 4,
+					'Tag', "<aim_level_threshold>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_mul_inc",
+					'Value', 125,
+					'Tag', "<snap_mul_inc>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "threshold_bonus_acc",
+					'Value', 3,
+					'Tag', "<threshold_bonus_acc>",
 				}),
 			},
 			Slot = "Scope",
@@ -6300,15 +6322,19 @@ return {
 				"FirstAimBonusModifier",
 				"IncreaseRange",
 				"ScopePenalty1",
-				"IncreaseAimAccuracy",
-				"scope_snapshot",
 				"IncreaseOverwatchAngle",
+				"IncreaseMaxAimActions",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
 					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "MaxAimActionsIncrease",
+					'Value', 1,
+					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
@@ -6321,6 +6347,11 @@ return {
 					'Tag', "<RangeIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
+					'Name', "aim_level_threshold",
+					'Value', 4,
+					'Tag', "<aim_level_threshold>",
+				}),
+				PlaceObj('PresetParamNumber', {
 					'Name', "first_aim_bonus_acc",
 					'Value', 3,
 					'Tag', "<first_aim_bonus_acc>",
@@ -6329,6 +6360,11 @@ return {
 					'Name', "snap_reduc",
 					'Value', 5,
 					'Tag', "<snap_reduc>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "threshold_bonus_acc",
+					'Value', 2,
+					'Tag', "<threshold_bonus_acc>",
 				}),
 			},
 			Slot = "Scope",
@@ -6509,14 +6545,20 @@ return {
 				"OpportunityAttackBonusCth",
 				"IncreaseRange",
 				"ScopePenalty1",
-				"IncreaseAimAccuracy",
-				"scope_snapshot",
+				"DecreaseSnapshotMul",
+				"FirstAimBonusModifier",
+				"IncreaseMaxAimActions",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
 					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "MaxAimActionsIncrease",
+					'Value', 1,
+					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeIncrease",
@@ -6527,6 +6569,16 @@ return {
 					'Name', "bonus_cth_interrupt",
 					'Value', 8,
 					'Tag', "<bonus_cth_interrupt>%",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "first_aim_bonus_acc",
+					'Value', 2,
+					'Tag', "<first_aim_bonus_acc>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_mul_reduc",
+					'Value', 95,
+					'Tag', "<snap_mul_reduc>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "snap_reduc",
@@ -6712,8 +6764,9 @@ return {
 				"pso_dragunov_scope_critical",
 				"ScopePenalty2",
 				"DecreaseOverwatchAngle",
-				"pso_dragunov_scope",
 				"IncreaseMaxAimActions",
+				"IncreaseSnapshotMul",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6723,7 +6776,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "MaxAimActionsIncrease",
-					'Value', 1,
+					'Value', 2,
 					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6736,10 +6789,25 @@ return {
 					'Value', 10,
 					'Tag', "<RangeIncrease>",
 				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "aim_level_threshold",
+					'Value', 5,
+					'Tag', "<aim_level_threshold>",
+				}),
 				PlaceObj('PresetParamPercent', {
 					'Name', "crit_bonus",
 					'Value', 15,
 					'Tag', "<crit_bonus>%",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_mul_inc",
+					'Value', 140,
+					'Tag', "<snap_mul_inc>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "threshold_bonus_acc",
+					'Value', 5,
+					'Tag', "<threshold_bonus_acc>",
 				}),
 			},
 			Slot = "Scope",
@@ -6769,7 +6837,8 @@ return {
 				"IncreaseRange",
 				"ScopePenalty2",
 				"DecreaseOverwatchAngle",
-				"sniper_aim_scope",
+				"IncreaseSnapshotMul",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6779,7 +6848,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "MaxAimActionsIncrease",
-					'Value', 1,
+					'Value', 2,
 					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6791,6 +6860,21 @@ return {
 					'Name', "RangeIncrease",
 					'Value', 10,
 					'Tag', "<RangeIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "aim_level_threshold",
+					'Value', 5,
+					'Tag', "<aim_level_threshold>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_mul_inc",
+					'Value', 140,
+					'Tag', "<snap_mul_inc>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "threshold_bonus_acc",
+					'Value', 5,
+					'Tag', "<threshold_bonus_acc>",
 				}),
 			},
 			Slot = "Scope",
@@ -6948,7 +7032,8 @@ return {
 				"IncreaseRange",
 				"ScopePenalty3",
 				"DecreaseOverwatchAngle",
-				"sniper_adv_aim_scope",
+				"IncreaseSnapshotMul",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -6958,7 +7043,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "MaxAimActionsIncrease",
-					'Value', 2,
+					'Value', 3,
 					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6970,6 +7055,21 @@ return {
 					'Name', "RangeIncrease",
 					'Value', 16,
 					'Tag', "<RangeIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "aim_level_threshold",
+					'Value', 6,
+					'Tag', "<aim_level_threshold>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_mul_inc",
+					'Value', 160,
+					'Tag', "<snap_mul_inc>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "threshold_bonus_acc",
+					'Value', 5,
+					'Tag', "<threshold_bonus_acc>",
 				}),
 			},
 			Slot = "Scope",
@@ -7268,48 +7368,49 @@ return {
 			},
 			Cost = 30,
 			DisplayName = T(967483558415, --[[ModItemWeaponComponent winni_to54r DisplayName]] "W1895 7.62x54R Barrel Adaptation"),
+			GBO_ComponentTraits = "Barrel.Long, Barrel.to762_54R",
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 20,
 			ModificationEffects = {
-				"IncreaseDamage",
-				"ReduceReliabilityPercent",
-				"ChangeCaliberTo762_54r",
-				"IncreaseRange",
-				"StanceAPincrease",
-				"DecreaseOverwatchAngle",
 				"longbarrel",
+				"IncreaseRange",
 				"IncreaseAimAccuracy",
+				"IncreaseDamage",
+				"StanceAPincrease",
+				"ChangeCaliberTo762_54r",
+				"ReduceReliabilityPercent",
+				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
-					'Value', 7,
-					'Tag', "<DamageIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeIncrease",
-					'Value', 2,
-					'Tag', "<RangeIncrease>",
-				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
 					'Value', 1,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "ReliabilityDecreasePercent",
-					'Value', 50,
-					'Tag', "<ReliabilityDecreasePercent>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleDecrease",
-					'Value', 94,
-					'Tag', "<OverwatchAngleDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
 					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "DamageIncrease",
+					'Value', 8,
+					'Tag', "<DamageIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleDecrease",
+					'Value', 95,
+					'Tag', "<OverwatchAngleDecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeIncrease",
+					'Value', 4,
+					'Tag', "<RangeIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "ReliabilityDecreasePercent",
+					'Value', 50,
+					'Tag', "<ReliabilityDecreasePercent>",
 				}),
 			},
 			Slot = "Barrel",
@@ -7333,6 +7434,7 @@ return {
 			},
 			Cost = 20,
 			DisplayName = T(833214164936, --[[ModItemWeaponComponent BarrelHeavy DisplayName]] "Heavy Barrel"),
+			GBO_ComponentTraits = "Barrel.Heavy",
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 0,
 			ModificationEffects = {
@@ -7340,21 +7442,6 @@ return {
 				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "xrng",
-					'Value', 2,
-					'Tag', "<xrng>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "dmg",
-					'Value', 3,
-					'Tag', "<dmg>",
-				}),
-				PlaceObj('PresetParamPercent', {
-					'Name', "bonus_cth",
-					'Value', 5,
-					'Tag', "<bonus_cth>%",
-				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
 					'Value', 95,
@@ -7430,19 +7517,15 @@ return {
 			},
 			Cost = 30,
 			DisplayName = T(395766657440, --[[ModItemWeaponComponent BarrelLight_handgun DisplayName]] "Light Barrel"),
+			GBO_ComponentTraits = "Barrel.Light",
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"ExtraOverwatchShots",
 				"hipfire_light_barrel",
+				"ExtraOverwatchShots",
 				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "AimAccuracyDecrease",
-					'Value', 2,
-					'Tag', "<AimAccuracyDecrease>",
-				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
 					'Value', 103,
@@ -7610,19 +7693,15 @@ return {
 			},
 			Cost = 30,
 			DisplayName = T(183239361184, --[[ModItemWeaponComponent BarrelLight DisplayName]] "Light Barrel"),
+			GBO_ComponentTraits = "Barrel.Light",
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"ExtraOverwatchShots",
 				"hipfire_light_barrel",
+				"ExtraOverwatchShots",
 				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "AimAccuracyDecrease",
-					'Value', 2,
-					'Tag', "<AimAccuracyDecrease>",
-				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
 					'Value', 103,
@@ -7791,27 +7870,101 @@ return {
 					'Type', "FineSteelPipe",
 				}),
 			},
-			Cost = 25,
-			DisplayName = T(632191304483, --[[ModItemWeaponComponent Auto5_Long_NMag DisplayName]] "Long Barrel"),
-			Icon = "UI/Icons/Upgrades/galil_barrel_long",
-			ModificationDifficulty = 10,
+			Cost = 40,
+			DisplayName = T(682294285321, --[[ModItemWeaponComponent Barrel50BMG_DesertEagle DisplayName]] ".50 AE Barrel"),
+			GBO_ComponentTraits = "Barrel.LongHandgun,Barrel.to50AE",
+			Icon = "UI/Icons/Upgrades/default_barrel",
+			ModificationDifficulty = 20,
 			ModificationEffects = {
 				"IncreaseRange",
+				"IncreaseAimAccuracy",
 				"longbarrel",
 				"DecreaseOverwatchAngle",
+				"IncreaseDamage",
+				"ChangeCaliberToBMG",
+				"ReduceReliability",
 				"StanceAPincrease",
-				"DecreaseBuckshotAngle",
 			},
 			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APincrease",
+					'Value', 1,
+					'Tag', "<APincrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyIncrease",
+					'Value', 1,
+					'Tag', "<AimAccuracyIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "DamageIncrease",
+					'Value', 11,
+					'Tag', "<DamageIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleDecrease",
+					'Value', 92,
+					'Tag', "<OverwatchAngleDecrease>",
+				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeIncrease",
 					'Value', 2,
 					'Tag', "<RangeIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
+					'Name', "ReliabilityDecrease",
+					'Value', 10,
+					'Tag', "<ReliabilityDecrease>",
+				}),
+			},
+			Slot = "Barrel",
+			Tags = set( "Precision", "Strategic", "Tactical" ),
+			Visuals = {
+				PlaceObj('WeaponComponentVisual', {
+					ApplyTo = "DesertEagle",
+					Entity = "WeaponAttA_BarrelDesertEagle_02",
+					Slot = "Barrel",
+					param_bindings = false,
+				}),
+			},
+			group = "Barrel",
+			id = "Barrel50BMG_DesertEagle",
+		}),
+		PlaceObj('ModItemWeaponComponent', {
+			AdditionalCosts = {
+				PlaceObj('WeaponComponentCost', {
+					'Amount', 1,
+					'Type', "FineSteelPipe",
+				}),
+			},
+			Cost = 25,
+			DisplayName = T(632191304483, --[[ModItemWeaponComponent Auto5_Long_NMag DisplayName]] "Long Barrel"),
+			GBO_ComponentTraits = "Barrel.LongShotgun, Shotgun.NarrowBuckshot",
+			Icon = "UI/Icons/Upgrades/galil_barrel_long",
+			ModificationDifficulty = 10,
+			ModificationEffects = {
+				"longbarrel",
+				"IncreaseRange",
+				"IncreaseAimAccuracy",
+				"StanceAPincrease",
+				"DecreaseBuckshotAngle",
+				"DecreaseOverwatchAngle",
+			},
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APincrease",
 					'Value', 1,
-					'Tag', "<DamageIncrease>",
+					'Tag', "<APincrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyIncrease",
+					'Value', 2,
+					'Tag', "<AimAccuracyIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "BuckshotAngleDecrease",
+					'Value', 78,
+					'Tag', "<BuckshotAngleDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -7819,14 +7972,9 @@ return {
 					'Tag', "<OverwatchAngleDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "APincrease",
-					'Value', 1,
-					'Tag', "<APincrease>",
-				}),
-				PlaceObj('PresetParamPercent', {
-					'Name', "BuckshotAngleDecrease",
-					'Value', 78,
-					'Tag', "<BuckshotAngleDecrease>%",
+					'Name', "RangeIncrease",
+					'Value', 4,
+					'Tag', "<RangeIncrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -7856,31 +8004,38 @@ return {
 			Comment = "Why the Magazine size modification?",
 			Cost = 30,
 			DisplayName = T(268868262592, --[[ModItemWeaponComponent Auto5_Long_LMag DisplayName]] "Long Barrel High Cap"),
+			GBO_ComponentTraits = "Barrel.LongShotgun, Shotgun.NarrowBuckshot, Mag.Multiplier150",
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"IncreaseRange",
 				"longbarrel",
-				"DecreaseOverwatchAngle",
-				"MagazineSizeMultiplier",
+				"IncreaseRange",
+				"IncreaseAimAccuracy",
 				"StanceAPincrease",
 				"DecreaseBuckshotAngle",
+				"MagazineSizeMultiplier",
+				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
-				PlaceObj('PresetParamPercent', {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APincrease",
+					'Value', 1,
+					'Tag', "<APincrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyIncrease",
+					'Value', 2,
+					'Tag', "<AimAccuracyIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "BuckshotAngleDecrease",
+					'Value', 78,
+					'Tag', "<BuckshotAngleDecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
 					'Name', "MagazineSizeMultiplier",
 					'Value', 150,
-					'Tag', "<MagazineSizeMultiplier>%",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeIncrease",
-					'Value', 2,
-					'Tag', "<RangeIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
-					'Value', 1,
-					'Tag', "<DamageIncrease>",
+					'Tag', "<MagazineSizeMultiplier>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -7888,14 +8043,9 @@ return {
 					'Tag', "<OverwatchAngleDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "APincrease",
-					'Value', 1,
-					'Tag', "<APincrease>",
-				}),
-				PlaceObj('PresetParamPercent', {
-					'Name', "BuckshotAngleDecrease",
-					'Value', 78,
-					'Tag', "<BuckshotAngleDecrease>%",
+					'Name', "RangeIncrease",
+					'Value', 4,
+					'Tag', "<RangeIncrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -7924,25 +8074,32 @@ return {
 			},
 			Cost = 25,
 			DisplayName = T(238407757479, --[[ModItemWeaponComponent BarrelLongShotgun DisplayName]] "Extended Barrel"),
+			GBO_ComponentTraits = "Barrel.LongShotgun, Shotgun.NarrowBuckshot",
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"IncreaseRange",
 				"longbarrel",
-				"DecreaseOverwatchAngle",
+				"IncreaseRange",
+				"IncreaseAimAccuracy",
 				"StanceAPincrease",
 				"DecreaseBuckshotAngle",
+				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
-					'Name', "RangeIncrease",
-					'Value', 2,
-					'Tag', "<RangeIncrease>",
+					'Name', "APincrease",
+					'Value', 1,
+					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
-					'Value', 1,
-					'Tag', "<DamageIncrease>",
+					'Name', "AimAccuracyIncrease",
+					'Value', 2,
+					'Tag', "<AimAccuracyIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "BuckshotAngleDecrease",
+					'Value', 78,
+					'Tag', "<BuckshotAngleDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -7950,14 +8107,9 @@ return {
 					'Tag', "<OverwatchAngleDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "APincrease",
-					'Value', 1,
-					'Tag', "<APincrease>",
-				}),
-				PlaceObj('PresetParamPercent', {
-					'Name', "BuckshotAngleDecrease",
-					'Value', 78,
-					'Tag', "<BuckshotAngleDecrease>%",
+					'Name', "RangeIncrease",
+					'Value', 4,
+					'Tag', "<RangeIncrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -7988,25 +8140,22 @@ return {
 			},
 			Cost = 20,
 			DisplayName = T(838180928045, --[[ModItemWeaponComponent long_barrel_light_handgun DisplayName]] "Extended Light Barrel"),
+			GBO_ComponentTraits = "Barrel.LongHandgun, Barrel.Light",
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 0,
 			ModificationEffects = {
 				"IncreaseRange",
+				"IncreaseAimAccuracy",
 				"longbarrel",
-				"ExtraOverwatchShots",
 				"DecreaseOverwatchAngle",
 				"hipfire_light_barrel",
+				"ExtraOverwatchShots",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
-					'Name', "RangeIncrease",
-					'Value', 2,
-					'Tag', "<RangeIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "AimAccuracyDecrease",
+					'Name', "AimAccuracyIncrease",
 					'Value', 1,
-					'Tag', "<AimAccuracyDecrease>",
+					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "DamageIncrease",
@@ -8015,8 +8164,13 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
-					'Value', 98,
+					'Value', 95,
 					'Tag', "<OverwatchAngleDecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeIncrease",
+					'Value', 2,
+					'Tag', "<RangeIncrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -8150,6 +8304,7 @@ return {
 			},
 			Cost = 25,
 			DisplayName = T(262502652755, --[[ModItemWeaponComponent BarrelLongImproved_handgun DisplayName]] "Extended Gain-Twist Barrel"),
+			GBO_ComponentTraits = "Barrel.LongHandgun, Barrel.Improved",
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 0,
 			ModificationEffects = {
@@ -8161,9 +8316,9 @@ return {
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
-					'Name', "RangeIncrease",
-					'Value', 2,
-					'Tag', "<RangeIncrease>",
+					'Name', "AimAccuracyIncrease",
+					'Value', 1,
+					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "DamageIncrease",
@@ -8171,19 +8326,19 @@ return {
 					'Tag', "<DamageIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "AimAccuracyIncrease",
-					'Value', 1,
-					'Tag', "<AimAccuracyIncrease>",
+					'Name', "OverwatchAngleDecrease",
+					'Value', 92,
+					'Tag', "<OverwatchAngleDecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeIncrease",
+					'Value', 2,
+					'Tag', "<RangeIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "ReliabilityIncrease",
 					'Value', 10,
 					'Tag', "<ReliabilityIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleDecrease",
-					'Value', 95,
-					'Tag', "<OverwatchAngleDecrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -8311,6 +8466,7 @@ return {
 			},
 			Cost = 20,
 			DisplayName = T(312402928662, --[[ModItemWeaponComponent BarrelLong_handgun DisplayName]] "Extended Barrel"),
+			GBO_ComponentTraits = "Barrel.LongHandgun",
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 0,
 			ModificationEffects = {
@@ -8321,9 +8477,9 @@ return {
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
-					'Name', "RangeIncrease",
-					'Value', 2,
-					'Tag', "<RangeIncrease>",
+					'Name', "AimAccuracyIncrease",
+					'Value', 1,
+					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "DamageIncrease",
@@ -8331,14 +8487,14 @@ return {
 					'Tag', "<DamageIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "AimAccuracyIncrease",
-					'Value', 1,
-					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
 					'Value', 92,
 					'Tag', "<OverwatchAngleDecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeIncrease",
+					'Value', 2,
+					'Tag', "<RangeIncrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -8626,35 +8782,27 @@ return {
 			},
 			Cost = 40,
 			DisplayName = T(911522491223, --[[ModItemWeaponComponent BarrelLongImproved_AUG DisplayName]] "Extended Gain-Twist Barrel with Bipod"),
+			GBO_ComponentTraits = "Barrel.Long, Barrel.Improved, Bipod",
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
+				"longbarrel",
 				"IncreaseRange",
 				"IncreaseAimAccuracy",
-				"longbarrel",
 				"IncreaseDamage",
+				"StanceAPincrease",
 				"IncreaseReliability",
 				"AccuracyBonusProne",
 				"bipod_penalty",
-				"DecreaseOverwatchAngle",
 				"rotate_ap_bipod",
-				"StanceAPincrease",
+				"RecoilControlWhenProne",
+				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
-					'Name', "RangeIncrease",
-					'Value', 4,
-					'Tag', "<RangeIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "bonus_cth",
-					'Value', 10,
-					'Tag', "<bonus_cth>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
+					'Name', "APincrease",
 					'Value', 1,
-					'Tag', "<DamageIncrease>",
+					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
@@ -8662,9 +8810,9 @@ return {
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "ReliabilityIncrease",
-					'Value', 10,
-					'Tag', "<ReliabilityIncrease>",
+					'Name', "DamageIncrease",
+					'Value', 1,
+					'Tag', "<DamageIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -8672,9 +8820,19 @@ return {
 					'Tag', "<OverwatchAngleDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "APincrease",
-					'Value', 1,
-					'Tag', "<APincrease>",
+					'Name', "RangeIncrease",
+					'Value', 4,
+					'Tag', "<RangeIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "ReliabilityIncrease",
+					'Value', 10,
+					'Tag', "<ReliabilityIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "bonus_cth",
+					'Value', 10,
+					'Tag', "<bonus_cth>",
 				}),
 			},
 			Slot = "Barrel",
@@ -8953,27 +9111,29 @@ return {
 			},
 			Cost = 35,
 			DisplayName = T(903797346544, --[[ModItemWeaponComponent long_barrel_light DisplayName]] "Extended Light Barrel"),
+			GBO_ComponentTraits = "Barrel.Long, Barrel.Light",
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"IncreaseRange",
 				"longbarrel",
+				"IncreaseRange",
+				"IncreaseAimAccuracy",
 				"IncreaseDamage",
+				"StanceAPincrease",
+				"hipfire_light_barrel",
 				"ExtraOverwatchShots",
 				"DecreaseOverwatchAngle",
-				"hipfire_light_barrel",
-				"StanceAPincrease",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
-					'Name', "RangeIncrease",
-					'Value', 4,
-					'Tag', "<RangeIncrease>",
+					'Name', "APincrease",
+					'Value', 1,
+					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "AimAccuracyDecrease",
-					'Value', 1,
-					'Tag', "<AimAccuracyDecrease>",
+					'Name', "AimAccuracyIncrease",
+					'Value', 2,
+					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "DamageIncrease",
@@ -8986,9 +9146,9 @@ return {
 					'Tag', "<OverwatchAngleDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "APincrease",
-					'Value', 1,
-					'Tag', "<APincrease>",
+					'Name', "RangeIncrease",
+					'Value', 4,
+					'Tag', "<RangeIncrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -9119,30 +9279,33 @@ return {
 			},
 			Cost = 35,
 			DisplayName = T(650577424631, --[[ModItemWeaponComponent long_barrel_AUG_light DisplayName]] "Extended Light Barrel with Bipod"),
+			GBO_ComponentTraits = "Barrel.Long, Barrel.Light, Bipod",
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"IncreaseRange",
 				"longbarrel",
+				"IncreaseRange",
+				"IncreaseAimAccuracy",
+				"IncreaseDamage",
+				"StanceAPincrease",
+				"hipfire_light_barrel",
+				"ExtraOverwatchShots",
 				"AccuracyBonusProne",
 				"bipod_penalty",
-				"DecreaseOverwatchAngle",
-				"IncreaseDamage",
-				"ExtraOverwatchShots",
-				"hipfire_light_barrel",
 				"rotate_ap_bipod",
-				"StanceAPincrease",
+				"RecoilControlWhenProne",
+				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
-					'Name', "RangeIncrease",
-					'Value', 4,
-					'Tag', "<RangeIncrease>",
+					'Name', "APincrease",
+					'Value', 1,
+					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "bonus_cth",
-					'Value', 10,
-					'Tag', "<bonus_cth>",
+					'Name', "AimAccuracyIncrease",
+					'Value', 2,
+					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "DamageIncrease",
@@ -9155,14 +9318,14 @@ return {
 					'Tag', "<OverwatchAngleDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "AimAccuracyDecrease",
-					'Value', 1,
-					'Tag', "<AimAccuracyDecrease>",
+					'Name', "RangeIncrease",
+					'Value', 4,
+					'Tag', "<RangeIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "APincrease",
-					'Value', 1,
-					'Tag', "<APincrease>",
+					'Name', "bonus_cth",
+					'Value', 10,
+					'Tag', "<bonus_cth>",
 				}),
 			},
 			Slot = "Barrel",
@@ -9281,20 +9444,42 @@ return {
 			},
 			Cost = 35,
 			DisplayName = T(597101871524, --[[ModItemWeaponComponent BarrelLong_AUG DisplayName]] "Extended Barrel with Bipod"),
+			GBO_ComponentTraits = "Barrel.Long, Bipod",
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
+				"longbarrel",
 				"IncreaseRange",
 				"IncreaseAimAccuracy",
-				"longbarrel",
 				"IncreaseDamage",
+				"StanceAPincrease",
 				"AccuracyBonusProne",
 				"bipod_penalty",
-				"DecreaseOverwatchAngle",
 				"rotate_ap_bipod",
-				"StanceAPincrease",
+				"RecoilControlWhenProne",
+				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APincrease",
+					'Value', 1,
+					'Tag', "<APincrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyIncrease",
+					'Value', 2,
+					'Tag', "<AimAccuracyIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "DamageIncrease",
+					'Value', 1,
+					'Tag', "<DamageIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngleDecrease",
+					'Value', 95,
+					'Tag', "<OverwatchAngleDecrease>",
+				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeIncrease",
 					'Value', 4,
@@ -9304,26 +9489,6 @@ return {
 					'Name', "bonus_cth",
 					'Value', 10,
 					'Tag', "<bonus_cth>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
-					'Value', 1,
-					'Tag', "<DamageIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "AimAccuracyIncrease",
-					'Value', 2,
-					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleDecrease",
-					'Value', 95,
-					'Tag', "<OverwatchAngleDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "APincrease",
-					'Value', 1,
-					'Tag', "<APincrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -10070,12 +10235,13 @@ return {
 		},
 		Cost = 25,
 		DisplayName = T(473538307720, --[[ModItemWeaponComponent VerticalGrip_aug DisplayName]] "Vertical Grip"),
+		GBO_ComponentAncestor = "VerticalGrip",
 		Icon = "UI/Icons/Upgrades/mp5_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
 			"Vert_grip_recoil",
-			"AccuracyBonusWhenAimed_vgrip",
 			"grip_prone_penalty",
+			"AccuracyBonusWhenAimed_vgrip",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -10171,6 +10337,7 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 30,
 		DisplayName = T(260459204559, --[[ModItemWeaponComponent Bipod DisplayName]] "Bipod"),
+		GBO_ComponentTraits = "Bipod",
 		Icon = "UI/Icons/Upgrades/ak47_bipod",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
@@ -10287,6 +10454,7 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 30,
 		DisplayName = T(643865919296, --[[ModItemWeaponComponent Bipod_m82 DisplayName]] "Bipod"),
+		GBO_ComponentAncestor = "Bipod",
 		Icon = "UI/Icons/Upgrades/ak47_bipod",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
@@ -10319,6 +10487,7 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 30,
 		DisplayName = T(931344035869, --[[ModItemWeaponComponent Bipod_Under DisplayName]] "Bipod"),
+		GBO_ComponentAncestor = "Bipod",
 		Icon = "UI/Icons/Upgrades/ak47_bipod",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
@@ -10415,6 +10584,7 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 30,
 		DisplayName = T(408814218086, --[[ModItemWeaponComponent Bipod_MG42 DisplayName]] "Bipod"),
+		GBO_ComponentAncestor = "Bipod",
 		Icon = "UI/Icons/Upgrades/HK21_bipod",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
@@ -10449,19 +10619,15 @@ return {
 		},
 		Cost = 20,
 		DisplayName = T(508047381664, --[[ModItemWeaponComponent AK47_VerticalGrip DisplayName]] "Vertical Grip"),
+		GBO_ComponentAncestor = "VerticalGrip",
 		Icon = "UI/Icons/Upgrades/ak47_vertical_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
 			"Vert_grip_recoil",
-			"AccuracyBonusWhenAimed_vgrip",
 			"grip_prone_penalty",
+			"AccuracyBonusWhenAimed_vgrip",
 		},
 		Parameters = {
-			PlaceObj('PresetParamPercent', {
-				'Name', "accuracy",
-				'Value', 5,
-				'Tag', "<accuracy>%",
-			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "AimAccuracyIncrease",
 				'Value', 1,
@@ -15976,12 +16142,13 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 25,
 		DisplayName = T(521779359854, --[[ModItemWeaponComponent VerticalGrip_M14 DisplayName]] "Vertical Grip"),
+		GBO_ComponentAncestor = "VerticalGrip",
 		Icon = "UI/Icons/Upgrades/mp5_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
 			"Vert_grip_recoil",
-			"AccuracyBonusWhenAimed_vgrip",
 			"grip_prone_penalty",
+			"AccuracyBonusWhenAimed_vgrip",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -16030,12 +16197,13 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 25,
 		DisplayName = T(510913530119, --[[ModItemWeaponComponent VerticalGrip_M16 DisplayName]] "Vertical Grip"),
+		GBO_ComponentAncestor = "VerticalGrip",
 		Icon = "UI/Icons/Upgrades/mp5_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
 			"Vert_grip_recoil",
-			"AccuracyBonusWhenAimed_vgrip",
 			"grip_prone_penalty",
+			"AccuracyBonusWhenAimed_vgrip",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -16078,12 +16246,13 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 25,
 		DisplayName = T(250055695529, --[[ModItemWeaponComponent VerticalGrip_Commando DisplayName]] "Vertical Grip"),
+		GBO_ComponentAncestor = "VerticalGrip",
 		Icon = "UI/Icons/Upgrades/mp5_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
 			"Vert_grip_recoil",
-			"AccuracyBonusWhenAimed_vgrip",
 			"grip_prone_penalty",
+			"AccuracyBonusWhenAimed_vgrip",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -18087,12 +18256,13 @@ return {
 		Comment = "What is the actual bonus? Is it really small or is it large?",
 		Cost = 30,
 		DisplayName = T(602404597166, --[[ModItemWeaponComponent AKSU_VerticalGrip DisplayName]] "Vertical Grip"),
+		GBO_ComponentAncestor = "VerticalGrip",
 		Icon = "UI/Icons/Upgrades/ak47_vertical_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
 			"Vert_grip_recoil",
-			"AccuracyBonusWhenAimed_vgrip",
 			"grip_prone_penalty",
+			"AccuracyBonusWhenAimed_vgrip",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -18122,12 +18292,13 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 30,
 		DisplayName = T(474343827920, --[[ModItemWeaponComponent RPK74_VerticalGrip DisplayName]] "Vertical Grip"),
+		GBO_ComponentAncestor = "VerticalGrip",
 		Icon = "UI/Icons/Upgrades/ak47_vertical_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
 			"Vert_grip_recoil",
-			"AccuracyBonusWhenAimed_vgrip",
 			"grip_prone_penalty",
+			"AccuracyBonusWhenAimed_vgrip",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
