@@ -86,6 +86,11 @@ A.ConeMulEffects = {
 ---- 150 = 150%). ModificationEffects = {EffectId = true garante presente | false garante ausente}.
 ---- Efeito de "niveis de mira" = IncreaseMaxAimActions (param MaxAimActionsIncrease); "range" da
 ---- optica = IncreaseRange (param RangeIncrease).
+local function scale_aim(aim)
+	local ap = const.Combat.Aperture
+	return MulDivRound(aim, ap.aCTHAimAccuracyScaleMul, 100)
+end
+
 A.ApertureMagnifications = {
     ---- AMPLIACAO E COMPROMISSO, nao upgrade. Cada degrau paga adiantado e cobra depois:
     ----   niveis de mira a mais + piso mais baixo   (so rende com mira alta e longe)
@@ -96,7 +101,7 @@ A.ApertureMagnifications = {
             MaxAimActionsIncrease = 3,
             snap_mul_inc = 160, -- 140
             aim_level_threshold = 6,
-            threshold_bonus_acc = 5
+            threshold_bonus_aim_acc = scale_aim(5),
         },
         ModificationEffects = {
             ScopeAimThresholdBonus = true,
@@ -116,7 +121,7 @@ A.ApertureMagnifications = {
             MaxAimActionsIncrease = 2,
             snap_mul_inc = 140, -- 125
             aim_level_threshold = 5,
-            threshold_bonus_acc = 5
+            threshold_bonus_aim_acc = scale_aim(5)
         },
         ModificationEffects = {
             ScopeAimThresholdBonus = true,
@@ -137,7 +142,7 @@ A.ApertureMagnifications = {
             MaxAimActionsIncrease = 1,
             snap_mul_inc = 125, -- 110 
             aim_level_threshold = 4,
-            threshold_bonus_acc = 3
+            threshold_bonus_aim_acc = scale_aim(3)
         },
         ModificationEffects = {
             ScopeAimThresholdBonus = true,
@@ -157,7 +162,7 @@ A.ApertureMagnifications = {
         Parameters = {
             MaxAimActionsIncrease = 1,
             aim_level_threshold = 4,
-            threshold_bonus_acc = 2,
+            threshold_bonus_aim_acc = scale_aim(2),
 			first_aim_bonus_acc = 3
         },
         ModificationEffects = {
@@ -175,7 +180,7 @@ A.ApertureMagnifications = {
         Parameters = {
             MaxAimActionsIncrease = 1,
 			snap_mul_reduc = 95,
-			first_aim_bonus_acc = 2
+			first_aim_bonus_acc = scale_aim(2)
         },
         ModificationEffects = {
             IncreaseMaxAimActions = true,
@@ -302,73 +307,6 @@ A.ApertureComponentTier = {
     ---- FORA de proposito -- so servem arma ToG NAO patched, fora do escopo de balance do mod:
     ---- AWP_Scope_1, WA2000_Scope_1, NTW_20_Scope_1, Caws_Scope_1, FN2000_Scope_1,
     ---- G11_Rail_7, G11_Rail_9. E sem arma nenhuma: AN94_Scope_1, ThermalScope_1, ThermalScope_2.
-}
-
-
----------------------------------------------------------------------------------------------------
----- PRISTINO HARDCODADO -- transcrito do items.lua (folder "Scopes"). effects em ordem de autoria,
----- params por nome. So o que o restore/apply precisa; visuais, custo e tags ficam no preset.
----------------------------------------------------------------------------------------------------
-
-
---TODO: Should have tables that can be joined to generate component effecs. Example: Long Barrel + Light Barrel; Reflex Scope + Laser dot (TAR scope); Long Barrel + Bipod (AUG barrel)
-GBO_AUXILIARY_EFFECTS_ORIGINALS = {
-	Barrel = {
-		Improved = {
-			effects = {"IncreaseReliability"},
-			params = {ReliabilityIncrease = 10}
-		},
-		light_barrel = {
-			effect = {"ExtraOverwatchShots", "hipfire_light_barrel", "IncreaseOverwatchAngle"},
-			params = {OverwatchAngleIncrease = 103}
-		},
-		ShortShotgun ={
-			effects = {
-				"ReduceMagazineSize",
-				"IncreaseBuckshotAngle",},
-			params = {
-				MagazineSizeDecrease = 2,
-				BuckshotAngleIncrease = 122,
-			}
-		},
-		Short_Winchester ={
-			effects = {"ReduceMagazineSize"},
-			params = {MagazineSizeDecrease = 2}
-		},
-		Auto5_Short_NMag = {
-			effects = {"ReduceReliability"},
-			params = {ReliabilityDecrease = 10}
-
-		},
-
-		Long_AUG = {
-			-- copy bipod effects
-		},
-		Heavy = {
-			effects = {"heavy_barrel_effect", "DecreaseOverwatchAngle"},
-			params = {OverwatchAngleDecrease = 95} -- Should sum with long or short effects
-		},
-		winni_to54r = { -- longbarrel
-			effects = {
-				"IncreaseDamage",
-				"ReduceReliabilityPercent",
-				"ChangeCaliberTo762_54r",
-				--"IncreaseRange",
-				--"StanceAPincrease",
-				--"DecreaseOverwatchAngle",
-				--"longbarrel",
-				--"IncreaseAimAccuracy",
-			},
-			params = {
-				DamageIncrease = 7, -- 5 + 2?
-				--RangeIncrease = 2, -- Should be more? caliber range
-				--APincrease = 1,
-				ReliabilityDecreasePercent = 50
-			}
-		}
-	}
-
-
 }
 
 ---------------------------------------------------------------------------------------------------
@@ -521,13 +459,9 @@ local function aperture_overlay(id)
 end
 GBO_COMPOSE_OVERLAYS[#GBO_COMPOSE_OVERLAYS + 1] = aperture_overlay
 
----- Com tiro simulado o acerto sai da geometria do cone, e ai +1 de AimAccuracy quase nao mexe na
----- assintota: o degrau entre uma optica e a seguinte some. Reescala a contribuicao de mira para o
----- degrau voltar a ser perceptivel.
-----
----- SO com SimulateShots. No CTH antigo AimAccuracy entra direto na conta do CTH e 5x seria
+---- SO com SimulateShots (escala diferente). No CTH antigo AimAccuracy entra direto na conta do CTH e 5x seria
 ---- absurdo -- por isso e escala de MODO e nao numero autorado na receita.
-A.SimAimAccuracyMul = 500
+
 
 local function sim_aim_accuracy_scale(params)
     local ap = const.Combat.Aperture -- sempre a tabela viva
@@ -536,7 +470,7 @@ local function sim_aim_accuracy_scale(params)
     end
     local v = params.AimAccuracyIncrease
     if v then
-        params.AimAccuracyIncrease = MulDivRound(v, ap.SimAimAccuracyMul or 100, 100)
+        params.AimAccuracyIncrease = MulDivRound(v, ap.aCTHAimAccuracyScaleMul or 100, 100)
     end
 end
 GBO_COMPOSE_SCALERS[#GBO_COMPOSE_SCALERS + 1] = sim_aim_accuracy_scale

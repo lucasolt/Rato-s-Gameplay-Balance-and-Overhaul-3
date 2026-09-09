@@ -240,7 +240,7 @@ function GetApertureAimComponentEffects(weapon, attacker)
     end
 
 --TODO: MsgReaction so i could use component reaction instead of coding it here
-	local modifyVal, comp = GetComponentEffectValue(weapon, "ScopeAimThresholdBonus", "threshold_bonus_acc")
+	local modifyVal, comp = GetComponentEffectValue(weapon, "ScopeAimThresholdBonus", "threshold_bonus_aim_acc")
 	if modifyVal then
 		local from = GetComponentEffectValue(weapon, "ScopeAimThresholdBonus", "aim_level_threshold") 
 		list = list or {}
@@ -413,29 +413,29 @@ function Rat_ApertureHandlingMul(weapon, attacker)
     if attacker then
         local stance_mul = (a.HandlingHeldStanceMul and a.HandlingHeldStanceMul[attacker.stance]) or 100
         if stance_mul > 0 then
-            local excess = Max(0, (weapon.weigth_held_mul or 100) - (a.HandlingHeldPivot or 100))
-			local str = attacker.Strength or 0
-			local min_str = a.HandlingHeldMinStr or 50
-            local low_str = str <= min_str
-            if str > min_str then
-                excess = MulDivRound(excess, 100 - MulDivRound(a.HandlingHeldStrRelief or 0,
-                                                               Min(str, 100) - min_str, min_str), 100)
-            end
-			
-			---- Absolute STR reduction
+            local excess = Max(0, (weapon.HandlingNotProneMul or 100) - (a.HandlingHeldPivot or 100))
 			--local str = attacker.Strength or 0
 			--local min_str = a.HandlingHeldMinStr or 50
-			--local low_str = str <= min_str
-			--		
-			--if str > min_str then
-			--    local str_relief = MulDivRound(
-			--        a.HandlingHeldStrRelief or 0,
-			--        Min(str, 100) - min_str,
-			--        100 - min_str
-			--    )
-			--
-			--    excess = Max(0, excess - str_relief)
-			--end
+            --local low_str = str <= min_str
+            --if str > min_str then
+            --    excess = MulDivRound(excess, 100 - MulDivRound(a.HandlingHeldStrRelief or 0,
+            --                                                   Min(str, 100) - min_str, min_str), 100)
+            --end
+			
+			---- Absolute STR reduction
+			local str = attacker.Strength or 0
+			local min_str = a.HandlingHeldMinStr or 50
+			local low_str = str <= min_str
+					
+			if str > min_str then
+			    local str_relief = MulDivRound(
+			        a.HandlingHeldStrRelief or 0,
+			        Min(str, 100) - min_str,
+			        100 - min_str
+			    )
+			
+			    excess = Max(0, excess - str_relief)
+			end
             local pen = MulDivRound(MulDivRound(excess, a.HandlingHeldSlope or 0, 100), stance_mul, 100)
             if pen > 0 then
                 handling = MulDivRound(handling, 100 + pen, 100)

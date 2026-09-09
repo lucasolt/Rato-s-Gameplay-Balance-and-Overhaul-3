@@ -54,6 +54,10 @@ A.ApertureAsymptotic = true
 
 A.DecayBase = 0 --8
 A.DecayScale = 1--6--4
+
+-- Changes Scale of components
+A.aCTHAimAccuracyScaleMul = 500
+
 ---- teto de fechamento por nivel. nunca fecha mais que (100 - DecayMinPct) %. Abaixo de 30 um
 ---- unico nivel com optica de limiar fecha quase todo o gap e vira degrau, nao curva.
 A.DecayMinPct = 30--30 --20
@@ -110,9 +114,9 @@ A.ConeStretch = {Standing = 100, Crouch = 85, Prone = 70}
 ---- Regra GBO3: armas leves/curtas boas em SNAPSHOT (MP5 72), nao em hipfire (MP5 135).
 
 A.AimStep = {
-    [0] = 240,--210,--280,--, --- hipfire: x2.80 numa arma de referencia
-    [1] = 130,--155,--130,--155,--180,--155, --- snapshot 1 nivel: x1.55
-    [2] = 110--110,--118--130--118 --- snapshot 2 niveis: x1.18
+    [0] = 250,--240,--210,--280,--, --- hipfire: x2.80 numa arma de referencia
+    [1] = 140,--130,--155,--130,--155,--180,--155, --- snapshot 1 nivel: x1.55
+    [2] = 113--110--110,--118--130--118 --- snapshot 2 niveis: x1.18
 }
 A.AimStepMaxLevel = 2 --- acima disso a arma esta encostada: alargamento 100
 
@@ -150,7 +154,7 @@ A.ConeRefCTH = 50
 ---- nivel, entao manejo decide o tiro rapido e SOME quando o cone converge no piso. Como residual
 ---- final seria um % fixo em todo nivel e a arma longa nunca ultrapassaria a curta.
 --------------------------------------------------------------------------------------------------
-A.PBHandlingScale = 80--150
+A.PBHandlingScale = 90--150
 A.HandlingMin = 60
 A.HandlingMax = 160
 A.HandlingUseBaseMul = true
@@ -158,10 +162,10 @@ A.HandlingUseBaseMul = true
 ---- Standing widens the cone for a heavy gun, same weigth_held_mul ladder as the recoil weight
 ---- penalty (RecoilHeldPivot). LIGHT by default -- LOWER slope than recoil on purpose, this is
 ---- aim, not muzzle control -- and it only bites past the pivot, so most guns pay nothing.
-A.HandlingHeldPivot = 130--130
-A.HandlingHeldSlope = 80--30 -- Mul the excess penalty
+A.HandlingHeldPivot = 100--130
+A.HandlingHeldSlope = 100--30 -- Mul the excess penalty
 
---TODO: `HandlingHeldStrRelief` change from relative to absolute
+
 A.HandlingHeldStrRelief = 50 -- How many excess points a STR 100 merc removes. 
 A.HandlingHeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
 

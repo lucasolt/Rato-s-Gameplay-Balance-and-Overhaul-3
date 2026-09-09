@@ -1,7 +1,7 @@
 function rat_AppendCodeTextToTranslationTable(TID_table)
 
     if GetLanguage() == "English" then
-        print("RATMOD - appending code text to translation table")
+        print("GBO - appending code text to translation table")
         for _, table_ in pairs(TID_table) do
             for k, v in pairs(table_) do
                 if not TranslationTable[k] or not (TranslationTable[k] == TID_table[k]) then
@@ -26,7 +26,7 @@ function rat_GetEnglishVanillaTable(id)
     local fields = {[1] = "id", [2] = "text", [5] = "context"}
     LoadCSV(path, csv, fields, "omit_captions")
     if csv == {} then
-        assert(true, "RATMOD - Could not find english table at " .. path ..
+        assert(true, "GBO - Could not find english table at " .. path ..
                    "for function at T_ID_enforcement.lua")
         return csv
     end
@@ -50,7 +50,7 @@ function rat_BuildExportableTableBeforeExport(TID_table)
         local count = 1
         for k, v in pairs(table_) do
             if english_table[k] and (english_table[k] == v) then -- wont export vanilla text as it will already have translations
-                print("RATMOD - vanilla text detected", k, v)
+                print("GBO - vanilla text detected", k, v)
             else
                 table.insert(exportable_table, {
                     id = k,

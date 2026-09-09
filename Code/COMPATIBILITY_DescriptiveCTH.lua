@@ -8,6 +8,6 @@ function OnMsg.EnterSector()
 		redefine_crosshairUI_function()
 		
 		already_placed = true
-		print("RATMOD - enabling Descriptive CTH compatibility")
+		print("GBO - enabling Descriptive CTH compatibility")
 	end
 end

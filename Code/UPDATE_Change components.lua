@@ -40,7 +40,7 @@ function set_unit_version_update(unit)
     unit.rat_unit_updated = version
 end
 
-local force_reapply = Platform.rat and false
+local force_reapply = Platform.rat and true
 
 function GBO_ReapplyWeaponComponents(unit)
     if not unit or not IsKindOf(unit, "Unit") or not unit:IsValid() then
@@ -61,9 +61,12 @@ function GBO_ReapplyWeaponComponents(unit)
         if wep_version < version or force_reapply then
             local components = weapon.components
 
+
             for slot, component_id in sorted_pairs(components) do
-                if WeaponComponents[component_id] then
-                    print("RATMOD Update - Reapplying component ", component_id, " in slot ", slot,
+				if IsKindOf(weapon, "MP40") and slot == "Scope" and component_id == "ImprovedIronsight" then
+					weapon:SetWeaponComponent("Scope", false)
+				elseif WeaponComponents[component_id] then
+                    print("GBO Update - Reapplying component ", component_id, " in slot ", slot,
                           " of weapon ", weapon.class, " owner: ", unit.session_id)
                     weapon:SetWeaponComponent(slot, component_id)
                 end

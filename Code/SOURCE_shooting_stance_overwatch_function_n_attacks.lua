@@ -23,8 +23,6 @@ function define_getOWattacks_and_aim()
         args.action_cost_only = true
         args.ow_get_atks = false
         local cost = g_Combat and action:GetAPCost(self, args) or 0
-
-        -- print("cost ow get attacks",cost)
         ------------------------------------------
 
         ------------------------------------------ Prepares atk number calculation by deducting stance ap if any
@@ -34,8 +32,6 @@ function define_getOWattacks_and_aim()
         -------------------------------------Retrieves attackcost using the OW combat action
         args.ow_get_atks = true
         local atk_cost = action:GetAPCost(self, args)
-        -- print("atk cost get attacks", atk_cost)
-
         --------------------------------------
 
         -------------------------------------Calculate attack number
@@ -63,12 +59,12 @@ function define_getOWattacks_and_aim()
 
         -- print("unboltable weapon ow atk cost", atk_cost)
         if not atk_cost then
-            print("RATMOD - overwatch calc n attacks, attk cost is nil")
+            print("GBO - overwatch calc n attacks, attk cost is nil")
             atk_cost = 0
         end
 
         if atk_cost <= 0 then
-            print("RATMOD - overwatch calc n attacks, attk cost is less than zero:", atk_cost, "...")
+            print("GBO - overwatch calc n attacks, attk cost is less than zero:", atk_cost, "...")
             -- print("... action:", action, "weapon", weapon)
             return 0
         else

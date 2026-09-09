@@ -49,9 +49,9 @@ function OnMsg.ClassesGenerate()
 			},
 			{
 				category = "GBO_aCTH",
-                id = "HandlingMul",
-                name = "HandlingMul",
-                help = "",
+                id = "HandlingNotProneMul",
+                name = "HandlingNotProneMul",
+                help = "Penalty to handling for unwieldy weapons while not prone. It is partially mitigated by high strenght",
                 editor = "number",
                 default = 100,
                 template = true,

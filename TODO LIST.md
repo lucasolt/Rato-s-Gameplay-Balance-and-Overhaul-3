@@ -4,7 +4,7 @@
 CheatAddItem("itemid")
 ```
 ## Housekeeping
-- [ ] Implement unified Component handling, with ancestor/CTH mode
+- [X] Implement unified Component handling, with ancestor/CTH mode
 	- [ ] Verify if patch called from TOG is redundant.
 
 ## aCTH Possible fragilities
@@ -41,16 +41,16 @@ CheatAddItem("itemid")
 ## aCTH Balancing
 
 - [ ] Close range might get _too_ strong
-- [ ] review the no-stock/handgun aim penalties. Maybe its a bit too much. Could use the _range_ as a penalty, instead 
 - [X] Re-scale Aim Accuracy bonus for more gradient
-	- [ ] - Match ammo
-	- [ ] - grips and stuff
-	- [ ] - better handling of the component aim multiplier
-	- [ ] - no stock 
-- [ ] review the Handling while standing penalty
+	- [X] UV dot
+	- [ ] No stock penalty should be re-scaled as handguns have changed
+	- [X] Match ammo
+	- [X] grips -> its a flat attack accuracy bonus
+	- [X] better handling of the component aim multiplier
+- [X] review the Handling while standing penalty
+	- [ ] Decide if Recoil should use the same parameters (currently uses `weigth_held_mul`)
 - [X] Stray shots should have a lower chance to inflict status effects. 
-	- General inquiring about how strays are working now. Maybe be stray when hit other bodyparts of the same target? I am not even sure how the damage is being calculated right now.
-	[ ] - Pellets
+	- [ ] Pellets
 - [ ] Calibrar o recuo de segunda ordem.
   - Ancorar `KickBase` e o mapa `control -> CFMax` nas duas.
   - Ver linhas extremas do ladder do `1cc229c`.
@@ -58,6 +58,7 @@ CheatAddItem("itemid")
   - Ver `RECOIL MODEL.md`.
 
 ## Reimplementation necessary
+- [ ] Snipe/Pin Down action
 - [ ] gas, smoke, other grazing mechanics need to be changed
 - [ ] CQC bonus perk?
 - [X] low profile cth mod for crocs disabled when using aCTH

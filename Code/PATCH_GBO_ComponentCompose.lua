@@ -173,6 +173,23 @@ GBO_COMP_TRAITS = {
         effects = {"DecreaseBuckshotAngle"},
         params = {BuckshotAngleDecrease = 78}
     },
+	["Stock.Light"] = {
+		effects = 			{
+			"light_stock_aim_reduce",
+			"NoFullAuto",
+			"StanceAPdecrease",
+			"hipfire_light_stock",
+			"stocklight_effect_recoil",},
+		params = {
+			APdecrease = 1
+		}
+	},
+	["Stock.Bump"] = {
+		effects = {
+			"NoFullAuto",
+		}
+
+	},
 	["Bipod"] ={
 		effects = {			
 			"AccuracyBonusProne",
@@ -182,6 +199,20 @@ GBO_COMP_TRAITS = {
 		},
 		params = {bonus_cth = 10}
 	},
+
+--	Ideia
+--	["Bipod"] ={
+--		effects = {			
+--			"AccuracyBonusProne",
+--			"bipod_penalty",
+--			"rotate_ap_bipod",
+--		},
+--acht_effects = {AccuracyBonusProne = false, RecoilControlWhenProne = true
+--		params = {bonus_cth = 10, aim_bonus = 2}
+--acht_params = {bonus_cth = false, aim_bonus = 10, recoil_bonus = 9}
+--
+--do tipo. Efeitos base. SE existir acht_effects, podemos adicionar novos com o =true ou remover antigos = false
+--parametros podemos remover com false, modificar ou adicionar novos 
 	["Barrel.to50AE"]={
 		effects = {			
 			"IncreaseDamage",
@@ -206,7 +237,7 @@ GBO_COMP_TRAITS = {
 			ReliabilityDecreasePercent = 50,
 		}
 	},
-	
+
 	
 }
 
@@ -229,12 +260,39 @@ GBO_COMP_TRAITS = {
 ----
 ---- Cada entrada vira o traco "Base.<id>" automaticamente (GBO_RegisterBaseRecipes).
 ---------------------------------------------------------------------------------------------------
---TODO: do I need to remove the entries here?
 GBO_BASE_RECIPES = {
     -- VerticalGrip = {
     --	effects = { "AccuracyBonusWhenAimed_vgrip", "Vert_grip_recoi",  "grip_prone_penalty"},
     --	params = { bonus_cth_v = 3 },
     -- },
+	LightStock = {
+		effects = 			{
+			"light_stock_aim_reduce",
+			"NoFullAuto",
+			"StanceAPdecrease",
+			"hipfire_light_stock",
+			"stocklight_effect_recoil",
+		},
+		params = {
+			APdecrease = 1
+		}
+	},
+	NoStock = {
+		effects = {
+			"ReduceAimAccuracy",
+			"no_stock",
+			"StanceAPdecrease",
+			"IncreaseOverwatchAngle",
+			"hipfire_no_stock",
+			"Enable_RunAndGun",
+			"ReduceRange",
+		},
+		params = {
+			OverwatchAngleIncrease = 108,
+			APdecrease = 1,
+			RangeDecrease = 4
+	}
+	},
 	UVDot = {
 		effects = {
 			--"hipfire_dot_effect_uv",
@@ -1004,18 +1062,3 @@ function GBO_ComposeReport(id)
     return table.concat(out, "\n")
 end
 
----------------------------------------------------------------------------------------------------
----- NAO MAPEADOS -- a composicao diverge do autorado, entao entrar aqui MUDA balance. Decidir
----- caso a caso antes de mover para GBO_COMPONENT_TRAITS (medido no processo vivo, 2026-09-08):
-----
-----   BarrelShort_Light            Short+Light da angulo 110 (== autorado), mas RangeDecrease 2
-----                                contra 4 autorado. O cano curto leve perde alcance dobrado por
-----                                escolha, nao por composicao -- precisa de traco proprio ou de
-----                                RangeDecrease no Barrel.Light.
-----   BarrelShort_Light_handgun    autorado 107; ShortHandgun+Light da 105 x 103 = 108. Alem
-----                                disso carrega DamageReduced=1 que o ShortHandgun sozinho nao
-----                                tem. Provavelmente copiado do variante de fuzil sem revisar.
-----   BarrelLight                  carrega AimAccuracyDecrease=2 sem nenhum efeito que leia esse
-----                                param -- param orfao, some se o componente for composto.
-----   BarrelHeavy                  idem: xrng=2, dmg=3, bonus_cth=5 orfaos.
----------------------------------------------------------------------------------------------------

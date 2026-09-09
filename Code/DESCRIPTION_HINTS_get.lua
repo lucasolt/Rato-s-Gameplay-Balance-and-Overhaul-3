@@ -1,4 +1,4 @@
-function rat_format_hints(self)
+function GBO_GetDescriptionHints(self)
     local formattedString = "<style CrosshairAPTotal>"
 
     local function GetRecoil_mul(self)
@@ -139,6 +139,11 @@ function rat_format_hints(self)
 	        TranslationTable[247182652462] or "Extra critical damage: ",
 	        self.CritDamage, "%"
 	    },
+		{
+			id = "AimAccuracy",
+			TranslationTable[219437987174] or "Aim accuracy: ",
+			self.AimAccuracy, ""
+		},
 	    {
 	        id = "PointBlankRangeAccuracy",
 	        angularCTHActive and (TranslationTable[184329577856] or "Handling Penalty Multiplier: ") or (TranslationTable[651371401489] or "Point Blank Range Accuracy: "),
@@ -234,7 +239,8 @@ local t_id_table = {
     [785975283217] = " STR",
     [719583632117] = "Number of Pellets: ",
     [193184162359] = "Pellet Spread Angle: ",
-	[184329577856] = "Handling Penalty Multiplier: "
+	[184329577856] = "Handling Penalty Multiplier: ",
+	[219437987174] = "Aim accuracy: "
 }
 
 ratG_T_table['DESCRIPTION_HINTS_get.lua'] = t_id_table

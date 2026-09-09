@@ -161,6 +161,12 @@ function ApplyAmmoParams(class_id, class, ...)
     end
     for k, v in pairs(caliber_data.Modifications) do
         local args = {target_prop = k, mod_add = v.mod_add, mod_mul = v.mod_mul or 1000}
+		if const.Combat.Aperture.Enabled and const.Combat.Aperture.SimulateShots then
+			if k == "AimAccuracy" then
+				args.mod_add = MulDivRound(args.mod_add, const.Combat.Aperture.aCTHAimAccuracyScaleMul, 100)
+				print("GBO - aCTH enabled, changing caliber: ",class_id, k, "to ", args.mod_add)
+			end
+		end
         table.insert(class.Modifications, PlaceCaliberModificationObj(args))
     end
 end

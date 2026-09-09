@@ -338,8 +338,8 @@ A.ConeMulMax = 1000
 ---- SO COR, nao entra em conta nenhuma. Ancoras do gradiente de fator de cone no overlay
 ---- (Rat_ConeMulTag): MetaScaleWorst = vermelho cheio, 100 = ambar, MetaScaleBest = verde cheio.
 ---- Worst e o teto contra o qual hipfire/snapshot sao pintados, para 280 e 155 nao sairem iguais.
-A.MetaScaleWorst = 300 -- 300
-A.MetaScaleBest = 60 -- 60
+A.MetaScaleWorst = 200 -- 300
+A.MetaScaleBest = 40 -- 60
 
 ---------------------------------------------------------------------------------------------------
 

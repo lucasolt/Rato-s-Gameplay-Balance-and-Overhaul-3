@@ -82,7 +82,7 @@ end
 	
 	if IsMod_loaded("KQkEVHf") then
 		
-		print("RATMOD - Changing entities from TOC")
+		print("GBO - Changing entities from TOC")
 		
 		if wpc._ReflexSIghtVigilance then
 			wpc._ReflexSIghtVigilance.Icon = "Mod/KQkEVHf/Icons/Upgrades/ToC_Scope_kentaur.png"
@@ -137,7 +137,7 @@ end
 	
 	if IsMod_loaded("KKh3Yhf") then
 		
-		print("RATMOD - Changing entities from TOG")
+		print("GBO - Changing entities from TOG")
 		if wpc.WideScope then
 			wpc.WideScope.Icon = "Mod/KKh3Yhf/Images/L85A1_scope.png"
 			local visu = wpc.WideScope.Visuals

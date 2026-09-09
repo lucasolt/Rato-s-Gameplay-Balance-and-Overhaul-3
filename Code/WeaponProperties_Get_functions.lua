@@ -48,6 +48,6 @@
 
 function FirearmProperties:Getdescription_hints()
 
-    return rat_format_hints(self)
+    return GBO_GetDescriptionHints(self)
 end
 

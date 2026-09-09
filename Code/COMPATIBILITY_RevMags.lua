@@ -9,7 +9,7 @@ end
 
 function GBO_RevMag_ChangeMagazinesClasses()
     if IsMod_loaded("URkxyfE") then
-        print("RATMOD - RevMags Detected, changing mags at ClassesGenerate hook")
+        print("GBO - RevMags Detected, changing mags at ClassesGenerate hook")
 
         local function Rat_RevMag_changeInventoryItem(mag_id, mag, caliber, desc, platform)
             if mag then
