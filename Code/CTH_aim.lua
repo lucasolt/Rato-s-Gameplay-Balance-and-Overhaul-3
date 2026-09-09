@@ -29,7 +29,7 @@ function aim_cth()
 
             ---- CTH angular: mirar deixa de somar pontos e passa a FECHAR o cone
             ---- (Rat_ApertureAimDecay, a partir de AimAccuracy). Ver CTH_angular.lua.
-            if Rat_AngularActive(weapon1, action, attacker) then
+            if IsACHTActive(weapon1, action, attacker) then
                 return false, 0
             end
 

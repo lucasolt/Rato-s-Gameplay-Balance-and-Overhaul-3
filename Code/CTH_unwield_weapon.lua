@@ -1,7 +1,7 @@
 function place_standing_penalCTH()
 PlaceObj('ChanceToHitModifier', {
     CalcValue = function(self, attacker, target, body_part_def, action, weapon1, weapon2, lof, aim, opportunity_attack, attacker_pos, target_pos)
-		if not weapon1 or not attacker or Rat_AngularActive(weapon1, action, attacker) then
+		if not weapon1 or not attacker or IsACHTActive(weapon1, action, attacker) then
 				return false, 0
 		end
 		

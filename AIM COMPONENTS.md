@@ -23,7 +23,7 @@ aim component is read inside `aim_cth()` in [CTH_aim.lua](Code/CTH_aim.lua).
 | E | **residual absorption** | [SOURCE_UnitCalcChanceToHit.lua:175](Code/SOURCE_UnitCalcChanceToHit.lua:175) → `Rat_ConeAbsorb` | any surviving `ChanceToHitModifier`'s points become a cone multiplier. Free — a component that still works through a live modifier keeps working. |
 
 Anything read **inside `aim_cth()`** and not ported to B/C/D is **dead**, because `aim_cth` returns
-`false, 0` when `Rat_AngularActive` is true ([CTH_aim.lua:32](Code/CTH_aim.lua:32)).
+`false, 0` when `IsACHTActive` is true ([CTH_aim.lua:32](Code/CTH_aim.lua:32)).
 
 ---
 

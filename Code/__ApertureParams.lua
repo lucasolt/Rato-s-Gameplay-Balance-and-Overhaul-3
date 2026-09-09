@@ -2,6 +2,21 @@ const.Combat.Aperture =
     const.Combat.Aperture or {}
 local A = const.Combat.Aperture
 
+
+GBO_gCTHModeItemPropertyTable = {}
+
+function GBO_ApplyCHTModeItemProps(tbl, acht_active)
+	print("GBO - Running GBO_ApplyCHTModeItemProps ... ")
+	local acht_active = acht_active or IsACHTActive()
+	for item, props in pairs(tbl) do
+		for prop, values in pairs(props) do
+			item[prop] = acht_active and values["aCTH"] or values["oldCTH"]
+		end
+	end
+	print("GBO - Running GBO_ApplyCHTModeItemProps Done ")
+end
+
+
 ---- Modo de CTH. GLOBAL de proposito, FORA de const.Combat.Aperture: a tabela acima e recriada a
 ---- cada reload deste arquivo e o modo tem que sobreviver a isso. A opcao (CurrentModOptions) as
 ---- vezes ainda nao esta pronta durante o load -> cai no valor anterior, ou "aCTH" na 1a vez.
@@ -30,12 +45,20 @@ function GBO_ApplyApertureCTHMode(mode)
         u.combat_cache = nil
     end
 
+--TODO: Investigate why this does not refresh correctly, temporarily recalling the whole weapon patch
+	--RatoGBO_WepPatch()
+	----GBO_ApplyCHTModeItemProps(GBO_gCTHModeItemPropertyTable,(m == "aCTH" or m == "aCTH Lite"))
+	--local tog_wep_patch = rawget(_G, "RatoTOG_Patch")
+	--if tog_wep_patch then tog_wep_patch() end
 
 	local generalComponentPatch = rawget(_G,
        					"GBO_GeneralComponentPatch") -- ApplyAperture, Tog, and Ancestry
 	if generalComponentPatch then
         generalComponentPatch()
     end
+
+
+
 	
     ---- Unidade so re-encara o inimigo mais proximo no PROPRIO turno. Ver
     ---- SOURCE_UnitSetTargetDummyFromPos: sem isto a silhueta exposta muda sozinha a cada

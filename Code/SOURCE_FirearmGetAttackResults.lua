@@ -250,7 +250,7 @@ function Firearm:GetAttackResults(action, attack_args)
                            0
 
         ---- angular: o recoil abre o cone em vez de subtrair pontos (Rat_GetShotConeRatios).
-        if Rat_AngularActive(weapon, action, attacker) then
+        if IsACHTActive(weapon, action, attacker) then
             cone_ratios = Rat_GetShotConeRatios(attacker, target, shot_attack_args.target_spot_group,
                                                 action, weapon, shot_attack_args.aim or 0,
                                                 shot_attack_args.opportunity_attack,
@@ -259,7 +259,7 @@ function Firearm:GetAttackResults(action, attack_args)
         end
 
         ---- Rajada: so a 1a bala leva o bonus de mira. No angular nao ha modifier "Aim" (virou fechamento do cone).
-        if Rat_AngularActive(weapon, action, attacker) then
+        if IsACHTActive(weapon, action, attacker) then
             --local aimed = Rat_AngularCTH(attacker, target, shot_attack_args.target_spot_group,
             --                             action, weapon, shot_attack_args.aim or 0,
             --                             shot_attack_args.opportunity_attack,
@@ -385,7 +385,7 @@ function Firearm:GetAttackResults(action, attack_args)
     ---- AlwaysHits nao pode virar sorteio de geometria; alvo que nao e objeto (ponto) nunca
     ---- aparece como `hit.obj`, entao todo tiro seria erro.
     if not prediction and const.Combat.Aperture.SimulateShots and not action.AlwaysHits and
-        IsValid(target) and Rat_AngularActive(attack_args.weapon or self, action, attacker) then
+        IsValid(target) and IsACHTActive(attack_args.weapon or self, action, attacker) then
         ---- Rat_SimPlanShots: a mesma funcao que o visualizador chama
         sim_ctx = {
             attacker = attacker,

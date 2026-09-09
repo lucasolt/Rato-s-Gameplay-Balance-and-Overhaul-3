@@ -14,32 +14,32 @@ local A = const.Combat.Aperture
 ---- Limiar de mira por ampliacao. Regra: quanto MAIOR a ampliacao, mais TARDE o bonus comeca e
 ---- maior ele e. E o que faz a luneta grande ser um compromisso e nao um upgrade direto.
 A.ComponentEffectsAimBonus = {
-    --{
+    -- {
     --    id = "pso_dragunov_scope",
     --    from = 5,
     --    acc = 3
-    --}, {
+    -- }, {
     --    id = "sniper_aim_scope",
     --    from = 5,
     --    acc = 5
-    --}, {
+    -- }, {
     --    id = "sniper_adv_aim_scope",
     --    from = 6,
     --    acc = 5
-    --},
+    -- },
     -- {id = "_x2ScopeAimBonus", from = 4, acc = 3},
-    --{
+    -- {
     --    id = "FirstAimBonusModifier",
     --    from = 1,
     --    to = 1,
     --    acc = 3
-    --}, 
-	--{
+    -- }, 
+    -- {
     --    id = "BonusAccuracyWhenFullyAimed", -- HeavyStock
     --    from = 3,
     --    to = 3,
     --    acc = 2
-    --} 
+    -- } 
 }
 
 ---- A CEREJA da optica: multiplicador do PISO do cone por ampliacao (Rat_ApertureFloor). E a unica
@@ -72,14 +72,13 @@ A.ConeMulEffects = {
         id = "AccuracyBonusWhenAimed", -- Sights
         param = "bonus_cth"
     }, {
-		id = "BonusAccuracyWhenFullyAimed", -- Heavy Stock
-		param = "bonus_cth",
-		required_aim = 3
-	},
-	{
-		id = "AccuracyBonusWhenAimed_vgrip", -- Vgrip
-		param = "bonus_cth_v",
-	}
+        id = "BonusAccuracyWhenFullyAimed", -- Heavy Stock
+        param = "bonus_cth",
+        required_aim = 3
+    }, {
+        id = "AccuracyBonusWhenAimed_vgrip", -- Vgrip
+        param = "bonus_cth_v"
+    }
 }
 
 ---- Perfis por ampliacao. Parameters = {NomeDoParam = valor_inteiro} (param % usa o inteiro cru,
@@ -87,8 +86,10 @@ A.ConeMulEffects = {
 ---- Efeito de "niveis de mira" = IncreaseMaxAimActions (param MaxAimActionsIncrease); "range" da
 ---- optica = IncreaseRange (param RangeIncrease).
 local function scale_aim(aim)
-	local ap = const.Combat.Aperture
-	return MulDivRound(aim, ap.aCTHAimAccuracyScaleMul, 100)
+    local ap = const.Combat.Aperture
+    return MulDivRound(aim,
+                       ap.aCTHAimAccuracyScaleMul,
+                       100)
 end
 
 A.ApertureMagnifications = {
@@ -101,7 +102,8 @@ A.ApertureMagnifications = {
             MaxAimActionsIncrease = 3,
             snap_mul_inc = 160, -- 140
             aim_level_threshold = 6,
-            threshold_bonus_aim_acc = scale_aim(5),
+            threshold_bonus_aim_acc = scale_aim(
+                5)
         },
         ModificationEffects = {
             ScopeAimThresholdBonus = true,
@@ -121,7 +123,8 @@ A.ApertureMagnifications = {
             MaxAimActionsIncrease = 2,
             snap_mul_inc = 140, -- 125
             aim_level_threshold = 5,
-            threshold_bonus_aim_acc = scale_aim(5)
+            threshold_bonus_aim_acc = scale_aim(
+                5)
         },
         ModificationEffects = {
             ScopeAimThresholdBonus = true,
@@ -142,7 +145,8 @@ A.ApertureMagnifications = {
             MaxAimActionsIncrease = 1,
             snap_mul_inc = 125, -- 110 
             aim_level_threshold = 4,
-            threshold_bonus_aim_acc = scale_aim(3)
+            threshold_bonus_aim_acc = scale_aim(
+                3)
         },
         ModificationEffects = {
             ScopeAimThresholdBonus = true,
@@ -162,8 +166,9 @@ A.ApertureMagnifications = {
         Parameters = {
             MaxAimActionsIncrease = 1,
             aim_level_threshold = 4,
-            threshold_bonus_aim_acc = scale_aim(2),
-			first_aim_bonus_acc = 3
+            threshold_bonus_aim_acc = scale_aim(
+                2),
+            first_aim_bonus_acc = 3
         },
         ModificationEffects = {
             IncreaseMaxAimActions = true,
@@ -179,13 +184,14 @@ A.ApertureMagnifications = {
     _2xWide = {
         Parameters = {
             MaxAimActionsIncrease = 1,
-			snap_mul_reduc = 95,
-			first_aim_bonus_acc = scale_aim(2)
+            snap_mul_reduc = 95,
+            first_aim_bonus_acc = scale_aim(
+                2)
         },
         ModificationEffects = {
             IncreaseMaxAimActions = true,
             scope_snapshot = false,
-			DecreaseSnapshotMul = true,
+            DecreaseSnapshotMul = true,
             ScopePenalty1 = true,
             ScopePenalty2 = false,
             ScopePenalty3 = false,
@@ -210,35 +216,40 @@ A.ApertureMagnifications = {
     ---- bonus_cth 10 -> 12: a reflex e a opcao BARATA (sem nivel de mira extra, sem AP de entrada),
     ---- entao precisa ser a melhor no aim 1-3 ou a 2x rapida a domina sem custar nada a mais.
     Reflex = {
-        Parameters = {bonus_cth = 12,
-		snap_mul_reduc = 85
-			},
+        Parameters = {
+            bonus_cth = 12,
+            snap_mul_reduc = 85
+        },
         ModificationEffects = {
             AccuracyBonusWhenAimed = true,
             reflex_sight_close_range = false,
-			scope_snapshot = false,-- old hardcoded effect
-			DecreaseSnapshotMul = true
+            scope_snapshot = false, -- old hardcoded effect
+            DecreaseSnapshotMul = true
         }
     },
     ReflexAdvanced = {
-        Parameters = {bonus_cth = 10, 
-			snap_mul_reduc = 90},
+        Parameters = {
+            bonus_cth = 10,
+            snap_mul_reduc = 90
+        },
         ModificationEffects = {
             AccuracyBonusWhenAimed = true,
             reflex_sight_close_range = false,
-			scope_snapshot = false, 
-			DecreaseSnapshotMul = true
+            scope_snapshot = false,
+            DecreaseSnapshotMul = true
         }
     },
     ReflexVigilance = {
-        Parameters = {bonus_cth = 5,
-			snap_mul_reduc = 85},
+        Parameters = {
+            bonus_cth = 5,
+            snap_mul_reduc = 85
+        },
         ModificationEffects = {
             AccuracyBonusWhenAimed = true,
             reflex_sight_close_range = false,
-			scope_snapshot = false,
-			DecreaseSnapshotMul = true
-			
+            scope_snapshot = false,
+            DecreaseSnapshotMul = true
+
         }
     },
     Ironsight = {
@@ -391,20 +402,20 @@ RAT_APERTURE_WEAPON_RANGE = {
     DoubleBarrelShotgun = {18, 22},
     Auto5_quest = {18, 22},
 
-	TexRevolver= {20,18},
-	ColtPeacemaker= {20,18},
-	Bereta92= {18,16},
-	Glock18= {18,16},
-	HiPower= {18,16},
-	ColtAnaconda= {22,18},
-	DesertEagle= {24,20},
+    TexRevolver = {20, 18},
+    ColtPeacemaker = {20, 18},
+    Bereta92 = {18, 16},
+    Glock18 = {18, 16},
+    HiPower = {18, 16},
+    ColtAnaconda = {22, 18},
+    DesertEagle = {24, 20},
 
-	M1911_1 ={16, 14},
-	P08_1 ={18,16},
-	B93RR_1 ={18,16},
-	Glock17_1 ={18,16},
-	USP_1 ={18,16},
-	VikingMP446_1 ={18,16},
+    M1911_1 = {16, 14},
+    P08_1 = {18, 16},
+    B93RR_1 = {18, 16},
+    Glock17_1 = {18, 16},
+    USP_1 = {18, 16},
+    VikingMP446_1 = {18, 16}
 }
 
 ---- WeaponRange da classe. `idx` 1 = pristino, 2 = valor do aCTH. So escreve se o valor atual for
@@ -441,39 +452,7 @@ local function apply_range(idx)
         end
     end
 end
----- O aperture nao escreve mais componente nenhum: quem escreve e o compositor
----- (GBO_ApplyComponentCompose), que le as receitas base e aplica esta camada por cima. Aqui so
----- sobra o WeaponRange, que e propriedade de CLASSE e nao de componente.
-----
----- A camada: com o aperture ligado, o componente listado em ApertureComponentTier ganha o perfil
----- da sua ampliacao. No perfil, `ModificationEffects` e true = garante presente / false = garante
----- ausente, e `Parameters` SOBRESCREVE em vez de combinar -- por isso entra como overlay e nao
----- como mais um traco.
-local function aperture_overlay(id)
-    local ap = const.Combat.Aperture -- sempre a tabela viva
-    if not ap or not ap.Enabled then
-        return nil
-    end
-    local tier = (ap.ApertureComponentTier or empty_table)[id]
-    return tier and (ap.ApertureMagnifications or empty_table)[tier] or nil
-end
-GBO_COMPOSE_OVERLAYS[#GBO_COMPOSE_OVERLAYS + 1] = aperture_overlay
 
----- SO com SimulateShots (escala diferente). No CTH antigo AimAccuracy entra direto na conta do CTH e 5x seria
----- absurdo -- por isso e escala de MODO e nao numero autorado na receita.
-
-
-local function sim_aim_accuracy_scale(params)
-    local ap = const.Combat.Aperture -- sempre a tabela viva
-    if not ap or not ap.Enabled or not ap.SimulateShots then
-        return
-    end
-    local v = params.AimAccuracyIncrease
-    if v then
-        params.AimAccuracyIncrease = MulDivRound(v, ap.aCTHAimAccuracyScaleMul or 100, 100)
-    end
-end
-GBO_COMPOSE_SCALERS[#GBO_COMPOSE_SCALERS + 1] = sim_aim_accuracy_scale
 
 ---- Mantidas porque outros arquivos chamam: hoje so mexem no WeaponRange.
 function Rat_RestoreApertureItemParams()
@@ -482,7 +461,8 @@ end
 
 function ApplyApertureItemParams()
     local ap = const.Combat.Aperture
-    apply_range(ap and ap.Enabled and 2 or 1)
+    apply_range(
+        ap and ap.Enabled and 2 or 1)
 end
 
 ---- Ancora de load: garante que o override roda depois deste arquivo (e do __ApertureParams) carregar.
@@ -497,6 +477,7 @@ end
 ---- Empurra o override para as armas ja equipadas em campo, sem esperar UnitCreated. Reaplica TODO
 ---- componente, nao so as opticas conhecidas: o valor da instancia foi calculado sobre a base
 ---- ANTIGA da classe, entao trocar WeaponRange exige recomputar tambem cano longo, bipe, etc.
+--TODO: probably this is vestigial, clean or salvage
 function Rat_ReapplyApertureComponents()
     local n = 0
     for _, u in ipairs(
@@ -513,24 +494,24 @@ function Rat_ReapplyApertureComponents()
                                     empty_table) do
                     ---- a instancia guarda o WeaponRange resolvido no momento em que foi criada;
                     ---- trocar a base da classe nao chega ate ela sozinho.
-                    if IsKindOf(w,
-                                "Firearm") and
-                        RAT_APERTURE_WEAPON_RANGE[w.class] then
-                        local base =
-                            rawget(
-                                g_Classes[w.class],
-                                "base_WeaponRange")
-                        if rawget(w,
-                                  "base_WeaponRange") ~=
-                            nil and base then
-                            w:SetBase(
-                                "WeaponRange",
-                                base)
-                        else
-                            w:RestoreModifiableValue(
-                                "WeaponRange")
-                        end
-                    end
+                    --if IsKindOf(w,
+                    --            "Firearm") and
+                    --    RAT_APERTURE_WEAPON_RANGE[w.class] then
+                    --    local base =
+                    --        rawget(
+                    --            g_Classes[w.class],
+                    --            "base_WeaponRange")
+                    --    if rawget(w,
+                    --              "base_WeaponRange") ~=
+                    --        nil and base then
+                    --        w:SetBase(
+                    --            "WeaponRange",
+                    --            base)
+                    --    else
+                    --        w:RestoreModifiableValue(
+                    --            "WeaponRange")
+                    --    end
+                    --end
                     if IsKindOf(w,
                                 "Firearm") and
                         w.components then

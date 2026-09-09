@@ -102,7 +102,7 @@ function GBO_GetDescriptionHints(self)
         return string.format("%.2f", angle)
     end
 
-    local angularCTHActive = Rat_AngularActive()
+    local angularCTHActive = IsACHTActive()
 	local termList = {
 	    {
 	        id = "ShootingStanceCost",

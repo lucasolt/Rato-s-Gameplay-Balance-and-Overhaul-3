@@ -5,6 +5,7 @@ CheatAddItem("itemid")
 ```
 ## Housekeeping
 - [X] Implement unified Component handling, with ancestor/CTH mode
+	- [ ] fix/unifiy with aCTH logic!!!
 	- [ ] Verify if patch called from TOG is redundant.
 
 ## aCTH Possible fragilities
@@ -37,16 +38,16 @@ CheatAddItem("itemid")
 ## AI Overhaul new stuff
 - [ ] Overwatch against last target pos when unit is hidden. also make them throw grenades at it, specially when at a rooftop
 
-
 ## aCTH Balancing
 
 - [ ] Close range might get _too_ strong
 - [X] Re-scale Aim Accuracy bonus for more gradient
 	- [X] UV dot
-	- [ ] No stock penalty should be re-scaled as handguns have changed
+	- [ ] No stock penalty should be re-scaled as handguns have changed. Decide if more range penalty or more aim penalty is appropriate
+	- [ ] Light stock?
 	- [X] Match ammo
 	- [X] grips -> its a flat attack accuracy bonus
-	- [X] better handling of the component aim multiplier
+	- [X] better handling of the component aim scaler
 - [X] review the Handling while standing penalty
 	- [ ] Decide if Recoil should use the same parameters (currently uses `weigth_held_mul`)
 - [X] Stray shots should have a lower chance to inflict status effects. 

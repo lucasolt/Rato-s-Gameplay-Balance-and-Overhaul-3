@@ -9,7 +9,7 @@ function place_scope_pen_cth()
 
             ---- o mesmo aim que a geometria usa: com stance/overwatch a arma ja esta no ombro e a
             ---- luneta ja esta no olho, entao a penalidade de perto tem que valer tambem la.
-            if Rat_AngularActive(weapon1, action, attacker) then
+            if IsACHTActive(weapon1, action, attacker) then
                 aim = Rat_EffectiveAim(attacker, action, aim, opportunity_attack, target)
             end
 

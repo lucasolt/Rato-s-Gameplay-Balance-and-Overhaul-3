@@ -4,7 +4,7 @@ function point_blank_cth()
                  opportunity_attack, attacker_pos, target_pos)
             ---- CTH angular: o PBbonus virou MANEJO e entra na abertura base (Rat_ApertureHandlingMul),
             ---- nao como residual sobre o cone final. A linha "Handling" do overlay vem de la.
-            if Rat_AngularActive(weapon1, action, attacker) then
+            if IsACHTActive(weapon1, action, attacker) then
                 return false, 0
             end
 

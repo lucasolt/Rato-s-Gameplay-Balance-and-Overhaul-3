@@ -1753,7 +1753,7 @@ return {
 			'OnApply', function (self, value)
 				GBO_ApplyApertureCTHMode(value)
 			end,
-			'DefaultValue', "old CTH",
+			'DefaultValue', "aCTH",
 			'ChoiceList', {
 				"aCTH",
 				"aCTH Lite",

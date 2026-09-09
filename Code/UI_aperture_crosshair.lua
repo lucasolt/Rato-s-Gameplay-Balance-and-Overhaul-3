@@ -205,7 +205,7 @@ function Rat_UpdateConeRing(crosshair)
     local weapon = attacker and action and action:GetAttackWeapons(attacker)
 
     if not IsValid(attacker) or not IsValid(target) or not action or
-        not Rat_AngularActive(weapon, action, attacker) then
+        not IsACHTActive(weapon, action, attacker) then
         return false
     end
 

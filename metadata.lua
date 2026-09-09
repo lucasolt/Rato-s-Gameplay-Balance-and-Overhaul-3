@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 13231,
+	'version', 13250,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -162,7 +162,7 @@ return PlaceObj('ModDef', {
 	},
 	'default_options', {
 		AIWeaponStanceMul = 100,
-		ApertureCTH = "old CTH",
+		ApertureCTH = "aCTH",
 		AwareSight = "56 (GBO Default)",
 		Extra_start_ap = "0 (default for Rato's GBO)",
 		NightDetect = "-40 (Rato's Default)",
@@ -182,8 +182,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1788921925,
-	'code_hash', -3623742390953217068,
+	'saved', 1788928983,
+	'code_hash', -5101736069290284576,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",

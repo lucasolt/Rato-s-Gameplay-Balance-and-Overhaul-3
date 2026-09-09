@@ -3,7 +3,7 @@
 ----
 ---- O modelo entrega o CTH geometrico INTEIRO, entao este modifier devolve
 ----     geo - skill
----- e os modifiers que ele substitui devolvem false (guarda Rat_AngularActive).
+---- e os modifiers que ele substitui devolvem false (guarda IsACHTActive).
 ----
 ---- O que sobra somando por cima -- recoil permanente, Dazed, perks, TargetedShot, efeitos de
 ---- componente -- NAO soma mais pontos: cada um vira multiplicador de cone (Rat_ConeAbsorb) e o
@@ -31,7 +31,7 @@ function Rat_ResolveAngular(data)
     local a = const.Combat.Aperture
     local attacker, target = data.attacker, data.target
     local action, weapon1, weapon2 = data.action, data.weapon1, data.weapon2
-    if not attacker or not target or not Rat_AngularActive(weapon1, action, attacker) then
+    if not attacker or not target or not IsACHTActive(weapon1, action, attacker) then
         data.rat_blocked = true
         return data
     end
@@ -56,7 +56,7 @@ function Rat_ResolveAngular(data)
 
     ---- Alvo totalmente ocluido: nao ha cone que resolva, CTH 0 e nenhum residual muda isso.
     ---- NAO e rat_blocked: aquilo devolve o ataque ao pipeline vanilla, e os modifiers que o
-    ---- angular substitui continuam desligados (guarda Rat_AngularActive) -- o alvo saia com a
+    ---- angular substitui continuam desligados (guarda IsACHTActive) -- o alvo saia com a
     ---- soma crua de Marksmanship, o dobro do que o modelo dava com ele exposto.
     if not sigma or not theta or theta < 1 then
         data.rat_occluded = true
@@ -421,7 +421,7 @@ function place_angular_cth()
         CalcValue = function(self, attacker, target, body_part_def, action, weapon1, weapon2, lof,
                              aim, opportunity_attack, attacker_pos, target_pos)
 
-            if not attacker or not target or not Rat_AngularActive(weapon1, action, attacker) then
+            if not attacker or not target or not IsACHTActive(weapon1, action, attacker) then
                 return false, 0
             end
 

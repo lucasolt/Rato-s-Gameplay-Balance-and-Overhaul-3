@@ -41,7 +41,7 @@ function prone_cover()
         end
         ---- CTH angular: a POSTURA do alvo deixa de ser penalidade somada e passa a
         ---- ser silhueta menor (const.Combat.Aperture.Silhouette, medida no jogo).
-        local angular = Rat_AngularActive(weapon1, action, attacker)
+        local angular = IsACHTActive(weapon1, action, attacker)
 
         ---- Com a sondagem de silhueta ligada, a COBERTURA tambem sai daqui: vira
         ---- fracao exposta medida por raycast (FUNCTIONS_cover_silhouette.lua), que

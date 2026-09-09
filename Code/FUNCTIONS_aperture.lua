@@ -1564,7 +1564,7 @@ function Rat_GetShotConeRatios(attacker, target, body_part_def, action, weapon, 
         return ratios
     end
     ---- guarda aqui tambem: funcao publica, a IA pode chamar
-    if not Rat_AngularActive(weapon, action, attacker) then
+    if not IsACHTActive(weapon, action, attacker) then
         return ratios
     end
 
@@ -1613,7 +1613,7 @@ end
 function Rat_ExpectedHits(attacker, target, body_part_def, action, weapon, aim, opportunity_attack,
                           attacker_pos, target_pos, num_shots)
     num_shots = Max(1, num_shots or 1)
-    if not Rat_AngularActive(weapon, action, attacker) then
+    if not IsACHTActive(weapon, action, attacker) then
         return nil
     end
     local sigma, _, cth1 = Rat_AttackCone(attacker, target, action, body_part_def, aim,
@@ -1697,11 +1697,14 @@ function Rat_EffectiveAim(attacker, action, aim, opportunity_attack, target, sta
     return aim, opportunity_attack
 end
 
-function Rat_AngularActive(weapon, action, attacker)
+function IsACHTActive(weapon, action, attacker, sim_only)
     local a = P()
     if not a or not a.Enabled then
         return false
     end
+	if sim_only and not a.SimulateShots then
+		return false
+	end
     if weapon and not IsKindOf(weapon, "Firearm") then
         return false
     end

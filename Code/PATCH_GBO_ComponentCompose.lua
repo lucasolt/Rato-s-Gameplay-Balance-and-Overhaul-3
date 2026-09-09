@@ -860,6 +860,46 @@ GBO_COMPOSE_OVERLAYS = {}
 ---- receita nunca e tocada e a escala e recalculada em toda composicao.
 GBO_COMPOSE_SCALERS = {}
 
+---- SO com SimulateShots (escala diferente). No CTH antigo AimAccuracy entra direto na conta do CTH e 5x seria
+---- absurdo -- por isso e escala de MODO e nao numero autorado na receita.
+
+local function sim_aim_accuracy_scale(params)
+    local ap = const.Combat.Aperture -- sempre a tabela viva
+    if not ap or not ap.Enabled or not ap.SimulateShots then
+        return
+    end
+    local v = params.AimAccuracyIncrease
+    if v then
+        params.AimAccuracyIncrease = MulDivRound(v, ap.aCTHAimAccuracyScaleMul or 100, 100)
+    end
+end
+GBO_COMPOSE_SCALERS[#GBO_COMPOSE_SCALERS + 1] = sim_aim_accuracy_scale
+
+---- O aperture nao escreve mais componente nenhum: quem escreve e o compositor
+---- (GBO_ApplyComponentCompose), que le as receitas base e aplica esta camada por cima. Aqui so
+---- sobra o WeaponRange, que e propriedade de CLASSE e nao de componente.
+----
+---- A camada: com o aperture ligado, o componente listado em ApertureComponentTier ganha o perfil
+---- da sua ampliacao. No perfil, `ModificationEffects` e true = garante presente / false = garante
+---- ausente, e `Parameters` SOBRESCREVE em vez de combinar -- por isso entra como overlay e nao
+---- como mais um traco.
+
+
+local function aperture_overlay(id)
+    local ap = const.Combat.Aperture -- sempre a tabela viva
+    if not ap or not ap.Enabled then
+        return nil
+    end
+    local tier =
+        (ap.ApertureComponentTier or
+            empty_table)[id]
+    return tier and
+               (ap.ApertureMagnifications or
+                   empty_table)[tier] or
+               nil
+end
+GBO_COMPOSE_OVERLAYS[#GBO_COMPOSE_OVERLAYS+1] = aperture_overlay
+
 ---- Toda receita base vira o traco "Base.<id>", e o componente de mesmo nome passa a declarar esse
 ---- traco por padrao. Assim um scope sem nada autorado continua sendo ele mesmo, e quem quiser
 ---- compor por cima e so listar mais tracos na propriedade.

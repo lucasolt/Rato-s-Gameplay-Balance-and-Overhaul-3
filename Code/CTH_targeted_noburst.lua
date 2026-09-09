@@ -24,7 +24,7 @@ function targeted_noburst()
             ---- veio da silhueta (const.Combat.Aperture.BodyPart). Cobrar o tohit_mod
             ---- inteiro aqui contaria duas vezes -- zerava cabeca, bracos e pernas a
             ---- media distancia. Sobra so o residual nao-geometrico.
-            if Rat_AngularActive(weapon1, action, attacker) then
+            if IsACHTActive(weapon1, action, attacker) then
                 mod = MulDivRound(mod, const.Combat.Aperture.TargetedResidualPct, 100)
             end
 
