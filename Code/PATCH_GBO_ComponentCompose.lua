@@ -200,19 +200,17 @@ GBO_COMP_TRAITS = {
 		params = {bonus_cth = 10}
 	},
 
---	Ideia
---	["Bipod"] ={
---		effects = {			
---			"AccuracyBonusProne",
---			"bipod_penalty",
---			"rotate_ap_bipod",
+--	Mode deltas (see GBO_ComposeModeLayers). Replace this trait's own values before the merge:
+--	["Bipod"] = {
+--		effects = {"AccuracyBonusProne", "bipod_penalty", "rotate_ap_bipod"},
+--		params = {bonus_cth = 10, aim_bonus = 2},
+--		modes = {
+--			aCTH = {
+--				effects = {AccuracyBonusProne = false, RecoilControlWhenProne = true},
+--				params = {bonus_cth = false, aim_bonus = 10, recoil_bonus = 9},
+--			},
 --		},
---acht_effects = {AccuracyBonusProne = false, RecoilControlWhenProne = true
---		params = {bonus_cth = 10, aim_bonus = 2}
---acht_params = {bonus_cth = false, aim_bonus = 10, recoil_bonus = 9}
---
---do tipo. Efeitos base. SE existir acht_effects, podemos adicionar novos com o =true ou remover antigos = false
---parametros podemos remover com false, modificar ou adicionar novos 
+--	},
 	["Barrel.to50AE"]={
 		effects = {			
 			"IncreaseDamage",
@@ -951,17 +949,85 @@ local function traits_of(id, comp)
     return GBO_COMPONENT_TRAITS[id]
 end
 
+---- Active mode layers, general to specific; later layers override earlier ones.
+GBO_COMPOSE_MODE_KEYS = {oldCTH = true, aCTH = true, aCTHSim = true}
+
+function GBO_ComposeModeLayers()
+    local ap = const.Combat.Aperture
+    if not ap or not ap.Enabled then
+        return {"oldCTH"}
+    end
+    return ap.SimulateShots and {"aCTH", "aCTHSim"} or {"aCTH"}
+end
+
+---- {id = true} appends if missing, {id = false} removes; keeps `seen` in sync with the list.
+local function apply_effect_delta(effects, seen, want)
+    local kept = {}
+    for _, eid in ipairs(effects) do
+        if want[eid] == false then
+            seen[eid] = nil
+        else
+            kept[#kept + 1] = eid
+        end
+    end
+    for eid, on in sorted_pairs(want) do
+        if on and not seen[eid] then
+            seen[eid] = true
+            kept[#kept + 1] = eid
+        end
+    end
+    return kept
+end
+
+---- The trait as seen in the active mode. Param value = set, false = remove. Returns a new table:
+---- the recipe itself is the pristine source and must never be mutated.
+local function resolve_modes(tname, recipe, layers)
+    local modes = recipe.modes
+    if not modes then
+        return recipe
+    end
+    for key in pairs(modes) do
+        if not GBO_COMPOSE_MODE_KEYS[key] then
+            print("GBO compose: modo inexistente --", tname, key)
+        end
+    end
+    local effects, seen = {}, {}
+    for _, eid in ipairs(recipe.effects or empty_table) do
+        if not seen[eid] then
+            seen[eid] = true
+            effects[#effects + 1] = eid
+        end
+    end
+    local params = table.copy(recipe.params or empty_table)
+    local pct = table.copy(recipe.pct or empty_table)
+    for _, key in ipairs(layers) do
+        local delta = modes[key]
+        if delta then
+            effects = apply_effect_delta(effects, seen, delta.effects or empty_table)
+            for name, value in pairs(delta.params or empty_table) do
+                params[name] = value or nil
+            end
+            for name, on in pairs(delta.pct or empty_table) do
+                pct[name] = on or nil
+            end
+        end
+    end
+    return {effects = effects, params = params, pct = pct}
+end
+
 ---- Funde as receitas dos tracos num trio {effects, params, pct}. `overlay` entra depois de tudo
 ---- com semantica de SOBRESCRITA (ver GBO_COMPOSE_OVERLAYS): params trocam de valor em vez de
 ---- combinar, e effects e {id = true|false} para forcar presenca ou ausencia.
-function GBO_ComposeTraits(trait_list, overlay)
+function GBO_ComposeTraits(trait_list, overlay, layers)
     local effects, seen, params, pct = {}, {}, {}, {}
+    layers = layers or GBO_ComposeModeLayers()
 
     for _, tname in ipairs(trait_list or empty_table) do
         local recipe = GBO_COMP_TRAITS[tname]
         if not recipe then
             print("GBO compose: traco inexistente --", tname)
         else
+            recipe = resolve_modes(tname, recipe, layers)
             for _, eid in ipairs(recipe.effects or empty_table) do
                 if not seen[eid] then
                     seen[eid] = true
@@ -978,22 +1044,8 @@ function GBO_ComposeTraits(trait_list, overlay)
     end
 
     if overlay then
-        local want = overlay.ModificationEffects or overlay.effects or empty_table
-        local kept = {}
-        for _, eid in ipairs(effects) do
-            if want[eid] == false then
-                seen[eid] = nil
-            else
-                kept[#kept + 1] = eid
-            end
-        end
-        effects = kept
-        for eid, on in sorted_pairs(want) do
-            if on and not seen[eid] then
-                seen[eid] = true
-                effects[#effects + 1] = eid
-            end
-        end
+        effects = apply_effect_delta(effects, seen,
+                                     overlay.ModificationEffects or overlay.effects or empty_table)
         for name, value in sorted_pairs(overlay.Parameters or overlay.params or empty_table) do
             params[name] = value -- sobrescreve, nao combina
         end
@@ -1065,6 +1117,7 @@ end
 ---- modo e escreve. Roda no fim de GBO_GeneralComponentPatch e de novo a cada troca de modo.
 function GBO_ApplyComponentCompose()
     local n = 0
+    local layers = GBO_ComposeModeLayers()
     for id, comp in sorted_pairs(WeaponComponents or empty_table) do
         local list = traits_of(id, comp)
         if list then
@@ -1072,7 +1125,7 @@ function GBO_ApplyComponentCompose()
             for _, fn in ipairs(GBO_COMPOSE_OVERLAYS) do
                 overlay = fn(id, comp) or overlay
             end
-            local effects, params, pct = GBO_ComposeTraits(list, overlay)
+            local effects, params, pct = GBO_ComposeTraits(list, overlay, layers)
             warn_stat_collisions(id, effects)
             GBO_WriteComponent(comp, effects, params, pct)
             n = n + 1
