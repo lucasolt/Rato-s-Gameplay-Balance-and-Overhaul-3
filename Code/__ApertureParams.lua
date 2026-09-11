@@ -5,15 +5,38 @@ local A = const.Combat.Aperture
 
 GBO_gCTHModeItemPropertyTable = {}
 
+---- Escreve os valores por modo na CLASSE da arma. Chave da tabela: string (id, resolvida em
+---- g_Classes na hora) ou -- legado -- o proprio classdef. `nil` explicito em acht_active NAO vira
+---- IsACHTActive(): so a ausencia do argumento faz isso, senao "aplicar oldCTH" era impossivel.
+---- base_<prop> (Modifiers.lua) e o que a instancia le; espelha quando ja existe.
 function GBO_ApplyCHTModeItemProps(tbl, acht_active)
-	print("GBO - Running GBO_ApplyCHTModeItemProps ... ")
-	local acht_active = acht_active or IsACHTActive()
-	for item, props in pairs(tbl) do
-		for prop, values in pairs(props) do
-			item[prop] = acht_active and values["aCTH"] or values["oldCTH"]
+	if acht_active == nil then
+		acht_active = IsACHTActive()
+	end
+	local mode = acht_active and "aCTH" or "oldCTH"
+	for key, props in pairs(tbl or empty_table) do
+		local cls
+		if type(key) == "string" then
+			cls = g_Classes[key]
+			if not cls then
+				print("GBO CHTModeItemProps: classe inexistente --", key)
+			end
+		else
+			cls = key -- legado: chave e o proprio classdef
+		end
+		if cls then
+			for prop, values in pairs(props) do
+				local v = values[mode]
+				if v == nil then v = values.aCTH or values.oldCTH end
+				if v ~= nil then
+					cls[prop] = v
+					if rawget(cls, "base_" .. prop) ~= nil then
+						cls["base_" .. prop] = v
+					end
+				end
+			end
 		end
 	end
-	print("GBO - Running GBO_ApplyCHTModeItemProps Done ")
 end
 
 
@@ -45,11 +68,9 @@ function GBO_ApplyApertureCTHMode(mode)
         u.combat_cache = nil
     end
 
---TODO: Investigate why this does not refresh correctly, temporarily recalling the whole weapon patch
-	--RatoGBO_WepPatch()
-	----GBO_ApplyCHTModeItemProps(GBO_gCTHModeItemPropertyTable,(m == "aCTH" or m == "aCTH Lite"))
-	--local tog_wep_patch = rawget(_G, "RatoTOG_Patch")
-	--if tog_wep_patch then tog_wep_patch() end
+	---- so funciona com chave string em GBO_gCTHModeItemPropertyTable (g_Classes pronto aqui, nao no
+	---- ClassesGenerate). Linhas com classdef ainda passam mas so pegam no valor de load.
+	GBO_ApplyCHTModeItemProps(GBO_gCTHModeItemPropertyTable, (m == "aCTH" or m == "aCTH Lite"))
 
 	local generalComponentPatch = rawget(_G,
        					"GBO_GeneralComponentPatch") -- ApplyAperture, Tog, and Ancestry

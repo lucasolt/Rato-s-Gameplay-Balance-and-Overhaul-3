@@ -49,7 +49,7 @@ CheatAddItem("itemid")
 	- [X] grips -> its a flat attack accuracy bonus
 	- [X] better handling of the component aim scaler
 - [X] review the Handling while standing penalty
-	- [ ] Decide if Recoil should use the same parameters (currently uses `weigth_held_mul`)
+	- [ ] Decide if Recoil while standing should use the same parameters (currently uses `weigth_held_mul`)
 - [X] Stray shots should have a lower chance to inflict status effects. 
 	- [ ] Pellets
 - [ ] Calibrar o recuo de segunda ordem.
@@ -69,6 +69,7 @@ CheatAddItem("itemid")
   - Scout Scope.
 - [ ] What about grazing? Is it possible to keep it in the game?
 - [X] Grizzly Perk - **there is something in the recoil cacl, check if its enough**
+- [ ] Major Perk (Bullet hell)
 - [ ] Spiritual Perk
 - [X] MGSetup Get AP (**ended up decreasing delta by 1**)
 	- [ ] Fix bug in the rotate button using max AP
