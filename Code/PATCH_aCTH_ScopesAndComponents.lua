@@ -321,11 +321,11 @@ A.ApertureComponentTier = {
 }
 
 ---------------------------------------------------------------------------------------------------
----- ALCANCE DAS ARMAS no aCTH. Opticas nao dao mais WeaponRange, entao o alcance volta a ser
----- propriedade da ARMA -- e e a assintota do cone (d50 maximo = 1.545 x WeaponRange). Esticado no
----- topo da escala: +55% do que passa de 20 tiles em snipers (teto 44), +35% MG, +30% fuzil,
----- +15% SMG, 0 em pistola/revolver/escopeta. {pristino, valor_no_aCTH}.
----- SO vale com o aperture ligado; Rat_RestoreApertureItemParams devolve o pristino.
+---- ALCANCE DAS ARMAS no aCTH. {pristino, valor_no_aCTH}. NAO E MAIS APLICADO (ver apply_range):
+---- o alcance por modo agora vem da planilha, via storeProps "WeaponRange" em PATCH_GBO_weapons.
+---- Mantido so como referencia -- e a assintota do cone (d50 maximo = 1.545 x WeaponRange), regra
+---- de esticao: +55% do que passa de 20 tiles em snipers (teto 44), +35% MG, +30% fuzil, +15% SMG,
+---- 0 em pistola/revolver/escopeta.
 ---------------------------------------------------------------------------------------------------
 RAT_APERTURE_WEAPON_RANGE = {
     ---- Snipers / marksman
@@ -418,39 +418,12 @@ RAT_APERTURE_WEAPON_RANGE = {
     VikingMP446_1 = {18, 16}
 }
 
----- WeaponRange da classe. `idx` 1 = pristino, 2 = valor do aCTH. So escreve se o valor atual for
----- um dos dois: se PATCH_GBO_weapons mudar o pristino, avisa em vez de gravar por cima calado.
----- `base_WeaponRange` (Modifiers.lua) e quem a instancia le de fato -- mexer so em WeaponRange
----- muda a classe e nao muda arma nenhuma.
+---- DESATIVADO 2026-09-10: o WeaponRange por modo agora sai de GBO_gCTHModeItemPropertyTable,
+---- gerado pela planilha junto com o resto do PATCH_GBO_weapons (storeProps ... "WeaponRange").
+---- Havia dois escritores discordando -- p.ex. PSG1 aCTH: 42 nesta tabela, 36 na planilha -- e o
+---- resultado dependia de a guarda "valor inesperado" abaixo passar ou nao. A planilha ganha.
+---- RAT_APERTURE_WEAPON_RANGE acima fica so como referencia do que foi migrado.
 local function apply_range(idx)
-    for id, pair in pairs(
-                        RAT_APERTURE_WEAPON_RANGE) do
-        local cls = g_Classes[id]
-        if cls then
-            local cur =
-                rawget(cls,
-                       "base_WeaponRange") or
-                    cls.WeaponRange
-            if cur ~= pair[1] and cur ~=
-                pair[2] then
-                print(
-                    "GBO aperture: WeaponRange inesperado em",
-                    id, cur,
-                    "-- esperava",
-                    pair[1], "ou",
-                    pair[2])
-            else
-                cls.WeaponRange =
-                    pair[idx]
-                if rawget(cls,
-                          "base_WeaponRange") ~=
-                    nil then
-                    cls.base_WeaponRange =
-                        pair[idx]
-                end
-            end
-        end
-    end
 end
 
 
