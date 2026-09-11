@@ -11,9 +11,10 @@
 local A = const.Combat.Aperture
 
 --- Refactored Scopes
----- Limiar de mira por ampliacao. Regra: quanto MAIOR a ampliacao, mais TARDE o bonus comeca e
----- maior ele e. E o que faz a luneta grande ser um compromisso e nao um upgrade direto.
+---- Flat AimAccuracy per component effect on aim levels from..to (to nil = every aimed level); negative = penalty.
 A.ComponentEffectsAimBonus = {
+    {id = "light_stock_aim_reduce", from = 1, acc = -8}, -- light/unfolded stocks; -8 equals the old x110 decay at acc 22
+    {id = "ReduceAimAccuracy", from = 1, acc = -12}, -- no/folded stocks
     -- {
     --    id = "pso_dragunov_scope",
     --    from = 5,

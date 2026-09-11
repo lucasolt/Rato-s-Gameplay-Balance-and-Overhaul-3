@@ -81,9 +81,6 @@ A.AimDecayMuls = {
 		mul = 100,--150,
 		classes = {"Pistol", "Revolver"}, ---- 100 is disabled
 	                  meta = T {195655494642, "(-) Handgun"}},
-	NoStock = {
-		mul = 100,--150,
-		component = "ReduceAimAccuracy"},
 	Crouch = {
 		mul = 100,
 		stance = "Crouch", --97,--95
@@ -92,8 +89,7 @@ A.AimDecayMuls = {
 	         meta = T {271472323596, "Prone"}},
 	ProneGripPenalty = {mul = 105, stance = "Prone", component = "grip_prone_penalty",
 	                    meta = T {856431894569, "(-) Grip while prone"}},
-	LightStock = {mul = 110, component = "light_stock_aim_reduce"},
-
+	---- stocks are flat AimAccuracy penalties now: A.ComponentEffectsAimBonus
 }
 
 ---- CAMUFLAGEM. Alvo camuflado e mais dificil de VER, entao encolhe a SILHUETA -- nao alarga o

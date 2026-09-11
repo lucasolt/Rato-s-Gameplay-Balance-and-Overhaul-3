@@ -235,7 +235,8 @@ function GetApertureAimComponentEffects(weapon, attacker)
             list = list or {}
             list[#list + 1] = eff
 			meta = meta or {}
-			meta[#meta +1] = comp.DisplayName or ""
+			local name = comp.DisplayName or ""
+			meta[#meta +1] = (eff.acc or 0) < 0 and name ~= "" and Untranslated("(-) ") .. name or name
         end
     end
 
