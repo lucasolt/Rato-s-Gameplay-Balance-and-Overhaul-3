@@ -27,13 +27,14 @@ GBO_PARAM_COMBINE = {
     DamageIncrease = "add",
     DamageReduced = "add",
     AimAccuracyIncrease = "add",
+    AimAccuracyDecrease = "add",
     APincrease = "add",
     APdecrease = "add",
     MagazineSizeDecrease = "add",
     ReliabilityIncrease = "add",
     ReliabilityDecrease = "add",
     MaxAimActionsIncrease = "add",
-    BuckshotAngleIncrease = "max",
+    BuckshotAngleIncrease = "mul_pct",
     bonus_cth = "max"
 }
 
@@ -80,7 +81,10 @@ GBO_COMPOSE_PCT = {
 GBO_COMP_TRAITS = {
     ["Barrel.Long"] = {
         effects = {
-            "longbarrel", "IncreaseRange", "IncreaseAimAccuracy", "IncreaseDamage",
+            "longbarrel",
+			"IncreaseRange",
+			"IncreaseAimAccuracy",
+			"IncreaseDamage",
             "StanceAPincrease"
         },
         params = {
@@ -89,7 +93,12 @@ GBO_COMP_TRAITS = {
             DamageIncrease = 1,
             AimAccuracyIncrease = 2,
             APincrease = 1
-        }
+        },
+        modes = {
+            aCTH = {
+                params = {AimAccuracyIncrease = 10},
+            },
+        },
     },
 	["Barrel.LongShotgun"] = {
         effects = {
@@ -101,7 +110,12 @@ GBO_COMP_TRAITS = {
             RangeIncrease = 4,
             AimAccuracyIncrease = 2,
             APincrease = 1
-        }
+        },
+		modes = {
+			aCTH = {
+				params = {AimAccuracyIncrease = 10},
+			},
+		},
     },
     ["Barrel.Short"] = {
         effects = {"shortbarrel", "ReduceRange", "ReduceDamage", "StanceAPdecrease"},
@@ -110,7 +124,13 @@ GBO_COMP_TRAITS = {
             RangeDecrease = 2,
             DamageReduced = 1,
             APdecrease = 1
-        }
+        },
+		modes = {
+			aCTH = {
+				effects = {DecreaseAimAccuracy = true},
+				params = {AimAccuracyDecrease = 2, RangeDecrease = 4},
+			},
+		},
     },
 	    ["Barrel.ShortShotgun"] = {
         effects = {"shortbarrel", "ReduceRange", "StanceAPdecrease"},
@@ -118,12 +138,24 @@ GBO_COMP_TRAITS = {
             OverwatchAngle = 107,
             RangeDecrease = 2,
             APdecrease = 1
-        }
+        },
+		modes = {
+			aCTH = {
+				effects = {DecreaseAimAccuracy = true},
+				params = {AimAccuracyDecrease = 2, RangeDecrease = 4},
+			},
+		},
     },
     ---- cano curto de pistola: sem perda de dano nem de AP de postura, e o cone abre menos.
     ["Barrel.ShortHandgun"] = {
         effects = {"shortbarrel", "ReduceRange"},
-        params = {OverwatchAngle = 105, RangeDecrease = 2}
+        params = {OverwatchAngle = 105, RangeDecrease = 2},
+		modes = {
+			aCTH = {
+				effects = {DecreaseAimAccuracy = true},
+				params = {AimAccuracyDecrease = 1},
+			},
+		},
     },
 	["Barrel.LongHandgun"] ={
 		effects = {
@@ -137,7 +169,12 @@ GBO_COMP_TRAITS = {
 			DamageIncrease = 1,
 			AimAccuracyIncrease = 1,
 			OverwatchAngle = 92
-		}
+		},
+		modes = {
+			aCTH = {
+				params = {AimAccuracyIncrease = 5},
+			},
+		},
 	},
     ["Barrel.Light"] = {
         effects = {"hipfire_light_barrel", "ExtraOverwatchShots"},
@@ -182,7 +219,7 @@ GBO_COMP_TRAITS = {
 			"stocklight_effect_recoil",},
 		params = {
 			APdecrease = 1
-		}
+		},
 	},
 	["Stock.Bump"] = {
 		effects = {
@@ -273,7 +310,7 @@ GBO_BASE_RECIPES = {
 		},
 		params = {
 			APdecrease = 1
-		}
+		},
 	},
 	NoStock = {
 		effects = {
@@ -289,7 +326,7 @@ GBO_BASE_RECIPES = {
 			OverwatchAngleIncrease = 108,
 			APdecrease = 1,
 			RangeDecrease = 4
-	}
+	},
 	},
 	UVDot = {
 		effects = {
@@ -302,6 +339,11 @@ GBO_BASE_RECIPES = {
 			AimAccuracyIncrease = 1,
 			snap_mul_reduc = const.Combat.SnapshotHipfire.Components.LaserMul or 90,
 			hipfire_mul_reduc = const.Combat.SnapshotHipfire.Components.LaserMul or 90
+		},
+		modes = {
+			aCTH = {
+				params = {AimAccuracyIncrease = 5},
+			},
 		},
 	},
 	LaserDot = {
@@ -332,7 +374,12 @@ GBO_BASE_RECIPES = {
 			AimAccuracyIncrease = 2,
 			APincrease = 1,
 			OverwatchAngleDecrease = 95,
-		}
+		},
+		modes = {
+			aCTH = {
+				params = {AimAccuracyIncrease = 10},
+			},
+		},
 	},
 	BarrelShort = {
 		effects = {
@@ -442,7 +489,12 @@ GBO_BASE_RECIPES = {
             AimAccuracyIncrease = 2,
             crit = 15,
             OverwatchAngleDecrease = 75
-        }
+        },
+        modes = {
+            aCTH = {
+                params = {AimAccuracyIncrease = 10},
+            },
+        },
     },
     G36_SCOPE = {
         effects = {
@@ -458,7 +510,12 @@ GBO_BASE_RECIPES = {
             AimAccuracyIncrease = 2,
             RangeIncrease = 6,
             OverwatchAngleDecrease = 75
-        }
+        },
+        modes = {
+            aCTH = {
+                params = {AimAccuracyIncrease = 10},
+            },
+        },
     },
     AUGScope_Default = {
         effects = {
@@ -470,7 +527,12 @@ GBO_BASE_RECIPES = {
             AimAccuracyIncrease = 3,
             RangeIncrease = 4,
             OverwatchAngleDecrease = 90
-        }
+        },
+        modes = {
+            aCTH = {
+                params = {AimAccuracyIncrease = 15},
+            },
+        },
     },
     _ReflexSIghtVigilance = {
         effects = {
@@ -548,7 +610,12 @@ GBO_BASE_RECIPES = {
             RangeIncrease = 6,
             OverwatchAngleDecrease = 90,
             AimAccuracyIncrease = 2
-        }
+        },
+        modes = {
+            aCTH = {
+                params = {AimAccuracyIncrease = 10},
+            },
+        },
     },
     ScopeCOGQuick = {
         effects = {
@@ -565,7 +632,12 @@ GBO_BASE_RECIPES = {
             snap_reduc = 5,
             OverwatchAngleIncrease = 110,
 			first_aim_bonus_acc = 3
-        }
+        },
+        modes = {
+            aCTH = {
+                params = {AimAccuracyIncrease = 10},
+            },
+        },
     },
     WideScope = {
         effects = {
@@ -580,7 +652,12 @@ GBO_BASE_RECIPES = {
             AimAccuracyIncrease = 2,
             RangeIncrease = 6,
             snap_reduc = 5
-        }
+        },
+        modes = {
+            aCTH = {
+                params = {AimAccuracyIncrease = 10},
+            },
+        },
     },
     LROptics_DragunovDefault = {
         effects = {
@@ -858,20 +935,8 @@ GBO_COMPOSE_OVERLAYS = {}
 ---- receita nunca e tocada e a escala e recalculada em toda composicao.
 GBO_COMPOSE_SCALERS = {}
 
----- SO com SimulateShots (escala diferente). No CTH antigo AimAccuracy entra direto na conta do CTH e 5x seria
----- absurdo -- por isso e escala de MODO e nao numero autorado na receita.
-
-local function sim_aim_accuracy_scale(params)
-    local ap = const.Combat.Aperture -- sempre a tabela viva
-    if not ap or not ap.Enabled or not ap.SimulateShots then
-        return
-    end
-    local v = params.AimAccuracyIncrease
-    if v then
-        params.AimAccuracyIncrease = MulDivRound(v, ap.aCTHAimAccuracyScaleMul or 100, 100)
-    end
-end
-GBO_COMPOSE_SCALERS[#GBO_COMPOSE_SCALERS + 1] = sim_aim_accuracy_scale
+---- AimAccuracy ja NAO e escalado aqui: cada receita autora o valor de aCTH em `modes`. A escala
+---- proporcional comprimia tudo perto de A.DecayMinPct, onde o bonus satura.
 
 ---- O aperture nao escreve mais componente nenhum: quem escreve e o compositor
 ---- (GBO_ApplyComponentCompose), que le as receitas base e aplica esta camada por cima. Aqui so

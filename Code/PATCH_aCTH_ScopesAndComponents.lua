@@ -12,6 +12,8 @@ local A = const.Combat.Aperture
 
 --- Refactored Scopes
 ---- Flat AimAccuracy per component effect on aim levels from..to (to nil = every aimed level); negative = penalty.
+---- Stocks stay HERE and not in a trait's aCTH mode: 62 stock components carry these markers and
+---- only 2 have traits, so a trait would drop the penalty from the other 60. Revisit once they do.
 A.ComponentEffectsAimBonus = {
     {id = "light_stock_aim_reduce", from = 1, acc = -8}, -- light/unfolded stocks; -8 equals the old x110 decay at acc 22
     {id = "ReduceAimAccuracy", from = 1, acc = -12}, -- no/folded stocks
@@ -321,123 +323,11 @@ A.ApertureComponentTier = {
     ---- G11_Rail_7, G11_Rail_9. E sem arma nenhuma: AN94_Scope_1, ThermalScope_1, ThermalScope_2.
 }
 
----------------------------------------------------------------------------------------------------
----- ALCANCE DAS ARMAS no aCTH. {pristino, valor_no_aCTH}. NAO E MAIS APLICADO (ver apply_range):
----- o alcance por modo agora vem da planilha, via storeProps "WeaponRange" em PATCH_GBO_weapons.
----- Mantido so como referencia -- e a assintota do cone (d50 maximo = 1.545 x WeaponRange), regra
----- de esticao: +55% do que passa de 20 tiles em snipers (teto 44), +35% MG, +30% fuzil, +15% SMG,
----- 0 em pistola/revolver/escopeta.
----------------------------------------------------------------------------------------------------
-RAT_APERTURE_WEAPON_RANGE = {
-    ---- Snipers / marksman
-    BarretM82 = {40, 44},
-    PSG1 = {34, 42},
-    M24Sniper = {32, 40},
-    SSG69_1 = {32, 40},
-    DragunovSVD = {30, 36},
-    Gewehr98 = {30, 36},
-    GoldenGun = {30, 36},
-    M76_1 = {30, 36},
-    Gewehr43_1 = {28, 32},
-    Mosin_1 = {28, 32},
-    SteyrScout_1 = {28, 32},
-    Winchester1894 = {26, 28},
-    Winchester_Quest = {26, 28},
-    VSS_1 = {24, 26},
-    Delisle_1 = {22, 24},
-    VSK94_1 = {22, 24},
-    ---- Metralhadoras
-    MG58 = {32, 36},
-    PKM_1 = {32, 36},
-    BrowningM2HMG = {30, 34},
-    HK21 = {30, 34},
-    MG42 = {30, 34},
-    FNMinimi = {28, 32},
-    HK23ECamo_1 = {28, 32},
-    HK23E_1 = {28, 32},
-    RPD_1 = {28, 32},
-    RPK74 = {28, 32},
-    ---- Fuzis de assalto
-    AR10std = {30, 34},
-    FNFAL = {30, 36},
-    G3A3Green_1 = {30, 34},
-    G3A3_1 = {30, 34},
-    Galil_FlagHill = {30, 30},
-    M14SAW = {30, 32},
-    M14SAW_AUTO = {30, 32},
-    AK74 = {28, 30},
-    AN94_1 = {28, 30},
-    AR15 = {28, 30},
-    G36 = {28, 30},
-    HK33A2_1 = {28, 30},
-    M16A2 = {28, 30},
-    M1Garand_2 = {28, 30},
-    A91_2 = {26, 28},
-    AK47 = {26, 28},
-    AUG = {26, 28},
-    FAMAS = {26, 28},
-    Galil = {26, 28},
-    M70_1 = {26, 28},
-    Papovka2SKS_1 = {26, 28},
-    PapovkaSKS_1 = {26, 28},
-    RK62_1 = {26, 28},
-    RK95_1 = {26, 28},
-    SKS_1 = {26, 28},
-    STG44R_1 = {26, 28},
-    TAR21_1 = {26, 28},
-    Type56A_1 = {26, 28},
-    Type56B_1 = {26, 28},
-    Type56C_1 = {26, 28},
-    Type56D_1 = {26, 28},
-    G11_1 = {24, 26},
-    Groza_1 = {22, 24},
-    ---- Submetralhadoras (so as de cano longo mudam)
-    HK53_1 = {28, 30},
-    AKSU = {24, 24}, -- second was 26
-    M4Commando = {24, 26},
-
-    --
-    M41Shotgun = {22, 26},
-    Auto5 = {20, 24},
-    AA12 = {20, 24},
-    DoubleBarrelShotgun = {18, 22},
-    Auto5_quest = {18, 22},
-
-    TexRevolver = {20, 18},
-    ColtPeacemaker = {20, 18},
-    Bereta92 = {18, 16},
-    Glock18 = {18, 16},
-    HiPower = {18, 16},
-    ColtAnaconda = {22, 18},
-    DesertEagle = {24, 20},
-
-    M1911_1 = {16, 14},
-    P08_1 = {18, 16},
-    B93RR_1 = {18, 16},
-    Glock17_1 = {18, 16},
-    USP_1 = {18, 16},
-    VikingMP446_1 = {18, 16}
-}
-
----- DESATIVADO 2026-09-10: o WeaponRange por modo agora sai de GBO_gCTHModeItemPropertyTable,
----- gerado pela planilha junto com o resto do PATCH_GBO_weapons (storeProps ... "WeaponRange").
----- Havia dois escritores discordando -- p.ex. PSG1 aCTH: 42 nesta tabela, 36 na planilha -- e o
----- resultado dependia de a guarda "valor inesperado" abaixo passar ou nao. A planilha ganha.
----- RAT_APERTURE_WEAPON_RANGE acima fica so como referencia do que foi migrado.
-local function apply_range(idx)
-end
 
 
----- Mantidas porque outros arquivos chamam: hoje so mexem no WeaponRange.
-function Rat_RestoreApertureItemParams()
-    apply_range(1)
-end
 
-function ApplyApertureItemParams()
-    local ap = const.Combat.Aperture
-    apply_range(
-        ap and ap.Enabled and 2 or 1)
-end
+
+
 
 ---- Ancora de load: garante que o override roda depois deste arquivo (e do __ApertureParams) carregar.
 ---- __ApertureParams tambem chama via GBO_ApplyApertureCTHMode, mas so se ApplyModOptions/DataLoaded disparar.
