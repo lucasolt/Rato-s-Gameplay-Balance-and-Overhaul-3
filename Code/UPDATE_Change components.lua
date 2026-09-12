@@ -13,6 +13,10 @@ function OnMsg.UnitDataCreated(unit)
 end
 
 function OnMsg.UnitCreated(unit)
+	GBO_GeneralUnitItemUpdate(unit)
+end
+
+function GBO_GeneralUnitItemUpdate(unit, no_version_handling)
     if not unit or not IsKindOf(unit, "Unit") or not unit:IsValid() then
         return
     end
@@ -20,7 +24,7 @@ function OnMsg.UnitCreated(unit)
         return
     end
 
-    local unit_version = unit.rat_unit_updated or 0
+    local unit_version = no_version_handling and -1 or unit.rat_unit_updated or 0
 
     if IsMerc(unit) or unit_version < version then
         print("GBO - updating unit:", unit.unitdatadef_id)
@@ -60,8 +64,6 @@ function GBO_ReapplyWeaponComponents(unit)
         local wep_version = weapon.rat_updated_in or 0
         if wep_version < version or force_reapply then
             local components = weapon.components
-
-
             for slot, component_id in sorted_pairs(components) do
 				if IsKindOf(weapon, "MP40") and slot == "Scope" and component_id == "ImprovedIronsight" then
 					weapon:SetWeaponComponent("Scope", false)
@@ -115,9 +117,7 @@ function update_components(unit)
             end
 
             if weapon.components then
-
                 if weapon.components.Barrel then
-
                     if IsKindOfClasses(weapon, "RK95_1", "RK62_1") then
                         local current_comp = weapon.components.Barrel
                         weapon:SetWeaponComponent("Barrel", current_comp)
@@ -129,7 +129,7 @@ function update_components(unit)
                         local current_comp = weapon.components.Barrel
 
                         if IsKindOf(weapon, "SubmachineGun") and weapon.is_tog_patched then
-                            print(current_comp)
+                            
                             if current_comp == "ToG_Comp_AR_Barrel_Long_1" or current_comp ==
                                 "ToG_Comp_AR_Barrel_Long_2" and
                                 WeaponComponents[current_comp .. "_SMG"] then

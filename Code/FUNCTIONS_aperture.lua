@@ -384,7 +384,7 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
 
 	local final_decay = Clamp(decay, a.DecayMinPct, 99)
 	--print("---- APERTURE AIM DECAY -- Base Aim: ", weapon.AimAccuracy, "Total Aim: ", acc, "Level: ", level, "Decay unclamped: ", decay, "Effective decay: ",final_decay)
-    return decay, meta
+    return final_decay, meta
 end
 
 ---- MANEJO -> multiplicador da abertura base. GetPBbonus ja soma classe + arma + componentes

@@ -880,7 +880,7 @@ function RatoGBO_WepPatch()
 	storeProps(AK47, "AimAccuracy", 3, "oldCTH", GBO_gCTHModeItemPropertyTable)
 	storeProps(AK47, "WeaponRange", 28, "aCTH", GBO_gCTHModeItemPropertyTable)
 	storeProps(AK47, "WeaponRange", 30, "oldCTH", GBO_gCTHModeItemPropertyTable)
-	AK47.PBbonus_base = 4
+	AK47.PBbonus_base = 3
 	AK47.HandlingBaseMul = 105
 	AK47.ShootAP = 4000
 	AK47.ReloadAP = 3000

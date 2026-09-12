@@ -78,16 +78,10 @@ function GBO_ApplyApertureCTHMode(mode)
         generalComponentPatch()
     end
 
-
-
-	
     ---- Unidade so re-encara o inimigo mais proximo no PROPRIO turno. Ver
     ---- SOURCE_UnitSetTargetDummyFromPos: sem isto a silhueta exposta muda sozinha a cada
     ---- VisibilityUpdate, e com ela o CTH e a parte do corpo atingida.
-    const.Combat.FreezeIdleFacing =
-        const.Combat.Aperture.Enabled and
-            const.Combat.Aperture
-                .SimulateShots
+    const.Combat.FreezeIdleFacing = const.Combat.Aperture.Enabled and const.Combat.Aperture.SimulateShots
 
     print("GBO Options - CTH mode:", m,
           "| Enabled:", const.Combat

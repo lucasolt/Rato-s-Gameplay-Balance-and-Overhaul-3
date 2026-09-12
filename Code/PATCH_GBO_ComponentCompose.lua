@@ -128,7 +128,7 @@ GBO_COMP_TRAITS = {
 		modes = {
 			aCTH = {
 				effects = {DecreaseAimAccuracy = true},
-				params = {AimAccuracyDecrease = 2, RangeDecrease = 4},
+				params = {AimAccuracyDecrease = 10, RangeDecrease = 4},
 			},
 		},
     },
@@ -142,7 +142,7 @@ GBO_COMP_TRAITS = {
 		modes = {
 			aCTH = {
 				effects = {DecreaseAimAccuracy = true},
-				params = {AimAccuracyDecrease = 2, RangeDecrease = 4},
+				params = {AimAccuracyDecrease = 10, RangeDecrease = 4},
 			},
 		},
     },
@@ -153,7 +153,7 @@ GBO_COMP_TRAITS = {
 		modes = {
 			aCTH = {
 				effects = {DecreaseAimAccuracy = true},
-				params = {AimAccuracyDecrease = 1},
+				params = {AimAccuracyDecrease = 5},
 			},
 		},
     },
@@ -213,7 +213,7 @@ GBO_COMP_TRAITS = {
 	["Stock.Light"] = {
 		effects = 			{
 			"light_stock_aim_reduce",
-			"NoFullAuto",
+			--"NoFullAuto",
 			"StanceAPdecrease",
 			"hipfire_light_stock",
 			"stocklight_effect_recoil",},
@@ -430,7 +430,7 @@ GBO_BASE_RECIPES = {
 	LightStock = {
 		effects = 			{
 			"light_stock_aim_reduce",
-			"NoFullAuto",
+			--"NoFullAuto",
 			"StanceAPdecrease",
 			"hipfire_light_stock",
 			"stocklight_effect_recoil",
