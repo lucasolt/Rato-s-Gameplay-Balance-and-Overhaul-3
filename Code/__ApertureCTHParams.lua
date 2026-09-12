@@ -27,11 +27,11 @@ function aCTH_base(new_base)
 	return A.Base
 end
 
-A.BaseFactor = 75--75
+A.BaseFactor = 66--75
 A.Base = A.BaseFactor * 100 / A.SkillMin--75 --57
 
 ---- Piso mecanico do cone. Derivado do WeaponRange: silhueta de alvo em pe no alcance maximo x este %.
-A.FloorPct = 45 --130 --55
+A.FloorPct = 60--45 --130 --55
 ----------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
@@ -110,9 +110,9 @@ A.ConeStretch = {Standing = 100, Crouch = 85, Prone = 70}
 ---- Regra GBO3: armas leves/curtas boas em SNAPSHOT (MP5 72), nao em hipfire (MP5 135).
 
 A.AimStep = {
-    [0] = 250,--240,--210,--280,--, --- hipfire: x2.80 numa arma de referencia
-    [1] = 140,--130,--155,--130,--155,--180,--155, --- snapshot 1 nivel: x1.55
-    [2] = 113--110--110,--118--130--118 --- snapshot 2 niveis: x1.18
+    [0] = 286,--240,--210,--280,--, --- hipfire: x2.80 numa arma de referencia
+    [1] = 150,--130,--155,--130,--155,--180,--155, --- snapshot 1 nivel: x1.55
+    [2] = 117--110--110,--118--130--118 --- snapshot 2 niveis: x1.18
 }
 A.AimStepMaxLevel = 2 --- acima disso a arma esta encostada: alargamento 100
 

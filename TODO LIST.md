@@ -8,6 +8,12 @@ CheatAddItem("itemid")
 	- [ ] fix/unifiy with aCTH logic!!!
 	- [ ] Verify if patch called from TOG is redundant.
 
+## Components
+
+- [ ] Remove TOG handguards
+- [ ] no interchangeable stock between RKs
+- [ ] check components that make sense and remove the ones that dont. elegance first.
+
 ## aCTH Possible fragilities
 - [ ] Make sure AI will orient before checking for cover in LOF.
 - [ ] Check how the `aCTH` deals with out-of-sight targets (wallbang).
@@ -43,8 +49,8 @@ CheatAddItem("itemid")
 - [ ] Close range might get _too_ strong
 - [X] Re-scale Aim Accuracy bonus for more gradient
 	- [X] UV dot
-	- [ ] No stock penalty should be re-scaled as handguns have changed. Decide if more range penalty or more aim penalty is appropriate
-	- [ ] Light stock?
+	- [X] No stock penalty should be re-scaled as handguns have changed. Decide if more range penalty or more aim penalty is appropriate
+	- [X] Light stock?
 	- [X] Match ammo
 	- [X] grips -> its a flat attack accuracy bonus
 	- [X] better handling of the component aim scaler
@@ -78,6 +84,7 @@ CheatAddItem("itemid")
 ------------------------------------------------------------------------------------------------------------------------------
 # Later Stuff
 ## aCTH Descriptions that need change
+- [ ] Snapshot not resetting (keep it?)
 - [ ] DualShot max aim = 3
 - [ ] Autofire max aim levels
 - [ ] Burst and aim bonus
@@ -86,6 +93,7 @@ CheatAddItem("itemid")
 - [ ] UI CTH should change, put aperture in a differnt setting, also recoil
  
 ## New mechanics intended
+- [ ] change AP scale
 - [ ] Autofire shot count.
 - [x] MG Recoil/setup rework (needs further testing)
 - [x] Crouch and prone effect on the aperture, elliptical

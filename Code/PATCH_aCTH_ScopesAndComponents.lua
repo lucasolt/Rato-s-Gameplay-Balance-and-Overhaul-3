@@ -15,7 +15,7 @@ local A = const.Combat.Aperture
 ---- Stocks stay HERE and not in a trait's aCTH mode: 62 stock components carry these markers and
 ---- only 2 have traits, so a trait would drop the penalty from the other 60. Revisit once they do.
 A.ComponentEffectsAimBonus = {
-    {id = "light_stock_aim_reduce", from = 1, acc = -8}, -- light/unfolded stocks; -8 equals the old x110 decay at acc 22
+    {id = "light_stock_aim_reduce", from = 1, acc = -4}, -- light/unfolded stocks; -8 equals the old x110 decay at acc 22
     {id = "ReduceAimAccuracy", from = 1, acc = -12}, -- no/folded stocks
     -- {
     --    id = "pso_dragunov_scope",
@@ -332,7 +332,7 @@ A.ApertureComponentTier = {
 ---- Ancora de load: garante que o override roda depois deste arquivo (e do __ApertureParams) carregar.
 ---- __ApertureParams tambem chama via GBO_ApplyApertureCTHMode, mas so se ApplyModOptions/DataLoaded disparar.
 function OnMsg.ModsReloaded()
-    ApplyApertureItemParams()
+    --ApplyApertureItemParams()
     if g_Units and #g_Units > 0 then
         Rat_ReapplyApertureComponents()
     end
