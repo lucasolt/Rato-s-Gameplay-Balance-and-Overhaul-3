@@ -1169,6 +1169,64 @@ local function traits_of(id, comp)
     return GBO_COMPONENT_TRAITS[id]
 end
 
+---- Ajuste individual do componente, autorado na propriedade GBO_ComponentOverride. Sintaxe da
+---- lista separada por virgula:
+----    Param=123     define o param (inteiro; o motor nao tem float)
+----    Param=123%    idem, mas escrito como PresetParamPercent; sem o % o param herda o que
+----                  o traco ja dizia, entao so precisa do sufixo quem cria param novo
+----    Param=nil     apaga o param
+----    +EffectId     garante o efeito presente
+----    -EffectId     garante o efeito ausente
+---- Exemplo: "Barrel.Long" no traco e "RangeIncrease=6, -StanceAPincrease" aqui.
+----
+---- Existe para o caso "quero este traco, mas com UM numero diferente" nao virar um traco novo
+---- nem um componente autorado a mao -- foi assim que nasceram os dois sistemas paralelos.
+----
+---- Apagar um param quase sempre pede apagar o efeito junto (`-EffectId`): efeito sem o param
+---- que ele declara e o mesmo param orfao que ja existe espalhado pelos presets do ToG.
+---- Prefira o nome CANONICO do param (OverwatchAngle, nao OverwatchAngleIncrease): misturar os
+---- dois no mesmo componente produz Increase e Decrease juntos, e warn_stat_collisions reclama.
+GBO_COMPONENT_OVERRIDES = {} -- escape hatch por codigo, mesmo papel de GBO_COMPONENT_TRAITS
+
+function GBO_ParseOverride(text, id)
+    if type(text) ~= "string" or text == "" then
+        return nil
+    end
+    local effects, params, pct, any = {}, {}, {}, false
+    for item in string.gmatch(text, "[^,]+") do
+        item = string.match(item, "^%s*(.-)%s*$")
+        if item ~= "" then
+            local sign, eid = string.match(item, "^([+-])%s*([%w_]+)$")
+            local name, value = string.match(item, "^([%w_]+)%s*=%s*(.+)$")
+            if sign then
+                effects[eid] = (sign == "+")
+                any = true
+            elseif name then
+                ---- so inteiro: o motor nao tem float, e "1.5" calado viraria erro la na frente
+                local digits, suffix = string.match(value, "^([+-]?%d+)(%%?)$")
+                if digits then
+                    params[name] = tonumber(digits)
+                    pct[name] = suffix == "%" or nil
+                    any = true
+                elseif value == "nil" or value == "false" then
+                    params[name] = false
+                    any = true
+                else
+                    print("GBO compose: override com valor invalido --", id, item)
+                end
+            else
+                print("GBO compose: override ilegivel --", id, item)
+            end
+        end
+    end
+    return any and {effects = effects, params = params, pct = pct} or nil
+end
+
+local function override_of(id, comp)
+    return GBO_ParseOverride(comp and rawget(comp, "GBO_ComponentOverride"), id)
+           or GBO_COMPONENT_OVERRIDES[id]
+end
+
 ---- Active mode layers, general to specific; later layers override earlier ones.
 GBO_COMPOSE_MODE_KEYS = {oldCTH = true, aCTH = true, aCTHSim = true}
 
@@ -1235,10 +1293,29 @@ local function resolve_modes(tname, recipe, layers)
     return {effects = effects, params = params, pct = pct}
 end
 
----- Funde as receitas dos tracos num trio {effects, params, pct}. `overlay` entra depois de tudo
----- com semantica de SOBRESCRITA (ver GBO_COMPOSE_OVERLAYS): params trocam de valor em vez de
----- combinar, e effects e {id = true|false} para forcar presenca ou ausencia.
-function GBO_ComposeTraits(trait_list, overlay, layers)
+---- Uma camada de SOBRESCRITA por cima do que os tracos fundiram: param troca de valor em vez de
+---- combinar, e `effects` e {id = true|false} para forcar presenca ou ausencia. Aceita tanto o
+---- formato do preset (ModificationEffects/Parameters) quanto o minusculo das receitas.
+local function apply_overlay(effects, seen, params, pct, ov)
+    if not ov then
+        return effects
+    end
+    effects = apply_effect_delta(effects, seen,
+                                 ov.ModificationEffects or ov.effects or empty_table)
+    for name, value in sorted_pairs(ov.Parameters or ov.params or empty_table) do
+        params[name] = value ~= false and value or nil
+    end
+    for name, on in pairs(ov.pct or empty_table) do
+        pct[name] = on or nil
+    end
+    return effects
+end
+
+---- Funde as receitas dos tracos num trio {effects, params, pct}. Duas camadas de sobrescrita
+---- entram depois, nesta ordem: `overlay` (de GBO_COMPOSE_OVERLAYS, hoje so a otica) e `override`
+---- (autorado NO COMPONENTE, ver GBO_ComponentOverride). O override e o mais especifico e ganha
+---- de todo o resto.
+function GBO_ComposeTraits(trait_list, overlay, layers, override)
     local effects, seen, params, pct = {}, {}, {}, {}
     layers = layers or GBO_ComposeModeLayers()
 
@@ -1263,13 +1340,8 @@ function GBO_ComposeTraits(trait_list, overlay, layers)
         end
     end
 
-    if overlay then
-        effects = apply_effect_delta(effects, seen,
-                                     overlay.ModificationEffects or overlay.effects or empty_table)
-        for name, value in sorted_pairs(overlay.Parameters or overlay.params or empty_table) do
-            params[name] = value -- sobrescreve, nao combina
-        end
-    end
+    effects = apply_overlay(effects, seen, params, pct, overlay)
+    effects = apply_overlay(effects, seen, params, pct, override) -- o mais especifico por ultimo
 
     for _, fn in ipairs(GBO_COMPOSE_SCALERS) do
         fn(params, trait_list, overlay)
@@ -1340,12 +1412,18 @@ function GBO_ApplyComponentCompose()
     local layers = GBO_ComposeModeLayers()
     for id, comp in sorted_pairs(WeaponComponents or empty_table) do
         local list = traits_of(id, comp)
-        if list then
+        if not list then
+            ---- sem tracos o compositor nem toca no componente, entao o override seria um no-op
+            if override_of(id, comp) then
+                print("GBO compose: override ignorado, componente sem tracos --", id)
+            end
+        else
             local overlay
             for _, fn in ipairs(GBO_COMPOSE_OVERLAYS) do
                 overlay = fn(id, comp) or overlay
             end
-            local effects, params, pct = GBO_ComposeTraits(list, overlay, layers)
+            local effects, params, pct =
+                GBO_ComposeTraits(list, overlay, layers, override_of(id, comp))
             warn_stat_collisions(id, effects)
             GBO_WriteComponent(comp, effects, params, pct)
             n = n + 1
@@ -1366,8 +1444,10 @@ function GBO_ComposeReport(id)
     for _, fn in ipairs(GBO_COMPOSE_OVERLAYS) do
         overlay = fn(id, comp) or overlay
     end
-    local effects, params = GBO_ComposeTraits(list, overlay)
-    local out = {id .. " [" .. table.concat(list, ", ") .. "]"}
+    local override = override_of(id, comp)
+    local effects, params = GBO_ComposeTraits(list, overlay, nil, override)
+    local out = {id .. " [" .. table.concat(list, ", ") ..
+                 (override and "] + override" or "]")}
     out[#out + 1] = "  effects: " .. table.concat(effects, ", ")
     for name, value in sorted_pairs(params) do
         out[#out + 1] = "  " .. name .. " = " .. value
