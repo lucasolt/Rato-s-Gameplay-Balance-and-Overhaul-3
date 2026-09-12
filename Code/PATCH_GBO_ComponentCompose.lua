@@ -296,10 +296,137 @@ GBO_COMP_TRAITS = {
 ---- Cada entrada vira o traco "Base.<id>" automaticamente (GBO_RegisterBaseRecipes).
 ---------------------------------------------------------------------------------------------------
 GBO_BASE_RECIPES = {
-    -- VerticalGrip = {
-    --	effects = { "AccuracyBonusWhenAimed_vgrip", "Vert_grip_recoi",  "grip_prone_penalty"},
-    --	params = { bonus_cth_v = 3 },
-    -- },
+    ---------------------------------------------------------------------------------------------
+    ---- ANCESTRAIS que ate 2026-09-11 so existiam como preset autorado. Cada um e a fonte de um
+    ---- GBO_ComponentAncestor, entao entrar aqui traz a subarvore inteira junto (ver o mapa em
+    ---- GBO_ApplyComponentAncestorEffect): 30 descendentes em _Master_MagLarge, 20 em StockHeavy,
+    ---- 14 em VerticalGrip, 9 em Compensator. Transcritos do preset vivo, valor por valor.
+    ----
+    ---- `OverwatchAngleDecrease` solto (sem DecreaseOverwatchAngle na lista) e param ORFAO: o
+    ---- motor nao tem efeito que o leia, entao nao faz nada. Copiado como estava de proposito --
+    ---- corrigir e mudanca de balance, nao de transcricao.
+    ---------------------------------------------------------------------------------------------
+    VerticalGrip = {
+        effects = {"Vert_grip_recoil", "grip_prone_penalty", "AccuracyBonusWhenAimed_vgrip"},
+        params = {bonus_cth_v = 3}
+    },
+    StockHeavy = {
+        effects = {"BonusAccuracyWhenFullyAimed", "stance_ap_inc_STR", "stockheavy_effect_recoil"},
+        params = {range = 10, bonus_cth = 10, StanceIncreaseSTR = 1, STR_threshold = 85},
+        pct = {bonus_cth = true}
+    },
+    StockNormal = {effects = {}},
+    TacGrip = {
+        effects = {"tac_grip_hipfire", "tac_grip_recoil", "tac_grip_PB", "grip_prone_penalty"},
+        params = {accuracy = 5},
+        pct = {accuracy = true}
+    },
+    Compensator = {
+        effects = {"compensator_effect"},
+        params = {cth = 10},
+        pct = {cth = true}
+    },
+    Suppressor = {
+        effects = {
+            "SilentShots", "flanker", "compensator_effect_silencer", "DecreaseOverwatchAngle",
+            "IncreaseConditionDegradationMul"
+        },
+        params = {
+            NoiseMultiplier = 30,
+            bonus_cth_flank = 10,
+            OverwatchAngle = 97,
+            ConditionDegradationMulIncrease = 10
+        },
+        pct = {NoiseMultiplier = true}
+    },
+    Flashlight = {effects = {"IgnoreInTheDark"}},
+    FlashlightDot = {
+        effects = {"StealthKillBonusPerAim", "IgnoreInTheDark"},
+        params = {maxaims = 1, aim_bonus = 1, stealth_kill_bonus = 4},
+        pct = {aim_bonus = true}
+    },
+    GrenadeLauncher = {
+        effects = {"GrenadeLauncher", "DecreaseOverwatchAngle"},
+        params = {OverwatchAngle = 80}
+    },
+    ---- MAGAZINES. OverwatchAngleDecrease orfao em todas -- ver o aviso no topo do bloco.
+    _Master_MagLarge = {
+        effects = {"IncreaseReloadAP", "MagazineSizeMultiplier"},
+        params = {ReloadAPIncrease = 1, MagazineSizeMultiplier = 150, OverwatchAngleDecrease = 88}
+    },
+    _Master_MagLargeFine = {
+        effects = {"MagazineSizeMultiplier"},
+        params = {MagazineSizeMultiplier = 150, OverwatchAngleDecrease = 88}
+    },
+    _Master_MagNormalFine = {
+        effects = {"IncreaseReliability"},
+        params = {ReliabilityIncrease = 10}
+    },
+    _Master_DrumMag = {
+        effects = {"MagazineSizeMultiplier", "drum_mag_hipfire"},
+        params = {MagazineSizeMultiplier = 250, OverwatchAngleDecrease = 83}
+    },
+    MagQuick = {
+        effects = {"ReduceReloadAP"},
+        params = {ReloadAPDecrease = 2, OverwatchAngleDecrease = 85}
+    },
+    R_MagQuickLarge = {
+        effects = {"ReduceReloadAP", "MagazineSizeMultiplier"},
+        params = {ReloadAPDecrease = 1, MagazineSizeMultiplier = 150, OverwatchAngleDecrease = 72}
+    },
+    ---- MASTERS DO ToG. AimAccuracyDecrease/Increase sem o efeito par tambem e orfao: e por isso
+    ---- que a penalidade de coronha viva vem de A.ComponentEffectsAimBonus, que casa pelo MARCADOR
+    ---- (light_stock_aim_reduce / ReduceAimAccuracy) e nao pelo param.
+    _Master_StockFolded_TOG = {
+        effects = {
+            "ReduceAimAccuracy", "no_stock", "StanceAPdecrease", "IncreaseOverwatchAngle",
+            "hipfire_no_stock", "Enable_RunAndGun", "zzStockEquipped", "ReduceRange"
+        },
+        params = {AimAccuracyDecrease = 3, OverwatchAngle = 108, APdecrease = 1, RangeDecrease = 4}
+    },
+    _Master_StockLightUnfolded_TOG = {
+        effects = {
+            "light_stock_aim_reduce", "StanceAPdecrease", "stocklight_effect_recoil",
+            "hipfire_light_stock", "zzStockEquipped"
+        },
+        params = {AimAccuracyDecrease = 2, APdecrease = 1}
+    },
+    _Master_StockNormalUnfolded_TOG = {effects = {"zzStockEquipped"}},
+    _Master_VigM2_Stock_unfld_TOG = {
+        effects = {"IncreaseAimAccuracy", "zzStockEquipped"},
+        params = {AimAccuracyIncrease = 2},
+        modes = {
+            aCTH = {
+                params = {AimAccuracyIncrease = 10},
+            },
+        },
+    },
+    _Master_VigM2_Stock_fld_TOG = {
+        effects = {"vigneron_folded_PB", "zzStockEquipped", "IncreaseOverwatchAngle"},
+        params = {OverwatchAngle = 107}
+    },
+    _Master_BayonetFolded_TOG = {
+        effects = {"zzBayonetEquipped"},
+        params = {AimAccuracyIncrease = 1}
+    },
+    _Master_BayonetUnfolded_TOG = {
+        effects = {"Bayonet", "DecreaseOverwatchAngle", "zzBayonetEquipped"},
+        params = {OverwatchAngle = 95, AimAccuracyDecrease = 1}
+    },
+    _Master_GrenadeLauncherFolded_TOG = {effects = {"zzGrndlEquipped"}},
+    _Master_GrenadeLauncherUnfolded_TOG = {
+        effects = {"DecreaseOverwatchAngle", "RAT_TOG_22m_launcher", "zzGrndlEquipped"},
+        params = {OverwatchAngle = 95, AimAccuracyDecrease = 1}
+    },
+    _Master_ReceiverFullAuto_TOG = {effects = {"EnableFullAuto"}},
+    _Master_ReceiverBurst_TOG = {
+        effects = {"NoFullAuto", "Reduce_recoil_burst_delta"},
+        params = {BurstRecoilDeltaMul = 90}
+    },
+    _Master_B93RR_grip_fld_TOG = {
+        effects = {"ReduceReloadAP"},
+        params = {ReloadAPDecrease = 1}
+    },
 	LightStock = {
 		effects = 			{
 			"light_stock_aim_reduce",
@@ -917,7 +1044,35 @@ GBO_BASE_RECIPES = {
     }
 }
 
-GBO_COMPONENT_TRAITS = {}
+---- Ids cuja composicao autorada ja e IDENTICA a de um traco existente -- medido no preset vivo,
+---- assinatura por assinatura. Nao ganham receita propria: apontam para o traco e pronto.
+GBO_COMPONENT_TRAITS = {
+    StockNo = {"Base.NoStock"}, -- mesmo componente que NoStock, escrito duas vezes
+
+    AK47_Launcher = {"Base.GrenadeLauncher"},
+    GrenadeLauncher_AUG = {"Base.GrenadeLauncher"},
+    GrenadeLauncher_Commando = {"Base.GrenadeLauncher"},
+    GrenadeLauncher_M14 = {"Base.GrenadeLauncher"},
+    GrenadeLauncher_M16A1 = {"Base.GrenadeLauncher"},
+    BM59_grndl_fld = {"Base._Master_GrenadeLauncherFolded_TOG"},
+
+    Flashlight_Anaconda = {"Base.Flashlight"},
+    Flashlight_PSG_M1 = {"Base.Flashlight"},
+    Flashlight_aa12 = {"Base.Flashlight"},
+    G11_Rail_12 = {"Base.Flashlight"},
+    ToG_Flashlight_1 = {"Base.Flashlight"},
+
+    B93R_Under_fld_1 = {"Base._Master_B93RR_grip_fld_TOG"},
+    FAMAE_mag2_1 = {"Base._Master_B93RR_grip_fld_TOG"},
+    NTW20_stock_fld_1 = {"Base._Master_StockNormalUnfolded_TOG"},
+    VigM2_Stock_hlffld_1 = {"Base._Master_StockNormalUnfolded_TOG"},
+    StockNormal_AR_BurstOnly = {"Stock.Bump"},
+
+    BarrelNormalImproved = {"Barrel.Improved"},
+    FN2000_gasblock_ext_1 = {"Barrel.Improved"},
+    Auto5_Basic_LMag = {"Mag.Multiplier150"},
+    MagLargeFine_6 = {"Base._Master_DrumMag"}
+}
 
 ---- Camadas condicionais ao modo de jogo. Cada overlay e uma funcao(id, comp) que devolve uma
 ---- receita ou nil. Diferente de um traco, o overlay SOBRESCREVE params em vez de combinar, e o
