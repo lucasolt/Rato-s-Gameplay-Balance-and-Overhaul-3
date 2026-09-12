@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------------------------------
 
 ---- guarda o vanilla UMA vez: recarregar o mod nao pode fazer o override chamar a si mesmo
-local vanilla_populate = rawget(_G, "Rat_VanillaPopulateCth") or PopulateCrosshairUICth
+local vanilla_populate = _G.Rat_VanillaPopulateCth or PopulateCrosshairUICth
 Rat_VanillaPopulateCth = vanilla_populate
 
 ---- Sinal quando os numeros de CTH estao escondidos (opcao do jogo). Invertido em relacao ao de

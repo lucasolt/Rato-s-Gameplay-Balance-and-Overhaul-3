@@ -72,8 +72,9 @@ function GBO_ApplyApertureCTHMode(mode)
 	---- ClassesGenerate). Linhas com classdef ainda passam mas so pegam no valor de load.
 	GBO_ApplyCHTModeItemProps(GBO_gCTHModeItemPropertyTable, (m == "aCTH" or m == "aCTH Lite"))
 
-	local generalComponentPatch = rawget(_G,
-       					"GBO_GeneralComponentPatch") -- ApplyAperture, Tog, and Ancestry
+	---- _G.X e nao rawget: rawget nao ve global neste motor, e a troca de modo ficava sem
+	---- recompor componente nenhum -- ou seja, delta de `modes` nao aplicava ao trocar de CTH
+	local generalComponentPatch = _G.GBO_GeneralComponentPatch -- ApplyAperture, Tog, and Ancestry
 	if generalComponentPatch then
         generalComponentPatch()
     end

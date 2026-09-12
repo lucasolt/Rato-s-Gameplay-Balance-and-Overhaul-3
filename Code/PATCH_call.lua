@@ -1,9 +1,8 @@
 
 local function reapply_tog_components()
-    local fn = rawget(_G,
-                      "RatoTOGComponents")
-    local comps = rawget(_G,
-                         "WeaponComponents")
+    ---- _G.X e nao rawget: neste motor os globais ficam atras de um __index e rawget sempre da nil
+    local fn = _G.RatoTOGComponents
+    local comps = _G.WeaponComponents
     if not fn or not comps or
         not comps.WideScope then
         return
@@ -18,7 +17,7 @@ end
 
 function GBO_GeneralComponentPatch()
     RatoGBOComponents()
-    ApplyApertureItemParams() -- override de comps enquanto o aperture esta ligado
+    --ApplyApertureItemParams() -- override de comps enquanto o aperture esta ligado
 	reapply_tog_components()
 	GBO_ApplyComponentCompose() -- BEFORE ancestors, otherwise the children wont have the traits
 	GBO_ApplyComponentAncestorEffect() -- LAST. Copies ancestor effect and param tables, should be after the ancestors are set
