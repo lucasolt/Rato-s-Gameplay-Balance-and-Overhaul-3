@@ -78,6 +78,11 @@ GBO_COMPOSE_PCT = {
 ---- RECEITAS. Um nome de param que esteja em GBO_STAT_EMIT e canonico e sera traduzido no fim;
 ---- qualquer outro e o proprio nome do param do efeito e sai como esta.
 ---------------------------------------------------------------------------------------------------
+
+local short_barrel_aim_reduction = 6
+local short_barrel_handgun_aim_reduction = 3
+local long_barrel_aim_bonus = 6
+local long_barrel_handgun_aim_bonus = 3
 GBO_COMP_TRAITS = {
     ["Barrel.Long"] = {
         effects = {
@@ -96,7 +101,7 @@ GBO_COMP_TRAITS = {
         },
         modes = {
             aCTH = {
-                params = {AimAccuracyIncrease = 10},
+                params = {AimAccuracyIncrease = long_barrel_aim_bonus},
             },
         },
     },
@@ -113,7 +118,7 @@ GBO_COMP_TRAITS = {
         },
 		modes = {
 			aCTH = {
-				params = {AimAccuracyIncrease = 10},
+				params = {AimAccuracyIncrease = long_barrel_aim_bonus},
 			},
 		},
     },
@@ -128,7 +133,7 @@ GBO_COMP_TRAITS = {
 		modes = {
 			aCTH = {
 				effects = {DecreaseAimAccuracy = true},
-				params = {AimAccuracyDecrease = 10, RangeDecrease = 4},
+				params = {AimAccuracyDecrease = short_barrel_aim_reduction, RangeDecrease = 4},
 			},
 		},
     },
@@ -142,7 +147,7 @@ GBO_COMP_TRAITS = {
 		modes = {
 			aCTH = {
 				effects = {DecreaseAimAccuracy = true},
-				params = {AimAccuracyDecrease = 10, RangeDecrease = 4},
+				params = {AimAccuracyDecrease = short_barrel_aim_reduction, RangeDecrease = 4},
 			},
 		},
     },
@@ -153,7 +158,7 @@ GBO_COMP_TRAITS = {
 		modes = {
 			aCTH = {
 				effects = {DecreaseAimAccuracy = true},
-				params = {AimAccuracyDecrease = 5},
+				params = {AimAccuracyDecrease = short_barrel_handgun_aim_reduction},
 			},
 		},
     },
@@ -172,7 +177,7 @@ GBO_COMP_TRAITS = {
 		},
 		modes = {
 			aCTH = {
-				params = {AimAccuracyIncrease = 5},
+				params = {AimAccuracyIncrease = long_barrel_handgun_aim_bonus},
 			},
 		},
 	},
@@ -1169,62 +1174,52 @@ local function traits_of(id, comp)
     return GBO_COMPONENT_TRAITS[id]
 end
 
----- Ajuste individual do componente, autorado na propriedade GBO_ComponentOverride. Sintaxe da
----- lista separada por virgula:
-----    Param=123     define o param (inteiro; o motor nao tem float)
-----    Param=123%    idem, mas escrito como PresetParamPercent; sem o % o param herda o que
-----                  o traco ja dizia, entao so precisa do sufixo quem cria param novo
-----    Param=nil     apaga o param
-----    +EffectId     garante o efeito presente
-----    -EffectId     garante o efeito ausente
----- Exemplo: "Barrel.Long" no traco e "RangeIncrease=6, -StanceAPincrease" aqui.
+---- Ajuste individual do componente, autorado no editor em tres propriedades (ver
+---- APPEND_CLASS_WeaponComponent): GBO_OverrideEffects garante presente,
+---- GBO_OverrideRemoveEffects garante ausente, GBO_OverrideParams sobrescreve param. Mesmos
+---- editores de ModificationEffects e Parameters -- o param sai number ou percent pela CLASSE
+---- do PresetParam, igual ao resto do motor.
 ----
----- Existe para o caso "quero este traco, mas com UM numero diferente" nao virar um traco novo
----- nem um componente autorado a mao -- foi assim que nasceram os dois sistemas paralelos.
+---- Existe para "quero este traco, mas com UM numero diferente" nao virar um traco novo nem um
+---- componente autorado a mao -- foi assim que nasceram os dois sistemas paralelos.
 ----
----- Apagar um param quase sempre pede apagar o efeito junto (`-EffectId`): efeito sem o param
----- que ele declara e o mesmo param orfao que ja existe espalhado pelos presets do ToG.
 ---- Prefira o nome CANONICO do param (OverwatchAngle, nao OverwatchAngleIncrease): misturar os
 ---- dois no mesmo componente produz Increase e Decrease juntos, e warn_stat_collisions reclama.
 GBO_COMPONENT_OVERRIDES = {} -- escape hatch por codigo, mesmo papel de GBO_COMPONENT_TRAITS
 
-function GBO_ParseOverride(text, id)
-    if type(text) ~= "string" or text == "" then
-        return nil
+local function override_of(id, comp)
+    if not comp then
+        return GBO_COMPONENT_OVERRIDES[id]
     end
-    local effects, params, pct, any = {}, {}, {}, false
-    for item in string.gmatch(text, "[^,]+") do
-        item = string.match(item, "^%s*(.-)%s*$")
-        if item ~= "" then
-            local sign, eid = string.match(item, "^([+-])%s*([%w_]+)$")
-            local name, value = string.match(item, "^([%w_]+)%s*=%s*(.+)$")
-            if sign then
-                effects[eid] = (sign == "+")
-                any = true
-            elseif name then
-                ---- so inteiro: o motor nao tem float, e "1.5" calado viraria erro la na frente
-                local digits, suffix = string.match(value, "^([+-]?%d+)(%%?)$")
-                if digits then
-                    params[name] = tonumber(digits)
-                    pct[name] = suffix == "%" or nil
-                    any = true
-                elseif value == "nil" or value == "false" then
-                    params[name] = false
-                    any = true
-                else
-                    print("GBO compose: override com valor invalido --", id, item)
-                end
-            else
-                print("GBO compose: override ilegivel --", id, item)
-            end
+    local add = rawget(comp, "GBO_OverrideEffects")
+    local remove = rawget(comp, "GBO_OverrideRemoveEffects")
+    local plist = rawget(comp, "GBO_OverrideParams")
+    if (not add or #add == 0) and (not remove or #remove == 0) and
+        (not plist or #plist == 0) then
+        return GBO_COMPONENT_OVERRIDES[id]
+    end
+
+    local effects, params, pct = {}, {}, {}
+    for _, eid in ipairs(add or empty_table) do
+        if eid ~= "" then
+            effects[eid] = true
         end
     end
-    return any and {effects = effects, params = params, pct = pct} or nil
-end
-
-local function override_of(id, comp)
-    return GBO_ParseOverride(comp and rawget(comp, "GBO_ComponentOverride"), id)
-           or GBO_COMPONENT_OVERRIDES[id]
+    for _, eid in ipairs(remove or empty_table) do
+        if eid ~= "" then
+            if effects[eid] then
+                print("GBO compose: override pede o efeito presente E ausente --", id, eid)
+            end
+            effects[eid] = false
+        end
+    end
+    for _, param in ipairs(plist or empty_table) do
+        if param.Name and param.Name ~= "" then
+            params[param.Name] = param.Value or 0
+            pct[param.Name] = param.class == "PresetParamPercent" or nil
+        end
+    end
+    return {effects = effects, params = params, pct = pct}
 end
 
 ---- Active mode layers, general to specific; later layers override earlier ones.
@@ -1313,7 +1308,7 @@ end
 
 ---- Funde as receitas dos tracos num trio {effects, params, pct}. Duas camadas de sobrescrita
 ---- entram depois, nesta ordem: `overlay` (de GBO_COMPOSE_OVERLAYS, hoje so a otica) e `override`
----- (autorado NO COMPONENTE, ver GBO_ComponentOverride). O override e o mais especifico e ganha
+---- (autorado NO COMPONENTE, ver GBO_Override*). O override e o mais especifico e ganha
 ---- de todo o resto.
 function GBO_ComposeTraits(trait_list, overlay, layers, override)
     local effects, seen, params, pct = {}, {}, {}, {}
@@ -1431,6 +1426,21 @@ function GBO_ApplyComponentCompose()
     end
     print("GBO compose: " .. n .. " componentes compostos")
     return n
+end
+
+---- Para o GetWarning do editor: o resultado composto, sem escrever nada. nil = componente sem
+---- traco, que o compositor nao toca e o aviso nao tem o que checar.
+function GBO_ComposeForWarning(id, comp)
+    comp = comp or (WeaponComponents and WeaponComponents[id])
+    local list = traits_of(id, comp)
+    if not list then
+        return nil
+    end
+    local overlay
+    for _, fn in ipairs(GBO_COMPOSE_OVERLAYS) do
+        overlay = fn(id, comp) or overlay
+    end
+    return GBO_ComposeTraits(list, overlay, nil, override_of(id, comp))
 end
 
 ---- Dump para conferir no processo vivo sem aplicar nada.
