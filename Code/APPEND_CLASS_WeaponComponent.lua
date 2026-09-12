@@ -1,3 +1,51 @@
+---- Um bloco de override que vale SO num modo de CTH. Mesma semantica do `modes` das receitas:
+---- as camadas ativas entram na ordem de GBO_ComposeModeLayers, a mais especifica por ultimo.
+---- Os campos planos do componente (GBO_Override*) valem em TODO modo; estes entram por cima.
+DefineClass.GBO_ComponentModeOverride = {
+    __parents = {"PropertyObject"},
+    properties = {
+        {
+            id = "Mode",
+            name = "CTH Mode",
+            help = "oldCTH = aperture off | aCTH = aperture on (Lite included) | aCTHSim = only with SimulateShots",
+            editor = "combo",
+            default = "aCTH",
+            items = function()
+                local keys = {}
+                for k in pairs(_G.GBO_COMPOSE_MODE_KEYS or empty_table) do
+                    keys[#keys + 1] = k
+                end
+                table.sort(keys)
+                return keys
+            end
+        },
+        {
+            id = "Effects",
+            name = "Effects (add)",
+            editor = "preset_id_list",
+            default = {},
+            preset_class = "WeaponComponentEffect",
+            item_default = ""
+        },
+        {
+            id = "RemoveEffects",
+            name = "Effects (remove)",
+            editor = "preset_id_list",
+            default = {},
+            preset_class = "WeaponComponentEffect",
+            item_default = ""
+        },
+        {
+            id = "Params",
+            editor = "nested_list",
+            default = false,
+            base_class = "PresetParam"
+        }
+    },
+    EditorView = Untranslated("Only in <Mode>"),
+    EditorName = "CTH mode override"
+}
+
 function OnMsg.ClassesGenerate()
 
     AppendClass.WeaponComponentSharedClass = {
@@ -57,6 +105,17 @@ function OnMsg.ClassesGenerate()
                 editor = "nested_list",
                 default = false,
                 base_class = "PresetParam",
+                template = true,
+                modifiable = true
+            },
+			{
+                category = "GBO",
+                id = "GBO_OverrideModes",
+                name = "Override per CTH Mode",
+                help = "Blocks that apply only in one CTH mode, on top of the three fields above. Same layering as a trait's modes",
+                editor = "nested_list",
+                default = false,
+                base_class = "GBO_ComponentModeOverride",
                 template = true,
                 modifiable = true
             },

@@ -1187,18 +1187,13 @@ end
 ---- dois no mesmo componente produz Increase e Decrease juntos, e warn_stat_collisions reclama.
 GBO_COMPONENT_OVERRIDES = {} -- escape hatch por codigo, mesmo papel de GBO_COMPONENT_TRAITS
 
-local function override_of(id, comp)
-    if not comp then
-        return GBO_COMPONENT_OVERRIDES[id]
+---- Um bloco autorado -> {effects, params, pct}, ou nil se nao ha nada nele. `add`/`remove` sao
+---- listas de id de efeito, `plist` e a lista de PresetParam (a CLASSE do param diz number ou
+---- percent, igual ao resto do motor).
+local function read_override_block(id, add, remove, plist)
+    if (not add or #add == 0) and (not remove or #remove == 0) and (not plist or #plist == 0) then
+        return nil
     end
-    local add = rawget(comp, "GBO_OverrideEffects")
-    local remove = rawget(comp, "GBO_OverrideRemoveEffects")
-    local plist = rawget(comp, "GBO_OverrideParams")
-    if (not add or #add == 0) and (not remove or #remove == 0) and
-        (not plist or #plist == 0) then
-        return GBO_COMPONENT_OVERRIDES[id]
-    end
-
     local effects, params, pct = {}, {}, {}
     for _, eid in ipairs(add or empty_table) do
         if eid ~= "" then
@@ -1220,6 +1215,56 @@ local function override_of(id, comp)
         end
     end
     return {effects = effects, params = params, pct = pct}
+end
+
+---- Junta `src` em `dst` com sobrescrita. dst pode ser nil -- entao src passa a ser o acumulador.
+local function merge_override(dst, src)
+    if not src then
+        return dst
+    end
+    if not dst then
+        return src
+    end
+    for k, v in pairs(src.effects) do
+        dst.effects[k] = v
+    end
+    for k, v in pairs(src.params) do
+        dst.params[k] = v
+    end
+    for k, v in pairs(src.pct) do
+        dst.pct[k] = v or nil
+    end
+    return dst
+end
+
+---- Override do componente: os tres campos planos valem em todo modo, e cada bloco de
+---- GBO_OverrideModes entra por cima na ordem das camadas ativas -- a mais especifica por ultimo,
+---- exatamente como o `modes` de um traco.
+local function override_of(id, comp, layers)
+    if not comp then
+        return GBO_COMPONENT_OVERRIDES[id]
+    end
+    local ov = read_override_block(id, rawget(comp, "GBO_OverrideEffects"),
+                                   rawget(comp, "GBO_OverrideRemoveEffects"),
+                                   rawget(comp, "GBO_OverrideParams"))
+
+    local blocks = rawget(comp, "GBO_OverrideModes")
+    if blocks and #blocks > 0 then
+        for _, key in ipairs(layers or GBO_ComposeModeLayers()) do
+            for _, b in ipairs(blocks) do
+                if b.Mode == key then
+                    ov = merge_override(ov, read_override_block(id .. " [" .. key .. "]", b.Effects,
+                                                                b.RemoveEffects, b.Params))
+                end
+            end
+        end
+        for _, b in ipairs(blocks) do
+            if not GBO_COMPOSE_MODE_KEYS[b.Mode] then
+                print("GBO compose: override com modo inexistente --", id, tostring(b.Mode))
+            end
+        end
+    end
+    return ov or GBO_COMPONENT_OVERRIDES[id]
 end
 
 ---- Active mode layers, general to specific; later layers override earlier ones.
@@ -1418,7 +1463,7 @@ function GBO_ApplyComponentCompose()
                 overlay = fn(id, comp) or overlay
             end
             local effects, params, pct =
-                GBO_ComposeTraits(list, overlay, layers, override_of(id, comp))
+                GBO_ComposeTraits(list, overlay, layers, override_of(id, comp, layers))
             warn_stat_collisions(id, effects)
             GBO_WriteComponent(comp, effects, params, pct)
             n = n + 1
