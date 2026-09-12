@@ -432,18 +432,6 @@ GBO_BASE_RECIPES = {
         effects = {"ReduceReloadAP"},
         params = {ReloadAPDecrease = 1}
     },
-	LightStock = {
-		effects = 			{
-			"light_stock_aim_reduce",
-			--"NoFullAuto",
-			"StanceAPdecrease",
-			"hipfire_light_stock",
-			"stocklight_effect_recoil",
-		},
-		params = {
-			APdecrease = 1
-		},
-	},
 	NoStock = {
 		effects = {
 			"ReduceAimAccuracy",
@@ -1471,6 +1459,13 @@ function GBO_ApplyComponentCompose()
     end
     print("GBO compose: " .. n .. " componentes compostos")
     return n
+end
+
+---- O componente entra no compositor? GBO_ApplyComponentAncestorEffect usa isto para NAO
+---- sobrescrever uma composicao: a copia do ancestral roda depois do compositor, entao sem esta
+---- checagem o traco de quem tem ancestral era descartado em silencio.
+function GBO_HasTraits(id, comp)
+    return traits_of(id, comp or (WeaponComponents and WeaponComponents[id])) ~= nil
 end
 
 ---- Para o GetWarning do editor: o resultado composto, sem escrever nada. nil = componente sem
