@@ -121,20 +121,33 @@ function GetShootingAngleDiff(unit, weapon, target, force)
     return angle_dif
 end
 
+-- Raw AP: one vanilla AP per half-cone, proportional, rounded to displayed AP.
+function Rat_RotateAPFromAngle(angle, half)
+    if half <= 0 then
+        return 0
+    end
+    return MulDivRound(abs(angle), R_VanillaAP(1) / const.Scale.AP, half) * const.Scale.AP
+end
+
+-- Raw AP to rotate the shooting stance towards target.
 function ShootingConeAngle(unit, weapon, target)
-
-    local angle_dif = GetShootingAngleDiff(unit, weapon, target)
-
-    if weapon and weapon:HasComponent("rotate_ap_bipod") then
-        if unit.stance == "Prone" then
-            if angle_dif >= 1 then
-                angle_dif = angle_dif + 1
-            end
-        end
+    local target_pos = IsValid(target) and target:GetPos() or target
+    if Is_AimingAttack() then
+        target_pos = target_pos or GetCursorPos(true)
+    end
+    if not target_pos then
+        return 0
     end
 
-    return angle_dif
+    local half = weapon.OverwatchAngle / 2
+    local angle = abs(unit:AngleToPoint(target_pos))
+    local cost = Rat_RotateAPFromAngle(angle, half)
 
+    if weapon:HasComponent("rotate_ap_bipod") and unit.stance == "Prone" and angle >= half then
+        cost = cost + R_VanillaAP(1)
+    end
+
+    return cost
 end
 
 function DestroyStanceConeV(unit)

@@ -767,7 +767,7 @@ function rat_combat_actions()
         local weapon = unit:GetActiveWeapons()
         local rotate_ap = ShootingConeAngle(unit, weapon, target)
 
-        local cost = R_VanillaAP(rotate_ap)
+        local cost = rotate_ap
 
         if cost > cost_setup then
             cost = cost_setup

@@ -26,7 +26,7 @@ function Unit:GetShootingStanceAP(target, weapon, aim, action, param)
     ------------Rotate
     local ap_rotate
     if stance then
-        ap_rotate = Clamp(R_VanillaAP(ShootingConeAngle(self, weapon, target)), 0,
+        ap_rotate = Clamp(ShootingConeAngle(self, weapon, target), 0,
                           ap_stance + Get_AimCost(self))
     else
         ap_rotate = 0
