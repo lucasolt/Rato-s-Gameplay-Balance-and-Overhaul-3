@@ -168,6 +168,8 @@ function rat_MobileAction_AP(action, unit)
     return cost, cost_aimed
 end
 
+
+
 function rat_get_manual_cyclingAP(unit, weapon, shooting)
     local dex = 0
     local tex_perk
@@ -195,7 +197,7 @@ function rat_get_manual_cyclingAP(unit, weapon, shooting)
     bolt_ap_manual = bolt_ap_manual - dex_steps * const.Scale.AP
 
     if tex_perk then
-        bolt_ap_manual = bolt_ap_manual - R_VanillaAP(2)
+        bolt_ap_manual = bolt_ap_manual - R_VanillaAP(const.Combat.TexPerkCycleAPDiscount)
     end
 
     if DASA_action_ap and (bolt_ap_manual < DASA_action_ap) then

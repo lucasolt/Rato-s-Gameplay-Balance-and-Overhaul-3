@@ -171,9 +171,10 @@ A.ApertureMagnifications = {
             aim_level_threshold = 4,
             threshold_bonus_aim_acc = scale_aim(
                 2),
-            first_aim_bonus_acc = 3
+            first_aim_bonus_acc = scale_aim(3),
         },
         ModificationEffects = {
+			ScopeAimThresholdBonus = true,
             IncreaseMaxAimActions = true,
             scope_snapshot = false,
             ScopePenalty1 = true,

@@ -1,12 +1,16 @@
 local version = 360
 
 --function OnMsg.UnitEnterCombat(unit)
---    -- local unit_version = unit.rat_unit_updated or 0
+--    local unit_version = unit.rat_unit_updated or 0
 --
---    -- if IsMerc(unit) or unit_version < version then
---    --     GBO_ReapplyWeaponComponents(unit)
---    -- end
+--    if IsMerc(unit) or unit_version < version then
+--        GBO_ReapplyWeaponComponents(unit)
+--    end
 --end
+
+function OnMsg.UnitEnterCombat(unit)
+	GBO_GeneralUnitItemUpdate(unit)
+end
 
 function OnMsg.UnitDataCreated(unit)
     set_unit_version_update(unit)

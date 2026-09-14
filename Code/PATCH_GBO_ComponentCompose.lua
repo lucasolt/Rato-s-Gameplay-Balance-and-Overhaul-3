@@ -83,6 +83,8 @@ local short_barrel_aim_reduction = 6
 local short_barrel_handgun_aim_reduction = 3
 local long_barrel_aim_bonus = 6
 local long_barrel_handgun_aim_bonus = 3
+local light_stock_aim_reduction = 4
+local no_stock_aim_reduction = 12
 GBO_COMP_TRAITS = {
     ["Barrel.Long"] = {
         effects = {
@@ -224,6 +226,12 @@ GBO_COMP_TRAITS = {
 			"stocklight_effect_recoil",},
 		params = {
 			APdecrease = 1
+		},
+		modes = {
+			aCTH = {
+				effects = {DecreaseAimAccuracy = true, light_stock_aim_reduce = false},
+				params = {AimAccuracyDecrease = light_stock_aim_reduction},
+			},
 		},
 	},
 	["Stock.Bump"] = {
@@ -446,7 +454,13 @@ GBO_BASE_RECIPES = {
 			OverwatchAngleIncrease = 108,
 			APdecrease = 1,
 			RangeDecrease = 4
-	},
+		},
+		modes = {
+			aCTH = {
+				effects ={ReduceAimAccuracy = false, DecreaseAimAccuracy = true},
+				params = {AimAccuracyDecrease = no_stock_aim_reduction},
+				},
+		},
 	},
 	UVDot = {
 		effects = {

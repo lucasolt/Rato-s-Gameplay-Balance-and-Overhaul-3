@@ -18,7 +18,6 @@ CheatAddItem("itemid")
 - [ ] Make sure AI will orient before checking for cover in LOF.
 - [ ] Check how the `aCTH` deals with out-of-sight targets (wallbang).
 - [X] Check how it works agains non-humanoids
-- [ ] does the night vision penalty affects it?
 - [ ] check if AI is considering bonus from crouch
 - [ ] ricochets still work?
 
@@ -46,7 +45,7 @@ CheatAddItem("itemid")
 
 ## aCTH Balancing
 
-- [ ] Close range might get _too_ strong
+- [ ] Pinned down mod suppression for strays
 - [X] Re-scale Aim Accuracy bonus for more gradient
 	- [X] UV dot
 	- [X] No stock penalty should be re-scaled as handguns have changed. Decide if more range penalty or more aim penalty is appropriate
@@ -93,7 +92,10 @@ CheatAddItem("itemid")
 - [ ] UI CTH should change, put aperture in a differnt setting, also recoil
  
 ## New mechanics intended
-- [ ] change AP scale
+- [X] change AP scale
+	- [X] Rotation cost smooth
+	- [X] Manual cycling AP cost dexterity scaling smooth
+		- [ ] Retune the costs of manual cycling
 - [ ] Autofire shot count.
 - [x] MG Recoil/setup rework (needs further testing)
 - [x] Crouch and prone effect on the aperture, elliptical
@@ -110,6 +112,8 @@ CheatAddItem("itemid")
 - [ ] **General balancing:** OW tuning — minor.
 
 ## QOL
+- [ ] Fix Shooting Stance animation, particulary in regards to mobile attack 
+- [ ] Crosshair AP cost breakdown refactor, for more clear stance ap cost display
 - [ ] Implement F1 "wiki"
 
 

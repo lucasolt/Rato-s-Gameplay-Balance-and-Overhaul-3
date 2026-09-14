@@ -75,7 +75,7 @@ return {
 		'Parameters', {
 			PlaceObj('PresetParamNumber', {
 				'Name', "MaxAPCarried",
-				'Value', 2,
+				'Value', 20,
 				'Tag', "<MaxAPCarried>",
 			}),
 		},
@@ -618,7 +618,7 @@ return {
 		'Parameters', {
 			PlaceObj('PresetParamNumber', {
 				'Name', "ap_loss",
-				'Value', -1,
+				'Value', -10,
 				'Tag', "<ap_loss>",
 			}),
 			PlaceObj('PresetParamNumber', {
@@ -717,7 +717,7 @@ return {
 		'Parameters', {
 			PlaceObj('PresetParamNumber', {
 				'Name', "max_ap_carried",
-				'Value', 3,
+				'Value', 30,
 				'Tag', "<max_ap_carried>",
 			}),
 			PlaceObj('PresetParamNumber', {
@@ -948,156 +948,160 @@ return {
 		'name', "Assign_magsize",
 		'CodeFileName', "Code/Assign_magsize.lua",
 	}),
-	PlaceObj('ModItemCode', {
-		'name', "COMPONENT_weaponcomp_effects",
-		'comment', "------------------ COMPONENT EFFECT",
-		'CodeFileName', "Code/COMPONENT_weaponcomp_effects.lua",
-	}),
-	PlaceObj('ModItemWeaponComponentEffect', {
-		Comment = "-- changes the property instead of being hardcoded",
-		Description = T(604561908488, --[[ModItemWeaponComponentEffect IncreaseSnapshotMul Description]] "Increases <em>Snapshot Penalty</em>"),
-		ModificationType = "Multiply",
-		Parameters = {
-			PlaceObj('PresetParamPercent', {
-				'Name', "snap_mul_inc",
-				'Value', 110,
-				'Tag', "<snap_mul_inc>%",
-			}),
-		},
-		Scale = "%",
-		StatToModify = "wep_base_snapshot_mul",
-		comment = "-- changes the property instead of being hardcoded",
-		group = "Stats",
-		id = "IncreaseSnapshotMul",
-	}),
-	PlaceObj('ModItemWeaponComponentEffect', {
-		Comment = "-- changes the property instead of being hardcoded",
-		Description = T(164955833546, --[[ModItemWeaponComponentEffect IncreaseHipfireMul Description]] "Increases <em>Hipfire Penalty</em>"),
-		ModificationType = "Multiply",
-		Parameters = {
-			PlaceObj('PresetParamPercent', {
-				'Name', "hip_mul_inc",
-				'Value', 110,
-				'Tag', "<hip_mul_inc>%",
-			}),
-		},
-		Scale = "%",
-		StatToModify = "wep_base_hip_mul",
-		comment = "-- changes the property instead of being hardcoded",
-		group = "Stats",
-		id = "IncreaseHipfireMul",
-	}),
-	PlaceObj('ModItemWeaponComponentEffect', {
-		Comment = "-- changes the property instead of being hardcoded",
-		Description = T(274456321251, --[[ModItemWeaponComponentEffect DecreaseSnapshotMul Description]] "Decreases <em>Snapshot Penalty</em>"),
-		ModificationType = "Multiply",
-		Parameters = {
-			PlaceObj('PresetParamPercent', {
-				'Name', "snap_mul_reduc",
-				'Value', 90,
-				'Tag', "<snap_mul_reduc>%",
-			}),
-		},
-		Scale = "%",
-		StatToModify = "wep_base_snapshot_mul",
-		comment = "-- changes the property instead of being hardcoded",
-		group = "Stats",
-		id = "DecreaseSnapshotMul",
-	}),
-	PlaceObj('ModItemWeaponComponentEffect', {
-		Comment = "-- changes the property instead of being hardcoded",
-		Description = T(831228836897, --[[ModItemWeaponComponentEffect DecreaseHipfireMul Description]] "Decreases <em>Hipfire Penalty</em>"),
-		ModificationType = "Multiply",
-		Parameters = {
-			PlaceObj('PresetParamPercent', {
-				'Name', "hipfire_mul_reduc",
-				'Value', 90,
-				'Tag', "<hipfire_mul_reduc>%",
-			}),
-		},
-		Scale = "%",
-		StatToModify = "wep_base_hip_mul",
-		comment = "-- changes the property instead of being hardcoded",
-		group = "Stats",
-		id = "DecreaseHipfireMul",
-	}),
-	PlaceObj('ModItemWeaponComponentEffect', {
-		Comment = "",
-		Description = T(302513636927, --[[ModItemWeaponComponentEffect DecreaseHandlingMul Description]] "Decreases <em>Handling Penalty</em>"),
-		ModificationType = "Multiply",
-		Parameters = {
-			PlaceObj('PresetParamPercent', {
-				'Name', "handling_mul_reduc",
-				'Value', 90,
-				'Tag', "<handling_mul_reduc>%",
-			}),
-		},
-		RequiredParams = {
-			"handling_mul_reduc",
-		},
-		Scale = "%",
-		StatToModify = "HandlingBaseMul",
-		group = "Stats",
-		id = "DecreaseHandlingMul",
-	}),
-	PlaceObj('ModItemWeaponComponentEffect', {
-		Comment = "",
-		Description = T(289668342837, --[[ModItemWeaponComponentEffect IncreaseHandlingMul Description]] "Increases <em>Handling Penalty</em>"),
-		ModificationType = "Multiply",
-		Parameters = {
-			PlaceObj('PresetParamPercent', {
-				'Name', "handling_mul_inc",
-				'Value', 110,
-				'Tag', "<handling_mul_inc>%",
-			}),
-		},
-		Scale = "%",
-		StatToModify = "HandlingBaseMul",
-		group = "Stats",
-		id = "IncreaseHandlingMul",
-	}),
-	PlaceObj('ModItemWeaponComponentEffect', {
-		Description = T(217610785080, --[[ModItemWeaponComponentEffect ScopeAimThresholdBonus Description]] "Increases <em>Aim Accuracy</em> granted by level <aim_level_threshold> by +<threshold_bonus_aim_acc>"),
-		Parameters = {
-			PlaceObj('PresetParamNumber', {
-				'Name', "aim_level_threshold",
-				'Value', 4,
-				'Tag', "<aim_level_threshold>",
-			}),
-			PlaceObj('PresetParamNumber', {
-				'Name', "threshold_bonus_aim_acc",
-				'Value', 18,
-				'Tag', "<threshold_bonus_aim_acc>",
-			}),
-		},
-		RequiredParams = {
-			"aim_level_threshold",
-			"threshold_bonus_aim_acc",
-		},
-		group = "Default",
-		id = "ScopeAimThresholdBonus",
-	}),
-	PlaceObj('ModItemWeaponComponentEffect', {
-		Comment = "--- Bipod",
-		Description = T(136851478092, --[[ModItemWeaponComponentEffect RecoilControlWhenProne Description]] "Decreases <em>Recoil Penalty</em> while prone"),
-		comment = "--- Bipod",
-		group = "Default",
-		id = "RecoilControlWhenProne",
-	}),
-	PlaceObj('ModItemWeaponComponentEffect', {
-		Comment = "-- created, functional, not used",
-		Description = T(549549439952, --[[ModItemWeaponComponentEffect AimAccBonusWhenProne Description]] "Increases <em>Aim Accuracy</em> when prone"),
-		Parameters = {
-			PlaceObj('PresetParamNumber', {
-				'Name', "aim_bonus_prone",
-				'Value', 3,
-				'Tag', "<aim_bonus_prone>",
-			}),
-		},
-		comment = "-- created, functional, not used",
-		group = "Default",
-		id = "AimAccBonusWhenProne",
-	}),
+	PlaceObj('ModItemFolder', {
+		'name', "Weapon Component Effects",
+	}, {
+		PlaceObj('ModItemWeaponComponentEffect', {
+			Comment = "-- changes the property instead of being hardcoded",
+			Description = T(604561908488, --[[ModItemWeaponComponentEffect IncreaseSnapshotMul Description]] "Increases <em>Snapshot Penalty</em>"),
+			ModificationType = "Multiply",
+			Parameters = {
+				PlaceObj('PresetParamPercent', {
+					'Name', "snap_mul_inc",
+					'Value', 110,
+					'Tag', "<snap_mul_inc>%",
+				}),
+			},
+			Scale = "%",
+			StatToModify = "wep_base_snapshot_mul",
+			comment = "-- changes the property instead of being hardcoded",
+			group = "Stats",
+			id = "IncreaseSnapshotMul",
+		}),
+		PlaceObj('ModItemWeaponComponentEffect', {
+			Comment = "-- changes the property instead of being hardcoded",
+			Description = T(164955833546, --[[ModItemWeaponComponentEffect IncreaseHipfireMul Description]] "Increases <em>Hipfire Penalty</em>"),
+			ModificationType = "Multiply",
+			Parameters = {
+				PlaceObj('PresetParamPercent', {
+					'Name', "hip_mul_inc",
+					'Value', 110,
+					'Tag', "<hip_mul_inc>%",
+				}),
+			},
+			Scale = "%",
+			StatToModify = "wep_base_hip_mul",
+			comment = "-- changes the property instead of being hardcoded",
+			group = "Stats",
+			id = "IncreaseHipfireMul",
+		}),
+		PlaceObj('ModItemWeaponComponentEffect', {
+			Comment = "-- changes the property instead of being hardcoded",
+			Description = T(274456321251, --[[ModItemWeaponComponentEffect DecreaseSnapshotMul Description]] "Decreases <em>Snapshot Penalty</em>"),
+			ModificationType = "Multiply",
+			Parameters = {
+				PlaceObj('PresetParamPercent', {
+					'Name', "snap_mul_reduc",
+					'Value', 90,
+					'Tag', "<snap_mul_reduc>%",
+				}),
+			},
+			Scale = "%",
+			StatToModify = "wep_base_snapshot_mul",
+			comment = "-- changes the property instead of being hardcoded",
+			group = "Stats",
+			id = "DecreaseSnapshotMul",
+		}),
+		PlaceObj('ModItemWeaponComponentEffect', {
+			Comment = "-- changes the property instead of being hardcoded",
+			Description = T(831228836897, --[[ModItemWeaponComponentEffect DecreaseHipfireMul Description]] "Decreases <em>Hipfire Penalty</em>"),
+			ModificationType = "Multiply",
+			Parameters = {
+				PlaceObj('PresetParamPercent', {
+					'Name', "hipfire_mul_reduc",
+					'Value', 90,
+					'Tag', "<hipfire_mul_reduc>%",
+				}),
+			},
+			Scale = "%",
+			StatToModify = "wep_base_hip_mul",
+			comment = "-- changes the property instead of being hardcoded",
+			group = "Stats",
+			id = "DecreaseHipfireMul",
+		}),
+		PlaceObj('ModItemWeaponComponentEffect', {
+			Comment = "",
+			Description = T(289668342837, --[[ModItemWeaponComponentEffect IncreaseHandlingMul Description]] "Increases <em>Handling Penalty</em>"),
+			ModificationType = "Multiply",
+			Parameters = {
+				PlaceObj('PresetParamPercent', {
+					'Name', "handling_mul_inc",
+					'Value', 110,
+					'Tag', "<handling_mul_inc>%",
+				}),
+			},
+			Scale = "%",
+			StatToModify = "HandlingBaseMul",
+			group = "Stats",
+			id = "IncreaseHandlingMul",
+		}),
+		PlaceObj('ModItemWeaponComponentEffect', {
+			Comment = "",
+			Description = T(302513636927, --[[ModItemWeaponComponentEffect DecreaseHandlingMul Description]] "Decreases <em>Handling Penalty</em>"),
+			ModificationType = "Multiply",
+			Parameters = {
+				PlaceObj('PresetParamPercent', {
+					'Name', "handling_mul_reduc",
+					'Value', 90,
+					'Tag', "<handling_mul_reduc>%",
+				}),
+			},
+			RequiredParams = {
+				"handling_mul_reduc",
+			},
+			Scale = "%",
+			StatToModify = "HandlingBaseMul",
+			group = "Stats",
+			id = "DecreaseHandlingMul",
+		}),
+		PlaceObj('ModItemWeaponComponentEffect', {
+			Comment = "--- Bipod",
+			Description = T(136851478092, --[[ModItemWeaponComponentEffect RecoilControlWhenProne Description]] "Decreases <em>Recoil Penalty</em> while prone"),
+			comment = "--- Bipod",
+			group = "Default",
+			id = "RecoilControlWhenProne",
+		}),
+		PlaceObj('ModItemWeaponComponentEffect', {
+			Comment = "-- created, functional, not used",
+			Description = T(549549439952, --[[ModItemWeaponComponentEffect AimAccBonusWhenProne Description]] "Increases <em>Aim Accuracy</em> when prone"),
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "aim_bonus_prone",
+					'Value', 3,
+					'Tag', "<aim_bonus_prone>",
+				}),
+			},
+			comment = "-- created, functional, not used",
+			group = "Default",
+			id = "AimAccBonusWhenProne",
+		}),
+		PlaceObj('ModItemWeaponComponentEffect', {
+			Description = T(217610785080, --[[ModItemWeaponComponentEffect ScopeAimThresholdBonus Description]] "Increases <em>Aim Accuracy</em> granted by level <aim_level_threshold> by +<threshold_bonus_aim_acc>"),
+			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "aim_level_threshold",
+					'Value', 4,
+					'Tag', "<aim_level_threshold>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "threshold_bonus_aim_acc",
+					'Value', 18,
+					'Tag', "<threshold_bonus_aim_acc>",
+				}),
+			},
+			RequiredParams = {
+				"aim_level_threshold",
+				"threshold_bonus_aim_acc",
+			},
+			group = "Default",
+			id = "ScopeAimThresholdBonus",
+		}),
+		PlaceObj('ModItemCode', {
+			'name', "COMPONENT_weaponcomp_effects",
+			'comment', "------------------ COMPONENT EFFECT",
+			'CodeFileName', "Code/COMPONENT_weaponcomp_effects.lua",
+		}),
+		}),
 	PlaceObj('ModItemFolder', {
 		'name', "CombatActions",
 	}, {
@@ -2832,11 +2836,6 @@ return {
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
-				'Name', "ReloadAPIncrease",
-				'Value', 1,
-				'Tag', "<ReloadAPIncrease>",
-			}),
-			PlaceObj('PresetParamNumber', {
 				'Name', "MagazineSizeMultiplier",
 				'Value', 150,
 				'Tag', "<MagazineSizeMultiplier>",
@@ -2845,6 +2844,11 @@ return {
 				'Name', "OverwatchAngleDecrease",
 				'Value', 88,
 				'Tag', "<OverwatchAngleDecrease>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "ReloadAPIncrease",
+				'Value', 1,
+				'Tag', "<ReloadAPIncrease>",
 			}),
 		},
 		Slot = "Magazine",
@@ -3285,15 +3289,15 @@ return {
 			"IncreaseConditionDegradationMul",
 		},
 		Parameters = {
+			PlaceObj('PresetParamNumber', {
+				'Name', "ConditionDegradationMulIncrease",
+				'Value', 10,
+				'Tag', "<ConditionDegradationMulIncrease>",
+			}),
 			PlaceObj('PresetParamPercent', {
 				'Name', "NoiseMultiplier",
 				'Value', 30,
 				'Tag', "<NoiseMultiplier>%",
-			}),
-			PlaceObj('PresetParamNumber', {
-				'Name', "bonus_cth_flank",
-				'Value', 10,
-				'Tag', "<bonus_cth_flank>",
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "OverwatchAngleDecrease",
@@ -3301,9 +3305,9 @@ return {
 				'Tag', "<OverwatchAngleDecrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
-				'Name', "ConditionDegradationMulIncrease",
+				'Name', "bonus_cth_flank",
 				'Value', 10,
-				'Tag', "<ConditionDegradationMulIncrease>",
+				'Tag', "<bonus_cth_flank>",
 			}),
 		},
 		Slot = "Muzzle",
@@ -5117,6 +5121,7 @@ return {
 				"ScopePenalty1",
 				"IncreaseOverwatchAngle",
 				"IncreaseMaxAimActions",
+				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5146,7 +5151,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "first_aim_bonus_acc",
-					'Value', 3,
+					'Value', 15,
 					'Tag', "<first_aim_bonus_acc>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6182,7 +6187,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6686,7 +6691,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 5,
+					'Value', 3,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6751,7 +6756,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6817,7 +6822,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6886,7 +6891,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6947,7 +6952,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 5,
+					'Value', 3,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7110,7 +7115,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 5,
+					'Value', 3,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7271,7 +7276,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 5,
+					'Value', 3,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7435,7 +7440,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7599,7 +7604,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7761,7 +7766,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7925,7 +7930,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8097,7 +8102,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8260,7 +8265,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8416,7 +8421,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8604,6 +8609,7 @@ return {
 				"ReduceRange",
 				"ReduceDamage",
 				"StanceAPdecrease",
+				"DecreaseAimAccuracy",
 				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
@@ -8611,6 +8617,11 @@ return {
 					'Name', "APdecrease",
 					'Value', 1,
 					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyDecrease",
+					'Value', 6,
+					'Tag', "<AimAccuracyDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "DamageReduced",
@@ -8624,7 +8635,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeDecrease",
-					'Value', 2,
+					'Value', 4,
 					'Tag', "<RangeDecrease>",
 				}),
 			},
@@ -8660,6 +8671,7 @@ return {
 				"ReduceRange",
 				"ReduceDamage",
 				"StanceAPdecrease",
+				"DecreaseAimAccuracy",
 				"IncreaseReliability",
 				"IncreaseOverwatchAngle",
 			},
@@ -8668,6 +8680,11 @@ return {
 					'Name', "APdecrease",
 					'Value', 1,
 					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyDecrease",
+					'Value', 6,
+					'Tag', "<AimAccuracyDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "DamageReduced",
@@ -8681,7 +8698,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeDecrease",
-					'Value', 2,
+					'Value', 4,
 					'Tag', "<RangeDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8717,10 +8734,16 @@ return {
 			ModificationEffects = {
 				"shortbarrel",
 				"ReduceRange",
+				"DecreaseAimAccuracy",
 				"IncreaseReliability",
 				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyDecrease",
+					'Value', 3,
+					'Tag', "<AimAccuracyDecrease>",
+				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
 					'Value', 105,
@@ -8840,6 +8863,7 @@ return {
 				"ReduceRange",
 				"ReduceDamage",
 				"StanceAPdecrease",
+				"DecreaseAimAccuracy",
 				"IncreaseReliability",
 				"IncreaseOverwatchAngle",
 			},
@@ -8848,6 +8872,11 @@ return {
 					'Name', "APdecrease",
 					'Value', 1,
 					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyDecrease",
+					'Value', 6,
+					'Tag', "<AimAccuracyDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "DamageReduced",
@@ -8861,7 +8890,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeDecrease",
-					'Value', 2,
+					'Value', 4,
 					'Tag', "<RangeDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8962,15 +8991,40 @@ return {
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
+				"shortbarrel",
+				"ReduceRange",
+				"ReduceDamage",
+				"StanceAPdecrease",
+				"DecreaseAimAccuracy",
 				"hipfire_light_barrel",
 				"ExtraOverwatchShots",
 				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
+					'Name', "APdecrease",
+					'Value', 1,
+					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyDecrease",
+					'Value', 6,
+					'Tag', "<AimAccuracyDecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "DamageReduced",
+					'Value', 1,
+					'Tag', "<DamageReduced>",
+				}),
+				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
-					'Value', 103,
+					'Value', 110,
 					'Tag', "<OverwatchAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeDecrease",
+					'Value', 4,
+					'Tag', "<RangeDecrease>",
 				}),
 			},
 			Slot = "Barrel",
@@ -9073,11 +9127,17 @@ return {
 			ModificationEffects = {
 				"shortbarrel",
 				"ReduceRange",
+				"DecreaseAimAccuracy",
 				"hipfire_light_barrel",
 				"ExtraOverwatchShots",
 				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyDecrease",
+					'Value', 3,
+					'Tag', "<AimAccuracyDecrease>",
+				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
 					'Value', 108,
@@ -9196,9 +9256,15 @@ return {
 			ModificationEffects = {
 				"shortbarrel",
 				"ReduceRange",
+				"DecreaseAimAccuracy",
 				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyDecrease",
+					'Value', 3,
+					'Tag', "<AimAccuracyDecrease>",
+				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
 					'Value', 105,
@@ -9319,6 +9385,7 @@ return {
 				"ReduceRange",
 				"ReduceDamage",
 				"StanceAPdecrease",
+				"DecreaseAimAccuracy",
 				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
@@ -9326,6 +9393,11 @@ return {
 					'Name', "APdecrease",
 					'Value', 1,
 					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyDecrease",
+					'Value', 6,
+					'Tag', "<AimAccuracyDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "DamageReduced",
@@ -9339,7 +9411,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeDecrease",
-					'Value', 2,
+					'Value', 4,
 					'Tag', "<RangeDecrease>",
 				}),
 			},
@@ -9445,6 +9517,7 @@ return {
 				"shortbarrel",
 				"ReduceRange",
 				"StanceAPdecrease",
+				"DecreaseAimAccuracy",
 				"IncreaseBuckshotAngle",
 				"ReduceReliability",
 				"IncreaseOverwatchAngle",
@@ -9454,6 +9527,11 @@ return {
 					'Name', "APdecrease",
 					'Value', 1,
 					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyDecrease",
+					'Value', 6,
+					'Tag', "<AimAccuracyDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "BuckshotAngleIncrease",
@@ -9467,7 +9545,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeDecrease",
-					'Value', 2,
+					'Value', 4,
 					'Tag', "<RangeDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9510,6 +9588,7 @@ return {
 				"shortbarrel",
 				"ReduceRange",
 				"StanceAPdecrease",
+				"DecreaseAimAccuracy",
 				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
@@ -9519,13 +9598,18 @@ return {
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyDecrease",
+					'Value', 6,
+					'Tag', "<AimAccuracyDecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
 					'Value', 107,
 					'Tag', "<OverwatchAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeDecrease",
-					'Value', 2,
+					'Value', 4,
 					'Tag', "<RangeDecrease>",
 				}),
 			},
@@ -9564,6 +9648,7 @@ return {
 				"shortbarrel",
 				"ReduceRange",
 				"StanceAPdecrease",
+				"DecreaseAimAccuracy",
 				"ReduceMagazineSize",
 				"IncreaseBuckshotAngle",
 				"IncreaseOverwatchAngle",
@@ -9573,6 +9658,11 @@ return {
 					'Name', "APdecrease",
 					'Value', 1,
 					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyDecrease",
+					'Value', 6,
+					'Tag', "<AimAccuracyDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "BuckshotAngleIncrease",
@@ -9591,7 +9681,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeDecrease",
-					'Value', 2,
+					'Value', 4,
 					'Tag', "<RangeDecrease>",
 				}),
 			},
@@ -9625,6 +9715,7 @@ return {
 				"ReduceRange",
 				"ReduceDamage",
 				"StanceAPdecrease",
+				"DecreaseAimAccuracy",
 				"ReduceMagazineSize",
 				"IncreaseOverwatchAngle",
 			},
@@ -9633,6 +9724,11 @@ return {
 					'Name', "APdecrease",
 					'Value', 1,
 					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyDecrease",
+					'Value', 6,
+					'Tag', "<AimAccuracyDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "DamageReduced",
@@ -9651,7 +9747,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeDecrease",
-					'Value', 2,
+					'Value', 4,
 					'Tag', "<RangeDecrease>",
 				}),
 			},
@@ -9685,6 +9781,7 @@ return {
 				"ReduceRange",
 				"ReduceDamage",
 				"StanceAPdecrease",
+				"DecreaseAimAccuracy",
 				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
@@ -9692,6 +9789,11 @@ return {
 					'Name', "APdecrease",
 					'Value', 1,
 					'Tag', "<APdecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "AimAccuracyDecrease",
+					'Value', 6,
+					'Tag', "<AimAccuracyDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "DamageReduced",
@@ -9705,7 +9807,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeDecrease",
-					'Value', 2,
+					'Value', 4,
 					'Tag', "<RangeDecrease>",
 				}),
 			},
@@ -9804,16 +9906,21 @@ return {
 		Icon = "UI/Icons/Upgrades/MP5_stock_light",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"light_stock_aim_reduce",
 			"StanceAPdecrease",
 			"hipfire_light_stock",
 			"stocklight_effect_recoil",
+			"DecreaseAimAccuracy",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "APdecrease",
 				'Value', 1,
 				'Tag', "<APdecrease>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "AimAccuracyDecrease",
+				'Value', 4,
+				'Tag', "<AimAccuracyDecrease>",
 			}),
 		},
 		Slot = "Stock",
@@ -9961,24 +10068,29 @@ return {
 		Icon = "Mod/cfahRED/Images/nostock43.png",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"ReduceAimAccuracy",
 			"no_stock",
 			"StanceAPdecrease",
 			"IncreaseOverwatchAngle",
 			"hipfire_no_stock",
 			"Enable_RunAndGun",
 			"ReduceRange",
+			"DecreaseAimAccuracy",
 		},
 		Parameters = {
-			PlaceObj('PresetParamNumber', {
-				'Name', "OverwatchAngleIncrease",
-				'Value', 108,
-				'Tag', "<OverwatchAngleIncrease>",
-			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "APdecrease",
 				'Value', 1,
 				'Tag', "<APdecrease>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "AimAccuracyDecrease",
+				'Value', 12,
+				'Tag', "<AimAccuracyDecrease>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "OverwatchAngleIncrease",
+				'Value', 108,
+				'Tag', "<OverwatchAngleIncrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "RangeDecrease",
@@ -10004,28 +10116,34 @@ return {
 		Comment = "consider reducing or disabling aiming?",
 		Cost = 30,
 		DisplayName = T(923839783261, --[[ModItemWeaponComponent StockFolded DisplayName]] "Folded Stock"),
-		GBO_ComponentAncestor = "StockNo",
+		GBO_ComponentAncestor = "_Master_StockFolded_TOG",
 		Icon = "Mod/cfahRED/Images/folded2 2.png",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"ReduceAimAccuracy",
 			"no_stock",
 			"StanceAPdecrease",
 			"IncreaseOverwatchAngle",
 			"hipfire_no_stock",
 			"Enable_RunAndGun",
 			"ReduceRange",
+			"DecreaseAimAccuracy",
+			"zzStockEquipped",
 		},
 		Parameters = {
-			PlaceObj('PresetParamNumber', {
-				'Name', "OverwatchAngleIncrease",
-				'Value', 108,
-				'Tag', "<OverwatchAngleIncrease>",
-			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "APdecrease",
 				'Value', 1,
 				'Tag', "<APdecrease>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "AimAccuracyDecrease",
+				'Value', 12,
+				'Tag', "<AimAccuracyDecrease>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "OverwatchAngleIncrease",
+				'Value', 108,
+				'Tag', "<OverwatchAngleIncrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "RangeDecrease",
@@ -10059,17 +10177,22 @@ return {
 		Icon = "UI/Icons/Upgrades/ar15_stock_light",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"light_stock_aim_reduce",
-			"NoFullAuto",
 			"StanceAPdecrease",
 			"hipfire_light_stock",
 			"stocklight_effect_recoil",
+			"DecreaseAimAccuracy",
+			"NoFullAuto",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "APdecrease",
 				'Value', 1,
 				'Tag', "<APdecrease>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "AimAccuracyDecrease",
+				'Value', 4,
+				'Tag', "<AimAccuracyDecrease>",
 			}),
 		},
 		Slot = "Stock",
@@ -10677,11 +10800,6 @@ return {
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
-				'Name', "ReloadAPDecrease",
-				'Value', 1,
-				'Tag', "<ReloadAPDecrease>",
-			}),
-			PlaceObj('PresetParamNumber', {
 				'Name', "MagazineSizeMultiplier",
 				'Value', 150,
 				'Tag', "<MagazineSizeMultiplier>",
@@ -10690,6 +10808,11 @@ return {
 				'Name', "OverwatchAngleDecrease",
 				'Value', 72,
 				'Tag', "<OverwatchAngleDecrease>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "ReloadAPDecrease",
+				'Value', 1,
+				'Tag', "<ReloadAPDecrease>",
 			}),
 		},
 		Slot = "Magazine",
@@ -16016,14 +16139,14 @@ return {
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
-				'Name', "ReloadAPDecrease",
-				'Value', 2,
-				'Tag', "<ReloadAPDecrease>",
-			}),
-			PlaceObj('PresetParamNumber', {
 				'Name', "OverwatchAngleDecrease",
 				'Value', 85,
 				'Tag', "<OverwatchAngleDecrease>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "ReloadAPDecrease",
+				'Value', 2,
+				'Tag', "<ReloadAPDecrease>",
 			}),
 		},
 		Slot = "Magazine",
@@ -16460,9 +16583,14 @@ return {
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
-				'Name', "range",
-				'Value', 10,
-				'Tag', "<range>",
+				'Name', "STR_threshold",
+				'Value', 85,
+				'Tag', "<STR_threshold>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "StanceIncreaseSTR",
+				'Value', 1,
+				'Tag', "<StanceIncreaseSTR>",
 			}),
 			PlaceObj('PresetParamPercent', {
 				'Name', "bonus_cth",
@@ -16470,14 +16598,9 @@ return {
 				'Tag', "<bonus_cth>%",
 			}),
 			PlaceObj('PresetParamNumber', {
-				'Name', "StanceIncreaseSTR",
-				'Value', 1,
-				'Tag', "<StanceIncreaseSTR>",
-			}),
-			PlaceObj('PresetParamNumber', {
-				'Name', "STR_threshold",
-				'Value', 85,
-				'Tag', "<STR_threshold>",
+				'Name', "range",
+				'Value', 10,
+				'Tag', "<range>",
 			}),
 		},
 		Slot = "Stock",
@@ -16752,9 +16875,12 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 5,
 		DisplayName = T(802752529448, --[[ModItemWeaponComponent foldable_StockNormal DisplayName]] "Default Stock"),
-		GBO_ComponentAncestor = "StockNormal",
+		GBO_ComponentAncestor = "_Master_StockNormalUnfolded_TOG",
 		Icon = "UI/Icons/Upgrades/default_stock",
 		ModificationDifficulty = 0,
+		ModificationEffects = {
+			"zzStockEquipped",
+		},
 		Slot = "Stock",
 		Tags = set( "CloseQuarters", "Intimate", "Precision", "Strategic", "Tactical" ),
 		Visuals = {
@@ -17368,15 +17494,15 @@ return {
 			"IgnoreInTheDark",
 		},
 		Parameters = {
-			PlaceObj('PresetParamNumber', {
-				'Name', "maxaims",
-				'Value', 1,
-				'Tag', "<maxaims>",
-			}),
 			PlaceObj('PresetParamPercent', {
 				'Name', "aim_bonus",
 				'Value', 1,
 				'Tag', "<aim_bonus>%",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "maxaims",
+				'Value', 1,
+				'Tag', "<maxaims>",
 			}),
 			PlaceObj('PresetParamPercent', {
 				'Name', "stealth_kill_bonus",

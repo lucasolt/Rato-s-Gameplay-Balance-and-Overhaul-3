@@ -50,13 +50,15 @@ const.Combat.ShootMoveSMGorHandgun_FreeMoveMul = 50
 
 ----- BoltAction
 const.Combat.BoltActionDexStart = 65
-const.Combat.BoltActionDexFull = 95
+const.Combat.BoltActionDexFull = 100--95
 const.Combat.BoltActionDexMaxReduction = R_VanillaAPToDisplay(2)
+const.Combat.TexPerkCycleAPDiscount = 2
 
 ------ Pindown (Sniping)
 const.Combat.PindownCritPerAimLevel = 4
 const.Combat.PindownAimLevelsForAPCost = 2
 const.Combat.PindownRangeMul = 150 --- MulDivRound
+
 
 ------ Perks
 const.Combat.Perks = {}

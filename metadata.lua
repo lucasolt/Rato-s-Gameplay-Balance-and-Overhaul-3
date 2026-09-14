@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 13266,
+	'version', 13276,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -184,8 +184,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1789187969,
-	'code_hash', 1514118248830099124,
+	'saved', 1789354000,
+	'code_hash', -7888969842180019677,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",
@@ -279,17 +279,12 @@ return PlaceObj('ModDef', {
 		}),
 		PlaceObj('ModResourcePreset', {
 			'Class', "WeaponComponentEffect",
-			'Id', "DecreaseHandlingMul",
-			'ClassDisplayName', "Modification Effects",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponentEffect",
 			'Id', "IncreaseHandlingMul",
 			'ClassDisplayName', "Modification Effects",
 		}),
 		PlaceObj('ModResourcePreset', {
 			'Class', "WeaponComponentEffect",
-			'Id', "ScopeAimThresholdBonus",
+			'Id', "DecreaseHandlingMul",
 			'ClassDisplayName', "Modification Effects",
 		}),
 		PlaceObj('ModResourcePreset', {
@@ -300,6 +295,11 @@ return PlaceObj('ModDef', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "WeaponComponentEffect",
 			'Id', "AimAccBonusWhenProne",
+			'ClassDisplayName', "Modification Effects",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponentEffect",
+			'Id', "ScopeAimThresholdBonus",
 			'ClassDisplayName', "Modification Effects",
 		}),
 		PlaceObj('ModResourcePreset', {
