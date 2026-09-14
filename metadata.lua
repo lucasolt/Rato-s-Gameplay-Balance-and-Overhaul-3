@@ -40,6 +40,8 @@ return PlaceObj('ModDef', {
 		"CharacterEffect/grunty_bonus.lua",
 		"CharacterEffect/AdrenalineRush_Savior.lua",
 		"Code/_______init_globals.lua",
+		"Code/__APScaleParams.lua",
+		"Code/SOURCE_APScale_vanilla.lua",
 		"Code/__MainParams.lua",
 		"Code/__RecoilParams.lua",
 		"Code/__CaliberParams.lua",

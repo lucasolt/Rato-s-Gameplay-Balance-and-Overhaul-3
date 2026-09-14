@@ -36,7 +36,7 @@ function rat_place_prepareweapon_combat_actions()
                 local rotate = unit:GetShootingStanceAP(args and args.target or false, weapon,
                                                         args and args.aim or 0, action, param) or 0
 
-                rotate = Max(1 * const.Scale.AP, rotate)
+                rotate = Max(R_VanillaAP(1), rotate)
                 return rotate -- Max(unit:GetUIActionPoints(), rotate), rotate
             end
 
@@ -165,7 +165,7 @@ function rat_place_prepareweapon_combat_actions()
 
             if not HasPerk(unit, "shooting_stance") then
                 return "hidden"
-            elseif not unit:UIHasAP(1000) and (unit.free_move_ap and unit.free_move_ap < 1000) then
+            elseif not unit:UIHasAP(R_VanillaAP(1)) and (unit.free_move_ap and unit.free_move_ap < R_VanillaAP(1)) then
                 return "disabled", T(677754398866, "<color AmmoAPColor>Turn Ended</color>")
             end
 

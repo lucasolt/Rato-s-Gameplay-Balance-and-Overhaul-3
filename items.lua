@@ -893,6 +893,14 @@ return {
 		'CodeFileName', "Code/_______init_globals.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "__APScaleParams",
+		'CodeFileName', "Code/__APScaleParams.lua",
+	}),
+	PlaceObj('ModItemCode', {
+		'name', "SOURCE_APScale_vanilla",
+		'CodeFileName', "Code/SOURCE_APScale_vanilla.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "__MainParams",
 		'CodeFileName', "Code/__MainParams.lua",
 	}),

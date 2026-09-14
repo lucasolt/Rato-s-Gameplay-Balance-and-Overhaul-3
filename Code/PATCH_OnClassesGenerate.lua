@@ -47,7 +47,7 @@ function OnMsg.ClassesGenerate(classdefs)
             end
             local cur_free_ap = obj.free_move_ap
             ------
-            local free_ap = Max(0, 1000 + MulDivRound(obj.Agility - 60, const.Scale.AP, 5))
+            local free_ap = Max(0, R_VanillaAP(1) + MulDivRound(obj.Agility - 60, R_VanillaAP(1), 5))
             ------
             local data = {min = 0, max = 999, add = 0, mul = 100}
             if obj.team and obj.team.player_enemy then

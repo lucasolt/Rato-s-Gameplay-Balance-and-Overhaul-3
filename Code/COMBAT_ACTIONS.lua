@@ -14,7 +14,7 @@ function rat_combat_actions()
     CombatActions.RecklessAssault.ActionPointDelta = 3000
     CombatActions.HundredKnives.ActionPointDelta = 3000
 
-    CombatActions.PinDown.ActionPoints = 2000
+    CombatActions.PinDown.ActionPoints = R_VanillaAP(2)
     --------------------------------------- SingleShot
     CombatActions.SingleShot.GetAPCost = function(self, unit, args)
         local weapon1, weapon2 = self:GetAttackWeapons(unit, args)
@@ -39,7 +39,7 @@ function rat_combat_actions()
         local cycling_ap = 0
 
         if weapon.unbolted then
-            cycling_ap = rat_get_manual_cyclingAP(unit, weapon, true) * const.Scale.AP
+            cycling_ap = R_VanillaAP(rat_get_manual_cyclingAP(unit, weapon, true))
         end
 
         return unit:GetAttackAPCost(self, weapon1, false, args and args.aim or 0, ap_delta) +
@@ -104,7 +104,7 @@ function rat_combat_actions()
         for _, weapon in ipairs(weapons) do
             if IsKindOfClasses(weapon, "Firearm") then
                 if IsKindOf(weapon, "HeavyWeapon") then
-                    return 4 * const.Scale.AP
+                    return R_VanillaAP(4)
                 end
                 local ap_add = weapon.Rat_swap_ap
 
@@ -141,7 +141,7 @@ function rat_combat_actions()
             end
         end
 
-        return ap * const.Scale.AP
+        return R_VanillaAP(ap)
 
         -------------------------
 
@@ -188,7 +188,7 @@ function rat_combat_actions()
 
         if weapon1.unbolted then
 
-            cycling_ap1 = rat_get_manual_cyclingAP(unit, weapon1, true) * const.Scale.AP
+            cycling_ap1 = R_VanillaAP(rat_get_manual_cyclingAP(unit, weapon1, true))
 
         end
 
@@ -196,13 +196,13 @@ function rat_combat_actions()
 
         if weapon2.unbolted then
 
-            cycling_ap2 = rat_get_manual_cyclingAP(unit, weapon2, true) * const.Scale.AP
+            cycling_ap2 = R_VanillaAP(rat_get_manual_cyclingAP(unit, weapon2, true))
 
         end
 
         local cycling_total = cycling_ap2 + cycling_ap1
 
-        local twohand_cost = 1 * const.Scale.AP
+        local twohand_cost = R_VanillaAP(1)
 
         if unit and HasPerk(unit, "Ambidextrous") then
             twohand_cost = 0
@@ -477,7 +477,7 @@ function rat_combat_actions()
 
         ----------- "Aiming" cost 
 
-        local aim_ap = const.Scale.AP * const.Combat.PindownAimLevelsForAPCost -- Get_AimCost(unit) * base_aim_levels
+        local aim_ap = R_VanillaAP(const.Combat.PindownAimLevelsForAPCost) -- Get_AimCost(unit) * base_aim_levels
         local recoil = unit:GetStatusEffect("Rat_recoil")
         local recoil_extra_cost = 0
         if recoil then
@@ -489,7 +489,7 @@ function rat_combat_actions()
 
         local cycling_ap = 0
         if weapon.unbolted then
-            cycling_ap = rat_get_manual_cyclingAP(unit, weapon, true) * const.Scale.AP
+            cycling_ap = R_VanillaAP(rat_get_manual_cyclingAP(unit, weapon, true))
         end
 
         ap = ap + stance_ap + cycling_ap + aim_ap + recoil_extra_cost
@@ -583,11 +583,11 @@ function rat_combat_actions()
         local cycling_ap = 0
 
         if weapon.unbolted then
-            cycling_ap = rat_get_manual_cyclingAP(unit, weapon, true) * const.Scale.AP
+            cycling_ap = R_VanillaAP(rat_get_manual_cyclingAP(unit, weapon, true))
         end
 
         if w2 and w2.unbolted then
-            cycling_ap = cycling_ap + rat_get_manual_cyclingAP(unit, w2, true) * const.Scale.AP
+            cycling_ap = cycling_ap + R_VanillaAP(rat_get_manual_cyclingAP(unit, w2, true))
         end
 
         local AP_delta = rat_getDeltaAP(attack, weapon) or 0
@@ -767,12 +767,12 @@ function rat_combat_actions()
         local weapon = unit:GetActiveWeapons()
         local rotate_ap = ShootingConeAngle(unit, weapon, target)
 
-        local cost = rotate_ap * const.Scale.AP
+        local cost = R_VanillaAP(rotate_ap)
 
         if cost > cost_setup then
             cost = cost_setup
-        elseif cost < 1 * const.Scale.AP then
-            cost = 1 * const.Scale.AP
+        elseif cost < R_VanillaAP(1) then
+            cost = R_VanillaAP(1)
         end
         -- cost = Clamp(cost_setup, rotate_ap)
         -- cost = Max(1, cost / const.Scale.AP) 
@@ -873,7 +873,7 @@ function rat_combat_actions()
             end
             local move_ap = rat_getMobileshot_moveAP(self, unit, weapon) -- self:ResolveValue("mobile_move_ap")
             assert(move_ap)
-            return {num_shots = shots, move_ap = move_ap * const.Scale.AP}
+            return {num_shots = shots, move_ap = R_VanillaAP(move_ap)}
         elseif self.AimType == "parabola aoe" or self.AimType == "line aoe" then
             return weapon.AreaOfEffect
         end
@@ -956,7 +956,7 @@ function rat_combat_actions()
         return GetMobileShotResults(self, unit, args)
     end
 
-    CombatActions.TakeCover.ActionPoints = 3000
+    CombatActions.TakeCover.ActionPoints = R_VanillaAP(3)
 
     -- CombatActions.RecklessAssault.Description = T(864921833364, "Make a longer <em>Run and Gun</em>, firing more shots. Move to a new position, using up to <em><DisplayMoveAP> AP</em> Smiley will be <em>Out of Breath</em> after use. Can't be used when <em>Out of Breath</em>.")
     CombatActions.SingleShot.Description = T(585854196899,
@@ -1286,7 +1286,7 @@ function rat_combat_actions()
             local move_ap = rat_getMobileshot_moveAP(self, unit, weapon) -- self:ResolveValue("mobile_move_ap")
             assert(move_ap)
 
-            return {num_shots = shots, move_ap = move_ap * const.Scale.AP}
+            return {num_shots = shots, move_ap = R_VanillaAP(move_ap)}
         elseif self.AimType == "parabola aoe" or self.AimType == "line aoe" then
             return weapon.AreaOfEffect
         end
@@ -1319,7 +1319,7 @@ function rat_combat_actions()
             local move_ap = rat_getMobileshot_moveAP(self, unit, weapon) -- self:ResolveValue("mobile_move_ap")
             assert(move_ap)
 
-            return {num_shots = shots, move_ap = move_ap * const.Scale.AP}
+            return {num_shots = shots, move_ap = R_VanillaAP(move_ap)}
         elseif self.AimType == "parabola aoe" or self.AimType == "line aoe" then
             return weapon.AreaOfEffect
         end
@@ -1404,7 +1404,7 @@ function rat_combat_actions()
             local move_ap = rat_getMobileshot_moveAP(self, unit, weapon) -- self:ResolveValue("mobile_move_ap")
             assert(move_ap)
             -- self:SetParameter("DisplayMoveAP", move_ap)
-            return {num_shots = shots, move_ap = move_ap * const.Scale.AP}
+            return {num_shots = shots, move_ap = R_VanillaAP(move_ap)}
         elseif self.AimType == "parabola aoe" or self.AimType == "line aoe" then
             return weapon.AreaOfEffect
         end

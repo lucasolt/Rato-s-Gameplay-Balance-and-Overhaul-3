@@ -365,7 +365,7 @@ function redefine_crosshairUI_function()
             if recoil then
                 local aim_penalty = recoil:ResolveValue("aim_cost")
                 -- print("aim pen", aim_penalty)
-                if aim_penalty and aim_penalty >= 0.5 then
+                if aim_penalty and aim_penalty >= R_VanillaAPToDisplay(0.5) then
                     aim_penalty = formatNumber(aim_penalty)
                     aim_pen_string = "<scale 450><color AmmoAPColor>\naim: +" ..
                                          aim_penalty .. " AP</color>"

@@ -276,7 +276,7 @@ function Rat_RecoilPersistAP(attacker, action, weapon, aim, target)
     if not ok or type(cost) ~= "number" or cost <= 0 then
         return 0
     end
-    return MulDivRound(cost, 1, const.Scale.AP or 1000)
+    return MulDivRound(cost, 1, R_VanillaAP(1))
 end
 
 ---- Offset the next attack fires from, in centiminutes. PURE: prediction and the real shot both

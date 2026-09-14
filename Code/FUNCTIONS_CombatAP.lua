@@ -26,7 +26,7 @@ function Unit:GetShootingStanceAP(target, weapon, aim, action, param)
     ------------Rotate
     local ap_rotate
     if stance then
-        ap_rotate = Clamp(ShootingConeAngle(self, weapon, target) * const.Scale.AP, 0,
+        ap_rotate = Clamp(R_VanillaAP(ShootingConeAngle(self, weapon, target)), 0,
                           ap_stance + Get_AimCost(self))
     else
         ap_rotate = 0
@@ -67,7 +67,7 @@ function rat_getMobileshot_moveAP(action, unit, weapon)
     local stanceap = 0
     if weapon and IsKindOf(weapon, "Firearm") then
 
-        stanceap = (GetWeapon_StanceAP(unit, weapon) / const.Scale.AP)
+        stanceap = (GetWeapon_StanceAP(unit, weapon) / R_VanillaAP(1))
 
         if (weapon.LargeItem or 0) < 1 or weapon:HasComponent("no_stock") then
             stanceap = Max(0, stanceap - 1)
@@ -113,7 +113,7 @@ function GetWeapon_StanceAP(unit, weapon, display)
         cost = MulDivRound(cost, CurrentModOptions.AIWeaponStanceMul or 100, 100)
     end
 
-    return cost * const.Scale.AP
+    return R_VanillaAP(cost)
 end
 ---------------------------------------------------------------------------------------------------
 function Cumbersome_StanceAP(unit, weapon, cost)
@@ -156,7 +156,7 @@ function rat_MobileAction_AP(action, unit)
             unbolted_shots = unbolted_shots - 1
         end
 
-        cycling_ap = cRound(cycling_ap * unbolted_shots * const.Scale.AP * 0.5)
+        cycling_ap = cRound(R_VanillaAP(cycling_ap * unbolted_shots) * 0.5)
         if cycling_ap and cycling_ap > 0 then
             cost = cost + cycling_ap
         end
@@ -226,10 +226,10 @@ function rat_getDeltaAP(action, weapon, action_id_override)
     end
 
     if action_id == "SingleShot" then
-        base = base + (weapon.SingleShotCustomDeltaAP or 0) * const.Scale.AP
+        base = base + R_VanillaAP(weapon.SingleShotCustomDeltaAP or 0)
 
     elseif action_id == "AutoFire" then
-        base = base + (weapon.AutoFireCustomDeltaAP or 0) * const.Scale.AP
+        base = base + R_VanillaAP(weapon.AutoFireCustomDeltaAP or 0)
     end
 
     return base

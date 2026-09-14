@@ -160,7 +160,7 @@ function Is_AimingAttack()
 end
 ---------------------------------------------------------------------------------------------------
 function Get_AimCost(unit)
-    local aim_cost = const.Scale.AP
+    local aim_cost = R_VanillaAP(1)
     local indoors = unit and unit.indoors
     if GameState.RainHeavy and not indoors then
         aim_cost = MulDivRound(aim_cost, 100 + const.EnvEffects.RainAimingMultiplier, 100)

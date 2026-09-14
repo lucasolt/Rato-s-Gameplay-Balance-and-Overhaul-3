@@ -54,11 +54,11 @@ function Rat_GetRecoilAimCost(attacker, action, weapon, stacks)
 
     if HasPerk(attacker, "shooting_stance") then
         local stance_cost = (GetWeapon_StanceAP(attacker, weapon) + (Get_AimCost(attacker) * 2)) /
-                                1000.00
+                                (R_VanillaAP(1) * 1.0)
         aim_cost = Min(stance_cost, aim_cost)
     end
 
-    return aim_cost, recoil_value
+    return R_VanillaAPToDisplay(aim_cost), recoil_value
 end
 
 function Unit:ApplyPersistantRecoilEffects(aim, action, weapon, attack_args)
@@ -501,7 +501,7 @@ function Rat_GetROF(weapon, action_id)
         num_shots = weapon.burst_shots
     end
 
-    local cost = (weapon.ShootAP + rat_getDeltaAP(false, weapon, action_id)) / const.Scale.AP
+    local cost = (weapon.ShootAP + rat_getDeltaAP(false, weapon, action_id)) / R_VanillaAP(1)
 
     local shotsBoost = GetComponentEffectValue(weapon, "ExtraBurstShots", action_id)
 

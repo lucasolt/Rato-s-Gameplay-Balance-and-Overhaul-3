@@ -28,7 +28,7 @@ function redefine_Quick_reload_button()
 	function QuickReloadButton(parent, weapon, delayed_fx)
 		local unit = SelectedObj
 		if weapon.unbolted then
-			local ap_cost = rat_get_manual_cyclingAP(unit, weapon) * const.Scale.AP
+			local ap_cost = R_VanillaAP(rat_get_manual_cyclingAP(unit, weapon))
 			if unit:UIHasAP(ap_cost) then
 				unit.ActionPoints = unit.ActionPoints - ap_cost
 				CombatPathReset(unit)

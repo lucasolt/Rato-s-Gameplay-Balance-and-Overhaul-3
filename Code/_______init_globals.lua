@@ -1,6 +1,7 @@
 if FirstLoad then
     ratG_T_table = {}
     ratG_GunsHurtOriginalDMGValues = {}
+    ratG_APScaleOriginals = {}
     ratG_original_UnitGetBaseAimLevelRange =
         Unit.GetBaseAimLevelRange
 

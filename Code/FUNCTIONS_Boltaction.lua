@@ -29,7 +29,7 @@ function rat_endturn_bolt(self, target, unit_override)
 
         local w1, w2 = unit:GetActiveWeapons()
         if self == w1 or self == w2 then
-            local ap_cost = rat_get_manual_cyclingAP(unit, self) * const.Scale.AP
+            local ap_cost = R_VanillaAP(rat_get_manual_cyclingAP(unit, self))
             if unit:UIHasAP(ap_cost) then
 
                 unit.ActionPoints = unit.ActionPoints - ap_cost
@@ -111,10 +111,10 @@ function unbolted_text(item, text_cost)
     if text_cost then
 
         local ap_cost = rat_get_manual_cyclingAP(SelectedObj, item)
-        local ap_cost_text = " (" .. ap_cost .. " " .. (TranslationTable[926825516268] or "AP") ..
+        local ap_cost_text = " (" .. R_VanillaAPToDisplay(ap_cost) .. " " .. (TranslationTable[926825516268] or "AP") ..
                                  ")"
         local color = "AmmoAPColor>"
-        if SelectedObj:UIHasAP(ap_cost * const.Scale.AP) then
+        if SelectedObj:UIHasAP(R_VanillaAP(ap_cost)) then
             color = "AmmoBasicColor>"
         end
 
