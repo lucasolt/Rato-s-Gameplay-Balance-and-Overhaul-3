@@ -156,7 +156,7 @@ function rat_MobileAction_AP(action, unit)
             unbolted_shots = unbolted_shots - 1
         end
 
-        cycling_ap = cRound(R_VanillaAP(cycling_ap * unbolted_shots) * 0.5)
+        cycling_ap = MulDivRound(cycling_ap, unbolted_shots, 2)
         if cycling_ap and cycling_ap > 0 then
             cost = cost + cycling_ap
         end
@@ -185,14 +185,17 @@ function rat_get_manual_cyclingAP(unit, weapon, shooting)
         bolt_ap_manual = GetComponentEffectValue(weapon, "bolt_action_ap", "ap_manual")
     end
 
-    if dex >= const.Combat.BoltActionDexSecondThreshold then
-        bolt_ap_manual = bolt_ap_manual - 2
-    elseif dex >= const.Combat.BoltActionDexFirstThreshold then
-        bolt_ap_manual = bolt_ap_manual - 1
-    end
+    bolt_ap_manual = R_VanillaAP(bolt_ap_manual)
+    DASA_action_ap = DASA_action_ap and R_VanillaAP(DASA_action_ap)
+
+    -- Linear Dexterity reduction, rounded to displayed AP.
+    local dex_start, dex_full = const.Combat.BoltActionDexStart, const.Combat.BoltActionDexFull
+    local dex_steps = MulDivRound(Clamp(dex - dex_start, 0, dex_full - dex_start),
+                                  const.Combat.BoltActionDexMaxReduction, dex_full - dex_start)
+    bolt_ap_manual = bolt_ap_manual - dex_steps * const.Scale.AP
 
     if tex_perk then
-        bolt_ap_manual = bolt_ap_manual - 2
+        bolt_ap_manual = bolt_ap_manual - R_VanillaAP(2)
     end
 
     if DASA_action_ap and (bolt_ap_manual < DASA_action_ap) then

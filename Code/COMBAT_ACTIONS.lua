@@ -39,7 +39,7 @@ function rat_combat_actions()
         local cycling_ap = 0
 
         if weapon.unbolted then
-            cycling_ap = R_VanillaAP(rat_get_manual_cyclingAP(unit, weapon, true))
+            cycling_ap = rat_get_manual_cyclingAP(unit, weapon, true)
         end
 
         return unit:GetAttackAPCost(self, weapon1, false, args and args.aim or 0, ap_delta) +
@@ -188,7 +188,7 @@ function rat_combat_actions()
 
         if weapon1.unbolted then
 
-            cycling_ap1 = R_VanillaAP(rat_get_manual_cyclingAP(unit, weapon1, true))
+            cycling_ap1 = rat_get_manual_cyclingAP(unit, weapon1, true)
 
         end
 
@@ -196,7 +196,7 @@ function rat_combat_actions()
 
         if weapon2.unbolted then
 
-            cycling_ap2 = R_VanillaAP(rat_get_manual_cyclingAP(unit, weapon2, true))
+            cycling_ap2 = rat_get_manual_cyclingAP(unit, weapon2, true)
 
         end
 
@@ -489,7 +489,7 @@ function rat_combat_actions()
 
         local cycling_ap = 0
         if weapon.unbolted then
-            cycling_ap = R_VanillaAP(rat_get_manual_cyclingAP(unit, weapon, true))
+            cycling_ap = rat_get_manual_cyclingAP(unit, weapon, true)
         end
 
         ap = ap + stance_ap + cycling_ap + aim_ap + recoil_extra_cost
@@ -583,11 +583,11 @@ function rat_combat_actions()
         local cycling_ap = 0
 
         if weapon.unbolted then
-            cycling_ap = R_VanillaAP(rat_get_manual_cyclingAP(unit, weapon, true))
+            cycling_ap = rat_get_manual_cyclingAP(unit, weapon, true)
         end
 
         if w2 and w2.unbolted then
-            cycling_ap = cycling_ap + R_VanillaAP(rat_get_manual_cyclingAP(unit, w2, true))
+            cycling_ap = cycling_ap + rat_get_manual_cyclingAP(unit, w2, true)
         end
 
         local AP_delta = rat_getDeltaAP(attack, weapon) or 0

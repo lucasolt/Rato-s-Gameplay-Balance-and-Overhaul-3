@@ -40,12 +40,12 @@ function define_getOWattacks_and_aim()
         ------Checks if subsequent attacks should have bolting ap cost
         local w2_bolting_cost = 0
         if w2 and rat_canBolt(w2) and not w2.unbolted then
-            w2_bolting_cost = R_VanillaAP(rat_get_manual_cyclingAP(self, w2, true))
+            w2_bolting_cost = rat_get_manual_cyclingAP(self, w2, true)
         end
 
         local w1_bolting_cost = 0
         if rat_canBolt(weapon) and not weapon.unbolted then
-            w1_bolting_cost = R_VanillaAP(rat_get_manual_cyclingAP(self, weapon, true))
+            w1_bolting_cost = rat_get_manual_cyclingAP(self, weapon, true)
         end
 
         ------- if the weapon is unbolted, the attack cost will automatically default to the unbolted value

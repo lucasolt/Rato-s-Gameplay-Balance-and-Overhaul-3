@@ -49,8 +49,9 @@ const.Combat.CumbersomeStanceAP_StrThreshold = 80
 const.Combat.ShootMoveSMGorHandgun_FreeMoveMul = 50
 
 ----- BoltAction
-const.Combat.BoltActionDexFirstThreshold = 80
-const.Combat.BoltActionDexSecondThreshold = 95
+const.Combat.BoltActionDexStart = 65
+const.Combat.BoltActionDexFull = 95
+const.Combat.BoltActionDexMaxReduction = R_VanillaAPToDisplay(2)
 
 ------ Pindown (Sniping)
 const.Combat.PindownCritPerAimLevel = 4
