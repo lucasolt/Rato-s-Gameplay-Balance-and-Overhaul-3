@@ -187,8 +187,8 @@ function rat_get_manual_cyclingAP(unit, weapon, shooting)
         bolt_ap_manual = GetComponentEffectValue(weapon, "bolt_action_ap", "ap_manual")
     end
 
-    bolt_ap_manual = R_VanillaAP(bolt_ap_manual)
-    DASA_action_ap = DASA_action_ap and R_VanillaAP(DASA_action_ap)
+    bolt_ap_manual = bolt_ap_manual * const.Scale.AP
+    DASA_action_ap = DASA_action_ap and DASA_action_ap * const.Scale.AP
 
     -- Linear Dexterity reduction, rounded to displayed AP.
     local dex_start, dex_full = const.Combat.BoltActionDexStart, const.Combat.BoltActionDexFull

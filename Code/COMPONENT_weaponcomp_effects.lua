@@ -951,7 +951,7 @@ function weapon_components_rat()
             PlaceObj(
                 'PresetParamNumber', {
                     'Name', "ap_manual",
-                    'Value', 3, 'Tag',
+                    'Value', 30, 'Tag',
                     "<ap_manual>"
                 })
         },
@@ -1007,14 +1007,14 @@ function weapon_components_rat()
             PlaceObj(
                 'PresetParamNumber', {
                     'Name', "ap_manual",
-                    'Value', 3, 'Tag',
+                    'Value', 30, 'Tag',
                     "<ap_manual>"
                 }),
             PlaceObj(
                 'PresetParamNumber', {
                     'Name',
                     "ap_double_action",
-                    'Value', 1, 'Tag',
+                    'Value', 10, 'Tag',
                     "<ap_double_action>"
                 })
         },
