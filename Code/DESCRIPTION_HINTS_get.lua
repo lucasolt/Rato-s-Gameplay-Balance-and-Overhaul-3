@@ -84,7 +84,7 @@ function GBO_GetDescriptionHints(self)
 
         local unit = g_Units[self.owner] or gv_UnitData[self.owner]
 
-        local ap = R_VanillaAPToDisplay(GetWeapon_StanceAP(unit, self, true))
+        local ap = MulDivRound(GetWeapon_StanceAP(unit, self, true), 1, const.Scale.AP)
         local aim_cost = MulDivRound(Get_AimCost(unit), 1, const.Scale.AP)
         -- if unit then
         -- ap = Cumbersome_StanceAP(unit, self, ap)
@@ -92,7 +92,7 @@ function GBO_GetDescriptionHints(self)
         -- ap = ap +1
         -- end
 
-        return ap + aim_cost
+        return string.format("%d", ap + aim_cost)--MulDivRound(ap + aim_cost,1,1)
 
     end
 

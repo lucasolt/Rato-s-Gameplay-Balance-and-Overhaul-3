@@ -155,12 +155,24 @@ GBO_COMP_TRAITS = {
     },
     ---- cano curto de pistola: sem perda de dano nem de AP de postura, e o cone abre menos.
     ["Barrel.ShortHandgun"] = {
-        effects = {"shortbarrel", "ReduceRange"},
-        params = {OverwatchAngle = 105, RangeDecrease = 2},
+        effects = {
+			"shortbarrel",
+		 	"ReduceRange",
+			"StanceAPdecrease",
+		},
+        params = {
+			OverwatchAngle = 105,
+		 	RangeDecrease = 2,
+			APdecrease = 0.3
+		},
 		modes = {
 			aCTH = {
-				effects = {DecreaseAimAccuracy = true},
-				params = {AimAccuracyDecrease = short_barrel_handgun_aim_reduction},
+				effects = {
+					DecreaseAimAccuracy = true
+				},
+				params = {
+					AimAccuracyDecrease = short_barrel_handgun_aim_reduction
+				},
 			},
 		},
     },
@@ -170,12 +182,14 @@ GBO_COMP_TRAITS = {
 				"IncreaseAimAccuracy",
 				"longbarrel",
 				"DecreaseOverwatchAngle",
+				"StanceAPincrease"
 			},
 		params = {
 			RangeIncrease = 2,
 			DamageIncrease = 1,
 			AimAccuracyIncrease = 1,
-			OverwatchAngle = 92
+			OverwatchAngle = 92,
+			APincrease = 0.3
 		},
 		modes = {
 			aCTH = {
@@ -225,7 +239,7 @@ GBO_COMP_TRAITS = {
 			"hipfire_light_stock",
 			"stocklight_effect_recoil",},
 		params = {
-			APdecrease = 1
+			APdecrease = 0.5 --1
 		},
 		modes = {
 			aCTH = {

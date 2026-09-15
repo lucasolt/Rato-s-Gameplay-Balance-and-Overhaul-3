@@ -87,11 +87,25 @@ function rat_getMobileshot_moveAP(action, unit, weapon)
     return move_ap
 end
 ---------------------------------------------------------------------------------------------------
+-- Sum of a stance AP param (vanilla AP, may be fractional) over all components, as raw AP.
+local function stance_component_raw(weapon, effect_id, param)
+    local total = 0
+    for _, component_id in pairs(weapon.components or empty_table) do
+        local def = WeaponComponents[component_id]
+        if def and table.find(def.ModificationEffects or empty_table, effect_id) then
+            total = total + (def:ResolveValue(param) or WeaponComponentEffects[effect_id]:ResolveValue(param) or 0)
+        end
+    end
+    return math.floor(total * const.Combat.R_VanillaAPRaw + 0.5)
+end
+
+-- Raw AP. `display` skips the AI multiplier.
 function GetWeapon_StanceAP(unit, weapon, display)
     if not weapon or not IsKindOf(weapon, "Firearm") then
         return 0
     end
-    local cost = weapon.APStance
+    -- base_: saved weapons still carry APStance modifiers from when the stance effects had StatToModify
+    local cost = weapon.base_APStance
     cost = Cumbersome_StanceAP(unit, weapon, cost)
 
     local modifyVal, compDef = GetComponentEffectValue(weapon, "stance_ap_inc_STR",
@@ -105,15 +119,18 @@ function GetWeapon_StanceAP(unit, weapon, display)
         end
     end
 
+    local raw = Max(0, R_VanillaAP(cost) + stance_component_raw(weapon, "StanceAPincrease", "APincrease") -
+        stance_component_raw(weapon, "StanceAPdecrease", "APdecrease"))
+
     if display then
-        return cost
+        return raw
     end
 
     if R_IsAI(unit) then
-        cost = MulDivRound(cost, CurrentModOptions.AIWeaponStanceMul or 100, 100)
+        raw = MulDivRound(raw, CurrentModOptions.AIWeaponStanceMul or 100, 100)
     end
 
-    return R_VanillaAP(cost)
+    return raw
 end
 ---------------------------------------------------------------------------------------------------
 function Cumbersome_StanceAP(unit, weapon, cost)
