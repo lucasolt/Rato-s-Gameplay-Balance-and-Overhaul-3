@@ -331,3 +331,19 @@ function GetChargeAttackPosition(attacker, target, ap, action_id)
     DoneObject(combatPath)
     return atk_pos, atk_path, min_dist_error, not_straight_error, frontal_error
 end
+
+---------------------------------------------------------------------------------------------------
+-- Cheat.lua: the grant/remove AP cheats are authored in whole vanilla AP (menu "Grant AP 100" = 10 turns).
+function NetSyncEvents.CheatGrantObjAP(unit, ap)
+    unit:InterruptPreparedAttack()
+    unit:GainAP(R_VanillaAP(ap))
+    unit:RecalcUIActions()
+end
+
+function CheatRemoveSelectedObjAP(ap)
+    CheatLog("RemoveSelectedObjAP", ap)
+    if not g_Combat or not SelectedObj then
+        return
+    end
+    SelectedObj:ConsumeAP(R_VanillaAP(ap))
+end
