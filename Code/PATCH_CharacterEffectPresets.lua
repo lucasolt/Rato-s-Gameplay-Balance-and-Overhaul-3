@@ -102,7 +102,7 @@ function presets_char_effect()
         if p.id == "Protected" then
             for _, param in ipairs(p.Parameters) do
                 if param.Name == 'max_ap_carried' then
-                    param.Value = 2
+                    param.Value = R_VanillaAPToDisplay(2) -- read back as value * const.Scale.AP
                 end
             end
         end

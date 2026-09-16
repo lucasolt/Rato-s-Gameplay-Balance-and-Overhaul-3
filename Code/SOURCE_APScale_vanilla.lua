@@ -1,15 +1,15 @@
 -- Vanilla params multiplied by const.Scale.AP in code; rescaled so they stay in displayed AP (and their "<param> AP" texts stay true).
+-- Only presets this mod does NOT own: the editor saves our own items.lua from these same live objects, baking the x10 in and compounding it on every save.
 local APScaleParams = {
     CharacterEffectDefs = {
         {"AI_AdditionalAP", "bonus"}, {"BattleFocus", "battleFocusAP"}, {"Bleeding", "APLoss"},
         {"Exhausted", "ap_loss"}, {"Throwing", "FirstThrowCostReduction"}, {"Hardened", "maxReservedAP"},
         {"HeavyWeaponsTraining", "ap_cost_reduction"}, {"HeavyWeaponsTraining", "min_ap_cost"},
-        {"Heroic", "ap_gain"}, {"Inspired", "bonus"}, {"Protected", "max_ap_carried"},
+        {"Heroic", "ap_gain"}, {"Inspired", "bonus"},
         {"SidneyPerk", "APBuff"}, {"Stimmed", "apGain"}, {"Suppressed", "ap_loss"}, {"Tired", "ap_loss"},
         {"WellRested", "ap_gain"}, {"YouSeeIgor", "APRestore"}, {"HawksEye", "pindownCostOverwrite"},
         {"SteadyBreathing", "freeMoveBonusAp"}, {"MinFreeMove", "minFreeMove"},
-        {"shooting_stance", "MaxAPCarried"}, {"R_ReservedAP_stance", "max_ap_carried"},
-        {"R_outofbreath", "ap_loss"},
+        -- Protected.max_ap_carried is owned by presets_char_effect(), which runs after this and would undo the rescale.
     },
     CombatActions = {
         {"Charge", "move_ap"}, {"HyenaCharge", "move_ap"}, {"GloryHog", "move_ap"},
