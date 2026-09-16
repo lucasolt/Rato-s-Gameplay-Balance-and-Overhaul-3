@@ -1,3 +1,11 @@
+-- Mobile attacks that should end braced, facing the last thing they shot at.
+local mobile_attacks_end_in_stance = {
+    RunAndGun = true,
+    RecklessAssault = true,
+    MobileShot = true,
+    HundredKnives = true
+}
+
 function OnMsg.TurnEnded()
     for _, unit in ipairs(g_Units) do
         DestroyStanceConeV(unit)
@@ -6,6 +14,7 @@ end
 
 function OnMsg.CombatActionStart(unit)
     DestroyStanceConeV(unit)
+    unit.aim_pos_stance = false
 end
 
 function OnMsg.UnitStanceChanged(unit)
@@ -89,6 +98,16 @@ function OnMsg.CombatActionEnd(unit)
         unit:RemoveStatusEffect("shooting_stance")
     end
 
+    -- Movement is over by now, so the stance sticks; UnitMovementDone already removed the carried one.
+    local aim_pos = unit.aim_pos_stance
+    unit.aim_pos_stance = false
+    if mobile_attacks_end_in_stance[unit.action_command] and aim_pos and not unit:IsDead() then
+        if aim_pos:Dist2D(unit:GetPos()) > const.SlabSizeX / 2 then
+            unit:SetOrientationAngle(CalcOrientation(unit:GetPos(), aim_pos), 300)
+        end
+        unit:EnterShootingStance(aim_pos)
+    end
+
     local weapon = unit:GetActiveWeapons()
     if weapon and IsKindOf(weapon, "BrowningM2HMG") then
         unit:AddStatusEffect("shooting_stance")
@@ -99,9 +118,14 @@ end
 function OnMsg.OnAttack(unit, action, target, results, attack_args)
 
     local weapon = attack_args.weapon or unit:GetActiveWeapons()
-    -- dont_restore_aim marks a mid-sequence mobile attack; the stance would steal the return_pos it needs.
-    if not weapon or not IsKindOf(weapon, "Firearm") or not action or g_Overwatch[unit] or
-        attack_args.dont_restore_aim then
+    if not weapon or not IsKindOf(weapon, "Firearm") or not action or g_Overwatch[unit] then
+        return
+    end
+
+    -- Mobile attack: entering now steals the return_pos the ability needs, so only remember the target.
+    if attack_args.dont_restore_aim then
+        local aim_pos = IsValid(target) and target:GetPos() or IsPoint(target) and target
+        unit.aim_pos_stance = aim_pos or unit.aim_pos_stance
         return
     end
 
