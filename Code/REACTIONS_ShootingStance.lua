@@ -1,8 +1,7 @@
--- Mobile attacks that should end braced, facing the last thing they shot at.
+-- Mobile attacks that end braced; keyed by action_command, so MobileShot arrives as RunAndGun.
 local mobile_attacks_end_in_stance = {
     RunAndGun = true,
     RecklessAssault = true,
-    MobileShot = true,
     HundredKnives = true
 }
 
