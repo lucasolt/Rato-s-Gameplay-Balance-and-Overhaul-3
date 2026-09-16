@@ -49,7 +49,10 @@ function OnMsg.UnitAnyMovementStart(unit)
         CombatGoto = true
     }
 
-    if actions_that_remove[unit.action_command] then
+    if actions_that_remove[unit.action_command] and unit:HasStatusEffect("shooting_stance") then
+        -- Clear before removal, else StatusEffectRemoved restores return_pos and CombatGoto steps back in.
+        unit.return_pos_reserved = false
+        unit.return_pos = false
         unit:RemoveStatusEffect("shooting_stance")
     end
 
@@ -96,7 +99,9 @@ end
 function OnMsg.OnAttack(unit, action, target, results, attack_args)
 
     local weapon = attack_args.weapon or unit:GetActiveWeapons()
-    if not weapon or not IsKindOf(weapon, "Firearm") or not action or g_Overwatch[unit] then
+    -- dont_restore_aim marks a mid-sequence mobile attack; the stance would steal the return_pos it needs.
+    if not weapon or not IsKindOf(weapon, "Firearm") or not action or g_Overwatch[unit] or
+        attack_args.dont_restore_aim then
         return
     end
 
