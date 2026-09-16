@@ -75,7 +75,7 @@ return {
 		'Parameters', {
 			PlaceObj('PresetParamNumber', {
 				'Name', "MaxAPCarried",
-				'Value', 20,
+				'Value', 2000000,
 				'Tag', "<MaxAPCarried>",
 			}),
 		},
@@ -618,7 +618,7 @@ return {
 		'Parameters', {
 			PlaceObj('PresetParamNumber', {
 				'Name', "ap_loss",
-				'Value', -10,
+				'Value', -1000000,
 				'Tag', "<ap_loss>",
 			}),
 			PlaceObj('PresetParamNumber', {
@@ -717,7 +717,7 @@ return {
 		'Parameters', {
 			PlaceObj('PresetParamNumber', {
 				'Name', "max_ap_carried",
-				'Value', 30,
+				'Value', 3000000,
 				'Tag', "<max_ap_carried>",
 			}),
 			PlaceObj('PresetParamNumber', {
@@ -1137,13 +1137,8 @@ return {
 				            description = description ..
 				                              T(966648741688, "\n\nThe unit will be <em>Out of Breath</em>.")
 				            -------
-				
-				            -- local damage, base, bonus = self:GetActionDamage(unit)
 				            return T {
 				                description
-				                -- damage = damage,
-				                -- basedamage = base,
-				                -- bonusdamage = bonus,
 				            }
 			end,
 			GetActionDisplayName = function (self, units)
@@ -1172,7 +1167,7 @@ return {
 				            end
 				            local weapon = unit:GetActiveWeapons() or unit:GetActiveWeapons("UnarmedWeapon")
 				
-				            return weapon -- make sure to return only 1 weapon, the attack doesn't use 2
+				            return weapon
 			end,
 			GetTargets = function (self, units)
 				            -- return CombatActionGetAttackableEnemies(self, units and units[1])
@@ -1228,6 +1223,11 @@ return {
 					'Name', "mobile_move_ap",
 					'Value', 8,
 					'Tag', "<mobile_move_ap>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "mobile_move_ap_min",
+					'Value', 7,
+					'Tag', "<mobile_move_ap_min>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "cooldown",
@@ -5121,7 +5121,6 @@ return {
 				"ScopePenalty1",
 				"IncreaseOverwatchAngle",
 				"IncreaseMaxAimActions",
-				"ScopeAimThresholdBonus",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5158,11 +5157,6 @@ return {
 					'Name', "snap_reduc",
 					'Value', 5,
 					'Tag', "<snap_reduc>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "threshold_bonus_aim_acc",
-					'Value', 10,
-					'Tag', "<threshold_bonus_aim_acc>",
 				}),
 			},
 			Slot = "Scope",
@@ -6678,15 +6672,15 @@ return {
 				"IncreaseAimAccuracy",
 				"longbarrel",
 				"DecreaseOverwatchAngle",
+				"StanceAPincrease",
 				"IncreaseDamage",
 				"ChangeCaliberToBMG",
 				"ReduceReliability",
-				"StanceAPincrease",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 1.3,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6946,10 +6940,15 @@ return {
 				"IncreaseAimAccuracy",
 				"longbarrel",
 				"DecreaseOverwatchAngle",
+				"StanceAPincrease",
 				"hipfire_light_barrel",
 				"ExtraOverwatchShots",
 			},
 			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APincrease",
+					'Tag', "<APincrease>",
+				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
 					'Value', 3,
@@ -7110,9 +7109,14 @@ return {
 				"IncreaseAimAccuracy",
 				"longbarrel",
 				"DecreaseOverwatchAngle",
+				"StanceAPincrease",
 				"IncreaseReliability",
 			},
 			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APincrease",
+					'Tag', "<APincrease>",
+				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
 					'Value', 3,
@@ -7272,8 +7276,13 @@ return {
 				"IncreaseAimAccuracy",
 				"longbarrel",
 				"DecreaseOverwatchAngle",
+				"StanceAPincrease",
 			},
 			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APincrease",
+					'Tag', "<APincrease>",
+				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
 					'Value', 3,
@@ -8734,11 +8743,16 @@ return {
 			ModificationEffects = {
 				"shortbarrel",
 				"ReduceRange",
+				"StanceAPdecrease",
 				"DecreaseAimAccuracy",
 				"IncreaseReliability",
 				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APdecrease",
+					'Tag', "<APdecrease>",
+				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyDecrease",
 					'Value', 3,
@@ -9127,12 +9141,17 @@ return {
 			ModificationEffects = {
 				"shortbarrel",
 				"ReduceRange",
+				"StanceAPdecrease",
 				"DecreaseAimAccuracy",
 				"hipfire_light_barrel",
 				"ExtraOverwatchShots",
 				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APdecrease",
+					'Tag', "<APdecrease>",
+				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyDecrease",
 					'Value', 3,
@@ -9256,10 +9275,15 @@ return {
 			ModificationEffects = {
 				"shortbarrel",
 				"ReduceRange",
+				"StanceAPdecrease",
 				"DecreaseAimAccuracy",
 				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APdecrease",
+					'Tag', "<APdecrease>",
+				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyDecrease",
 					'Value', 3,
@@ -9914,7 +9938,6 @@ return {
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "APdecrease",
-				'Value', 1,
 				'Tag', "<APdecrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
@@ -10186,7 +10209,6 @@ return {
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "APdecrease",
-				'Value', 1,
 				'Tag', "<APdecrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
@@ -16430,7 +16452,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "ap_manual",
-				'Value', 3,
+				'Value', 25,
 				'Tag', "<ap_manual>",
 			}),
 		},
@@ -16452,7 +16474,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "ap_manual",
-				'Value', 2,
+				'Value', 20,
 				'Tag', "<ap_manual>",
 			}),
 		},
@@ -16472,7 +16494,7 @@ return {
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "ap_manual",
-				'Value', 2,
+				'Value', 20,
 				'Tag', "<ap_manual>",
 			}),
 		},
@@ -16491,7 +16513,7 @@ return {
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "ap_manual",
-				'Value', 3,
+				'Value', 20,
 				'Tag', "<ap_manual>",
 			}),
 		},
@@ -16510,7 +16532,7 @@ return {
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "ap_manual",
-				'Value', 3,
+				'Value', 20,
 				'Tag', "<ap_manual>",
 			}),
 		},
@@ -16548,12 +16570,12 @@ return {
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "ap_manual",
-				'Value', 3,
+				'Value', 20,
 				'Tag', "<ap_manual>",
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "ap_double_action",
-				'Value', 1,
+				'Value', 5,
 				'Tag', "<ap_double_action>",
 			}),
 		},

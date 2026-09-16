@@ -29,6 +29,18 @@ const.Combat.FreezeIdleFacing = true
 -- RunAndGun
 const.Combat.RunAndGunMaxPenalty = -10
 const.Combat.RunAndGun_MaxDistforPenalty = 14
+const.Combat.RunAndGunNumShotsBase = 3
+const.Combat.RunAndGunMoveAPBase = 9
+const.Combat.RunAndGunMoveAPMin = 6
+
+-- MobileShot
+const.Combat.MobileShotNumShotsBase = 3
+const.Combat.MobileShotMoveAPBase = 9
+const.Combat.MobileShotMoveAPMin = 6
+
+-- Sprint
+--const.Combat.SprintMoveAPBase = 8 -- Set in the editor
+--const.Combat.SprintMoveAPMin = 7
 
 -- OW
 const.Combat.MGSetupBonusInterruptAccuracy = 0

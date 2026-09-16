@@ -1310,11 +1310,15 @@ function rat_combat_actions()
 
     end
 
+
+	GBO_ChangeParamAndUpdateCache(CombatActions.MobileShot, "mobile_num_shots", const.Combat.MobileShotNumShotsBase)
+	GBO_ChangeParamAndUpdateCache(CombatActions.MobileShot, "mobile_move_ap", const.Combat.MobileShotMoveAPBase)
+	GBO_ChangeParamAndUpdateCache(CombatActions.MobileShot, "mobile_move_ap_min", const.Combat.MobileShotMoveAPMin)
     CombatActions.MobileShot.GetAimParams = function(self, unit, weapon)
         if self.AimType == "cone" then
             return weapon:GetAreaAttackParams(self.id, unit)
         elseif self.AimType == "mobile" then
-            local shots = 3 -- (self:ResolveValue("mobile_num_shots")) or 1
+            local shots = (self:ResolveValue("mobile_num_shots")) or 3 
 
             local move_ap = rat_getMobileshot_moveAP(self, unit, weapon) -- self:ResolveValue("mobile_move_ap")
             assert(move_ap)
@@ -1327,29 +1331,31 @@ function rat_combat_actions()
         return 0
     end
 
-    CombatActions.RunAndGun.GetActionDamage = function(self, unit, target, args)
+	GBO_ChangeParamAndUpdateCache(CombatActions.RunAndGun, "mobile_num_shots", const.Combat.RunAndGunNumShotsBase)
+	GBO_ChangeParamAndUpdateCache(CombatActions.RunAndGun, "mobile_move_ap", const.Combat.RunAndGunMoveAPBase)
+    GBO_ChangeParamAndUpdateCache(CombatActions.RunAndGun, "mobile_move_ap_min", const.Combat.RunAndGunMoveAPMin)
+	CombatActions.RunAndGun.GetActionDamage = function(self, unit, target, args)
         local weapon = self:GetAttackWeapons(unit, args)
-        -- print(self)
         if not weapon then
             return 0
         end
         local damage = unit:GetBaseDamage(weapon)
 
-        local num_shots = self:ResolveValue("mobile_num_shots")
+        local num_shots = self:ResolveValue("mobile_num_shots") or 3
         ----------------
         if IsKindOf(weapon, "SubmachineGun") and weapon:HasComponent("Enable_RunAndGun") then
-            num_shots = 4
+            num_shots = num_shots + 1
         elseif IsKindOf(weapon, "VSK94_1") then
-            num_shots = 2
+            num_shots = num_shots - 1
             if weapon:HasComponent("Enable_RunAndGun") then
                 num_shots = num_shots + 1
             end
         elseif (IsKindOf(weapon, "AssaultRifle") or IsKindOf(weapon, "SniperRifle") or
             IsKindOf(weapon, "MachineGun")) then
-            num_shots = 2
+            num_shots = num_shots - 1
         end
 
-        local num_shots_real = weapon and weapon:GetAutofireShots(self) -- or CombatActions.BurstFire:ResolveValue("num_shots")
+        local num_shots_real = weapon and weapon:GetAutofireShots(self)
 
         num_shots =
             "<style CrosshairAPTotal><color PDABrowserTextHighlight>" .. num_shots .. "X " ..
@@ -1366,9 +1372,7 @@ function rat_combat_actions()
         end
         local damage = unit:GetBaseDamage(weapon)
 
-        local num_shots = 3
-
-        -- local num_shots_real = weapon and weapon:GetAutofireShots(self)-- or CombatActions.BurstFire:ResolveValue("num_shots")
+        local num_shots = (self:ResolveValue("mobile_num_shots")) or 3
 
         num_shots =
             "<style CrosshairAPTotal><color PDABrowserTextHighlight>" .. num_shots .. "X " ..
@@ -1381,10 +1385,9 @@ function rat_combat_actions()
         if self.AimType == "cone" then
             return weapon:GetAreaAttackParams(self.id, unit)
         elseif self.AimType == "mobile" then
-            local shots = 3 -- (self:ResolveValue("mobile_num_shots")-1) or 1
+            local shots = self:ResolveValue("mobile_num_shots") or 3
 
             if IsKindOf(weapon, "SubmachineGun") and weapon:HasComponent("Enable_RunAndGun") then
-                -- print("sub")
                 shots = shots + 1
             elseif IsKindOf(weapon, "VSK94_1") then
                 shots = 2
@@ -1392,18 +1395,12 @@ function rat_combat_actions()
                     shots = shots + 1
                 end
             elseif IsKindOfClasses(weapon, "AssaultRifle", "SniperRifle") then
-                -- print("ar")
                 shots = shots - 1
             end
-
-            -- if weapon:HasComponent("heavy_stock_rungun") then
-            -- shots = shots -1
-            -- end
-
-            -- print("here")
+			
             local move_ap = rat_getMobileshot_moveAP(self, unit, weapon) -- self:ResolveValue("mobile_move_ap")
             assert(move_ap)
-            -- self:SetParameter("DisplayMoveAP", move_ap)
+
             return {num_shots = shots, move_ap = R_VanillaAP(move_ap)}
         elseif self.AimType == "parabola aoe" or self.AimType == "line aoe" then
             return weapon.AreaOfEffect

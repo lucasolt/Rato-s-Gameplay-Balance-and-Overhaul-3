@@ -60,8 +60,8 @@ end
 ---------------------------------------------------------------------------------------------------
 function rat_getMobileshot_moveAP(action, unit, weapon)
     local is_sprint = (action and action.id == "Sprint")
-    local base_ap = is_sprint and 8 or 9
-    local min_ap = is_sprint and 7 or 6
+    local base_ap = action:ResolveValue("mobile_move_ap") or 9 --is_sprint and 8 or 9
+    local min_ap = action:ResolveValue("mobile_move_ap_min") or 6 --is_sprint and 7 or 6
     local weapon_multiplier = is_sprint and 0.5 or 1.5
 
     local stanceap = 0
@@ -105,7 +105,9 @@ function GetWeapon_StanceAP(unit, weapon, display)
         return 0
     end
     -- base_: saved weapons still carry APStance modifiers from when the stance effects had StatToModify
-    local cost = weapon.base_APStance
+	-- Claude, this is a bad practice. If something else modifies the property, it will silently not be applied. 
+    --local cost = weapon.base_APStance
+	local cost = weapon.APStance
     cost = Cumbersome_StanceAP(unit, weapon, cost)
 
     local modifyVal, compDef = GetComponentEffectValue(weapon, "stance_ap_inc_STR",
@@ -167,7 +169,7 @@ function rat_MobileAction_AP(action, unit)
     local cost = att_cost + ap_delta
 
     if rat_canBolt(weapon) then
-        local unbolted_shots = 3
+        local unbolted_shots = action:ResolveValue("mobile_num_shots") or 3
         local cycling_ap = rat_get_manual_cyclingAP(unit, weapon, true)
         if not weapon.unbolted then
             unbolted_shots = unbolted_shots - 1

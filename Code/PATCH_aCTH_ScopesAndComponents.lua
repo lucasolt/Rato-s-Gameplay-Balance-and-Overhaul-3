@@ -169,12 +169,11 @@ A.ApertureMagnifications = {
         Parameters = {
             MaxAimActionsIncrease = 1,
             aim_level_threshold = 4,
-            threshold_bonus_aim_acc = scale_aim(
-                2),
+            --threshold_bonus_aim_acc = scale_aim(2),
             first_aim_bonus_acc = scale_aim(3),
         },
         ModificationEffects = {
-			ScopeAimThresholdBonus = true,
+			ScopeAimThresholdBonus = false,
             IncreaseMaxAimActions = true,
             scope_snapshot = false,
             ScopePenalty1 = true,
@@ -189,8 +188,7 @@ A.ApertureMagnifications = {
         Parameters = {
             MaxAimActionsIncrease = 1,
             snap_mul_reduc = 95,
-            first_aim_bonus_acc = scale_aim(
-                2)
+            first_aim_bonus_acc = scale_aim(2)
         },
         ModificationEffects = {
             IncreaseMaxAimActions = true,

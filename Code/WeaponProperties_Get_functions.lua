@@ -47,7 +47,6 @@
 
 
 function FirearmProperties:Getdescription_hints()
-
     return GBO_GetDescriptionHints(self)
 end
 

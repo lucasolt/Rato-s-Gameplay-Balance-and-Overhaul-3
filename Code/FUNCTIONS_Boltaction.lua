@@ -40,15 +40,17 @@ function rat_endturn_bolt(self, target, unit_override)
                 ObjModified(self)
                 ObjModified(unit)
             elseif R_IsAI(unit) then
-                local chance = Max(1, MulDivRound(unit.Dexterity, 80, 100))
-                local roll = unit:Random(100)
-                -- print("chance", chance, "roll", roll)
-                if roll < chance then
-                    self.unbolted = false
-                    -- print("unbolted")
-                    ObjModified(self)
-                    ObjModified(unit)
-                end
+				if not IsMod_loaded("RATOAI") then
+                	local chance = Max(1, MulDivRound(unit.Dexterity, 80, 100))
+                	local roll = unit:Random(100)
+                	-- print("chance", chance, "roll", roll)
+               		if roll < chance then
+               		    self.unbolted = false
+               		    -- print("unbolted")
+               		    ObjModified(self)
+               		    ObjModified(unit)
+               		end
+				end		
             end
         end
     end
@@ -99,7 +101,7 @@ end
 function unbolted_text(item, text_cost)
     local text = TranslationTable[995799974699] or "UNCYCLED"
 
-    local cycle = item.Rat_cycling or false
+    local cycle = item.Rat_cycling or ""
     if cycle == "SingleAction" or cycle == "DoubleAction" then
         text = TranslationTable[642995678175] or "UNCOCKED"
     elseif cycle == "BoltAction" then

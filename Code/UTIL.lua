@@ -17,6 +17,43 @@ function cRound(num)
     return numf
 end
 
+function GBO_ChangeParamAndUpdateCache(class, param, value)
+    if class and class.Parameters then
+        if not param then
+            print("GBO - Error updating param: no param name provided")
+            return
+        end
+
+        local found_param
+
+        for i, p in ipairs(class.Parameters) do
+            if p.Name == param then
+                found_param = true
+                p.Value = value
+                break
+            end
+        end
+
+        if not found_param then
+            table.insert(class.Parameters,
+                PlaceObj(
+                    'PresetParamNumber', {
+                        'Name', param,
+                        'Value', value,
+                        'Tag', "<" .. param .. ">"
+                    }))
+        end
+
+        if g_PresetParamCache[class] then
+            g_PresetParamCache[class][param] = value
+        else
+            print("GBO - Param cache failed to update: class missing for param '" .. param .. "'")
+        end
+    else
+        print("GBO - Error updating param '" .. tostring(param) .. "': class or Parameters table is nil")
+    end
+end
+
 function cRoundFlt(value, step)
     local step = step or 0.5
     local remainder = value % step

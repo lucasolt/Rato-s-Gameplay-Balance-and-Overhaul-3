@@ -13,6 +13,11 @@ CheatAddItem("itemid")
 - [ ] Remove TOG handguards
 - [ ] no interchangeable stock between RKs
 - [ ] check components that make sense and remove the ones that dont. elegance first.
+- [ ] Re-tune component AP cost now that the scale has changed
+	- [X] Handgun barrels -> 3
+	- [X] Light stock -> 5
+	- [ ] Heavy stock
+	- [ ] Barrels
 
 ## aCTH Possible fragilities
 - [ ] Make sure AI will orient before checking for cover in LOF.
@@ -44,7 +49,6 @@ CheatAddItem("itemid")
 - [ ] Overwatch against last target pos when unit is hidden. also make them throw grenades at it, specially when at a rooftop
 
 ## aCTH Balancing
-
 - [ ] Pinned down mod suppression for strays
 - [X] Re-scale Aim Accuracy bonus for more gradient
 	- [X] UV dot
