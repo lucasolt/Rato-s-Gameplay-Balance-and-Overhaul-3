@@ -235,7 +235,8 @@ GBO_COMP_TRAITS = {
 		effects = 			{
 			"light_stock_aim_reduce",
 			--"NoFullAuto",
-			"StanceAPdecrease",
+			--"StanceAPdecrease",
+			"StanceAPdecrease_fraction",
 			"hipfire_light_stock",
 			"stocklight_effect_recoil",},
 		params = {

@@ -122,7 +122,7 @@ function GetWeapon_StanceAP(unit, weapon, display)
     end
 
     local raw = Max(0, R_VanillaAP(cost) + stance_component_raw(weapon, "StanceAPincrease", "APincrease") -
-        stance_component_raw(weapon, "StanceAPdecrease", "APdecrease"))
+        stance_component_raw(weapon, "StanceAPdecrease_fraction", "APdecrease"))
 
     if display then
         return raw

@@ -50,7 +50,7 @@ end
 
 local force_reapply = Platform.rat and true
 
-function GBO_ReapplyWeaponComponents(unit)
+function GBO_ReapplyWeaponComponents(unit, force)
     if not unit or not IsKindOf(unit, "Unit") or not unit:IsValid() then
         return
     end
@@ -66,7 +66,7 @@ function GBO_ReapplyWeaponComponents(unit)
 
     for _, weapon in ipairs(weapons) do
         local wep_version = weapon.rat_updated_in or 0
-        if wep_version < version or force_reapply then
+        if wep_version < version or force_reapply or force then
             local components = weapon.components
             for slot, component_id in sorted_pairs(components) do
 				if IsKindOf(weapon, "MP40") and slot == "Scope" and component_id == "ImprovedIronsight" then

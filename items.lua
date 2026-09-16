@@ -75,7 +75,7 @@ return {
 		'Parameters', {
 			PlaceObj('PresetParamNumber', {
 				'Name', "MaxAPCarried",
-				'Value', 2000000,
+				'Value', 20,
 				'Tag', "<MaxAPCarried>",
 			}),
 		},
@@ -618,7 +618,7 @@ return {
 		'Parameters', {
 			PlaceObj('PresetParamNumber', {
 				'Name', "ap_loss",
-				'Value', -1000000,
+				'Value', -10,
 				'Tag', "<ap_loss>",
 			}),
 			PlaceObj('PresetParamNumber', {
@@ -717,7 +717,7 @@ return {
 		'Parameters', {
 			PlaceObj('PresetParamNumber', {
 				'Name', "max_ap_carried",
-				'Value', 3000000,
+				'Value', 30,
 				'Tag', "<max_ap_carried>",
 			}),
 			PlaceObj('PresetParamNumber', {
@@ -9930,7 +9930,7 @@ return {
 		Icon = "UI/Icons/Upgrades/MP5_stock_light",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"StanceAPdecrease",
+			"StanceAPdecrease_fraction",
 			"hipfire_light_stock",
 			"stocklight_effect_recoil",
 			"DecreaseAimAccuracy",
@@ -10200,7 +10200,7 @@ return {
 		Icon = "UI/Icons/Upgrades/ar15_stock_light",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"StanceAPdecrease",
+			"StanceAPdecrease_fraction",
 			"hipfire_light_stock",
 			"stocklight_effect_recoil",
 			"DecreaseAimAccuracy",

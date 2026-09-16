@@ -139,7 +139,7 @@ function rat_place_prepareweapon_combat_actions()
     })
 
     PlaceObj('CombatAction', {
-        ActionPoints = 0000,
+        ActionPoints = 500,
         ActivePauseBehavior = "instant",
         ConfigurableKeybind = false,
         Description = T(148517345744, "Exit <em>Shooting Stance</em>"),
@@ -165,8 +165,9 @@ function rat_place_prepareweapon_combat_actions()
 
             if not HasPerk(unit, "shooting_stance") then
                 return "hidden"
-            elseif not unit:UIHasAP(R_VanillaAP(1)) and (unit.free_move_ap and unit.free_move_ap < R_VanillaAP(1)) then
-                return "disabled", T(677754398866, "<color AmmoAPColor>Turn Ended</color>")
+            --elseif not unit:UIHasAP(R_VanillaAP(1)) and (unit.free_move_ap and unit.free_move_ap < R_VanillaAP(1)) then
+			elseif not unit:UIHasAP(cost) then	
+                return "disabled", GetUnitNoApReason(unit)
             end
 
             return "enabled"

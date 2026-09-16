@@ -405,6 +405,24 @@ function weapon_components_rat()
         id = "StanceAPdecrease"
     })
 
+	PlaceObj('WeaponComponentEffect', {
+        Description = T(940310929156,
+                        "Reduces <em>AP</em> necessary to get into <em>Shooting Stance</em>"),
+        -- no StatToModify: engine Modifier drops fractional adds, read in GetWeapon_StanceAP
+        Parameters = {
+            PlaceObj(
+                'PresetParamNumber', {
+                    'Name',
+                    "APdecrease",
+                    'Value', 1, 'Tag',
+                    "<APdecrease>"
+                })
+        },
+        RequiredParams = {"APdecrease"},
+        group = "Stats",
+        id = "StanceAPdecrease_fraction"
+    })
+
     PlaceObj('WeaponComponentEffect', {
         Description = T(581740565531,
                         "Increases <em>AP</em> necessary to get into <em>Shooting Stance</em>"),

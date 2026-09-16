@@ -168,8 +168,10 @@ A.HandlingHeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
 ---- Rotulo da penalidade de peso, POR POSTURA -- antes era sempre "(-) Standing", inclusive
 ---- agachado, onde HandlingHeldStanceMul ainda cobra 60%. Sem entrada, a postura nao rotula.
 A.HandlingHeldStanceMeta = {
-    Standing = T {511836641651, "(-) Standing"},
-    Crouch = T {274905618332, "(-) Crouching"}
+	Standing = T {195731482566, "(-) Not prone"},
+	Crouch = T {195731482566, "(-) Not prone"},
+    --Standing = T {511836641651, "(-) Standing"},
+    --Crouch = T {274905618332, "(-) Crouching"}
 }
 A.HandlingHeldLowStrMeta = T {599531270289, "(-) Low Strength"}
 A.HandlingHeldMinStr = 70
@@ -397,7 +399,8 @@ local t_id_table = {
     [511836641651] = "(-) Standing",
     [274905618332] = "(-) Crouching",
     [599531270289] = "(-) Low Strength",
-    [617384902551] = "(-) Camouflaged"
+    [617384902551] = "(-) Camouflaged",
+	[195731482566] = "(-) Not prone"
 }
 
 ratG_T_table['__ApertureCTHParams.lua'] = t_id_table

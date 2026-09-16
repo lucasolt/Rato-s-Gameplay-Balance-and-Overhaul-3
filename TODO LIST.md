@@ -19,12 +19,16 @@ CheatAddItem("itemid")
 	- [ ] Heavy stock
 	- [ ] Barrels
 
+#
+- [ ] Verifiy if all weapons jamming at the same time
+
 ## aCTH Possible fragilities
 - [ ] Make sure AI will orient before checking for cover in LOF.
 - [ ] Check how the `aCTH` deals with out-of-sight targets (wallbang).
 - [X] Check how it works agains non-humanoids
 - [ ] check if AI is considering bonus from crouch
 - [ ] ricochets still work?
+- [ ] Aim is being used in the Interrupt? shows 9 levels
 
 ## AI OVERHAUL - other mod 
 - [ ] Mechanics check

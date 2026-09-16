@@ -806,36 +806,6 @@ function rat_combat_actions()
         return CombatActionFiringMetaGetUIState(self, units, args)
     end
 
-    -- CombatActions.AutoFire.GetUIState = function(self, units, args)
-
-    -- local unit = units[1]
-    -- local weapon = self:GetAttackWeapons(unit, args)
-
-    ---------------------------------------------------
-    -- local attackWep = args and args.weapon or weapon or unit:GetActiveWeapons()
-
-    -- if (IsKindOf(attackWep, "PapovkaSKS_1") or IsKindOf(attackWep, "Papovka2SKS_1") or IsKindOfClasses( attackWep, "M70_1","M70D_1")) then
-
-    -- local subwep = attackWep.subweapons
-
-    -- if subwep and subwep.Mountfront then
-    -- local mountFrontAmmo = subwep.Mountfront.ammo
-    -- if mountFrontAmmo and mountFrontAmmo.Amount and mountFrontAmmo.Amount > 0 then
-    -- return "disabled", T(565497791697, "<color AmmoAPColor>Grenade loaded</color>")
-    -- end
-    -- end
-    -- end
-    --------------------------------------------------
-
-    -- local state, err = CombatActionGenericAttackGetUIState(self, units, args)
-    -- if state ~= "enabled" then return state, err end
-
-    -- local autoFire_ammo = weapon:GetAutofireShots(self)
-    -- if not weapon.ammo or weapon.ammo.Amount < autoFire_ammo then
-    -- return "disabled", AttackDisableReasons.InsufficientAmmo
-    -- end
-    -- return "enabled"
-    -- end
 
     CombatActions.AutoFire.GetAPCost = function(self, unit, args)
 
@@ -1294,7 +1264,7 @@ function rat_combat_actions()
         return 0
 
     end
-
+	GBO_ChangeParamAndUpdateCache(CombatActions.HundredKnives, "mobile_num_shots", const.Combat.MobileShotNumShotsBase)
     CombatActions.HundredKnives.GetActionDescription = function(self, units)
 
         local unit = units and units[1]
@@ -1390,7 +1360,7 @@ function rat_combat_actions()
             if IsKindOf(weapon, "SubmachineGun") and weapon:HasComponent("Enable_RunAndGun") then
                 shots = shots + 1
             elseif IsKindOf(weapon, "VSK94_1") then
-                shots = 2
+                shots = shots - 1
                 if weapon:HasComponent("Enable_RunAndGun") then
                     shots = shots + 1
                 end
@@ -1444,20 +1414,6 @@ function rat_combat_actions()
         return self.ActionPoints
     end
 
-    for _, param in ipairs(CombatActions.HundredKnives.Parameters) do
-        if param.Name == 'mobile_num_shots' then
-            param.Value = 3
-        end
-        g_PresetParamCache[CombatActions.HundredKnives]['mobile_num_shots'] = 3
-    end
-
-    for _, param in ipairs(CombatActions.RunAndGun.Parameters) do
-        if param.Name == 'mobile_move_ap' then
-            param.Value = 10
-        end
-        g_PresetParamCache[CombatActions.RunAndGun]['mobile_move_ap'] = 10
-    end
-
     for _, param in ipairs(CombatActions.BurstFire.Parameters) do
         if param.Name == 'dmg_penalty' then
             param.Value = 0
@@ -1469,15 +1425,15 @@ function rat_combat_actions()
         if param.Name == 'dmg_penalty' then
             param.Value = 0
         end
-        if param.Name == 'num_shots' then
-            param.Value = 10
-        end
-        g_PresetParamCache[CombatActions.AutoFire]['num_shots'] = 10
+        --if param.Name == 'num_shots' then
+        --    param.Value = 10
+        --end
+        --g_PresetParamCache[CombatActions.AutoFire]['num_shots'] = 10
         g_PresetParamCache[CombatActions.AutoFire]['dmg_penalty'] = 0
     end
 
     g_PresetParamCache[CombatActions.MGBurstFire]['dmg_penalty'] = 0
-    g_PresetParamCache[CombatActions.MGBurstFire]['num_shots'] = 6
+    --g_PresetParamCache[CombatActions.MGBurstFire]['num_shots'] = 6
 
 end
 
