@@ -669,7 +669,7 @@ function Firearm:GetAttackResults(action, attack_args)
             end
 
             ---- wrong part of the right target: soft stray, the crit is mostly taken away.
-            shot_off_part = (not shot_miss) and Rat_IsOffPart(rat_aimed_part, shot_hit_spot)
+            shot_off_part = (not shot_miss) and Rat_IsOffPart(rat_aimed_part, shot_hit_spot, is_pellet_shot)
             shot_crit_chance = Rat_OffPartCritChance(shot_crit_chance, shot_off_part)
 
             ---- crit rolado por tiro, so vale se a bala chegou. Sem multishot (Buckshot, DoubleBarrel,
@@ -890,9 +890,24 @@ function Firearm:GetAttackResults(action, attack_args)
 
                 ----- strays are hardcoded -50% dmg, grazes use the constant (-70% dmg)
                 if IsValid(target) then
+                    local p_hit, p_spot, p_off_part, p_crit
+                    if sim then
+                        p_hit, p_spot, p_off_part, p_crit =
+                            Rat_SimPelletHit(self, attacker, target, action, shot_attack_args,
+                                             rat_aimed_part, attack_results.crit_chance,
+                                             pellet_hit_data)
+                        if p_hit then
+                            pellet_hit_data.critical = p_crit
+                            pellet_hit_data.target_spot_group = p_spot or nil
+                        end
+                    end
                     for _, hit in ipairs(pellet_hit_data.hits) do
                         if hit.obj and hit.obj == target then
-                            if shot_miss then
+                            if p_hit then
+                                hit.stray = false
+                                hit.rat_offpart = p_off_part or nil
+                                hit.spot_group = p_spot or hit.spot_group
+                            elseif shot_miss then
                                 if false then -- allow_grazing then
                                     hit.grazing = true
                                     hit.grazed_miss = true

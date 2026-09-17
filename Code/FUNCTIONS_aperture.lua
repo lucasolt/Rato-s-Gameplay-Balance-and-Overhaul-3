@@ -1439,12 +1439,13 @@ end
 
 ---- Off-part stray: the bullet crossed the target somewhere other than the aimed part. Needs both
 ---- spots, so a hit without spot_group never turns into a stray by accident.
-function Rat_IsOffPart(aimed_spot, hit_spot)
+---- Returns "pellet" for shotgun pellets, which pay the lighter PelletOffPart* knobs.
+function Rat_IsOffPart(aimed_spot, hit_spot, pellet)
     local a = P()
-    if not a.OffPartStray or not aimed_spot or not hit_spot then
+    if not a.OffPartStray or not aimed_spot or not hit_spot or hit_spot == aimed_spot then
         return false
     end
-    return hit_spot ~= aimed_spot
+    return pellet and "pellet" or true
 end
 
 ---- Crit chance already scaled for an off-part hit. Kept here so the shot loop and any UI read one rule.
@@ -1453,7 +1454,8 @@ function Rat_OffPartCritChance(chance, off_part)
     if not off_part or not a.OffPartStray then
         return chance
     end
-    return MulDivRound(chance, a.OffPartCritPct or 100, 100)
+    local pct = off_part == "pellet" and a.PelletOffPartCritPct or a.OffPartCritPct
+    return MulDivRound(chance, pct or 100, 100)
 end
 
 ---- Damage of an off-part hit, BEFORE armor -- same point where vanilla charges the stray -50%.
@@ -1462,14 +1464,34 @@ function Rat_OffPartDamage(damage, off_part)
     if not off_part or not a.OffPartStray then
         return damage
     end
-    return MulDivRound(damage, a.OffPartDamagePct or 100, 100)
+    local pct = off_part == "pellet" and a.PelletOffPartDamagePct or a.OffPartDamagePct
+    return MulDivRound(damage, pct or 100, 100)
+end
+
+---- Secondary pellet: crossing the target is a hit even if the main pellet missed. Part and crit are
+---- settled here because BulletCalcDamage only rolls crit when hit_data.critical is nil.
+function Rat_SimPelletHit(weapon, attacker, target, action, args, aimed_spot, base_crit, pellet_hit_data)
+    local hit_it, spot = Rat_SimHitSpot(pellet_hit_data, target)
+    if not hit_it then
+        return false
+    end
+    local chance = base_crit or 0
+    if spot then
+        local prev = args.target_spot_group
+        args.target_spot_group = spot
+        chance = attacker:CalcCritChance(weapon, target, action, args, args.step_pos)
+        args.target_spot_group = prev
+    end
+    local off_part = Rat_IsOffPart(aimed_spot, spot, true)
+    chance = Rat_OffPartCritChance(chance, off_part)
+    return true, spot, off_part, attacker:Random(100) < chance
 end
 
 ---- The body part status effect (Inaccurate/Slowed/Suppressed) only survives a roll on an off-part
 ---- hit. Ammo and perk effects stay: the penalty is for hitting the wrong part, not for the ammo.
 function Rat_OffPartRollEffects(attacker, hit, prediction)
     local a = P()
-    local pct = a.OffPartEffectPct or 100
+    local pct = (hit.rat_offpart == "pellet" and a.PelletOffPartEffectPct or a.OffPartEffectPct) or 100
     ---- prediction has no roll; the UI keeps showing what a clean hit would inflict
     if not a.OffPartStray or prediction or pct >= 100 or not hit.rat_offpart then
         return

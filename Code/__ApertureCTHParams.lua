@@ -383,6 +383,11 @@ A.OffPartEffectPct = 33
 ---- 100 = no reduction (default); 50 reproduces vanilla stray damage.
 A.OffPartDamagePct = 90--100
 
+---- Shotgun pellets (main pellet included): same rule, lighter. A spread is expected to land wide.
+A.PelletOffPartCritPct = 60
+A.PelletOffPartEffectPct = 60
+A.PelletOffPartDamagePct = 100
+
 ---------------------------------------------------------------------------------------------------
 
 ---- Strings dos rotulos declarados acima (AimDecayMuls, AimStepMeta, Handling): vivem AQUI agora,
