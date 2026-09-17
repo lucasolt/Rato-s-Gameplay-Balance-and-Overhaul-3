@@ -1409,10 +1409,30 @@ end
 function Rat_SimHitSpot(lof, target)
     for _, h in ipairs((lof and lof.hits) or empty_table) do
         if h.obj == target then
-            return true, h.spot_group or h.spot or false
+            return true, Rat_SplitGroinSpot(target, h.spot_group or h.spot or false, h.pos)
         end
     end
     return false, nil
+end
+
+---- The collision mesh has no Groin group (its area reports Torso or Legs): Groin when nearest of the three spots.
+function Rat_SplitGroinSpot(target, spot, pos)
+    if (spot ~= "Torso" and spot ~= "Legs") or not pos or not IsKindOf(target, "Unit") then
+        return spot
+    end
+    local ok_g, groin = pcall(target.GetStaticSpotPos, target, "Groin")
+    if not (ok_g and groin) then
+        return spot
+    end
+    pos = Rat_ValidZ(pos)
+    local dg = pos:Dist(Rat_ValidZ(groin))
+    for _, part in ipairs({"Torso", "Legs"}) do
+        local ok, p = pcall(target.GetStaticSpotPos, target, part)
+        if not (ok and p) or pos:Dist(Rat_ValidZ(p)) <= dg then
+            return spot
+        end
+    end
+    return "Groin"
 end
 
 ---- Off-part stray: the bullet crossed the target somewhere other than the aimed part. Needs both
