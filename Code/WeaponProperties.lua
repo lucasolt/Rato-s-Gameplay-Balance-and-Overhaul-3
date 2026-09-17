@@ -84,12 +84,12 @@ function fireprop()
         -- category = "Caliber",
         id = "APStance",
         name = "Shooting Stance AP",
-        help = "Ap to enter Shooting Stance (not in scale)",
+        help = "AP to enter Shooting Stance, in displayed AP (10 = 1 vanilla AP)",
         editor = "number",
-        default = 3,
+        default = 30,
         template = true,
         min = 0,
-        max = 50,
+        max = 500,
         modifiable = true
     }
 

@@ -29,7 +29,7 @@ function RatoGBO_WepPatch()
 	HiPower.PointBlankBonus = 1
 	HiPower.PreparedAttackType = "Overwatch"
 	HiPower.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	HiPower.APStance = 1
+	HiPower.APStance = 10
 	HiPower.Rat_swap_ap = 1
 	HiPower.wep_base_recoil_mul = 115
 	HiPower.wep_base_snapshot_mul = 71
@@ -72,7 +72,7 @@ function RatoGBO_WepPatch()
 	Bereta92.PointBlankBonus = 1
 	Bereta92.PreparedAttackType = "Overwatch"
 	Bereta92.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	Bereta92.APStance = 1
+	Bereta92.APStance = 10
 	Bereta92.Rat_swap_ap = 1
 	Bereta92.wep_base_recoil_mul = 115
 	Bereta92.wep_base_snapshot_mul = 71
@@ -117,7 +117,7 @@ function RatoGBO_WepPatch()
 	Glock18.AvailableAttacks = {"BurstFire", "SingleShot", "DualShot", "CancelShot", "MobileShot", "RunAndGun", "AutoFire"}
 	Glock18.burst_shots = 4
 	Glock18.auto_shots = 12
-	Glock18.APStance = 1
+	Glock18.APStance = 10
 	Glock18.Rat_swap_ap = 1
 	Glock18.wep_base_recoil_mul = 116
 	Glock18.wep_base_snapshot_mul = 70
@@ -166,7 +166,7 @@ function RatoGBO_WepPatch()
 	LionRoar.PointBlankBonus = 1
 	LionRoar.PreparedAttackType = "Overwatch"
 	LionRoar.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "RunAndGun"}
-	LionRoar.APStance = 2
+	LionRoar.APStance = 20
 	LionRoar.Rat_swap_ap = 1
 	LionRoar.wep_base_recoil_mul = 108
 	LionRoar.wep_base_snapshot_mul = 95
@@ -204,7 +204,7 @@ function RatoGBO_WepPatch()
 	MP5.PointBlankBonus = 1
 	MP5.PreparedAttackType = "Overwatch"
 	MP5.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "RunAndGun", "CancelShot"}
-	MP5.APStance = 3
+	MP5.APStance = 30
 	MP5.Rat_swap_ap = 2
 	MP5.wep_base_recoil_mul = 109
 	MP5.wep_base_snapshot_mul = 85
@@ -246,7 +246,7 @@ function RatoGBO_WepPatch()
 	MP5K.PointBlankBonus = 1
 	MP5K.PreparedAttackType = "Overwatch"
 	MP5K.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "DualShot", "RunAndGun", "CancelShot"}
-	MP5K.APStance = 3
+	MP5K.APStance = 30
 	MP5K.Rat_swap_ap = 2
 	MP5K.wep_base_recoil_mul = 109
 	MP5K.wep_base_snapshot_mul = 74
@@ -291,7 +291,7 @@ function RatoGBO_WepPatch()
 	MP40.PointBlankBonus = 1
 	MP40.PreparedAttackType = "Overwatch"
 	MP40.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "RunAndGun", "CancelShot"}
-	MP40.APStance = 3
+	MP40.APStance = 30
 	MP40.Rat_swap_ap = 2
 	MP40.wep_base_recoil_mul = 95
 	MP40.wep_base_snapshot_mul = 91
@@ -333,7 +333,7 @@ function RatoGBO_WepPatch()
 	UZI.PointBlankBonus = 1
 	UZI.PreparedAttackType = "Overwatch"
 	UZI.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "DualShot", "RunAndGun", "CancelShot"}
-	UZI.APStance = 3
+	UZI.APStance = 30
 	UZI.Rat_swap_ap = 1
 	UZI.wep_base_recoil_mul = 110
 	UZI.wep_base_snapshot_mul = 86
@@ -376,7 +376,7 @@ function RatoGBO_WepPatch()
 	MG42.PointBlankBonus = 1
 	MG42.PreparedAttackType = "Machine Gun"
 	MG42.AvailableAttacks = {"MGBurstFire"}
-	MG42.APStance = 5
+	MG42.APStance = 50
 	MG42.Rat_swap_ap = 3
 	MG42.wep_base_recoil_mul = 82
 	MG42.wep_base_snapshot_mul = 138
@@ -418,7 +418,7 @@ function RatoGBO_WepPatch()
 	Gewehr98.PointBlankBonus = 1
 	Gewehr98.PreparedAttackType = "Both"
 	Gewehr98.AvailableAttacks = {"SingleShot", "CancelShot"}
-	Gewehr98.APStance = 5
+	Gewehr98.APStance = 50
 	Gewehr98.Rat_swap_ap = 3
 	Gewehr98.wep_base_recoil_mul = 89
 	Gewehr98.wep_base_snapshot_mul = 126
@@ -461,7 +461,7 @@ function RatoGBO_WepPatch()
 	DragunovSVD.PointBlankBonus = 1
 	DragunovSVD.PreparedAttackType = "Both"
 	DragunovSVD.AvailableAttacks = {"SingleShot", "CancelShot"}
-	DragunovSVD.APStance = 5
+	DragunovSVD.APStance = 50
 	DragunovSVD.Rat_swap_ap = 3
 	DragunovSVD.wep_base_recoil_mul = 92
 	DragunovSVD.wep_base_snapshot_mul = 117
@@ -504,7 +504,7 @@ function RatoGBO_WepPatch()
 	AK47.PointBlankBonus = 1
 	AK47.PreparedAttackType = "Overwatch"
 	AK47.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	AK47.APStance = 4
+	AK47.APStance = 40
 	AK47.Rat_swap_ap = 3
 	AK47.wep_base_recoil_mul = 99
 	AK47.wep_base_snapshot_mul = 103
@@ -546,7 +546,7 @@ function RatoGBO_WepPatch()
 	M14SAW.PointBlankBonus = 1
 	M14SAW.PreparedAttackType = "Both"
 	M14SAW.AvailableAttacks = {"SingleShot", "CancelShot"}
-	M14SAW.APStance = 4
+	M14SAW.APStance = 40
 	M14SAW.Rat_swap_ap = 3
 	M14SAW.wep_base_recoil_mul = 87
 	M14SAW.wep_base_snapshot_mul = 109
@@ -590,7 +590,7 @@ function RatoGBO_WepPatch()
 	M14SAW_AUTO.PointBlankBonus = 1
 	M14SAW_AUTO.PreparedAttackType = "Overwatch"
 	M14SAW_AUTO.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	M14SAW_AUTO.APStance = 4
+	M14SAW_AUTO.APStance = 40
 	M14SAW_AUTO.Rat_swap_ap = 3
 	M14SAW_AUTO.wep_base_recoil_mul = 87
 	M14SAW_AUTO.wep_base_snapshot_mul = 109
@@ -638,7 +638,7 @@ function RatoGBO_WepPatch()
 	FNFAL.PointBlankBonus = 1
 	FNFAL.PreparedAttackType = "Overwatch"
 	FNFAL.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	FNFAL.APStance = 4
+	FNFAL.APStance = 40
 	FNFAL.Rat_swap_ap = 3
 	FNFAL.wep_base_recoil_mul = 95
 	FNFAL.wep_base_snapshot_mul = 106
@@ -681,7 +681,7 @@ function RatoGBO_WepPatch()
 	Galil_FlagHill.PointBlankBonus = 1
 	Galil_FlagHill.PreparedAttackType = "Overwatch"
 	Galil_FlagHill.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	Galil_FlagHill.APStance = 4
+	Galil_FlagHill.APStance = 40
 	Galil_FlagHill.Rat_swap_ap = 3
 	Galil_FlagHill.wep_base_recoil_mul = 100
 	Galil_FlagHill.wep_base_snapshot_mul = 106
@@ -716,7 +716,7 @@ function RatoGBO_WepPatch()
 	Galil.PointBlankBonus = 1
 	Galil.PreparedAttackType = "Overwatch"
 	Galil.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	Galil.APStance = 4
+	Galil.APStance = 40
 	Galil.Rat_swap_ap = 3
 	Galil.wep_base_recoil_mul = 92
 	Galil.wep_base_snapshot_mul = 112
@@ -762,7 +762,7 @@ function RatoGBO_WepPatch()
 	MG58.PreparedAttackType = "Machine Gun"
 	MG58.AvailableAttacks = {"MGBurstFire"}
 	MG58.long_shots = 7
-	MG58.APStance = 5
+	MG58.APStance = 50
 	MG58.Rat_swap_ap = 3
 	MG58.wep_base_recoil_mul = 82
 	MG58.wep_base_snapshot_mul = 138
@@ -802,7 +802,7 @@ function RatoGBO_WepPatch()
 	HK21.PointBlankBonus = 1
 	HK21.PreparedAttackType = "Machine Gun"
 	HK21.AvailableAttacks = {"MGBurstFire"}
-	HK21.APStance = 5
+	HK21.APStance = 50
 	HK21.Rat_swap_ap = 3
 	HK21.wep_base_recoil_mul = 89
 	HK21.wep_base_snapshot_mul = 124
@@ -845,7 +845,7 @@ function RatoGBO_WepPatch()
 	M24Sniper.PointBlankBonus = 1
 	M24Sniper.PreparedAttackType = "Both"
 	M24Sniper.AvailableAttacks = {"SingleShot", "CancelShot"}
-	M24Sniper.APStance = 5
+	M24Sniper.APStance = 50
 	M24Sniper.Rat_swap_ap = 3
 	M24Sniper.wep_base_recoil_mul = 91
 	M24Sniper.wep_base_snapshot_mul = 119
@@ -889,7 +889,7 @@ function RatoGBO_WepPatch()
 	PSG1.PointBlankBonus = 1
 	PSG1.PreparedAttackType = "Both"
 	PSG1.AvailableAttacks = {"SingleShot", "CancelShot"}
-	PSG1.APStance = 5
+	PSG1.APStance = 50
 	PSG1.Rat_swap_ap = 3
 	PSG1.wep_base_recoil_mul = 87
 	PSG1.wep_base_snapshot_mul = 128
@@ -933,7 +933,7 @@ function RatoGBO_WepPatch()
 	GoldenGun.PointBlankBonus = 1
 	GoldenGun.PreparedAttackType = "Both"
 	GoldenGun.AvailableAttacks = {"SingleShot"}
-	GoldenGun.APStance = 4
+	GoldenGun.APStance = 40
 	GoldenGun.Rat_swap_ap = 3
 	GoldenGun.wep_base_recoil_mul = 100
 	GoldenGun.wep_base_snapshot_mul = 100
@@ -970,7 +970,7 @@ function RatoGBO_WepPatch()
 	AK74.PointBlankBonus = 1
 	AK74.PreparedAttackType = "Overwatch"
 	AK74.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	AK74.APStance = 4
+	AK74.APStance = 40
 	AK74.Rat_swap_ap = 3
 	AK74.wep_base_recoil_mul = 100
 	AK74.wep_base_snapshot_mul = 101
@@ -1014,7 +1014,7 @@ function RatoGBO_WepPatch()
 	RPK74.PointBlankBonus = 1
 	RPK74.PreparedAttackType = "Machine Gun"
 	RPK74.AvailableAttacks = {"MGBurstFire"}
-	RPK74.APStance = 4
+	RPK74.APStance = 40
 	RPK74.Rat_swap_ap = 3
 	RPK74.wep_base_recoil_mul = 91
 	RPK74.wep_base_snapshot_mul = 119
@@ -1056,7 +1056,7 @@ function RatoGBO_WepPatch()
 	AKSU.PointBlankBonus = 1
 	AKSU.PreparedAttackType = "Overwatch"
 	AKSU.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "RunAndGun", "CancelShot"}
-	AKSU.APStance = 3
+	AKSU.APStance = 30
 	AKSU.Rat_swap_ap = 2
 	AKSU.wep_base_recoil_mul = 119
 	AKSU.wep_base_snapshot_mul = 84
@@ -1139,7 +1139,7 @@ function RatoGBO_WepPatch()
 	BarretM82.PointBlankBonus = 1
 	BarretM82.PreparedAttackType = "Both"
 	BarretM82.AvailableAttacks = {"SingleShot", "CancelShot"}
-	BarretM82.APStance = 6
+	BarretM82.APStance = 60
 	BarretM82.Rat_swap_ap = 4
 	BarretM82.wep_base_recoil_mul = 85
 	BarretM82.wep_base_snapshot_mul = 159
@@ -1185,7 +1185,7 @@ function RatoGBO_WepPatch()
 	Winchester1894.PointBlankBonus = 1
 	Winchester1894.PreparedAttackType = "Both"
 	Winchester1894.AvailableAttacks = {"SingleShot", "CancelShot", "MobileShot"}
-	Winchester1894.APStance = 4
+	Winchester1894.APStance = 40
 	Winchester1894.Rat_swap_ap = 3
 	Winchester1894.wep_base_recoil_mul = 97
 	Winchester1894.wep_base_snapshot_mul = 107
@@ -1229,7 +1229,7 @@ function RatoGBO_WepPatch()
 	Winchester_Quest.PointBlankBonus = 1
 	Winchester_Quest.PreparedAttackType = "Both"
 	Winchester_Quest.AvailableAttacks = {"SingleShot", "CancelShot", "MobileShot"}
-	Winchester_Quest.APStance = 4
+	Winchester_Quest.APStance = 40
 	Winchester_Quest.Rat_swap_ap = 3
 	Winchester_Quest.wep_base_recoil_mul = 97
 	Winchester_Quest.wep_base_snapshot_mul = 100
@@ -1267,7 +1267,7 @@ function RatoGBO_WepPatch()
 	DesertEagle.PointBlankBonus = 1
 	DesertEagle.PreparedAttackType = "Overwatch"
 	DesertEagle.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	DesertEagle.APStance = 1
+	DesertEagle.APStance = 10
 	DesertEagle.Rat_swap_ap = 1
 	DesertEagle.wep_base_recoil_mul = 99
 	DesertEagle.wep_base_snapshot_mul = 77
@@ -1311,7 +1311,7 @@ function RatoGBO_WepPatch()
 	ColtAnaconda.PointBlankBonus = 1
 	ColtAnaconda.PreparedAttackType = "Overwatch"
 	ColtAnaconda.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	ColtAnaconda.APStance = 1
+	ColtAnaconda.APStance = 10
 	ColtAnaconda.Rat_swap_ap = 1
 	ColtAnaconda.wep_base_recoil_mul = 106
 	ColtAnaconda.wep_base_snapshot_mul = 75
@@ -1356,7 +1356,7 @@ function RatoGBO_WepPatch()
 	ColtPeacemaker.PointBlankBonus = 1
 	ColtPeacemaker.PreparedAttackType = "Overwatch"
 	ColtPeacemaker.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	ColtPeacemaker.APStance = 1
+	ColtPeacemaker.APStance = 10
 	ColtPeacemaker.Rat_swap_ap = 1
 	ColtPeacemaker.wep_base_recoil_mul = 107
 	ColtPeacemaker.wep_base_snapshot_mul = 73
@@ -1400,7 +1400,7 @@ function RatoGBO_WepPatch()
 	TexRevolver.PointBlankBonus = 1
 	TexRevolver.PreparedAttackType = "Overwatch"
 	TexRevolver.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	TexRevolver.APStance = 1
+	TexRevolver.APStance = 10
 	TexRevolver.Rat_swap_ap = 1
 	TexRevolver.wep_base_recoil_mul = 107
 	TexRevolver.wep_base_snapshot_mul = 73
@@ -1445,7 +1445,7 @@ function RatoGBO_WepPatch()
 	M41Shotgun.AvailableAttacks = {"Buckshot", "CancelShotCone", "SingleShot", "CancelShot"}
 	M41Shotgun.BuckshotConeAngle = 240
 	M41Shotgun.BuckshotFalloffDamage = 50
-	M41Shotgun.APStance = 3
+	M41Shotgun.APStance = 30
 	M41Shotgun.Rat_swap_ap = 3
 	M41Shotgun.wep_base_recoil_mul = 104
 	M41Shotgun.wep_base_snapshot_mul = 97
@@ -1490,7 +1490,7 @@ function RatoGBO_WepPatch()
 	AA12.AvailableAttacks = {"BuckshotBurst", "Buckshot", "CancelShotCone", "BurstFire", "SingleShot", "CancelShot"}
 	AA12.BuckshotConeAngle = 355
 	AA12.BuckshotFalloffDamage = 50
-	AA12.APStance = 4
+	AA12.APStance = 40
 	AA12.Rat_swap_ap = 3
 	AA12.wep_base_recoil_mul = 90
 	AA12.wep_base_snapshot_mul = 107
@@ -1537,7 +1537,7 @@ function RatoGBO_WepPatch()
 	Auto5.AvailableAttacks = {"Buckshot", "CancelShotCone", "SingleShot", "CancelShot"}
 	Auto5.BuckshotConeAngle = 300
 	Auto5.BuckshotFalloffDamage = 50
-	Auto5.APStance = 3
+	Auto5.APStance = 30
 	Auto5.Rat_swap_ap = 3
 	Auto5.wep_base_recoil_mul = 98
 	Auto5.wep_base_snapshot_mul = 100
@@ -1581,7 +1581,7 @@ function RatoGBO_WepPatch()
 	DoubleBarrelShotgun.AvailableAttacks = {"Buckshot", "DoubleBarrel", "CancelShotCone", "SingleShot", "CancelShot"}
 	DoubleBarrelShotgun.BuckshotConeAngle = 390
 	DoubleBarrelShotgun.BuckshotFalloffDamage = 50
-	DoubleBarrelShotgun.APStance = 3
+	DoubleBarrelShotgun.APStance = 30
 	DoubleBarrelShotgun.Rat_swap_ap = 3
 	DoubleBarrelShotgun.wep_base_recoil_mul = 100
 	DoubleBarrelShotgun.wep_base_snapshot_mul = 100
@@ -1625,7 +1625,7 @@ function RatoGBO_WepPatch()
 	Auto5_quest.AvailableAttacks = {"BuckshotBurst", "BurstFire"}
 	Auto5_quest.BuckshotConeAngle = 300
 	Auto5_quest.BuckshotFalloffDamage = 100
-	Auto5_quest.APStance = 3
+	Auto5_quest.APStance = 30
 	Auto5_quest.Rat_swap_ap = 3
 	Auto5_quest.wep_base_recoil_mul = 98
 	Auto5_quest.wep_base_snapshot_mul = 100
@@ -1662,7 +1662,7 @@ function RatoGBO_WepPatch()
 	G36.PreparedAttackType = "Overwatch"
 	G36.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
 	G36.burst_shots = 2
-	G36.APStance = 4
+	G36.APStance = 40
 	G36.Rat_swap_ap = 3
 	G36.wep_base_recoil_mul = 98
 	G36.wep_base_snapshot_mul = 106
@@ -1710,7 +1710,7 @@ function RatoGBO_WepPatch()
 	AR15.PointBlankBonus = 1
 	AR15.PreparedAttackType = "Overwatch"
 	AR15.AvailableAttacks = {"SingleShot", "BurstFire", "CancelShot"}
-	AR15.APStance = 4
+	AR15.APStance = 40
 	AR15.Rat_swap_ap = 3
 	AR15.wep_base_recoil_mul = 101
 	AR15.wep_base_snapshot_mul = 101
@@ -1753,7 +1753,7 @@ function RatoGBO_WepPatch()
 	AUG.PointBlankBonus = 1
 	AUG.PreparedAttackType = "Overwatch"
 	AUG.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	AUG.APStance = 3
+	AUG.APStance = 30
 	AUG.Rat_swap_ap = 3
 	AUG.wep_base_recoil_mul = 97
 	AUG.wep_base_snapshot_mul = 108
@@ -1799,7 +1799,7 @@ function RatoGBO_WepPatch()
 	M16A2.PointBlankBonus = 1
 	M16A2.PreparedAttackType = "Overwatch"
 	M16A2.AvailableAttacks = {"BurstFire", "SingleShot", "CancelShot"}
-	M16A2.APStance = 4
+	M16A2.APStance = 40
 	M16A2.Rat_swap_ap = 3
 	M16A2.wep_base_recoil_mul = 98
 	M16A2.wep_base_snapshot_mul = 106
@@ -1844,7 +1844,7 @@ function RatoGBO_WepPatch()
 	FAMAS.PointBlankBonus = 1
 	FAMAS.PreparedAttackType = "Overwatch"
 	FAMAS.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	FAMAS.APStance = 3
+	FAMAS.APStance = 30
 	FAMAS.Rat_swap_ap = 3
 	FAMAS.wep_base_recoil_mul = 97
 	FAMAS.wep_base_snapshot_mul = 108
@@ -1890,7 +1890,7 @@ function RatoGBO_WepPatch()
 	FNMinimi.PointBlankBonus = 1
 	FNMinimi.PreparedAttackType = "Machine Gun"
 	FNMinimi.AvailableAttacks = {"MGBurstFire"}
-	FNMinimi.APStance = 5
+	FNMinimi.APStance = 50
 	FNMinimi.Rat_swap_ap = 3
 	FNMinimi.wep_base_recoil_mul = 91
 	FNMinimi.wep_base_snapshot_mul = 119
@@ -1932,7 +1932,7 @@ function RatoGBO_WepPatch()
 	M4Commando.PointBlankBonus = 1
 	M4Commando.PreparedAttackType = "Overwatch"
 	M4Commando.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "RunAndGun", "CancelShot"}
-	M4Commando.APStance = 3
+	M4Commando.APStance = 30
 	M4Commando.Rat_swap_ap = 2
 	M4Commando.wep_base_recoil_mul = 116
 	M4Commando.wep_base_snapshot_mul = 86

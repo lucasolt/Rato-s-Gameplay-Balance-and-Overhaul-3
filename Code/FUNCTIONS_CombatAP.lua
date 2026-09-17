@@ -87,7 +87,12 @@ function rat_getMobileshot_moveAP(action, unit, weapon)
     return move_ap
 end
 ---------------------------------------------------------------------------------------------------
--- Sum of a stance AP param (vanilla AP, may be fractional) over all components, as raw AP.
+-- Component stance params stay in vanilla AP (Tools of Guerilla authors them, some fractional).
+local function vanilla_ap_raw(n)
+    return math.floor(n * const.Combat.R_VanillaAPRaw + 0.5)
+end
+
+-- Sum of a stance AP param over all components, as raw AP.
 local function stance_component_raw(weapon, effect_id, param)
     local total = 0
     for _, component_id in pairs(weapon.components or empty_table) do
@@ -96,32 +101,25 @@ local function stance_component_raw(weapon, effect_id, param)
             total = total + (def:ResolveValue(param) or WeaponComponentEffects[effect_id]:ResolveValue(param) or 0)
         end
     end
-    return math.floor(total * const.Combat.R_VanillaAPRaw + 0.5)
+    return vanilla_ap_raw(total)
 end
 
--- Raw AP. `display` skips the AI multiplier.
+-- Raw AP; APStance is authored in displayed AP. `display` skips the AI multiplier.
 function GetWeapon_StanceAP(unit, weapon, display)
     if not weapon or not IsKindOf(weapon, "Firearm") then
         return 0
     end
-    -- base_: saved weapons still carry APStance modifiers from when the stance effects had StatToModify
-	-- Claude, this is a bad practice. If something else modifies the property, it will silently not be applied. 
-    --local cost = weapon.base_APStance
-	local cost = weapon.APStance
-    cost = Cumbersome_StanceAP(unit, weapon, cost)
+    local raw = Cumbersome_StanceAP(unit, weapon, weapon.APStance) * const.Scale.AP
 
-    local modifyVal, compDef = GetComponentEffectValue(weapon, "stance_ap_inc_STR",
-                                                       "StanceIncreaseSTR")
-
-    local str_min = 0
+    local modifyVal = GetComponentEffectValue(weapon, "stance_ap_inc_STR", "StanceIncreaseSTR")
     if modifyVal then
-        str_min = GetComponentEffectValue(weapon, "stance_ap_inc_STR", "STR_threshold")
+        local str_min = GetComponentEffectValue(weapon, "stance_ap_inc_STR", "STR_threshold")
         if not unit or unit.Strength < str_min then
-            cost = cost + modifyVal
+            raw = raw + vanilla_ap_raw(modifyVal)
         end
     end
 
-    local raw = Max(0, R_VanillaAP(cost) + stance_component_raw(weapon, "StanceAPincrease", "APincrease") -
+    raw = Max(0, raw + stance_component_raw(weapon, "StanceAPincrease", "APincrease") -
         stance_component_raw(weapon, "StanceAPdecrease_fraction", "APdecrease"))
 
     if display then
@@ -135,11 +133,13 @@ function GetWeapon_StanceAP(unit, weapon, display)
     return raw
 end
 ---------------------------------------------------------------------------------------------------
+-- cost in displayed AP; the penalty is one vanilla AP.
 function Cumbersome_StanceAP(unit, weapon, cost)
     if weapon:IsCumbersome() then
-        cost = cost + 1
+        local one = R_VanillaAPToDisplay(1)
+        cost = cost + one
         if unit and unit.Strength >= const.Combat.CumbersomeStanceAP_StrThreshold then
-            cost = Max(1, cost - 1)
+            cost = Max(one, cost - one)
         end
     end
     return cost

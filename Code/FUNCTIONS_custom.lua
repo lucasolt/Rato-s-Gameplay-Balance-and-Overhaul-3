@@ -179,7 +179,7 @@ function GetAPStance_display(self)
     if unit then
         ap = Cumbersome_StanceAP(unit, self, ap)
     elseif self:IsCumbersome() then
-        ap = ap + 1
+        ap = ap + R_VanillaAPToDisplay(1)
     end
     return ap
 end
