@@ -824,8 +824,9 @@ end
 
 ---- Retorna cth (0..100), sigma, theta e metaText.
 ---- `exposed_pct` (0..100): fracao da silhueta nao ocluida por cobertura; nil = mede sozinho.
+---- `att_stance`: shooter stance at attacker_pos (nil = current); `force_full`: skip the AI fallbacks.
 function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, opportunity_attack,
-                        attacker_pos, target_pos, exposed_pct)
+                        attacker_pos, target_pos, exposed_pct, att_stance, force_full)
     local a = P()
 
     attacker_pos = attacker_pos or (attacker and attacker:GetPos())
@@ -841,7 +842,7 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
     ---- Cobertura = silhueta menor, nao penalidade. Fracao exposta via raycast (FUNCTIONS_cover_silhouette.lua).
     if exposed_pct == nil and a.CoverRaycast then
         exposed_pct = Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_part_def,
-                                          weapon)
+                                          weapon, nil, att_stance, force_full)
 
         ---- ... e o que a silhueta NAO ve: obstaculo encostado no cano. Os 25 raios dela saem
         ---- colineares e passam pelo mesmo vao; o cone nao. Entra como MENOS area exposta, o
@@ -849,7 +850,8 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
         ---- chegar. Nao ha dupla contagem: o anel so conta parada no campo PROXIMO, e cobertura
         ---- do alvo para longe dali. Ver Rat_MuzzleClearance.
         if (exposed_pct or 0) > 0 then
-            local clear = Rat_MuzzleClearance(attacker, target, attacker_pos, target_pos, weapon)
+            local clear = Rat_MuzzleClearance(attacker, target, attacker_pos, target_pos, weapon,
+                                              att_stance, nil, force_full)
             if clear < 100 then
                 exposed_pct = MulDivRound(exposed_pct, clear, 100)
                 if parts then

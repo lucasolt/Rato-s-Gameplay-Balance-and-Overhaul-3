@@ -131,6 +131,9 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 		---- isto a IA cai em A.CoverAIFallback, que usa GetCoverPercentage e devolve 100% em
 		---- terreno entulhado (medido: 5 de 5 linhas com exposicao real de 0 a 80%).
 		mod_data.rat_exposed = args and args.rat_exposed
+		---- the roll must never use a cheaper model than the plan: real shots always pay the full probe
+		mod_data.rat_full = not (args and args.prediction) or (args and args.rat_full) or nil
+		mod_data.rat_att_stance = args and args.rat_att_stance
 		Rat_ResolveAngular(mod_data)
 		rat_cone = not mod_data.rat_blocked
 	end

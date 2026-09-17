@@ -117,7 +117,9 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
     ---- perguntas sobre o mesmo par de tiles de posturas diferentes colidiam. Nem distinguia o
     ---- palpite do fallback da sondagem completa, entao uma consulta do jogador e uma da IA na
     ---- mesma linha se sobrescreviam.
-    local full = force_full or not P().CoverAIFallback
+    local side = attacker.team and attacker.team.side or ''
+    ---- players always take the full probe, so forcing it must not split their cache entry
+    local full = force_full or side == 'player1' or side == 'player2' or not P().CoverAIFallback
     local key = xxhash(attacker_pos, target.handle, target_pos, stance, head and 1 or 0, cache_gen,
                        att_stance, full and 1 or 0)
     if not dbg_table then
@@ -142,7 +144,6 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
     ----
     ---- O jogador (crosshair e tiro de verdade) fica com a sondagem completa.
     ---------------------------------------------------------------------------------------
-    local side = attacker.team and attacker.team.side or ''
     if a.CoverAIFallback and not force_full and not dbg_table and
         not (side == 'player1' or side == 'player2') then
         local _, _, coverage = target:GetCoverPercentage(attacker_pos, target_pos)
@@ -181,7 +182,14 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
     ---- Na posicao ATUAL da unidade o step_pos e redundante, entao some com ele e o engine
     ---- resolve a postura certa. Num destino candidato (so a IA pergunta isso) ele continua,
     ---- porque sem ele a resposta seria do tile errado, que e o erro maior dos dois.
-    local own_pos = attacker_pos == attacker:GetPos()
+    ---- the AI passes its tile with terrain z while GetPos() has none; same slab counts as own tile
+    local own = attacker:GetPos()
+    local own_pos = attacker_pos == own
+    if not own_pos and attacker_pos:Equal2D(own) then
+        local az = attacker_pos:IsValidZ() and attacker_pos:z() or terrain.GetHeight(attacker_pos)
+        local oz = own:IsValidZ() and own:z() or terrain.GetHeight(own)
+        own_pos = abs(az - oz) < const.SlabSizeZ / 2
+    end
     local base = GetLoFData(attacker, target, {
         obj = attacker, weapon = weapon, stance = att_stance,
         step_pos = (not own_pos) and attacker_pos or nil,
