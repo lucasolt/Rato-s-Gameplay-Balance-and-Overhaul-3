@@ -5,7 +5,7 @@ CheatAddItem("itemid")
 ```
 ## Housekeeping
 - [X] Implement unified Component handling, with ancestor/CTH mode
-	- [ ] fix/unifiy with aCTH logic!!!
+	- [X] fix/unify with aCTH logic!!!
 	- [ ] Verify if patch called from TOG is redundant.
 
 ## Components
@@ -19,16 +19,16 @@ CheatAddItem("itemid")
 	- [ ] Heavy stock
 	- [ ] Barrels
 
-#
-- [ ] Verifiy if all weapons jamming at the same time
+
 
 ## aCTH Possible fragilities
+- [ ] **Make sure aCTH lite works as intended**
 - [ ] Make sure AI will orient before checking for cover in LOF.
 - [ ] Check how the `aCTH` deals with out-of-sight targets (wallbang).
 - [X] Check how it works agains non-humanoids
 - [ ] check if AI is considering bonus from crouch
 - [ ] ricochets still work?
-- [ ] Aim is being used in the Interrupt? shows 9 levels
+- [ ] Aim is being used in the Interrupt? shows 0 levels
 
 ## AI OVERHAUL - other mod 
 - [ ] Mechanics check
@@ -53,7 +53,9 @@ CheatAddItem("itemid")
 - [ ] Overwatch against last target pos when unit is hidden. also make them throw grenades at it, specially when at a rooftop
 
 ## aCTH Balancing
-- [ ] Pinned down mod suppression for strays
+- [ ] Create handling as a different thing than PB bonuses, for better tuning
+- [ ] Evaluate aim soft cap, to see if new values are not capped
+- [X] Pinned down mod suppression for strays
 - [X] Re-scale Aim Accuracy bonus for more gradient
 	- [X] UV dot
 	- [X] No stock penalty should be re-scaled as handguns have changed. Decide if more range penalty or more aim penalty is appropriate
@@ -72,6 +74,7 @@ CheatAddItem("itemid")
   - Ver `RECOIL MODEL.md`.
 
 ## Reimplementation necessary
+- [ ] AN94 2 round burst
 - [ ] Snipe/Pin Down action
 - [ ] gas, smoke, other grazing mechanics need to be changed
 - [ ] CQC bonus perk?
@@ -91,6 +94,7 @@ CheatAddItem("itemid")
 ------------------------------------------------------------------------------------------------------------------------------
 # Later Stuff
 ## aCTH Descriptions that need change
+- [ ] Recoil CTH UI display
 - [ ] Snapshot not resetting (keep it?)
 - [ ] DualShot max aim = 3
 - [ ] Autofire max aim levels
@@ -103,7 +107,7 @@ CheatAddItem("itemid")
 - [X] change AP scale
 	- [X] Rotation cost smooth
 	- [X] Manual cycling AP cost dexterity scaling smooth
-		- [ ] Retune the costs of manual cycling
+		- [X] Retune the costs of manual cycling
 - [ ] Autofire shot count.
 - [x] MG Recoil/setup rework (needs further testing)
 - [x] Crouch and prone effect on the aperture, elliptical
