@@ -1,5 +1,5 @@
 -- Vanilla params multiplied by const.Scale.AP in code; rescaled so they stay in displayed AP (and their "<param> AP" texts stay true).
--- Only presets this mod does NOT own: the editor saves our own items.lua from these same live objects, baking the x10 in and compounding it on every save.
+-- Only presets this mod does NOT own: our own are authored in displayed AP already.
 local APScaleParams = {
     CharacterEffectDefs = {
         {"AI_AdditionalAP", "bonus"}, {"BattleFocus", "battleFocusAP"}, {"Bleeding", "APLoss"},
@@ -16,22 +16,31 @@ local APScaleParams = {
     },
 }
 
--- Originals are kept so reapplying never compounds.
-local function ScaleParam(preset, name, key)
-    for _, param in ipairs(preset.Parameters or empty_table) do
-        if param.Name == name then
-            local orig = ratG_APScaleOriginals[key]
-            if orig == nil then
-                orig = param.Value
-                ratG_APScaleOriginals[key] = orig
-            end
-            local value = R_VanillaAPToDisplay(orig)
-            param.Value = value
-            if g_PresetParamCache[preset] then
-                g_PresetParamCache[preset][name] = value
-            end
-        end
+-- preset -> {param name -> authored Value} for every shadowed param.
+local APScaled = setmetatable({}, weak_keys_meta)
+
+function Rat_GetAPScaledParams(preset)
+    return APScaled[preset]
+end
+
+-- Param.Value is never touched, so an editor save by any mod keeps the authored value; the scaled one lives where
+-- ResolveValue finds it first and saving does not look:
+-- StoreAsTable presets (CombatActions) serialize every field but Preset:ResolveValue falls back to g_PresetParamCache;
+-- CharacterEffectCompositeDef reads Parameters directly, but GetProperty comes first and undeclared fields are not saved.
+local function ScaleParam(preset, name)
+    local param = table.find_value(preset.Parameters or empty_table, "Name", name)
+    if not param or preset:GetPropertyMetadata(name) then
+        return
     end
+    local value = R_VanillaAPToDisplay(param.Value)
+    if preset.StoreAsTable then
+        g_PresetParamCache[preset] = g_PresetParamCache[preset] or {}
+        g_PresetParamCache[preset][name] = value
+    else
+        rawset(preset, name, value)
+    end
+    APScaled[preset] = APScaled[preset] or {}
+    APScaled[preset][name] = param.Value
 end
 
 function Rat_ApplyAPScaleParams()
@@ -40,7 +49,7 @@ function Rat_ApplyAPScaleParams()
         for _, entry in ipairs(list) do
             local preset = presets[entry[1]]
             if preset then
-                ScaleParam(preset, entry[2], group .. "." .. entry[1] .. "." .. entry[2])
+                ScaleParam(preset, entry[2])
             end
         end
     end
