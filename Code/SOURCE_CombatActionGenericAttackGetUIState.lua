@@ -1,12 +1,27 @@
--- local GBO_OriginalFirearmGetBaseAttack = Firearm.GetBaseAttack
--- function Firearm:GetBaseAttack(unit, force)
---     local id = GBO_OriginalFirearmGetBaseAttack(self, unit, force)
---     if IsSlugLoaded(self) then
---         id = id or ""
---         id = id == "BuckshotBurst" and "BurstFire" or id == "Buckshot" and "SingleShot" or id
---     end
---     return id
--- end
+local GBO_OriginalFirearmGetBaseAttack = Firearm.GetBaseAttack
+
+-- DoubleBarrel stays visible with slugs and precedes SingleShot in AvailableAttacks.
+function Firearm:GetBaseAttack(unit, force)
+    local id = GBO_OriginalFirearmGetBaseAttack(self, unit, force)
+    if force or not IsSlugLoaded(self) then
+        return id
+    end
+    local action = CombatActions[id]
+    if not action or action.FiringModeMember ~= "AttackShotgun" then
+        return id
+    end
+    local units = {unit}
+    for _, alt_id in ipairs(self.AvailableAttacks) do
+        local alt = CombatActions[alt_id]
+        if alt and alt.FiringModeMember == "Attack" then
+            local target = alt.RequireTargets and alt:GetDefaultTarget(unit)
+            if alt:GetVisibility(units, target) ~= "hidden" then
+                return alt_id
+            end
+        end
+    end
+    return id
+end
 -- local _is_attack_available_units = {}
 -- local GBO_OriginalUnitGetDefaultAttackAction = Unit.GetDefaultAttackAction
 -- function Unit:GetDefaultAttackAction(force_ranged, force_ungrouped, weapon, sync, ignore_stealth,
