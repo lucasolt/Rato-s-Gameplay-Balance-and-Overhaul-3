@@ -390,17 +390,19 @@ function weapon_components_rat()
     PlaceObj('WeaponComponentEffect', {
         Description = T(940310929156,
                         "Reduces <em>AP</em> necessary to get into <em>Shooting Stance</em>"),
-        -- no StatToModify: engine Modifier drops fractional adds, read in GetWeapon_StanceAP
         Parameters = {
             PlaceObj(
                 'PresetParamNumber', {
                     'Name',
                     "APdecrease",
-                    'Value', 1, 'Tag',
+                    'Value', 10, 'Tag',
                     "<APdecrease>"
                 })
         },
         RequiredParams = {"APdecrease"},
+        -- displayed AP, integer: the engine Modifier drops fractional adds
+        StatToModify = "APStance",
+        ModificationType = "Subtract",
         group = "Stats",
         id = "StanceAPdecrease"
     })
@@ -408,17 +410,18 @@ function weapon_components_rat()
 	PlaceObj('WeaponComponentEffect', {
         Description = T(940310929156,
                         "Reduces <em>AP</em> necessary to get into <em>Shooting Stance</em>"),
-        -- no StatToModify: engine Modifier drops fractional adds, read in GetWeapon_StanceAP
         Parameters = {
             PlaceObj(
                 'PresetParamNumber', {
                     'Name',
                     "APdecrease",
-                    'Value', 1, 'Tag',
+                    'Value', 10, 'Tag',
                     "<APdecrease>"
                 })
         },
         RequiredParams = {"APdecrease"},
+        StatToModify = "APStance",
+        ModificationType = "Subtract",
         group = "Stats",
         id = "StanceAPdecrease_fraction"
     })
@@ -431,11 +434,13 @@ function weapon_components_rat()
                 'PresetParamNumber', {
                     'Name',
                     "APincrease",
-                    'Value', 1, 'Tag',
+                    'Value', 10, 'Tag',
                     "<APincrease>"
                 })
         },
         RequiredParams = {"APincrease"},
+        StatToModify = "APStance",
+        ModificationType = "Add",
         group = "Stats",
         id = "StanceAPincrease"
     })

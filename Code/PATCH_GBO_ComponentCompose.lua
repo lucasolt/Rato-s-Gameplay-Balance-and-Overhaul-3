@@ -99,7 +99,7 @@ GBO_COMP_TRAITS = {
             RangeIncrease = 4,
             DamageIncrease = 1,
             AimAccuracyIncrease = 2,
-            APincrease = 1
+            APincrease = 10
         },
         modes = {
             aCTH = {
@@ -116,7 +116,7 @@ GBO_COMP_TRAITS = {
             OverwatchAngle = 95,
             RangeIncrease = 4,
             AimAccuracyIncrease = 2,
-            APincrease = 1
+            APincrease = 10
         },
 		modes = {
 			aCTH = {
@@ -130,7 +130,7 @@ GBO_COMP_TRAITS = {
             OverwatchAngle = 107,
             RangeDecrease = 2,
             DamageReduced = 1,
-            APdecrease = 1
+            APdecrease = 10
         },
 		modes = {
 			aCTH = {
@@ -144,7 +144,7 @@ GBO_COMP_TRAITS = {
         params = {
             OverwatchAngle = 107,
             RangeDecrease = 2,
-            APdecrease = 1
+            APdecrease = 10
         },
 		modes = {
 			aCTH = {
@@ -163,7 +163,7 @@ GBO_COMP_TRAITS = {
         params = {
 			OverwatchAngle = 105,
 		 	RangeDecrease = 2,
-			APdecrease = 0.3
+			APdecrease = 3
 		},
 		modes = {
 			aCTH = {
@@ -189,7 +189,7 @@ GBO_COMP_TRAITS = {
 			DamageIncrease = 1,
 			AimAccuracyIncrease = 1,
 			OverwatchAngle = 92,
-			APincrease = 0.3
+			APincrease = 3
 		},
 		modes = {
 			aCTH = {
@@ -240,7 +240,7 @@ GBO_COMP_TRAITS = {
 			"hipfire_light_stock",
 			"stocklight_effect_recoil",},
 		params = {
-			APdecrease = 0.5 --1
+			APdecrease = 5 --10
 		},
 		modes = {
 			aCTH = {
@@ -286,7 +286,7 @@ GBO_COMP_TRAITS = {
 		params = {
 			DamageIncrease = 10,
 			ReliabilityDecrease = 10,
-			APincrease = 1,
+			APincrease = 10,
 		}
 	},
 	["Barrel.to762_54R"]={
@@ -340,7 +340,7 @@ GBO_BASE_RECIPES = {
     },
     StockHeavy = {
         effects = {"BonusAccuracyWhenFullyAimed", "stance_ap_inc_STR", "stockheavy_effect_recoil"},
-        params = {range = 10, bonus_cth = 10, StanceIncreaseSTR = 1, STR_threshold = 85},
+        params = {range = 10, bonus_cth = 10, StanceIncreaseSTR = 10, STR_threshold = 85},
         pct = {bonus_cth = true}
     },
     StockNormal = {effects = {}},
@@ -410,14 +410,14 @@ GBO_BASE_RECIPES = {
             "ReduceAimAccuracy", "no_stock", "StanceAPdecrease", "IncreaseOverwatchAngle",
             "hipfire_no_stock", "Enable_RunAndGun", "zzStockEquipped", "ReduceRange"
         },
-        params = {AimAccuracyDecrease = 3, OverwatchAngle = 108, APdecrease = 1, RangeDecrease = 4}
+        params = {AimAccuracyDecrease = 3, OverwatchAngle = 108, APdecrease = 10, RangeDecrease = 4}
     },
     _Master_StockLightUnfolded_TOG = {
         effects = {
             "light_stock_aim_reduce", "StanceAPdecrease", "stocklight_effect_recoil",
             "hipfire_light_stock", "zzStockEquipped"
         },
-        params = {AimAccuracyDecrease = 2, APdecrease = 1}
+        params = {AimAccuracyDecrease = 2, APdecrease = 10}
     },
     _Master_StockNormalUnfolded_TOG = {effects = {"zzStockEquipped"}},
     _Master_VigM2_Stock_unfld_TOG = {
@@ -467,7 +467,7 @@ GBO_BASE_RECIPES = {
 		},
 		params = {
 			OverwatchAngleIncrease = 108,
-			APdecrease = 1,
+			APdecrease = 10,
 			RangeDecrease = 4
 		},
 		modes = {
@@ -521,7 +521,7 @@ GBO_BASE_RECIPES = {
 			RangeIncrease = 4,
 			DamageIncrease = 1,
 			AimAccuracyIncrease = 2,
-			APincrease = 1,
+			APincrease = 10,
 			OverwatchAngleDecrease = 95,
 		},
 		modes = {
@@ -542,7 +542,7 @@ GBO_BASE_RECIPES = {
 			DamageReduced = 1,
 			RangeDecrease = 2,
 			OverwatchAngleIncrease = 107,
-			APdecrease = 1
+			APdecrease = 10
 		}
 	},
 	BarrelShort_handgun = {
@@ -569,7 +569,7 @@ GBO_BASE_RECIPES = {
 			DamageReduced = 1,
 			RangeDecrease = 2,
 			OverwatchAngleIncrease = 107,
-			APdecrease = 1,
+			APdecrease = 10,
 			MagazineSizeDecrease = 2
 		}
 	},
@@ -587,7 +587,7 @@ GBO_BASE_RECIPES = {
 			DamageReduced = 1,
 			RangeDecrease = 2,
 			OverwatchAngleIncrease = 107,
-			APdecrease = 1,
+			APdecrease = 10,
 			MagazineSizeDecrease = 2,
 			BuckshotAngleIncrease = 122,
 		}
@@ -605,7 +605,7 @@ GBO_BASE_RECIPES = {
             RangeIncrease = 16,
             crit = 15,
             OverwatchAngleDecrease = 50,
-            APincrease = 1
+            APincrease = 10
         }
     },
     ThermalScope = {
@@ -621,7 +621,7 @@ GBO_BASE_RECIPES = {
         params = {
             RangeIncrease = 10,
             OverwatchAngleDecrease = 50,
-            APincrease = 1
+            APincrease = 10
         }
     },
     SCOPE_G36_2 = {
@@ -822,7 +822,7 @@ GBO_BASE_RECIPES = {
             MaxAimActionsIncrease = 1,
             RangeIncrease = 10,
             OverwatchAngleDecrease = 68,
-            APincrease = 1
+            APincrease = 10
         }
     },
     LROptics = {
@@ -837,7 +837,7 @@ GBO_BASE_RECIPES = {
             MaxAimActionsIncrease = 1,
             RangeIncrease = 10,
             OverwatchAngleDecrease = 65,
-            APincrease = 1
+            APincrease = 10
         }
     },
     LROpticsAdvanced = {
@@ -852,7 +852,7 @@ GBO_BASE_RECIPES = {
             MaxAimActionsIncrease = 2,
             RangeIncrease = 16,
             OverwatchAngleDecrease = 50,
-            APincrease = 1
+            APincrease = 10
         }
     },
     ImprovedIronsight = {
@@ -906,7 +906,7 @@ GBO_BASE_RECIPES = {
         params = {
             RangeIncrease = 10,
             OverwatchAngleDecrease = 60,
-            APincrease = 1,
+            APincrease = 10,
             stealth_kill_bonus = 6,
             MaxAimActionsIncrease = 1
         }
@@ -923,7 +923,7 @@ GBO_BASE_RECIPES = {
         params = {
             RangeIncrease = 10,
             OverwatchAngleDecrease = 60,
-            APincrease = 1,
+            APincrease = 10,
             stealth_kill_bonus = 6,
             MaxAimActionsIncrease = 1
         }
@@ -940,7 +940,7 @@ GBO_BASE_RECIPES = {
         params = {
             RangeIncrease = 10,
             OverwatchAngleDecrease = 60,
-            APincrease = 1,
+            APincrease = 10,
             MaxAimActionsIncrease = 1,
             critical_head = 15
         }
@@ -957,7 +957,7 @@ GBO_BASE_RECIPES = {
         params = {
             RangeIncrease = 10,
             OverwatchAngleDecrease = 60,
-            APincrease = 1,
+            APincrease = 10,
             MaxAimActionsIncrease = 1,
             critical_head = 15
         }

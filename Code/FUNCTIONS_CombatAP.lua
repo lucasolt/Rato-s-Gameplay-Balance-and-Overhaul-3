@@ -87,68 +87,78 @@ function rat_getMobileshot_moveAP(action, unit, weapon)
     return move_ap
 end
 ---------------------------------------------------------------------------------------------------
--- Component stance params stay in vanilla AP (Tools of Guerilla authors them, some fractional).
-local function vanilla_ap_raw(n)
-    return math.floor(n * const.Combat.R_VanillaAPRaw + 0.5)
-end
-
--- Sum of a stance AP param over all components, as raw AP. A component counts once even if it lists several ids.
-local function stance_component_raw(weapon, effect_ids, param)
-    local total = 0
-    for _, component_id in pairs(weapon.components or empty_table) do
-        local def = WeaponComponents[component_id]
-        local effects = def and def.ModificationEffects or empty_table
-        for _, effect_id in ipairs(effect_ids) do
-            if table.find(effects, effect_id) then
-                total = total + (def:ResolveValue(param) or WeaponComponentEffects[effect_id]:ResolveValue(param) or 0)
-                break
+-- Modifier a component adds to `prop` on attach (mirrors FirearmBase:SetWeaponComponent: last effect wins).
+local function component_stat_modifier(component_id, prop)
+    local def = WeaponComponents[component_id]
+    local mul, add
+    for _, effect_id in ipairs(def and def.ModificationEffects or empty_table) do
+        local effect = WeaponComponentEffects[effect_id]
+        local param = effect and effect.StatToModify == prop and effect.Parameters and effect.Parameters[1]
+        if param then
+            local value = def:ResolveValue(param.Name) or effect:ResolveValue(param.Name) or 0
+            local scale = effect.Scale and const.Scale[effect.Scale]
+            if scale then
+                value = value * scale
+            end
+            mul, add = 1000, 0
+            if effect.ModificationType == "Add" then
+                add = value
+            elseif effect.ModificationType == "Multiply" then
+                mul = value * 10
+            elseif effect.ModificationType == "Subtract" then
+                add = -value
             end
         end
     end
-    return vanilla_ap_raw(total)
+    return mul, add
 end
 
-local stance_ap_increase_ids = {"StanceAPincrease"}
-local stance_ap_decrease_ids = {"StanceAPdecrease", "StanceAPdecrease_fraction"}
-
-local function component_writes_stance_ap(component_id)
-    for _, effect_id in ipairs(WeaponComponents[component_id].ModificationEffects or empty_table) do
-        local effect = WeaponComponentEffects[effect_id]
-        if effect and effect.StatToModify == "APStance" then
-            return true
+-- Saves replay the params baked at attach time; rebuild APStance from the current component defs.
+local function rebuild_stance_modifiers(weapon)
+    local stale = {}
+    for _, data in ipairs(weapon.applied_modifiers or empty_table) do
+        if data.prop == "APStance" and WeaponComponents[data.id] then
+            stale[#stale + 1] = data.id
+        end
+    end
+    for _, component_id in ipairs(stale) do
+        weapon:RemoveModifier(component_id, "APStance")
+    end
+    for _, component_id in sorted_pairs(weapon.components or empty_table) do
+        local mul, add = component_stat_modifier(component_id, "APStance")
+        if mul then
+            weapon:AddModifier(component_id, "APStance", mul, add)
         end
     end
 end
 
--- Saves bake APStance modifiers from when the stance effects had StatToModify; drop them so
--- APStance keeps only live writers and the component sum above is not counted twice.
-function FirearmBase:ApplyModifiersList(list, add)
-    for i = #(list or empty_table), 1, -1 do
-        local data = list[i]
-        if data.prop == "APStance" and WeaponComponents[data.id] and not component_writes_stance_ap(data.id) then
-            table.remove(list, i)
-        end
+local place_inventory_item = PlaceInventoryItem
+
+function PlaceInventoryItem(item_id, instance, ...)
+    local obj = place_inventory_item(item_id, instance, ...)
+    if instance and IsKindOf(obj, "FirearmBase") then
+        rebuild_stance_modifiers(obj)
     end
-    return ZuluModifiable.ApplyModifiersList(self, list, add)
+    return obj
 end
 
--- Raw AP; APStance is authored in displayed AP. `display` skips the AI multiplier.
+-- Raw AP; APStance and component stance params are in displayed AP. `display` skips the AI multiplier.
 function GetWeapon_StanceAP(unit, weapon, display)
     if not weapon or not IsKindOf(weapon, "Firearm") then
         return 0
     end
     local raw = Cumbersome_StanceAP(unit, weapon, weapon.APStance) * const.Scale.AP
 
+    -- Strength-conditional, so it cannot be a stat modifier.
     local modifyVal = GetComponentEffectValue(weapon, "stance_ap_inc_STR", "StanceIncreaseSTR")
     if modifyVal then
         local str_min = GetComponentEffectValue(weapon, "stance_ap_inc_STR", "STR_threshold")
         if not unit or unit.Strength < str_min then
-            raw = raw + vanilla_ap_raw(modifyVal)
+            raw = raw + modifyVal * const.Scale.AP
         end
     end
 
-    raw = Max(0, raw + stance_component_raw(weapon, stance_ap_increase_ids, "APincrease") -
-        stance_component_raw(weapon, stance_ap_decrease_ids, "APdecrease"))
+    raw = Max(0, raw)
 
     if display then
         return raw
