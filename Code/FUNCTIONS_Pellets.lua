@@ -68,8 +68,10 @@ function Firearm:GetPelletScatterData(attacker, action, attack_pos, target_pos, 
     local scatter_range = 20 * const.SlabSizeX -- range
     local max_angle_offset = 360 * 60
     ----
-    local scatter = Max(min_offset, MulDivRound(scatter_range, sin(aoe_params.cone_angle / 2),
-                                                Max(1, cos(aoe_params.cone_angle / 2))))
+    -- Non-buckshot action ids (Mobile Shot, Run and Gun...) get no cone_angle in their params.
+    local cone_angle = aoe_params.cone_angle or self.BuckshotConeAngle or 0
+    local scatter = Max(min_offset, MulDivRound(scatter_range, sin(cone_angle / 2),
+                                                Max(1, cos(cone_angle / 2))))
 
     local var_offset = Max(0, scatter - min_offset)
 
