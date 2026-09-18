@@ -128,29 +128,7 @@ function Firearm:GetPelletScatterData(attacker, action, attack_pos, target_pos, 
     -- lof_params.seed = attacker:Random()
     -- lof_params.range = range + scatter + guim
 
-    local lof_args = {
-        attack_pos = attack_pos,
-        obj = attacker,
-        output_collisions = true,
-        range = range + scatter + guim,
-        seed = attacker:Random(),
-        penetration_class = 0
-    }
-    lof_args.fire_relative_point_attack = false
-    lof_args.clamp_to_target = true
-    lof_args.extend_shot_start_to_attacker = false
-    lof_args.can_hit_attacker = true
-    lof_args.ignore_los = true
-    lof_args.inside_attack_area_check = false
-    lof_args.forced_hit_on_eye_contact = false
-    lof_args.can_use_covers = false
-    lof_args.emplacement_weapon = false
-    lof_args.ignore_los = true
-    lof_args.inside_attack_area_check = false
-    lof_args.forced_hit_on_eye_contact = false
-    lof_args.prediction = false
-    lof_args.aimIK = false
-    lof_args.can_stuck_on_unit = true
+    local lof_args = PelletLoFArgs(attacker, attack_pos, range + scatter + guim)
 
     local shots_hit_data = {}
 
@@ -172,20 +150,64 @@ function Firearm:GetPelletScatterData(attacker, action, attack_pos, target_pos, 
                 end
             end
             ----------
-            local lof_idx
-            ---- Not sure if should check for spot group
-            -- lof_idx = lof_idx or
-            -- 			  table.find(attack_data.lof, "target_spot_group",
-            -- 						 shot_attack_args.target_spot_group)
-            hit_data = attack_data.outside_attack_area_lof or attack_data.lof and
-                           attack_data.lof[lof_idx or 1]
-            -- 
-
+            hit_data = PelletHitData(attack_data)
         end
         table.insert(shots_hit_data, hit_data)
     end
 
     return shots_hit_data
+end
+
+---- Slugs out of a multi-barrel shot: each one flies parallel to the main slug, one barrel apart.
+function Firearm:GetParallelSlugData(attacker, attack_pos, main_end_pos, num_vectors, range)
+    if num_vectors < 1 then
+        return {}
+    end
+    local dir = main_end_pos - attack_pos
+    if dir:Len2D() < 1 then
+        dir = RotateRadius(guim, attacker:GetAngle())
+    end
+    local spacing = (const.Weapons.DoubleBarrelSlugSpacing or 3) * guic
+    local shots_hit_data = {}
+    for i = 1, num_vectors do
+        local side = SetLen(point(-dir:y(), dir:x(), 0), spacing * i)
+        local origin = attack_pos + side
+        local lof_args = PelletLoFArgs(attacker, origin, range)
+        local attack_data = GetLoFData(attacker, origin + SetLen(dir, range), lof_args)
+        shots_hit_data[i] = attack_data and PelletHitData(attack_data)
+    end
+    return shots_hit_data
+end
+
+function PelletHitData(attack_data)
+    return attack_data.outside_attack_area_lof or attack_data.lof and attack_data.lof[1]
+end
+
+function PelletLoFArgs(attacker, attack_pos, range)
+    local lof_args = {
+        attack_pos = attack_pos,
+        obj = attacker,
+        output_collisions = true,
+        range = range,
+        seed = attacker:Random(),
+        penetration_class = 0
+    }
+    lof_args.fire_relative_point_attack = false
+    lof_args.clamp_to_target = true
+    lof_args.extend_shot_start_to_attacker = false
+    lof_args.can_hit_attacker = true
+    lof_args.ignore_los = true
+    lof_args.inside_attack_area_check = false
+    lof_args.forced_hit_on_eye_contact = false
+    lof_args.can_use_covers = false
+    lof_args.emplacement_weapon = false
+    lof_args.ignore_los = true
+    lof_args.inside_attack_area_check = false
+    lof_args.forced_hit_on_eye_contact = false
+    lof_args.prediction = false
+    lof_args.aimIK = false
+    lof_args.can_stuck_on_unit = true
+    return lof_args
 end
 
 ---- Distance was 8 tiles / DoubleBarrelshotgun 

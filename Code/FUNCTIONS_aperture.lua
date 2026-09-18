@@ -1470,7 +1470,9 @@ end
 
 ---- Secondary pellet: crossing the target is a hit even if the main pellet missed. Part and crit are
 ---- settled here because BulletCalcDamage only rolls crit when hit_data.critical is nil.
-function Rat_SimPelletHit(weapon, attacker, target, action, args, aimed_spot, base_crit, pellet_hit_data)
+---- crit_roll: a parallel slug shares the attack's roll; slug: full off-part knobs, not the pellet ones.
+function Rat_SimPelletHit(weapon, attacker, target, action, args, aimed_spot, base_crit,
+                         pellet_hit_data, crit_roll, slug)
     local hit_it, spot = Rat_SimHitSpot(pellet_hit_data, target)
     if not hit_it then
         return false
@@ -1482,8 +1484,11 @@ function Rat_SimPelletHit(weapon, attacker, target, action, args, aimed_spot, ba
         chance = attacker:CalcCritChance(weapon, target, action, args, args.step_pos)
         args.target_spot_group = prev
     end
-    local off_part = Rat_IsOffPart(aimed_spot, spot, true)
+    local off_part = Rat_IsOffPart(aimed_spot, spot, not slug)
     chance = Rat_OffPartCritChance(chance, off_part)
+    if crit_roll then
+        return true, spot, off_part, crit_roll <= chance
+    end
     return true, spot, off_part, attacker:Random(100) < chance
 end
 

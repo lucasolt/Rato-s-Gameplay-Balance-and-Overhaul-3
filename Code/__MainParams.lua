@@ -97,6 +97,7 @@ const.Weapons.PointBlankRange = 6 --- tiles
 const.EnvEffects.RainAimingMultiplier = 0 --- %
 const.Weapons.CriticalDamage = 50
 const.Weapons.DoubleBarrelDamageBonus = 0 -- 50
+const.Weapons.DoubleBarrelSlugSpacing = 3 --- cm between parallel slugs
 const.EnvEffects.RainConditionLossMod = 75
 const.EnvEffects.FogSightMod = -30
 const.EnvEffects.FogGrazeChance = 0-- 25

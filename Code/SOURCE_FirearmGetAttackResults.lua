@@ -237,6 +237,9 @@ function Firearm:GetAttackResults(action, attack_args)
     ----------------------------------------
     local pellet_count = self:GetNumPellets(attacker, action and action.id) or 0
     local is_pellet_shot = pellet_count > 0 and not attack_args.prediction
+    ---- slugs ride the pellet path only to fire together; they are scored as bullets
+    local slug_shot = IsSlugLoaded(self)
+    local parallel_slugs = is_pellet_shot and slug_shot and pellet_count > 1
 
     local graze_threshold = is_pellet_shot and const.Combat.PelletShotGrazeThreshold or num_shots >
                                 1 and const.Combat.MultishotGrazeThreshold or
@@ -669,7 +672,9 @@ function Firearm:GetAttackResults(action, attack_args)
             end
 
             ---- wrong part of the right target: soft stray, the crit is mostly taken away.
-            shot_off_part = (not shot_miss) and Rat_IsOffPart(rat_aimed_part, shot_hit_spot, is_pellet_shot)
+            shot_off_part = (not shot_miss) and
+                                Rat_IsOffPart(rat_aimed_part, shot_hit_spot,
+                                              is_pellet_shot and not slug_shot)
             shot_crit_chance = Rat_OffPartCritChance(shot_crit_chance, shot_off_part)
 
             ---- crit rolado por tiro, so vale se a bala chegou. Sem multishot (Buckshot, DoubleBarrel,
@@ -878,11 +883,18 @@ function Firearm:GetAttackResults(action, attack_args)
             attack_results.shots[i].main_pellet = true
             local main_pellet_target_pos = hit_data.stuck_pos or hit_data.lof_pos2 or
                                                hit_data.target_pos
-            local pellet_data = self:GetPelletScatterData(attacker, action,
-                                                          attack_results.attack_pos,
-                                                          main_pellet_target_pos,
-                                                          (pellet_count - 1), aoe_params,
-                                                          attack_results, shot_attack_args)
+            local pellet_data
+            if parallel_slugs then
+                pellet_data = self:GetParallelSlugData(attacker, attack_results.attack_pos,
+                                                       main_pellet_target_pos, pellet_count - 1,
+                                                       shot_attack_args.range)
+            else
+                pellet_data = self:GetPelletScatterData(attacker, action,
+                                                        attack_results.attack_pos,
+                                                        main_pellet_target_pos,
+                                                        (pellet_count - 1), aoe_params,
+                                                        attack_results, shot_attack_args)
+            end
 
             for p_i, pellet_hit_data in ipairs(pellet_data) do
 
@@ -895,11 +907,19 @@ function Firearm:GetAttackResults(action, attack_args)
                         p_hit, p_spot, p_off_part, p_crit =
                             Rat_SimPelletHit(self, attacker, target, action, shot_attack_args,
                                              rat_aimed_part, attack_results.crit_chance,
-                                             pellet_hit_data)
+                                             pellet_hit_data,
+                                             parallel_slugs and
+                                                 (shot_attack_args.multishot and
+                                                     attack_results.crit_roll[i] or
+                                                     attack_results.crit_roll),
+                                             slug_shot)
                         if p_hit then
                             pellet_hit_data.critical = p_crit
                             pellet_hit_data.target_spot_group = p_spot or nil
                         end
+                    elseif parallel_slugs then
+                        ---- old CTH: the volley shares the attack roll, crit included
+                        pellet_hit_data.critical = shot_crit
                     end
                     for _, hit in ipairs(pellet_hit_data.hits) do
                         if hit.obj and hit.obj == target then
