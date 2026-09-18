@@ -1310,6 +1310,58 @@ function weapon_components_rat()
             }
         end
     end
+    GBO_SwapPBHandlingDescriptions()
+end
+
+---- aCTH feeds PBbonus into Handling (Rat_ApertureHandlingMul) instead of a point blank bonus: {old CTH, aCTH}.
+local pb_handling_descriptions = {
+    bullpup = {
+        T(498763703334, "Bullpup design, increases Point Blank range accuracy bonus and Shooting Angle"),
+        T(621889104903, "Bullpup design, decreases <em>Handling</em> penalty and increases Shooting Angle")
+    },
+    longbarrel = {
+        T(915008271800, "Decreased Hipfire penalty, increased Snapshot penalty, reduced Recoil penalty, decreased Point Blank range accuracy, harder to hit at melee range"),
+        T(986565498973, "Decreased Hipfire penalty, increased Snapshot penalty, reduced Recoil penalty, increased <em>Handling</em> penalty, harder to hit at melee range")
+    },
+    shortbarrel = {
+        T(173836158177, "Increased Hipfire penalty, decreased Snapshot penalty, increased Recoil penalty, increased Point Blank range accuracy, easier to hit at melee range"),
+        T(729906022611, "Increased Hipfire penalty, decreased Snapshot penalty, increased Recoil penalty, decreased <em>Handling</em> penalty, easier to hit at melee range")
+    },
+    tac_grip_PB = {
+        T(952508575329, "Slightly increased Point-Blank range accuracy bonus"),
+        T(174091519276, "Slightly decreased <em>Handling</em> penalty")
+    },
+    IncreasePointBlankAccuracyBonus = {
+        T(912316475877, "Increases Point-Blank range accuracy bonus"),
+        T(791929867524, "Decreases <em>Handling</em> penalty")
+    },
+    DecreasePointBlankAccuracyBonus = {
+        T(156932878971, "Decreases Point-Blank range accuracy bonus"),
+        T(695014801114, "Increases <em>Handling</em> penalty")
+    },
+    vigneron_folded_PB = {
+        T(897995963554, "Increases Point Blank Range accuracy bonus by 1"),
+        T(169244869056, "Slightly decreases <em>Handling</em> penalty")
+    },
+    handguard_short = {
+        T(236633317127, "Decreases weapon length, affecting Recoil, Snapshot, Hipfire accuracy penalties and Point Blank Range accuracy modifiers"),
+        T(588843192458, "Decreases weapon length, affecting Recoil, Snapshot, Hipfire accuracy and <em>Handling</em> penalties")
+    },
+    handguard_ext = {
+        T(219179226706, "Increases weapon length, affecting Recoil, Snapshot, Hipfire accuracy penalties and Point Blank Range accuracy modifiers"),
+        T(700413725434, "Increases weapon length, affecting Recoil, Snapshot, Hipfire accuracy and <em>Handling</em> penalties")
+    }
+}
+
+---- Called on preset creation and on every CTH mode change (GBO_ApplyApertureCTHMode).
+function GBO_SwapPBHandlingDescriptions()
+    local idx = IsACHTActive() and 2 or 1
+    for id, pair in pairs(pb_handling_descriptions) do
+        local effect = WeaponComponentEffects[id]
+        if effect then
+            effect.Description = pair[idx]
+        end
+    end
 end
 
 local t_table = {
@@ -1400,7 +1452,16 @@ local t_table = {
     [156932878971] = "Decreases Point-Blank range accuracy bonus",
     [912316475877] = "Increases Point-Blank range accuracy bonus",
     [645613895578] = "Increases weapon condition degradation",
-	[999879465877] = "Grants <em>Accuracy</em> bonus when prone"
+	[999879465877] = "Grants <em>Accuracy</em> bonus when prone",
+    [621889104903] = "Bullpup design, decreases <em>Handling</em> penalty and increases Shooting Angle",
+    [986565498973] = "Decreased Hipfire penalty, increased Snapshot penalty, reduced Recoil penalty, increased <em>Handling</em> penalty, harder to hit at melee range",
+    [729906022611] = "Increased Hipfire penalty, decreased Snapshot penalty, increased Recoil penalty, decreased <em>Handling</em> penalty, easier to hit at melee range",
+    [174091519276] = "Slightly decreased <em>Handling</em> penalty",
+    [791929867524] = "Decreases <em>Handling</em> penalty",
+    [695014801114] = "Increases <em>Handling</em> penalty",
+    [169244869056] = "Slightly decreases <em>Handling</em> penalty",
+    [588843192458] = "Decreases weapon length, affecting Recoil, Snapshot, Hipfire accuracy and <em>Handling</em> penalties",
+    [700413725434] = "Increases weapon length, affecting Recoil, Snapshot, Hipfire accuracy and <em>Handling</em> penalties"
 }
 
 ratG_T_table['COMPONENT_weaponcomp_effects.lua'] =

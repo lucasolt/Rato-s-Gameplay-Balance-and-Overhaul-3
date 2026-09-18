@@ -78,6 +78,10 @@ function GBO_ApplyApertureCTHMode(mode)
 	if generalComponentPatch then
         generalComponentPatch()
     end
+    local swapPBDescriptions = _G.GBO_SwapPBHandlingDescriptions -- nil during this file's own load call
+    if swapPBDescriptions then
+        swapPBDescriptions()
+    end
 
     ---- Unidade so re-encara o inimigo mais proximo no PROPRIO turno. Ver
     ---- SOURCE_UnitSetTargetDummyFromPos: sem isto a silhueta exposta muda sozinha a cada
