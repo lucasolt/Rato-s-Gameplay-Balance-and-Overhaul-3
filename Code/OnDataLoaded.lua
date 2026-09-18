@@ -38,6 +38,8 @@ function rat_apply_changes()
     ---- o circulo de mira do crosshair passa a mostrar a abertura real
     Rat_PatchCrosshairAimCircle()
 
+    GBO_SwapACTHTexts() -- after every preset text above is set
+
 
     -- add_recalcUI() ----smart ow compatibility
 end
