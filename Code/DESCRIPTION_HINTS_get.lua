@@ -220,6 +220,26 @@ function GBO_GetDescriptionHints(self)
 	return T {formattedString}
 end
 
+---- Weapon modification screen bars. Store vanilla once so a mod reload doesn't wrap the override.
+local vanilla_modify_props = _G.GBO_VanillaGetWeaponModifyProperties or GetWeaponModifyProperties
+GBO_VanillaGetWeaponModifyProperties = vanilla_modify_props
+
+local ModifyBarMaxShootAPVanilla = 10
+local ModifyBarMaxAimAccuracyACTH = 70
+
+function GetWeaponModifyProperties(item)
+	local statList = vanilla_modify_props(item)
+	local aim_bind = Presets.WeaponPropertyDef.Default.AimAccuracy.bind_to
+	for _, stat in ipairs(statList) do
+		if stat.id == "ShootAP" then
+			stat.max = R_VanillaAP(ModifyBarMaxShootAPVanilla) / const.Scale.AP
+		elseif stat.bind_to == aim_bind and IsACHTActive() then
+			stat.max = ModifyBarMaxAimAccuracyACTH
+		end
+	end
+	return statList
+end
+
 
 local t_id_table = {
     [153781665575] = "\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Cumbersome (no Free Move)\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Increases Stance AP cost by 1 (negated by high Strength)\n",
