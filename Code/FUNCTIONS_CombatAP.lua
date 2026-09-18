@@ -109,8 +109,28 @@ local function stance_component_raw(weapon, effect_ids, param)
 end
 
 local stance_ap_increase_ids = {"StanceAPincrease"}
--- _fraction is Stock.Light's id; plain StanceAPdecrease is used by 49 components (no stock, folded, short barrels).
 local stance_ap_decrease_ids = {"StanceAPdecrease", "StanceAPdecrease_fraction"}
+
+local function component_writes_stance_ap(component_id)
+    for _, effect_id in ipairs(WeaponComponents[component_id].ModificationEffects or empty_table) do
+        local effect = WeaponComponentEffects[effect_id]
+        if effect and effect.StatToModify == "APStance" then
+            return true
+        end
+    end
+end
+
+-- Saves bake APStance modifiers from when the stance effects had StatToModify; drop them so
+-- APStance keeps only live writers and the component sum above is not counted twice.
+function FirearmBase:ApplyModifiersList(list, add)
+    for i = #(list or empty_table), 1, -1 do
+        local data = list[i]
+        if data.prop == "APStance" and WeaponComponents[data.id] and not component_writes_stance_ap(data.id) then
+            table.remove(list, i)
+        end
+    end
+    return ZuluModifiable.ApplyModifiersList(self, list, add)
+end
 
 -- Raw AP; APStance is authored in displayed AP. `display` skips the AI multiplier.
 function GetWeapon_StanceAP(unit, weapon, display)
