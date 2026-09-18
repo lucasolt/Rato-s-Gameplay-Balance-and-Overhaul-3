@@ -15,8 +15,22 @@ local function reapply_tog_components()
     end
 end
 
+---- RatoGBOComponents replaces the Mag* Visuals lists, wiping the ToG RevMags entries (MAC11_1 etc.)
+local function reapply_tog_revmag_visuals()
+    for _, name in ipairs{"GBOTOG_RevMag_WeaponComponentVisualPatch_manual", "GBOTOG_RevMag_WeaponComponentVisualPatch"} do
+        local fn = _G[name]
+        if fn then
+            local ok, err = pcall(fn)
+            if not ok then
+                print("GBO: " .. name .. " reapply failed --", err)
+            end
+        end
+    end
+end
+
 function GBO_GeneralComponentPatch()
     RatoGBOComponents()
+    reapply_tog_revmag_visuals()
     --ApplyApertureItemParams() -- override de comps enquanto o aperture esta ligado
 	reapply_tog_components()
 	GBO_ApplyComponentCompose() -- BEFORE ancestors, otherwise the children wont have the traits
