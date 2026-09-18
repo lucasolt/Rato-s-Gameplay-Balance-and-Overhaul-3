@@ -159,7 +159,7 @@ function Firearm:GetPelletScatterData(attacker, action, attack_pos, target_pos, 
 end
 
 ---- Slugs out of a multi-barrel shot: each one flies parallel to the main slug, one barrel apart.
-function Firearm:GetParallelSlugData(attacker, attack_pos, main_end_pos, num_vectors, range)
+function Firearm:GetParallelSlugData(attacker, attack_pos, main_end_pos, num_vectors, shot_args)
     if num_vectors < 1 then
         return {}
     end
@@ -173,6 +173,9 @@ function Firearm:GetParallelSlugData(attacker, attack_pos, main_end_pos, num_vec
         local side = SetLen(point(-dir:y(), dir:x(), 0), spacing * i)
         local origin = attack_pos + side
         local lof_args = PelletLoFArgs(attacker, origin, range)
+        ---- a slug penetrates and over-penetrates like the main shot, unlike a pellet
+        lof_args.penetration_class = shot_args.penetration_class or 0
+        lof_args.can_stuck_on_unit = shot_args.can_stuck_on_unit
         local attack_data = GetLoFData(attacker, origin + SetLen(dir, range), lof_args)
         shots_hit_data[i] = attack_data and PelletHitData(attack_data)
     end

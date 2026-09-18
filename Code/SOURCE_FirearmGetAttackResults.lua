@@ -887,7 +887,8 @@ function Firearm:GetAttackResults(action, attack_args)
             if parallel_slugs then
                 pellet_data = self:GetParallelSlugData(attacker, attack_results.attack_pos,
                                                        main_pellet_target_pos, pellet_count - 1,
-                                                       shot_attack_args.range)
+                                                       shot_attack_args.range,
+                                                       shot_attack_args.penetration_class)
             else
                 pellet_data = self:GetPelletScatterData(attacker, action,
                                                         attack_results.attack_pos,

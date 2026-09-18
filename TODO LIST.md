@@ -26,35 +26,39 @@ CheatAddItem("itemid")
 - [ ] Make sure AI will orient before checking for cover in LOF.
 - [ ] Check how the `aCTH` deals with out-of-sight targets (wallbang).
 - [X] Check how it works agains non-humanoids
-- [ ] check if AI is considering bonus from crouch
 - [ ] ricochets still work?
-- [ ] Aim is being used in the Interrupt? shows 0 levels
+- [X] Aim is being used in the Interrupt? shows 0 levels
+
+-[ ] **possible BUG** Shotgun "killed unit was reported, but no "attack hit" actually struck it."
 
 ## AI OVERHAUL - other mod 
+- [x] **possible BUG** - Buckshot should not degrade to single shot
 - [ ] Mechanics check
-- [ ] Grenade range policy bugged/grenadiers?
-- [ ] Take cover action is more important, should be used
 - [ ] in aCTH they should try to shoot the head if its the only part out of cover
 - [ ] Implement smoke usage.
-- [ ] Make sure AI will not try to shoot through walls. (especially with aCTH)
 - [X] Enemy `LastPos` should generate threat. They should also try to "chase" the last position.
 - [ ] Investigate the shot-selection threshold in regards to aCTH. Enemies are shooting "0%" shots in aCTH
 - [ ] in aCTH, they should not use autofire from the hip unless very close
 - [x]  Check grenade distribution.
   - Give more timed grenades to enemies.
   - Less frustrating, but still a challenge to the player.
-- [ ] Tune `Threat Exposure`, possibly simplify
-	- [X] Fix LOS 
-	- [X] Fix Debug overlay not decomposing ready curve 
 - [X] Check recoil calc for AI when using aCTH
 - [X] Fix AI trying to shoot prone when there is a very small cover in front of it, making impossible to actually hit (see savegame) **---> Done. Needs testing - BTW, this could make AI incapable of wallbanging? check**
 
 ## AI Overhaul new stuff
 - [ ] Overwatch against last target pos when unit is hidden. also make them throw grenades at it, specially when at a rooftop
+- [ ] Bandage
+
+## AI Overhaul - minor
+- [ ] Take cover action is more important, should be used
+- [ ] Make sure AI will not try to shoot through walls. (especially with aCTH)
+- [ ] Tune `Threat Exposure`, possibly simplify
+	- [X] Fix LOS 
+	- [X] Fix Debug overlay not decomposing ready curve 
 
 ## aCTH Balancing
 - [ ] Create handling as a different thing than PB bonuses, for better tuning
-- [ ] Evaluate aim soft cap, to see if new values are not capped
+- [X] Evaluate aim soft cap, to see if new values are not capped (its 70 the cap)
 - [X] Pinned down mod suppression for strays
 - [X] Re-scale Aim Accuracy bonus for more gradient
 	- [X] UV dot
@@ -74,6 +78,7 @@ CheatAddItem("itemid")
   - Ver `RECOIL MODEL.md`.
 
 ## Reimplementation necessary
+- [ ] out of breath impact on aim
 - [ ] AN94 2 round burst
 - [ ] Snipe/Pin Down action
 - [ ] gas, smoke, other grazing mechanics need to be changed
@@ -90,7 +95,7 @@ CheatAddItem("itemid")
 - [X] MGSetup Get AP (**ended up decreasing delta by 1**)
 	- [ ] Fix bug in the rotate button using max AP
 - [X] Check if Run and Gun penalty modifier for recoil was implemented
-- [ ] out of breath impact on aim
+
 ------------------------------------------------------------------------------------------------------------------------------
 # Later Stuff
 ## aCTH Descriptions that need change

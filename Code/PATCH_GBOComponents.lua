@@ -2,6 +2,7 @@
 
 function RatoGBOComponents()
 	print("Running RatoGBOComponents...")
+	if not WeaponComponents["_Master_MagLargeFine"] then return end
 	WeaponComponents["MagLargeFine"].ModificationEffects = table.copy(WeaponComponents["_Master_MagLargeFine"].ModificationEffects)
 	WeaponComponents["MagLargeFine"].Parameters = table.copy(WeaponComponents["_Master_MagLargeFine"].Parameters)
 	WeaponComponents["MagLargeFine"].Visuals = table.copy(WeaponComponents["_Master_MagLargeFine"].Visuals)
