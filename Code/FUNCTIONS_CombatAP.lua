@@ -92,17 +92,25 @@ local function vanilla_ap_raw(n)
     return math.floor(n * const.Combat.R_VanillaAPRaw + 0.5)
 end
 
--- Sum of a stance AP param over all components, as raw AP.
-local function stance_component_raw(weapon, effect_id, param)
+-- Sum of a stance AP param over all components, as raw AP. A component counts once even if it lists several ids.
+local function stance_component_raw(weapon, effect_ids, param)
     local total = 0
     for _, component_id in pairs(weapon.components or empty_table) do
         local def = WeaponComponents[component_id]
-        if def and table.find(def.ModificationEffects or empty_table, effect_id) then
-            total = total + (def:ResolveValue(param) or WeaponComponentEffects[effect_id]:ResolveValue(param) or 0)
+        local effects = def and def.ModificationEffects or empty_table
+        for _, effect_id in ipairs(effect_ids) do
+            if table.find(effects, effect_id) then
+                total = total + (def:ResolveValue(param) or WeaponComponentEffects[effect_id]:ResolveValue(param) or 0)
+                break
+            end
         end
     end
     return vanilla_ap_raw(total)
 end
+
+local stance_ap_increase_ids = {"StanceAPincrease"}
+-- _fraction is Stock.Light's id; plain StanceAPdecrease is used by 49 components (no stock, folded, short barrels).
+local stance_ap_decrease_ids = {"StanceAPdecrease", "StanceAPdecrease_fraction"}
 
 -- Raw AP; APStance is authored in displayed AP. `display` skips the AI multiplier.
 function GetWeapon_StanceAP(unit, weapon, display)
@@ -119,8 +127,8 @@ function GetWeapon_StanceAP(unit, weapon, display)
         end
     end
 
-    raw = Max(0, raw + stance_component_raw(weapon, "StanceAPincrease", "APincrease") -
-        stance_component_raw(weapon, "StanceAPdecrease_fraction", "APdecrease"))
+    raw = Max(0, raw + stance_component_raw(weapon, stance_ap_increase_ids, "APincrease") -
+        stance_component_raw(weapon, stance_ap_decrease_ids, "APdecrease"))
 
     if display then
         return raw
