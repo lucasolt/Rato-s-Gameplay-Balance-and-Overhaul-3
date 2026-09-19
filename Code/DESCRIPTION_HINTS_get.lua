@@ -261,10 +261,13 @@ local acth_text_swaps = {
         T(364947777453, "The Dual Shot attack produces a Basic Attack from each gun. Maximum <em>aim</em> level is reduced. Has a penalty based on <em>Dexterity</em>."),
         T(111492168137, "The Dual Shot attack produces a Basic Attack from each gun. Has a penalty based on <em>Dexterity</em>.")},
 
-    ---- setup's own accuracy bonus is gone: the benefit is firing prone, braced on the bipod
+    ---- the accuracy bonus comes from firing prone, not from setup itself
     {"CombatActions", "MGSetup", "Description",
         T(564696256945, "Focus on a cone-shaped area, immobilizing yourself and going <em>prone</em>. You can only shoot enemies inside that cone. Accuracy is increased and enemies will provoke <em>interrupt</em> attacks with actions inside the cone (even if your AP are spent). <em>Interrupt</em> attacks have bonus accuracy. Your weapon will have increased <em>Shooting Angle</em> while you are in setup."),
-        T(656962772885, "Focus on a cone-shaped area, immobilizing yourself and going <em>prone</em>. You can only shoot enemies inside that cone. Enemies will provoke <em>interrupt</em> attacks with actions inside the cone (even if your AP are spent). <em>Interrupt</em> attacks have bonus accuracy. Firing <em>prone</em> braces the weapon on its bipod, greatly reducing <em>Recoil</em>. Your weapon will have increased <em>Shooting Angle</em> while you are in setup.")},
+        T(656962772885, "Focus on a cone-shaped area, immobilizing yourself and going <em>prone</em>. You can only shoot enemies inside that cone. Enemies will provoke <em>interrupt</em> attacks with actions inside the cone (even if your AP are spent). <em>Interrupt</em> attacks have bonus accuracy. Your weapon will have increased <em>Shooting Angle</em> while you are in setup.")},
+    {"CombatActions", "MGBurstFire", "Description",
+        T(863161981262, "Make a burst attack<coneDescription>. Lower accuracy against distant enemies, and further reduced accuracy if fired without being Set.<interrupts_info>"),
+        T(872453352285, "Make a burst attack<coneDescription>. Lower accuracy against distant enemies, and further reduced accuracy if not fired <em>prone</em>, braced on the bipod.<interrupts_info>")},
     {"GameTerm", "Setup", "Description",
         T(777731488769, "<em>Machine guns</em> need to be set before firing to avoid suffering a heavy <em>Accuracy</em> penalty."),
         T(681987343557, "Heavy weapons such as <em>machine guns</em> suffer heavy <em>Accuracy</em> and <em>Recoil</em> penalties unless fired <em>prone</em>. Setting up a machine gun puts you prone.")},
@@ -346,7 +349,8 @@ local t_id_table = {
 	[927619797396] = "Shoots <em><num> bullets</em> at the target. The accuracy of each shot is reduced by <em>Recoil</em>. Critical chance is reduced.",
 	[440275763653] = "Shoots a hail of <em><bullets> bullets</em> and inflict <GameTerm('Suppressed')> even on miss when the enemy is in weapon range. Has <em>recoil</em> penalty based on <em>Strength</em>. Critical chance is reduced.",
 	[111492168137] = "The Dual Shot attack produces a Basic Attack from each gun. Has a penalty based on <em>Dexterity</em>.",
-	[656962772885] = "Focus on a cone-shaped area, immobilizing yourself and going <em>prone</em>. You can only shoot enemies inside that cone. Enemies will provoke <em>interrupt</em> attacks with actions inside the cone (even if your AP are spent). <em>Interrupt</em> attacks have bonus accuracy. Firing <em>prone</em> braces the weapon on its bipod, greatly reducing <em>Recoil</em>. Your weapon will have increased <em>Shooting Angle</em> while you are in setup.",
+	[656962772885] = "Focus on a cone-shaped area, immobilizing yourself and going <em>prone</em>. You can only shoot enemies inside that cone. Enemies will provoke <em>interrupt</em> attacks with actions inside the cone (even if your AP are spent). <em>Interrupt</em> attacks have bonus accuracy. Your weapon will have increased <em>Shooting Angle</em> while you are in setup.",
+	[872453352285] = "Make a burst attack<coneDescription>. Lower accuracy against distant enemies, and further reduced accuracy if not fired <em>prone</em>, braced on the bipod.<interrupts_info>",
 	[681987343557] = "Heavy weapons such as <em>machine guns</em> suffer heavy <em>Accuracy</em> and <em>Recoil</em> penalties unless fired <em>prone</em>. Setting up a machine gun puts you prone.",
 	[957147208105] = "<bullet_point> Harder to detect by enemies\n<bullet_point> Camouflaged targets are harder to hit, as less of their body can be seen\n<bullet_point> Can't be combined with weave or ceramics",
 	[118813633810] = "<bullet_point> Harder to detect by enemies\n<bullet_point> Camouflaged targets are harder to hit, as less of their body can be seen\n<bullet_point> Can't be combined with weave or ceramics",
