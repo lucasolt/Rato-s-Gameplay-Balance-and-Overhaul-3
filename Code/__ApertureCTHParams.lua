@@ -118,6 +118,8 @@ A.AimStep = {
     [2] = 117--110--110,--118--130--118 --- snapshot 2 niveis: x1.18
 }
 A.AimStepMaxLevel = 2 --- acima disso a arma esta encostada: alargamento 100
+---- CQC Training: % of the hipfire/snapshot excess removed. Calibrated against AutoWeapons.
+A.CQCStepReduc = 30
 
 ---- Rotulo do degrau, por nivel de mira. `<pct>` recebe o alargamento que o degrau aplicou. Nivel
 ---- sem entrada cai no [1]; a lista e o que decide o nome, nao um if aim == 0 dentro da funcao.

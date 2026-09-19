@@ -149,6 +149,24 @@ function OnMsg.ClassesGenerate(classdefs)
         end
     end
 
+    ---- aCTH: CQC shrinks the hipfire/snapshot step instead (A.CQCStepReduc)
+    if classdefs.CQCTraining then
+        for _, react in ipairs(classdefs.CQCTraining.unit_reactions or empty_table) do
+            if react.Event == "OnCalcChanceToHit" then
+                local vanilla = react.Handler
+                react.Handler = function(self, target, attacker, action, attack_target, weapon1,
+                                         weapon2, data)
+                    if IsACHTActive(weapon1, action, attacker) then
+                        return
+                    end
+                    return vanilla(self, target, attacker, action, attack_target, weapon1, weapon2,
+                                   data)
+                end
+                break
+            end
+        end
+    end
+
     if classdefs.TakeAim then
         local reacti = classdefs.TakeAim.unit_reactions
         for i, react in ipairs(reacti) do

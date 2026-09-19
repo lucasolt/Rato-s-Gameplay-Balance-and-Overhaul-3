@@ -600,6 +600,11 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
             ---- `hipsnap` ja traz wep_base_hip_mul / wep_base_snapshot_mul da arma; nao ha
             ---- segundo multiplicador de manejo aqui de proposito.
             excess = MulDivRound(excess, hipsnap, 100)
+            local cqc = attacker and not attacker.placeholder and (a.CQCStepReduc or 0) > 0 and
+                            attacker:GetStatusEffect("CQCTraining")
+            if cqc then
+                excess = MulDivRound(excess, 100 - a.CQCStepReduc, 100)
+            end
             step = 100 + excess
 
 			local original_s_debug = s
@@ -609,6 +614,9 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
             local lbl = (a.AimStepMeta or empty_table)[aim] or (a.AimStepMeta or empty_table)[1]
             if lbl then
                 meta[#meta + 1] = T {lbl.id, lbl.text, pct = tag}
+            end
+            if cqc then
+                meta[#meta + 1] = cqc.DisplayName
             end
 
         end
