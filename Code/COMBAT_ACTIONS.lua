@@ -510,10 +510,9 @@ function rat_combat_actions()
 
         local recoil = unit:GetStatusEffect("Rat_recoil")
 
-        ---- aCTH variant lives in the swap table (DESCRIPTION_HINTS_get.lua)
-        local id = IsACHTActive() and 402918376154 or 854982151651
-        local descr = TranslationTable[id] or ratG_T_table['DESCRIPTION_HINTS_get.lua'][id] or
-                          ratG_T_table['shooting_stance_combat_actions.lua'][id]
+        ---- both variants live in the aCTH swap table (FUNCTIONS_aCTH_ChangeTexts.lua)
+        local id = IsACHTActive() and 291547951652 or 854982151651
+        local descr = TranslationTable[id] or ratG_T_table['FUNCTIONS_aCTH_ChangeTexts.lua'][id]
         if recoil then
             local aim_cost = recoil:ResolveValue("aim_cost") or 0
             local extra_cost = cRoundDown(aim_cost * const.Combat.PindownAimLevelsForAPCost) -- * const.Scale.AP
