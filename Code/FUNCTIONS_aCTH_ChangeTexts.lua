@@ -84,24 +84,79 @@ local acth_text_swaps = {
     {"CharacterEffectDefs", "GrizzlyPerk", "Description",
         ratT(file_str,272740235755, "<em>Machine Gun attack</em> with reduced <em>Accuracy</em> penalty that does not suffer increased penalties if firing without <GameTerm('Setup')>."),
         ratT(file_str,279916694418, "<em>Machine Gun attack</em> fired from the hip. Ignores the heavy weapon <em>Recoil</em> and <em>Handling</em> penalties for not firing <em>prone</em>. Maximum <em>aim</em> level is 1.")},
+
+    ---- gas costs CTH instead of grazing (CTH_smoke.lua); only with simulated shots, so `sim = true`
+    {"InventoryItemDefs", "SmokeGrenade", "AdditionalHint", no_mod = "RATONADE", sim = true,
+        T(112062042147, "<bullet_point> Ranged attacks passing through gas become <em>grazing</em> hits\n<bullet_point> No damage\n<bullet_point> Almost silent"),
+        ratT(file_str,418273650912, "<bullet_point> Ranged attacks passing through gas are less accurate\n<bullet_point> No damage\n<bullet_point> Almost silent")},
+    {"InventoryItemDefs", "TearGasGrenade", "AdditionalHint", no_mod = "RATONADE", sim = true,
+        T(102232599134, "<bullet_point> Inflicts <em>Blinded</em>\n<bullet_point> Ranged attacks passing through gas become <em>grazing</em> hits\n<bullet_point> No damage\n<bullet_point> High mishap chance\n<bullet_point> Almost silent"),
+        ratT(file_str,529384716203, "<bullet_point> Inflicts <em>Blinded</em>\n<bullet_point> Ranged attacks passing through gas are less accurate\n<bullet_point> No damage\n<bullet_point> High mishap chance\n<bullet_point> Almost silent")},
+    {"InventoryItemDefs", "ToxicGasGrenade", "AdditionalHint", no_mod = "RATONADE", sim = true,
+        T(277464468866, "<bullet_point> Inflicts <em>Choking</em>\n<bullet_point> Ranged attacks passing through gas become grazing hits\n<bullet_point> High mishap chance\n<bullet_point> Almost silent"),
+        ratT(file_str,640495827314, "<bullet_point> Inflicts <em>Choking</em>\n<bullet_point> Ranged attacks passing through gas are less accurate\n<bullet_point> High mishap chance\n<bullet_point> Almost silent")},
+    {"InventoryItemDefs", "MortarShell_Smoke", "AdditionalHint", sim = true,
+        T(890174082428, "<bullet_point> Ranged attacks passing through gas become <em>grazing</em> hits\n<bullet_point> No damage\n<bullet_point> Almost silent"),
+        ratT(file_str,751506938425, "<bullet_point> Ranged attacks passing through gas are less accurate\n<bullet_point> No damage\n<bullet_point> Almost silent")},
+    {"InventoryItemDefs", "MortarShell_Gas", "AdditionalHint", sim = true,
+        T(789422211618, "<bullet_point> Inflicts <em>Choking</em>\n<bullet_point> Ranged attacks passing through gas become Grazing hits\n<bullet_point> Almost silent"),
+        ratT(file_str,862617049536, "<bullet_point> Inflicts <em>Choking</em>\n<bullet_point> Ranged attacks passing through gas are less accurate\n<bullet_point> Almost silent")},
+    ---- Explosive Overhaul rewrites the grenade hints in its own format (RatoEO_Patch, items.lua)
+    {"InventoryItemDefs", "SmokeGrenade", "AdditionalHint", mod = "RATONADE", sim = true,
+        T(109176686173, "<EO_description_hints>\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Ranged attacks passing through gas become <color EmStyle>grazing</color> hits\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> No damage\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Almost silent"),
+        ratT(file_str,973728150647, "<EO_description_hints>\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Ranged attacks passing through gas are less accurate\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> No damage\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Almost silent")},
+    {"InventoryItemDefs", "SmokeGrenade_IED", "AdditionalHint", mod = "RATONADE", sim = true,
+        T(953201278809, "<EO_description_hints>\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Ranged attacks passing through gas become <color EmStyle>grazing</color> hits\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> No damage\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Almost silent"),
+        ratT(file_str,184839261758, "<EO_description_hints>\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Ranged attacks passing through gas are less accurate\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> No damage\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Almost silent")},
+    {"InventoryItemDefs", "TearGasGrenade", "AdditionalHint", mod = "RATONADE", sim = true,
+        T(961521854617, "<EO_description_hints>\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Inflicts <color EmStyle>Blinded</color>\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Ranged attacks passing through gas become <color EmStyle>grazing</color> hits\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> No damage\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Almost silent"),
+        ratT(file_str,295940372869, "<EO_description_hints>\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Inflicts <color EmStyle>Blinded</color>\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Ranged attacks passing through gas are less accurate\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> No damage\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Almost silent")},
+    {"InventoryItemDefs", "TearGasGrenade_IED", "AdditionalHint", mod = "RATONADE", sim = true,
+        T(468937308243, "<EO_description_hints>\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Inflicts <color EmStyle>Blinded</color>\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Ranged attacks passing through gas become <color EmStyle>grazing</color> hits\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> No damage\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Almost silent"),
+        ratT(file_str,306051483970, "<EO_description_hints>\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Inflicts <color EmStyle>Blinded</color>\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Ranged attacks passing through gas are less accurate\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> No damage\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Almost silent")},
+    {"InventoryItemDefs", "ToxicGasGrenade", "AdditionalHint", mod = "RATONADE", sim = true,
+        T(838998848652, "<EO_description_hints>\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Inflicts <color EmStyle>Choking</color>\n <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Ranged attacks passing through gas become grazing hits\n <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Almost silent"),
+        ratT(file_str,417162594081, "<EO_description_hints>\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Inflicts <color EmStyle>Choking</color>\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Ranged attacks passing through gas are less accurate\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Almost silent")},
 }
 
 ---- Runs after rat_apply_changes() and on every CTH mode change (GBO_ApplyApertureCTHMode).
+---- Optional row keys: `sim` follows simulated aCTH instead of aCTH; `mod`/`no_mod` gate on a mod id.
 function GBO_SwapACTHTexts()
-    local idx = IsACHTActive() and 5 or 4
+    local acth, sim = IsACHTActive(), IsACHTActive(nil, nil, nil, true)
     for _, s in ipairs(acth_text_swaps) do
-        ---- GameTerm has no global map
-        local map = s[1] == "GameTerm" and Presets.GameTerm.Default or _G[s[1]]
-        local preset = (map or empty_table)[s[2]]
-        if preset then
-            preset[s[3]] = s[idx]
-        end
-        ---- item and perk instances read the generated class, not the preset
-        local class = (s[1] == "InventoryItemDefs" or s[1] == "CharacterEffectDefs") and g_Classes[s[2]]
-        if class then
-            class[s[3]] = s[idx]
+        if (not s.mod or IsMod_loaded(s.mod)) and not (s.no_mod and IsMod_loaded(s.no_mod)) then
+            local idx = (s.sim and sim or not s.sim and acth) and 5 or 4
+            ---- GameTerm has no global map
+            local map = s[1] == "GameTerm" and Presets.GameTerm.Default or _G[s[1]]
+            local preset = (map or empty_table)[s[2]]
+            if preset then
+                preset[s[3]] = s[idx]
+            end
+            ---- item and perk instances read the generated class, not the preset
+            local class = (s[1] == "InventoryItemDefs" or s[1] == "CharacterEffectDefs") and g_Classes[s[2]]
+            if class then
+                class[s[3]] = s[idx]
+            end
         end
     end
+end
+
+---- Throw action tooltip: vanilla keeps these in a local table (Grenade.lua GrenadeCustomDescriptions)
+local acth_gas_action_descr = {
+    smoke = ratT(file_str,528273605192, "Ranged attacks passing through gas are less accurate."),
+    teargas = ratT(file_str,639384716303, "Inflicts <em>Blinded</em>, making affected characters less accurate. Ranged attacks passing through gas are less accurate."),
+    toxicgas = ratT(file_str,740495827414, "Inflicts <em>Choking</em>, forcing affected characters to take damage and lose energy, eventually fall <em>unconscious</em>. Ranged attacks passing through gas are less accurate."),
+}
+
+local vanilla_grenade_action_descr = _G.GBO_VanillaGrenadeActionDescr or Grenade.GetCustomActionDescription
+GBO_VanillaGrenadeActionDescr = vanilla_grenade_action_descr
+
+function Grenade:GetCustomActionDescription(...)
+    local descr = acth_gas_action_descr[self.aoeType]
+    if descr and IsACHTActive(nil, nil, nil, true) then
+        return descr
+    end
+    return vanilla_grenade_action_descr(self, ...)
 end
 
 
