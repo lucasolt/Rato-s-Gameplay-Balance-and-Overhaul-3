@@ -259,7 +259,7 @@ local acth_text_swaps = {
         T(440275763653, "Shoots a hail of <em><bullets> bullets</em> and inflict <GameTerm('Suppressed')> even on miss when the enemy is in weapon range. Has <em>recoil</em> penalty based on <em>Strength</em>. Critical chance is reduced.")},
     {"CombatActions", "DualShot", "Description",
         T(364947777453, "The Dual Shot attack produces a Basic Attack from each gun. Maximum <em>aim</em> level is reduced. Has a penalty based on <em>Dexterity</em>."),
-        T(111492168137, "The Dual Shot attack produces a Basic Attack from each gun. Has a penalty based on <em>Dexterity</em>.")},
+        T(538170264913, "The Dual Shot attack produces a Basic Attack from each gun. Maximum <em>aim</em> level is 3 and <em>sights</em> grant no accuracy bonus. Has a penalty based on <em>Dexterity</em>.")},
 
     ---- the accuracy bonus comes from firing prone, not from setup itself
     {"CombatActions", "MGSetup", "Description",
@@ -348,7 +348,7 @@ local t_id_table = {
 	[219437987174] = "Aim accuracy: ",
 	[927619797396] = "Shoots <em><num> bullets</em> at the target. The accuracy of each shot is reduced by <em>Recoil</em>. Critical chance is reduced.",
 	[440275763653] = "Shoots a hail of <em><bullets> bullets</em> and inflict <GameTerm('Suppressed')> even on miss when the enemy is in weapon range. Has <em>recoil</em> penalty based on <em>Strength</em>. Critical chance is reduced.",
-	[111492168137] = "The Dual Shot attack produces a Basic Attack from each gun. Has a penalty based on <em>Dexterity</em>.",
+	[538170264913] = "The Dual Shot attack produces a Basic Attack from each gun. Maximum <em>aim</em> level is 3 and <em>sights</em> grant no accuracy bonus. Has a penalty based on <em>Dexterity</em>.",
 	[656962772885] = "Focus on a cone-shaped area, immobilizing yourself and going <em>prone</em>. You can only shoot enemies inside that cone. Enemies will provoke <em>interrupt</em> attacks with actions inside the cone (even if your AP are spent). <em>Interrupt</em> attacks have bonus accuracy. Your weapon will have increased <em>Shooting Angle</em> while you are in setup.",
 	[872453352285] = "Make a burst attack<coneDescription>. Lower accuracy against distant enemies, and further reduced accuracy if not fired <em>prone</em>, braced on the bipod.<interrupts_info>",
 	[681987343557] = "Heavy weapons such as <em>machine guns</em> suffer heavy <em>Accuracy</em> and <em>Recoil</em> penalties unless fired <em>prone</em>. Setting up a machine gun puts you prone.",

@@ -73,7 +73,8 @@ A.ConeMulBonus = true
 A.ConeMulEffects = {
     {
         id = "AccuracyBonusWhenAimed", -- Sights
-        param = "bonus_cth"
+        param = "bonus_cth",
+        no_dual = true -- nobody sights two guns at once
     }, {
         id = "BonusAccuracyWhenFullyAimed", -- Heavy Stock
         param = "bonus_cth",
