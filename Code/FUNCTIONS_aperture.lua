@@ -1100,7 +1100,41 @@ end
 ---- Com `sigma_y` diferente de `sigma` a nuvem e ELIPTICA: sorteia o raio isotropico e depois
 ---- encolhe/estica so a componente vertical. Tem de ser a mesma elipse que Rat_ConeSigmaY entrega
 ---- ao CTH -- se a bala e o numero discordarem no formato, o numero volta a nao ser o que acontece.
-function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma, sigma_y, sigma_y_down, fan_top)
+---- Isotropic components (cx lateral, cy up, world units) -> the cone's ellipse and fan.
+local function scatter_shape(aim_pos, dist, dir, cx, cy, sigma, sigma_y, sigma_y_down, fan_top)
+    local up = Rat_PerpUp(dir)
+    sigma_y_down = sigma_y_down or sigma_y
+    if sigma_y and sigma and sigma >= 1 and not (sigma_y == sigma and sigma_y_down == sigma) then
+        cy = MulDivRound(cy, (cy >= 0) and sigma_y or sigma_y_down, sigma)
+        ---- the fan as Rat_SeparableCTH integrates it: width from the height reached, upward only
+        if fan_top and fan_top > 0 and cy > 0 then
+            local ylin = MulDivRound(dist, sigma_y, 3438)
+            if ylin > 0 then
+                cx = MulDivRound(cx, sigma + MulDivRound(fan_top, Min(cy, ylin), ylin), sigma)
+            end
+        end
+    end
+    return shift_along(shift_along(aim_pos, up, cy), Rat_RecoilLateralAxis(up, dir), cx)
+end
+
+---- One unit draw of the cone: {lateral, up} in thousandths of sigma. Synced random.
+function Rat_ShotScatterDraw(attacker)
+    local k = Rat_SampleShotOffset(attacker, 1000)
+    local ang = attacker:Random(360 * 60)
+    return {MulDivRound(k, sin(ang), 4096), MulDivRound(k, cos(ang), 4096)}
+end
+
+---- corr% of a shared draw plus the rest of an own one. Both are isotropic gaussians, so the mix
+---- has the same sigma: each round keeps its CTH, only the rounds land together.
+function Rat_ShotScatterMix(shared, own, corr)
+    local rest = Rat_ISqrt(10000 - corr * corr)
+    return {MulDivRound(shared[1], corr, 100) + MulDivRound(own[1], rest, 100),
+            MulDivRound(shared[2], corr, 100) + MulDivRound(own[2], rest, 100)}
+end
+
+---- `draw` (optional): a precomputed Rat_ShotScatterDraw instead of rolling one here.
+function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma, sigma_y, sigma_y_down, fan_top,
+                              draw)
     if not attack_pos or not aim_pos then
         return aim_pos
     end
@@ -1110,6 +1144,16 @@ function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma, sigma_y, sig
     local dist = dir:Len()
     if dist < 1 then
         return aim_pos
+    end
+
+    if draw then
+        if not sigma or sigma < 1 then
+            return aim_pos
+        end
+        local cx = MulDivRound(dist, MulDivRound(sigma, draw[1], 1000), 3438)
+        local cy = MulDivRound(dist, MulDivRound(sigma, draw[2], 1000), 3438)
+        return scatter_shape(aim_pos, dist, SetLen(dir, 1000), cx, cy, sigma, sigma_y,
+                             sigma_y_down, fan_top)
     end
 
     local offset_min = Rat_SampleShotOffset(attacker, sigma)
@@ -1133,20 +1177,8 @@ function Rat_ShotScatterPoint(attacker, attack_pos, aim_pos, sigma, sigma_y, sig
     ---- por componente, para poder escalar so uma delas. O sinal escolhe o meio-eixo, que e o
     ---- mesmo par de metades que Rat_SeparableCTH integra -- bala e numero contam a mesma coisa.
     local ang = attacker:Random(360 * 60)
-    local cx = MulDivRound(radius, sin(ang), 4096)
-    local cy = MulDivRound(radius, cos(ang), 4096)
-    cy = MulDivRound(cy, (cy >= 0) and sigma_y or sigma_y_down, sigma)
-
-    ---- a cunha, do mesmo jeito que Rat_SeparableCTH a integra: a largura do tiro sai da ALTURA
-    ---- que ele alcancou. So para cima -- para baixo o cano nao subiu e nao houve o que vagar.
-    if fan_top and fan_top > 0 and cy > 0 then
-        local ylin = MulDivRound(dist, sigma_y, 3438) --- 1 sigma vertical, em unidades de mundo
-        if ylin > 0 then
-            local sx = sigma + MulDivRound(fan_top, Min(cy, ylin), ylin)
-            cx = MulDivRound(cx, sx, sigma)
-        end
-    end
-    return shift_along(shift_along(aim_pos, up, cy), Rat_RecoilLateralAxis(up, dir), cx)
+    return scatter_shape(aim_pos, dist, dir, MulDivRound(radius, sin(ang), 4096),
+                         MulDivRound(radius, cos(ang), 4096), sigma, sigma_y, sigma_y_down, fan_top)
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -1293,6 +1325,10 @@ function Rat_SimPlanShots(ctx)
         return ctx.attacker:Random(n)
     end or nil
 
+    ---- hyperburst: the rounds leave inside one hold, so they share most of the aiming error
+    local corr = (num_shots > 1) and Rat_HyperburstCorr(ctx.weapon, ctx.action) or 0
+    local shared = (corr > 0) and Rat_ShotScatterDraw(ctx.attacker) or nil
+
     local shots = {}
     for i = 1, num_shots do
         local lat, mu = 0, 0
@@ -1312,7 +1348,10 @@ function Rat_SimPlanShots(ctx)
             mu = mu,
             lat = lat,
             target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, sigma,
-                                              sigma_y, sigma_y_dn, fan)
+                                              sigma_y, sigma_y_dn, fan, shared and
+                                                  Rat_ShotScatterMix(shared,
+                                                                     Rat_ShotScatterDraw(ctx.attacker),
+                                                                     corr))
         }
         if st then
             Rat_RecoilStep(prof, st, rnd)

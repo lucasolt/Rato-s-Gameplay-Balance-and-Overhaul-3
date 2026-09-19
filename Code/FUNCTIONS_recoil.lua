@@ -303,7 +303,23 @@ end
 ---- `control` (3o retorno) e o subproduto dos fatores do ATIRADOR -- postura, bipe, Marksmanship,
 ---- perks de recuo. Sao os que o modelo angular converte em CHANCE de segurar o cano; o resto
 ---- (deltas de rajada da arma, bump stock) e da arma e continua so em `mod`.
-function GetRecoilOther(weapon, attacker, action)
+---- Hyperburst: the burst rounds leave before the impulse reaches the shoulder. Returns the
+---- scatter correlation (0 = not a hyperburst attack).
+function Rat_HyperburstCorr(weapon, action)
+    local corr = weapon and weapon.hyperburst or 0
+    if corr <= 0 or not action then
+        return 0
+    end
+    local id = action.id
+    if id == "BurstFire" or id == "RunAndGun" or id == "RecklessAssault" then
+        return Min(corr, 100)
+    end
+    return 0
+end
+
+---- `persistent`: the recoil felt BETWEEN attacks. A hyperburst defers its kick instead of
+---- cancelling it, so its burst delta does not apply there.
+function GetRecoilOther(weapon, attacker, action, persistent)
 
     local metaText = {}
     local mod = 1.00
@@ -368,7 +384,8 @@ function GetRecoilOther(weapon, attacker, action)
         if action and
             (action.id == "BurstFire" or action.id == "RunAndGun" or action.id == "RecklessAssault") then
 
-            if weapon.burst_recoil_delta and weapon.burst_recoil_delta ~= 100 then
+            local deferred = persistent and Rat_HyperburstCorr(weapon, action) > 0
+            if not deferred and weapon.burst_recoil_delta and weapon.burst_recoil_delta ~= 100 then
                 local burst_delta = weapon.burst_recoil_delta / 100.0
                 mod = mod * burst_delta
             end
@@ -532,7 +549,7 @@ local param_base = const.Combat.Recoil.MaxPenalty
 ---- Retorna `mod` na mesma escala de antes (comeca em 100 e e multiplicado por
 ---- fatores em torno de 1.0) e a lista de metaText acumulada.
 ---------------------------------------------------------------------------------------------------
-function Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
+function Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots, persistent)
     local mod = 100
     local metaText = {}
     local display = false
@@ -553,7 +570,8 @@ function Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
 
     local control, situation_mod, other_control, str_control
     control, situation_mod, metaText, other_control, str_control =
-        Rat_GetRecoilControl(attacker, action, weapon, num_shots, metaText, dual, weapon2)
+        Rat_GetRecoilControl(attacker, action, weapon, num_shots, metaText, dual, weapon2,
+                             persistent)
     mod = mod * situation_mod
 
     ---- Parte da ARMA, isolada: e `mod` sem o que o atirador cancela. Invariante a postura, perks e
@@ -576,12 +594,13 @@ end
 ----   situation_mod  -- o multiplicador cheio para `mod`, que inclui o que e da ARMA e o atirador
 ----                     nao negocia: deltas de rajada, bump stock, cartucho no piso, tracer, AP.
 ---------------------------------------------------------------------------------------------------
-function Rat_GetRecoilControl(attacker, action, weapon, num_shots, metaText, dual, weapon2)
+function Rat_GetRecoilControl(attacker, action, weapon, num_shots, metaText, dual, weapon2,
+                              persistent)
     local control = 1.00
     local situation_mod = 1.00
 
     -----------------------Stance, perks
-    local other, otherMeta, other_control = GetRecoilOther(weapon, attacker, action)
+    local other, otherMeta, other_control = GetRecoilOther(weapon, attacker, action, persistent)
     situation_mod = situation_mod * other
     control = control * other_control
     for i, text in ipairs(otherMeta) do
@@ -639,7 +658,8 @@ function get_recoil(attacker, target, target_pos, action, weapon, aim, num_shots
     local param = param_base
     local flat_penalty = flat_penalty_base
 
-    local mod, metaText = Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
+    local mod, metaText = Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots,
+                                               stacks and true or false)
 
     ----------------------------------------------------------------------------------------------------------mods
 
@@ -765,7 +785,7 @@ function get_recoilP_value(attacker, action, weapon1, aim, stacks, unit_command)
     local flat_penalty = flat_penalty_base
 
     ---- mesma cadeia de get_recoil, so que com num_shots = false
-    local mod, metaText = Rat_GetRecoilBaseMod(attacker, action, weapon, false)
+    local mod, metaText = Rat_GetRecoilBaseMod(attacker, action, weapon, false, true)
 
     ----------------------------------------------------------------------------------------------------------mods
 

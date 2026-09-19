@@ -74,14 +74,14 @@ end
 ---- how much of the grip is already on the gun when bullet 2 leaves, which is the only place a
 ---- shot-2 gradient can come from once the kick itself is weapon-only.
 ---------------------------------------------------------------------------------------------------
-function Rat_RecoilProfile(attacker, action, weapon, num_shots, test)
+function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent)
     local a = P()
     if not attacker or not IsKindOf(weapon, "Firearm") then
         return nil
     end
 
     local _, _, control, gun, other_control, str_control =
-        Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
+        Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots, persistent)
     control, other_control, str_control = cRound(control), cRound(other_control),
                                           cRound(str_control)
 
@@ -375,12 +375,16 @@ function Rat_RecoilPersistCommit(attacker, action, weapon, aim, num_shots, targe
         return
     end
     num_shots = Max(1, num_shots or 1)
-    local prof = Rat_RecoilProfile(attacker, action, weapon, num_shots)
+    ---- hyperburst: the real shots ran on the burst delta, but the shoulder takes the full kick
+    ---- once the rounds are gone -- replay the burst unreduced, from the target like the real one
+    local deferred = Rat_HyperburstCorr(weapon, action) > 0
+    local prof = Rat_RecoilProfile(attacker, action, weapon, num_shots, nil, deferred)
     local px, py
-    if stash_unit == attacker then
+    if stash_unit == attacker and not deferred then
         px, py = stash_px, stash_py
     else
-        local st = Rat_RecoilState(Rat_RecoilPersistOffset(attacker, action, weapon, aim, target))
+        local st = deferred and Rat_RecoilState() or
+                       Rat_RecoilState(Rat_RecoilPersistOffset(attacker, action, weapon, aim, target))
         local rnd = function(n)
             return attacker:Random(n)
         end

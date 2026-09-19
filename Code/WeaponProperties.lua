@@ -300,6 +300,20 @@ function fireprop()
     FirearmProperties.properties[#FirearmProperties.properties +
         1] = {
         category = "Caliber",
+        id = "hyperburst",
+        name = "Hyperburst",
+        help = "Burst rounds leave before the recoil arrives. Value = % of the cone the rounds share (0 = off). Burst recoil delta then applies inside the burst only; the full kick carries to the next attack.",
+        editor = "number",
+        default = 0,
+        template = true,
+        min = 0,
+        max = 100,
+        modifiable = true
+    }
+
+    FirearmProperties.properties[#FirearmProperties.properties +
+        1] = {
+        category = "Caliber",
         id = "auto_recoil_delta",
         name = "Autofire Recoil Delta",
         help = "Autofire Recoil Delta",
