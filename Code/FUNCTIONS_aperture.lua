@@ -223,7 +223,7 @@ end
 
 ---- Opticas com limiar presentes NESTA arma (A.ComponentEffectsAimBonus). Resolvido uma vez por chamada:
 ---- HasComponent dentro do laco de niveis sai caro no caminho quente (previsao, varredura da IA).
-function GetApertureAimComponentEffects(weapon, attacker)
+function GetApertureAimComponentEffects(weapon, attacker, action)
     local a = P()
     if not IsKindOf(weapon, "Firearm") then
         return empty_table, empty_table
@@ -252,11 +252,18 @@ function GetApertureAimComponentEffects(weapon, attacker)
 
 
 	modifyVal, comp = GetComponentEffectValue(weapon, "FirstAimBonusModifier", "first_aim_bonus_acc")
-	if modifyVal then
+	if modifyVal and not (action and action.id == "DualShot") then
 		list = list or {}
 		list[#list + 1] = {id = "FirstAimBonusModifier", from = 1 , to = 1, acc = modifyVal}
 		meta = meta or {}
 		meta[#meta +1] = comp.DisplayName or ""
+	end
+
+	if action and action.id == "PinDown" and (a.PindownAimAcc or 0) ~= 0 then
+		list = list or {}
+		list[#list + 1] = {id = "PinDown", from = 1, acc = a.PindownAimAcc}
+		meta = meta or {}
+		meta[#meta + 1] = action.DisplayName or ""
 	end
 
 	--modifyVal, comp = GetComponentEffectValue(weapon, "AimAccBonusWhenProne", "aim_bonus_prone")
@@ -478,9 +485,13 @@ end
 ---- Piso mecanico do cone, derivado do WeaponRange -- a ASSINTOTA do tiro mirado. Opticas nao dao
 ---- mais WeaponRange; a "cereja" delas entra aqui, so no piso, entao e invisivel com pouca mira
 ---- (no aim 0 o cone e ~10x o piso) e vale tudo com mira cheia. Canos longos continuam pelo range.
-function Rat_ApertureFloor(weapon)
+function Rat_ApertureFloor(weapon, action)
     local a = P()
     local range = (weapon and weapon.WeaponRange) or 20
+    ---- Snipe: same PindownRangeMul the old CTH fed GetRangeAccuracy, here on the asymptote
+    if action and action.id == "PinDown" then
+        range = MulDivRound(range, const.Combat.PindownRangeMul, 100)
+    end
     local floor_dist = range * const.SlabSizeX
     local theta = Rat_ThetaTarget(floor_dist, a.Silhouette.Standing)
     local floor = MulDivRound(theta, a.FloorPct, 100)
@@ -521,9 +532,10 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     ---    o nome exibido vem do proprio componente (comp.DisplayName), nunca hardcoded.
     local cone_mul_effects
     if aim > 0 and a.ConeMulBonus and IsKindOf(weapon, "Firearm") then
+        local dual = action and action.id == "DualShot"
         for _, eff in ipairs(a.ConeMulEffects or empty_table) do
             local points, comp = GetComponentEffectValue(weapon, eff.id, eff.param)
-			local apply = not eff.required_aim or aim >= eff.required_aim
+			local apply = (not eff.required_aim or aim >= eff.required_aim) and not (dual and eff.no_dual)
             if apply and points and points ~= 0 then
                 local mul = Rat_ConeMulForPoints(points)
                 s = MulDivRound(s, mul, 100)
@@ -534,8 +546,8 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     end
 
     --- 4. cada nivel de mira FECHA o cone, em direcao ao piso da arma
-    local comps, metaTextComps = GetApertureAimComponentEffects(weapon, attacker)
-    local floor = Rat_ApertureFloor(weapon)
+    local comps, metaTextComps = GetApertureAimComponentEffects(weapon, attacker, action)
+    local floor = Rat_ApertureFloor(weapon, action)
     ---- escada de decay: com limiar de optica cada nivel fecha um tanto diferente. Guardada
     ---- inteira para o overlay enumerar nivel a nivel (ver Rat_ConeFactors).
     local ladder = {}
