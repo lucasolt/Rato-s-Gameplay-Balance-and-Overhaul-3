@@ -13,8 +13,10 @@ Worked examples:
 - *"Like a light stock, but it also blocks full auto."* → Traits `Stock.Light`, **Override Effects (add)** `NoFullAuto`.
 - *"Like a light stock, but only penalised under aCTH."* → Traits `Stock.Light`, one **Override per CTH Mode** block with Mode `aCTH`.
 - *"This scope is its own thing, nothing shares it."* → a **base recipe** named after the component.
-- *"This optic should behave as a 4x under aCTH."* → put `Scope._4x` in **Traits**. It replaces any
-  magnification `A.ScopeTraitOf` binds to that id.
+- *"This optic should behave as a 4x under aCTH."* → put `Scope._4x` in **Traits**, alone. It replaces
+  any magnification `A.ScopeTraitOf` binds to that id, and the base recipe is kept.
+- *"A 4x, but one less aim level."* → Traits `Scope._4x`, one **Override per CTH Mode** block with
+  Mode `aCTH`, Params `MaxAimActionsIncrease = 1`. Scope rules exist only in aCTH, so tweak them there.
 
 ## Order of application
 
@@ -54,8 +56,8 @@ composed result over its own source and the next load would compose it again.
 - **Scope traits overwrite, they don't combine.** A trait with `overwrite = true` is applied after the
   merge, like the old overlay: its params replace, and `effects = {id = false}` removes an effect
   another trait added. Everything sits under `modes.aCTH`, so under oldCTH it composes to nothing.
-  Never list a Scope trait alone: the binding only appends to an existing list, because a tier-only
-  list would compose the component from nothing. A dangling trait id only prints
+  A Traits field holding only Scope traits keeps the code-side list (the base recipe) in front of
+  them; with no code-side list the component is left alone. A dangling trait id only prints
   `GBO compose: traco inexistente` and composes without it.
 - **A param is only read by the effect that declares it.** Remove the effect and the param becomes
   dead weight; add a param whose effect is missing and nothing happens. 41 of the 114 composed

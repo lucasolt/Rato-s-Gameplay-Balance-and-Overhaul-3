@@ -1152,12 +1152,32 @@ local function combine(rule, acc, value)
     return value -- "set": o ultimo vence
 end
 
+---- An editor list of only `overwrite` traits picks the tier; the identity still comes from code.
+local function with_identity(id, list)
+    for _, tname in ipairs(list) do
+        local recipe = GBO_COMP_TRAITS[tname]
+        if not (recipe and recipe.overwrite) then
+            return list
+        end
+    end
+    local base = GBO_COMPONENT_TRAITS[id]
+    if not base then
+        print("GBO compose: so traco Scope, sem receita base -- ignorado:", id)
+        return nil
+    end
+    local out = table.icopy(base)
+    for _, tname in ipairs(list) do
+        out[#out + 1] = tname
+    end
+    return out
+end
+
 ---- Lista de tracos de um componente. Propriedade primeiro (texto separado por virgula), mapa de
 ---- codigo como fallback.
 local function own_traits_of(id, comp)
     local prop = comp and rawget(comp, "GBO_ComponentTraits")
     if type(prop) == "table" and #prop > 0 then
-        return prop
+        return with_identity(id, prop)
     end
     if type(prop) == "string" and prop ~= "" then
         local list = {}
@@ -1165,7 +1185,7 @@ local function own_traits_of(id, comp)
             list[#list + 1] = name
         end
         if #list > 0 then
-            return list
+            return with_identity(id, list)
         end
     end
     return GBO_COMPONENT_TRAITS[id]
@@ -1180,8 +1200,7 @@ local function scope_in(list)
     end
 end
 
----- A.ScopeTraitOf appends the magnification, unless the list already names one. Never alone:
----- a tier-only list would compose the component from nothing.
+---- A.ScopeTraitOf appends the magnification, unless the list already names one.
 local function traits_of(id, comp)
     local list = own_traits_of(id, comp)
     local scope = (const.Combat.Aperture.ScopeTraitOf or empty_table)[id]
