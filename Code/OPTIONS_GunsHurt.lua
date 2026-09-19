@@ -17,21 +17,24 @@ function gunshurt()
     ForEachPreset("InventoryItemCompositeDef", function(w)
         local item = g_Classes[w.id]
         if IsKindOf(item, "Firearm") and not IsKindOf(item, "HeavyWeapon") and item.Damage > 0 then
-            if not ratG_GunsHurtOriginalDMGValues[item.class] then
-                ratG_GunsHurtOriginalDMGValues[item.class] = {
+            local orig = ratG_GunsHurtOriginalDMGValues[item.class]
+            ---- a ReloadLua rebuilds the class with fresh values; recapture instead of trusting the old snapshot
+            if not orig or orig.cls ~= item then
+                orig = {
+                    cls = item,
                     dmg = item.Damage,
                     basedmg = item.base_Damage
                 }
+                ratG_GunsHurtOriginalDMGValues[item.class] = orig
             end
 
-            item.Damage = MulDivRound(ratG_GunsHurtOriginalDMGValues[item.class]["dmg"], mul, 100)
-            item.base_Damage = MulDivRound(ratG_GunsHurtOriginalDMGValues[item.class]["basedmg"],
-                                           mul, 100)
+            item.Damage = MulDivRound(orig.dmg, mul, 100)
+            item.base_Damage = MulDivRound(orig.basedmg, mul, 100)
 
             if Platform.developer and Platform.rat then
                 print("----------")
                 print("ID:", item.class)
-                print("original dmg:", ratG_GunsHurtOriginalDMGValues[item.class])
+                print("original dmg:", orig.dmg)
                 print("dmg:", item.Damage)
             end
         end
@@ -48,5 +51,10 @@ function OnMsg.ApplyModOptions(id)
 end
 
 function OnMsg.ModsReloaded()
+    gunshurt()
+end
+
+---- ReloadLua rebuilds weapon classes without firing ModsReloaded
+function OnMsg.ClassesBuilt()
     gunshurt()
 end
