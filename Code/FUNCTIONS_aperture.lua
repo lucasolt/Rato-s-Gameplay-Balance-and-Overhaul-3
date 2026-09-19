@@ -407,7 +407,7 @@ end
 ---- `attacker` e opcional -- DESCRIPTION_HINTS_get.lua chama isto sem merc, so para o tooltip da
 ---- arma, e sem postura nao ha o que penalizar. Devolve o multiplicador e, se houve penalidade de
 ---- peso, o metaText dela (mesmo weigth_held_mul do recuo, ver RecoilHeldPivot em FUNCTIONS_recoil_aCTH.lua).
-function Rat_ApertureHandlingMul(weapon, attacker)
+function Rat_ApertureHandlingMul(weapon, attacker, action)
     local a = P()
     if not IsKindOf(weapon, "FirearmProperties") or not GetPBbonus then
         return 100
@@ -424,7 +424,8 @@ function Rat_ApertureHandlingMul(weapon, attacker)
     handling = Clamp(handling, a.HandlingMin or 60, a.HandlingMax or 140)
 
     local meta
-    if attacker then
+    ---- Grizzly waives the not-prone malus, same as the weight malus in recoil
+    if attacker and not (action and action.id == "GrizzlyPerk") then
         local stance_mul = (a.HandlingHeldStanceMul and a.HandlingHeldStanceMul[attacker.stance]) or 100
         if stance_mul > 0 then
             local excess = Max(0, (weapon.HandlingNotProneMul or 100) - (a.HandlingHeldPivot or 100))
@@ -520,7 +521,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
 
     --- 1. manejo da arma (o antigo Point Blank Accuracy). Multiplica sigma_0, entao o efeito
     ---    decai a cada nivel de mira em vez de ser um desconto fixo no cone final.
-    local base_mul, handling_meta = Rat_ApertureHandlingMul(weapon, attacker)
+    local base_mul, handling_meta = Rat_ApertureHandlingMul(weapon, attacker, action)
     if base_mul ~= 100 then
         s = MulDivRound(s, base_mul, 100)
     end
