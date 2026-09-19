@@ -887,8 +887,7 @@ function Firearm:GetAttackResults(action, attack_args)
             if parallel_slugs then
                 pellet_data = self:GetParallelSlugData(attacker, attack_results.attack_pos,
                                                        main_pellet_target_pos, pellet_count - 1,
-                                                       shot_attack_args.range,
-                                                       shot_attack_args.penetration_class)
+                                                       shot_attack_args)
             else
                 pellet_data = self:GetPelletScatterData(attacker, action,
                                                         attack_results.attack_pos,
@@ -929,7 +928,8 @@ function Firearm:GetAttackResults(action, attack_args)
                                 hit.rat_offpart = p_off_part or nil
                                 hit.spot_group = p_spot or hit.spot_group
                             elseif shot_miss then
-                                if false then -- allow_grazing then
+                                ---- pellets never graze; a parallel slug grazes with the main one
+                                if parallel_slugs and allow_grazing then
                                     hit.grazing = true
                                     hit.grazed_miss = true
                                 else

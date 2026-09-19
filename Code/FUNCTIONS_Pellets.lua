@@ -168,6 +168,7 @@ function Firearm:GetParallelSlugData(attacker, attack_pos, main_end_pos, num_vec
         dir = RotateRadius(guim, attacker:GetAngle())
     end
     local spacing = (const.Weapons.DoubleBarrelSlugSpacing or 3) * guic
+    local range = shot_args.range
     local shots_hit_data = {}
     for i = 1, num_vectors do
         local side = SetLen(point(-dir:y(), dir:x(), 0), spacing * i)
