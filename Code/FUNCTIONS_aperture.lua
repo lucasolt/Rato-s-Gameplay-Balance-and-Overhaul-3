@@ -385,6 +385,12 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
     local he = 100
     if attacker and not attacker.placeholder and IsKindOf(weapon, "Firearm") then
         he = Clamp(rGetHandEyeCoordination(attacker) or 100, 10, 100)
+        ---- vanilla handler scales the Aim modifier, which aCTH disables; same mul on the closing here
+        local oob = attacker:GetStatusEffect("R_outofbreath")
+        if oob then
+            he = MulDivRound(he, const.Combat.Perks.OutOfBreathAimMul, 100)
+            meta[#meta + 1] = oob.DisplayName
+        end
     end
     --- decay_efetivo = 100 - (100 - decay) * he/100
     decay = 100 - MulDivRound(100 - decay, he, 100)
