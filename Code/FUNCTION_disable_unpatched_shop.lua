@@ -31,42 +31,41 @@ function disable_44mag_inshop(item, preset)
 end
 
 --------------------
-function disable_zulib_22mm_recipes()
-    local recipes = g_RecipesCraftExplosives
-
-    local to_remove = {}
-    for i, recipe in ipairs(recipes) do
-        local class = g_Classes[recipe.item_id]
-        if class and (class.Caliber == "22mm_Nato" or class.Caliber == "22mm_WP") then
-            table.insert(to_remove, recipe)
-        end
-    end
-    for i, remove in ipairs(to_remove) do
-        table.remove_value(recipes, remove)
-        -- print("GBO - removing craft recipe:", remove.item_id)
+local function IsRecipeDisabled(operation_id, item_id)
+    local class = g_Classes[item_id]
+    if operation_id == "CraftAmmo" then
+        -- FlareAmmo is not Ammo and its caliber is not in the list
+        return IsKindOf(class, "Ammo") and not table.find(ratG_UsedCalibers, class.Caliber)
+    elseif operation_id == "CraftExplosives" then
+        return class and (class.Caliber == "22mm_Nato" or class.Caliber == "22mm_WP")
     end
 end
 
-function disable_zulib_unused_calibers_recipes()
-    local recipes = g_RecipesCraftAmmo
-    local to_remove = {}
-    for i, recipe in ipairs(recipes) do
-        local class = g_Classes[recipe.item_id]
-        if class and not table.find(ratG_UsedCalibers, class.Caliber) then
-            table.insert(to_remove, recipe)
+local function PruneDisabledRecipes(operation_id)
+    local recipes = (operation_id == "CraftAmmo" and g_RecipesCraftAmmo) or
+                        (operation_id == "CraftExplosives" and g_RecipesCraftExplosives)
+    if type(recipes) ~= "table" then
+        return
+    end
+    for i = #recipes, 1, -1 do
+        if IsRecipeDisabled(operation_id, recipes[i].item_id) then
+            table.remove(recipes, i)
         end
     end
-    for i, remove in ipairs(to_remove) do
-        table.remove_value(recipes, remove)
-        -- print("GBO - removing craft recipe:", remove.item_id)
-    end
+end
+
+-- Fill builds the list on first open, unfiltered; pruning only before Validate missed it
+local original_SectorOperationFillItemsToCraft = SectorOperationFillItemsToCraft
+function SectorOperationFillItemsToCraft(sector_id, operation_id, merc)
+    local result = original_SectorOperationFillItemsToCraft(sector_id, operation_id, merc)
+    PruneDisabledRecipes(operation_id)
+    return result
 end
 
 local original_SectorOperationValidateItemsToCraft = SectorOperationValidateItemsToCraft
 function SectorOperationValidateItemsToCraft(sector_id, operation_id, merc)
-    disable_zulib_22mm_recipes()
-    disable_zulib_unused_calibers_recipes()
     original_SectorOperationValidateItemsToCraft(sector_id, operation_id, merc)
+    PruneDisabledRecipes(operation_id)
 end
 ---------------
 
