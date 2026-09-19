@@ -282,6 +282,18 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 	end
 	if rat_cone then
 		base = Rat_ConeFinish(mod_data, base, modifiers, rat_first)
+		local floor_pts = Rat_ConeFloor(mod_data, mod_data.min)
+		if floor_pts ~= 0 then
+			base = base + floor_pts
+			if modifiers then
+				modifiers[#modifiers + 1] = {
+					name = mod_data.rat_min_name or T(730514862209, "Minimum Accuracy"),
+					value = floor_pts,
+					id = "RatConeFloor",
+					rat_mul = mod_data.rat_last_mul,
+				}
+			end
+		end
 		if rat_entry then
 			rat_entry.name, rat_entry.metaText = Rat_ConeMetaText(mod_data)
 			---- a decomposicao do cone vai estruturada: o overlay a enumera como linhas proprias

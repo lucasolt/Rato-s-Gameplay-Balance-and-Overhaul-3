@@ -141,6 +141,7 @@ function OnMsg.ClassesGenerate(classdefs)
                                          weapon2, data)
                     if target == attacker then
                         data.min = self:ResolveValue("minAccuracy")
+                        data.rat_min_name = self.DisplayName
                     end
                 end
                 break

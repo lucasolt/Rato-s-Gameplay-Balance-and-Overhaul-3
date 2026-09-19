@@ -232,6 +232,37 @@ function Rat_ConeFinish(data, base, modifiers, first)
     return Max(0, base + delta)
 end
 
+---- data.min (Spiritual) under aCTH: narrow the cone until it delivers the floor, so the bullet
+---- keeps the promise the number makes. Iterated because rat_vsigma is absolute and does not scale.
+function Rat_ConeFloor(data, min_cth)
+    local a = const.Combat.Aperture
+    data.rat_last_mul = 100
+    if not data.enabled or not data.rat_sigma or not min_cth or min_cth <= (data.rat_cth or 0) then
+        return 0
+    end
+    min_cth = Min(min_cth, a.MaxCTH)
+    local k_min = Rat_KForCTH(min_cth)
+    local before, start = data.rat_cth, data.rat_sigma
+    for _ = 1, 4 do
+        local k_cur = Rat_KForCTH(data.rat_cth)
+        if not k_min or not k_cur or data.rat_cth >= min_cth then
+            break
+        end
+        local prev = data.rat_sigma
+        data.rat_sigma = Max(1, MulDivRound(prev, k_cur, k_min))
+        if data.rat_sigma >= prev then
+            break
+        end
+        data.rat_cth = Rat_ConeCTH(data)
+    end
+    if data.rat_sigma == start then
+        return 0
+    end
+    data.rat_last_mul = MulDivRound(data.rat_sigma, 100, start)
+    data.rat_cone_mul = MulDivRound(data.rat_cone_mul or 100, data.rat_sigma, start)
+    return data.rat_cth - before
+end
+
 ---------------------------------------------------------------------------------------------------
 ---- Decomposicao do cone em linhas ESTRUTURADAS. O overlay enumera cada fator como modificador
 ---- proprio, com o percentual a direita, em vez de empilhar tudo no metaText da linha Aperture:
