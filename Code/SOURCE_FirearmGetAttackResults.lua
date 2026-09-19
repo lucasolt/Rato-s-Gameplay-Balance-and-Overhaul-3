@@ -85,6 +85,11 @@ function Firearm:GetAttackResults(action, attack_args)
     shot_attack_args.output_collisions = true
     shot_attack_args.additional_colliders = target -- Non-units (such as mines) need to be added manually.
     shot_attack_args.require_los = nil
+    ---- gas is paid in CTH (CTH_smoke.lua), so the trace must not graze through it as well
+    local smoke_no_graze = Rat_SmokeReplacesGraze(attack_args.weapon or self, action, attacker)
+    if smoke_no_graze then
+        shot_attack_args.ignore_smoke = true
+    end
 
     -----------------------------------
     if attack_args.action_id == "PinDown" then
@@ -753,6 +758,13 @@ function Firearm:GetAttackResults(action, attack_args)
                 if hit.obj == target and shot_hit_spot then
                     hit.spot_group = shot_hit_spot
                 end
+            end
+        end
+
+        ---- prediction reuses the LoF PrepareAttackArgs traced with smoke on (GetLoFData lof_idx shortcut)
+        if smoke_no_graze then
+            for _, hit in ipairs(hit_data.hits or empty_table) do
+                hit.grazing = nil
             end
         end
 

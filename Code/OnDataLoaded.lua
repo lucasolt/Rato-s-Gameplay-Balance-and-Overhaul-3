@@ -26,6 +26,7 @@ function rat_apply_changes()
 
     ----place obj
     place_standing_penalCTH()
+    place_smoke_cth()
     weapon_components_rat()
     rat_category_description()
     rat_place_prepareweapon_combat_actions()

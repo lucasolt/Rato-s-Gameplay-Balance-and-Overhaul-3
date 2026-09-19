@@ -1348,6 +1348,10 @@ return {
 		'CodeFileName', "Code/CTH_cover_prone.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "CTH_smoke",
+		'CodeFileName', "Code/CTH_smoke.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "CTH_ow_cth",
 		'comment', "---------------------- CTH",
 		'CodeFileName', "Code/CTH_ow_cth.lua",
