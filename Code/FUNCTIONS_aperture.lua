@@ -469,19 +469,18 @@ function Rat_ApertureHandlingMul(weapon, attacker, action)
     return handling, meta
 end
 
----- Ampliacao da optica montada -> multiplicador do PISO (A.ScopeFloorMul). Le o tier pelo id do
----- componente ou pelo ancestral GBO (variantes ToG apontam para o componente base).
+---- Ampliacao da optica montada -> multiplicador do PISO (`floor_mul` do traco Scope). Le o traco
+---- pelo id do componente ou pelo ancestral GBO (variantes ToG apontam para o componente base).
 function Rat_ScopeFloorMul(weapon)
-    local a = P()
-    local muls = a.ScopeFloorMul
-    if not muls or not IsKindOf(weapon, "Firearm") or not weapon.components then
+    local traits = P().ScopeTraits
+    if not traits or not IsKindOf(weapon, "Firearm") or not weapon.components then
         return 100
     end
-    local tiers = a.ApertureComponentTier or empty_table
+    local scopes = GBO_COMPONENT_SCOPE or empty_table
     for _, cid in sorted_pairs(weapon.components) do
         local comp = WeaponComponents[cid]
-        local tier = comp and (tiers[cid] or tiers[comp.GBO_ComponentAncestor or ""])
-        local mul = tier and muls[tier]
+        local tname = comp and (scopes[cid] or scopes[comp.GBO_ComponentAncestor or ""])
+        local mul = tname and traits[tname].floor_mul
         if mul then
             return mul
         end

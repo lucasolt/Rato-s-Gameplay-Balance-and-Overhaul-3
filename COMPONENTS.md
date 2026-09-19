@@ -13,12 +13,14 @@ Worked examples:
 - *"Like a light stock, but it also blocks full auto."* → Traits `Stock.Light`, **Override Effects (add)** `NoFullAuto`.
 - *"Like a light stock, but only penalised under aCTH."* → Traits `Stock.Light`, one **Override per CTH Mode** block with Mode `aCTH`.
 - *"This scope is its own thing, nothing shares it."* → a **base recipe** named after the component.
+- *"This optic should behave as a 4x under aCTH."* → put `Scope._4x` in **Traits**. It replaces any
+  magnification `A.ScopeTraitOf` binds to that id.
 
 ## Order of application
 
 ```
-traits (merged)  →  their own modes  →  aperture overlay  →  flat override  →  mode blocks  →  emit
-     ^ combine           ^ replace          ^ overwrite        ^ overwrite      ^ overwrite
+traits (merged)  →  their own modes  →  overwrite traits (Scope.*)  →  flat override  →  mode blocks  →  emit
+     ^ combine           ^ replace          ^ overwrite                  ^ overwrite      ^ overwrite
 ```
 
 Later beats earlier. Within the mode layers the order is `GBO_ComposeModeLayers()`:
@@ -30,7 +32,7 @@ Later beats earlier. Within the mode layers the order is `GBO_ComposeModeLayers(
 | --- | --- | --- |
 | `GBO_COMP_TRAITS` | code table | qualities several components share (`Barrel.Long`) |
 | `GBO_BASE_RECIPES` | code table | one component's whole identity; auto-registers as the trait `Base.<id>` and auto-binds its namesake |
-| `A.ApertureMagnifications` + `ApertureComponentTier` | code table | what each *magnification* does. Keyed by tier, not by component. **Not traits** |
+| `A.ScopeTraits` + `A.ScopeTraitOf` | code table | what each *magnification* does, as `overwrite` traits `Scope.<tier>` (aCTH-only, plus `floor_mul`), and the code-side id → tier binding |
 | `GBO_ComponentTraits` etc. | editor property | which traits this component has, and how it deviates |
 | `ModificationEffects` / `Parameters` | editor property | **output**. The compositor overwrites these. Do not author them on a component that has traits |
 
@@ -49,9 +51,12 @@ composed result over its own source and the next load would compose it again.
 
 ## Traps
 
-- **Tiers are not traits.** `Base._6x` is not a thing — magnifications are an overlay keyed by
-  `ApertureComponentTier`, applied to whatever component the tier names. A dangling trait id only
-  prints `GBO compose: traco inexistente` and composes without it.
+- **Scope traits overwrite, they don't combine.** A trait with `overwrite = true` is applied after the
+  merge, like the old overlay: its params replace, and `effects = {id = false}` removes an effect
+  another trait added. Everything sits under `modes.aCTH`, so under oldCTH it composes to nothing.
+  Never list a Scope trait alone: the binding only appends to an existing list, because a tier-only
+  list would compose the component from nothing. A dangling trait id only prints
+  `GBO compose: traco inexistente` and composes without it.
 - **A param is only read by the effect that declares it.** Remove the effect and the param becomes
   dead weight; add a param whose effect is missing and nothing happens. 41 of the 114 composed
   components carry at least one such param today.

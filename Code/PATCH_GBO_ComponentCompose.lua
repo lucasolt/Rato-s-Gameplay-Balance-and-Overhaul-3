@@ -1096,7 +1096,7 @@ GBO_COMPONENT_TRAITS = {
 ---- Camadas condicionais ao modo de jogo. Cada overlay e uma funcao(id, comp) que devolve uma
 ---- receita ou nil. Diferente de um traco, o overlay SOBRESCREVE params em vez de combinar, e o
 ---- seu `effects` e um mapa {id = true|false} -- true garante presente, false garante ausente.
----- O arquivo do aperture registra o dele aqui; o compositor nao sabe o que e uma optica.
+---- Empty since the magnifications became `overwrite` traits; kept as the hook for non-trait layers.
 GBO_COMPOSE_OVERLAYS = {}
 
 ---- Reescalas condicionais ao modo, aplicadas sobre o param JA FUNDIDO -- depois dos tracos e do
@@ -1112,30 +1112,13 @@ GBO_COMPOSE_SCALERS = {}
 ---- AimAccuracy ja NAO e escalado aqui: cada receita autora o valor de aCTH em `modes`. A escala
 ---- proporcional comprimia tudo perto de A.DecayMinPct, onde o bonus satura.
 
----- O aperture nao escreve mais componente nenhum: quem escreve e o compositor
----- (GBO_ApplyComponentCompose), que le as receitas base e aplica esta camada por cima. Aqui so
----- sobra o WeaponRange, que e propriedade de CLASSE e nao de componente.
-----
----- A camada: com o aperture ligado, o componente listado em ApertureComponentTier ganha o perfil
----- da sua ampliacao. No perfil, `ModificationEffects` e true = garante presente / false = garante
----- ausente, e `Parameters` SOBRESCREVE em vez de combinar -- por isso entra como overlay e nao
----- como mais um traco.
-
-
-local function aperture_overlay(id)
-    local ap = const.Combat.Aperture -- sempre a tabela viva
-    if not ap or not ap.Enabled then
-        return nil
-    end
-    local tier =
-        (ap.ApertureComponentTier or
-            empty_table)[id]
-    return tier and
-               (ap.ApertureMagnifications or
-                   empty_table)[tier] or
-               nil
+---- Magnifications are `overwrite` traits defined in the aperture file (A.ScopeTraits).
+for tname, recipe in pairs(const.Combat.Aperture.ScopeTraits or empty_table) do
+    GBO_COMP_TRAITS[tname] = recipe
 end
-GBO_COMPOSE_OVERLAYS[#GBO_COMPOSE_OVERLAYS+1] = aperture_overlay
+
+---- Component id -> its Scope trait name, rebuilt by every compose; read by Rat_ScopeFloorMul.
+GBO_COMPONENT_SCOPE = {}
 
 ---- Toda receita base vira o traco "Base.<id>", e o componente de mesmo nome passa a declarar esse
 ---- traco por padrao. Assim um scope sem nada autorado continua sendo ele mesmo, e quem quiser
@@ -1171,7 +1154,7 @@ end
 
 ---- Lista de tracos de um componente. Propriedade primeiro (texto separado por virgula), mapa de
 ---- codigo como fallback.
-local function traits_of(id, comp)
+local function own_traits_of(id, comp)
     local prop = comp and rawget(comp, "GBO_ComponentTraits")
     if type(prop) == "table" and #prop > 0 then
         return prop
@@ -1186,6 +1169,32 @@ local function traits_of(id, comp)
         end
     end
     return GBO_COMPONENT_TRAITS[id]
+end
+
+local function scope_in(list)
+    local scopes = const.Combat.Aperture.ScopeTraits or empty_table
+    for _, tname in ipairs(list or empty_table) do
+        if scopes[tname] then
+            return tname
+        end
+    end
+end
+
+---- A.ScopeTraitOf appends the magnification, unless the list already names one. Never alone:
+---- a tier-only list would compose the component from nothing.
+local function traits_of(id, comp)
+    local list = own_traits_of(id, comp)
+    local scope = (const.Combat.Aperture.ScopeTraitOf or empty_table)[id]
+    if not list or not scope or scope_in(list) then
+        return list
+    end
+    list = table.icopy(list)
+    list[#list + 1] = scope
+    return list
+end
+
+function GBO_TraitsOf(id, comp)
+    return traits_of(id, comp or (WeaponComponents and WeaponComponents[id]))
 end
 
 ---- Ajuste individual do componente, autorado no editor em tres propriedades (ver
@@ -1347,6 +1356,35 @@ local function resolve_modes(tname, recipe, layers)
     return {effects = effects, params = params, pct = pct}
 end
 
+---- An `overwrite` trait in the active mode, in overlay shape: `false` survives, meaning force absent.
+local function resolve_overwrite(tname, recipe, layers)
+    local effects, params = {}, table.copy(recipe.params or empty_table)
+    local pct = table.copy(recipe.pct or empty_table)
+    for _, eid in ipairs(recipe.effects or empty_table) do
+        effects[eid] = true
+    end
+    for key in pairs(recipe.modes or empty_table) do
+        if not GBO_COMPOSE_MODE_KEYS[key] then
+            print("GBO compose: modo inexistente --", tname, key)
+        end
+    end
+    for _, key in ipairs(layers) do
+        local delta = (recipe.modes or empty_table)[key]
+        if delta then
+            for eid, on in pairs(delta.effects or empty_table) do
+                effects[eid] = on
+            end
+            for name, value in pairs(delta.params or empty_table) do
+                params[name] = value
+            end
+            for name, on in pairs(delta.pct or empty_table) do
+                pct[name] = on or nil
+            end
+        end
+    end
+    return {effects = effects, params = params, pct = pct}
+end
+
 ---- Uma camada de SOBRESCRITA por cima do que os tracos fundiram: param troca de valor em vez de
 ---- combinar, e `effects` e {id = true|false} para forcar presenca ou ausencia. Aceita tanto o
 ---- formato do preset (ModificationEffects/Parameters) quanto o minusculo das receitas.
@@ -1365,18 +1403,22 @@ local function apply_overlay(effects, seen, params, pct, ov)
     return effects
 end
 
----- Funde as receitas dos tracos num trio {effects, params, pct}. Duas camadas de sobrescrita
----- entram depois, nesta ordem: `overlay` (de GBO_COMPOSE_OVERLAYS, hoje so a otica) e `override`
+---- Funde as receitas dos tracos num trio {effects, params, pct}. Tres camadas de sobrescrita
+---- entram depois, nesta ordem: tracos `overwrite` (as ampliacoes), `overlay` (de
+---- GBO_COMPOSE_OVERLAYS, hoje vazio) e `override`
 ---- (autorado NO COMPONENTE, ver GBO_Override*). O override e o mais especifico e ganha
 ---- de todo o resto.
 function GBO_ComposeTraits(trait_list, overlay, layers, override)
     local effects, seen, params, pct = {}, {}, {}, {}
+    local overwrites = {}
     layers = layers or GBO_ComposeModeLayers()
 
     for _, tname in ipairs(trait_list or empty_table) do
         local recipe = GBO_COMP_TRAITS[tname]
         if not recipe then
             print("GBO compose: traco inexistente --", tname)
+        elseif recipe.overwrite then
+            overwrites[#overwrites + 1] = resolve_overwrite(tname, recipe, layers)
         else
             recipe = resolve_modes(tname, recipe, layers)
             for _, eid in ipairs(recipe.effects or empty_table) do
@@ -1394,6 +1436,9 @@ function GBO_ComposeTraits(trait_list, overlay, layers, override)
         end
     end
 
+    for _, ov in ipairs(overwrites) do
+        effects = apply_overlay(effects, seen, params, pct, ov)
+    end
     effects = apply_overlay(effects, seen, params, pct, overlay)
     effects = apply_overlay(effects, seen, params, pct, override) -- o mais especifico por ultimo
 
@@ -1464,8 +1509,10 @@ end
 function GBO_ApplyComponentCompose()
     local n = 0
     local layers = GBO_ComposeModeLayers()
+    GBO_COMPONENT_SCOPE = {}
     for id, comp in sorted_pairs(WeaponComponents or empty_table) do
         local list = traits_of(id, comp)
+        GBO_COMPONENT_SCOPE[id] = scope_in(list)
         if not list then
             ---- sem tracos o compositor nem toca no componente, entao o override seria um no-op
             if override_of(id, comp) then

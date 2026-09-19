@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------------------------
 ---- PERFIS DE OPTICA do aperture. Este arquivo so DESCREVE o que cada ampliacao faz; quem escreve
----- no componente e o compositor (PATCH_GBO_ComponentCompose), que le a receita base e aplica o
----- perfil daqui como overlay quando A.Enabled. O pristino que era hardcodado aqui
+---- no componente e o compositor (PATCH_GBO_ComponentCompose), que registra cada ampliacao como o
+---- traco "Scope.<tier>" (A.ScopeTraits) e o compoe por cima da receita base. O pristino que era hardcodado aqui
 ---- (RAT_SCOPE_ORIGINALS) virou GBO_BASE_RECIPES no compositor -- eram dois sistemas escrevendo o
 ---- mesmo preset, e a ordem dos handlers decidia quem ganhava.
 ----
@@ -56,15 +56,7 @@ A.ComponentEffectsAimBonus = {
 ---- separacao que sobrava era o numero de niveis de mira. Medido no processo vivo (M24 @40 tiles,
 ---- mira cheia): 6x 70 -> 81, 4x 62 -> 64. So morde de verdade na ampliacao alta com alcance
 ---- longo, que e exatamente onde a ampliacao deve pagar.
-A.ScopeFloorMul = {
-    _6x = 74,
-    _4x = 84,
-    _2x = 94,
-    _2xQuick = 94,
-    _1dot5x = 98,
-    Reflex = 100,
-    Ironsight = 100
-}
+---- Per-magnification value lives in each Scope trait as `floor_mul` (absent = 100).
 
 ---- Miras: o `bonus_cth` autorado no componente vira multiplicador de cone, aplicado uma vez com
 ---- aim >= 1 ou required aim. Cada entrada daqui e um componente independente -- 
@@ -86,211 +78,247 @@ A.ConeMulEffects = {
     }
 }
 
----- Perfis por ampliacao. Parameters = {NomeDoParam = valor_inteiro} (param % usa o inteiro cru,
----- 150 = 150%). ModificationEffects = {EffectId = true garante presente | false garante ausente}.
----- Efeito de "niveis de mira" = IncreaseMaxAimActions (param MaxAimActionsIncrease); "range" da
----- optica = IncreaseRange (param RangeIncrease).
+---- Magnifications are traits ("Scope._6x"), registered into GBO_COMP_TRAITS by the compositor.
+---- `overwrite`: params replace instead of combining, effects {id = true|false} force presence.
+---- Everything sits under modes.aCTH, so under oldCTH a Scope trait composes to nothing.
+---- Params: integer values (percent params use the raw integer, 150 = 150%). Aim levels =
+---- IncreaseMaxAimActions (MaxAimActionsIncrease); optic range = IncreaseRange (RangeIncrease).
 local function scale_aim(aim)
     local ap = const.Combat.Aperture
-    return MulDivRound(aim,
-                       ap.aCTHAimAccuracyScaleMul,
-                       100)
+    return MulDivRound(aim, ap.aCTHAimAccuracyScaleMul, 100)
 end
 
-A.ApertureMagnifications = {
+A.ScopeTraits = {
     ---- AMPLIACAO E COMPROMISSO, nao upgrade. Cada degrau paga adiantado e cobra depois:
     ----   niveis de mira a mais + piso mais baixo   (so rende com mira alta e longe)
     ----   ScopePenalty maior                        (pior de perto, em qualquer nivel)
     ----   limiar de mira comecando mais tarde       (pior no aim 3, melhor do 4 em diante)
-    _6x = {
-        Parameters = {
-            MaxAimActionsIncrease = 3,
-            snap_mul_inc = 160, -- 140
-            aim_level_threshold = 6,
-            threshold_bonus_aim_acc = scale_aim(
-                5)
-        },
-        ModificationEffects = {
-            ScopeAimThresholdBonus = true,
-            IncreaseMaxAimActions = true,
-            IncreaseSnapshotMul = true,
-            ScopePenalty3 = true,
-            ScopePenalty2 = false,
-            ScopePenalty1 = false,
-            IncreaseRange = true,
-            IncreaseAimAccuracy = false,
-            StanceAPincrease = false,
-            sniper_adv_aim_scope = false
+    ["Scope._6x"] = {
+        overwrite = true,
+        floor_mul = 74,
+        modes = {
+            aCTH = {
+                params = {
+                    MaxAimActionsIncrease = 3,
+                    snap_mul_inc = 160, -- 140
+                    aim_level_threshold = 6,
+                    threshold_bonus_aim_acc = scale_aim(5)
+                },
+                effects = {
+                    ScopeAimThresholdBonus = true,
+                    IncreaseMaxAimActions = true,
+                    IncreaseSnapshotMul = true,
+                    ScopePenalty3 = true,
+                    ScopePenalty2 = false,
+                    ScopePenalty1 = false,
+                    IncreaseRange = true,
+                    IncreaseAimAccuracy = false,
+                    StanceAPincrease = false,
+                    sniper_adv_aim_scope = false
+                }
+            }
         }
     },
-    _4x = {
-        Parameters = {
-            MaxAimActionsIncrease = 2,
-            snap_mul_inc = 140, -- 125
-            aim_level_threshold = 5,
-            threshold_bonus_aim_acc = scale_aim(
-                5)
-        },
-        ModificationEffects = {
-            ScopeAimThresholdBonus = true,
-            IncreaseMaxAimActions = true,
-            IncreaseSnapshotMul = true,
-            ScopePenalty2 = true,
-            ScopePenalty1 = false,
-            ScopePenalty3 = false,
-            IncreaseRange = true,
-            IncreaseAimAccuracy = false,
-            StanceAPincrease = false,
-            sniper_aim_scope = false,
-            pso_dragunov_scope = false
+    ["Scope._4x"] = {
+        overwrite = true,
+        floor_mul = 84,
+        modes = {
+            aCTH = {
+                params = {
+                    MaxAimActionsIncrease = 2,
+                    snap_mul_inc = 140, -- 125
+                    aim_level_threshold = 5,
+                    threshold_bonus_aim_acc = scale_aim(5)
+                },
+                effects = {
+                    ScopeAimThresholdBonus = true,
+                    IncreaseMaxAimActions = true,
+                    IncreaseSnapshotMul = true,
+                    ScopePenalty2 = true,
+                    ScopePenalty1 = false,
+                    ScopePenalty3 = false,
+                    IncreaseRange = true,
+                    IncreaseAimAccuracy = false,
+                    StanceAPincrease = false,
+                    sniper_aim_scope = false,
+                    pso_dragunov_scope = false
+                }
+            }
         }
     },
-    _2x = {
-        Parameters = {
-            MaxAimActionsIncrease = 1,
-            snap_mul_inc = 125, -- 110 
-            aim_level_threshold = 4,
-            threshold_bonus_aim_acc = scale_aim(
-                3)
-        },
-        ModificationEffects = {
-            ScopeAimThresholdBonus = true,
-            BonusAccuracyWhenFullyAimed = false,
-            IncreaseMaxAimActions = true,
-            IncreaseSnapshotMul = true,
-            ScopePenalty1 = true,
-            ScopePenalty2 = false,
-            ScopePenalty3 = false,
-            IncreaseRange = true,
-            IncreaseAimAccuracy = false
+    ["Scope._2x"] = {
+        overwrite = true,
+        floor_mul = 94,
+        modes = {
+            aCTH = {
+                params = {
+                    MaxAimActionsIncrease = 1,
+                    snap_mul_inc = 125, -- 110
+                    aim_level_threshold = 4,
+                    threshold_bonus_aim_acc = scale_aim(3)
+                },
+                effects = {
+                    ScopeAimThresholdBonus = true,
+                    BonusAccuracyWhenFullyAimed = false,
+                    IncreaseMaxAimActions = true,
+                    IncreaseSnapshotMul = true,
+                    ScopePenalty1 = true,
+                    ScopePenalty2 = false,
+                    ScopePenalty3 = false,
+                    IncreaseRange = true,
+                    IncreaseAimAccuracy = false
+                }
+            }
         }
     },
     ---- 2x de aquisicao rapida (ACOG/WideScope): trocam o piso e a mira alta pelo snapshot. O
     ---- `snap_reduc` positivo autorado no componente e mantido -- o perfil nao o sobrescreve.
-    _2xQuick = {
-        Parameters = {
-            MaxAimActionsIncrease = 1,
-            aim_level_threshold = 4,
-            --threshold_bonus_aim_acc = scale_aim(2),
-            first_aim_bonus_acc = scale_aim(3),
-        },
-        ModificationEffects = {
-			ScopeAimThresholdBonus = false,
-            IncreaseMaxAimActions = true,
-            scope_snapshot = false,
-            ScopePenalty1 = true,
-            ScopePenalty2 = false,
-            ScopePenalty3 = false,
-            IncreaseRange = true,
-            IncreaseAimAccuracy = false,
-            FirstAimBonusModifier = true
+    ["Scope._2xQuick"] = {
+        overwrite = true,
+        floor_mul = 94,
+        modes = {
+            aCTH = {
+                params = {
+                    MaxAimActionsIncrease = 1,
+                    aim_level_threshold = 4,
+                    -- threshold_bonus_aim_acc = scale_aim(2),
+                    first_aim_bonus_acc = scale_aim(3)
+                },
+                effects = {
+                    ScopeAimThresholdBonus = false,
+                    IncreaseMaxAimActions = true,
+                    scope_snapshot = false,
+                    ScopePenalty1 = true,
+                    ScopePenalty2 = false,
+                    ScopePenalty3 = false,
+                    IncreaseRange = true,
+                    IncreaseAimAccuracy = false,
+                    FirstAimBonusModifier = true
+                }
+            }
         }
     },
-    _2xWide = {
-        Parameters = {
-            MaxAimActionsIncrease = 1,
-            snap_mul_reduc = 95,
-            first_aim_bonus_acc = scale_aim(2)
-        },
-        ModificationEffects = {
-            IncreaseMaxAimActions = true,
-            scope_snapshot = false,
-            DecreaseSnapshotMul = true,
-            ScopePenalty1 = true,
-            ScopePenalty2 = false,
-            ScopePenalty3 = false,
-            IncreaseRange = true,
-            IncreaseAimAccuracy = false,
-            FirstAimBonusModifier = true
+    ["Scope._2xWide"] = {
+        overwrite = true,
+        modes = {
+            aCTH = {
+                params = {
+                    MaxAimActionsIncrease = 1,
+                    snap_mul_reduc = 95,
+                    first_aim_bonus_acc = scale_aim(2)
+                },
+                effects = {
+                    IncreaseMaxAimActions = true,
+                    scope_snapshot = false,
+                    DecreaseSnapshotMul = true,
+                    ScopePenalty1 = true,
+                    ScopePenalty2 = false,
+                    ScopePenalty3 = false,
+                    IncreaseRange = true,
+                    IncreaseAimAccuracy = false,
+                    FirstAimBonusModifier = true
+                }
+            }
         }
     },
-    _1dot5x = {
-        Parameters = {
-            MaxAimActionsIncrease = 1
-        },
-        ModificationEffects = {
-            IncreaseMaxAimActions = true,
-            IncreaseRange = true,
-            IncreaseAimAccuracy = false,
-            ScopePenalty1 = false,
-            ScopePenalty2 = false,
-            ScopePenalty3 = false
+    ["Scope._1dot5x"] = {
+        overwrite = true,
+        floor_mul = 98,
+        modes = {
+            aCTH = {
+                params = {MaxAimActionsIncrease = 1},
+                effects = {
+                    IncreaseMaxAimActions = true,
+                    IncreaseRange = true,
+                    IncreaseAimAccuracy = false,
+                    ScopePenalty1 = false,
+                    ScopePenalty2 = false,
+                    ScopePenalty3 = false
+                }
+            }
         }
     },
     ---- bonus_cth 10 -> 12: a reflex e a opcao BARATA (sem nivel de mira extra, sem AP de entrada),
     ---- entao precisa ser a melhor no aim 1-3 ou a 2x rapida a domina sem custar nada a mais.
-    Reflex = {
-        Parameters = {
-            bonus_cth = 12,
-            snap_mul_reduc = 85
-        },
-        ModificationEffects = {
-            AccuracyBonusWhenAimed = true,
-            reflex_sight_close_range = false,
-            scope_snapshot = false, -- old hardcoded effect
-            DecreaseSnapshotMul = true
+    ["Scope.Reflex"] = {
+        overwrite = true,
+        floor_mul = 100, -- explicit: stops Rat_ScopeFloorMul scanning other components
+        modes = {
+            aCTH = {
+                params = {bonus_cth = 12, snap_mul_reduc = 85},
+                effects = {
+                    AccuracyBonusWhenAimed = true,
+                    reflex_sight_close_range = false,
+                    scope_snapshot = false, -- old hardcoded effect
+                    DecreaseSnapshotMul = true
+                }
+            }
         }
     },
-    ReflexAdvanced = {
-        Parameters = {
-            bonus_cth = 10,
-            snap_mul_reduc = 90
-        },
-        ModificationEffects = {
-            AccuracyBonusWhenAimed = true,
-            reflex_sight_close_range = false,
-            scope_snapshot = false,
-            DecreaseSnapshotMul = true
+    ["Scope.ReflexAdvanced"] = {
+        overwrite = true,
+        modes = {
+            aCTH = {
+                params = {bonus_cth = 10, snap_mul_reduc = 90},
+                effects = {
+                    AccuracyBonusWhenAimed = true,
+                    reflex_sight_close_range = false,
+                    scope_snapshot = false,
+                    DecreaseSnapshotMul = true
+                }
+            }
         }
     },
-    ReflexVigilance = {
-        Parameters = {
-            bonus_cth = 5,
-            snap_mul_reduc = 85
-        },
-        ModificationEffects = {
-            AccuracyBonusWhenAimed = true,
-            reflex_sight_close_range = false,
-            scope_snapshot = false,
-            DecreaseSnapshotMul = true
-
+    ["Scope.ReflexVigilance"] = {
+        overwrite = true,
+        modes = {
+            aCTH = {
+                params = {bonus_cth = 5, snap_mul_reduc = 85},
+                effects = {
+                    AccuracyBonusWhenAimed = true,
+                    reflex_sight_close_range = false,
+                    scope_snapshot = false,
+                    DecreaseSnapshotMul = true
+                }
+            }
         }
     },
-    Ironsight = {
-        Parameters = {bonus_cth = 3},
-        ModificationEffects = {
-            AccuracyBonusWhenAimed = true
+    ["Scope.Ironsight"] = {
+        overwrite = true,
+        floor_mul = 100,
+        modes = {
+            aCTH = {
+                params = {bonus_cth = 3},
+                effects = {AccuracyBonusWhenAimed = true}
+            }
         }
     }
-    -- Laser = {
-    --	
-    -- }
     -- VerticalGrip = { -- no op
     --	Parameters = {bonus_cth = 3},
     --	ModificationEffects = {AccuracyBonusWhenAimed = true},
     -- }
 }
 
----- Componente -> perfil. Componente ausente daqui nao e tocado. Chute inicial de tiers:
-A.ApertureComponentTier = {
-    ReflexSight = "Reflex",
-    ReflexSightAdvanced = "ReflexAdvanced",
-    ReflexSightAdvanced_Glock = "ReflexAdvanced",
-    _ReflexSIghtVigilance = "ReflexVigilance",
-    ImprovedIronsight = "Ironsight",
-    ImprovedIronsight_AR15 = "Ironsight", -- AR15
-    G36_SCOPE = "_2x",
-    SCOPE_G36_2 = "_2x",
-    AUGScope_Default = "_1dot5x",
-    ScopeCOG = "_2x",
+---- Code-side binding, used only when the component's trait list has no Scope trait of its own.
+A.ScopeTraitOf = {
+    ReflexSight = "Scope.Reflex",
+    ReflexSightAdvanced = "Scope.ReflexAdvanced",
+    ReflexSightAdvanced_Glock = "Scope.ReflexAdvanced",
+    _ReflexSIghtVigilance = "Scope.ReflexVigilance",
+    ImprovedIronsight = "Scope.Ironsight",
+    ImprovedIronsight_AR15 = "Scope.Ironsight", -- AR15
+    G36_SCOPE = "Scope._2x",
+    SCOPE_G36_2 = "Scope._2x",
+    AUGScope_Default = "Scope._1dot5x",
+    ScopeCOG = "Scope._2x",
     ---- ACOG e WideScope sao as 2x de aquisicao rapida: ja autoram scope_snapshot POSITIVO
-    WideScope = "_2xWide",
-    ScopeCOGQuick = "_2xQuick",
-    LROptics = "_4x",
-    LROptics_DragunovDefault = "_4x",
-    ThermalScope = "_4x",
-    LROpticsAdvanced = "_6x",
-    PSG_DefaultScope = "_6x",
+    WideScope = "Scope._2xWide",
+    ScopeCOGQuick = "Scope._2xQuick",
+    LROptics = "Scope._4x",
+    LROptics_DragunovDefault = "Scope._4x",
+    ThermalScope = "Scope._4x",
+    LROpticsAdvanced = "Scope._6x",
+    PSG_DefaultScope = "Scope._6x",
 
     -----
     -- VerticalGrip = "VerticalGrip",
@@ -305,19 +333,19 @@ A.ApertureComponentTier = {
     ---- Opticas de ToG que ficavam de fora e continuavam dando IncreaseRange. So entram as que
     ---- servem arma PATCHED (is_tog_patched) ou vanilla -- auditado no processo vivo por slot
     ---- "Scope". Os `_Master_*` sao os templates de onde as variantes herdam: os dois precisam entrar.
-    SSG69_Scope_1 = "_6x", -- SSG69_1
-    _Master_SSG69_Scope_TOG = "_6x",
-    VSS_Scope_1 = "_4x", -- VSS_1
-    ["_Master_PSO-1M2_Scope_TOG"] = "_4x",
-    SteyrS_Scope_1 = "_4x", -- SteyrScout_1
-    _Master_SteyrS_Scope_TOG = "_4x",
-    m76_scope_1 = "_4x", -- M76_1
-    _Master_m76_scope_TOG = "_4x",
-    GW43_Scope_1 = "_2x", -- STG44R_1, Gewehr43_1
-    _Master_GW43_Scope_TOG = "_2x",
-    G11_Scope_1 = "_1dot5x", -- G11_1
-    _Master_G11_Scope_1 = "_1dot5x",
-    TAR21_Scope_Rflx_1 = "Reflex" -- TAR21_1
+    SSG69_Scope_1 = "Scope._6x", -- SSG69_1
+    _Master_SSG69_Scope_TOG = "Scope._6x",
+    VSS_Scope_1 = "Scope._4x", -- VSS_1
+    ["_Master_PSO-1M2_Scope_TOG"] = "Scope._4x",
+    SteyrS_Scope_1 = "Scope._4x", -- SteyrScout_1
+    _Master_SteyrS_Scope_TOG = "Scope._4x",
+    m76_scope_1 = "Scope._4x", -- M76_1
+    _Master_m76_scope_TOG = "Scope._4x",
+    GW43_Scope_1 = "Scope._2x", -- STG44R_1, Gewehr43_1
+    _Master_GW43_Scope_TOG = "Scope._2x",
+    G11_Scope_1 = "Scope._1dot5x", -- G11_1
+    _Master_G11_Scope_1 = "Scope._1dot5x",
+    TAR21_Scope_Rflx_1 = "Scope.Reflex" -- TAR21_1
 
     ---- FORA de proposito -- so servem arma ToG NAO patched, fora do escopo de balance do mod:
     ---- AWP_Scope_1, WA2000_Scope_1, NTW_20_Scope_1, Caws_Scope_1, FN2000_Scope_1,
