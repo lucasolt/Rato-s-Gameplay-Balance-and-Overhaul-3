@@ -1221,12 +1221,12 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "mobile_move_ap",
-					'Value', 8,
+					'Value', 80,
 					'Tag', "<mobile_move_ap>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "mobile_move_ap_min",
-					'Value', 7,
+					'Value', 70,
 					'Tag', "<mobile_move_ap_min>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -1454,6 +1454,10 @@ return {
 		'name', "FUNCTIONS_cover_silhouette",
 		'CodeFileName', "Code/FUNCTIONS_cover_silhouette.lua",
 	}),
+	PlaceObj('ModItemCode', {
+		'name', "FUNCTIONS_aCTH_ChangeTexts",
+		'CodeFileName', "Code/FUNCTIONS_aCTH_ChangeTexts.lua",
+	}),
 	PlaceObj('ModItemFolder', {
 		'name', "DEBUG",
 	}, {
@@ -1617,6 +1621,10 @@ return {
 	PlaceObj('ModItemCode', {
 		'name', "SOURCE_GetRangeAccuracy",
 		'CodeFileName', "Code/SOURCE_GetRangeAccuracy.lua",
+	}),
+	PlaceObj('ModItemCode', {
+		'name', "SOURCE_CinematicCamKill",
+		'CodeFileName', "Code/SOURCE_CinematicCamKill.lua",
 	}),
 	PlaceObj('ModItemCode', {
 		'name', "shooting_stance_aoesector_functions",
@@ -3530,7 +3538,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 10,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -3726,7 +3734,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 10,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -5563,7 +5571,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 10,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -5635,7 +5643,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 10,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -5830,7 +5838,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 10,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6176,7 +6184,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6680,7 +6688,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1.3,
+					'Value', 5,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6745,7 +6753,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6811,7 +6819,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6880,7 +6888,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -6947,6 +6955,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
+					'Value', 3,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7115,6 +7124,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
+					'Value', 3,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7281,6 +7291,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
+					'Value', 3,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7444,7 +7455,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7608,7 +7619,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7770,7 +7781,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7934,7 +7945,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8106,7 +8117,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8269,7 +8280,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8425,7 +8436,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8624,7 +8635,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8687,7 +8698,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8751,6 +8762,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
+					'Value', 3,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8884,7 +8896,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9017,7 +9029,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9150,6 +9162,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
+					'Value', 3,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9282,6 +9295,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
+					'Value', 3,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9415,7 +9429,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9549,7 +9563,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9618,7 +9632,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9680,7 +9694,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9746,7 +9760,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9811,7 +9825,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 1,
+					'Value', 5,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9938,6 +9952,7 @@ return {
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "APdecrease",
+				'Value', 5,
 				'Tag', "<APdecrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
@@ -10102,7 +10117,7 @@ return {
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "APdecrease",
-				'Value', 1,
+				'Value', 10,
 				'Tag', "<APdecrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
@@ -10155,7 +10170,7 @@ return {
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "APdecrease",
-				'Value', 1,
+				'Value', 10,
 				'Tag', "<APdecrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
@@ -10196,7 +10211,10 @@ return {
 		Comment = "consider reducing or disabling aiming?",
 		Cost = 30,
 		DisplayName = T(867015797493, --[[ModItemWeaponComponent StockLight_AR_BurstOnly DisplayName]] "Light Stock"),
-		GBO_ComponentTraits = "Stock.Light, Stock.Bump",
+		GBO_ComponentTraits = "Stock.Light",
+		GBO_OverrideEffects = {
+			"NoFullAuto",
+		},
 		Icon = "UI/Icons/Upgrades/ar15_stock_light",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
@@ -10209,6 +10227,7 @@ return {
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "APdecrease",
+				'Value', 5,
 				'Tag', "<APdecrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
@@ -10235,19 +10254,28 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 30,
 		DisplayName = T(815372656693, --[[ModItemWeaponComponent StockHeavy_AR_BurstOnly DisplayName]] "Heavy Stock"),
+		GBO_ComponentTraits = "Base.StockHeavy",
+		GBO_OverrideEffects = {
+			"NoFullAuto",
+		},
 		Icon = "UI/Icons/Upgrades/MP5_stock_heavy",
 		ModificationDifficulty = 20,
 		ModificationEffects = {
 			"BonusAccuracyWhenFullyAimed",
-			"NoFullAuto",
-			"stockheavy_effect_recoil",
 			"stance_ap_inc_STR",
+			"stockheavy_effect_recoil",
+			"NoFullAuto",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
-				'Name', "range",
+				'Name', "STR_threshold",
+				'Value', 85,
+				'Tag', "<STR_threshold>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "StanceIncreaseSTR",
 				'Value', 10,
-				'Tag', "<range>",
+				'Tag', "<StanceIncreaseSTR>",
 			}),
 			PlaceObj('PresetParamPercent', {
 				'Name', "bonus_cth",
@@ -10255,19 +10283,9 @@ return {
 				'Tag', "<bonus_cth>%",
 			}),
 			PlaceObj('PresetParamNumber', {
-				'Name', "APincrease",
-				'Value', 1,
-				'Tag', "<APincrease>",
-			}),
-			PlaceObj('PresetParamNumber', {
-				'Name', "StanceIncreaseSTR",
-				'Value', 1,
-				'Tag', "<StanceIncreaseSTR>",
-			}),
-			PlaceObj('PresetParamNumber', {
-				'Name', "STR_threshold",
-				'Value', 85,
-				'Tag', "<STR_threshold>",
+				'Name', "range",
+				'Value', 10,
+				'Tag', "<range>",
 			}),
 		},
 		Slot = "Stock",
@@ -16611,7 +16629,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "StanceIncreaseSTR",
-				'Value', 1,
+				'Value', 10,
 				'Tag', "<StanceIncreaseSTR>",
 			}),
 			PlaceObj('PresetParamPercent', {
@@ -17052,7 +17070,6 @@ return {
 			"DecreaseSnapshotMul",
 			"DecreaseHipfireMul",
 			"IncreaseAimAccuracy",
-			"body_part_uv",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -18884,7 +18901,6 @@ return {
 			"DecreaseSnapshotMul",
 			"DecreaseHipfireMul",
 			"IncreaseAimAccuracy",
-			"body_part_uv",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -18996,7 +19012,6 @@ return {
 			"DecreaseSnapshotMul",
 			"DecreaseHipfireMul",
 			"IncreaseAimAccuracy",
-			"body_part_uv",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -19161,7 +19176,6 @@ return {
 			"DecreaseSnapshotMul",
 			"DecreaseHipfireMul",
 			"IncreaseAimAccuracy",
-			"body_part_uv",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {

@@ -1539,12 +1539,12 @@ function rat_MGSetup_getap()
 		local stance_ap = GetWeapon_StanceAP(unit, weapon)
         local cost = stance_ap + self.ActionPointDelta
 
-        if HasPerk(unit, "HeavyWeaponsTraining") then
-            local effect = unit:GetStatusEffect("HeavyWeaponsTraining")
-            local reduction = effect:ResolveValue("ap_cost_reduction") * const.Scale.AP
-            local minCost = effect:ResolveValue("min_ap_cost") * const.Scale.AP
-            cost = Max(minCost, cost - reduction)
-        end
+        --if HasPerk(unit, "HeavyWeaponsTraining") then
+        --    local effect = unit:GetStatusEffect("HeavyWeaponsTraining")
+        --    local reduction = effect:ResolveValue("ap_cost_reduction") * const.Scale.AP
+        --    local minCost = effect:ResolveValue("min_ap_cost") * const.Scale.AP
+        --    cost = Max(minCost, cost - reduction)
+        --end
 		
 
         -------------------------------------------------------------------------------------------

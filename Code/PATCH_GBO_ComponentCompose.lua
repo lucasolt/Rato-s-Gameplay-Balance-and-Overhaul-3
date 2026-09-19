@@ -85,6 +85,8 @@ local long_barrel_aim_bonus = 6
 local long_barrel_handgun_aim_bonus = 3
 local light_stock_aim_reduction = 4
 local no_stock_aim_reduction = 12
+
+local barrel_ap = 5
 GBO_COMP_TRAITS = {
     ["Barrel.Long"] = {
         effects = {
@@ -99,7 +101,7 @@ GBO_COMP_TRAITS = {
             RangeIncrease = 4,
             DamageIncrease = 1,
             AimAccuracyIncrease = 2,
-            APincrease = 10
+            APincrease = barrel_ap
         },
         modes = {
             aCTH = {
@@ -116,7 +118,7 @@ GBO_COMP_TRAITS = {
             OverwatchAngle = 95,
             RangeIncrease = 4,
             AimAccuracyIncrease = 2,
-            APincrease = 10
+            APincrease = barrel_ap
         },
 		modes = {
 			aCTH = {
@@ -130,7 +132,7 @@ GBO_COMP_TRAITS = {
             OverwatchAngle = 107,
             RangeDecrease = 2,
             DamageReduced = 1,
-            APdecrease = 10
+            APdecrease = barrel_ap
         },
 		modes = {
 			aCTH = {
@@ -144,7 +146,7 @@ GBO_COMP_TRAITS = {
         params = {
             OverwatchAngle = 107,
             RangeDecrease = 2,
-            APdecrease = 10
+            APdecrease = barrel_ap
         },
 		modes = {
 			aCTH = {
@@ -249,12 +251,6 @@ GBO_COMP_TRAITS = {
 			},
 		},
 	},
-	["Stock.Bump"] = {
-		effects = {
-			"NoFullAuto",
-		}
-
-	},
 	["Bipod"] ={
 		effects = {			
 			"AccuracyBonusProne",
@@ -286,7 +282,7 @@ GBO_COMP_TRAITS = {
 		params = {
 			DamageIncrease = 10,
 			ReliabilityDecrease = 10,
-			APincrease = 10,
+			APincrease = 2,
 		}
 	},
 	["Barrel.to762_54R"]={
@@ -491,6 +487,7 @@ GBO_BASE_RECIPES = {
 		},
 		modes = {
 			aCTH = {
+				effects = {body_part_uv = false},
 				params = {AimAccuracyIncrease = 5},
 			},
 		},

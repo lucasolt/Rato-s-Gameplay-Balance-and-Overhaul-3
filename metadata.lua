@@ -5,7 +5,7 @@ return PlaceObj('ModDef', {
 	'external_links', {
 		"https://www.buymeacoffee.com/rato_modder",
 	},
-	'last_changes', "3.60\n- When set up, MGs will have lower snapshot penalty for interrupt attacks at long distances\n- Setting up MG now costs more if you are not prone. This extra cost can be paid with free move ap.\n- Components and perks effect on recoil/snapshot/hipfire and aim tweaked\n- Snipe action bonus crit per aim from 5 to 4.\n- Heavy rain no longer increases aim AP. Instead, it makes aiming less effective \n- Reflex sights no longer increase range\n- Snapshot penalty for opportunity attacks was decreased (from extra +20% to +10%). Reflex will grant bigger boost\n- NEW MECHANIC: Redesigned reliability mechanics. The value will now govern the chance of jamming instead of condition degradation by shot. The formula was changed, high reliability weapons will be able to perform even when in lower condition.\n- Changed fog vision radius reduction. Fog no longer causes grazing hits\n- Critical chance based on aim levels was tuned down\n- First Dex threshold for bolt action AP reduction from 85 to 80\n- Shotgun attack AP cost reduced, same value as single shot\n- Other balance tweaks that I forgot\n\n- AP Scale changed. What before was 1 AP, now is 10 AP. This opens avenues to tweak ap costs in a more granular way.\n- Manually cycling AP has been tweaked (it cost less). The effects from dexterity are now not in threshold steps, but instead are a smooth progression. Every point of dexterity helps (mostly)\n- Components impact on shooting stance cost was changed (barrels and stock have less increase, handgun barrels have a very small change now)\n\n- Fixed and improved Shooting Stance animations (shoutout to @dabhand)",
+	'last_changes', "3.60\n- When set up, MGs will have lower snapshot penalty for interrupt attacks at long distances\n- Setting up MG now costs more if you are not prone. This extra cost can be paid with free move ap.\n- Components and perks effect on recoil/snapshot/hipfire and aim tweaked\n- Snipe action bonus crit per aim from 5 to 4.\n- Heavy rain no longer increases aim AP. Instead, it makes aiming less effective \n- Reflex sights no longer increase range\n- Snapshot penalty for opportunity attacks was decreased (from extra +20% to +10%). Reflex will grant bigger boost\n- NEW MECHANIC: Redesigned reliability mechanics. The value will now govern the chance of jamming instead of condition degradation by shot. The formula was changed, high reliability weapons will be able to perform even when in lower condition.\n- Changed fog vision radius reduction. Fog no longer causes grazing hits\n- Critical chance based on aim levels was tuned down\n- First Dex threshold for bolt action AP reduction from 85 to 80\n- Shotgun attack AP cost reduced, same value as single shot\n- Other balance tweaks that I forgot\n\n- AP Scale changed. What before was 1 AP, now is 10 AP. This opens avenues to tweak ap costs in a more granular way.\n- Manually cycling AP has been tweaked (it cost less). The effects from dexterity are now not in threshold steps, but instead are a smooth progression. Every point of dexterity helps (mostly)\n- Components impact on shooting stance cost was changed (barrels and stock have less increase, handgun barrels have a very small change now)\n\n- Fixed and improved Shooting Stance animations (shoutout to @dabhand)\n- Fixed bugs related to shotgun\n\n-- new CTH mode: aCTH\n\nThis was created because I felt that accuracy was too high on long ranges, and just shooting first was what determined a fight result. I want it to feel more \nIn this mode, every shot is simulated. Your accuracy will generate an aperture that denotes the possible dispersion. A shot will be randomly fired in this area. Aiming turns the dispersion tighter.\nShots can hit other body parts than what you intended. In these cases, inflicting status effect and crit have their chance lowered by 33%, and the base damage suffers 10% reduction.\nShots can hit cover. There is no more hardscripted cover. A small, thin lightpost can save you from a bullet (or your enemy). Expect dynamic (chaotic) results. You need to have stomach for bouts of randomness to use this mode.\n\nHandling:\n- new weapon stat: Handling -> is the base precision factor for every attack. Small weapons will have less penalty, but in turn have less aiming bonus. Replaces Point Blank/Close Range bonus.\n- Heavy/big weapons (MGs, Barret, PSG) have worse handling if you are not prone. Some of this can be negated with high str. \n\nRecoil:\n- Recoil deviation is simulated. Str controls how much you control, dexterity/marksmanship will help you get back on target.\n- MGs have recoil penalty (and the aforementioned handling penalty) when firing not prone. There are no penalties to fire without setup, that is, the benefits have been all transfered to being prone or having a bipod. MG Setup is now a way to OW (with one bonus attack per turn)\n\n\nAim and Sights:\n- Aim accuracy scale has been changed (values will range from ~~5 to 70)\n- Aim accuracy is very important to determine how well can you hit at range\n- Scopes work differently, mostly increasing max aim levels. Big scopes have more snapshot penalty, and work better with high aim accuracy weapons.\n- Reflex sights have flat accuracy bonus (equally good for weapons with high or low aim accuracy)\n- Weapon range now is mostly relevant to how tight you can make the dispersion. In some ways, they are a floor to dispersion and a ceiling to aim accuracy. So high range weapons will benefit more from scopes, low range will have little benefit, as you approach the floor earlier.\n\nOther stuff:\n- Autofire has no cap on max aim levels\n- Dual shot has max 3 aim levels, you will get no benefit from scopes or sights.",
 	'SpellCheck', true,
 	'dependencies', {
 		PlaceObj('ModDependency', {
@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 13303,
+	'version', 13325,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -104,6 +104,7 @@ return PlaceObj('ModDef', {
 		"Code/FUNCTIONS_aperture.lua",
 		"Code/FUNCTIONS_aperture_ui_helpers.lua",
 		"Code/FUNCTIONS_cover_silhouette.lua",
+		"Code/FUNCTIONS_aCTH_ChangeTexts.lua",
 		"Code/DEBUG_aperture_style.lua",
 		"Code/DEBUG_aperture_draw.lua",
 		"Code/XTEMP_recoil.lua",
@@ -140,6 +141,7 @@ return PlaceObj('ModDef', {
 		"Code/SOURCE_Firearm_GetItemStatusUI and QuickReloadButton.lua",
 		"Code/SOURCE_FirearmGetImpactForce.lua",
 		"Code/SOURCE_GetRangeAccuracy.lua",
+		"Code/SOURCE_CinematicCamKill.lua",
 		"Code/shooting_stance_aoesector_functions.lua",
 		"Code/shooting_stance_functions.lua",
 		"Code/DESCRIPTION_HINTS_get.lua",
@@ -184,8 +186,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1789610739,
-	'code_hash', -5405052512733283328,
+	'saved', 1789789222,
+	'code_hash', -369620353115109361,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",

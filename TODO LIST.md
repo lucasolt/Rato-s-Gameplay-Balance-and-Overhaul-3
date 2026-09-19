@@ -3,6 +3,67 @@
 ```lua
 CheatAddItem("itemid")
 ```
+## Patch Notes
+```
+4.00
+- When set up, MGs will have lower snapshot penalty for interrupt attacks at long distances
+- Setting up MG now costs more if you are not prone. This extra cost can be paid with free move ap. Base cost reduced by 1
+- Components and perks effect on recoil/snapshot/hipfire and aim tweaked
+- Snipe action bonus crit per aim from 5 to 4.
+- Heavy rain no longer increases aim AP. Instead, it makes aiming less effective 
+- Reflex sights no longer increase range
+- Snapshot penalty for opportunity attacks was decreased (from extra +20% to +10%). Reflex will grant bigger accuracy boost
+
+- NEW MECHANIC: Redesigned reliability mechanics. The value will now govern the chance of jamming instead of condition degradation by shot. The formula was changed, high reliability weapons will be able to perform even when in lower condition.
+
+- Changed fog vision radius reduction. Fog no longer causes grazing hits
+- Critical chance based on aim levels was tuned down
+- Shotgun attack AP cost reduced, same value as single shot
+- Other balance tweaks that I forgot
+
+- AP Scale changed. What before was 1 AP, now is 10 AP. This opens avenues to tweak ap costs in a more granular way.
+- Manually cycling AP has been tweaked (it cost less). The effects from dexterity are now not in threshold steps, but instead are a smooth progression. Every point of dexterity helps (mostly)
+- Components impact on shooting stance cost was changed (barrels and stock have less increase, handgun barrels have a very small change now)
+
+- Heavy Weapons perk now reduces Shooting Stance AP instead of Setup AP (indirectly still reduces Setup AP). 
+
+- Fixed and improved Shooting Stance animations (shoutout to @dabhand)
+- Fixed bugs related to shotgun
+
+-- new CTH mode: aCTH --
+
+This was created because I felt that accuracy was too high on long ranges, and just shooting first was what determined a fight result. I want it to feel more like a firefight, prolonged, suppression based (please use the Pinned Down mod).
+Heavily inspired by 1.13 NuCTH. In this mode, every shot is simulated. Your accuracy will generate an aperture that denotes the possible dispersion. A shot will be randomly fired in this area. Aiming turns the dispersion tighter.
+Shots can hit other body parts than what you intended. In these cases, inflicting status effect and crit have their chance lowered by 33%, and the base damage suffers 10% reduction.
+Shots can hit cover. There is no more hardscripted cover. A small, thin lightpost can save you from a bullet (or your enemy). 
+Expect dynamic (chaotic) results (that is the fun part!). You need to have stomach for bouts of randomness to use this mode.
+
+(aCTH) Handling:
+- new weapon stat: Handling -> is the base precision factor for every attack. Small weapons will have less penalty, but in turn have less aiming bonus. Replaces Point Blank/Close Range bonus.
+- Heavy/big weapons (MGs, Barret, PSG) have worse handling if you are not prone. Some of this can be negated with high str. 
+
+(aCTH) Recoil:
+- Recoil deviation is simulated. Str controls how much you control, dexterity/marksmanship will help you get back on target.
+- MGs have recoil penalty (and the aforementioned handling penalty) when firing not prone. There are no penalties to fire without setup, that is, the benefits have been all transfered to being prone or having a bipod. MG Setup is now a way to OW (with one bonus attack per turn)
+- Being prone and have a bipod will have an impact biased to reduce the vertical component of recoil.
+
+
+(aCTH) Aim and Sights:
+- Aim accuracy scale has been changed (values will range from ~~5 to 70)
+- Aim accuracy is very important to determine how well can you hit at range
+- Scopes work differently, mostly increasing max aim levels. Big scopes have more snapshot penalty, and work better with high aim accuracy weapons.
+- Reflex sights have flat accuracy bonus (equally good for weapons with high or low aim accuracy)
+- Weapon range now is mostly relevant to how tight you can make the dispersion. In some ways, they are a floor to dispersion and a ceiling to aim accuracy. So high range weapons will benefit more from scopes, low range will have little benefit, as you approach the floor earlier.
+
+(aCTH) Other stuff:
+- Autofire has no cap on max aim levels
+- Dual shot has max 3 aim levels, you will get no benefit from scopes or sights.
+- CQC perk will reduce snapshot and hipfire penalty for firearms, instead of bonus acc at close range. Melee and thrown weapons remains the same as the original.
+ 
+-- -- -- -- -- -- -- -- -- 
+```
+
+
 ## Housekeeping
 - [X] Implement unified Component handling, with ancestor/CTH mode
 	- [X] fix/unify with aCTH logic!!!
@@ -19,20 +80,24 @@ CheatAddItem("itemid")
 	- [ ] Heavy stock
 	- [ ] Barrels
 
+- [ ] fix folded stock AP reduction (M11 was bugged)
 
+## FINISH THE SLUG LOGIC !
 
 ## aCTH Possible fragilities
 - [ ] **Make sure aCTH lite works as intended**
 - [ ] Make sure AI will orient before checking for cover in LOF.
 - [ ] Check how the `aCTH` deals with out-of-sight targets (wallbang).
 - [X] Check how it works agains non-humanoids
-- [ ] ricochets still work?
+- [X] ricochets still work?
 - [X] Aim is being used in the Interrupt? shows 0 levels
 
--[ ] **possible BUG** Shotgun "killed unit was reported, but no "attack hit" actually struck it."
+-[ ] **BUG** Shotgun "killed unit was reported, but no "attack hit" actually struck it." See save Shotty Bug
 
 ## AI OVERHAUL - other mod 
-- [x] **possible BUG** - Buckshot should not degrade to single shot
+- [ ] Disabled pindown action for now
+- [ ] decision making logic relating to grenades-> they should not use if they are very close to another target (that could be killed or kill them)
+- [x] **possible BUG** - Buckshot should not degrade to single shot - **STILL HAPPENING?**
 - [ ] Mechanics check
 - [ ] in aCTH they should try to shoot the head if its the only part out of cover
 - [ ] Implement smoke usage.
@@ -57,7 +122,8 @@ CheatAddItem("itemid")
 	- [X] Fix Debug overlay not decomposing ready curve 
 
 ## aCTH Balancing
-- [ ] Create handling as a different thing than PB bonuses, for better tuning
+
+- [ ] Remove stray from get cover action?
 - [X] Evaluate aim soft cap, to see if new values are not capped (its 70 the cap)
 - [X] Pinned down mod suppression for strays
 - [X] Re-scale Aim Accuracy bonus for more gradient
@@ -70,7 +136,7 @@ CheatAddItem("itemid")
 - [X] review the Handling while standing penalty
 	- [ ] Decide if Recoil while standing should use the same parameters (currently uses `weigth_held_mul`)
 - [X] Stray shots should have a lower chance to inflict status effects. 
-	- [ ] Pellets
+	- [X] Pellets
 - [ ] Calibrar o recuo de segunda ordem.
   - Ancorar `KickBase` e o mapa `control -> CFMax` nas duas.
   - Ver linhas extremas do ladder do `1cc229c`.
@@ -78,20 +144,25 @@ CheatAddItem("itemid")
   - Ver `RECOIL MODEL.md`.
 
 ## Reimplementation necessary
-- [ ] out of breath impact on aim
-- [ ] AN94 2 round burst
-- [ ] Snipe/Pin Down action
-- [ ] gas, smoke, other grazing mechanics need to be changed
-- [ ] CQC bonus perk?
+- [X] out of breath impact on aim
+- [X] AN94 2 round burst
+- [X] Snipe/Pin Down action
+
 - [X] low profile cth mod for crocs disabled when using aCTH
 - [X] Camouflage.
+
 - [ ] How to deal with scopes that give bonuses to hit body parts or bypass cover?
   - Handzolt.
   - Scout Scope.
+
 - [ ] What about grazing? Is it possible to keep it in the game?
+- [ ] gas, smoke, other grazing mechanics need to be changed
+
 - [X] Grizzly Perk - **there is something in the recoil cacl, check if its enough**
+- [X] CQC bonus perk?
 - [ ] Major Perk (Bullet hell)
-- [ ] Spiritual Perk
+- [X] Spiritual Perk
+
 - [X] MGSetup Get AP (**ended up decreasing delta by 1**)
 	- [ ] Fix bug in the rotate button using max AP
 - [X] Check if Run and Gun penalty modifier for recoil was implemented
@@ -100,12 +171,12 @@ CheatAddItem("itemid")
 # Later Stuff
 ## aCTH Descriptions that need change
 - [ ] Recoil CTH UI display
-- [ ] Snapshot not resetting (keep it?)
-- [ ] DualShot max aim = 3
-- [ ] Autofire max aim levels
-- [ ] Burst and aim bonus
-- [ ] Camouflage effect
-- [ ] MG Setup and set up bonuses/held gun
+- [ ] Snapshot will not reset when shooting the same target **Only at page description**
+- [X] DualShot max aim = 3 instead of 1
+- [X] Autofire max aim levels no longer 1
+- [X] Burst shots no longer lose aim bonus (logic is different)
+- [X] Camouflage effect
+- [X] MG Setup and set up bonuses/held  - the bonus is actually on being prone now
 - [ ] UI CTH should change, put aperture in a differnt setting, also recoil
  
 ## New mechanics intended
@@ -121,15 +192,15 @@ CheatAddItem("itemid")
 ## New mechanics (luxury)
 
 - [ ] MG and bipods setting up on cover/crouch
-- [ ] Change AP scale for more gradient AP costs, specially for stance, rotation etc
 - [ ] **MEGA LUXURY** Vision cones/directional vision. Would need to make AI take this into account.
  
 ## Later Balancing
-- [ ] Shotgun pellet balancing.
+- [ ] Shotgun pellet balancing and spread, duckbill etc.
+- [ ] Slug damage?
 - [ ] **General balancing:** OW tuning — minor.
 
 ## QOL
-- [ ] Fix Shooting Stance animation, particulary in regards to mobile attack 
+- [X] Fix Shooting Stance animation, particulary in regards to mobile attack 
 - [ ] Crosshair AP cost breakdown refactor, for more clear stance ap cost display
 - [ ] Implement F1 "wiki"
 

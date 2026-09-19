@@ -1,4 +1,5 @@
 function presets_char_effect()
+	local file_str = "CharEffectCompositeDef_function.lua"
     ForEachPreset('CharacterEffectCompositeDef', function(p)
 
         if p.id == "Savior" then
@@ -21,6 +22,9 @@ function presets_char_effect()
             -- end
         end
 
+		if p.id == "HeavyWeaponsTraining" then
+			p.Description = ratT(file_str, 99865784235, "Reduces <em>Shooting Stance</em> and <em>Attack AP</em> cost for <em>Heavy Weapons</em> and <em>Machine Guns</em>.")
+		end
         --------------------------------------------------------------------------------------------
 
         if p.id == 'SteadyBreathing' then
