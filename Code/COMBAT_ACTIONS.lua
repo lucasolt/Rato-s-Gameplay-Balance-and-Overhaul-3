@@ -510,8 +510,10 @@ function rat_combat_actions()
 
         local recoil = unit:GetStatusEffect("Rat_recoil")
 
-        local descr = TranslationTable[854982151651] or
-                          "<em>Spends all AP</em>\nThe target is <em><GameTerm('Marked')></em>. At the start of next turn, shoot the target if the target is still in the line of sight. The attack will have max aim levels. Each aim level grants <bonus_crit> extra critical chance. This attack bypasses low cover, has reduced penalties to hit body parts and <em>increases the weapon's effective range by 50%</em>.\n\nSnipe requires a clear line and sight to the target."
+        ---- aCTH variant lives in the swap table (DESCRIPTION_HINTS_get.lua)
+        local id = IsACHTActive() and 402918376154 or 854982151651
+        local descr = TranslationTable[id] or ratG_T_table['DESCRIPTION_HINTS_get.lua'][id] or
+                          ratG_T_table['shooting_stance_combat_actions.lua'][id]
         if recoil then
             local aim_cost = recoil:ResolveValue("aim_cost") or 0
             local extra_cost = cRoundDown(aim_cost * const.Combat.PindownAimLevelsForAPCost) -- * const.Scale.AP

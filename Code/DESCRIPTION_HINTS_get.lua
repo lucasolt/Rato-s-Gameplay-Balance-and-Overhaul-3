@@ -260,6 +260,10 @@ local acth_text_swaps = {
     {"CombatActions", "DualShot", "Description",
         T(364947777453, "The Dual Shot attack produces a Basic Attack from each gun. Maximum <em>aim</em> level is reduced. Has a penalty based on <em>Dexterity</em>."),
         T(538170264913, "The Dual Shot attack produces a Basic Attack from each gun. Maximum <em>aim</em> level is 3 and <em>sights</em> grant no accuracy bonus. Has a penalty based on <em>Dexterity</em>.")},
+    ---- aCTH has no body part penalties to reduce; Snipe gives aim accuracy instead (A.PindownAimAcc)
+    {"CombatActions", "PinDown", "Description",
+        T(854982151651, "<em>Spends all AP</em>\nThe target is <em><GameTerm('Marked')></em>. At the start of next turn, shoot the target if the target is still in the line of sight. The attack will have max aim levels. Each aim level grants <bonus_crit> extra critical chance. This attack bypasses low cover, has reduced penalties to hit body parts and <em>increases the weapon's effective range by 50%</em>.\n\nSnipe requires a clear line and sight to the target."),
+        T(402918376154, "<em>Spends all AP</em>\nThe target is <em><GameTerm('Marked')></em>. At the start of next turn, shoot the target if the target is still in the line of sight. The attack will have max aim levels. Each aim level grants <bonus_crit> extra critical chance. This attack bypasses low cover, has increased <em>aim accuracy</em> and <em>increases the weapon's effective range by 50%</em>.\n\nSnipe requires a clear line and sight to the target.")},
 
     ---- the accuracy bonus comes from firing prone, not from setup itself
     {"CombatActions", "MGSetup", "Description",
@@ -349,6 +353,7 @@ local t_id_table = {
 	[927619797396] = "Shoots <em><num> bullets</em> at the target. The accuracy of each shot is reduced by <em>Recoil</em>. Critical chance is reduced.",
 	[440275763653] = "Shoots a hail of <em><bullets> bullets</em> and inflict <GameTerm('Suppressed')> even on miss when the enemy is in weapon range. Has <em>recoil</em> penalty based on <em>Strength</em>. Critical chance is reduced.",
 	[538170264913] = "The Dual Shot attack produces a Basic Attack from each gun. Maximum <em>aim</em> level is 3 and <em>sights</em> grant no accuracy bonus. Has a penalty based on <em>Dexterity</em>.",
+	[402918376154] = "<em>Spends all AP</em>\nThe target is <em><GameTerm('Marked')></em>. At the start of next turn, shoot the target if the target is still in the line of sight. The attack will have max aim levels. Each aim level grants <bonus_crit> extra critical chance. This attack bypasses low cover, has increased <em>aim accuracy</em> and <em>increases the weapon's effective range by 50%</em>.\n\nSnipe requires a clear line and sight to the target.",
 	[656962772885] = "Focus on a cone-shaped area, immobilizing yourself and going <em>prone</em>. You can only shoot enemies inside that cone. Enemies will provoke <em>interrupt</em> attacks with actions inside the cone (even if your AP are spent). <em>Interrupt</em> attacks have bonus accuracy. Your weapon will have increased <em>Shooting Angle</em> while you are in setup.",
 	[872453352285] = "Make a burst attack<coneDescription>. Lower accuracy against distant enemies, and further reduced accuracy if not fired <em>prone</em>, braced on the bipod.<interrupts_info>",
 	[681987343557] = "Heavy weapons such as <em>machine guns</em> suffer heavy <em>Accuracy</em> and <em>Recoil</em> penalties unless fired <em>prone</em>. Setting up a machine gun puts you prone.",
