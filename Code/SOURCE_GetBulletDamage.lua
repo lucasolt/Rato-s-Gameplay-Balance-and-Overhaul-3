@@ -1,5 +1,10 @@
 --local original_firearmBulletCalcDamage = Firearm.BulletCalcDamage
 
+---- aCTH already charges cover through exposure; Take Cover's graze roll would charge it twice
+local function take_cover_skips_graze(weapon, action, attacker, obj)
+	return not CurrentModOptions.ACTHTakeCoverGraze and IsKindOf(obj, "Unit") and
+		obj:HasStatusEffect("Protected") and IsACHTActive(weapon, action, attacker)
+end
 
 function Firearm:BulletCalcDamage(hit_data, ricochet_idx)
 
@@ -61,8 +66,18 @@ function Firearm:BulletCalcDamage(hit_data, ricochet_idx)
 		hit.damage = dmg
 
 		local breakdown = obj == target and record_breakdown -- We only care about the damage breakdown on the target, not objects in the way.
+		---- IgnoreCoverReduction > 0 is the only per-call switch that skips the Protected graze (Weapon.lua:196)
+		local skip_cover_graze = take_cover_skips_graze(self, action, attacker, obj)
+		local own_ignore_cover
+		if skip_cover_graze then
+			own_ignore_cover = rawget(self, "IgnoreCoverReduction")
+			self.IgnoreCoverReduction = 100
+		end
 		---- off-part hit (flagged in GetAttackResults): scaled here, before armor, like the vanilla stray
 		self:PrecalcDamageAndStatusEffects(attacker, obj, hit_data.step_pos, Rat_OffPartDamage(hit.damage, hit.rat_offpart), hit, hit_data.applied_status, hit_data, breakdown, action, prediction)
+		if skip_cover_graze then
+			self.IgnoreCoverReduction = own_ignore_cover
+		end
 		Rat_OffPartRollEffects(attacker, hit, prediction)
 
 		hit.impact_force = hit.damage > 0 and impact_force + self:GetDistanceImpactForce(hit.distance) or 0
