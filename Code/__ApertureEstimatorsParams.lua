@@ -163,6 +163,13 @@ A.MuzzleProbeNearTiles = 3
 ---- o proprio alvo como obstaculo proximo.
 A.MuzzleProbeNearPct = 25
 
+---- Passo do cano, em unidades. Em pe na beira de uma trincheira o engine devolve o cano a altura
+---- do peito e ainda DENTRO do tile, entao a linha descendente corta o chao do proprio atirador
+---- antes de passar da beirada -- a animacao mostra a inclinacao, o attack_pos nao. Medido: 300
+---- (1/4 de tile) liberam Grizzly e MD sobre o goon a um tile, onde o vanilla dava 100 e o modelo
+---- dava 0. Vale para os dois lados. 0 desliga o passo.
+A.MuzzleStepOut = 300
+
 ---- IA nao paga o anel no PENSAMENTO (4 raios x ~8 ms por destino candidato estouraria o turno),
 ---- so na EXECUCAO, uma vez por ataque -- ver RATOAI_ClearShotStance no mod de IA. Mesma divisao
 ---- de A.CoverAIFallback e pelo mesmo motivo.

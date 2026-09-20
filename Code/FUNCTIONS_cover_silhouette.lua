@@ -492,6 +492,62 @@ function Rat_ResetClearanceCache()
     clearance_count = 0
 end
 
+---------------------------------------------------------------------------------------------------
+---- PASSO DO CANO -- a inclinacao que a animacao mostra e o attack_pos nao tem
+----
+---- Em pe na beira de uma trincheira o engine poe o cano a altura do peito e ainda DENTRO do tile:
+---- a linha descendente corta o chao do PROPRIO atirador antes de passar da beirada. O vanilla
+---- nunca percebe porque nao traca dali -- mediu-se CTH 100 no vanilla contra 0 no modelo, com a
+---- bala parando a 249 unidades no barranco. O tiro simulado traca, entao ele precisa do passo.
+----
+---- So anda quando (a) a linha central esta bloqueada de onde o engine poe o cano E (b) andar
+---- A.MuzzleStepOut a frente RESOLVE. Parede, pedra grande e alvo realmente coberto continuam
+---- bloqueando: a segunda condicao nunca fecha. Determinista, nao consome random.
+---------------------------------------------------------------------------------------------------
+function Rat_MuzzleStepOut(attacker, attack_pos, aim_pos, args, target)
+    local a = P()
+    local step = a.MuzzleStepOut or 0
+    if step <= 0 or not attack_pos or not aim_pos or not IsValid(attacker) or not IsValid(target) then
+        return attack_pos
+    end
+    attack_pos, aim_pos = Rat_ValidZ(attack_pos), Rat_ValidZ(aim_pos)
+    local dist = attack_pos:Dist(aim_pos)
+    if dist < 1 then
+        return attack_pos
+    end
+    ---- nunca mais que um quarto da linha: em tiro curto o passo nao pode chegar perto do alvo
+    step = Min(step, MulDivRound(dist, 25, 100))
+    if step < 1 then
+        return attack_pos
+    end
+
+    ---- a bala chega ao alvo saindo daqui? mesma pergunta, mesma tracagem do tiro
+    local function reaches(from)
+        local probe = table.copy(args)
+        Rat_SimLoFOverrides(probe, from, RAY_SEED, nil)
+        probe.target_pos = aim_pos
+        local l = Rat_SimLoF(GetLoFData(attacker, aim_pos, probe))
+        local stop = l and l.stuck_pos
+        local sd = stop and from:Dist(Rat_ValidZ(stop))
+        for _, h in ipairs((l and l.hits) or empty_table) do
+            if h.obj == target and h.pos and
+                (not sd or from:Dist(Rat_ValidZ(h.pos)) <= sd) then
+                return true
+            end
+        end
+        return false
+    end
+
+    if reaches(attack_pos) then
+        return attack_pos
+    end
+    local moved = attack_pos + MulDivRound(SetLen(aim_pos - attack_pos, 1000), step, 1000)
+    if reaches(moved) then
+        return moved
+    end
+    return attack_pos
+end
+
 function Rat_MuzzleClearance(attacker, target, attacker_pos, target_pos, weapon, att_stance,
                              dbg_table, force, body_part)
     local a = P()
@@ -556,6 +612,9 @@ function Rat_MuzzleClearance(attacker, target, attacker_pos, target_pos, weapon,
     if not ap or not aim then
         return 100
     end
+
+    ---- o cano da o passo ANTES do anel, senao a sondagem mede de um ponto de onde a bala nao sai
+    ap = Rat_MuzzleStepOut(attacker, ap, aim, args, target)
 
     local dist = ap:Dist(aim)
     if dist < 1 then

@@ -394,6 +394,14 @@ function Firearm:GetAttackResults(action, attack_args)
     ---- aparece como `hit.obj`, entao todo tiro seria erro.
     if not prediction and const.Combat.Aperture.SimulateShots and not action.AlwaysHits and
         IsValid(target) and IsACHTActive(attack_args.weapon or self, action, attacker) then
+        ---- passo do cano ANTES do sim_ctx, para que o cone, a bala, o snapshot e os pellets
+        ---- saiam todos do MESMO ponto -- e do mesmo que Rat_MuzzleClearance usou na previsao.
+        attack_results.attack_pos =
+            Rat_MuzzleStepOut(attacker, attack_results.attack_pos,
+                              Rat_SimAimPos(shot_attack_args.lof,
+                                            shot_attack_args.target_spot_group, target_pos),
+                              shot_attack_args, target)
+
         ---- Rat_SimPlanShots: a mesma funcao que o visualizador chama
         sim_ctx = {
             attacker = attacker,
