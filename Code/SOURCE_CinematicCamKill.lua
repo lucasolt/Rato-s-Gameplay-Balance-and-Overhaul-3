@@ -1,4 +1,16 @@
 
+---- Pellet hits live in shot.pellets[n].hits and never reach the results array, so the usual
+---- lookup misses them and GetDeathBaseAnim then indexes a nil hit_descr. Last hit = killing one.
+local function FindPelletKillingHit(results, unit)
+	local found
+	for _, shot in ipairs(results.shots or empty_table) do
+		for _, pellet in ipairs(shot.pellets or empty_table) do
+			found = table.find_value(pellet.hits or empty_table, "obj", unit) or found
+		end
+	end
+	return found
+end
+
 function IsEnemyKillCinematic(attacker, results, attack_args)
 	local headshot = attack_args and attack_args.target_spot_group == "Head"
 	local playerAttacker = attacker:IsLocalPlayerTeam()
@@ -15,12 +27,10 @@ function IsEnemyKillCinematic(attacker, results, attack_args)
 	for _, unit in ipairs(results.killed_units) do
 		if attacker:IsOnEnemySide(unit) then
 
-			local killingHit = table.find_value(results, "obj", unit) or (results.area_hits and table.find_value(results.area_hits, "obj", unit))
-			---
-			if not results.shots[1].pellets  then
-				assert(killingHit) -- Killed unit was reported, but no "attack hit" actually struck it. Spontaneous death?
-			end
-			---
+			local killingHit = table.find_value(results, "obj", unit)
+				or (results.area_hits and table.find_value(results.area_hits, "obj", unit))
+				or FindPelletKillingHit(results, unit)
+			assert(killingHit) -- Killed unit was reported, but no "attack hit" actually struck it. Spontaneous death?
 			if headshot or not playerAttacker or pvp then
 				cinematicKill = "headshot, or enemy kill"
 				break
