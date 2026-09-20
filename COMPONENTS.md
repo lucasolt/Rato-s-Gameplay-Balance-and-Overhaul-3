@@ -124,3 +124,8 @@ The four short barrels and the ToG light stock moved 34 components, not 5.
 A param with no effect that reads it stays orphaned. Canonicalising it would switch on an effect the
 component never had, and an effect's absence does not prove the param is dead: the aperture reads
 several by name (`bonus_cth`, `snap_reduc`, `Close_bonus`).
+
+The residual is split by CTH mode, not dumped flat: only what is identical in oldCTH, aCTH and
+aCTH+Sim goes in the flat fields, and anything mode-specific goes in that mode's block. An effect
+the magnification switches off under aCTH — `pso_dragunov_scope`, `sniper_aim_scope` — therefore
+reads as an `[oldCTH]` block instead of sitting flat waiting to be cancelled.

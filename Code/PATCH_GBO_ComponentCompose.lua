@@ -1692,31 +1692,68 @@ local function mode_block(key, delta, pct)
                      preset_params(delta.params, pct) or {}})
 end
 
+local MIGRATE_MODES = {
+    {key = "oldCTH", layers = {"oldCTH"}},
+    {key = "aCTH", layers = {"aCTH"}},
+    {key = "aCTHSim", layers = {"aCTH", "aCTHSim"}}
+}
+
+---- O residuo que e IGUAL nos tres modos -- so isso merece os campos planos. O resto vai para o
+---- bloco do seu modo: um efeito que so vale no oldCTH (pso_dragunov_scope) no plano ficaria a
+---- espera de a ampliacao o apagar no aCTH, com a verdade repartida em dois lugares.
+local function common_residual(per_mode)
+    local effects, params = {}, {}
+    for eid, on in pairs(per_mode[1].effects) do
+        local all = true
+        for _, r in ipairs(per_mode) do
+            all = all and r.effects[eid] == on
+        end
+        if all then
+            effects[eid] = on
+        end
+    end
+    for name, value in pairs(per_mode[1].params) do
+        local all = true
+        for _, r in ipairs(per_mode) do
+            all = all and r.params[name] == value
+        end
+        if all then
+            params[name] = value
+        end
+    end
+    if not next(effects) and not next(params) then
+        return nil
+    end
+    return {effects = effects, params = params}
+end
+
 ---- Plano de um componente: o residuo plano, os blocos por modo e o que ficou impossivel de
 ---- autorar. `source` e a composicao de HOJE (receita + ampliacao), `traits` e a nova lista.
+---- Duas passadas: a primeira mede o residuo de cada modo contra os tracos, a segunda recalcula
+---- ja com o plano aplicado -- como o bloco entra DEPOIS da ampliacao, a segunda passada corrige
+---- sozinha o que a ampliacao tiver sobrescrito.
 local function plan_component(id, source, traits)
-    local leftovers = {}
-    local target = compose_view(source, {"oldCTH"})
-    local flat = residual(compose_view(traits, {"oldCTH"}), target, id .. " [flat]", leftovers)
-    local blocks, merged = {}, nil
-    for _, layers in ipairs({{"aCTH"}, {"aCTH", "aCTHSim"}}) do
-        local key = layers[#layers]
-        local want = compose_view(source, layers)
-        local delta = residual(compose_view(traits, layers, flat, merged), want,
-                               id .. " [" .. key .. "]", leftovers)
+    local want, per_mode, ignore = {}, {}, {}
+    for i, m in ipairs(MIGRATE_MODES) do
+        want[i] = compose_view(source, m.layers)
+        per_mode[i] = residual(compose_view(traits, m.layers), want[i], id, ignore) or
+                          {effects = {}, params = {}}
+    end
+
+    local flat = common_residual(per_mode)
+    local blocks, leftovers, merged = {}, {}, nil
+    for i, m in ipairs(MIGRATE_MODES) do
+        local delta = residual(compose_view(traits, m.layers, flat,
+                                            m.key == "aCTHSim" and merged or nil), want[i],
+                               id .. " [" .. m.key .. "]", leftovers)
         if delta then
-            blocks[#blocks + 1] = mode_block(key, delta, want.pct)
-            merged = merged and {effects = table.copy(merged.effects),
-                                 params = table.copy(merged.params)} or {effects = {}, params = {}}
-            for eid, on in pairs(delta.effects) do
-                merged.effects[eid] = on
-            end
-            for name, value in pairs(delta.params) do
-                merged.params[name] = value
+            blocks[#blocks + 1] = mode_block(m.key, delta, want[i].pct)
+            if m.key == "aCTH" then
+                merged = delta
             end
         end
     end
-    return flat, blocks, target, leftovers
+    return flat, blocks, want[1], leftovers
 end
 
 function GBO_MigrateRecipesToProperties(apply)
