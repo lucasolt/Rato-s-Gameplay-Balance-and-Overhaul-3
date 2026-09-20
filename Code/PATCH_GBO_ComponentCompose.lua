@@ -88,6 +88,10 @@ local no_stock_aim_reduction = 12
 
 local barrel_ap = 5
 GBO_COMP_TRAITS = {
+    ---- Traco vazio: o componente e so ele mesmo, e a identidade esta nas propriedades do preset.
+    ---- Sem traco nenhum o compositor nem olha para o componente.
+    Self = {},
+
     ["Barrel.Long"] = {
         effects = {
             "longbarrel",
@@ -859,23 +863,10 @@ GBO_BASE_RECIPES = {
         params = {bonus_cth = 3}
     },
 
-    ---- Opticas de ToG / armas modadas. Lidas do processo vivo ANTES de qualquer override
-    ---- (nao estavam em ApertureComponentTier, entao o que estava em memoria era o pristino).
-    SSG69_Scope_1 = {
-        effects = {
-            "IncreaseRange",
-            "IncreaseMaxAimActions",
-            "CritBonusWhenFullyAimed",
-            "ScopePenalty3",
-            "DecreaseOverwatchAngle"
-        },
-        params = {
-            RangeIncrease = 16,
-            MaxAimActionsIncrease = 1,
-            crit = 20,
-            OverwatchAngleDecrease = 60
-        }
-    },
+    ---- Opticas de ToG / armas modadas. Lidas do processo vivo ANTES de qualquer override.
+    ---- So os _Master_*: a variante `<arma>_Scope_1` e preset do ToG, entao nao pode receber
+    ---- propriedade nossa -- sem receita e sem tier ela cai na copia do ancestral e herda o
+    ---- composto do master, que e o que ela ja era, valor por valor (medido nos seis pares).
     _Master_SSG69_Scope_TOG = {
         effects = {
             "IncreaseRange",
@@ -889,23 +880,6 @@ GBO_BASE_RECIPES = {
             MaxAimActionsIncrease = 1,
             crit = 20,
             OverwatchAngleDecrease = 60
-        }
-    },
-    VSS_Scope_1 = {
-        effects = {
-            "pso_dragunov_scope",
-            "IncreaseRange",
-            "ScopePenalty2",
-            "DecreaseOverwatchAngle",
-            "StealthKillBonusPerAim",
-            "IncreaseMaxAimActions"
-        },
-        params = {
-            RangeIncrease = 10,
-            OverwatchAngleDecrease = 60,
-            APincrease = 10,
-            stealth_kill_bonus = 6,
-            MaxAimActionsIncrease = 1
         }
     },
     ["_Master_PSO-1M2_Scope_TOG"] = {
@@ -925,23 +899,6 @@ GBO_BASE_RECIPES = {
             MaxAimActionsIncrease = 1
         }
     },
-    SteyrS_Scope_1 = {
-        effects = {
-            "pso_dragunov_scope",
-            "IncreaseMaxAimActions",
-            "ScopePenalty2",
-            "scout_scope_crit",
-            "IncreaseRange",
-            "DecreaseOverwatchAngle"
-        },
-        params = {
-            RangeIncrease = 10,
-            OverwatchAngleDecrease = 60,
-            APincrease = 10,
-            MaxAimActionsIncrease = 1,
-            critical_head = 15
-        }
-    },
     _Master_SteyrS_Scope_TOG = {
         effects = {
             "pso_dragunov_scope",
@@ -957,22 +914,6 @@ GBO_BASE_RECIPES = {
             APincrease = 10,
             MaxAimActionsIncrease = 1,
             critical_head = 15
-        }
-    },
-    m76_scope_1 = {
-        effects = {
-            "IncreaseMaxAimActions",
-            "IncreaseRange",
-            "DecreaseOverwatchAngle",
-            "ScopePenalty2",
-            "pso_dragunov_scope",
-            "zrak_scope_crit"
-        },
-        params = {
-            MaxAimActionsIncrease = 1,
-            RangeIncrease = 10,
-            OverwatchAngleDecrease = 68,
-            crit_torso = 12
         }
     },
     _Master_m76_scope_TOG = {
@@ -991,16 +932,6 @@ GBO_BASE_RECIPES = {
             crit_torso = 12
         }
     },
-    G11_Scope_1 = {
-        effects = {
-            "IncreaseRange",
-            "AccuracyBonusWhenAimed"
-        },
-        params = {
-            RangeIncrease = 4,
-            bonus_cth = 10
-        }
-    },
     _Master_G11_Scope_1 = {
         effects = {
             "IncreaseRange",
@@ -1010,19 +941,6 @@ GBO_BASE_RECIPES = {
             RangeIncrease = 4,
             bonus_cth = 10
         }
-    },
-    GW43_Scope_1 = {
-        effects = {
-            "AccuracyBonusWhenAimed",
-            "DecreaseOverwatchAngle",
-            "IncreaseRange"
-        },
-        params = {
-            RangeIncrease = 4,
-            bonus_cth = 15,
-            OverwatchAngleDecrease = 85
-        },
-        pct = {bonus_cth = true}
     },
     _Master_GW43_Scope_TOG = {
         effects = {
@@ -1152,17 +1070,24 @@ local function combine(rule, acc, value)
     return value -- "set": o ultimo vence
 end
 
----- An editor list of only `overwrite` traits picks the tier; the identity still comes from code.
-local function with_identity(id, list)
+---- Uma lista so de tracos `overwrite` (a ampliacao) nao diz o que o componente E. A identidade
+---- vem do override plano autorado, e so na falta dele do mapa de codigo -- ordem da migracao das
+---- receitas para as propriedades. Sem nenhum dos dois nao ha o que compor.
+local function with_identity(id, comp, list)
     for _, tname in ipairs(list) do
         local recipe = GBO_COMP_TRAITS[tname]
         if not (recipe and recipe.overwrite) then
             return list
         end
     end
+    local authored = comp and rawget(comp, "GBO_OverrideParams")
+    local add = comp and rawget(comp, "GBO_OverrideEffects")
+    if (authored and #authored > 0) or (add and #add > 0) then
+        return list
+    end
     local base = GBO_COMPONENT_TRAITS[id]
     if not base then
-        print("GBO compose: so traco Scope, sem receita base -- ignorado:", id)
+        print("GBO compose: so traco de ampliacao, sem identidade -- ignorado:", id)
         return nil
     end
     local out = table.icopy(base)
@@ -1177,7 +1102,7 @@ end
 local function own_traits_of(id, comp)
     local prop = comp and rawget(comp, "GBO_ComponentTraits")
     if type(prop) == "table" and #prop > 0 then
-        return with_identity(id, prop)
+        return with_identity(id, comp, prop)
     end
     if type(prop) == "string" and prop ~= "" then
         local list = {}
@@ -1185,7 +1110,7 @@ local function own_traits_of(id, comp)
             list[#list + 1] = name
         end
         if #list > 0 then
-            return with_identity(id, list)
+            return with_identity(id, comp, list)
         end
     end
     return GBO_COMPONENT_TRAITS[id]
@@ -1279,16 +1204,19 @@ local function merge_override(dst, src)
     return dst
 end
 
----- Override do componente: os tres campos planos valem em todo modo, e cada bloco de
----- GBO_OverrideModes entra por cima na ordem das camadas ativas -- a mais especifica por ultimo,
----- exatamente como o `modes` de um traco.
+---- Override do componente, em DUAS camadas com lugares diferentes na ordem:
+---- `flat` (os tres campos planos) e a IDENTIDADE do componente e entra ANTES dos tracos
+---- `overwrite`, para uma ampliacao poder tirar dela o que nao cabe no modo -- e o que permite a
+---- identidade sair do codigo e virar propriedade. `mode` (GBO_OverrideModes) e o desvio e entra
+---- DEPOIS de tudo, na ordem das camadas ativas, exatamente como o `modes` de um traco.
 local function override_of(id, comp, layers)
     if not comp then
-        return GBO_COMPONENT_OVERRIDES[id]
+        return {flat = GBO_COMPONENT_OVERRIDES[id]}
     end
-    local ov = read_override_block(id, rawget(comp, "GBO_OverrideEffects"),
-                                   rawget(comp, "GBO_OverrideRemoveEffects"),
-                                   rawget(comp, "GBO_OverrideParams"))
+    local flat = read_override_block(id, rawget(comp, "GBO_OverrideEffects"),
+                                     rawget(comp, "GBO_OverrideRemoveEffects"),
+                                     rawget(comp, "GBO_OverrideParams"))
+    local ov
 
     local blocks = rawget(comp, "GBO_OverrideModes")
     if blocks and #blocks > 0 then
@@ -1306,7 +1234,12 @@ local function override_of(id, comp, layers)
             end
         end
     end
-    return ov or GBO_COMPONENT_OVERRIDES[id]
+    return {flat = flat or GBO_COMPONENT_OVERRIDES[id], mode = ov}
+end
+
+---- Ha algo autorado? O compositor ignora componente sem traco, e o aviso usa isto.
+local function has_override(ov)
+    return ov and (ov.flat or ov.mode) and true or false
 end
 
 ---- Active mode layers, general to specific; later layers override earlier ones.
@@ -1455,11 +1388,13 @@ function GBO_ComposeTraits(trait_list, overlay, layers, override)
         end
     end
 
+    override = override or empty_table
+    effects = apply_overlay(effects, seen, params, pct, override.flat) -- identidade do componente
     for _, ov in ipairs(overwrites) do
-        effects = apply_overlay(effects, seen, params, pct, ov)
+        effects = apply_overlay(effects, seen, params, pct, ov) -- ampliacao
     end
     effects = apply_overlay(effects, seen, params, pct, overlay)
-    effects = apply_overlay(effects, seen, params, pct, override) -- o mais especifico por ultimo
+    effects = apply_overlay(effects, seen, params, pct, override.mode) -- o mais especifico por ultimo
 
     for _, fn in ipairs(GBO_COMPOSE_SCALERS) do
         fn(params, trait_list, overlay)
@@ -1534,7 +1469,7 @@ function GBO_ApplyComponentCompose()
         GBO_COMPONENT_SCOPE[id] = scope_in(list)
         if not list then
             ---- sem tracos o compositor nem toca no componente, entao o override seria um no-op
-            if override_of(id, comp) then
+            if has_override(override_of(id, comp)) then
                 print("GBO compose: override ignorado, componente sem tracos --", id)
             end
         else
@@ -1589,7 +1524,7 @@ function GBO_ComposeReport(id)
     local override = override_of(id, comp)
     local effects, params = GBO_ComposeTraits(list, overlay, nil, override)
     local out = {id .. " [" .. table.concat(list, ", ") ..
-                 (override and "] + override" or "]")}
+                 (has_override(override) and "] + override" or "]")}
     out[#out + 1] = "  effects: " .. table.concat(effects, ", ")
     for name, value in sorted_pairs(params) do
         out[#out + 1] = "  " .. name .. " = " .. value
@@ -1597,3 +1532,137 @@ function GBO_ComposeReport(id)
     return table.concat(out, "\n")
 end
 
+
+---------------------------------------------------------------------------------------------------
+---- MIGRACAO one-shot: receita hardcodada -> propriedades do preset (a fonte passa a ser o editor).
+----
+---- Roda A MAO pelo dap_eval, nunca num handler: escreve os campos de ENTRADA (traits/override),
+---- que o compositor nunca sobrescreve, e depois o editor grava o items.lua. So entao a receita
+---- pode sair do codigo. Fica de fora: preset de outro mod (o editor gravaria na pasta deles) e
+---- receita que mais de um componente usa, que e traco compartilhado de verdade.
+---------------------------------------------------------------------------------------------------
+GBO_MIGRATE_SKIP_MODS = {["Tons of Guns"] = true}
+
+local function preset_params(params, pct)
+    local list = {}
+    for name, value in sorted_pairs(params or empty_table) do
+        if value ~= false then
+            local is_pct = pct and pct[name]
+            list[#list + 1] = PlaceObj(is_pct and 'PresetParamPercent' or 'PresetParamNumber',
+                                       {'Name', name, 'Value', value,
+                                        'Tag', is_pct and ("<" .. name .. ">%") or ("<" .. name .. ">")})
+        end
+    end
+    return #list > 0 and list or false
+end
+
+---- `modes` da receita -> blocos GBO_ComponentModeOverride. Param com valor `false` (remover) nao
+---- tem como ser autorado num bloco, entao e reportado em vez de sumir calado.
+local function preset_mode_blocks(id, modes, report)
+    local blocks = {}
+    for key, delta in sorted_pairs(modes or empty_table) do
+        local add, remove = {}, {}
+        for eid, on in sorted_pairs(delta.effects or empty_table) do
+            table.insert(on and add or remove, eid)
+        end
+        for name, value in pairs(delta.params or empty_table) do
+            if value == false then
+                report[#report + 1] = "  ! " .. id .. " [" .. key .. "] remove o param " .. name ..
+                                          " -- bloco do editor nao expressa isso"
+            end
+        end
+        blocks[#blocks + 1] = PlaceObj('GBO_ComponentModeOverride',
+                                       {'Mode', key, 'Effects', add, 'RemoveEffects', remove,
+                                        'Params', preset_params(delta.params, delta.pct) or {}})
+    end
+    return #blocks > 0 and blocks or false
+end
+
+---- Tracos que sobram depois de tirar a receita propria: os compartilhados que o componente ja
+---- listava, mais a ampliacao ligada no codigo. "Self" e o traco vazio, so para o compositor
+---- pegar o componente -- sem nenhum traco ele nem entra na passada.
+local function migrated_traits(id)
+    local list = {}
+    for _, tname in ipairs(GBO_COMPONENT_TRAITS[id] or empty_table) do
+        if tname ~= "Base." .. id then
+            list[#list + 1] = tname
+        end
+    end
+    local scope = (const.Combat.Aperture.ScopeTraitOf or empty_table)[id]
+    if scope then
+        list[#list + 1] = scope
+    end
+    if #list == 0 then
+        list[1] = "Self"
+    end
+    return list
+end
+
+function GBO_MigrateRecipesToProperties(apply)
+    local refs = {}
+    for _, list in pairs(GBO_COMPONENT_TRAITS) do
+        for _, tname in ipairs(list) do
+            refs[tname] = (refs[tname] or 0) + 1
+        end
+    end
+
+    local report, done, kept = {}, 0, {}
+    for id, recipe in sorted_pairs(GBO_BASE_RECIPES) do
+        local comp = WeaponComponents and WeaponComponents[id]
+        local owner = comp and rawget(comp, "mod") and comp.mod.title or "vanilla"
+        local reason
+        if not comp then
+            reason = "componente inexistente"
+        elseif not rawget(comp, "mod") then
+            reason = "preset vanilla, sem ModItem onde gravar"
+        elseif GBO_MIGRATE_SKIP_MODS[owner] then
+            reason = "preset de " .. owner
+        elseif (refs["Base." .. id] or 0) > 1 then
+            reason = "receita compartilhada por " .. refs["Base." .. id]
+        end
+        if reason then
+            kept[#kept + 1] = id .. " (" .. reason .. ")"
+        else
+            local traits = migrated_traits(id)
+            local effects = table.icopy(recipe.effects or empty_table)
+            local params = preset_params(recipe.params, recipe.pct)
+            local blocks = preset_mode_blocks(id, recipe.modes, report)
+            if apply then
+                comp.GBO_ComponentTraits = table.concat(traits, ", ")
+                comp.GBO_OverrideEffects = effects
+                comp.GBO_OverrideParams = params
+                comp.GBO_OverrideModes = blocks
+                ObjModified(comp)
+            end
+            report[#report + 1] = id .. " [" .. owner .. "] traits=" .. table.concat(traits, ", ") ..
+                                      " effects=" .. #effects .. " params=" ..
+                                      (params and #params or 0) .. " modes=" ..
+                                      (blocks and #blocks or 0)
+            done = done + 1
+        end
+    end
+    report[#report + 1] = (apply and "APLICADO em " or "DRY RUN, migraria ") .. done ..
+                              " componentes; fora da migracao: " .. #kept
+    for _, line in ipairs(kept) do
+        report[#report + 1] = "  - " .. line
+    end
+    return table.concat(report, "\n")
+end
+
+---- Desfaz o stamp enquanto nada foi gravado: limpa as quatro propriedades nos mesmos componentes.
+---- Serve para medir o antes/depois no mesmo processo; depois do save no editor nao ha o que desfazer.
+function GBO_MigrateClearProperties()
+    local n = 0
+    for id in pairs(GBO_BASE_RECIPES) do
+        local comp = WeaponComponents and WeaponComponents[id]
+        if comp and rawget(comp, "GBO_ComponentTraits") ~= nil then
+            comp.GBO_ComponentTraits = ""
+            comp.GBO_OverrideEffects = {}
+            comp.GBO_OverrideParams = false
+            comp.GBO_OverrideModes = false
+            ObjModified(comp)
+            n = n + 1
+        end
+    end
+    return n
+end

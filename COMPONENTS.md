@@ -21,8 +21,8 @@ Worked examples:
 ## Order of application
 
 ```
-traits (merged)  →  their own modes  →  overwrite traits (Scope.*)  →  flat override  →  mode blocks  →  emit
-     ^ combine           ^ replace          ^ overwrite                  ^ overwrite      ^ overwrite
+traits (merged) → their own modes → flat override → overwrite traits (Scope.*) → mode blocks → emit
+    ^ combine          ^ replace         ^ identity       ^ the tier's rules            ^ the deviation
 ```
 
 Later beats earlier. Within the mode layers the order is `GBO_ComposeModeLayers()`:
@@ -36,6 +36,8 @@ Later beats earlier. Within the mode layers the order is `GBO_ComposeModeLayers(
 | `GBO_BASE_RECIPES` | code table | one component's whole identity; auto-registers as the trait `Base.<id>` and auto-binds its namesake |
 | `A.ScopeTraits` + `A.ScopeTraitOf` | code table | what each *magnification* does, as `overwrite` traits `Scope.<tier>` (aCTH-only, plus `floor_mul`), and the code-side id → tier binding |
 | `GBO_ComponentTraits` etc. | editor property | which traits this component has, and how it deviates |
+| `GBO_Override*` (flat) | editor property | **what this component is**: the identity that used to be a base recipe. Applied before the tier, so a magnification can drop from it what does not fit the mode |
+| `GBO_OverrideModes` | editor property | **how it deviates** in one CTH mode. Applied last, beats everything |
 | `ModificationEffects` / `Parameters` | editor property | **output**. The compositor overwrites these. Do not author them on a component that has traits |
 
 That last row is the reason the code tables exist at all: `GBO_WriteComponent` writes those two
@@ -49,7 +51,9 @@ composed result over its own source and the next load would compose it again.
 2. **Trait beats ancestor.** `GBO_ComponentAncestor` copies a whole preset and runs *after* the
    compositor, so it used to overwrite compositions silently. It now skips any component the
    compositor handled.
-3. **Override beats everything**, and a mode block beats the flat override.
+3. **A mode block beats everything.** The flat override is only the identity, so a Scope trait
+   overrides it on purpose — that is how `Scope._6x` strips `IncreaseAimAccuracy` from a scope that
+   authors it. Anything meant to beat the tier goes in a mode block.
 
 ## Traps
 
@@ -67,3 +71,27 @@ composed result over its own source and the next load would compose it again.
 - **Prefer the canonical param name** (`OverwatchAngle`, not `OverwatchAngleIncrease`). The
   compositor picks the Increase/Decrease effect from which side of 100 the product lands on;
   mixing both forms on one component can emit both effects, and the engine then keeps only one.
+
+## Migrating a hardcoded recipe to the editor
+
+`GBO_BASE_RECIPES` is the old home of a component's identity. The identity moves into the preset's
+own properties, where you can see and edit it:
+
+```lua
+GBO_MigrateRecipesToProperties(false)  -- dry run: prints what it would write
+GBO_MigrateRecipesToProperties(true)   -- stamps Traits + the three Override fields
+GBO_MigrateClearProperties()           -- undo, while nothing has been saved yet
+```
+
+Run it by hand through `dap_eval`, never from a load handler. It writes only the **input**
+properties, which the compositor never overwrites; then the editor saves items.lua, and only then
+may the recipe leave the code. Left out on purpose: presets of another mod (the editor would write
+into their folder), vanilla presets with no ModItem to save into, and a recipe shared by more than
+one component, which is a real shared trait.
+
+A component with no trait is never touched by the compositor, so one whose identity is entirely in
+its properties carries the empty trait **`Self`**.
+
+A ToG `<weapon>_Scope_1` variant cannot hold our properties. With neither a recipe nor a tier it
+falls through to the ancestor copy and inherits its master's composed result — so the master, which
+we own, is the only place to edit. Verified value by value on all six pairs.

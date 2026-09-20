@@ -17,32 +17,6 @@ local A = const.Combat.Aperture
 A.ComponentEffectsAimBonus = {
     {id = "light_stock_aim_reduce", from = 1, acc = -4}, -- light/unfolded stocks; -8 equals the old x110 decay at acc 22
     {id = "ReduceAimAccuracy", from = 1, acc = -12}, -- no/folded stocks
-    -- {
-    --    id = "pso_dragunov_scope",
-    --    from = 5,
-    --    acc = 3
-    -- }, {
-    --    id = "sniper_aim_scope",
-    --    from = 5,
-    --    acc = 5
-    -- }, {
-    --    id = "sniper_adv_aim_scope",
-    --    from = 6,
-    --    acc = 5
-    -- },
-    -- {id = "_x2ScopeAimBonus", from = 4, acc = 3},
-    -- {
-    --    id = "FirstAimBonusModifier",
-    --    from = 1,
-    --    to = 1,
-    --    acc = 3
-    -- }, 
-    -- {
-    --    id = "BonusAccuracyWhenFullyAimed", -- HeavyStock
-    --    from = 3,
-    --    to = 3,
-    --    acc = 2
-    -- } 
 }
 
 ---- A CEREJA da optica: multiplicador do PISO do cone por ampliacao (Rat_ApertureFloor). E a unica
@@ -205,7 +179,7 @@ A.ScopeTraits = {
                 params = {
                     MaxAimActionsIncrease = 1,
                     snap_mul_reduc = 95,
-                    first_aim_bonus_acc = scale_aim(2)
+                    first_aim_bonus_acc = 8--scale_aim(2)
                 },
                 effects = {
                     IncreaseMaxAimActions = true,
@@ -233,7 +207,8 @@ A.ScopeTraits = {
                     IncreaseAimAccuracy = false,
                     ScopePenalty1 = false,
                     ScopePenalty2 = false,
-                    ScopePenalty3 = false
+                    ScopePenalty3 = false,
+					AccuracyBonusWhenAimed = false
                 }
             }
         }
@@ -333,17 +308,11 @@ A.ScopeTraitOf = {
     ---- Opticas de ToG que ficavam de fora e continuavam dando IncreaseRange. So entram as que
     ---- servem arma PATCHED (is_tog_patched) ou vanilla -- auditado no processo vivo por slot
     ---- "Scope". Os `_Master_*` sao os templates de onde as variantes herdam: os dois precisam entrar.
-    SSG69_Scope_1 = "Scope._6x", -- SSG69_1
     _Master_SSG69_Scope_TOG = "Scope._6x",
-    VSS_Scope_1 = "Scope._4x", -- VSS_1
     ["_Master_PSO-1M2_Scope_TOG"] = "Scope._4x",
-    SteyrS_Scope_1 = "Scope._4x", -- SteyrScout_1
     _Master_SteyrS_Scope_TOG = "Scope._4x",
-    m76_scope_1 = "Scope._4x", -- M76_1
     _Master_m76_scope_TOG = "Scope._4x",
-    GW43_Scope_1 = "Scope._2x", -- STG44R_1, Gewehr43_1
-    _Master_GW43_Scope_TOG = "Scope._2x",
-    G11_Scope_1 = "Scope._1dot5x", -- G11_1
+    _Master_GW43_Scope_TOG = "Scope._1dot5x",
     _Master_G11_Scope_1 = "Scope._1dot5x",
     TAR21_Scope_Rflx_1 = "Scope.Reflex" -- TAR21_1
 
