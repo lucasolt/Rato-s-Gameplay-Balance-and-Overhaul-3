@@ -1547,10 +1547,21 @@ end
 GBO_MIGRATE_SKIP_MODS = {["Tons of Guns"] = true}
 
 ---- Adocao manual: o componente PASSA a declarar estes tracos mesmo sem casar exato, porque e o
----- que ele E. O residuo continua preservando o comportamento, entao o que ele desvia do traco
----- fica VISIVEL no override (e apagar essas linhas no editor e o que o faz seguir o traco).
+---- que ele E. Sem `pure`, o residuo preserva o comportamento e o desvio fica VISIVEL no override.
+---- Com `pure`, o componente passa a valer os NUMEROS DO TRACO -- mudanca de balance, decidida a
+---- mao: `add` sao os efeitos que continuam so dele, `params` os numeros que continuam so dele.
 GBO_MIGRATE_ADOPT = {
-    _Master_StockLightUnfolded_TOG = {"Stock.Light"}
+    ---- os curtos ja ERAM Barrel.Short em estrutura, so divergiam nos numeros (AP 10 x 5) e nao
+    ---- tinham a penalidade de aCTH do traco. 2026-09-20: passam a seguir o traco.
+    BarrelShort = {"Barrel.Short", pure = true},
+    BarrelShort_Winchester = {"Barrel.Short", "Mag.Reduced2", pure = true},
+    ---- cano de shotgun nao perde dano: e a razao de Barrel.ShortShotgun existir
+    BarrelShortShotgun_Benelli = {"Barrel.ShortShotgun", "Mag.Reduced2", "Shotgun.WideBuckshot",
+                                  pure = true},
+    ---- mesma regra dos curtos, magnitude menor (-3 AP, -3 de mira no aCTH)
+    BarrelShort_handgun = {"Barrel.ShortHandgun", pure = true},
+    ---- coronha leve do ToG: o unico efeito so dela e o marcador de coronha equipada
+    _Master_StockLightUnfolded_TOG = {"Stock.Light", pure = true, add = {"zzStockEquipped"}}
 }
 
 ---- Param emitido -> nome canonico. O override autora o canonico, e o emit escolhe o efeito pelo
@@ -1752,9 +1763,19 @@ function GBO_MigrateRecipesToProperties(apply)
                 source[#source + 1] = scope
             end
 
-            local flat, blocks, target, leftovers = plan_component(id, source, traits)
+            local flat, blocks, target, leftovers
+            if adopted and adopted.pure then
+                ---- segue o traco: o override guarda so o que e do componente
+                flat = {effects = {}, params = adopted.params or {}}
+                for _, eid in ipairs(adopted.add or empty_table) do
+                    flat.effects[eid] = true
+                end
+                blocks, target, leftovers = {}, compose_view(traits, {"oldCTH"}), {}
+            else
+                flat, blocks, target, leftovers = plan_component(id, source, traits)
+            end
             ---- traco compartilhado que deixaria param sobrando muda o componente: melhor sem ele
-            if #leftovers > 0 and #traits > (scope and 1 or 0) then
+            if #leftovers > 0 and not adopted and #traits > (scope and 1 or 0) then
                 local fallback = scope and {scope} or {"Self"}
                 local f2, b2, t2, l2 = plan_component(id, source, fallback)
                 report[#report + 1] = "  ~ " .. id .. ": traco " .. table.concat(traits, "+") ..

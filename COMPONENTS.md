@@ -110,10 +110,16 @@ The tier trait carries what **every** scope of that magnification has — measur
 of its members — so a component never repeats it. A trait is only taken automatically when its
 effects are a subset of the recipe; anything looser would drag in an effect the component does not
 have, and the residual cannot remove a param. To take a trait anyway, name it in
-`GBO_MIGRATE_ADOPT`: the residual keeps the behaviour identical and shows the deviation, so
-`_Master_StockLightUnfolded_TOG` reads `Stock.Light` + "flat AP 10 instead of the fraction". Delete
-those override lines in the editor and it follows the trait for real — that is a balance decision,
-not a migration one.
+`GBO_MIGRATE_ADOPT`. Without `pure` the residual keeps behaviour identical and shows the deviation;
+with `pure` the component takes the **trait's numbers**, which is a balance decision made by hand:
+
+```lua
+BarrelShort = {"Barrel.Short", pure = true},
+_Master_StockLightUnfolded_TOG = {"Stock.Light", pure = true, add = {"zzStockEquipped"}},
+```
+
+Mind the reach: a `pure` adoption propagates to every descendant through `GBO_ComponentAncestor`.
+The four short barrels and the ToG light stock moved 34 components, not 5.
 
 A param with no effect that reads it stays orphaned. Canonicalising it would switch on an effect the
 component never had, and an effect's absence does not prove the param is dead: the aperture reads
