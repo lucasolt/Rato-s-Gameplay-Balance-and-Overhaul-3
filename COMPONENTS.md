@@ -75,7 +75,17 @@ composed result over its own source and the next load would compose it again.
 ## Migrating a hardcoded recipe to the editor
 
 `GBO_BASE_RECIPES` is the old home of a component's identity. The identity moves into the preset's
-own properties, where you can see and edit it:
+own properties, where you can see and edit it. It does not dump the whole recipe there: it picks the
+traits the component already **is** — its magnification, plus any shared trait whose effects are a
+subset of the recipe — and authors only the **residual**, the part the traits do not already
+produce. A scope ends up as `Scope._6x` plus the two or three things that are its own:
+
+```
+Component Traits:  Scope._6x
+Override add:      CritBonusWhenFullyAimed
+Override params:   crit 20, OverwatchAngle 60, MaxAimActionsIncrease 1
+Override per mode: [aCTH] threshold_bonus_aim_acc = 15
+```
 
 ```lua
 GBO_MigrateRecipesToProperties(false)  -- dry run: prints what it would write
@@ -95,3 +105,16 @@ its properties carries the empty trait **`Self`**.
 A ToG `<weapon>_Scope_1` variant cannot hold our properties. With neither a recipe nor a tier it
 falls through to the ancestor copy and inherits its master's composed result — so the master, which
 we own, is the only place to edit. Verified value by value on all six pairs.
+
+The tier trait carries what **every** scope of that magnification has — measured as the common part
+of its members — so a component never repeats it. A trait is only taken automatically when its
+effects are a subset of the recipe; anything looser would drag in an effect the component does not
+have, and the residual cannot remove a param. To take a trait anyway, name it in
+`GBO_MIGRATE_ADOPT`: the residual keeps the behaviour identical and shows the deviation, so
+`_Master_StockLightUnfolded_TOG` reads `Stock.Light` + "flat AP 10 instead of the fraction". Delete
+those override lines in the editor and it follows the trait for real — that is a balance decision,
+not a migration one.
+
+A param with no effect that reads it stays orphaned. Canonicalising it would switch on an effect the
+component never had, and an effect's absence does not prove the param is dead: the aperture reads
+several by name (`bonus_cth`, `snap_reduc`, `Close_bonus`).

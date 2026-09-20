@@ -53,6 +53,10 @@ A.ConeMulEffects = {
 }
 
 ---- Magnifications are traits ("Scope._6x"), registered into GBO_COMP_TRAITS by the compositor.
+---- `effects`/`params` outside `modes` are what EVERY scope of that magnification has in both CTH
+---- modes -- measured as the common part of the components bound to the tier. A component only
+---- authors what differs from this. A number here is overwritten on nobody: it is common by
+---- construction, and a scope that deviates needs a mode block or a tier of its own.
 ---- `overwrite`: params replace instead of combining, effects {id = true|false} force presence.
 ---- Everything sits under modes.aCTH, so under oldCTH a Scope trait composes to nothing.
 ---- Params: integer values (percent params use the raw integer, 150 = 150%). Aim levels =
@@ -69,6 +73,8 @@ A.ScopeTraits = {
     ----   limiar de mira comecando mais tarde       (pior no aim 3, melhor do 4 em diante)
     ["Scope._6x"] = {
         overwrite = true,
+        effects = {"IncreaseMaxAimActions", "IncreaseRange", "ScopePenalty3"},
+        params = {RangeIncrease = 16},
         floor_mul = 74,
         modes = {
             aCTH = {
@@ -95,6 +101,8 @@ A.ScopeTraits = {
     },
     ["Scope._4x"] = {
         overwrite = true,
+        effects = {"IncreaseRange", "ScopePenalty2"},
+        params = {RangeIncrease = 10},
         floor_mul = 84,
         modes = {
             aCTH = {
@@ -122,6 +130,8 @@ A.ScopeTraits = {
     },
     ["Scope._2x"] = {
         overwrite = true,
+        effects = {"IncreaseAimAccuracy", "IncreaseRange", "ScopePenalty1"},
+        params = {AimAccuracyIncrease = 2},
         floor_mul = 94,
         modes = {
             aCTH = {
@@ -149,6 +159,8 @@ A.ScopeTraits = {
     ---- `snap_reduc` positivo autorado no componente e mantido -- o perfil nao o sobrescreve.
     ["Scope._2xQuick"] = {
         overwrite = true,
+        effects = {"FirstAimBonusModifier", "IncreaseAimAccuracy", "IncreaseRange", "ScopePenalty1", "scope_snapshot"},
+        params = {AimAccuracyIncrease = 2, OverwatchAngle = 110, RangeIncrease = 6, first_aim_bonus_acc = 3, snap_reduc = 5},
         floor_mul = 94,
         modes = {
             aCTH = {
@@ -174,6 +186,8 @@ A.ScopeTraits = {
     },
     ["Scope._2xWide"] = {
         overwrite = true,
+        effects = {"IncreaseAimAccuracy", "IncreaseRange", "OpportunityAttackBonusCth", "ScopePenalty1", "scope_snapshot"},
+        params = {AimAccuracyIncrease = 2, RangeIncrease = 6, bonus_cth_interrupt = 8, snap_reduc = 5},
         modes = {
             aCTH = {
                 params = {
@@ -197,6 +211,8 @@ A.ScopeTraits = {
     },
     ["Scope._1dot5x"] = {
         overwrite = true,
+        effects = {"IncreaseRange"},
+        params = {RangeIncrease = 4},
         floor_mul = 98,
         modes = {
             aCTH = {
@@ -217,6 +233,7 @@ A.ScopeTraits = {
     ---- entao precisa ser a melhor no aim 1-3 ou a 2x rapida a domina sem custar nada a mais.
     ["Scope.Reflex"] = {
         overwrite = true,
+        effects = {"AccuracyBonusWhenAimed", "reflex_sight_close_range"},
         floor_mul = 100, -- explicit: stops Rat_ScopeFloorMul scanning other components
         modes = {
             aCTH = {
@@ -232,6 +249,8 @@ A.ScopeTraits = {
     },
     ["Scope.ReflexAdvanced"] = {
         overwrite = true,
+        effects = {"AccuracyBonusWhenAimed", "first_aim_crit", "reflex_sight_close_range", "scope_snapshot"},
+        params = {Close_bonus = 5, bonus_cth = 3, snap_reduc = 10},
         modes = {
             aCTH = {
                 params = {bonus_cth = 10, snap_mul_reduc = 90},
@@ -246,6 +265,8 @@ A.ScopeTraits = {
     },
     ["Scope.ReflexVigilance"] = {
         overwrite = true,
+        effects = {"AccuracyBonusWhenAimed", "OpportunityAttackBonusCth", "reflex_sight_close_range", "scope_snapshot"},
+        params = {Close_bonus = 5, OverwatchAngle = 125, RangeIncrease = 4, bonus_cth = 3, bonus_cth_interrupt = 10, snap_reduc = 10},
         modes = {
             aCTH = {
                 params = {bonus_cth = 5, snap_mul_reduc = 85},
@@ -260,6 +281,7 @@ A.ScopeTraits = {
     },
     ["Scope.Ironsight"] = {
         overwrite = true,
+        effects = {"AccuracyBonusWhenAimed"},
         floor_mul = 100,
         modes = {
             aCTH = {

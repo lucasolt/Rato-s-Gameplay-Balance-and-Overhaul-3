@@ -1534,82 +1534,193 @@ end
 
 
 ---------------------------------------------------------------------------------------------------
----- MIGRACAO one-shot: receita hardcodada -> propriedades do preset (a fonte passa a ser o editor).
+---- MIGRACAO one-shot: receita hardcodada -> propriedades do preset.
 ----
----- Roda A MAO pelo dap_eval, nunca num handler: escreve os campos de ENTRADA (traits/override),
----- que o compositor nunca sobrescreve, e depois o editor grava o items.lua. So entao a receita
----- pode sair do codigo. Fica de fora: preset de outro mod (o editor gravaria na pasta deles) e
----- receita que mais de um componente usa, que e traco compartilhado de verdade.
+---- NAO despeja a receita inteira no override. Escolhe os TRACOS que o componente ja e (a ampliacao
+---- ligada no codigo, mais os compartilhados cujos efeitos casam) e autora so o RESIDUO: o que
+---- falta para a composicao dar exatamente o que da hoje. O residuo sai em duas partes, cada uma no
+---- seu lugar da ordem: campos planos (identidade, antes da ampliacao) e um bloco por modo de CTH.
+----
+---- Roda A MAO pelo dap_eval, nunca num handler. Escreve so campos de ENTRADA, que o compositor
+---- nunca sobrescreve; o editor grava o items.lua e so entao a receita pode sair do codigo.
 ---------------------------------------------------------------------------------------------------
 GBO_MIGRATE_SKIP_MODS = {["Tons of Guns"] = true}
+
+---- Adocao manual: o componente PASSA a declarar estes tracos mesmo sem casar exato, porque e o
+---- que ele E. O residuo continua preservando o comportamento, entao o que ele desvia do traco
+---- fica VISIVEL no override (e apagar essas linhas no editor e o que o faz seguir o traco).
+GBO_MIGRATE_ADOPT = {
+    _Master_StockLightUnfolded_TOG = {"Stock.Light"}
+}
+
+---- Param emitido -> nome canonico. O override autora o canonico, e o emit escolhe o efeito pelo
+---- lado do 100 -- misturar as duas formas no mesmo componente emite Increase e Decrease juntos.
+local emitted_to_canon = {}
+for canon, emit in pairs(GBO_STAT_EMIT) do
+    emitted_to_canon[emit.above[2]] = {canon = canon, effect = emit.above[1]}
+    emitted_to_canon[emit.below[2]] = {canon = canon, effect = emit.below[1]}
+end
+
+local function effect_set(list)
+    local set = {}
+    for _, eid in ipairs(list or empty_table) do
+        set[eid] = true
+    end
+    return set
+end
 
 local function preset_params(params, pct)
     local list = {}
     for name, value in sorted_pairs(params or empty_table) do
-        if value ~= false then
-            local is_pct = pct and pct[name]
-            list[#list + 1] = PlaceObj(is_pct and 'PresetParamPercent' or 'PresetParamNumber',
-                                       {'Name', name, 'Value', value,
-                                        'Tag', is_pct and ("<" .. name .. ">%") or ("<" .. name .. ">")})
-        end
+        local is_pct = pct and pct[name]
+        list[#list + 1] = PlaceObj(is_pct and 'PresetParamPercent' or 'PresetParamNumber',
+                                   {'Name', name, 'Value', value,
+                                    'Tag', is_pct and ("<" .. name .. ">%") or ("<" .. name .. ">")})
     end
     return #list > 0 and list or false
 end
 
----- `modes` da receita -> blocos GBO_ComponentModeOverride. Param com valor `false` (remover) nao
----- tem como ser autorado num bloco, entao e reportado em vez de sumir calado.
-local function preset_mode_blocks(id, modes, report)
-    local blocks = {}
-    for key, delta in sorted_pairs(modes or empty_table) do
-        local add, remove = {}, {}
-        for eid, on in sorted_pairs(delta.effects or empty_table) do
-            table.insert(on and add or remove, eid)
+---- O que falta para `produced` virar `target`, na forma de overlay {effects = {id = bool}, params}.
+local function residual(produced, target, tag, report)
+    local effects, params = {}, {}
+    for eid in pairs(target.effects) do
+        if not produced.effects[eid] then
+            effects[eid] = true
         end
-        for name, value in pairs(delta.params or empty_table) do
-            if value == false then
-                report[#report + 1] = "  ! " .. id .. " [" .. key .. "] remove o param " .. name ..
-                                          " -- bloco do editor nao expressa isso"
-            end
-        end
-        blocks[#blocks + 1] = PlaceObj('GBO_ComponentModeOverride',
-                                       {'Mode', key, 'Effects', add, 'RemoveEffects', remove,
-                                        'Params', preset_params(delta.params, delta.pct) or {}})
     end
-    return #blocks > 0 and blocks or false
+    for eid in pairs(produced.effects) do
+        if not target.effects[eid] then
+            effects[eid] = false
+        end
+    end
+    for name, value in pairs(target.params) do
+        if produced.params[name] ~= value then
+            params[name] = value
+        end
+    end
+    for name in pairs(produced.params) do
+        if target.params[name] == nil then
+            report[#report + 1] = "  ! " .. tag .. ": o traco deixa o param " .. name ..
+                                      " sobrando e o bloco do editor nao remove param"
+        end
+    end
+    ---- so canonicaliza quando o alvo TEM o efeito do par: receita com param orfao (param sem o
+    ---- efeito que o le) tem de continuar orfa, senao a migracao ligaria um efeito que nao existia.
+    ---- So canonicaliza quando o alvo TEM o efeito do par: receita com param ORFAO continua orfa.
+    ---- Canonicalizar ligaria um efeito que o componente nao tem, e migrar nao muda nada. Limpar
+    ---- orfao e decisao de balance, no editor -- e nem todo param sem efeito esta morto: o aperture
+    ---- le varios pelo nome (bonus_cth, snap_reduc, Close_bonus).
+    for name, canon in pairs(emitted_to_canon) do
+        if params[name] and target.effects[canon.effect] then
+            params[canon.canon], params[name] = params[name], nil
+            effects[canon.effect] = nil -- o emit poe o efeito pelo lado do 100
+        end
+    end
+    if not next(effects) and not next(params) then
+        return nil
+    end
+    return {effects = effects, params = params}
 end
 
----- Tracos que sobram depois de tirar a receita propria: os compartilhados que o componente ja
----- listava, mais a ampliacao ligada no codigo. "Self" e o traco vazio, so para o compositor
----- pegar o componente -- sem nenhum traco ele nem entra na passada.
-local function migrated_traits(id)
-    local list = {}
-    for _, tname in ipairs(GBO_COMPONENT_TRAITS[id] or empty_table) do
-        if tname ~= "Base." .. id then
-            list[#list + 1] = tname
+local function compose_view(traits, layers, flat, mode)
+    local effects, params, pct = GBO_ComposeTraits(traits, nil, layers, {flat = flat, mode = mode})
+    return {effects = effect_set(effects), params = params, pct = pct}
+end
+
+---- Tracos compartilhados que o componente JA E: todo efeito do traco tem de estar na receita
+---- (subconjunto), e pelo menos dois. Sem subconjunto o traco traz efeito alheio, e como o residuo
+---- nao tem como REMOVER param, um traco a mais mudaria o componente -- ver a rejeicao em
+---- GBO_MigrateRecipesToProperties. Optica nao entra aqui: a ampliacao ja e o traco dela.
+local function shared_traits_for(recipe)
+    local want = effect_set(recipe.effects)
+    local ranked = {}
+    for tname, trait in sorted_pairs(GBO_COMP_TRAITS) do
+        if not trait.overwrite and tname ~= "Self" and tname:sub(1, 5) ~= "Base." then
+            local hit, miss = 0, 0
+            for _, eid in ipairs(trait.effects or empty_table) do
+                if want[eid] then
+                    hit = hit + 1
+                else
+                    miss = miss + 1
+                end
+            end
+            if hit >= 2 and miss == 0 then
+                ranked[#ranked + 1] = {name = tname, hit = hit, score = hit}
+            end
         end
     end
-    local scope = (const.Combat.Aperture.ScopeTraitOf or empty_table)[id]
-    if scope then
-        list[#list + 1] = scope
+    table.sort(ranked, function(a, b)
+        return a.score > b.score or (a.score == b.score and a.name < b.name)
+    end)
+
+    local picked, covered = {}, {}
+    for _, entry in ipairs(ranked) do
+        local fresh = 0
+        for _, eid in ipairs(GBO_COMP_TRAITS[entry.name].effects or empty_table) do
+            if want[eid] and not covered[eid] then
+                fresh = fresh + 1
+            end
+        end
+        if fresh >= 2 and #picked < 3 then
+            picked[#picked + 1] = entry.name
+            for _, eid in ipairs(GBO_COMP_TRAITS[entry.name].effects or empty_table) do
+                covered[eid] = true
+            end
+        end
     end
-    if #list == 0 then
-        list[1] = "Self"
+    return picked
+end
+
+local function mode_block(key, delta, pct)
+    local add, remove = {}, {}
+    for eid, on in sorted_pairs(delta.effects) do
+        table.insert(on and add or remove, eid)
     end
-    return list
+    return PlaceObj('GBO_ComponentModeOverride',
+                    {'Mode', key, 'Effects', add, 'RemoveEffects', remove, 'Params',
+                     preset_params(delta.params, pct) or {}})
+end
+
+---- Plano de um componente: o residuo plano, os blocos por modo e o que ficou impossivel de
+---- autorar. `source` e a composicao de HOJE (receita + ampliacao), `traits` e a nova lista.
+local function plan_component(id, source, traits)
+    local leftovers = {}
+    local target = compose_view(source, {"oldCTH"})
+    local flat = residual(compose_view(traits, {"oldCTH"}), target, id .. " [flat]", leftovers)
+    local blocks, merged = {}, nil
+    for _, layers in ipairs({{"aCTH"}, {"aCTH", "aCTHSim"}}) do
+        local key = layers[#layers]
+        local want = compose_view(source, layers)
+        local delta = residual(compose_view(traits, layers, flat, merged), want,
+                               id .. " [" .. key .. "]", leftovers)
+        if delta then
+            blocks[#blocks + 1] = mode_block(key, delta, want.pct)
+            merged = merged and {effects = table.copy(merged.effects),
+                                 params = table.copy(merged.params)} or {effects = {}, params = {}}
+            for eid, on in pairs(delta.effects) do
+                merged.effects[eid] = on
+            end
+            for name, value in pairs(delta.params) do
+                merged.params[name] = value
+            end
+        end
+    end
+    return flat, blocks, target, leftovers
 end
 
 function GBO_MigrateRecipesToProperties(apply)
-    local refs = {}
-    for _, list in pairs(GBO_COMPONENT_TRAITS) do
-        for _, tname in ipairs(list) do
-            refs[tname] = (refs[tname] or 0) + 1
-        end
-    end
-
+    GBO_MigrateClearProperties() -- o alvo vem das receitas, nao de um stamp anterior
     local report, done, kept = {}, 0, {}
+
     for id, recipe in sorted_pairs(GBO_BASE_RECIPES) do
         local comp = WeaponComponents and WeaponComponents[id]
         local owner = comp and rawget(comp, "mod") and comp.mod.title or "vanilla"
+        local refs = 0
+        for _, list in pairs(GBO_COMPONENT_TRAITS) do
+            for _, tname in ipairs(list) do
+                refs = refs + (tname == "Base." .. id and 1 or 0)
+            end
+        end
         local reason
         if not comp then
             reason = "componente inexistente"
@@ -1617,30 +1728,71 @@ function GBO_MigrateRecipesToProperties(apply)
             reason = "preset vanilla, sem ModItem onde gravar"
         elseif GBO_MIGRATE_SKIP_MODS[owner] then
             reason = "preset de " .. owner
-        elseif (refs["Base." .. id] or 0) > 1 then
-            reason = "receita compartilhada por " .. refs["Base." .. id]
+        elseif refs > 1 then
+            reason = "receita compartilhada por " .. refs
         end
+
         if reason then
             kept[#kept + 1] = id .. " (" .. reason .. ")"
         else
-            local traits = migrated_traits(id)
-            local effects = table.icopy(recipe.effects or empty_table)
-            local params = preset_params(recipe.params, recipe.pct)
-            local blocks = preset_mode_blocks(id, recipe.modes, report)
+            local scope = (const.Combat.Aperture.ScopeTraitOf or empty_table)[id]
+            local adopted = GBO_MIGRATE_ADOPT[id]
+            local traits = adopted and table.icopy(adopted) or
+                               (not scope and shared_traits_for(recipe) or {})
+            if scope then
+                traits[#traits + 1] = scope
+            end
+            if #traits == 0 then
+                traits[1] = "Self"
+            end
+
+            ---- alvo = o que o componente compoe HOJE, pela receita; produzido = so pelos tracos
+            local source = {"Base." .. id}
+            if scope then
+                source[#source + 1] = scope
+            end
+
+            local flat, blocks, target, leftovers = plan_component(id, source, traits)
+            ---- traco compartilhado que deixaria param sobrando muda o componente: melhor sem ele
+            if #leftovers > 0 and #traits > (scope and 1 or 0) then
+                local fallback = scope and {scope} or {"Self"}
+                local f2, b2, t2, l2 = plan_component(id, source, fallback)
+                report[#report + 1] = "  ~ " .. id .. ": traco " .. table.concat(traits, "+") ..
+                                          " descartado, deixaria param sobrando"
+                traits, flat, blocks, target, leftovers = fallback, f2, b2, t2, l2
+            end
+            for _, line in ipairs(leftovers) do
+                report[#report + 1] = line
+            end
+
             if apply then
+                local add, remove = {}, {}
+                for eid, on in sorted_pairs(flat and flat.effects or empty_table) do
+                    table.insert(on and add or remove, eid)
+                end
                 comp.GBO_ComponentTraits = table.concat(traits, ", ")
-                comp.GBO_OverrideEffects = effects
-                comp.GBO_OverrideParams = params
-                comp.GBO_OverrideModes = blocks
+                comp.GBO_OverrideEffects = add
+                comp.GBO_OverrideRemoveEffects = remove
+                comp.GBO_OverrideParams = flat and preset_params(flat.params, target.pct) or false
+                comp.GBO_OverrideModes = #blocks > 0 and blocks or false
                 ObjModified(comp)
             end
-            report[#report + 1] = id .. " [" .. owner .. "] traits=" .. table.concat(traits, ", ") ..
-                                      " effects=" .. #effects .. " params=" ..
-                                      (params and #params or 0) .. " modes=" ..
-                                      (blocks and #blocks or 0)
+
+            local n_add = 0
+            for _ in pairs(flat and flat.effects or empty_table) do
+                n_add = n_add + 1
+            end
+            local n_par = 0
+            for _ in pairs(flat and flat.params or empty_table) do
+                n_par = n_par + 1
+            end
+            report[#report + 1] = id .. " [" .. owner .. "] = " .. table.concat(traits, " + ") ..
+                                      "  + override " .. n_add .. " efeitos / " .. n_par ..
+                                      " params / " .. #blocks .. " blocos"
             done = done + 1
         end
     end
+
     report[#report + 1] = (apply and "APLICADO em " or "DRY RUN, migraria ") .. done ..
                               " componentes; fora da migracao: " .. #kept
     for _, line in ipairs(kept) do
