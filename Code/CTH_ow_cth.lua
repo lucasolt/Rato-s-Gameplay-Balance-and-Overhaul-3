@@ -59,3 +59,52 @@ function ow_cth()
 
 end
 
+
+---- OverwatchCheck only triggers with a clear LoF inside the sight radius, but g_Visibility is
+---- frozen for the whole of the mover's action (CombatActionStart suspends VisibilityUpdate), so a
+---- unit first spotted mid-run still reads as unseen and the shot eats the blind-fire penalty.
+local function rat_overwatch_sees_target(attacker, opportunity_attack)
+    return opportunity_attack and attacker and g_Overwatch and g_Overwatch[attacker] and true
+end
+
+function ow_blindfire_cth()
+    Presets.ChanceToHitModifier.Default["NoLineOfSight"].CalcValue =
+        function(self, attacker, target, body_part_def, action, weapon1, weapon2, lof, aim,
+                 opportunity_attack, attacker_pos, target_pos)
+            if not attacker or not target then
+                return false, 0
+            end
+            if HasVisibilityTo(attacker.team or attacker, target) then
+                return false, 0
+            end
+            if not IsKindOf(weapon1, "Firearm") then
+                return false, 0
+            end
+            if rat_overwatch_sees_target(attacker, opportunity_attack) then
+                return false, 0
+            end
+
+            return true, self:ResolveValue("Penalty")
+        end
+
+    Presets.ChanceToHitModifier.Default["SeenBySpotter"].CalcValue =
+        function(self, attacker, target, body_part_def, action, weapon1, weapon2, lof, aim,
+                 opportunity_attack, attacker_pos, target_pos)
+            if not attacker or not target or
+                VisibilityCheckAll(attacker, target, nil, const.uvVisible) then
+                return false, 0
+            end
+            if not IsKindOf(weapon1, "Firearm") then
+                return false, 0
+            end
+            if rat_overwatch_sees_target(attacker, opportunity_attack) then
+                return false, 0
+            end
+
+            if not attacker.team or
+                not VisibilityCheckAll(attacker.team, target, nil, const.uvVisible) then
+                return true, self:ResolveValue("BlindFirePenalty")
+            end
+            return true, self:ResolveValue("SpotterPenalty"), T(431888134623, "Seen by Spotter")
+        end
+end
