@@ -43,6 +43,34 @@ local function ScaleParam(preset, name)
     APScaled[preset][name] = param.Value
 end
 
+-- Third-party presets author AP params in vanilla AP and multiply by const.Scale.AP where they are used.
+-- Scanning their generated preset files finds those params without listing every mod here; ours are already displayed AP.
+local ScanGroups = {
+    ModItemCharacterEffectCompositeDef = "CharacterEffectDefs",
+    ModItemCombatAction = "CombatActions",
+}
+
+local function ScanModAPParams()
+    local found = {}
+    for _, mod in ipairs(ModsLoaded or empty_table) do
+        if mod.author ~= "rato" then
+            for _, file in ipairs(mod.code or empty_table) do
+                if file:find("^CharacterEffect/") or file:find("^CombatAction") then
+                    local _, text = AsyncFileToString(mod.content_path .. file)
+                    local group = text and ScanGroups[text:match('__generated_by_class = "([%w_]+)"') or ""]
+                    local class = group and text:match("DefineClass%.([%w_]+)")
+                    if class then
+                        for name in text:gmatch('ResolveValue%(%s*"([%w_]+)"%s*%)%s*%*%s*const%.Scale%.AP') do
+                            found[#found + 1] = { group, class, name }
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return found
+end
+
 function Rat_ApplyAPScaleParams()
     for group, list in pairs(APScaleParams) do
         local presets = _G[group]
@@ -51,6 +79,12 @@ function Rat_ApplyAPScaleParams()
             if preset then
                 ScaleParam(preset, entry[2])
             end
+        end
+    end
+    for _, entry in ipairs(ScanModAPParams()) do
+        local preset = (_G[entry[1]] or empty_table)[entry[2]]
+        if preset then
+            ScaleParam(preset, entry[3])
         end
     end
     -- Item APCost is a whole-AP class value consumed as APCost * const.Scale.AP.
