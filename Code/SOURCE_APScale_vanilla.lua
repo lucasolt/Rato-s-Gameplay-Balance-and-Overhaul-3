@@ -43,17 +43,30 @@ local function ScaleParam(preset, name)
     APScaled[preset][name] = param.Value
 end
 
--- Third-party presets author AP params in vanilla AP and multiply by const.Scale.AP where they are used.
--- Scanning their generated preset files finds those params without listing every mod here; ours are already displayed AP.
+-- Presets outside this economy author AP params in vanilla AP and multiply by const.Scale.AP where they are used.
+-- Scanning their generated preset files finds those params without listing every mod here.
+-- Declaring cfahRED as a dependency is what marks a mod as authored in displayed AP: our standalone mods must stay
+-- playable without this one, so they keep the vanilla idiom and get rescaled like anybody else's.
 local ScanGroups = {
     ModItemCharacterEffectCompositeDef = "CharacterEffectDefs",
     ModItemCombatAction = "CombatActions",
 }
 
+local function AuthoredInDisplayedAP(mod)
+    if mod.id == "cfahRED" then
+        return true
+    end
+    for _, dep in ipairs(mod.dependencies or empty_table) do
+        if dep.id == "cfahRED" then
+            return true
+        end
+    end
+end
+
 local function ScanModAPParams()
     local found = {}
     for _, mod in ipairs(ModsLoaded or empty_table) do
-        if mod.author ~= "rato" then
+        if not AuthoredInDisplayedAP(mod) then
             for _, file in ipairs(mod.code or empty_table) do
                 if file:find("^CharacterEffect/") or file:find("^CombatAction") then
                     local _, text = AsyncFileToString(mod.content_path .. file)
