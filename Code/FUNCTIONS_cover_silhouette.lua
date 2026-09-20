@@ -482,6 +482,8 @@ end
 
 local clearance_cache = {}
 local clearance_count = 0
+---- seed fixa do anel: a sondagem tem que ser igual em previsao, na IA e em co-op
+local RAY_SEED = 7919
 
 ---- global e nao upvalue: Rat_InvalidateExposureCache esta ACIMA neste arquivo e um local
 ---- declarado aqui nao existiria la. Ela chama por nome, entao a ordem de carga nao importa.
@@ -491,7 +493,7 @@ function Rat_ResetClearanceCache()
 end
 
 function Rat_MuzzleClearance(attacker, target, attacker_pos, target_pos, weapon, att_stance,
-                             dbg_table, force)
+                             dbg_table, force, body_part)
     local a = P()
     if not a.MuzzleProbe or not IsValid(attacker) or not IsValid(target) then
         return 100
@@ -513,7 +515,14 @@ function Rat_MuzzleClearance(attacker, target, attacker_pos, target_pos, weapon,
         return 100
     end
 
-    local key = xxhash(attacker_pos, target.handle, target_pos, att_stance, cache_gen)
+    local part = body_part
+    if type(part) == "table" then
+        part = part.id
+    end
+    part = part or g_DefaultShotBodyPart
+    ---- a parte MIRADA entra na chave: a IK gira a arma para o spot, entao o cano -- e portanto
+    ---- a resposta inteira desta funcao -- muda com ela.
+    local key = xxhash(attacker_pos, target.handle, target_pos, att_stance, cache_gen, part)
     if not dbg_table then
         local hit = clearance_cache[key]
         if hit then
@@ -523,9 +532,13 @@ function Rat_MuzzleClearance(attacker, target, attacker_pos, target_pos, weapon,
 
     weapon = weapon or attacker:GetActiveWeapons()
 
+    ---- `target_spot_group` NAO e decoracao: a IK aponta a arma para o spot, e sem ele o engine
+    ---- devolve a boca do cano de um tiro para outro lugar -- medido 98 a 136 unidades fora, mais
+    ---- que o proprio raio do anel (~70) em tiro curto. A sondagem respondia sobre um ponto do
+    ---- espaco onde a bala nunca esteve. Com ele o attack_pos bate EXATO com o do tiro simulado.
     local args = {
         obj = attacker, weapon = weapon, stance = att_stance,
-        target = target, step_pos = attacker_pos,
+        target = target, step_pos = attacker_pos, target_spot_group = part,
         occupied_pos = attacker:GetOccupiedPos(),
         prediction = true, output_collisions = true,
         can_use_covers = false, force_hit_seen_target = false,
@@ -539,7 +552,7 @@ function Rat_MuzzleClearance(attacker, target, attacker_pos, target_pos, weapon,
         return 100
     end
     local ap = Rat_ValidZ(base.lof[1].attack_pos)
-    local aim = Rat_ValidZ(Rat_SimAimPos(base.lof, args.target_spot_group, target_pos))
+    local aim = Rat_ValidZ(Rat_SimAimPos(base.lof, part, target_pos))
     if not ap or not aim then
         return 100
     end
@@ -560,10 +573,13 @@ function Rat_MuzzleClearance(attacker, target, attacker_pos, target_pos, weapon,
     local alive = 0
     for i = 0, rays - 1 do
         local p = aim + RotateAxis(SetLen(up, radius), dir, i * (360 * 60) / rays)
+        ---- os raios saem do MESMO cano e com as MESMAS regras da bala (Rat_SimLoFOverrides), senao
+        ---- o anel ancora no corpo e nao no cano: medido, Grizzly agachado na beira do barranco
+        ---- saia 0/4 com a bala chegando no alvo. Seed fixa -- determinista, nao consome random.
         local probe = table.copy(args)
+        Rat_SimLoFOverrides(probe, ap, RAY_SEED, nil)
         probe.target_pos = p
-        local data = GetLoFData(attacker, p, probe)
-        local l = data and data.lof and data.lof[1]
+        local l = Rat_SimLoF(GetLoFData(attacker, p, probe))
         local stop = l and (l.stuck_pos or l.lof_pos2)
         local dead = stop and ap:Dist(stop) < near
         if not dead then

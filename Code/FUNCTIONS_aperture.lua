@@ -877,7 +877,7 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
         ---- do alvo para longe dali. Ver Rat_MuzzleClearance.
         if (exposed_pct or 0) > 0 then
             local clear = Rat_MuzzleClearance(attacker, target, attacker_pos, target_pos, weapon,
-                                              att_stance, nil, force_full)
+                                              att_stance, nil, force_full, body_part_def)
             if clear < 100 then
                 exposed_pct = MulDivRound(exposed_pct, clear, 100)
                 if parts then
