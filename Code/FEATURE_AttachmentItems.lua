@@ -350,11 +350,34 @@ function Rat_AttEnsureResources()
     end
 end
 
+---- The class alone is not enough: vanilla and mods index InventoryItemDefs by item class and
+---- dereference the result without checking (InventoryUI GetInventoryItemDragDropFXActor reads
+---- .group on it), so every item class needs a preset too. Built here instead of in items.lua
+---- because the editor must never own these.
+function Rat_AttEnsureDefs()
+    for _, def in ipairs(RAT_ATT_ITEMS) do
+        if not (InventoryItemDefs or empty_table)[def.id] then
+            PlaceObj('InventoryItemCompositeDef', {
+                'Group', "Resources",
+                'Id', def.id,
+                'object_class', "MiscItem",
+                'Icon', def.icon,
+                'DisplayName', Untranslated(def.name),
+                'DisplayNamePlural', Untranslated(def.name),
+                'AdditionalHint', Untranslated(
+                    "<bullet_point> Weapon attachment. Install it from the weapon modification screen."),
+                'Cost', def.cost
+            })
+        end
+    end
+end
+
 function Rat_AttSetup()
     if not RAT_ATT_ENABLED then
         return
     end
     Rat_AttBind()
+    Rat_AttEnsureDefs()
     Rat_AttEnsureResources()
 end
 
@@ -435,10 +458,14 @@ end
 
 ---- Vanilla's restore drops the item on the floor of nowhere when the merc is full: it places the
 ---- item, fails to add it, and the sector fallback is commented out. So pick someone with room.
+local function rat_att_sector(preferred)
+    return preferred and preferred.Squad and gv_Squads[preferred.Squad] and
+               gv_Squads[preferred.Squad].CurrentSector or gv_CurrentSectorId
+end
+
 local function rat_att_holder(preferred, item_id)
     local probe = PlaceInventoryItem(item_id)
-    local sector = preferred and preferred.Squad and gv_Squads[preferred.Squad] and
-                       gv_Squads[preferred.Squad].CurrentSector or gv_CurrentSectorId
+    local sector = rat_att_sector(preferred)
     local candidates = {preferred}
     for _, id in ipairs(GetPlayerMercsInSector(sector) or empty_table) do
         candidates[#candidates + 1] = gv_UnitData[id]
@@ -465,13 +492,26 @@ function OnMsg.WeaponModifiedSuccess(weapon, unit, modAdded, mechanic, modSlot, 
     if not item then
         return
     end
-    local holder = rat_att_holder(mechanic or unit, item)
+    local preferred = mechanic or unit
+    local holder = rat_att_holder(preferred, item)
     if holder then
         RestoreSectorOperationResource(holder, item, 1)
     else
-        CombatLog("important", Untranslated("No room for the removed part -- it was left behind."))
-        print("Rat_Att: no inventory room for", item, "removed from", weapon and weapon.class)
+        ---- nobody has a free tile: the part goes to the sector stash instead of nowhere
+        NetSyncEvent("Rat_AttStashPart", rat_att_sector(preferred), item)
     end
+end
+
+function NetSyncEvents.Rat_AttStashPart(sector_id, item_id)
+    if not sector_id then
+        print("Rat_Att: no sector to stash", item_id, "-- part lost")
+        return
+    end
+    AddToSectorInventory(sector_id, {PlaceInventoryItem(item_id)})
+    CombatLog("important",
+              T{Untranslated("<item> went to the sector stash -- no one had room for it."),
+                item = InventoryItemDefs[item_id] and InventoryItemDefs[item_id].DisplayName or
+                    Untranslated(item_id)})
 end
 
 function Rat_AttReport()
