@@ -44,7 +44,7 @@ local function ScaleParam(preset, name)
 end
 
 -- Presets outside this economy author AP params in vanilla AP and multiply by const.Scale.AP where they are used.
--- Scanning their generated preset files finds those params without listing every mod here.
+-- Regenerating their companion source finds those params without listing every mod here.
 -- Declaring cfahRED as a dependency is what marks a mod as authored in displayed AP: our standalone mods must stay
 -- playable without this one, so they keep the vanilla idiom and get rescaled like anybody else's.
 local ScanGroups = {
@@ -63,36 +63,25 @@ local function AuthoredInDisplayedAP(mod)
     end
 end
 
--- ModEnvBlacklist hides every file reader from mod code, so the scan only runs where one is exposed.
-local function ReadModFile(path)
-    local reader = _G.AsyncFileToString
-    if not reader then
-        return
-    end
-    local ok, err, text = pcall(reader, path)
-    if ok and not err then
-        return text
-    end
-end
-
+-- ModEnvBlacklist hides every file reader from mod code, but it only filters global names: GenerateCompanionFileCode
+-- is a method, and it rebuilds the same generated text from the live preset with no file to read.
 local function ScanModAPParams()
     local found = {}
-    if not _G.AsyncFileToString then
-        return found
-    end
     for _, mod in ipairs(ModsLoaded or empty_table) do
         if not AuthoredInDisplayedAP(mod) then
-            for _, file in ipairs(mod.code or empty_table) do
-                if file:find("^CharacterEffect/") or file:find("^CombatAction") then
-                    local text = ReadModFile(mod.content_path .. file)
-                    local group = text and ScanGroups[text:match('__generated_by_class = "([%w_]+)"') or ""]
-                    local class = group and text:match("DefineClass%.([%w_]+)")
-                    if class then
-                        for name in text:gmatch('ResolveValue%(%s*"([%w_]+)"%s*%)%s*%*%s*const%.Scale%.AP') do
-                            found[#found + 1] = { group, class, name }
-                        end
+            for item_class, group in pairs(ScanGroups) do
+                mod:ForEachModItem(item_class, function(item)
+                    if not item:GetCodeFileName() then
+                        return
                     end
-                end
+                    local code = pstr("", 8 * 1024)
+                    if item:GenerateCompanionFileCode(code) then
+                        return
+                    end
+                    for name in tostring(code):gmatch('ResolveValue%(%s*"([%w_]+)"%s*%)%s*%*%s*const%.Scale%.AP') do
+                        found[#found + 1] = { group, item.id, name }
+                    end
+                end)
             end
         end
     end
