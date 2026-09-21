@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 13343,
+	'version', 13347,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -165,6 +165,7 @@ return PlaceObj('ModDef', {
 		"Code/OPTIONS_GunsHurt.lua",
 		"Code/OPTIONS_MuteIMP.lua",
 		"Code/FEATURE_AttachmentItems.lua",
+		"Code/FEATURE_AttachmentShop.lua",
 		"InventoryItem/M14SAW_AUTO.lua",
 	},
 	'default_options', {
@@ -190,8 +191,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1789934999,
-	'code_hash', -8172117786990137577,
+	'saved', 1789955025,
+	'code_hash', -5737368050548850645,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",

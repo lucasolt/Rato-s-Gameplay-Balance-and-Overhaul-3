@@ -1731,6 +1731,10 @@ return {
 			'name', "FEATURE_AttachmentItems",
 			'CodeFileName', "Code/FEATURE_AttachmentItems.lua",
 		}),
+		PlaceObj('ModItemCode', {
+			'name', "FEATURE_AttachmentShop",
+			'CodeFileName', "Code/FEATURE_AttachmentShop.lua",
+		}),
 		PlaceObj('ModItemOptionChoice', {
 			'name', "guns_hurt",
 			'DisplayName', "<color 64 128 196>Guns Freaking Hurt (%)</color>",
