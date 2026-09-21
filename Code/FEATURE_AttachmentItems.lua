@@ -17,7 +17,17 @@ RAT_ATT_ENABLED = true
 ---- Which component slots turn into items. Side2 and Side3 are ToG's second and third rail
 ---- positions: AR10std, HK33A2 and HK53 offer the same flashlight and dots there under _2 ids, and
 ---- leaving the slot out made those three devices free on exactly those guns.
-RAT_ATT_SLOTS = {Scope = true, Side = true, Side2 = true, Side3 = true}
+---- Bipod and Muzzle joined later. A bipod slot that cannot be emptied and offers one component is
+---- welded on, and the bayonet slots are a fold/unfold toggle of one object, so neither becomes an
+---- item; both fall out of the deny rules below rather than needing a slot test.
+RAT_ATT_SLOTS = {
+    Scope = true,
+    Side = true,
+    Side2 = true,
+    Side3 = true,
+    Bipod = true,
+    Muzzle = true
+}
 
 ---- Fitting an optic you already own is the same job whatever the optic is: one skill gate, one
 ---- parts bill. Applied by hooking the two readers, never by writing to the component presets --
@@ -49,8 +59,22 @@ RAT_ATT_DENY_NAMES = {
     ["Blank Shaft"] = true,
     ["No Scope"] = true,
     ["CAWS Ironsight"] = true,
-    ["Empty"] = true -- what a Side2/Side3 rail wears when it wears nothing
+    ["Empty"] = true, -- what a Side2/Side3 rail wears when it wears nothing
+    ["Default Muzzle"] = true,
+    ["Default Flash Hider"] = true,
+    ["Default Muzzle Brake"] = true,
+    ["Default Compensator"] = true,
+    ["Improvised Suppressor"] = true, -- the fallback you can always make out of parts, by design
+    ["Integral Suppressor"] = true, -- built into the barrel: VSK-94, De Lisle, Steyr Scout
+    ["grenade"] = true, -- the 22mm rifle grenade rides the muzzle but is ammunition
+    ["Gatling-style rotating six-barrel assembly"] = true
 }
+
+---- Matched as substrings, for families the data names one way per weapon. A bayonet slot only ever
+---- flips between folded and unfolded, so charging for it would make you buy your own bayonet back.
+---- A deployed bipod is the same bipod: the slot flips between the two and never empties, so
+---- charging would hand back an item every time a gunner put the legs down.
+RAT_ATT_DENY_PATTERNS = {"Bayonet", "Fold Bipod", "Unfold Bipod"}
 
 ---- Identity overrides, for components whose display name lies about what they are. The value is
 ---- the item name to group under, so an unknown id falls back to the right item too.
@@ -60,8 +84,18 @@ RAT_ATT_RENAME = {
     Caws_Scope_1 = "CAWS Scope", -- a 40-part scope shipped under the ironsight's name
     ReflexSightAdvanced_Glock = "\"Assalto\" Reflex Sight 1x (Pistol)",
     RAT_TOG_Reflex_pistol = "\"Assalto\" Reflex Sight 1x (Pistol)",
-    RAT_TOG_Reflex_pistol_rpk_mount = "\"Assalto\" Reflex Sight 1x (Pistol)"
+    RAT_TOG_Reflex_pistol_rpk_mount = "\"Assalto\" Reflex Sight 1x (Pistol)",
+    SteyrS_Muzzle_def_1 = "Integral Suppressor",
+    RAT_VSK_Suppressor = "Integral Suppressor"
 }
+
+---- The suppressor is the one muzzle device the data models as a separate tube: its Visuals pick an
+---- entity per calibre family, shared by 6 to 20 guns. Compensators and bipods do the opposite --
+---- 15 and 11 entities, one shaped per gun -- so those stay a single item each, the way a scope is
+---- one item however its mount is drawn. Every suppressor item lists the same components and tells
+---- them apart by model.
+RAT_ATT_SUPPRESSOR_COMPS = {"Suppressor", "RAT_TOG_suppressor", "RAT_TOG_suppressor_762",
+                            "RAT_TOG_suppressor_wp", "Suppressor_Anaconda", "ToG_Shotgun_Silencer"}
 
 ---- id: item class, frozen. comps: the ids known when this was generated; name binds the rest.
 RAT_ATT_ITEMS = {
@@ -358,10 +392,167 @@ RAT_ATT_ITEMS = {
         cost = 2000,
         tier = 2,
         comps = {"_Master_m76_scope_TOG", "m76_scope_1"}
+    },
+    {
+        id = "RAT_Att_Bipod",
+        name = "Bipod",
+        icon = "UI/Icons/Upgrades/ak47_bipod",
+        size = "large",
+        cost = 1500,
+        tier = 1,
+        comps = {"AN94_Bip_def_1", "Bipod", "Bipod_MG42", "Bipod_m82", "G11_Bipod_1", "ToG_Bipod_1", "U100_bipod_fld_1"}
+    },
+    {
+        id = "RAT_Att_Compensator",
+        name = "Compensator",
+        icon = "UI/Icons/Upgrades/m16_muzzle",
+        size = "small",
+        cost = 1500,
+        tier = 1,
+        comps = {"Compensator", "G3A3_muzzle_1", "LionRoar_compensator", "RAT_TOG_CompensatorNoEntity", "RAT_TOG_compensator", "RK62_Muzzle_def_1", "RK95_Muzzle_def_1", "hk23e_muzzle_1", "hk33_muzzle_1"}
+    },
+    {
+        id = "RAT_Att_AdvancedCompensator",
+        name = "Advanced Compensator",
+        icon = "UI/Icons/Upgrades/muzzle_steyr_01",
+        size = "small",
+        cost = 3000,
+        tier = 2,
+        comps = {"AUGCompensator_03", "Compensator_Glock"}
+    },
+    {
+        id = "RAT_Att_RecoilBooster",
+        name = "Recoil Booster",
+        icon = "UI/Icons/Upgrades/booster_NATO",
+        size = "small",
+        cost = 2500,
+        tier = 2,
+        comps = {"MuzzleBooster"}
+    },
+    {
+        id = "RAT_Att_DuckbillChoke",
+        name = "Duckbill Choke",
+        icon = "UI/Icons/Upgrades/duckbill_choke",
+        size = "small",
+        cost = 1200,
+        tier = 1,
+        comps = {"DuckbillChoke"}
+    },
+    {
+        id = "RAT_Att_FullChoke",
+        name = "Full Choke",
+        icon = "UI/Icons/Upgrades/shotgun_full_choke",
+        size = "small",
+        cost = 1200,
+        tier = 1,
+        comps = {"FullChoke"}
+    },
+    {
+        id = "RAT_Att_SuppressorPistol",
+        name = "Suppressor (Pistol)",
+        icon = "UI/Icons/Upgrades/beretta_silencer",
+        size = "medium",
+        cost = 3500,
+        tier = 2,
+        model = "WeaponAttA_SilencerBeretta",
+        comps = RAT_ATT_SUPPRESSOR_COMPS
+    },
+    {
+        id = "RAT_Att_SuppressorDesertEagle",
+        name = "Suppressor (.44 Magnum)",
+        icon = "UI/Icons/Upgrades/deserteagle_suppressor",
+        size = "medium",
+        cost = 4000,
+        tier = 3,
+        model = "WeaponAttA_SilencerDesertEagle",
+        comps = RAT_ATT_SUPPRESSOR_COMPS
+    },
+    {
+        id = "RAT_Att_SuppressorSMG9mm",
+        name = "Suppressor (9mm SMG)",
+        icon = "UI/Icons/Upgrades/9mm_SMG_suppressor",
+        size = "large",
+        cost = 3500,
+        tier = 2,
+        model = "WeaponAttA_SuppressorSMG9mm",
+        comps = RAT_ATT_SUPPRESSOR_COMPS
+    },
+    {
+        id = "RAT_Att_Suppressor556",
+        name = "Suppressor (5.56 NATO)",
+        icon = "UI/Icons/Upgrades/556_suppressor",
+        size = "large",
+        cost = 4000,
+        tier = 2,
+        model = "WeaponAttA_SuppressorNATO",
+        comps = RAT_ATT_SUPPRESSOR_COMPS
+    },
+    {
+        id = "RAT_Att_Suppressor762",
+        name = "Suppressor (7.62 NATO)",
+        icon = "UI/Icons/Upgrades/762_suppressor",
+        size = "large",
+        cost = 4000,
+        tier = 2,
+        model = "WeaponAttA_Suppressor762",
+        comps = RAT_ATT_SUPPRESSOR_COMPS
+    },
+    {
+        id = "RAT_Att_SuppressorWP",
+        name = "Suppressor (Warsaw Pact)",
+        icon = "UI/Icons/Upgrades/AK_suppressor",
+        size = "large",
+        cost = 4000,
+        tier = 2,
+        model = "WeaponAttA_SuppressorWP",
+        comps = RAT_ATT_SUPPRESSOR_COMPS
+    },
+    {
+        id = "RAT_Att_Suppressor50",
+        name = "Suppressor (.50 BMG)",
+        icon = "UI/Icons/Upgrades/M82_suppressor",
+        size = "large",
+        cost = 6000,
+        tier = 3,
+        model = "WeaponAttA_SuppressorBarrettM82",
+        comps = RAT_ATT_SUPPRESSOR_COMPS
+    },
+    {
+        id = "RAT_Att_SuppressorShotgun",
+        name = "Suppressor (Shotgun)",
+        icon = "UI/Icons/Upgrades/shotgun_suppressor",
+        size = "large",
+        cost = 4500,
+        tier = 3,
+        model = "WeaponAttA_SuppressorShotgun",
+        comps = RAT_ATT_SUPPRESSOR_COMPS
+    },
+    {
+        id = "RAT_Att_SuppressorFN2000",
+        name = "Suppressor (FN2000)",
+        icon = "UI/Icons/Upgrades/556_suppressor",
+        size = "large",
+        cost = 4000,
+        tier = 2,
+        reserved = true,
+        model = "FN2000_silencer",
+        comps = {"FN2000_silencer_1"}
+    },
+    {
+        id = "RAT_Att_SuppressorMP7",
+        name = "Suppressor (MP7)",
+        icon = "UI/Icons/Upgrades/9mm_SMG_suppressor",
+        size = "medium",
+        cost = 3500,
+        tier = 2,
+        reserved = true,
+        model = "MP7_Supr",
+        comps = {"MP7_Supr_1"}
     }
 }
 
 RAT_ATT_ITEM_OF = {} -- component id -> item class
+RAT_ATT_BY_MODEL = {} -- component id -> {visual entity -> item class}, for the model split families
 RAT_ATT_UNBOUND = {} -- report only: optics in a covered slot that got no item
 
 ---- The item classes. DefineClass is gone by the time the game runs, so this only executes on a
@@ -393,37 +584,88 @@ local function comp_name(id, comp)
     return _InternalTranslate(comp.DisplayName or Untranslated(""))
 end
 
+local function comp_denied(name)
+    if RAT_ATT_DENY_NAMES[name] then
+        return true
+    end
+    for _, pattern in ipairs(RAT_ATT_DENY_PATTERNS) do
+        if string.find(name, pattern, 1, true) then
+            return true
+        end
+    end
+end
+
+---- Which model a component wears on this weapon. Mirrors Weapon.lua: among the visuals that Match
+---- the class, the last one wins per spot, and a weapon specific one beats the generic fallback.
+local function comp_model(cid, weapon_class)
+    local comp = WeaponComponents[cid]
+    local best = {}
+    for _, descr in ipairs(comp and comp.Visuals or empty_table) do
+        if descr:Match(weapon_class) then
+            local prev = best[descr.Slot]
+            if not prev or (prev:IsGeneric() and not descr:IsGeneric()) then
+                best[descr.Slot] = descr
+            end
+        end
+    end
+    local models = RAT_ATT_BY_MODEL[cid]
+    for _, descr in pairs(best) do
+        if models[descr.Entity] then
+            return descr.Entity
+        end
+    end
+end
+
+---- The item a component costs on this weapon. Only the model split families need the weapon; for
+---- everything else the component alone decides, which is the cheap path and the common one.
+function Rat_AttItemFor(cid, weapon)
+    if not RAT_ATT_BY_MODEL[cid] then
+        return RAT_ATT_ITEM_OF[cid]
+    end
+    local entity = weapon and comp_model(cid, weapon.class)
+    return entity and RAT_ATT_BY_MODEL[cid][entity]
+end
+
 ---- Rebuilds component -> item. The frozen ids bind first; anything else in a covered slot binds
 ---- by display name, which is how the duplicated optics (ToG, _rpk_mount, _Master_) find an item.
 function Rat_AttBind()
     local by_name, held_back = {}, {}
     table.clear(RAT_ATT_ITEM_OF)
+    table.clear(RAT_ATT_BY_MODEL)
     table.clear(RAT_ATT_UNBOUND)
     for _, def in ipairs(RAT_ATT_ITEMS) do
         if def.reserved then
             held_back[def.name] = true
+            for _, cid in ipairs(def.comps) do
+                held_back[cid] = true
+            end
         end
     end
     for _, def in ipairs(RAT_ATT_ITEMS) do
         if not def.reserved then
             by_name[def.name] = def.id
             for _, cid in ipairs(def.comps) do
-                ---- a component listed under two items binds to whichever came last, silently
-                if RAT_ATT_ITEM_OF[cid] then
-                    print("Rat_Att: " .. cid .. " is listed under both " .. RAT_ATT_ITEM_OF[cid] ..
-                              " and " .. def.id)
+                if def.model then
+                    RAT_ATT_BY_MODEL[cid] = RAT_ATT_BY_MODEL[cid] or {}
+                    RAT_ATT_BY_MODEL[cid][def.model] = def.id
+                else
+                    ---- a component listed under two items binds to whichever came last, silently
+                    if RAT_ATT_ITEM_OF[cid] then
+                        print("Rat_Att: " .. cid .. " is listed under both " ..
+                                  RAT_ATT_ITEM_OF[cid] .. " and " .. def.id)
+                    end
+                    RAT_ATT_ITEM_OF[cid] = def.id
                 end
-                RAT_ATT_ITEM_OF[cid] = def.id
             end
         end
     end
 
     for id, comp in pairs(WeaponComponents or empty_table) do
-        if not RAT_ATT_ITEM_OF[id] and RAT_ATT_SLOTS[comp.Slot or ""] then
+        if not RAT_ATT_ITEM_OF[id] and not RAT_ATT_BY_MODEL[id] and RAT_ATT_SLOTS[comp.Slot or ""] then
             local name = comp_name(id, comp)
             if by_name[name] then
                 RAT_ATT_ITEM_OF[id] = by_name[name]
-            elseif not RAT_ATT_DENY_NAMES[name] and not held_back[name] then
+            elseif not comp_denied(name) and not held_back[name] and not held_back[id] then
                 RAT_ATT_UNBOUND[#RAT_ATT_UNBOUND + 1] = id .. " (" .. name .. ")"
             end
         end
@@ -435,6 +677,11 @@ function Rat_AttBind()
             RAT_ATT_ITEM_OF[cid] = nil
         end
     end
+    for cid in pairs(RAT_ATT_BY_MODEL) do
+        if not (WeaponComponents or empty_table)[cid] then
+            RAT_ATT_BY_MODEL[cid] = nil
+        end
+    end
 
     Rat_AttSnapshotCosts()
 end
@@ -443,9 +690,11 @@ end
 ---- for the report; the presets themselves are never written to, so this is a record, not a backup.
 function Rat_AttSnapshotCosts()
     table.clear(RAT_ATT_OLD)
-    for cid in pairs(RAT_ATT_ITEM_OF) do
-        local comp = WeaponComponents[cid]
-        RAT_ATT_OLD[cid] = {cost = comp.Cost, difficulty = comp.ModificationDifficulty}
+    for _, bound in ipairs({RAT_ATT_ITEM_OF, RAT_ATT_BY_MODEL}) do
+        for cid in pairs(bound) do
+            local comp = WeaponComponents[cid]
+            RAT_ATT_OLD[cid] = {cost = comp.Cost, difficulty = comp.ModificationDifficulty}
+        end
     end
 end
 
@@ -492,7 +741,9 @@ end
 ---- because the editor must never own these.
 function Rat_AttEnsureDefs()
     for _, def in ipairs(RAT_ATT_ITEMS) do
-        if not (InventoryItemDefs or empty_table)[def.id] then
+        ---- never a preset without a class behind it: PrepareShopItemsForRestock walks every preset
+        ---- and reads g_Classes[preset.id] unguarded, so a half-built item takes the shop down
+        if g_Classes[def.id] and not (InventoryItemDefs or empty_table)[def.id] then
             local props = {
                 'Group', "Resources",
                 'Id', def.id,
@@ -570,7 +821,7 @@ function ModifyWeaponDlg:GetChangesCost(slotFilter, placedComponentOverride)
     for slot, itemId in pairs(weapon.components) do
         local placed = placedComponentOverride or components[slot] or ""
         if placed ~= itemId and (not slotFilter or slot == slotFilter) then
-            local item = RAT_ATT_ITEM_OF[placed]
+            local item = Rat_AttItemFor(placed, weapon)
             if item then
                 ---- the physical part stands in for the lens/microchip the component used to ask for
                 local preset = WeaponComponents[placed]
@@ -616,7 +867,7 @@ function ModifyWeaponDlg:GetModificationDifficultyParams(componentToChangePreset
     if not RAT_ATT_ENABLED or not skill or not componentToChangePreset then
         return skill, mostSkilled, difficulty, allowed
     end
-    if not RAT_ATT_ITEM_OF[componentToChangePreset.id] then
+    if not Rat_AttItemFor(componentToChangePreset.id, self.context.weapon) then
         return skill, mostSkilled, difficulty, allowed
     end
     difficulty = RAT_ATT_DIFFICULTY
@@ -655,7 +906,7 @@ function OnMsg.WeaponModifiedSuccess(weapon, unit, modAdded, mechanic, modSlot, 
     if not RAT_ATT_ENABLED then
         return
     end
-    local item = oldComponent and RAT_ATT_ITEM_OF[oldComponent]
+    local item = oldComponent and Rat_AttItemFor(oldComponent, weapon)
     if not item then
         return
     end

@@ -23,6 +23,16 @@ RAT_ATT_SHOP_SIGHTS = {
     RAT_Att_ReflexSight = true
 }
 
+---- Muzzle devices and the bipod get their own pages; everything else is an optic or a sight.
+RAT_ATT_SHOP_MUZZLE = {
+    RAT_Att_Compensator = true,
+    RAT_Att_AdvancedCompensator = true,
+    RAT_Att_RecoilBooster = true,
+    RAT_Att_DuckbillChoke = true,
+    RAT_Att_FullChoke = true
+}
+RAT_ATT_SHOP_SUPPORT = {RAT_Att_Bipod = true}
+
 ---- The curve: a tier 3 optic unlocks late, turns up rarely and never more than one at a time.
 RAT_ATT_SHOP_TIERS = {
     {MaxStock = 3, RestockWeight = 100},
@@ -86,6 +96,8 @@ function Rat_AttShopEnsureCategories()
 
     rat_shop_subcat("RatSights", "Sights", 10)
     rat_shop_subcat("RatOptics", "Optics", 20)
+    rat_shop_subcat("RatMuzzle", "Muzzle", 30)
+    rat_shop_subcat("RatSupport", "Support", 40)
     for _, mag in ipairs(RAT_ATT_SHOP_MAGS) do
         rat_shop_subcat(mag.id, mag.name, mag.sort)
     end
@@ -127,11 +139,16 @@ function Rat_AttShopEnsureItems()
             RestockWeight = def.reserved and 0 or tier.RestockWeight,
             CanBeConsumed = true,
             ShopStackSize = 1,
-            CategoryPair = RAT_ATT_SHOP_SIGHTS[def.id] and "RatSights" or "RatOptics"
+            CategoryPair = (RAT_ATT_SHOP_MUZZLE[def.id] and "RatMuzzle") or
+                (RAT_ATT_SHOP_SUPPORT[def.id] and "RatSupport") or
+                (def.model and "RatMuzzle") or -- every model split family is a suppressor
+                (RAT_ATT_SHOP_SIGHTS[def.id] and "RatSights") or "RatOptics"
         }
-        for _, target in ipairs({g_Classes[def.id], InventoryItemDefs[def.id]}) do
-            for k, v in pairs(props) do
-                target[k] = v
+        for _, target in ipairs({g_Classes[def.id] or false, InventoryItemDefs[def.id] or false}) do
+            if target then
+                for k, v in pairs(props) do
+                    target[k] = v
+                end
             end
         end
     end
