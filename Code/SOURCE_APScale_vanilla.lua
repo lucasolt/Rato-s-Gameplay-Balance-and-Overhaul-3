@@ -63,13 +63,28 @@ local function AuthoredInDisplayedAP(mod)
     end
 end
 
+-- ModEnvBlacklist hides every file reader from mod code, so the scan only runs where one is exposed.
+local function ReadModFile(path)
+    local reader = _G.AsyncFileToString
+    if not reader then
+        return
+    end
+    local ok, err, text = pcall(reader, path)
+    if ok and not err then
+        return text
+    end
+end
+
 local function ScanModAPParams()
     local found = {}
+    if not _G.AsyncFileToString then
+        return found
+    end
     for _, mod in ipairs(ModsLoaded or empty_table) do
         if not AuthoredInDisplayedAP(mod) then
             for _, file in ipairs(mod.code or empty_table) do
                 if file:find("^CharacterEffect/") or file:find("^CombatAction") then
-                    local _, text = AsyncFileToString(mod.content_path .. file)
+                    local text = ReadModFile(mod.content_path .. file)
                     local group = text and ScanGroups[text:match('__generated_by_class = "([%w_]+)"') or ""]
                     local class = group and text:match("DefineClass%.([%w_]+)")
                     if class then
