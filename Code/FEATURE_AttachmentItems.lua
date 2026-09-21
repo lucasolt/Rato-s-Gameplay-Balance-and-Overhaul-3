@@ -29,8 +29,16 @@ RAT_ATT_DENY_NAMES = {
     ["CAWS Ironsight"] = true
 }
 
----- ToG ships Caws_Scope_1, a 40-part scope, under the ironsight's display name.
-RAT_ATT_RENAME = {Caws_Scope_1 = "CAWS Scope"}
+---- Identity overrides, for components whose display name lies about what they are. The value is
+---- the item name to group under, so an unknown id falls back to the right item too.
+---- The pistol reflexes carry the WeaponAttA_ScopeGlock18 model, a small unit that does not fit a
+---- rifle rail, while their name is the same as the full size one.
+RAT_ATT_RENAME = {
+    Caws_Scope_1 = "CAWS Scope", -- a 40-part scope shipped under the ironsight's name
+    ReflexSightAdvanced_Glock = "\"Assalto\" Reflex Sight 1x (Pistol)",
+    RAT_TOG_Reflex_pistol = "\"Assalto\" Reflex Sight 1x (Pistol)",
+    RAT_TOG_Reflex_pistol_rpk_mount = "\"Assalto\" Reflex Sight 1x (Pistol)"
+}
 
 ---- id: item class, frozen. comps: the ids known when this was generated; name binds the rest.
 RAT_ATT_ITEMS = {
@@ -46,7 +54,14 @@ RAT_ATT_ITEMS = {
         name = "\"Assalto\" Reflex Sight 1x",
         icon = "UI/Icons/Upgrades/scope_reflex",
         cost = 3000,
-        comps = {"RAT_TOG_Reflex", "RAT_TOG_Reflex_pistol", "RAT_TOG_Reflex_pistol_rpk_mount", "RAT_TOG_Reflex_rpk_mount", "ReflexSightAdvanced", "ReflexSightAdvanced_Glock"}
+        comps = {"RAT_TOG_Reflex", "RAT_TOG_Reflex_rpk_mount", "ReflexSightAdvanced"}
+    },
+    {
+        id = "RAT_Att_AssaltoReflexSight1xPistol",
+        name = "\"Assalto\" Reflex Sight 1x (Pistol)",
+        icon = "UI/Icons/Upgrades/scope_reflex",
+        cost = 2000,
+        comps = {"RAT_TOG_Reflex_pistol", "RAT_TOG_Reflex_pistol_rpk_mount", "ReflexSightAdvanced_Glock"}
     },
     {
         id = "RAT_Att_AutomagScope",
@@ -142,7 +157,7 @@ RAT_ATT_ITEMS = {
     {
         id = "RAT_Att_RedDot",
         name = "Red Dot",
-        icon = "Mod/KKh3Yhf/Images/MK23_laser.png",
+        icon = "UI/Icons/Upgrades/side_laser", -- 7 of the 8 use this; MK23_laser_1 brings its own
         cost = 2000,
         comps = {"LaserDot", "LaserDot_Anaconda", "LaserDot_PSG_M1", "LaserDot_aa12", "MK23_laser_1", "RAT_TOG_laser_dot", "RAT_TOG_laser_dot_rpk_mount", "ToG_Red_Dot_1"}
     },
@@ -290,6 +305,11 @@ function Rat_AttBind()
     for _, def in ipairs(RAT_ATT_ITEMS) do
         by_name[def.name] = def.id
         for _, cid in ipairs(def.comps) do
+            ---- a component listed under two items binds to whichever came last, silently
+            if RAT_ATT_ITEM_OF[cid] then
+                print("Rat_Att: " .. cid .. " is listed under both " .. RAT_ATT_ITEM_OF[cid] ..
+                          " and " .. def.id)
+            end
             RAT_ATT_ITEM_OF[cid] = def.id
         end
     end
