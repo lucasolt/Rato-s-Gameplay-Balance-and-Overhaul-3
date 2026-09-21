@@ -112,3 +112,9 @@ const.EnvEffects.DarknessCTHPenalty = -30 -- -20
 -- simulated aCTH only; replaces the gas graze
 const.EnvEffects.SmokeCTHPenaltyPerVoxel = -10 -- -8 
 const.EnvEffects.SmokeCTHPenaltyMax = -60 -- -40
+
+
+const.Weapons.ItemConditionUsed	= 70	
+const.Weapons.ItemConditionNeedsRepair= 40	
+const.Combat.ConditionPenaltyNeedsRepair = 5	
+const.Combat.ConditionPenaltyPoor = 20

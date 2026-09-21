@@ -79,8 +79,8 @@ GBO_COMPOSE_PCT = {
 ---- qualquer outro e o proprio nome do param do efeito e sai como esta.
 ---------------------------------------------------------------------------------------------------
 
-local short_barrel_aim_reduction = 6
-local short_barrel_handgun_aim_reduction = 3
+local short_barrel_aim_reduction = 4
+local short_barrel_handgun_aim_reduction = 2
 local long_barrel_aim_bonus = 6
 local long_barrel_handgun_aim_bonus = 3
 local light_stock_aim_reduction = 4

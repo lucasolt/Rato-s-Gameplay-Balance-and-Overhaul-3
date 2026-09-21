@@ -4595,7 +4595,7 @@ return {
 					'Tag', "<RangeIncrease>",
 				}),
 			},
-			Icon = "UI/Icons/Upgrades/scope_reflex",
+			Icon = "Mod/cfahRED/Images/glockRS.png",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
 				"AccuracyBonusWhenAimed",
@@ -4628,11 +4628,6 @@ return {
 					'Name', "snap_mul_reduc",
 					'Value', 90,
 					'Tag', "<snap_mul_reduc>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "snap_reduc",
-					'Value', 10,
-					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
@@ -4720,11 +4715,6 @@ return {
 					'Name', "snap_mul_reduc",
 					'Value', 90,
 					'Tag', "<snap_mul_reduc>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "snap_reduc",
-					'Value', 10,
-					'Tag', "<snap_reduc>",
 				}),
 			},
 			Slot = "Scope",
@@ -8823,13 +8813,6 @@ return {
 					},
 				}),
 			},
-			GBO_OverrideParams = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "APincrease",
-					'Value', 10,
-					'Tag', "<APincrease>",
-				}),
-			},
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
@@ -8843,7 +8826,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 10,
+					'Value', 5,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {

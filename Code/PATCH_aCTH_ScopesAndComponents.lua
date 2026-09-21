@@ -239,7 +239,7 @@ A.ScopeTraits = {
         floor_mul = 100, -- explicit: stops Rat_ScopeFloorMul scanning other components
         modes = {
             aCTH = {
-                params = {bonus_cth = 12, snap_mul_reduc = 85},
+                params = {bonus_cth = 10, snap_mul_reduc = 90},
                 effects = {
                     AccuracyBonusWhenAimed = true,
                     reflex_sight_close_range = false,

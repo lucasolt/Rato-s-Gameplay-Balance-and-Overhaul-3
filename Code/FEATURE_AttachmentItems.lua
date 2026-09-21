@@ -121,7 +121,7 @@ RAT_ATT_ITEMS = {
     {
         id = "RAT_Att_AssaltoReflexSight1xPistol",
         name = "\"Assalto\" Reflex Sight 1x (Pistol)",
-        icon = "UI/Icons/Upgrades/scope_reflex",
+        icon = "Mod/cfahRED/Images/glockRS.png",--UI/Icons/Upgrades/scope_reflex",
         size = "small",
         cost = 2000,
         tier = 1,
@@ -197,8 +197,8 @@ RAT_ATT_ITEMS = {
         name = "G11 Zieloptik ZO-1",
         icon = "Mod/KKh3Yhf/Images/G11_Scope_icon.png",
         size = "medium",
-        cost = 1000,
-        tier = 1,
+        cost = 5000,
+        tier = 3,
         comps = {"G11_Scope_1"}
     },
     {
@@ -251,8 +251,8 @@ RAT_ATT_ITEMS = {
         name = "Red Dot",
         icon = "UI/Icons/Upgrades/side_laser", -- 7 of the 8 use this; MK23_laser_1 brings its own
         size = "small",
-        cost = 2000,
-        tier = 1,
+        cost = 1500,
+        tier = 2,
         comps = {"LaserDot", "LaserDot_Anaconda", "LaserDot_PSG_M1", "LaserDot_aa12", "MK23_laser_1", "RAT_TOG_laser_dot", "RAT_TOG_laser_dot_rpk_mount", "ToG_Red_Dot_1"}
     },
     {
@@ -334,8 +334,8 @@ RAT_ATT_ITEMS = {
         name = "UV Dot",
         icon = "UI/Icons/Upgrades/side_laser",
         size = "small",
-        cost = 1000,
-        tier = 1,
+        cost = 1500,
+        tier = 2,
         comps = {"RAT_TOG_uv_dot", "RAT_TOG_uv_dot_rpk_mount", "ToG_UV_Dot_1", "UVDot", "UVDot_Anaconda", "UVDot_PSG_M1", "UVDot_aa12"}
     },
     {
@@ -371,7 +371,7 @@ RAT_ATT_ITEMS = {
         name = "ZF-4 Scope x1.5",
         icon = "Mod/KKh3Yhf/Images/G43_Scope_icon.png",
         size = "medium",
-        cost = 2500,
+        cost = 1500,
         tier = 1,
         comps = {"GW43_Scope_1", "_Master_GW43_Scope_TOG"}
     },

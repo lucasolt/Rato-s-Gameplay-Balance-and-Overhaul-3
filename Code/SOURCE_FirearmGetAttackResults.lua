@@ -480,10 +480,10 @@ function Firearm:GetAttackResults(action, attack_args)
             point_target = target_pos
         end
 
-        if point_target then
+        --if point_target then
             -- DbgAddCircle(point_target, const.SlabSizeX / 6, color)
             -- DbgAddVector(point_target, attack_results.attack_pos - point_target, color)
-        end
+        --end
 
         -- if  (self.NumPellets or 0) > 0 and not attack_args.prediction then
         --     pellets_data = self:CalcBuckshotScatter(attacker, action, attack_results.attack_pos,

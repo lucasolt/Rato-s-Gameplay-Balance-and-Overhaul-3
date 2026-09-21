@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 13347,
+	'version', 13350,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -191,8 +191,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1789955025,
-	'code_hash', -5737368050548850645,
+	'saved', 1789959365,
+	'code_hash', 2885702487610534806,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",

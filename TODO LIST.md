@@ -65,16 +65,26 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 -- -- -- -- -- -- -- -- -- 
 ```
 
+- [ ] Change Grizzly melee perk
 
 ## Housekeeping
 - [X] Implement unified Component handling, with ancestor/CTH mode
 	- [X] fix/unify with aCTH logic!!!
 	- [ ] Verify if patch called from TOG is redundant.
+- [ ] Remove unused calibers from bobbyrays list
 
 ## Components
 
-- [ ] Remove TOG handguards
-- [ ] no interchangeable stock between RKs
+# As inventory items
+- [ ] Change RS grading. compact -> assault compact -> assault/vulto
+- [ ] Add compact Advanced (Glock RS) to rifles?
+- [ ] Remove Vulto RS from pistols
+- [ ] Make components scrappable
+- [ ] Compensator per caliber
+
+# Other
+- [X] Remove TOG handguards (RKs done)
+- [X] no interchangeable stock between RKs
 - [ ] check components that make sense and remove the ones that dont. elegance first.
 - [ ] Re-tune component AP cost now that the scale has changed
 	- [X] Handgun barrels -> 3
@@ -83,8 +93,9 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 	- [X] Barrels - reduced
 
 - [X] fix folded stock AP reduction (M11 was bugged)
+- [ ] SKS extended barrel has wrong accuracy param
+ 
 
-## FINISH THE SLUG LOGIC !
 
 ## aCTH Possible fragilities
 - [X] OW when prone agains  hyenas had abysmal CTH, even when in close range (No LOs bug, fixed)
@@ -95,7 +106,7 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 - [X] Aim is being used in the Interrupt? shows 0 levels
 - [X] Shoot from above when very close. collision is strange. See savegame
 
--[ ] **BUG** Shotgun "killed unit was reported, but no "attack hit" actually struck it." See save Shotty Bug
+- [X] **BUG** Shotgun "killed unit was reported, but no "attack hit" actually struck it." See save Shotty Bug
 
 ## AI OVERHAUL - other mod 
 
@@ -190,7 +201,7 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 # Later Stuff
 ## aCTH Descriptions that need change
 - [ ] Take cover not grazing mod option
-- [ ] Smoke not grazing. Decide if LOS
+- [X] Smoke not grazing. Decide if LOS
 - [ ] Recoil CTH UI display
 - [ ] Snapshot will not reset when shooting the same target **Only at page description**
 - [X] DualShot max aim = 3 instead of 1
