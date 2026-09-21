@@ -14,8 +14,10 @@
 
 RAT_ATT_ENABLED = true
 
----- Which component slots turn into items.
-RAT_ATT_SLOTS = {Scope = true, Side = true}
+---- Which component slots turn into items. Side2 and Side3 are ToG's second and third rail
+---- positions: AR10std, HK33A2 and HK53 offer the same flashlight and dots there under _2 ids, and
+---- leaving the slot out made those three devices free on exactly those guns.
+RAT_ATT_SLOTS = {Scope = true, Side = true, Side2 = true, Side3 = true}
 
 ---- Fitting an optic you already own is the same job whatever the optic is: one skill gate, one
 ---- parts bill. Applied by hooking the two readers, never by writing to the component presets --
@@ -46,7 +48,8 @@ RAT_ATT_DENY_NAMES = {
     ["G11 Rail"] = true,
     ["Blank Shaft"] = true,
     ["No Scope"] = true,
-    ["CAWS Ironsight"] = true
+    ["CAWS Ironsight"] = true,
+    ["Empty"] = true -- what a Side2/Side3 rail wears when it wears nothing
 }
 
 ---- Identity overrides, for components whose display name lies about what they are. The value is
