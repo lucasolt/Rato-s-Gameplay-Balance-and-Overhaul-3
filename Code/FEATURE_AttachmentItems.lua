@@ -6,11 +6,31 @@
 ---- must not depend on which mods happen to be loaded. The component -> item binding IS dynamic
 ---- and is rebuilt every load: another component id for the same optic (a ToG variant, an
 ---- _rpk_mount clone, a _Master_ template) binds by display name with no edit here.
+----
+---- reserved = true means the optic only reaches weapons that are neither vanilla nor
+---- is_tog_patched, so it stays a plain weapon mod until that gun is patched. The class and the
+---- preset are still built, so clearing the flag later needs no save migration. Rat_AttAudit()
+---- recomputes the reachability from the live data and reports flags that no longer match.
 
 RAT_ATT_ENABLED = true
 
 ---- Which component slots turn into items.
 RAT_ATT_SLOTS = {Scope = true, Side = true}
+
+---- Fitting an optic you already own is the same job whatever the optic is: one skill gate, one
+---- parts bill. Applied by hooking the two readers, never by writing to the component presets --
+---- the editor saves live preset values back into whichever mod owns them.
+RAT_ATT_DIFFICULTY = -10 -- Easy, per const.WeaponModDifficultyPresets
+RAT_ATT_PARTS = 5
+RAT_ATT_OLD = {} -- component id -> {cost, difficulty} the preset still declares
+
+---- Revised Gear reads Weight and <Slot>_amount off the item; both default to nothing useful for a
+---- new class (amount 0 means "fits no pocket"), so every item declares a size.
+RAT_ATT_SIZES = {
+    small = {Weight = 200, PocketS = 2, PocketM = 3, PocketML = 4, PocketL = 6},
+    medium = {Weight = 450, PocketM = 1, PocketML = 2, PocketL = 3},
+    large = {Weight = 800, PocketML = 1, PocketL = 2}
+}
 
 ---- Iron sights, rails and blank shafts stay free -- they are what a gun wears when it wears nothing.
 RAT_ATT_DENY_NAMES = {
@@ -46,224 +66,294 @@ RAT_ATT_ITEMS = {
         id = "RAT_Att_AWPScope",
         name = "AWP Scope",
         icon = "Mod/KKh3Yhf/Images/AWP_Scope_icon.png",
+        size = "large",
         cost = 4000,
+        tier = 3,
+        reserved = true,
         comps = {"AWP_Scope_1"}
     },
     {
         id = "RAT_Att_AssaltoReflexSight1x",
         name = "\"Assalto\" Reflex Sight 1x",
         icon = "UI/Icons/Upgrades/scope_reflex",
+        size = "medium",
         cost = 3000,
+        tier = 2,
         comps = {"RAT_TOG_Reflex", "RAT_TOG_Reflex_rpk_mount", "ReflexSightAdvanced"}
     },
     {
         id = "RAT_Att_AssaltoReflexSight1xPistol",
         name = "\"Assalto\" Reflex Sight 1x (Pistol)",
         icon = "UI/Icons/Upgrades/scope_reflex",
+        size = "small",
         cost = 2000,
+        tier = 1,
         comps = {"RAT_TOG_Reflex_pistol", "RAT_TOG_Reflex_pistol_rpk_mount", "ReflexSightAdvanced_Glock"}
     },
     {
         id = "RAT_Att_AutomagScope",
         name = "Automag Scope",
         icon = "Mod/KKh3Yhf/Images/Automag_Scope_icon.png",
+        size = "large",
         cost = 2500,
+        tier = 2,
+        reserved = true,
         comps = {"Automag_Scope_1"}
     },
     {
         id = "RAT_Att_CAWSScope",
         name = "CAWS Scope",
         icon = "Mod/KKh3Yhf/Images/CAWS_Scope_icon.png",
+        size = "large",
         cost = 4000,
+        tier = 3,
+        reserved = true,
         comps = {"Caws_Scope_1"}
     },
     {
         id = "RAT_Att_CompactReflexSight1x",
         name = "Compact Reflex Sight 1x",
         icon = "UI/Icons/Upgrades/compact_reflex_sight",
+        size = "small",
         cost = 2000,
+        tier = 1,
         comps = {"RAT_TOG_compactRS", "RAT_TOG_compactRS_rpk_mount", "ReflexSight"}
     },
     {
         id = "RAT_Att_CrossfireIIx4",
         name = "Crossfire II x4",
         icon = "Mod/KKh3Yhf/Images/SteyrScout_Scope.png",
+        size = "large",
         cost = 3500,
+        tier = 2,
         comps = {"SteyrS_Scope_1", "_Master_SteyrS_Scope_TOG"}
     },
     {
         id = "RAT_Att_DigitalScope2x",
         name = "Digital Scope 2x",
-        icon = "UI/Icons/Upgrades/prism_scope",
+        icon = "UI/Icons/Upgrades/g36_scope_01", -- the component's own icon is the generic one; the G36 art is on its visual
+        size = "medium",
         cost = 3000,
+        tier = 2,
         comps = {"G36_SCOPE"}
     },
     {
         id = "RAT_Att_DigitalScope4x2x",
         name = "Digital Scope 4x/2x",
-        icon = "UI/Icons/Upgrades/scope_longrange",
+        icon = "UI/Icons/Upgrades/g36_scope_02", -- the component's own icon is the generic one; the G36 art is on its visual
+        size = "large",
         cost = 5000,
+        tier = 3,
         comps = {"SCOPE_G36_2"}
     },
     {
         id = "RAT_Att_Flashlight",
         name = "Flashlight",
         icon = "UI/Icons/Upgrades/side_light",
+        size = "small",
         cost = 1000,
+        tier = 1,
         comps = {"Flashlight", "Flashlight_Anaconda", "Flashlight_PSG_M1", "Flashlight_aa12", "RAT_TOG_flashlight", "RAT_TOG_flashlight_rpk_mount", "ToG_Flashlight_1"}
     },
     {
         id = "RAT_Att_G11ZieloptikZO1",
         name = "G11 Zieloptik ZO-1",
         icon = "Mod/KKh3Yhf/Images/G11_Scope_icon.png",
+        size = "medium",
         cost = 1000,
+        tier = 1,
         comps = {"G11_Scope_1"}
     },
     {
         id = "RAT_Att_HensoldtZFScope6x",
         name = "Hensoldt ZF Scope 6x",
         icon = "UI/Icons/Upgrades/custom_PSG1_scope",
+        size = "large",
         cost = 5000,
+        tier = 3,
         comps = {"PSG_DefaultScope", "RAT_TOG_PSGScope", "RAT_TOG_PSGScope_rpk_mount"}
     },
     {
         id = "RAT_Att_PSO1M21Scope4x",
         name = "PSO-1M2-1 Scope 4x",
         icon = "Mod/KKh3Yhf/Images/VSS_Scope_icon.png",
+        size = "large",
         cost = 3500,
+        tier = 2,
         comps = {"VSS_Scope_1", "_Master_PSO-1M2_Scope_TOG"}
     },
     {
         id = "RAT_Att_PSO1Scope4x",
         name = "PSO-1 Scope 4x",
         icon = "UI/Icons/Upgrades/custom_Dragunov_scope",
+        size = "large",
         cost = 4000,
+        tier = 2,
         comps = {"LROptics_DragunovDefault"}
     },
     {
         id = "RAT_Att_PrismScope2x",
         name = "Prism Scope 2x",
         icon = "UI/Icons/Upgrades/prism_scope",
+        size = "medium",
         cost = 2500,
+        tier = 2,
         comps = {"RAT_TOG_Prism", "RAT_TOG_Prism_rpk_mount", "ScopeCOG"}
     },
     {
         id = "RAT_Att_QuickPrismScope2x",
         name = "Quick Prism Scope 2x",
         icon = "UI/Icons/Upgrades/scope_thermal",
+        size = "medium",
         cost = 2500,
+        tier = 2,
         comps = {"RAT_TOG_ACOG", "RAT_TOG_ACOG_rpk_mount", "ScopeCOGQuick"}
     },
     {
         id = "RAT_Att_RedDot",
         name = "Red Dot",
         icon = "UI/Icons/Upgrades/side_laser", -- 7 of the 8 use this; MK23_laser_1 brings its own
+        size = "small",
         cost = 2000,
+        tier = 1,
         comps = {"LaserDot", "LaserDot_Anaconda", "LaserDot_PSG_M1", "LaserDot_aa12", "MK23_laser_1", "RAT_TOG_laser_dot", "RAT_TOG_laser_dot_rpk_mount", "ToG_Red_Dot_1"}
     },
     {
         id = "RAT_Att_ReflexSight",
         name = "Reflex Sight",
         icon = "Mod/KKh3Yhf/Images/MP7_reddot.png",
+        size = "medium",
         cost = 3500,
+        tier = 2,
         comps = {"MP7_Scope_1", "TAR21_Scope_Rflx_1"}
     },
     {
         id = "RAT_Att_SniperScope4x",
         name = "Sniper Scope 4x",
         icon = "UI/Icons/Upgrades/scope_longrange",
+        size = "large",
         cost = 3000,
+        tier = 2,
         comps = {"LROptics", "RAT_TOG_LRoptics", "RAT_TOG_LRoptics_rpk_mount"}
     },
     {
         id = "RAT_Att_SniperScope6x",
         name = "Sniper Scope 6x",
         icon = "UI/Icons/Upgrades/sniper_scope_x10",
+        size = "large",
         cost = 4000,
+        tier = 3,
         comps = {"LROpticsAdvanced", "RAT_TOG_LRoptics_advanced", "RAT_TOG_LRoptics_advanced_rpk_mount"}
     },
     {
         id = "RAT_Att_SniperScopex5",
         name = "Sniper Scope x5",
         icon = "UI/Icons/Upgrades/custom_Dragunov_scope",
+        size = "large",
         cost = 2000,
+        tier = 2,
+        reserved = true,
         comps = {"AN94_Scope_1", "SKS_Scope"}
     },
     {
         id = "RAT_Att_SniperScopex8",
         name = "Sniper Scope x8",
         icon = "Mod/KKh3Yhf/Images/NTW20_scope.png",
+        size = "large",
         cost = 3500,
+        tier = 3,
+        reserved = true,
         comps = {"NTW_20_Scope_1"}
     },
     {
         id = "RAT_Att_SwarovskiOptikScope15x",
         name = "Swarovski Optik Scope 1.5x",
         icon = "UI/Icons/Upgrades/custom_Steyr_AUG_scope",
+        size = "medium",
         cost = 2000,
+        tier = 1,
         comps = {"AUGScope_Default"}
     },
     {
         id = "RAT_Att_TacticalDevice",
         name = "Tactical Device",
         icon = "UI/Icons/Upgrades/side_laserlight",
+        size = "small",
         cost = 2000,
+        tier = 2,
         comps = {"FlashlightDot", "FlashlightDot_Anaconda", "FlashlightDot_PSG_M1", "FlashlightDot_aa12", "RAT_TOG_tactical_dot", "RAT_TOG_tactical_dot_rpk_mount"}
     },
     {
         id = "RAT_Att_ThermalScope4x",
         name = "Thermal Scope 4x",
         icon = "UI/Icons/Upgrades/scope_ACOG",
+        size = "large",
         cost = 6000,
+        tier = 3,
         comps = {"RAT_TOG_thermal", "RAT_TOG_thermal_rpk_mount", "ThermalScope", "ThermalScope_1", "ThermalScope_2"}
     },
     {
         id = "RAT_Att_UVDot",
         name = "UV Dot",
         icon = "UI/Icons/Upgrades/side_laser",
+        size = "small",
         cost = 1000,
+        tier = 1,
         comps = {"RAT_TOG_uv_dot", "RAT_TOG_uv_dot_rpk_mount", "ToG_UV_Dot_1", "UVDot", "UVDot_Anaconda", "UVDot_PSG_M1", "UVDot_aa12"}
     },
     {
         id = "RAT_Att_VigilanteReflexSight1x",
         name = "\"Vigilante\" Reflex Sight 1x",
         icon = "Mod/KQkEVHf/Icons/Upgrades/ToC_Scope_kentaur.png",
+        size = "medium",
         cost = 3000,
+        tier = 2,
         comps = {"RAT_TOG_vigilanceRS", "RAT_TOG_vigilanceRS_rpk_mount", "_ReflexSIghtVigilance"}
     },
     {
         id = "RAT_Att_VultoWideScope2x",
         name = "\"Vulto\" Wide Scope 2x",
         icon = "Mod/KKh3Yhf/Images/L85A1_scope.png",
+        size = "medium",
         cost = 2500,
+        tier = 2,
         comps = {"RAT_TOG_WideScope", "RAT_TOG_WideScope_rpk_mount", "WideScope"}
     },
     {
         id = "RAT_Att_WA2000Scope",
         name = "WA2000 Scope",
         icon = "Mod/KKh3Yhf/Images/WA2000_Scope_icon_1.png",
+        size = "large",
         cost = 2000,
+        tier = 3,
+        reserved = true,
         comps = {"WA2000_Scope_1"}
     },
     {
         id = "RAT_Att_ZF4Scopex15",
         name = "ZF-4 Scope x1.5",
         icon = "Mod/KKh3Yhf/Images/G43_Scope_icon.png",
+        size = "medium",
         cost = 2500,
+        tier = 1,
         comps = {"GW43_Scope_1", "_Master_GW43_Scope_TOG"}
     },
     {
         id = "RAT_Att_ZF846x",
         name = "ZF 84 6x",
         icon = "Mod/KKh3Yhf/Images/SSG69_Scope_icon.png",
+        size = "large",
         cost = 2000,
+        tier = 3,
         comps = {"SSG69_Scope_1", "_Master_SSG69_Scope_TOG"}
     },
     {
         id = "RAT_Att_ZRAKx4Scope",
         name = "ZRAK x4 Scope",
         icon = "Mod/KKh3Yhf/Images/M76_scope.png",
+        size = "large",
         cost = 2000,
+        tier = 2,
         comps = {"_Master_m76_scope_TOG", "m76_scope_1"}
     }
 }
@@ -275,7 +365,7 @@ RAT_ATT_UNBOUND = {} -- report only: optics in a covered slot that got no item
 ---- real load; a hot reload of this file skips it and keeps the classes already built.
 if DefineClass then
     for _, def in ipairs(RAT_ATT_ITEMS) do
-        DefineClass(def.id, {
+        local class = {
             __parents = {"MiscItem"},
             object_class = "MiscItem",
             Icon = def.icon,
@@ -285,7 +375,11 @@ if DefineClass then
                 "<bullet_point> Weapon attachment. Install it from the weapon modification screen."),
             Cost = def.cost,
             MaxStacks = 5
-        })
+        }
+        for k, v in pairs(RAT_ATT_SIZES[def.size]) do
+            class[k == "Weight" and k or (k .. "_amount")] = v
+        end
+        DefineClass(def.id, class)
     end
 end
 
@@ -299,18 +393,25 @@ end
 ---- Rebuilds component -> item. The frozen ids bind first; anything else in a covered slot binds
 ---- by display name, which is how the duplicated optics (ToG, _rpk_mount, _Master_) find an item.
 function Rat_AttBind()
-    local by_name = {}
+    local by_name, held_back = {}, {}
     table.clear(RAT_ATT_ITEM_OF)
     table.clear(RAT_ATT_UNBOUND)
     for _, def in ipairs(RAT_ATT_ITEMS) do
-        by_name[def.name] = def.id
-        for _, cid in ipairs(def.comps) do
-            ---- a component listed under two items binds to whichever came last, silently
-            if RAT_ATT_ITEM_OF[cid] then
-                print("Rat_Att: " .. cid .. " is listed under both " .. RAT_ATT_ITEM_OF[cid] ..
-                          " and " .. def.id)
+        if def.reserved then
+            held_back[def.name] = true
+        end
+    end
+    for _, def in ipairs(RAT_ATT_ITEMS) do
+        if not def.reserved then
+            by_name[def.name] = def.id
+            for _, cid in ipairs(def.comps) do
+                ---- a component listed under two items binds to whichever came last, silently
+                if RAT_ATT_ITEM_OF[cid] then
+                    print("Rat_Att: " .. cid .. " is listed under both " .. RAT_ATT_ITEM_OF[cid] ..
+                              " and " .. def.id)
+                end
+                RAT_ATT_ITEM_OF[cid] = def.id
             end
-            RAT_ATT_ITEM_OF[cid] = def.id
         end
     end
 
@@ -319,7 +420,7 @@ function Rat_AttBind()
             local name = comp_name(id, comp)
             if by_name[name] then
                 RAT_ATT_ITEM_OF[id] = by_name[name]
-            elseif not RAT_ATT_DENY_NAMES[name] then
+            elseif not RAT_ATT_DENY_NAMES[name] and not held_back[name] then
                 RAT_ATT_UNBOUND[#RAT_ATT_UNBOUND + 1] = id .. " (" .. name .. ")"
             end
         end
@@ -331,6 +432,18 @@ function Rat_AttBind()
             RAT_ATT_ITEM_OF[cid] = nil
         end
     end
+
+    Rat_AttSnapshotCosts()
+end
+
+---- What each bound component charged before it became an item. Kept for the shop tier curve and
+---- for the report; the presets themselves are never written to, so this is a record, not a backup.
+function Rat_AttSnapshotCosts()
+    table.clear(RAT_ATT_OLD)
+    for cid in pairs(RAT_ATT_ITEM_OF) do
+        local comp = WeaponComponents[cid]
+        RAT_ATT_OLD[cid] = {cost = comp.Cost, difficulty = comp.ModificationDifficulty}
+    end
 end
 
 ---- Makes each item spendable by the modify screen. current/pay/restore are the same sector-wide
@@ -341,7 +454,7 @@ function Rat_AttEnsureResources()
         return
     end
     for _, def in ipairs(RAT_ATT_ITEMS) do
-        if not list[def.id] then
+        if not list[def.id] and not def.reserved then
             local id = def.id
             local entry = {
                 id = id,
@@ -377,7 +490,7 @@ end
 function Rat_AttEnsureDefs()
     for _, def in ipairs(RAT_ATT_ITEMS) do
         if not (InventoryItemDefs or empty_table)[def.id] then
-            PlaceObj('InventoryItemCompositeDef', {
+            local props = {
                 'Group', "Resources",
                 'Id', def.id,
                 'object_class', "MiscItem",
@@ -387,7 +500,12 @@ function Rat_AttEnsureDefs()
                 'AdditionalHint', Untranslated(
                     "<bullet_point> Weapon attachment. Install it from the weapon modification screen."),
                 'Cost', def.cost
-            })
+            }
+            for k, v in pairs(RAT_ATT_SIZES[def.size]) do
+                props[#props + 1] = k == "Weight" and k or (k .. "_amount")
+                props[#props + 1] = v
+            end
+            PlaceObj('InventoryItemCompositeDef', props)
         end
     end
 end
@@ -461,6 +579,13 @@ function ModifyWeaponDlg:GetChangesCost(slotFilter, placedComponentOverride)
                         end
                     end
                 end
+                ---- and the parts bill drops to the flat fitting fee, whatever the optic costs
+                if costs.Parts then
+                    costs.Parts = costs.Parts - (preset and preset.Cost or 0) + RAT_ATT_PARTS
+                    if costs.Parts <= 0 then
+                        costs.Parts = nil
+                    end
+                end
                 costs[item] = (costs[item] or 0) + 1
                 touched = true
             end
@@ -474,6 +599,25 @@ function ModifyWeaponDlg:GetChangesCost(slotFilter, placedComponentOverride)
     end
     canAfford, perType = rat_att_afford(costs, self.sector)
     return costs, anyChanged, canAfford, perType
+end
+
+if not RAT_ATT_OrigDifficultyParams then
+    RAT_ATT_OrigDifficultyParams = ModifyWeaponDlg.GetModificationDifficultyParams
+end
+
+---- The other choke point: the roll, the "needs a better mechanic" gate and the difficulty label on
+---- the option all read this one function.
+function ModifyWeaponDlg:GetModificationDifficultyParams(componentToChangePreset)
+    local skill, mostSkilled, difficulty, allowed =
+        RAT_ATT_OrigDifficultyParams(self, componentToChangePreset)
+    if not RAT_ATT_ENABLED or not skill or not componentToChangePreset then
+        return skill, mostSkilled, difficulty, allowed
+    end
+    if not RAT_ATT_ITEM_OF[componentToChangePreset.id] then
+        return skill, mostSkilled, difficulty, allowed
+    end
+    difficulty = RAT_ATT_DIFFICULTY
+    return skill, mostSkilled, difficulty, (skill - difficulty > 10)
 end
 
 ---- Vanilla's restore drops the item on the floor of nowhere when the merc is full: it places the
@@ -539,12 +683,69 @@ function Rat_AttReport()
     for _ in pairs(RAT_ATT_ITEM_OF) do
         bound = bound + 1
     end
-    print("Rat_Att: " .. #RAT_ATT_ITEMS .. " items, " .. bound .. " components bound")
+    local held = {}
+    for _, def in ipairs(RAT_ATT_ITEMS) do
+        if def.reserved then
+            held[#held + 1] = def.id
+        end
+    end
+    print("Rat_Att: " .. #RAT_ATT_ITEMS .. " items, " .. bound .. " components bound, " .. #held ..
+              " reserved")
+    if #held > 0 then
+        print("Rat_Att: reserved until the gun is patched: " .. table.concat(held, ", "))
+    end
+    local probe = RAT_ATT_ITEM_OF[next(RAT_ATT_ITEM_OF)]
     print("Rat_Att: resources registered = " ..
-              tostring(SectorOperationResouces and SectorOperationResouces[RAT_ATT_ITEMS[1].id] ~= nil))
+              tostring(probe and SectorOperationResouces and SectorOperationResouces[probe] ~= nil))
     if #RAT_ATT_UNBOUND > 0 then
         print("Rat_Att: optics with no item (" .. #RAT_ATT_UNBOUND .. "): " ..
                   table.concat(RAT_ATT_UNBOUND, ", "))
+    end
+end
+
+---- component id -> how many vanilla or is_tog_patched firearms offer it. Read off the classes,
+---- not the presets: the component patch adds its slots to the class.
+local function rat_att_reach()
+    local reach = {}
+    ForEachPreset("InventoryItemCompositeDef", function(p)
+        local cls = g_Classes[p.id]
+        if not IsKindOf(cls, "Firearm") or
+            not (IsVanillaFirearm(cls) or cls.is_tog_patched) then
+            return
+        end
+        for _, slot in ipairs(cls.ComponentSlots or empty_table) do
+            for _, cid in ipairs(slot.AvailableComponents or empty_table) do
+                reach[cid] = (reach[cid] or 0) + 1
+            end
+        end
+    end)
+    return reach
+end
+
+---- Recomputes which items are actually reachable and reports every reserved flag that disagrees:
+---- a reserved optic whose gun is now patched, or a live item no gun can take any more.
+function Rat_AttAudit()
+    local reach = rat_att_reach()
+    local open, shut = {}, {}
+    for _, def in ipairs(RAT_ATT_ITEMS) do
+        local n = 0
+        for _, cid in ipairs(def.comps) do
+            n = n + (reach[cid] or 0)
+        end
+        if def.reserved and n > 0 then
+            open[#open + 1] = def.id .. " (" .. n .. " guns)"
+        elseif not def.reserved and n == 0 then
+            shut[#shut + 1] = def.id
+        end
+    end
+    if #open > 0 then
+        print("Rat_Att: reserved but now reachable, drop the flag: " .. table.concat(open, ", "))
+    end
+    if #shut > 0 then
+        print("Rat_Att: sold but no patched gun takes it, reserve it: " .. table.concat(shut, ", "))
+    end
+    if #open == 0 and #shut == 0 then
+        print("Rat_Att: every reserved flag matches the live weapon data")
     end
 end
 
@@ -557,6 +758,8 @@ function Rat_AttGiveAll(unit)
         return
     end
     for _, def in ipairs(RAT_ATT_ITEMS) do
-        RestoreSectorOperationResource(merc, def.id, 1)
+        if not def.reserved then
+            RestoreSectorOperationResource(merc, def.id, 1)
+        end
     end
 end
