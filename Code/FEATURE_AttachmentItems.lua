@@ -89,13 +89,25 @@ RAT_ATT_RENAME = {
     RAT_VSK_Suppressor = "Integral Suppressor"
 }
 
----- The suppressor is the one muzzle device the data models as a separate tube: its Visuals pick an
----- entity per calibre family, shared by 6 to 20 guns. Compensators and bipods do the opposite --
----- 15 and 11 entities, one shaped per gun -- so those stay a single item each, the way a scope is
----- one item however its mount is drawn. Every suppressor item lists the same components and tells
----- them apart by model.
-RAT_ATT_SUPPRESSOR_COMPS = {"Suppressor", "RAT_TOG_suppressor", "RAT_TOG_suppressor_762",
-                            "RAT_TOG_suppressor_wp", "Suppressor_Anaconda", "ToG_Shotgun_Silencer"}
+---- Muzzle devices bind by family, not by component id: every compensator id resolves to one item
+---- per gun, and so does every suppressor id. A real device needs the bore AND the mount, so a
+---- calibre item covers the threaded platforms and a platform item (guns) covers the devices made
+---- for one gun -- pistol comps, clamp-on HK hiders, the M14's gas-lock mount.
+RAT_ATT_FAMILIES = {
+    compensator = {"Compensator", "G3A3_muzzle_1", "LionRoar_compensator", "RAT_TOG_CompensatorNoEntity",
+                   "RAT_TOG_compensator", "RK62_Muzzle_def_1", "RK95_Muzzle_def_1", "hk23e_muzzle_1",
+                   "hk33_muzzle_1", "AUGCompensator_03", "Compensator_Glock"},
+    booster = {"MuzzleBooster"},
+    suppressor = {"Suppressor", "RAT_TOG_suppressor", "RAT_TOG_suppressor_762", "RAT_TOG_suppressor_wp",
+                  "Suppressor_Anaconda", "ToG_Shotgun_Silencer"}
+}
+---- Any other muzzle component with one of these display names joins the family too, the way the
+---- optics bind by name: ToG ships a new id per gun (L85, M60, FN2000) for the same device.
+RAT_ATT_FAMILY_NAMES = {
+    ["Compensator"] = "compensator",
+    ["Recoil Booster"] = "booster",
+    ["Suppressor"] = "suppressor"
+}
 
 ---- id: item class, frozen. comps: the ids known when this was generated; name binds the rest.
 RAT_ATT_ITEMS = {
@@ -402,32 +414,233 @@ RAT_ATT_ITEMS = {
         tier = 1,
         comps = {"AN94_Bip_def_1", "Bipod", "Bipod_MG42", "Bipod_m82", "G11_Bipod_1", "ToG_Bipod_1", "U100_bipod_fld_1"}
     },
+    ---- Compensators by calibre. model is what the gun wears, whatever its own Visuals say.
     {
         id = "RAT_Att_Compensator",
-        name = "Compensator",
+        name = "Compensator (5.56 NATO)",
         icon = "UI/Icons/Upgrades/m16_muzzle",
         size = "small",
         cost = 1500,
         tier = 1,
-        comps = {"Compensator", "G3A3_muzzle_1", "LionRoar_compensator", "RAT_TOG_CompensatorNoEntity", "RAT_TOG_compensator", "RK62_Muzzle_def_1", "RK95_Muzzle_def_1", "hk23e_muzzle_1", "hk33_muzzle_1"}
+        family = "compensator",
+        calibers = {"556", "5_7x28", "4_7x33"},
+        model = "WeaponAttA_Muzzle_01"
+    },
+    {
+        id = "RAT_Att_Compensator762",
+        name = "Compensator (7.62 NATO)",
+        icon = "UI/Icons/Upgrades/muzzle_fal_01",
+        size = "small",
+        cost = 1500,
+        tier = 1,
+        family = "compensator",
+        calibers = {"762NATO", "308Win", "30-60"},
+        model = "WeaponAttA_MuzzleFNFal"
+    },
+    {
+        id = "RAT_Att_CompensatorAK",
+        name = "Compensator (7.62x39)",
+        icon = "UI/Icons/Upgrades/AK_compensator",
+        size = "small",
+        cost = 1500,
+        tier = 1,
+        family = "compensator",
+        calibers = {"762WP"},
+        model = "WeaponAttA_CompensatorWP"
+    },
+    {
+        id = "RAT_Att_CompensatorAK74",
+        name = "Compensator (5.45x39)",
+        icon = "UI/Icons/Upgrades/AK_compensator",
+        size = "small",
+        cost = 1500,
+        tier = 1,
+        family = "compensator",
+        calibers = {"5_45x39"},
+        model = "WeaponAttA_MuzzleAK74"
+    },
+    {
+        id = "RAT_Att_Compensator54R",
+        name = "Compensator (7.62x54R)",
+        icon = "UI/Icons/Upgrades/muzzle_fal_01",
+        size = "small",
+        cost = 2000,
+        tier = 2,
+        family = "compensator",
+        calibers = {"7_62x54R"},
+        model = "WeaponAttA_MuzzleDragunov_01"
+    },
+    {
+        id = "RAT_Att_CompensatorMauser",
+        name = "Compensator (7.92 Mauser)",
+        icon = "UI/Icons/Upgrades/muzzle_fal_01",
+        size = "small",
+        cost = 2000,
+        tier = 2,
+        family = "compensator",
+        calibers = {"7_92x57", "7_92x33"},
+        model = "WeaponAttA_MuzzleDragunov_01"
+    },
+    {
+        id = "RAT_Att_Compensator9mm",
+        name = "Compensator (9mm)",
+        icon = "UI/Icons/Upgrades/MP5_compensator",
+        size = "small",
+        cost = 1500,
+        tier = 1,
+        family = "compensator",
+        calibers = {"9mm", "380ACP", "9x18", "9x39"},
+        model = "WeaponAttA_CompensatorMP5"
+    },
+    {
+        id = "RAT_Att_Compensator45",
+        name = "Compensator (.45 ACP)",
+        icon = "UI/Icons/Upgrades/MP5_compensator",
+        size = "small",
+        cost = 1500,
+        tier = 1,
+        family = "compensator",
+        calibers = {"45ACP"},
+        model = "WeaponAttA_CompensatorHKG36_02"
+    },
+    {
+        id = "RAT_Att_CompensatorShotgun",
+        name = "Compensator (12 gauge)",
+        icon = "UI/Icons/Upgrades/shotgun_compensator",
+        size = "small",
+        cost = 1500,
+        tier = 1,
+        family = "compensator",
+        calibers = {"12gauge"},
+        model = "WeaponAttA_CompensatorM4"
+    },
+    ---- Compensators made for one platform. No model keeps the gun's own; one here overrides it.
+    {
+        id = "RAT_Att_CompensatorHiPower",
+        name = "Compensator (Hi-Power)",
+        icon = "UI/Icons/Upgrades/glock_compensator",
+        size = "small",
+        cost = 2000,
+        tier = 2,
+        family = "compensator",
+        guns = {"HiPower"}
+    },
+    {
+        id = "RAT_Att_CompensatorM1911",
+        name = "Compensator (M1911)",
+        icon = "UI/Icons/Upgrades/glock_compensator",
+        size = "small",
+        cost = 2000,
+        tier = 2,
+        family = "compensator",
+        guns = {"M1911_1"},
+        model = "WeaponAttA_CompensatorBHP"
+    },
+    {
+        id = "RAT_Att_CompensatorP08",
+        name = "Compensator (P08)",
+        icon = "UI/Icons/Upgrades/glock_compensator",
+        size = "small",
+        cost = 2000,
+        tier = 2,
+        family = "compensator",
+        guns = {"P08_1"},
+        model = "WeaponAttA_CompensatorBHP"
     },
     {
         id = "RAT_Att_AdvancedCompensator",
-        name = "Advanced Compensator",
+        name = "Compensator (Glock)",
+        icon = "UI/Icons/Upgrades/glock_compensator",
+        size = "small",
+        cost = 3000,
+        tier = 2,
+        family = "compensator",
+        guns = {"Glock17_1", "Glock18"}
+    },
+    {
+        id = "RAT_Att_CompensatorAUG",
+        name = "Compensator (AUG)",
         icon = "UI/Icons/Upgrades/muzzle_steyr_01",
         size = "small",
         cost = 3000,
         tier = 2,
-        comps = {"AUGCompensator_03", "Compensator_Glock"}
+        family = "compensator",
+        guns = {"AUG"}
     },
     {
+        id = "RAT_Att_CompensatorHK762",
+        name = "Flash Hider (HK G3)",
+        icon = "Mod/KKh3Yhf/Images/G3A3_muzzle_def.png",
+        size = "small",
+        cost = 2000,
+        tier = 2,
+        family = "compensator",
+        guns = {"G3A3_1", "G3A3Green_1", "HK21"},
+        model = "G3A3_muzzle"
+    },
+    {
+        id = "RAT_Att_CompensatorHK556",
+        name = "Flash Hider (HK33)",
+        icon = "Mod/KKh3Yhf/Images/HK33_muzzle_def.png",
+        size = "small",
+        cost = 2000,
+        tier = 2,
+        family = "compensator",
+        guns = {"HK33A2_1", "HK53_1", "HK23E_1", "HK23ECamo_1"}
+    },
+    {
+        id = "RAT_Att_CompensatorM14",
+        name = "Compensator (M14)",
+        icon = "UI/Icons/Upgrades/muzzle_fal_01",
+        size = "small",
+        cost = 2000,
+        tier = 2,
+        family = "compensator",
+        guns = {"M14SAW", "M14SAW_AUTO"}
+    },
+    {
+        id = "RAT_Att_CompensatorBarrett",
+        name = "Muzzle Brake (Barrett)",
+        icon = "UI/Icons/Upgrades/m16_muzzle",
+        size = "medium",
+        cost = 3000,
+        tier = 3,
+        family = "compensator",
+        guns = {"BarretM82"}
+    },
+    ---- Recoil boosters thread on like a compensator: NATO and AK patterns, and the M14's own.
+    {
         id = "RAT_Att_RecoilBooster",
-        name = "Recoil Booster",
+        name = "Recoil Booster (NATO)",
         icon = "UI/Icons/Upgrades/booster_NATO",
         size = "small",
         cost = 2500,
         tier = 2,
-        comps = {"MuzzleBooster"}
+        family = "booster",
+        calibers = {"556", "762NATO", "308Win", "45ACP", "9x18"},
+        model = "WeaponAttA_BoosterNATO"
+    },
+    {
+        id = "RAT_Att_RecoilBoosterAK",
+        name = "Recoil Booster (AK)",
+        icon = "UI/Icons/Upgrades/AK_muzzle_booster",
+        size = "small",
+        cost = 2500,
+        tier = 2,
+        family = "booster",
+        calibers = {"762WP", "5_45x39"},
+        model = "WeaponAttA_BoosterWP"
+    },
+    {
+        id = "RAT_Att_RecoilBoosterM14",
+        name = "Recoil Booster (M14)",
+        icon = "UI/Icons/Upgrades/AR_muzzle_booster",
+        size = "small",
+        cost = 2500,
+        tier = 2,
+        family = "booster",
+        guns = {"M14SAW", "M14SAW_AUTO"},
+        model = "WeaponAttA_BoosterM14"
     },
     {
         id = "RAT_Att_DuckbillChoke",
@@ -447,25 +660,18 @@ RAT_ATT_ITEMS = {
         tier = 1,
         comps = {"FullChoke"}
     },
+    ---- Suppressors by bore. types splits a calibre where a pistol can and a long gun can differ.
     {
         id = "RAT_Att_SuppressorPistol",
-        name = "Suppressor (Pistol)",
+        name = "Suppressor (9mm Pistol)",
         icon = "UI/Icons/Upgrades/beretta_silencer",
         size = "medium",
         cost = 3500,
         tier = 2,
-        model = "WeaponAttA_SilencerBeretta",
-        comps = RAT_ATT_SUPPRESSOR_COMPS
-    },
-    {
-        id = "RAT_Att_SuppressorDesertEagle",
-        name = "Suppressor (.44 Magnum)",
-        icon = "UI/Icons/Upgrades/deserteagle_suppressor",
-        size = "medium",
-        cost = 4000,
-        tier = 3,
-        model = "WeaponAttA_SilencerDesertEagle",
-        comps = RAT_ATT_SUPPRESSOR_COMPS
+        family = "suppressor",
+        calibers = {"9mm", "380ACP", "9x18"},
+        types = {"Handgun"},
+        model = "WeaponAttA_SilencerBeretta"
     },
     {
         id = "RAT_Att_SuppressorSMG9mm",
@@ -474,8 +680,44 @@ RAT_ATT_ITEMS = {
         size = "large",
         cost = 3500,
         tier = 2,
-        model = "WeaponAttA_SuppressorSMG9mm",
-        comps = RAT_ATT_SUPPRESSOR_COMPS
+        family = "suppressor",
+        calibers = {"9mm", "380ACP", "9x18"},
+        model = "WeaponAttA_SuppressorSMG9mm"
+    },
+    {
+        id = "RAT_Att_SuppressorDesertEagle",
+        name = "Suppressor (.45/.44 Pistol)",
+        icon = "UI/Icons/Upgrades/deserteagle_suppressor",
+        size = "medium",
+        cost = 4000,
+        tier = 3,
+        family = "suppressor",
+        calibers = {"44CAL", "45ACP"},
+        types = {"Handgun"},
+        model = "WeaponAttA_SilencerDesertEagle"
+    },
+    {
+        id = "RAT_Att_Suppressor45SMG",
+        name = "Suppressor (.45 SMG)",
+        icon = "UI/Icons/Upgrades/9mm_SMG_suppressor",
+        size = "large",
+        cost = 4000,
+        tier = 2,
+        family = "suppressor",
+        calibers = {"45ACP"},
+        types = {"SMG"},
+        model = "WeaponAttA_SuppressorSMG9mm"
+    },
+    {
+        id = "RAT_Att_Suppressor44Rifle",
+        name = "Suppressor (.44 Rifle)",
+        icon = "UI/Icons/Upgrades/762_suppressor",
+        size = "large",
+        cost = 4000,
+        tier = 3,
+        family = "suppressor",
+        calibers = {"44CAL"},
+        model = "WeaponAttA_Suppressor762"
     },
     {
         id = "RAT_Att_Suppressor556",
@@ -484,8 +726,9 @@ RAT_ATT_ITEMS = {
         size = "large",
         cost = 4000,
         tier = 2,
-        model = "WeaponAttA_SuppressorNATO",
-        comps = RAT_ATT_SUPPRESSOR_COMPS
+        family = "suppressor",
+        calibers = {"556", "5_7x28", "4_7x33"},
+        model = "WeaponAttA_SuppressorNATO"
     },
     {
         id = "RAT_Att_Suppressor762",
@@ -494,18 +737,64 @@ RAT_ATT_ITEMS = {
         size = "large",
         cost = 4000,
         tier = 2,
-        model = "WeaponAttA_Suppressor762",
-        comps = RAT_ATT_SUPPRESSOR_COMPS
+        family = "suppressor",
+        calibers = {"762NATO", "308Win", "30-60"},
+        model = "WeaponAttA_Suppressor762"
     },
     {
         id = "RAT_Att_SuppressorWP",
-        name = "Suppressor (Warsaw Pact)",
+        name = "Suppressor (7.62x39)",
         icon = "UI/Icons/Upgrades/AK_suppressor",
         size = "large",
         cost = 4000,
         tier = 2,
-        model = "WeaponAttA_SuppressorWP",
-        comps = RAT_ATT_SUPPRESSOR_COMPS
+        family = "suppressor",
+        calibers = {"762WP"},
+        model = "WeaponAttA_SuppressorWP"
+    },
+    {
+        id = "RAT_Att_Suppressor545",
+        name = "Suppressor (5.45x39)",
+        icon = "UI/Icons/Upgrades/AK_suppressor",
+        size = "large",
+        cost = 4000,
+        tier = 2,
+        family = "suppressor",
+        calibers = {"5_45x39"},
+        model = "WeaponAttA_SuppressorWP"
+    },
+    {
+        id = "RAT_Att_Suppressor54R",
+        name = "Suppressor (7.62x54R)",
+        icon = "UI/Icons/Upgrades/AK_suppressor",
+        size = "large",
+        cost = 4500,
+        tier = 3,
+        family = "suppressor",
+        calibers = {"7_62x54R"},
+        model = "WeaponAttA_SuppressorWP"
+    },
+    {
+        id = "RAT_Att_SuppressorMauser",
+        name = "Suppressor (7.92 Mauser)",
+        icon = "UI/Icons/Upgrades/762_suppressor",
+        size = "large",
+        cost = 4500,
+        tier = 3,
+        family = "suppressor",
+        calibers = {"7_92x57"},
+        model = "WeaponAttA_Suppressor762"
+    },
+    {
+        id = "RAT_Att_Suppressor9x39",
+        name = "Suppressor (9x39)",
+        icon = "UI/Icons/Upgrades/AK_suppressor",
+        size = "large",
+        cost = 4500,
+        tier = 3,
+        family = "suppressor",
+        calibers = {"9x39"},
+        model = "WeaponAttA_SuppressorWP"
     },
     {
         id = "RAT_Att_Suppressor50",
@@ -514,19 +803,22 @@ RAT_ATT_ITEMS = {
         size = "large",
         cost = 6000,
         tier = 3,
-        model = "WeaponAttA_SuppressorBarrettM82",
-        comps = RAT_ATT_SUPPRESSOR_COMPS
+        family = "suppressor",
+        calibers = {"50BMG"},
+        model = "WeaponAttA_SuppressorBarrettM82"
     },
     {
         id = "RAT_Att_SuppressorShotgun",
-        name = "Suppressor (Shotgun)",
+        name = "Suppressor (12 gauge)",
         icon = "UI/Icons/Upgrades/shotgun_suppressor",
         size = "large",
         cost = 4500,
         tier = 3,
-        model = "WeaponAttA_SuppressorShotgun",
-        comps = RAT_ATT_SUPPRESSOR_COMPS
+        family = "suppressor",
+        calibers = {"12gauge"},
+        model = "WeaponAttA_SuppressorShotgun"
     },
+    ---- the FN2000 and MP7 cans are components of their own, on guns not patched yet
     {
         id = "RAT_Att_SuppressorFN2000",
         name = "Suppressor (FN2000)",
@@ -535,7 +827,6 @@ RAT_ATT_ITEMS = {
         cost = 4000,
         tier = 2,
         reserved = true,
-        model = "FN2000_silencer",
         comps = {"FN2000_silencer_1"}
     },
     {
@@ -546,13 +837,14 @@ RAT_ATT_ITEMS = {
         cost = 3500,
         tier = 2,
         reserved = true,
-        model = "MP7_Supr",
         comps = {"MP7_Supr_1"}
     }
 }
 
 RAT_ATT_ITEM_OF = {} -- component id -> item class
-RAT_ATT_BY_MODEL = {} -- component id -> {visual entity -> item class}, for the model split families
+RAT_ATT_FAMILY_OF = {} -- component id -> family name
+RAT_ATT_FAM_GUN = {} -- family -> weapon class -> item def
+RAT_ATT_FAM_CAL = {} -- family -> caliber -> item defs
 RAT_ATT_UNBOUND = {} -- report only: optics in a covered slot that got no item
 
 ---- The item classes. DefineClass is gone by the time the game runs, so this only executes on a
@@ -595,35 +887,103 @@ local function comp_denied(name)
     end
 end
 
----- Which model a component wears on this weapon. Mirrors Weapon.lua: among the visuals that Match
----- the class, the last one wins per spot, and a weapon specific one beats the generic fallback.
-local function comp_model(cid, weapon_class)
-    local comp = WeaponComponents[cid]
-    local best = {}
-    for _, descr in ipairs(comp and comp.Visuals or empty_table) do
-        if descr:Match(weapon_class) then
-            local prev = best[descr.Slot]
-            if not prev or (prev:IsGeneric() and not descr:IsGeneric()) then
-                best[descr.Slot] = descr
+---- The family item for this gun: a platform item naming the class wins, then a calibre item whose
+---- types admit the weapon type, then an untyped one. nil leaves the device free.
+function Rat_AttFamilyDef(family, weapon)
+    local gun = RAT_ATT_FAM_GUN[family][weapon.class]
+    if gun then
+        return gun
+    end
+    local fallback
+    for _, def in ipairs(RAT_ATT_FAM_CAL[family][weapon.Caliber or ""] or empty_table) do
+        if not def.types then
+            fallback = fallback or def
+        elseif table.find(def.types, weapon.WeaponType) then
+            return def
+        end
+    end
+    return fallback
+end
+
+---- The item a component costs on this weapon. Only the families need the weapon; for everything
+---- else the component alone decides, which is the cheap path and the common one.
+function Rat_AttItemFor(cid, weapon)
+    local family = RAT_ATT_FAMILY_OF[cid]
+    if not family then
+        return RAT_ATT_ITEM_OF[cid]
+    end
+    local def = weapon and Rat_AttFamilyDef(family, weapon)
+    return def and def.id
+end
+
+---- The gun wears its item's model, not whatever the component's Visuals picked for it. A factory
+---- default keeps its own look: that is the gun as it ships, not a device someone fitted.
+function Rat_AttApplyModels(weapon, vis)
+    local swapped
+    for _, slot in ipairs(weapon.ComponentSlots or empty_table) do
+        local cid = weapon.components[slot.SlotType]
+        local family = cid and cid ~= slot.DefaultComponent and RAT_ATT_FAMILY_OF[cid]
+        local def = family and Rat_AttFamilyDef(family, weapon)
+        local model = def and def.model
+        if model and IsValidEntity(model) then
+            for _, descr in ipairs(WeaponComponents[cid].Visuals or empty_table) do
+                local part = vis.parts[descr.Slot]
+                if IsValid(part) and part:GetEntity() ~= model then
+                    RAT_ATT_NATIVE[part] = part:GetEntity()
+                    part:ChangeEntity(model)
+                    swapped = true
+                end
             end
         end
     end
-    local models = RAT_ATT_BY_MODEL[cid]
-    for _, descr in pairs(best) do
-        if models[descr.Entity] then
-            return descr.Entity
-        end
+    if swapped then
+        weapon:UpdateColorMod(vis)
     end
 end
 
----- The item a component costs on this weapon. Only the model split families need the weapon; for
----- everything else the component alone decides, which is the cheap path and the common one.
-function Rat_AttItemFor(cid, weapon)
-    if not RAT_ATT_BY_MODEL[cid] then
-        return RAT_ATT_ITEM_OF[cid]
+---- Put back the native model first: the removal pass only deletes a part whose entity matches one
+---- of the old component's Visuals, so a swapped part would outlive its component.
+function Rat_AttUpdateVisualObj(self, vis)
+    vis = vis or self.visual_obj
+    local own = IsValid(vis) and vis.weapon == self
+    if own then
+        for _, part in pairs(vis.parts or empty_table) do
+            if IsValid(part) and RAT_ATT_NATIVE[part] then
+                part:ChangeEntity(RAT_ATT_NATIVE[part])
+                RAT_ATT_NATIVE[part] = nil
+            end
+        end
     end
-    local entity = weapon and comp_model(cid, weapon.class)
-    return entity and RAT_ATT_BY_MODEL[cid][entity]
+    local orig = RAT_ATT_VIS_ORIG[self.class] or FirearmBase.zz_UpdateVisualObj or FirearmBase.UpdateVisualObj
+    orig(self, vis)
+    if own and RAT_ATT_ENABLED then
+        Rat_AttApplyModels(self, vis)
+    end
+end
+
+---- Class tables are sealed at runtime (a new member asserts), so what each class had before lives
+---- here. Both are captured once: a reload must recognise its own trampoline, not wrap it again.
+if not RAT_ATT_VIS_ORIG then
+    RAT_ATT_VIS_ORIG = {}
+end
+if not RAT_ATT_NATIVE then
+    RAT_ATT_NATIVE = setmetatable({}, weak_keys_meta) -- swapped part -> the entity it came with
+end
+if not RAT_ATT_VisTrampoline then
+    RAT_ATT_VisTrampoline = function(self, vis)
+        return Rat_AttUpdateVisualObj(self, vis)
+    end
+end
+
+---- Zulib stamps its UpdateVisualObj onto every Firearm class on ModsReloaded, so wrapping a base
+---- class does nothing. Wrap each class after it, keeping whatever it had unless that was us.
+function Rat_AttHookVisuals()
+    for name, class in pairs(g_Classes) do
+        if IsKindOf(class, "Firearm") and class.UpdateVisualObj ~= RAT_ATT_VisTrampoline then
+            RAT_ATT_VIS_ORIG[name] = class.UpdateVisualObj
+            class.UpdateVisualObj = RAT_ATT_VisTrampoline
+        end
+    end
 end
 
 ---- Rebuilds component -> item. The frozen ids bind first; anything else in a covered slot binds
@@ -631,8 +991,17 @@ end
 function Rat_AttBind()
     local by_name, held_back = {}, {}
     table.clear(RAT_ATT_ITEM_OF)
-    table.clear(RAT_ATT_BY_MODEL)
+    table.clear(RAT_ATT_FAMILY_OF)
     table.clear(RAT_ATT_UNBOUND)
+    for family, comps in pairs(RAT_ATT_FAMILIES) do
+        RAT_ATT_FAM_GUN[family] = {}
+        RAT_ATT_FAM_CAL[family] = {}
+        for _, cid in ipairs(comps) do
+            if (WeaponComponents or empty_table)[cid] then
+                RAT_ATT_FAMILY_OF[cid] = family
+            end
+        end
+    end
     for _, def in ipairs(RAT_ATT_ITEMS) do
         if def.reserved then
             held_back[def.name] = true
@@ -642,29 +1011,39 @@ function Rat_AttBind()
         end
     end
     for _, def in ipairs(RAT_ATT_ITEMS) do
-        if not def.reserved then
+        if def.reserved then
+            goto continue
+        end
+        if def.family then
+            for _, class in ipairs(def.guns or empty_table) do
+                RAT_ATT_FAM_GUN[def.family][class] = def
+            end
+            for _, cal in ipairs(def.calibers or empty_table) do
+                local list = RAT_ATT_FAM_CAL[def.family]
+                list[cal] = list[cal] or {}
+                table.insert(list[cal], def)
+            end
+        else
             by_name[def.name] = def.id
             for _, cid in ipairs(def.comps) do
-                if def.model then
-                    RAT_ATT_BY_MODEL[cid] = RAT_ATT_BY_MODEL[cid] or {}
-                    RAT_ATT_BY_MODEL[cid][def.model] = def.id
-                else
-                    ---- a component listed under two items binds to whichever came last, silently
-                    if RAT_ATT_ITEM_OF[cid] then
-                        print("Rat_Att: " .. cid .. " is listed under both " ..
-                                  RAT_ATT_ITEM_OF[cid] .. " and " .. def.id)
-                    end
-                    RAT_ATT_ITEM_OF[cid] = def.id
+                ---- a component listed under two items binds to whichever came last, silently
+                if RAT_ATT_ITEM_OF[cid] then
+                    print("Rat_Att: " .. cid .. " is listed under both " .. RAT_ATT_ITEM_OF[cid] ..
+                              " and " .. def.id)
                 end
+                RAT_ATT_ITEM_OF[cid] = def.id
             end
         end
+        ::continue::
     end
 
     for id, comp in pairs(WeaponComponents or empty_table) do
-        if not RAT_ATT_ITEM_OF[id] and not RAT_ATT_BY_MODEL[id] and RAT_ATT_SLOTS[comp.Slot or ""] then
+        if not RAT_ATT_ITEM_OF[id] and not RAT_ATT_FAMILY_OF[id] and RAT_ATT_SLOTS[comp.Slot or ""] then
             local name = comp_name(id, comp)
             if by_name[name] then
                 RAT_ATT_ITEM_OF[id] = by_name[name]
+            elseif comp.Slot == "Muzzle" and RAT_ATT_FAMILY_NAMES[name] and not held_back[id] then
+                RAT_ATT_FAMILY_OF[id] = RAT_ATT_FAMILY_NAMES[name]
             elseif not comp_denied(name) and not held_back[name] and not held_back[id] then
                 RAT_ATT_UNBOUND[#RAT_ATT_UNBOUND + 1] = id .. " (" .. name .. ")"
             end
@@ -677,11 +1056,6 @@ function Rat_AttBind()
             RAT_ATT_ITEM_OF[cid] = nil
         end
     end
-    for cid in pairs(RAT_ATT_BY_MODEL) do
-        if not (WeaponComponents or empty_table)[cid] then
-            RAT_ATT_BY_MODEL[cid] = nil
-        end
-    end
 
     Rat_AttSnapshotCosts()
 end
@@ -690,7 +1064,7 @@ end
 ---- for the report; the presets themselves are never written to, so this is a record, not a backup.
 function Rat_AttSnapshotCosts()
     table.clear(RAT_ATT_OLD)
-    for _, bound in ipairs({RAT_ATT_ITEM_OF, RAT_ATT_BY_MODEL}) do
+    for _, bound in ipairs({RAT_ATT_ITEM_OF, RAT_ATT_FAMILY_OF}) do
         for cid in pairs(bound) do
             local comp = WeaponComponents[cid]
             RAT_ATT_OLD[cid] = {cost = comp.Cost, difficulty = comp.ModificationDifficulty}
@@ -771,6 +1145,7 @@ function Rat_AttSetup()
     Rat_AttBind()
     Rat_AttEnsureDefs()
     Rat_AttEnsureResources()
+    Rat_AttHookVisuals()
 end
 
 function OnMsg.ModsReloaded()
@@ -779,6 +1154,14 @@ end
 
 function OnMsg.DataLoaded()
     Rat_AttSetup()
+end
+
+---- Zulib's ModsReloaded handler runs after ours and re-stamps every Firearm class; it announces
+---- the end of that with this message, the first moment a wrapper sticks.
+function OnMsg.zCore_SlotDepFin()
+    if RAT_ATT_ENABLED then
+        Rat_AttHookVisuals()
+    end
 end
 
 ---- SectorOperationResouces is rebuilt from a copy of the vanilla base on every ClassesBuilt, so
@@ -957,34 +1340,44 @@ function Rat_AttReport()
     end
 end
 
----- component id -> how many vanilla or is_tog_patched firearms offer it. Read off the classes,
----- not the presets: the component patch adds its slots to the class.
+---- How many vanilla or is_tog_patched firearms each component and each bound item reaches. Read
+---- off the classes, not the presets: the component patch adds its slots to the class. free lists
+---- the family devices a gun offers that resolve to no item.
 local function rat_att_reach()
-    local reach = {}
+    local by_comp, by_item, free = {}, {}, {}
     ForEachPreset("InventoryItemCompositeDef", function(p)
         local cls = g_Classes[p.id]
-        if not IsKindOf(cls, "Firearm") or
-            not (IsVanillaFirearm(cls) or cls.is_tog_patched) then
+        if not IsKindOf(cls, "Firearm") or not (IsVanillaFirearm(cls) or cls.is_tog_patched) then
             return
         end
+        local seen = {}
         for _, slot in ipairs(cls.ComponentSlots or empty_table) do
             for _, cid in ipairs(slot.AvailableComponents or empty_table) do
-                reach[cid] = (reach[cid] or 0) + 1
+                by_comp[cid] = (by_comp[cid] or 0) + 1
+                local item = Rat_AttItemFor(cid, cls)
+                if item and not seen[item] then
+                    seen[item] = true
+                    by_item[item] = (by_item[item] or 0) + 1
+                elseif not item and RAT_ATT_FAMILY_OF[cid] and slot.Modifiable then
+                    free[#free + 1] = p.id .. ":" .. cid
+                end
             end
         end
     end)
-    return reach
+    return by_comp, by_item, free
 end
 
 ---- Recomputes which items are actually reachable and reports every reserved flag that disagrees:
 ---- a reserved optic whose gun is now patched, or a live item no gun can take any more.
 function Rat_AttAudit()
-    local reach = rat_att_reach()
+    local by_comp, by_item, free = rat_att_reach()
     local open, shut = {}, {}
     for _, def in ipairs(RAT_ATT_ITEMS) do
-        local n = 0
-        for _, cid in ipairs(def.comps) do
-            n = n + (reach[cid] or 0)
+        local n = by_item[def.id] or 0
+        if def.reserved then
+            for _, cid in ipairs(def.comps or empty_table) do
+                n = n + (by_comp[cid] or 0)
+            end
         end
         if def.reserved and n > 0 then
             open[#open + 1] = def.id .. " (" .. n .. " guns)"
@@ -1001,6 +1394,48 @@ function Rat_AttAudit()
     if #open == 0 and #shut == 0 then
         print("Rat_Att: every reserved flag matches the live weapon data")
     end
+    if #free > 0 then
+        print("Rat_Att: muzzle devices with no item for that gun (free): " .. table.concat(free, ", "))
+    end
+end
+
+RAT_ATT_PREVIEW = {cases = false, i = 0}
+
+---- Test helper: every patched gun wearing each muzzle device whose model the redirect changes, one
+---- per call, read-only on the modify bench. all = true includes the ones it leaves alone.
+function Rat_AttPreview(step, all)
+    local p = RAT_ATT_PREVIEW
+    if not p.cases or all ~= nil then
+        p.cases, p.i = {}, 0
+        ForEachPreset("InventoryItemCompositeDef", function(preset)
+            local cls = g_Classes[preset.id]
+            if not IsKindOf(cls, "Firearm") or not (IsVanillaFirearm(cls) or cls.is_tog_patched) then
+                return
+            end
+            for _, slot in ipairs(cls.ComponentSlots or empty_table) do
+                for _, cid in ipairs(slot.Modifiable and slot.AvailableComponents or empty_table) do
+                    local family = RAT_ATT_FAMILY_OF[cid]
+                    local def = family and cid ~= slot.DefaultComponent and Rat_AttFamilyDef(family, cls)
+                    if def and (all or def.model) then
+                        table.insert(p.cases, {gun = preset.id, slot = slot.SlotType, comp = cid, item = def.id})
+                    end
+                end
+            end
+        end)
+        table.sort(p.cases, function(a, b)
+            return a.item .. a.gun < b.item .. b.gun
+        end)
+    end
+    if #p.cases == 0 then
+        return
+    end
+    p.i = (p.i + (step or 1) - 1) % #p.cases + 1
+    local c = p.cases[p.i]
+    CloseDialog("ModifyWeaponDlg", true)
+    local w = PlaceInventoryItem(c.gun)
+    w:SetWeaponComponent(c.slot, c.comp)
+    OpenDialog("ModifyWeaponDlg", nil, {weapon = w, slot = false, owner = false})
+    print(string.format("Rat_AttPreview %d/%d: %s  %s  (%s)", p.i, #p.cases, c.gun, c.item, c.comp))
 end
 
 ---- Test helper: one of every attachment to the selected merc.

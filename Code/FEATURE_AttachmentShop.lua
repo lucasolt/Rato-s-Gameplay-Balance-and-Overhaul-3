@@ -24,10 +24,8 @@ RAT_ATT_SHOP_SIGHTS = {
 }
 
 ---- Muzzle devices and the bipod get their own pages; everything else is an optic or a sight.
+---- Every family item is a muzzle device, so only the chokes need naming here.
 RAT_ATT_SHOP_MUZZLE = {
-    RAT_Att_Compensator = true,
-    RAT_Att_AdvancedCompensator = true,
-    RAT_Att_RecoilBooster = true,
     RAT_Att_DuckbillChoke = true,
     RAT_Att_FullChoke = true
 }
@@ -139,9 +137,8 @@ function Rat_AttShopEnsureItems()
             RestockWeight = def.reserved and 0 or tier.RestockWeight,
             CanBeConsumed = true,
             ShopStackSize = 1,
-            CategoryPair = (RAT_ATT_SHOP_MUZZLE[def.id] and "RatMuzzle") or
+            CategoryPair = ((def.family or RAT_ATT_SHOP_MUZZLE[def.id]) and "RatMuzzle") or
                 (RAT_ATT_SHOP_SUPPORT[def.id] and "RatSupport") or
-                (def.model and "RatMuzzle") or -- every model split family is a suppressor
                 (RAT_ATT_SHOP_SIGHTS[def.id] and "RatSights") or "RatOptics"
         }
         for _, target in ipairs({g_Classes[def.id] or false, InventoryItemDefs[def.id] or false}) do
