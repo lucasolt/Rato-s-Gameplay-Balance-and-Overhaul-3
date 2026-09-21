@@ -231,9 +231,11 @@ A.ScopeTraits = {
     },
     ---- bonus_cth 10 -> 12: a reflex e a opcao BARATA (sem nivel de mira extra, sem AP de entrada),
     ---- entao precisa ser a melhor no aim 1-3 ou a 2x rapida a domina sem custar nada a mais.
+--TODO: old cth has missing params and effects here
     ["Scope.Reflex"] = {
         overwrite = true,
-        effects = {"AccuracyBonusWhenAimed", "reflex_sight_close_range"},
+        effects = {"AccuracyBonusWhenAimed", "reflex_sight_close_range", "DecreaseSnapshotMul"},
+		--params = {bonus_cth = x, snap_mul_reduc = 85, Close_bonus},
         floor_mul = 100, -- explicit: stops Rat_ScopeFloorMul scanning other components
         modes = {
             aCTH = {
@@ -249,8 +251,8 @@ A.ScopeTraits = {
     },
     ["Scope.ReflexAdvanced"] = {
         overwrite = true,
-        effects = {"AccuracyBonusWhenAimed", "first_aim_crit", "reflex_sight_close_range", "scope_snapshot"},
-        params = {Close_bonus = 5, bonus_cth = 3, snap_reduc = 10},
+        effects = {"AccuracyBonusWhenAimed", "first_aim_crit", "reflex_sight_close_range", "DecreaseSnapshotMul"},
+        params = {Close_bonus = 5, bonus_cth = 3, snap_mul_reduc = 90},
         modes = {
             aCTH = {
                 params = {bonus_cth = 10, snap_mul_reduc = 90},

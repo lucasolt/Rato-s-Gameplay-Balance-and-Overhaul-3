@@ -1003,7 +1003,6 @@ GBO_COMPONENT_TRAITS = {
     FAMAE_mag2_1 = {"Base._Master_B93RR_grip_fld_TOG"},
     NTW20_stock_fld_1 = {"Base._Master_StockNormalUnfolded_TOG"},
     VigM2_Stock_hlffld_1 = {"Base._Master_StockNormalUnfolded_TOG"},
-    StockNormal_AR_BurstOnly = {"Stock.Bump"},
 
     BarrelNormalImproved = {"Barrel.Improved"},
     FN2000_gasblock_ext_1 = {"Barrel.Improved"},

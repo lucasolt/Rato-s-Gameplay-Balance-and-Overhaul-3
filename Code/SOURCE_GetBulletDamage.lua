@@ -3,7 +3,7 @@
 ---- aCTH already charges cover through exposure; Take Cover's graze roll would charge it twice
 local function take_cover_skips_graze(weapon, action, attacker, obj)
 	return not CurrentModOptions.ACTHTakeCoverGraze and IsKindOf(obj, "Unit") and
-		obj:HasStatusEffect("Protected") and IsACHTActive(weapon, action, attacker)
+		obj:HasStatusEffect("Protected") and IsACHTActive(weapon, action, attacker, true)
 end
 
 function Firearm:BulletCalcDamage(hit_data, ricochet_idx)

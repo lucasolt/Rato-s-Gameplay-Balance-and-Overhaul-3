@@ -104,8 +104,11 @@ const.EnvEffects.FogGrazeChance = 0-- 25
 const.EnvEffects.FireStormSightMod = -10
 const.EnvEffects.DustStormSightMod = -10
 const.EnvEffects.DustStormGrazeChance = 0
-const.EnvEffects.SmokeCTHPenaltyPerVoxel = -8 -- simulated aCTH only; replaces the gas graze
-const.EnvEffects.SmokeCTHPenaltyMax = -40
 const.EnvEffects.DarknessSightMod = -40 -- default da opcao NightSight; sobrescrito por ela
 const.EnvEffects.DarknessDetectionRate = -40 -- -30
 const.EnvEffects.DarknessCTHPenalty = -30 -- -20
+
+--
+-- simulated aCTH only; replaces the gas graze
+const.EnvEffects.SmokeCTHPenaltyPerVoxel = -10 -- -8 
+const.EnvEffects.SmokeCTHPenaltyMax = -60 -- -40

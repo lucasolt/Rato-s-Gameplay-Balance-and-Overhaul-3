@@ -897,10 +897,6 @@ return {
 		'CodeFileName', "Code/__APScaleParams.lua",
 	}),
 	PlaceObj('ModItemCode', {
-		'name', "SOURCE_APScale_vanilla",
-		'CodeFileName', "Code/SOURCE_APScale_vanilla.lua",
-	}),
-	PlaceObj('ModItemCode', {
 		'name', "__MainParams",
 		'CodeFileName', "Code/__MainParams.lua",
 	}),
@@ -1524,12 +1520,16 @@ return {
 		'CodeFileName', "Code/REACTIONS_ShootingStance.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "SOURCE_APScale_vanilla",
+		'CodeFileName', "Code/SOURCE_APScale_vanilla.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "SOURCE_UnitCalcChanceToHit",
 		'CodeFileName', "Code/SOURCE_UnitCalcChanceToHit.lua",
 	}),
 	PlaceObj('ModItemCode', {
-		'name', "SOURCE_ Unit:EnterCombat",
-		'CodeFileName', "Code/SOURCE_ Unit_EnterCombat.lua",
+		'name', "SOURCE_Unit:EnterCombat",
+		'CodeFileName', "Code/SOURCE_Unit_EnterCombat.lua",
 	}),
 	PlaceObj('ModItemCode', {
 		'name', "SOURCE_GetBulletDamage",
@@ -1795,6 +1795,11 @@ return {
 			'DefaultValue', 150,
 			'MaxValue', 201,
 			'StepSize', 10,
+		}),
+		PlaceObj('ModItemOptionToggle', {
+			'name', "MuteIMPVoice",
+			'DisplayName', "Silent protagonist",
+			'Help', "Mutes IMP voicelines. I don't enjoy them.",
 		}),
 		PlaceObj('ModItemOptionChoice', {
 			'name', "NightSight",
@@ -2680,6 +2685,22 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 25,
 		DisplayName = T(947129178113, --[[ModItemWeaponComponent _Master_MagLargeFine DisplayName]] "Ergonomic Expanded Mag"),
+		GBO_ComponentTraits = "Self",
+		GBO_OverrideEffects = {
+			"MagazineSizeMultiplier",
+		},
+		GBO_OverrideParams = {
+			PlaceObj('PresetParamNumber', {
+				'Name', "MagazineSizeMultiplier",
+				'Value', 150,
+				'Tag', "<MagazineSizeMultiplier>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "OverwatchAngleDecrease",
+				'Value', 88,
+				'Tag', "<OverwatchAngleDecrease>",
+			}),
+		},
 		Icon = "UI/Icons/Upgrades/galil_magazine_large",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
@@ -2844,6 +2865,28 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 15,
 		DisplayName = T(723302378821, --[[ModItemWeaponComponent _Master_MagLarge DisplayName]] "Expanded Mag"),
+		GBO_ComponentTraits = "Self",
+		GBO_OverrideEffects = {
+			"IncreaseReloadAP",
+			"MagazineSizeMultiplier",
+		},
+		GBO_OverrideParams = {
+			PlaceObj('PresetParamNumber', {
+				'Name', "MagazineSizeMultiplier",
+				'Value', 150,
+				'Tag', "<MagazineSizeMultiplier>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "OverwatchAngleDecrease",
+				'Value', 88,
+				'Tag', "<OverwatchAngleDecrease>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "ReloadAPIncrease",
+				'Value', 1,
+				'Tag', "<ReloadAPIncrease>",
+			}),
+		},
 		Icon = "UI/Icons/Upgrades/galil_magazine_large",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
@@ -3295,14 +3338,43 @@ return {
 		},
 		Cost = 30,
 		DisplayName = T(341620548059, --[[ModItemWeaponComponent Suppressor DisplayName]] "Suppressor"),
+		GBO_ComponentTraits = "Self",
+		GBO_OverrideEffects = {
+			"IncreaseConditionDegradationMul",
+			"SilentShots",
+			"compensator_effect_silencer",
+			"flanker",
+		},
+		GBO_OverrideParams = {
+			PlaceObj('PresetParamNumber', {
+				'Name', "ConditionDegradationMulIncrease",
+				'Value', 10,
+				'Tag', "<ConditionDegradationMulIncrease>",
+			}),
+			PlaceObj('PresetParamPercent', {
+				'Name', "NoiseMultiplier",
+				'Value', 30,
+				'Tag', "<NoiseMultiplier>%",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "OverwatchAngle",
+				'Value', 97,
+				'Tag', "<OverwatchAngle>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "bonus_cth_flank",
+				'Value', 10,
+				'Tag', "<bonus_cth_flank>",
+			}),
+		},
 		Icon = "UI/Icons/Upgrades/beretta_silencer",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"SilentShots",
-			"flanker",
-			"compensator_effect_silencer",
-			"DecreaseOverwatchAngle",
 			"IncreaseConditionDegradationMul",
+			"SilentShots",
+			"compensator_effect_silencer",
+			"flanker",
+			"DecreaseOverwatchAngle",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -3532,23 +3604,57 @@ return {
 			},
 			Cost = 50,
 			DisplayName = T(983131487291, --[[ModItemWeaponComponent PSG_DefaultScope DisplayName]] "Hensoldt ZF Scope 6x"),
+			GBO_ComponentTraits = "Scope._6x",
+			GBO_OverrideModes = {
+				PlaceObj('GBO_ComponentModeOverride', {
+					'Mode', "oldCTH",
+					'Effects', {
+						"body_part_uv",
+					},
+					'Params', {
+						PlaceObj('PresetParamNumber', {
+							'Name', "MaxAimActionsIncrease",
+							'Value', 1,
+							'Tag', "<MaxAimActionsIncrease>",
+						}),
+					},
+				}),
+				PlaceObj('GBO_ComponentModeOverride', {
+					'RemoveEffects', {
+						"body_part_uv",
+					},
+					'Params', {
+						PlaceObj('PresetParamNumber', {
+							'Name', "threshold_bonus_aim_acc",
+							'Value', 30,
+							'Tag', "<threshold_bonus_aim_acc>",
+						}),
+						PlaceObj('PresetParamNumber', {
+							'Name', "snap_mul_inc",
+							'Value', 180,
+							'Tag', "<snap_mul_inc>",
+						}),
+					},
+				}),
+			},
+			GBO_OverrideParams = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngle",
+					'Value', 50,
+					'Tag', "<OverwatchAngle>",
+				}),
+			},
 			Icon = "UI/Icons/Upgrades/custom_PSG1_scope",
 			ModificationDifficulty = 20,
 			ModificationEffects = {
 				"IncreaseMaxAimActions",
 				"IncreaseRange",
-				"ScopePenalty3",
-				"DecreaseOverwatchAngle",
-				"bodypart_scope",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
+				"ScopePenalty3",
+				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "APincrease",
-					'Value', 10,
-					'Tag', "<APincrease>",
-				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "MaxAimActionsIncrease",
 					'Value', 3,
@@ -3569,19 +3675,14 @@ return {
 					'Value', 6,
 					'Tag', "<aim_level_threshold>",
 				}),
-				PlaceObj('PresetParamPercent', {
-					'Name', "crit",
-					'Value', 15,
-					'Tag', "<crit>%",
-				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "snap_mul_inc",
-					'Value', 160,
+					'Value', 180,
 					'Tag', "<snap_mul_inc>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "threshold_bonus_aim_acc",
-					'Value', 25,
+					'Value', 30,
 					'Tag', "<threshold_bonus_aim_acc>",
 				}),
 			},
@@ -3725,19 +3826,38 @@ return {
 			},
 			Cost = 60,
 			DisplayName = T(819497208998, --[[ModItemWeaponComponent ThermalScope DisplayName]] "Thermal Scope 4x"),
+			GBO_ComponentTraits = "Scope._4x",
+			GBO_OverrideEffects = {
+				"IgnoreCoverCtHWhenFullyAimed",
+				"IgnoreGrazingHitsWhenFullyAimed",
+				"IgnoreInTheDarkWhenFullyAimed",
+				"IgnoreLightOfSightWhenFullyAimed",
+			},
+			GBO_OverrideParams = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APincrease",
+					'Value', 10,
+					'Tag', "<APincrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngle",
+					'Value', 50,
+					'Tag', "<OverwatchAngle>",
+				}),
+			},
 			Icon = "UI/Icons/Upgrades/scope_ACOG",
 			ModificationDifficulty = 20,
 			ModificationEffects = {
-				"IgnoreInTheDarkWhenFullyAimed",
 				"IgnoreCoverCtHWhenFullyAimed",
-				"IgnoreLightOfSightWhenFullyAimed",
 				"IgnoreGrazingHitsWhenFullyAimed",
-				"IncreaseRange",
-				"ScopePenalty2",
-				"DecreaseOverwatchAngle",
+				"IgnoreInTheDarkWhenFullyAimed",
+				"IgnoreLightOfSightWhenFullyAimed",
 				"IncreaseMaxAimActions",
+				"IncreaseRange",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
+				"ScopePenalty2",
+				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -3940,22 +4060,44 @@ return {
 			},
 			Cost = 50,
 			DisplayName = T(690585339463, --[[ModItemWeaponComponent SCOPE_G36_2 DisplayName]] "Digital Scope 4x/2x"),
+			GBO_ComponentTraits = "Scope._2x",
+			GBO_OverrideEffects = {
+				"CritBonusWhenFullyAimed",
+				"IgnoreInTheDarkWhenFullyAimed",
+			},
+			GBO_OverrideParams = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngle",
+					'Value', 75,
+					'Tag', "<OverwatchAngle>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeIncrease",
+					'Value', 10,
+					'Tag', "<RangeIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "crit",
+					'Value', 15,
+					'Tag', "<crit>",
+				}),
+			},
 			Icon = "UI/Icons/Upgrades/scope_longrange",
 			ModificationDifficulty = 20,
 			ModificationEffects = {
 				"CritBonusWhenFullyAimed",
-				"ScopePenalty1",
-				"IncreaseRange",
 				"IgnoreInTheDarkWhenFullyAimed",
-				"DecreaseOverwatchAngle",
 				"IncreaseMaxAimActions",
+				"IncreaseRange",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
+				"ScopePenalty1",
+				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 10,
+					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -4026,22 +4168,44 @@ return {
 			},
 			Cost = 30,
 			DisplayName = T(869263221220, --[[ModItemWeaponComponent G36_SCOPE DisplayName]] "Digital Scope 2x"),
+			GBO_ComponentTraits = "Scope._2x",
+			GBO_OverrideEffects = {
+				"CritBonusWhenFullyAimed",
+				"IgnoreInTheDarkWhenFullyAimed",
+			},
+			GBO_OverrideParams = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngle",
+					'Value', 75,
+					'Tag', "<OverwatchAngle>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeIncrease",
+					'Value', 6,
+					'Tag', "<RangeIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "crit",
+					'Value', 15,
+					'Tag', "<crit>",
+				}),
+			},
 			Icon = "UI/Icons/Upgrades/prism_scope",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
 				"CritBonusWhenFullyAimed",
-				"ScopePenalty1",
-				"IncreaseRange",
 				"IgnoreInTheDarkWhenFullyAimed",
-				"DecreaseOverwatchAngle",
 				"IncreaseMaxAimActions",
+				"IncreaseRange",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
+				"ScopePenalty1",
+				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 10,
+					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -4110,12 +4274,44 @@ return {
 			Comment = "1% per aim level seems low",
 			Cost = 20,
 			DisplayName = T(997661500291, --[[ModItemWeaponComponent AUGScope_Default DisplayName]] "Swarovski Optik Scope 1.5x"),
+			GBO_ComponentTraits = "Scope._1dot5x",
+			GBO_OverrideModes = {
+				PlaceObj('GBO_ComponentModeOverride', {
+					'Mode', "oldCTH",
+					'Effects', {
+						"IncreaseAimAccuracy",
+					},
+					'Params', {
+						PlaceObj('PresetParamNumber', {
+							'Name', "AimAccuracyIncrease",
+							'Value', 3,
+							'Tag', "<AimAccuracyIncrease>",
+						}),
+					},
+				}),
+				PlaceObj('GBO_ComponentModeOverride', {
+					'Params', {
+						PlaceObj('PresetParamNumber', {
+							'Name', "AimAccuracyIncrease",
+							'Value', 15,
+							'Tag', "<AimAccuracyIncrease>",
+						}),
+					},
+				}),
+			},
+			GBO_OverrideParams = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngle",
+					'Value', 90,
+					'Tag', "<OverwatchAngle>",
+				}),
+			},
 			Icon = "UI/Icons/Upgrades/custom_Steyr_AUG_scope",
 			ModificationDifficulty = 0,
 			ModificationEffects = {
+				"IncreaseMaxAimActions",
 				"IncreaseRange",
 				"DecreaseOverwatchAngle",
-				"IncreaseMaxAimActions",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -4160,6 +4356,7 @@ return {
 			},
 			Cost = 30,
 			DisplayName = T(520876141203, --[[ModItemWeaponComponent _ReflexSIghtVigilance DisplayName]] '"Vigilante" Reflex Sight 1x'),
+			GBO_ComponentTraits = "Scope.ReflexVigilance",
 			Icon = "Mod/KQkEVHf/Icons/Upgrades/ToC_Scope_kentaur.png",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
@@ -4377,13 +4574,26 @@ return {
 			},
 			Cost = 20,
 			DisplayName = T(405425855364, --[[ModItemWeaponComponent ReflexSightAdvanced_Glock DisplayName]] '"Assalto" Reflex Sight 1x'),
+			GBO_ComponentTraits = "Scope.ReflexAdvanced",
+			GBO_OverrideParams = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngle",
+					'Value', 115,
+					'Tag', "<OverwatchAngle>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeIncrease",
+					'Value', 2,
+					'Tag', "<RangeIncrease>",
+				}),
+			},
 			Icon = "UI/Icons/Upgrades/scope_reflex",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"first_aim_crit",
-				"IncreaseOverwatchAngle",
 				"AccuracyBonusWhenAimed",
 				"DecreaseSnapshotMul",
+				"first_aim_crit",
+				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -4456,13 +4666,26 @@ return {
 			},
 			Cost = 30,
 			DisplayName = T(363249614619, --[[ModItemWeaponComponent ReflexSightAdvanced DisplayName]] '"Assalto" Reflex Sight 1x'),
+			GBO_ComponentTraits = "Scope.ReflexAdvanced",
+			GBO_OverrideParams = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngle",
+					'Value', 125,
+					'Tag', "<OverwatchAngle>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeIncrease",
+					'Value', 4,
+					'Tag', "<RangeIncrease>",
+				}),
+			},
 			Icon = "UI/Icons/Upgrades/scope_reflex",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"IncreaseOverwatchAngle",
-				"first_aim_crit",
 				"AccuracyBonusWhenAimed",
 				"DecreaseSnapshotMul",
+				"first_aim_crit",
+				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -4668,12 +4891,50 @@ return {
 			},
 			Cost = 20,
 			DisplayName = T(153355931022, --[[ModItemWeaponComponent ReflexSight DisplayName]] "Compact Reflex Sight 1x"),
+			GBO_ComponentTraits = "Scope.Reflex",
+			GBO_OverrideModes = {
+				PlaceObj('GBO_ComponentModeOverride', {
+					'Mode', "oldCTH",
+					'Effects', {
+						"scope_snapshot",
+					},
+					'Params', {
+						PlaceObj('PresetParamNumber', {
+							'Name', "bonus_cth",
+							'Value', 3,
+							'Tag', "<bonus_cth>",
+						}),
+					},
+				}),
+			},
+			GBO_OverrideParams = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "Close_bonus",
+					'Value', 10,
+					'Tag', "<Close_bonus>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngle",
+					'Value', 115,
+					'Tag', "<OverwatchAngle>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeIncrease",
+					'Value', 2,
+					'Tag', "<RangeIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "snap_reduc",
+					'Value', 10,
+					'Tag', "<snap_reduc>",
+				}),
+			},
 			Icon = "UI/Icons/Upgrades/compact_reflex_sight",
 			ModificationDifficulty = 0,
 			ModificationEffects = {
 				"AccuracyBonusWhenAimed",
-				"IncreaseOverwatchAngle",
 				"DecreaseSnapshotMul",
+				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -4909,21 +5170,37 @@ return {
 			},
 			Cost = 25,
 			DisplayName = T(542909535789, --[[ModItemWeaponComponent ScopeCOG DisplayName]] "Prism Scope 2x"),
+			GBO_ComponentTraits = "Scope._2x",
+			GBO_OverrideEffects = {
+				"critical_per_aim_scope",
+			},
+			GBO_OverrideParams = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngle",
+					'Value', 90,
+					'Tag', "<OverwatchAngle>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "RangeIncrease",
+					'Value', 6,
+					'Tag', "<RangeIncrease>",
+				}),
+			},
 			Icon = "UI/Icons/Upgrades/prism_scope",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"IncreaseRange",
-				"ScopePenalty1",
-				"DecreaseOverwatchAngle",
 				"critical_per_aim_scope",
 				"IncreaseMaxAimActions",
+				"IncreaseRange",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
+				"ScopePenalty1",
+				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 10,
+					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -5129,6 +5406,7 @@ return {
 			},
 			Cost = 25,
 			DisplayName = T(756793676408, --[[ModItemWeaponComponent ScopeCOGQuick DisplayName]] "Quick Prism Scope 2x"),
+			GBO_ComponentTraits = "Scope._2xQuick",
 			Icon = "UI/Icons/Upgrades/scope_thermal",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
@@ -5141,7 +5419,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 10,
+					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -5347,6 +5625,7 @@ return {
 			},
 			Cost = 25,
 			DisplayName = T(735457689429, --[[ModItemWeaponComponent WideScope DisplayName]] '"Vulto" Wide Scope 2x'),
+			GBO_ComponentTraits = "Scope._2xWide",
 			Icon = "Mod/KKh3Yhf/Images/L85A1_scope.png",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
@@ -5360,7 +5639,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 10,
+					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -5380,7 +5659,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "first_aim_bonus_acc",
-					'Value', 10,
+					'Value', 8,
 					'Tag', "<first_aim_bonus_acc>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -5565,16 +5844,53 @@ return {
 			},
 			Cost = 40,
 			DisplayName = T(576574881402, --[[ModItemWeaponComponent LROptics_DragunovDefault DisplayName]] "PSO-1 Scope 4x"),
+			GBO_ComponentTraits = "Scope._4x",
+			GBO_OverrideEffects = {
+				"pso_dragunov_scope_critical",
+			},
+			GBO_OverrideModes = {
+				PlaceObj('GBO_ComponentModeOverride', {
+					'Mode', "oldCTH",
+					'Effects', {
+						"IncreaseMaxAimActions",
+						"pso_dragunov_scope",
+					},
+					'Params', {
+						PlaceObj('PresetParamNumber', {
+							'Name', "MaxAimActionsIncrease",
+							'Value', 1,
+							'Tag', "<MaxAimActionsIncrease>",
+						}),
+					},
+				}),
+			},
+			GBO_OverrideParams = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APincrease",
+					'Value', 10,
+					'Tag', "<APincrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngle",
+					'Value', 68,
+					'Tag', "<OverwatchAngle>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "crit_bonus",
+					'Value', 15,
+					'Tag', "<crit_bonus>",
+				}),
+			},
 			Icon = "UI/Icons/Upgrades/custom_Dragunov_scope",
 			ModificationDifficulty = 20,
 			ModificationEffects = {
-				"IncreaseRange",
 				"pso_dragunov_scope_critical",
-				"ScopePenalty2",
-				"DecreaseOverwatchAngle",
 				"IncreaseMaxAimActions",
+				"IncreaseRange",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
+				"ScopePenalty2",
+				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5638,15 +5954,44 @@ return {
 			},
 			Cost = 30,
 			DisplayName = T(779921502093, --[[ModItemWeaponComponent LROptics DisplayName]] "Sniper Scope 4x"),
+			GBO_ComponentTraits = "Scope._4x",
+			GBO_OverrideModes = {
+				PlaceObj('GBO_ComponentModeOverride', {
+					'Mode', "oldCTH",
+					'Effects', {
+						"IncreaseMaxAimActions",
+						"sniper_aim_scope",
+					},
+					'Params', {
+						PlaceObj('PresetParamNumber', {
+							'Name', "MaxAimActionsIncrease",
+							'Value', 1,
+							'Tag', "<MaxAimActionsIncrease>",
+						}),
+					},
+				}),
+			},
+			GBO_OverrideParams = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APincrease",
+					'Value', 10,
+					'Tag', "<APincrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngle",
+					'Value', 65,
+					'Tag', "<OverwatchAngle>",
+				}),
+			},
 			Icon = "UI/Icons/Upgrades/scope_longrange",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
 				"IncreaseMaxAimActions",
 				"IncreaseRange",
-				"ScopePenalty2",
-				"DecreaseOverwatchAngle",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
+				"ScopePenalty2",
+				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5833,15 +6178,43 @@ return {
 			},
 			Cost = 40,
 			DisplayName = T(626959264535, --[[ModItemWeaponComponent LROpticsAdvanced DisplayName]] "Sniper Scope 6x"),
+			GBO_ComponentTraits = "Scope._6x",
+			GBO_OverrideModes = {
+				PlaceObj('GBO_ComponentModeOverride', {
+					'Mode', "oldCTH",
+					'Effects', {
+						"sniper_adv_aim_scope",
+					},
+					'Params', {
+						PlaceObj('PresetParamNumber', {
+							'Name', "MaxAimActionsIncrease",
+							'Value', 2,
+							'Tag', "<MaxAimActionsIncrease>",
+						}),
+					},
+				}),
+			},
+			GBO_OverrideParams = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APincrease",
+					'Value', 10,
+					'Tag', "<APincrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "OverwatchAngle",
+					'Value', 50,
+					'Tag', "<OverwatchAngle>",
+				}),
+			},
 			Icon = "UI/Icons/Upgrades/sniper_scope_x10",
 			ModificationDifficulty = 20,
 			ModificationEffects = {
 				"IncreaseMaxAimActions",
 				"IncreaseRange",
-				"ScopePenalty3",
-				"DecreaseOverwatchAngle",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
+				"ScopePenalty3",
+				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -8431,6 +8804,24 @@ return {
 			Cost = 35,
 			DisplayName = T(324271791107, --[[ModItemWeaponComponent BarrelLong DisplayName]] "Extended Barrel"),
 			GBO_ComponentTraits = "Barrel.Long",
+			GBO_OverrideModes = {
+				PlaceObj('GBO_ComponentModeOverride', {
+					'Params', {
+						PlaceObj('PresetParamNumber', {
+							'Name', "AimAccuracyIncrease",
+							'Value', 10,
+							'Tag', "<AimAccuracyIncrease>",
+						}),
+					},
+				}),
+			},
+			GBO_OverrideParams = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "APincrease",
+					'Value', 10,
+					'Tag', "<APincrease>",
+				}),
+			},
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
@@ -8444,12 +8835,12 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APincrease",
-					'Value', 5,
+					'Value', 10,
 					'Tag', "<APincrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyIncrease",
-					'Value', 6,
+					'Value', 10,
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9687,7 +10078,23 @@ return {
 			},
 			Cost = 25,
 			DisplayName = T(586020270949, --[[ModItemWeaponComponent BarrelShortShotgun_Benelli DisplayName]] "Shortened Barrel"),
-			GBO_ComponentTraits = "Barrel.ShortShotgun, Mag.Reduced2, Shotgun.WideBuckshot",
+			GBO_ComponentTraits = "Barrel.ShortShotgun",
+			GBO_OverrideEffects = {
+				"IncreaseBuckshotAngle",
+				"ReduceMagazineSize",
+			},
+			GBO_OverrideParams = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "BuckshotAngleIncrease",
+					'Value', 122,
+					'Tag', "<BuckshotAngleIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "MagazineSizeDecrease",
+					'Value', 2,
+					'Tag', "<MagazineSizeDecrease>",
+				}),
+			},
 			Icon = "UI/Icons/Upgrades/m1014_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
@@ -9695,8 +10102,8 @@ return {
 				"ReduceRange",
 				"StanceAPdecrease",
 				"DecreaseAimAccuracy",
-				"ReduceMagazineSize",
 				"IncreaseBuckshotAngle",
+				"ReduceMagazineSize",
 				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
@@ -9753,7 +10160,17 @@ return {
 			},
 			Cost = 25,
 			DisplayName = T(385898999120, --[[ModItemWeaponComponent BarrelShort_Winchester DisplayName]] "Short Barrel"),
-			GBO_ComponentTraits = "Barrel.Short, Mag.Reduced2",
+			GBO_ComponentTraits = "Barrel.Short",
+			GBO_OverrideEffects = {
+				"ReduceMagazineSize",
+			},
+			GBO_OverrideParams = {
+				PlaceObj('PresetParamNumber', {
+					'Name', "MagazineSizeDecrease",
+					'Value', 2,
+					'Tag', "<MagazineSizeDecrease>",
+				}),
+			},
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
@@ -10166,14 +10583,14 @@ return {
 		Icon = "Mod/cfahRED/Images/folded2 2.png",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"no_stock",
-			"StanceAPdecrease",
-			"IncreaseOverwatchAngle",
-			"hipfire_no_stock",
 			"Enable_RunAndGun",
+			"ReduceAimAccuracy",
 			"ReduceRange",
-			"DecreaseAimAccuracy",
+			"StanceAPdecrease",
+			"hipfire_no_stock",
+			"no_stock",
 			"zzStockEquipped",
+			"IncreaseOverwatchAngle",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -10183,7 +10600,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "AimAccuracyDecrease",
-				'Value', 12,
+				'Value', 3,
 				'Tag', "<AimAccuracyDecrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
@@ -10313,12 +10730,25 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 25,
 		DisplayName = T(764204454463, --[[ModItemWeaponComponent VerticalGrip DisplayName]] "Vertical Grip"),
+		GBO_ComponentTraits = "Self",
+		GBO_OverrideEffects = {
+			"AccuracyBonusWhenAimed_vgrip",
+			"Vert_grip_recoil",
+			"grip_prone_penalty",
+		},
+		GBO_OverrideParams = {
+			PlaceObj('PresetParamNumber', {
+				'Name', "bonus_cth_v",
+				'Value', 3,
+				'Tag', "<bonus_cth_v>",
+			}),
+		},
 		Icon = "UI/Icons/Upgrades/mp5_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
+			"AccuracyBonusWhenAimed_vgrip",
 			"Vert_grip_recoil",
 			"grip_prone_penalty",
-			"AccuracyBonusWhenAimed_vgrip",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -10434,9 +10864,9 @@ return {
 		Icon = "UI/Icons/Upgrades/mp5_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
+			"AccuracyBonusWhenAimed_vgrip",
 			"Vert_grip_recoil",
 			"grip_prone_penalty",
-			"AccuracyBonusWhenAimed_vgrip",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -10813,9 +11243,9 @@ return {
 		Icon = "UI/Icons/Upgrades/ak47_vertical_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
+			"AccuracyBonusWhenAimed_vgrip",
 			"Vert_grip_recoil",
 			"grip_prone_penalty",
-			"AccuracyBonusWhenAimed_vgrip",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -10840,11 +11270,33 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 20,
 		DisplayName = T(957182349467, --[[ModItemWeaponComponent R_MagQuickLarge DisplayName]] "Quick Expanded Mag"),
+		GBO_ComponentTraits = "Self",
+		GBO_OverrideEffects = {
+			"MagazineSizeMultiplier",
+			"ReduceReloadAP",
+		},
+		GBO_OverrideParams = {
+			PlaceObj('PresetParamNumber', {
+				'Name', "MagazineSizeMultiplier",
+				'Value', 150,
+				'Tag', "<MagazineSizeMultiplier>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "OverwatchAngleDecrease",
+				'Value', 72,
+				'Tag', "<OverwatchAngleDecrease>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "ReloadAPDecrease",
+				'Value', 1,
+				'Tag', "<ReloadAPDecrease>",
+			}),
+		},
 		Icon = "UI/Icons/Upgrades/galil_magazine_quick",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"ReduceReloadAP",
 			"MagazineSizeMultiplier",
+			"ReduceReloadAP",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -10886,6 +11338,17 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 15,
 		DisplayName = T(705846336964, --[[ModItemWeaponComponent _Master_MagNormalFine DisplayName]] "Fine-Tuned Mag"),
+		GBO_ComponentTraits = "Self",
+		GBO_OverrideEffects = {
+			"IncreaseReliability",
+		},
+		GBO_OverrideParams = {
+			PlaceObj('PresetParamNumber', {
+				'Name', "ReliabilityIncrease",
+				'Value', 10,
+				'Tag', "<ReliabilityIncrease>",
+			}),
+		},
 		Icon = "UI/Icons/Upgrades/m16_magazine",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
@@ -16180,6 +16643,22 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 15,
 		DisplayName = T(131276583178, --[[ModItemWeaponComponent MagQuick DisplayName]] "Quick Mag"),
+		GBO_ComponentTraits = "Self",
+		GBO_OverrideEffects = {
+			"ReduceReloadAP",
+		},
+		GBO_OverrideParams = {
+			PlaceObj('PresetParamNumber', {
+				'Name', "OverwatchAngleDecrease",
+				'Value', 85,
+				'Tag', "<OverwatchAngleDecrease>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "ReloadAPDecrease",
+				'Value', 2,
+				'Tag', "<ReloadAPDecrease>",
+			}),
+		},
 		Icon = "UI/Icons/Upgrades/galil_magazine_quick",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
@@ -16331,9 +16810,9 @@ return {
 		Icon = "UI/Icons/Upgrades/mp5_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
+			"AccuracyBonusWhenAimed_vgrip",
 			"Vert_grip_recoil",
 			"grip_prone_penalty",
-			"AccuracyBonusWhenAimed_vgrip",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -16381,9 +16860,9 @@ return {
 		Icon = "UI/Icons/Upgrades/mp5_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
+			"AccuracyBonusWhenAimed_vgrip",
 			"Vert_grip_recoil",
 			"grip_prone_penalty",
-			"AccuracyBonusWhenAimed_vgrip",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -16425,9 +16904,9 @@ return {
 		Icon = "UI/Icons/Upgrades/mp5_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
+			"AccuracyBonusWhenAimed_vgrip",
 			"Vert_grip_recoil",
 			"grip_prone_penalty",
-			"AccuracyBonusWhenAimed_vgrip",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -16622,6 +17101,34 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 30,
 		DisplayName = T(531683032721, --[[ModItemWeaponComponent StockHeavy DisplayName]] "Heavy Stock"),
+		GBO_ComponentTraits = "Self",
+		GBO_OverrideEffects = {
+			"BonusAccuracyWhenFullyAimed",
+			"stance_ap_inc_STR",
+			"stockheavy_effect_recoil",
+		},
+		GBO_OverrideParams = {
+			PlaceObj('PresetParamNumber', {
+				'Name', "STR_threshold",
+				'Value', 85,
+				'Tag', "<STR_threshold>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "StanceIncreaseSTR",
+				'Value', 10,
+				'Tag', "<StanceIncreaseSTR>",
+			}),
+			PlaceObj('PresetParamPercent', {
+				'Name', "bonus_cth",
+				'Value', 10,
+				'Tag', "<bonus_cth>%",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "range",
+				'Value', 10,
+				'Tag', "<range>",
+			}),
+		},
 		Icon = "UI/Icons/Upgrades/ak74_stock_wooden",
 		ModificationDifficulty = 20,
 		ModificationEffects = {
@@ -16788,6 +17295,7 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 5,
 		DisplayName = T(405972343392, --[[ModItemWeaponComponent StockNormal DisplayName]] "Default Stock"),
+		GBO_ComponentTraits = "Self",
 		Icon = "UI/Icons/Upgrades/default_stock",
 		ModificationDifficulty = 0,
 		Slot = "Stock",
@@ -17072,12 +17580,52 @@ return {
 		Cost = 10,
 		DisplayName = T(516382469314, --[[ModItemWeaponComponent UVDot DisplayName]] "UV Dot"),
 		EnableAimFX = true,
+		GBO_ComponentTraits = "Self",
+		GBO_OverrideEffects = {
+			"IncreaseAimAccuracy",
+		},
+		GBO_OverrideModes = {
+			PlaceObj('GBO_ComponentModeOverride', {
+				'Mode', "oldCTH",
+				'Effects', {
+					"body_part_uv",
+				},
+				'Params', {
+					PlaceObj('PresetParamNumber', {
+						'Name', "AimAccuracyIncrease",
+						'Value', 1,
+						'Tag', "<AimAccuracyIncrease>",
+					}),
+				},
+			}),
+			PlaceObj('GBO_ComponentModeOverride', {
+				'Params', {
+					PlaceObj('PresetParamNumber', {
+						'Name', "AimAccuracyIncrease",
+						'Value', 5,
+						'Tag', "<AimAccuracyIncrease>",
+					}),
+				},
+			}),
+		},
+		GBO_OverrideParams = {
+			PlaceObj('PresetParamNumber', {
+				'Name', "hip_mul",
+				'Value', 90,
+				'Tag', "<hip_mul>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "snapshot_mul",
+				'Value', 90,
+				'Tag', "<snapshot_mul>",
+			}),
+		},
 		Icon = "UI/Icons/Upgrades/side_laser",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"DecreaseSnapshotMul",
-			"DecreaseHipfireMul",
 			"IncreaseAimAccuracy",
+			"DecreaseHipfireMul",
+			"DecreaseSnapshotMul",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -17303,13 +17851,35 @@ return {
 		Cost = 10,
 		DisplayName = T(559427350185, --[[ModItemWeaponComponent LaserDot DisplayName]] "Red Dot"),
 		EnableAimFX = true,
+		GBO_ComponentTraits = "Self",
+		GBO_OverrideEffects = {
+			"IncreaseCritChangeScaled",
+			"critical_per_aim_laser",
+		},
+		GBO_OverrideParams = {
+			PlaceObj('PresetParamNumber', {
+				'Name', "CritChangeScaledIncrease",
+				'Value', 10,
+				'Tag', "<CritChangeScaledIncrease>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "hip_mul",
+				'Value', 90,
+				'Tag', "<hip_mul>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "snapshot_mul",
+				'Value', 90,
+				'Tag', "<snapshot_mul>",
+			}),
+		},
 		Icon = "UI/Icons/Upgrades/side_laser",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"DecreaseSnapshotMul",
-			"DecreaseHipfireMul",
 			"IncreaseCritChangeScaled",
 			"critical_per_aim_laser",
+			"DecreaseHipfireMul",
+			"DecreaseSnapshotMul",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -17534,11 +18104,33 @@ return {
 		},
 		Cost = 20,
 		DisplayName = T(984641795528, --[[ModItemWeaponComponent FlashlightDot DisplayName]] "Tactical Device"),
+		GBO_ComponentTraits = "Self",
+		GBO_OverrideEffects = {
+			"IgnoreInTheDark",
+			"StealthKillBonusPerAim",
+		},
+		GBO_OverrideParams = {
+			PlaceObj('PresetParamPercent', {
+				'Name', "aim_bonus",
+				'Value', 1,
+				'Tag', "<aim_bonus>%",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "maxaims",
+				'Value', 1,
+				'Tag', "<maxaims>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "stealth_kill_bonus",
+				'Value', 4,
+				'Tag', "<stealth_kill_bonus>",
+			}),
+		},
 		Icon = "UI/Icons/Upgrades/side_laserlight",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"StealthKillBonusPerAim",
 			"IgnoreInTheDark",
+			"StealthKillBonusPerAim",
 		},
 		Parameters = {
 			PlaceObj('PresetParamPercent', {
@@ -18068,10 +18660,10 @@ return {
 		Icon = "UI/Icons/Upgrades/tactical_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
+			"grip_prone_penalty",
+			"tac_grip_PB",
 			"tac_grip_hipfire",
 			"tac_grip_recoil",
-			"tac_grip_PB",
-			"grip_prone_penalty",
 		},
 		Parameters = {
 			PlaceObj('PresetParamPercent', {
@@ -18179,6 +18771,17 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 25,
 		DisplayName = T(397053967735, --[[ModItemWeaponComponent Compensator DisplayName]] "Compensator"),
+		GBO_ComponentTraits = "Self",
+		GBO_OverrideEffects = {
+			"compensator_effect",
+		},
+		GBO_OverrideParams = {
+			PlaceObj('PresetParamPercent', {
+				'Name', "cth",
+				'Value', 10,
+				'Tag', "<cth>%",
+			}),
+		},
 		Icon = "UI/Icons/Upgrades/m16_muzzle",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
@@ -18429,9 +19032,9 @@ return {
 		Icon = "UI/Icons/Upgrades/ak47_vertical_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
+			"AccuracyBonusWhenAimed_vgrip",
 			"Vert_grip_recoil",
 			"grip_prone_penalty",
-			"AccuracyBonusWhenAimed_vgrip",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -18460,9 +19063,9 @@ return {
 		Icon = "UI/Icons/Upgrades/ak47_vertical_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
+			"AccuracyBonusWhenAimed_vgrip",
 			"Vert_grip_recoil",
 			"grip_prone_penalty",
-			"AccuracyBonusWhenAimed_vgrip",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -18515,6 +19118,19 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 10,
 		DisplayName = T(215713955164, --[[ModItemWeaponComponent ImprovedIronsight DisplayName]] "Improved Iron Sight"),
+		GBO_ComponentTraits = "Scope.Ironsight",
+		GBO_OverrideModes = {
+			PlaceObj('GBO_ComponentModeOverride', {
+				'Mode', "oldCTH",
+				'Params', {
+					PlaceObj('PresetParamNumber', {
+						'Name', "bonus_cth",
+						'Value', 3,
+						'Tag', "<bonus_cth>",
+					}),
+				},
+			}),
+		},
 		Icon = "UI/Icons/Upgrades/ironsights",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
@@ -18906,9 +19522,9 @@ return {
 		Icon = "UI/Icons/Upgrades/side_laser",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"DecreaseSnapshotMul",
-			"DecreaseHipfireMul",
 			"IncreaseAimAccuracy",
+			"DecreaseHipfireMul",
+			"DecreaseSnapshotMul",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -18970,10 +19586,10 @@ return {
 		Icon = "UI/Icons/Upgrades/side_laser",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"DecreaseSnapshotMul",
-			"DecreaseHipfireMul",
 			"IncreaseCritChangeScaled",
 			"critical_per_aim_laser",
+			"DecreaseHipfireMul",
+			"DecreaseSnapshotMul",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -19017,9 +19633,9 @@ return {
 		Icon = "UI/Icons/Upgrades/side_laser",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"DecreaseSnapshotMul",
-			"DecreaseHipfireMul",
 			"IncreaseAimAccuracy",
+			"DecreaseHipfireMul",
+			"DecreaseSnapshotMul",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -19063,10 +19679,10 @@ return {
 		Icon = "UI/Icons/Upgrades/side_laser",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"DecreaseSnapshotMul",
-			"DecreaseHipfireMul",
 			"IncreaseCritChangeScaled",
 			"critical_per_aim_laser",
+			"DecreaseHipfireMul",
+			"DecreaseSnapshotMul",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -19128,10 +19744,10 @@ return {
 		Icon = "UI/Icons/Upgrades/side_laser",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"DecreaseSnapshotMul",
-			"DecreaseHipfireMul",
 			"IncreaseCritChangeScaled",
 			"critical_per_aim_laser",
+			"DecreaseHipfireMul",
+			"DecreaseSnapshotMul",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -19181,9 +19797,9 @@ return {
 		Icon = "UI/Icons/Upgrades/side_laser",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"DecreaseSnapshotMul",
-			"DecreaseHipfireMul",
 			"IncreaseAimAccuracy",
+			"DecreaseHipfireMul",
+			"DecreaseSnapshotMul",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -19238,13 +19854,27 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 30,
 		DisplayName = T(341429701273, --[[ModItemWeaponComponent TacGrip DisplayName]] "Tactical Grip"),
+		GBO_ComponentTraits = "Self",
+		GBO_OverrideEffects = {
+			"grip_prone_penalty",
+			"tac_grip_PB",
+			"tac_grip_hipfire",
+			"tac_grip_recoil",
+		},
+		GBO_OverrideParams = {
+			PlaceObj('PresetParamPercent', {
+				'Name', "accuracy",
+				'Value', 5,
+				'Tag', "<accuracy>%",
+			}),
+		},
 		Icon = "UI/Icons/Upgrades/tactical_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
+			"grip_prone_penalty",
+			"tac_grip_PB",
 			"tac_grip_hipfire",
 			"tac_grip_recoil",
-			"tac_grip_PB",
-			"grip_prone_penalty",
 		},
 		Parameters = {
 			PlaceObj('PresetParamPercent', {
@@ -19325,10 +19955,10 @@ return {
 		Icon = "UI/Icons/Upgrades/mp5_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
+			"grip_prone_penalty",
+			"tac_grip_PB",
 			"tac_grip_hipfire",
 			"tac_grip_recoil",
-			"tac_grip_PB",
-			"grip_prone_penalty",
 		},
 		Parameters = {
 			PlaceObj('PresetParamPercent', {

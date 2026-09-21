@@ -51,7 +51,7 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 (aCTH) Aim and Sights:
 - Aim accuracy scale has been changed (values will range from ~~5 to 70)
 - Aim accuracy is very important to determine how well can you hit at range
-- Scopes work differently, mostly increasing max aim levels. Big scopes have more snapshot penalty, and work better with high aim accuracy weapons.
+- Scopes work differently, mostly increasing max aim levels. High mag scopes have more snapshot penalty, and work better with high aim accuracy weapons.
 - Reflex sights have flat accuracy bonus (equally good for weapons with high or low aim accuracy)
 - Weapon range now is mostly relevant to how tight you can make the dispersion. In some ways, they are a floor to dispersion and a ceiling to aim accuracy. So high range weapons will benefit more from scopes, low range will have little benefit, as you approach the floor earlier.
 
@@ -59,6 +59,8 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 - Autofire has no cap on max aim levels
 - Dual shot has max 3 aim levels, you will get no benefit from scopes or sights.
 - CQC perk will reduce snapshot and hipfire penalty for firearms, instead of bonus acc at close range. Melee and thrown weapons remains the same as the original.
+- when using simulated aCTH, firing through smoke no longer cause grazing, instead reducing accuracy
+- when using simulated aCTH, take cover action no longer causes grazing. Can be reverted using a mod option
  
 -- -- -- -- -- -- -- -- -- 
 ```
@@ -77,38 +79,42 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 - [ ] Re-tune component AP cost now that the scale has changed
 	- [X] Handgun barrels -> 3
 	- [X] Light stock -> 5
-	- [ ] Heavy stock
-	- [ ] Barrels
+	- [X] Heavy stock - unchanged
+	- [X] Barrels - reduced
 
-- [ ] fix folded stock AP reduction (M11 was bugged)
+- [X] fix folded stock AP reduction (M11 was bugged)
 
 ## FINISH THE SLUG LOGIC !
 
 ## aCTH Possible fragilities
+- [X] OW when prone agains  hyenas had abysmal CTH, even when in close range (No LOs bug, fixed)
 - [ ] **Make sure aCTH lite works as intended**
 - [ ] Make sure AI will orient before checking for cover in LOF.
-- [ ] Check how the `aCTH` deals with out-of-sight targets (wallbang).
 - [X] Check how it works agains non-humanoids
 - [X] ricochets still work?
 - [X] Aim is being used in the Interrupt? shows 0 levels
+- [X] Shoot from above when very close. collision is strange. See savegame
 
 -[ ] **BUG** Shotgun "killed unit was reported, but no "attack hit" actually struck it." See save Shotty Bug
 
 ## AI OVERHAUL - other mod 
-- [ ] Disabled pindown action for now
+
+
 - [ ] decision making logic relating to grenades-> they should not use if they are very close to another target (that could be killed or kill them)
-- [x] **possible BUG** - Buckshot should not degrade to single shot - **STILL HAPPENING?**
-- [ ] Mechanics check
+- [ ] Pellet precalc damage rationale, does it work?
+- [x] **possible BUG** - Buckshot should not degrade to single shot 
+- [X] Mechanics check
 - [ ] in aCTH they should try to shoot the head if its the only part out of cover
 - [ ] Implement smoke usage.
 - [X] Enemy `LastPos` should generate threat. They should also try to "chase" the last position.
-- [ ] Investigate the shot-selection threshold in regards to aCTH. Enemies are shooting "0%" shots in aCTH
-- [ ] in aCTH, they should not use autofire from the hip unless very close
 - [x]  Check grenade distribution.
   - Give more timed grenades to enemies.
   - Less frustrating, but still a challenge to the player.
 - [X] Check recoil calc for AI when using aCTH
-- [X] Fix AI trying to shoot prone when there is a very small cover in front of it, making impossible to actually hit (see savegame) **---> Done. Needs testing - BTW, this could make AI incapable of wallbanging? check**
+- [X] Fix AI trying to shoot prone when there is a very small cover in front of it, making impossible to actually hit (see savegame) **---> Done. Just have to make sure they are not losing turns because of this**
+- [X] Tune `Threat Exposure`, possibly simplify
+	- [X] Fix LOS 
+	- [X] Fix Debug overlay not decomposing ready curve 
 
 ## AI Overhaul new stuff
 - [ ] Overwatch against last target pos when unit is hidden. also make them throw grenades at it, specially when at a rooftop
@@ -117,13 +123,20 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 ## AI Overhaul - minor
 - [ ] Take cover action is more important, should be used
 - [ ] Make sure AI will not try to shoot through walls. (especially with aCTH)
-- [ ] Tune `Threat Exposure`, possibly simplify
-	- [X] Fix LOS 
-	- [X] Fix Debug overlay not decomposing ready curve 
+
+- [ ] enemy behavior under PinDown... if the attack is not very likely to hit, they should not give much fuck
+- [ ] "impatience" mechanic - if they are not being shot and not hitting, they should become more agressive
+- [ ] groups should be more agressive?
+- [ ] **Disabled** pindown action for now
+
+## AI Overhaul - LUXURY
+- [ ] Stealth
+- [ ] Out of sight score when trying to flank
 
 ## aCTH Balancing
-
-- [ ] Remove stray from get cover action?
+- [ ] Pass at Scopes. Balance the acc numbers
+- [ ] General balancing, but important. If I keep the rare calibers, need to do something about distribution
+- [X] Remove stray from get cover action?
 - [X] Evaluate aim soft cap, to see if new values are not capped (its 70 the cap)
 - [X] Pinned down mod suppression for strays
 - [X] Re-scale Aim Accuracy bonus for more gradient
@@ -143,6 +156,13 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
   - Depois conferir um calibre pesado.
   - Ver `RECOIL MODEL.md`.
 
+## Other balancing
+- [ ] shotgun pellets interaction with gunshurt option
+- [ ] Shotgun pellet balancing and spread, duckbill etc.
+- [ ] Slug damage?
+- [ ] **General balancing:** OW tuning — minor. -> *maybe some action that costs more, tighter ow cone, 3 aim levels?*
+
+
 ## Reimplementation necessary
 - [X] out of breath impact on aim
 - [X] AN94 2 round burst
@@ -151,16 +171,15 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 - [X] low profile cth mod for crocs disabled when using aCTH
 - [X] Camouflage.
 
-- [ ] How to deal with scopes that give bonuses to hit body parts or bypass cover?
-  - Handzolt.
-  - Scout Scope.
+- [X] How to deal with scopes that give bonuses to hit body parts or bypass cover?
+  - Handzolt. -- Just gave it more acc/worst snapshot
 
 - [ ] What about grazing? Is it possible to keep it in the game?
-- [ ] gas, smoke, other grazing mechanics need to be changed
+- [X] gas, smoke, other grazing mechanics need to be changed
 
 - [X] Grizzly Perk - **there is something in the recoil cacl, check if its enough**
 - [X] CQC bonus perk?
-- [ ] Major Perk (Bullet hell)
+- [ ] Major Perk (Bullet hell) **important**
 - [X] Spiritual Perk
 
 - [X] MGSetup Get AP (**ended up decreasing delta by 1**)
@@ -170,6 +189,8 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 ------------------------------------------------------------------------------------------------------------------------------
 # Later Stuff
 ## aCTH Descriptions that need change
+- [ ] Take cover not grazing mod option
+- [ ] Smoke not grazing. Decide if LOS
 - [ ] Recoil CTH UI display
 - [ ] Snapshot will not reset when shooting the same target **Only at page description**
 - [X] DualShot max aim = 3 instead of 1
@@ -187,17 +208,18 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 - [ ] Autofire shot count.
 - [x] MG Recoil/setup rework (needs further testing)
 - [x] Crouch and prone effect on the aperture, elliptical
+- [ ] rotating while prone should cost more after the initial angle
 
+## EO
+- [ ] Barry Shaped charge is too sensitive to alterations. Increase angle
 
 ## New mechanics (luxury)
 
 - [ ] MG and bipods setting up on cover/crouch
 - [ ] **MEGA LUXURY** Vision cones/directional vision. Would need to make AI take this into account.
+- [ ] agility defense against melee
  
-## Later Balancing
-- [ ] Shotgun pellet balancing and spread, duckbill etc.
-- [ ] Slug damage?
-- [ ] **General balancing:** OW tuning — minor.
+
 
 ## QOL
 - [X] Fix Shooting Stance animation, particulary in regards to mobile attack 
