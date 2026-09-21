@@ -164,6 +164,7 @@ return PlaceObj('ModDef', {
 		"Code/CONSTANTS_mod_options.lua",
 		"Code/OPTIONS_GunsHurt.lua",
 		"Code/OPTIONS_MuteIMP.lua",
+		"Code/FEATURE_AttachmentItems.lua",
 		"InventoryItem/M14SAW_AUTO.lua",
 	},
 	'default_options', {

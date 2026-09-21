@@ -1727,6 +1727,10 @@ return {
 			'name', "OPTIONS_MuteIMP",
 			'CodeFileName', "Code/OPTIONS_MuteIMP.lua",
 		}),
+		PlaceObj('ModItemCode', {
+			'name', "FEATURE_AttachmentItems",
+			'CodeFileName', "Code/FEATURE_AttachmentItems.lua",
+		}),
 		PlaceObj('ModItemOptionChoice', {
 			'name', "guns_hurt",
 			'DisplayName', "<color 64 128 196>Guns Freaking Hurt (%)</color>",
