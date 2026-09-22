@@ -959,6 +959,9 @@ function Rat_AttUpdateVisualObj(self, vis)
     if own and RAT_ATT_ENABLED then
         Rat_AttApplyModels(self, vis)
     end
+    if own then
+        ApplyWeaponComponentOffset(self, vis) -- CommonLib's own wrapper is overwritten by ToG/Zulib
+    end
 end
 
 ---- Class tables are sealed at runtime (a new member asserts), so what each class had before lives

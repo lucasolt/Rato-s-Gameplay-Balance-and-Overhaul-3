@@ -1300,10 +1300,6 @@ return {
 			'CodeFileName', "Code/COMPATIBILITY_RevMags.lua",
 		}),
 		PlaceObj('ModItemCode', {
-			'name', "COMPATIBILITY_ZulibCalibersAttachOffset",
-			'CodeFileName', "Code/COMPATIBILITY_ZulibCalibersAttachOffset.lua",
-		}),
-		PlaceObj('ModItemCode', {
 			'name', "COMPATIBILITY_DescriptiveCTH",
 			'CodeFileName', "Code/COMPATIBILITY_DescriptiveCTH.lua",
 		}),
