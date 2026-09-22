@@ -1,29 +1,26 @@
 
+---- Gate on the mod id: reading an undefined global (_G.X) raises in the mod env, it is not nil
+local TOG_PATCH_ID = "Dau6w"
+
 local function reapply_tog_components()
-    ---- _G.X e nao rawget: neste motor os globais ficam atras de um __index e rawget sempre da nil
-    local fn = _G.RatoTOGComponents
-    local comps = _G.WeaponComponents
-    if not fn or not comps or
-        not comps.WideScope then
+    if not IsMod_loaded(TOG_PATCH_ID) or not WeaponComponents.WideScope then
         return
     end
-    local ok, err = pcall(fn)
+    local ok, err = pcall(RatoTOGComponents)
     if not ok then
-        print(
-            "GBO: RatoTOGComponents reapply failed --",
-            err)
+        print("GBO: RatoTOGComponents reapply failed --", err)
     end
 end
 
 ---- RatoGBOComponents replaces the Mag* Visuals lists, wiping the ToG RevMags entries (MAC11_1 etc.)
 local function reapply_tog_revmag_visuals()
-    for _, name in ipairs{"GBOTOG_RevMag_WeaponComponentVisualPatch_manual", "GBOTOG_RevMag_WeaponComponentVisualPatch"} do
-        local fn = _G[name]
-        if fn then
-            local ok, err = pcall(fn)
-            if not ok then
-                print("GBO: " .. name .. " reapply failed --", err)
-            end
+    if not IsMod_loaded(TOG_PATCH_ID) then
+        return
+    end
+    for _, fn in ipairs{GBOTOG_RevMag_WeaponComponentVisualPatch_manual, GBOTOG_RevMag_WeaponComponentVisualPatch} do
+        local ok, err = pcall(fn)
+        if not ok then
+            print("GBO: ToG RevMag visual reapply failed --", err)
         end
     end
 end
