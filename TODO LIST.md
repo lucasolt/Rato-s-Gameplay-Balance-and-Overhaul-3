@@ -14,6 +14,8 @@ CheatAddItem("itemid")
 - Reflex sights no longer increase range
 - Snapshot penalty for opportunity attacks was decreased (from extra +20% to +10%). Reflex will grant bigger accuracy boost
 
+- Light Stock no longer reduces aim accuracy. Increased recoil.
+
 - NEW MECHANIC: Redesigned reliability mechanics. The value will now govern the chance of jamming instead of condition degradation by shot. The formula was changed, high reliability weapons will be able to perform even when in lower condition.
 
 - Changed fog vision radius reduction. Fog no longer causes grazing hits
@@ -45,7 +47,7 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 (aCTH) Recoil:
 - Recoil deviation is simulated. Str controls how much you control, dexterity/marksmanship will help you get back on target.
 - MGs have recoil penalty (and the aforementioned handling penalty) when firing not prone. There are no penalties to fire without setup, that is, the benefits have been all transfered to being prone or having a bipod. MG Setup is now a way to OW (with one bonus attack per turn)
-- Being prone and have a bipod will have an impact biased to reduce the vertical component of recoil.
+- Being prone with a bipod will have reduce the vertical component of recoil.
 
 
 (aCTH) Aim and Sights:
@@ -54,6 +56,7 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 - Scopes work differently, mostly increasing max aim levels. High mag scopes have more snapshot penalty, and work better with high aim accuracy weapons.
 - Reflex sights have flat accuracy bonus (equally good for weapons with high or low aim accuracy)
 - Weapon range now is mostly relevant to how tight you can make the dispersion. In some ways, they are a floor to dispersion and a ceiling to aim accuracy. So high range weapons will benefit more from scopes, low range will have little benefit, as you approach the floor earlier.
+- Other components have been changed
 
 (aCTH) Other stuff:
 - Autofire has no cap on max aim levels
@@ -78,9 +81,15 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 # As inventory items
 - [ ] Change RS grading. compact -> assault compact -> assault/vulto
 - [ ] Add compact Advanced (Glock RS) to rifles?
-- [ ] Remove Vulto RS from pistols
+- [ ] Remove Vulto RS from pistols?
 - [ ] Make components scrappable
-- [ ] Compensator per caliber
+- [X] Compensator per caliber
+- [ ] Ak 74 bipod is not using item
+- [ ] Component icon and models from ToC for 5.45 Suppressor and 7.62x54R Suppressor, 45 acp Suppressor, Mauser?
+- [ ] Currently, P90 is using 5.56 suppressor and compensator
+
+## TOG
+- [ ] safety mechanism for discontinued guns to keep their patching, at least to not break saves
 
 # Other
 - [X] Remove TOG handguards (RKs done)
@@ -91,26 +100,35 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 	- [X] Light stock -> 5
 	- [X] Heavy stock - unchanged
 	- [X] Barrels - reduced
+- [ ] See why the mag modification is available even when RevMags is loaded
+- [ ] Mags are bugged visually with RevMags. Probably the updatevisual racing conditions
 
 - [X] fix folded stock AP reduction (M11 was bugged)
-- [ ] SKS extended barrel has wrong accuracy param
+- [ ] SKS extended barrel has wrong accuracy param -- Fixed???
+- [X] consider small threshold bonus for the 1.5x scopes as well
  
+- [ ] Scopes - turn the floor mul into a readable effect (or just turn it back into increased range?)
 
+- [ ] Turn the dragunov crit (and other similar) into a single effect with params
 
 ## aCTH Possible fragilities
-- [X] OW when prone agains  hyenas had abysmal CTH, even when in close range (No LOs bug, fixed)
+- [ ] see if graphic display of single shot recoil is working. POssibly review the burst too
+- [ ] OW when prone agains  hyenas had abysmal CTH, even when in close range ()
+	-- NO LOS STILL TRIGGERING FOR OW!
 - [ ] **Make sure aCTH lite works as intended**
 - [ ] Make sure AI will orient before checking for cover in LOF.
 - [X] Check how it works agains non-humanoids
 - [X] ricochets still work?
+- [ ] check if ricochet damage reduction is still applying
 - [X] Aim is being used in the Interrupt? shows 0 levels
 - [X] Shoot from above when very close. collision is strange. See savegame
 
 - [X] **BUG** Shotgun "killed unit was reported, but no "attack hit" actually struck it." See save Shotty Bug
 
-## AI OVERHAUL - other mod 
+## AI OVERHAUL - other mod
+- [ ] Maybe do no stat boost in hyena or MELEE Overhaul!
 
-
+- [ ] Hyenas and other animals should not be aware of OW
 - [ ] decision making logic relating to grenades-> they should not use if they are very close to another target (that could be killed or kill them)
 - [ ] Pellet precalc damage rationale, does it work?
 - [x] **possible BUG** - Buckshot should not degrade to single shot 
@@ -145,6 +163,7 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 - [ ] Out of sight score when trying to flank
 
 ## aCTH Balancing
+- [ ] Possible use the offpart minus damage only for the head... 
 - [ ] Pass at Scopes. Balance the acc numbers
 - [ ] General balancing, but important. If I keep the rare calibers, need to do something about distribution
 - [X] Remove stray from get cover action?
@@ -225,7 +244,7 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 - [ ] Barry Shaped charge is too sensitive to alterations. Increase angle
 
 ## New mechanics (luxury)
-
+- [ ] **Unify all crits into Crit Scaling.** Make it be per aim, and based on HEC, not level
 - [ ] MG and bipods setting up on cover/crouch
 - [ ] **MEGA LUXURY** Vision cones/directional vision. Would need to make AI take this into account.
 - [ ] agility defense against melee

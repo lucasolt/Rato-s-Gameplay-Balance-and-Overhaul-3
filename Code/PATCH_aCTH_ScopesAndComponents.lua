@@ -91,7 +91,7 @@ A.ScopeTraits = {
                     ScopePenalty3 = true,
                     ScopePenalty2 = false,
                     ScopePenalty1 = false,
-                    IncreaseRange = true,
+                    IncreaseRange = false,
                     IncreaseAimAccuracy = false,
                     StanceAPincrease = false,
                     sniper_adv_aim_scope = false
@@ -119,7 +119,7 @@ A.ScopeTraits = {
                     ScopePenalty2 = true,
                     ScopePenalty1 = false,
                     ScopePenalty3 = false,
-                    IncreaseRange = true,
+                    IncreaseRange = false,
                     IncreaseAimAccuracy = false,
                     StanceAPincrease = false,
                     sniper_aim_scope = false,
@@ -149,7 +149,7 @@ A.ScopeTraits = {
                     ScopePenalty1 = true,
                     ScopePenalty2 = false,
                     ScopePenalty3 = false,
-                    IncreaseRange = true,
+                    IncreaseRange = false,
                     IncreaseAimAccuracy = false
                 }
             }
@@ -166,9 +166,9 @@ A.ScopeTraits = {
             aCTH = {
                 params = {
                     MaxAimActionsIncrease = 1,
-                    aim_level_threshold = 4,
+                    --aim_level_threshold = 4,
                     -- threshold_bonus_aim_acc = scale_aim(2),
-                    first_aim_bonus_acc = scale_aim(3)
+                    first_aim_bonus_acc = 18--scale_aim(3)
                 },
                 effects = {
                     ScopeAimThresholdBonus = false,
@@ -177,7 +177,7 @@ A.ScopeTraits = {
                     ScopePenalty1 = true,
                     ScopePenalty2 = false,
                     ScopePenalty3 = false,
-                    IncreaseRange = true,
+                    IncreaseRange = false,
                     IncreaseAimAccuracy = false,
                     FirstAimBonusModifier = true
                 }
@@ -193,7 +193,7 @@ A.ScopeTraits = {
                 params = {
                     MaxAimActionsIncrease = 1,
                     snap_mul_reduc = 95,
-                    first_aim_bonus_acc = 8--scale_aim(2)
+                    first_aim_bonus_acc = 12--scale_aim(2)
                 },
                 effects = {
                     IncreaseMaxAimActions = true,
@@ -202,13 +202,14 @@ A.ScopeTraits = {
                     ScopePenalty1 = true,
                     ScopePenalty2 = false,
                     ScopePenalty3 = false,
-                    IncreaseRange = true,
+                    IncreaseRange = false,
                     IncreaseAimAccuracy = false,
                     FirstAimBonusModifier = true
                 }
             }
         }
     },
+--TODO: Should the ZF scope have different params from the aug scope?
     ["Scope._1dot5x"] = {
         overwrite = true,
         effects = {"IncreaseRange"},
@@ -216,10 +217,14 @@ A.ScopeTraits = {
         floor_mul = 98,
         modes = {
             aCTH = {
-                params = {MaxAimActionsIncrease = 1},
+                params = {MaxAimActionsIncrease = 1,
+			        	aim_level_threshold = 4,
+                    	threshold_bonus_aim_acc = scale_aim(2),
+				},
                 effects = {
+					ScopeAimThresholdBonus = true,
                     IncreaseMaxAimActions = true,
-                    IncreaseRange = true,
+                    IncreaseRange = false,
                     IncreaseAimAccuracy = false,
                     ScopePenalty1 = false,
                     ScopePenalty2 = false,
@@ -271,7 +276,7 @@ A.ScopeTraits = {
         params = {Close_bonus = 5, OverwatchAngle = 125, RangeIncrease = 4, bonus_cth = 3, bonus_cth_interrupt = 10, snap_reduc = 10},
         modes = {
             aCTH = {
-                params = {bonus_cth = 5, snap_mul_reduc = 85},
+                params = {bonus_cth = 8, snap_mul_reduc = 85},
                 effects = {
                     AccuracyBonusWhenAimed = true,
                     reflex_sight_close_range = false,

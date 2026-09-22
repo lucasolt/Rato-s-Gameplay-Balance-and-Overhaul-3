@@ -24,7 +24,7 @@ const.Combat.Recoil.Components = {
     LightBarrelMul = {Pistol = 1.02, Revolver = 1.03, SubmachineGun = 1.04, Other = 1.05},
     HeavyBarrelMul = {Pistol = 0.98, Revolver = 0.97, SubmachineGun = 0.96, Other = 0.95},
     HeavyStockMul = 0.90,
-    LightStockMul = 1.05,
+    LightStockMul = 1.10,
     RecoilBumpMul = 1.06,
     BipodMul = 0.85,
     FullChokeRecoilMul = 1.09

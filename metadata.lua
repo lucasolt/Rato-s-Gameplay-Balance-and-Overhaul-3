@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 13350,
+	'version', 13380,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -155,7 +155,7 @@ return PlaceObj('ModDef', {
 		"Code/PATCH_GBO_ComponentCompose.lua",
 		"Code/OnDataLoaded.lua",
 		"Code/PATCH_WeaponsPresetClass.lua",
-		"Code/PATCH_GBO_weapons.lua",
+		"Code/_PATCH_GBO_weapons.lua",
 		"Code/PATCH_old_ammo.lua",
 		"Code/PATCH_call.lua",
 		"Code/PATCH_CharacterEffectPresets.lua",
@@ -191,8 +191,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1789959365,
-	'code_hash', 2885702487610534806,
+	'saved', 1790051670,
+	'code_hash', 6387563990003474617,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",

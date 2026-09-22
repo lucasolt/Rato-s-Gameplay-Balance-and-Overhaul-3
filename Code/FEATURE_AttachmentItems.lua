@@ -451,7 +451,7 @@ RAT_ATT_ITEMS = {
     {
         id = "RAT_Att_CompensatorAK74",
         name = "Compensator (5.45x39)",
-        icon = "UI/Icons/Upgrades/AK_compensator",
+        icon = "Mod/cfahRED/Images/545_comp.png",
         size = "small",
         cost = 1500,
         tier = 1,
@@ -462,7 +462,7 @@ RAT_ATT_ITEMS = {
     {
         id = "RAT_Att_Compensator54R",
         name = "Compensator (7.62x54R)",
-        icon = "UI/Icons/Upgrades/muzzle_fal_01",
+        icon = "Mod/cfahRED/Images/76254r_comp.png",
         size = "small",
         cost = 2000,
         tier = 2,
@@ -476,7 +476,7 @@ RAT_ATT_ITEMS = {
         icon = "UI/Icons/Upgrades/muzzle_fal_01",
         size = "small",
         cost = 2000,
-        tier = 2,
+        tier = 1,
         family = "compensator",
         calibers = {"7_92x57", "7_92x33"},
         model = "WeaponAttA_MuzzleDragunov_01"
@@ -495,6 +495,7 @@ RAT_ATT_ITEMS = {
     {
         id = "RAT_Att_Compensator45",
         name = "Compensator (.45 ACP)",
+--TODO: Proper Icon
         icon = "UI/Icons/Upgrades/MP5_compensator",
         size = "small",
         cost = 1500,
@@ -518,35 +519,35 @@ RAT_ATT_ITEMS = {
     {
         id = "RAT_Att_CompensatorHiPower",
         name = "Compensator (Hi-Power)",
-        icon = "UI/Icons/Upgrades/glock_compensator",
+        icon = "Mod/cfahRED/Images/hipower_comp.png",
         size = "small",
         cost = 2000,
         tier = 2,
         family = "compensator",
         guns = {"HiPower"}
     },
-    {
-        id = "RAT_Att_CompensatorM1911",
-        name = "Compensator (M1911)",
-        icon = "UI/Icons/Upgrades/glock_compensator",
-        size = "small",
-        cost = 2000,
-        tier = 2,
-        family = "compensator",
-        guns = {"M1911_1"},
-        model = "WeaponAttA_CompensatorBHP"
-    },
-    {
-        id = "RAT_Att_CompensatorP08",
-        name = "Compensator (P08)",
-        icon = "UI/Icons/Upgrades/glock_compensator",
-        size = "small",
-        cost = 2000,
-        tier = 2,
-        family = "compensator",
-        guns = {"P08_1"},
-        model = "WeaponAttA_CompensatorBHP"
-    },
+    --{
+    --    id = "RAT_Att_CompensatorM1911",
+    --    name = "Compensator (M1911)",
+    --    icon = "UI/Icons/Upgrades/glock_compensator",
+    --    size = "small",
+    --    cost = 2000,
+    --    tier = 2,
+    --    family = "compensator",
+    --    guns = {"M1911_1"},
+    --    model = "WeaponAttA_CompensatorBHP"
+    --},
+    --{
+    --    id = "RAT_Att_CompensatorP08",
+    --    name = "Compensator (P08)",
+    --    icon = "UI/Icons/Upgrades/glock_compensator",
+    --    size = "small",
+    --    cost = 2000,
+    --    tier = 2,
+    --    family = "compensator",
+    --    guns = {"P08_1"},
+    --    model = "WeaponAttA_CompensatorBHP"
+    --},
     {
         id = "RAT_Att_AdvancedCompensator",
         name = "Compensator (Glock)",
@@ -666,8 +667,8 @@ RAT_ATT_ITEMS = {
         name = "Suppressor (9mm Pistol)",
         icon = "UI/Icons/Upgrades/beretta_silencer",
         size = "medium",
-        cost = 3500,
-        tier = 2,
+        cost = 3000,
+        tier = 1,
         family = "suppressor",
         calibers = {"9mm", "380ACP", "9x18"},
         types = {"Handgun"},
@@ -685,27 +686,28 @@ RAT_ATT_ITEMS = {
         model = "WeaponAttA_SuppressorSMG9mm"
     },
     {
+--TODO: Change to only Desert Eagle
         id = "RAT_Att_SuppressorDesertEagle",
-        name = "Suppressor (.45/.44 Pistol)",
+        name = "Suppressor (.44 Pistol)",
         icon = "UI/Icons/Upgrades/deserteagle_suppressor",
         size = "medium",
         cost = 4000,
         tier = 3,
         family = "suppressor",
-        calibers = {"44CAL", "45ACP"},
+        calibers = {"44CAL"},
         types = {"Handgun"},
         model = "WeaponAttA_SilencerDesertEagle"
     },
     {
         id = "RAT_Att_Suppressor45SMG",
-        name = "Suppressor (.45 SMG)",
+        name = "Suppressor (.45 ACP)",
         icon = "UI/Icons/Upgrades/9mm_SMG_suppressor",
         size = "large",
         cost = 4000,
         tier = 2,
         family = "suppressor",
         calibers = {"45ACP"},
-        types = {"SMG"},
+        types = {"SMG", "Handgun"},
         model = "WeaponAttA_SuppressorSMG9mm"
     },
     {
@@ -775,6 +777,7 @@ RAT_ATT_ITEMS = {
         model = "WeaponAttA_SuppressorWP"
     },
     {
+--TODO: Remove or find a model? 
         id = "RAT_Att_SuppressorMauser",
         name = "Suppressor (7.92 Mauser)",
         icon = "UI/Icons/Upgrades/762_suppressor",

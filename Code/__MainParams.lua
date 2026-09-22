@@ -83,8 +83,8 @@ const.Combat.Perks.SaviorAdrenalineRushBonusAP = R_VanillaAPToDisplay(2)
 ----- Critical
 const.Combat.Critical = {}
 const.Combat.Critical.PrismScopeCritPerAim = 3 -- 4
-const.Combat.Critical.LaserDotCritPerAim = 1
-const.Combat.Critical.PSOScopeCritOnAimed = 10
+const.Combat.Critical.LaserDotCritPerAim = 2
+const.Combat.Critical.PSOScopeCritOnAimed = 10 
 const.Combat.Critical.FirstAimCrit = 6
 const.Combat.HandEyeCritScalingFactor = 80
 -------------
