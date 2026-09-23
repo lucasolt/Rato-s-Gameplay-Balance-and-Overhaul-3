@@ -232,6 +232,31 @@ function Rat_AttShopEnsureButton()
     end
 end
 
+---- Captured once; a hot reload re-wraps the vanilla function, not itself.
+if not RAT_ATT_OrigShopStatsOther then
+    RAT_ATT_OrigShopStatsOther = BobbyRayStoreGetStats_Other
+end
+
+---- Families whose items are named after their first calibre. Boosters span bores (NATO, AK), so
+---- one calibre in the column would mislead.
+RAT_ATT_SHOP_CAL_FAMILIES = {compensator = true, suppressor = true}
+
+---- Calibre-bound compensators and suppressors fill the stats column the way magazines do.
+function BobbyRayStoreGetStats_Other(item)
+    local id = item.class or item.id
+    for _, def in ipairs(RAT_ATT_ENABLED and RAT_ATT_ITEMS or empty_table) do
+        if def.id == id then
+            local cal = RAT_ATT_SHOP_CAL_FAMILIES[def.family] and def.calibers and
+                            FindPreset("Caliber", def.calibers[1])
+            if cal then
+                return {{T(196962828215, "Cal"), cal.Name}}
+            end
+            break
+        end
+    end
+    return RAT_ATT_OrigShopStatsOther(item)
+end
+
 function Rat_AttShopSetup()
     if not RAT_ATT_SHOP_ENABLED or not RAT_ATT_ENABLED then
         return
