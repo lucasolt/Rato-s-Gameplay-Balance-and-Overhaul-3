@@ -113,8 +113,29 @@ function GBO_ApplyRevMagCompatibility()
     end
 end
 
+---- RevMags disables the Magazine slot button on DataLoaded; CommonLib's ChangeUI replaces that OnContextUpdate later (OnModLoad)
+local function Rat_RevMag_lockMagazineSlot()
+    if not IsMod_loaded("URkxyfE") then
+        return
+    end
+    local found = REV_CustomSettingsUtils.XTemplate_FindElementsByProp(XTemplates.WeaponComponentWindow, 'Id', 'idCurrent')
+    local element = found and found.element
+    if not element or element.rat_revmag_locked then
+        return
+    end
+    local orig = element.OnContextUpdate
+    element.OnContextUpdate = function(self, context, ...)
+        orig(self, context, ...)
+        if context.slot and context.slot.SlotType == "Magazine" then
+            self:SetEnabled(false)
+        end
+    end
+    element.rat_revmag_locked = true
+end
+
 function OnMsg.ModsReloaded()
     GBO_ApplyRevMagCompatibility()
+    Rat_RevMag_lockMagazineSlot()
 end
 
 function OnMsg.DataLoaded()
