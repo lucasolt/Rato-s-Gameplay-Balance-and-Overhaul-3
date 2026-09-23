@@ -38,6 +38,19 @@ RAT_ATT_SHOP_TIERS = {
     {MaxStock = 1, RestockWeight = 30}
 }
 
+---- Percent applied to the tier weight, per page. Weights compete across the whole Attachments
+---- category (magazines included), so this shifts the mix without changing how many items restock.
+RAT_ATT_SHOP_PAGE_WEIGHT = {
+    RatSights = 100,
+    RatOptics = 100,
+    RatMuzzle = 100,
+    RatSupport = 100
+}
+
+---- Per item overrides, beating tier and page: RestockWeight, MaxStock, Tier. RestockWeight 0 keeps
+---- an item out of the shop. e.g. RAT_Att_Bipod = {RestockWeight = 150, MaxStock = 2}
+RAT_ATT_SHOP_ITEM = {}
+
 ---- Revised Mags files these under Ammo. A magazine is something you bolt onto a gun, so they move
 ---- here; the ids and sort order are theirs.
 RAT_ATT_SHOP_MAGS = {
@@ -129,17 +142,22 @@ end
 ---- preset. The preset gets them too, because the store UI reads that one.
 function Rat_AttShopEnsureItems()
     for _, def in ipairs(RAT_ATT_ITEMS) do
-        local tier = RAT_ATT_SHOP_TIERS[def.tier]
+        local over = RAT_ATT_SHOP_ITEM[def.id] or empty_table
+        local tier_n = over.Tier or def.tier
+        local tier = RAT_ATT_SHOP_TIERS[tier_n]
+        local page = ((def.family or RAT_ATT_SHOP_MUZZLE[def.id]) and "RatMuzzle") or
+            (RAT_ATT_SHOP_SUPPORT[def.id] and "RatSupport") or
+            (RAT_ATT_SHOP_SIGHTS[def.id] and "RatSights") or "RatOptics"
+        local weight = over.RestockWeight or
+            MulDivRound(tier.RestockWeight, RAT_ATT_SHOP_PAGE_WEIGHT[page] or 100, 100)
         local props = {
             CanAppearInShop = not def.reserved,
-            Tier = def.tier,
-            MaxStock = tier.MaxStock,
-            RestockWeight = def.reserved and 0 or tier.RestockWeight,
+            Tier = tier_n,
+            MaxStock = over.MaxStock or tier.MaxStock,
+            RestockWeight = def.reserved and 0 or weight,
             CanBeConsumed = true,
             ShopStackSize = 1,
-            CategoryPair = ((def.family or RAT_ATT_SHOP_MUZZLE[def.id]) and "RatMuzzle") or
-                (RAT_ATT_SHOP_SUPPORT[def.id] and "RatSupport") or
-                (RAT_ATT_SHOP_SIGHTS[def.id] and "RatSights") or "RatOptics"
+            CategoryPair = page
         }
         for _, target in ipairs({g_Classes[def.id] or false, InventoryItemDefs[def.id] or false}) do
             if target then
@@ -238,16 +256,17 @@ function OnMsg.PDATabOpened(mode)
 end
 
 function Rat_AttShopReport()
-    local per = {}
+    local per, weight = {}, {}
     for _, def in ipairs(RAT_ATT_ITEMS) do
         local class = g_Classes[def.id]
         if class and class.CanAppearInShop then
             local key = class.CategoryPair .. " t" .. tostring(class.Tier)
             per[key] = (per[key] or 0) + 1
+            weight[key] = (weight[key] or 0) + class.RestockWeight
         end
     end
     for key, n in pairs(per) do
-        print("Rat_AttShop: " .. key .. " -> " .. n .. " items")
+        print("Rat_AttShop: " .. key .. " -> " .. n .. " items, weight " .. weight[key])
     end
     local ok, err = pcall(PrepareShopItemsForRestock, 3, false)
     print("Rat_AttShop: restock builds = " .. tostring(ok) .. (ok and "" or (" " .. tostring(err))))

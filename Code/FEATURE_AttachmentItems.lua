@@ -44,6 +44,10 @@ RAT_ATT_SIZES = {
     large = {Weight = 800, PocketML = 1, PocketL = 2}
 }
 
+---- Parts back from scrapping, by size; a def's `scrap` field overrides. Kept well under
+---- RAT_ATT_PARTS so buying and scrapping never beats the fitting bill. Halved below 50 condition.
+RAT_ATT_SCRAP = {small = 1, medium = 2, large = 3}
+
 ---- Iron sights, rails and blank shafts stay free -- they are what a gun wears when it wears nothing.
 RAT_ATT_DENY_NAMES = {
     ["Default Iron Sight"] = true,
@@ -1137,6 +1141,13 @@ function Rat_AttEnsureDefs()
                 props[#props + 1] = v
             end
             PlaceObj('InventoryItemCompositeDef', props)
+        end
+        ---- stamped every load, not only at creation, so retuning RAT_ATT_SCRAP reaches old saves
+        local scrap = def.scrap or RAT_ATT_SCRAP[def.size]
+        for _, target in ipairs({g_Classes[def.id] or false, (InventoryItemDefs or empty_table)[def.id] or false}) do
+            if target then
+                target.ScrapParts = scrap
+            end
         end
     end
 end
