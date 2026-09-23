@@ -48,7 +48,7 @@ RAT_ATT_SHOP_PAGE_WEIGHT = {
 }
 
 ---- Per item overrides, beating tier and page: RestockWeight, MaxStock, Tier. RestockWeight 0 keeps
----- an item out of the shop. e.g. RAT_Att_Bipod = {RestockWeight = 150, MaxStock = 2}
+---- an item out of the shop; any RestockWeight puts a stock part back in. e.g. RAT_Att_Bipod = {RestockWeight = 150}
 RAT_ATT_SHOP_ITEM = {}
 
 ---- Revised Mags files these under Ammo. A magazine is something you bolt onto a gun, so they move
@@ -138,11 +138,34 @@ function Rat_AttShopRepairOrphans()
     end
 end
 
+---- Stock parts: every vanilla or patched gun that takes the item ships with it (AUG Swarovski, G11
+---- ZO-1). They come off the gun they belong to, so the shop never sells them.
+function Rat_AttShopStockItems()
+    local stock = {} -- item -> true while every gun seen so far ships with it
+    ForEachPreset("InventoryItemCompositeDef", function(p)
+        local cls = g_Classes[p.id]
+        if not IsKindOf(cls, "Firearm") or not (IsVanillaFirearm(cls) or cls.is_tog_patched) then
+            return
+        end
+        for _, slot in ipairs(cls.ComponentSlots or empty_table) do
+            for _, cid in ipairs(slot.AvailableComponents or empty_table) do
+                local item = Rat_AttItemFor(cid, cls)
+                if item then
+                    stock[item] = stock[item] ~= false and slot.DefaultComponent == cid
+                end
+            end
+        end
+    end)
+    return stock
+end
+
 ---- The shop properties live on the class: PrepareShopItemsForRestock reads g_Classes, not the
 ---- preset. The preset gets them too, because the store UI reads that one.
 function Rat_AttShopEnsureItems()
+    local stock = Rat_AttShopStockItems()
     for _, def in ipairs(RAT_ATT_ITEMS) do
         local over = RAT_ATT_SHOP_ITEM[def.id] or empty_table
+        local hidden = def.reserved or (stock[def.id] and not over.RestockWeight)
         local tier_n = over.Tier or def.tier
         local tier = RAT_ATT_SHOP_TIERS[tier_n]
         local page = ((def.family == "grenadelauncher" or RAT_ATT_SHOP_SUPPORT[def.id]) and "RatSupport") or
@@ -151,10 +174,10 @@ function Rat_AttShopEnsureItems()
         local weight = over.RestockWeight or
             MulDivRound(tier.RestockWeight, RAT_ATT_SHOP_PAGE_WEIGHT[page] or 100, 100)
         local props = {
-            CanAppearInShop = not def.reserved,
+            CanAppearInShop = not hidden,
             Tier = tier_n,
             MaxStock = over.MaxStock or tier.MaxStock,
-            RestockWeight = def.reserved and 0 or weight,
+            RestockWeight = hidden and 0 or weight,
             CanBeConsumed = true,
             ShopStackSize = 1,
             CategoryPair = page
