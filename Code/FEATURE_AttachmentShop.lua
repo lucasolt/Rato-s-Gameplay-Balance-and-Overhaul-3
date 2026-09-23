@@ -23,8 +23,8 @@ RAT_ATT_SHOP_SIGHTS = {
     RAT_Att_ReflexSight = true
 }
 
----- Muzzle devices and the bipod get their own pages; everything else is an optic or a sight.
----- Every family item is a muzzle device, so only the chokes need naming here.
+---- Muzzle devices and the underbarrel gear (bipod, grenade launchers) get their own pages; everything
+---- else is an optic or a sight. Family items are muzzle devices unless underbarrel, so only the chokes need naming.
 RAT_ATT_SHOP_MUZZLE = {
     RAT_Att_DuckbillChoke = true,
     RAT_Att_FullChoke = true
@@ -145,8 +145,8 @@ function Rat_AttShopEnsureItems()
         local over = RAT_ATT_SHOP_ITEM[def.id] or empty_table
         local tier_n = over.Tier or def.tier
         local tier = RAT_ATT_SHOP_TIERS[tier_n]
-        local page = ((def.family or RAT_ATT_SHOP_MUZZLE[def.id]) and "RatMuzzle") or
-            (RAT_ATT_SHOP_SUPPORT[def.id] and "RatSupport") or
+        local page = ((def.family == "grenadelauncher" or RAT_ATT_SHOP_SUPPORT[def.id]) and "RatSupport") or
+            ((def.family or RAT_ATT_SHOP_MUZZLE[def.id]) and "RatMuzzle") or
             (RAT_ATT_SHOP_SIGHTS[def.id] and "RatSights") or "RatOptics"
         local weight = over.RestockWeight or
             MulDivRound(tier.RestockWeight, RAT_ATT_SHOP_PAGE_WEIGHT[page] or 100, 100)

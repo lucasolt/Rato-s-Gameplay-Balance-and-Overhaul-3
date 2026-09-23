@@ -103,7 +103,22 @@ RAT_ATT_FAMILIES = {
                    "hk33_muzzle_1", "AUGCompensator_03", "Compensator_Glock"},
     booster = {"MuzzleBooster"},
     suppressor = {"Suppressor", "RAT_TOG_suppressor", "RAT_TOG_suppressor_762", "RAT_TOG_suppressor_wp",
-                  "Suppressor_Anaconda", "ToG_Shotgun_Silencer"}
+                  "Suppressor_Anaconda", "ToG_Shotgun_Silencer"},
+    ---- Removable underbarrel launchers only. Built-in ones (A91) and the fold/unfold rifle grenade
+    ---- toggles (BM59, M70, PAP) stay free, like bayonets.
+    grenadelauncher = {"AK47_Launcher", "GrenadeLauncher", "GrenadeLauncher_AUG", "GrenadeLauncher_Commando",
+                       "GrenadeLauncher_Galil", "GrenadeLauncher_M14", "GrenadeLauncher_M16A1",
+                       "G11_Grenadelauncher_1", "ToG_NatoGL"}
+}
+
+---- Families whose `any` item only reaches vanilla and is_tog_patched guns; elsewhere the part stays free.
+RAT_ATT_FAM_PATCHED_ONLY = {grenadelauncher = true}
+
+---- Components that keep their own bill and also consume an item: the AUG's long barrels carry a bipod.
+RAT_ATT_EXTRA = {
+    BarrelLong_AUG = "RAT_Att_Bipod",
+    BarrelLongImproved_AUG = "RAT_Att_Bipod",
+    long_barrel_AUG_light = "RAT_Att_Bipod"
 }
 ---- Any other muzzle component with one of these display names joins the family too, the way the
 ---- optics bind by name: ToG ships a new id per gun (L85, M60, FN2000) for the same device.
@@ -416,7 +431,9 @@ RAT_ATT_ITEMS = {
         size = "large",
         cost = 1500,
         tier = 1,
-        comps = {"AN94_Bip_def_1", "Bipod", "Bipod_MG42", "Bipod_m82", "G11_Bipod_1", "ToG_Bipod_1", "U100_bipod_fld_1"}
+        ---- Bipod_Under and Bipod_Galil sit in the Under slot, which name binding does not scan
+        comps = {"AN94_Bip_def_1", "Bipod", "Bipod_MG42", "Bipod_m82", "G11_Bipod_1", "ToG_Bipod_1", "U100_bipod_fld_1",
+                 "Bipod_Under", "Bipod_Galil"}
     },
     ---- Compensators by calibre. model is what the gun wears, whatever its own Visuals say.
     {
@@ -845,6 +862,27 @@ RAT_ATT_ITEMS = {
         tier = 2,
         reserved = true,
         comps = {"MP7_Supr_1"}
+    },
+    ---- Grenade launchers by pattern; each gun keeps its own launcher model.
+    {
+        id = "RAT_Att_GP25",
+        name = "GP-25 Grenade Launcher",
+        icon = "UI/Icons/Upgrades/grenade_launcher_WP",
+        size = "large",
+        cost = 3000,
+        tier = 2,
+        family = "grenadelauncher",
+        guns = {"AK47", "AK74"}
+    },
+    {
+        id = "RAT_Att_M203",
+        name = "M203 Grenade Launcher",
+        icon = "UI/Icons/Upgrades/m16_grenade_launcher",
+        size = "large",
+        cost = 3500,
+        tier = 2,
+        family = "grenadelauncher",
+        any = true
     }
 }
 
@@ -852,6 +890,7 @@ RAT_ATT_ITEM_OF = {} -- component id -> item class
 RAT_ATT_FAMILY_OF = {} -- component id -> family name
 RAT_ATT_FAM_GUN = {} -- family -> weapon class -> item def
 RAT_ATT_FAM_CAL = {} -- family -> caliber -> item defs
+RAT_ATT_FAM_ANY = {} -- family -> item def for any gun the others miss
 RAT_ATT_UNBOUND = {} -- report only: optics in a covered slot that got no item
 
 ---- The item classes. DefineClass is gone by the time the game runs, so this only executes on a
@@ -895,8 +934,11 @@ local function comp_denied(name)
 end
 
 ---- The family item for this gun: a platform item naming the class wins, then a calibre item whose
----- types admit the weapon type, then an untyped one. nil leaves the device free.
+---- types admit the weapon type, then an untyped one, then the family's `any`. nil leaves it free.
 function Rat_AttFamilyDef(family, weapon)
+    if RAT_ATT_FAM_PATCHED_ONLY[family] and not (IsVanillaFirearm(weapon) or weapon.is_tog_patched) then
+        return
+    end
     local gun = RAT_ATT_FAM_GUN[family][weapon.class]
     if gun then
         return gun
@@ -909,7 +951,7 @@ function Rat_AttFamilyDef(family, weapon)
             return def
         end
     end
-    return fallback
+    return fallback or RAT_ATT_FAM_ANY[family]
 end
 
 ---- The item a component costs on this weapon. Only the families need the weapon; for everything
@@ -1000,6 +1042,7 @@ function Rat_AttBind()
     table.clear(RAT_ATT_ITEM_OF)
     table.clear(RAT_ATT_FAMILY_OF)
     table.clear(RAT_ATT_UNBOUND)
+    table.clear(RAT_ATT_FAM_ANY)
     for family, comps in pairs(RAT_ATT_FAMILIES) do
         RAT_ATT_FAM_GUN[family] = {}
         RAT_ATT_FAM_CAL[family] = {}
@@ -1022,6 +1065,9 @@ function Rat_AttBind()
             goto continue
         end
         if def.family then
+            if def.any then
+                RAT_ATT_FAM_ANY[def.family] = def
+            end
             for _, class in ipairs(def.guns or empty_table) do
                 RAT_ATT_FAM_GUN[def.family][class] = def
             end
@@ -1240,6 +1286,12 @@ function ModifyWeaponDlg:GetChangesCost(slotFilter, placedComponentOverride)
                 costs[item] = (costs[item] or 0) + 1
                 touched = true
             end
+            ---- a swap between two bipod barrels moves the same bipod across
+            local extra = RAT_ATT_EXTRA[placed]
+            if extra and RAT_ATT_EXTRA[itemId] ~= extra then
+                costs[extra] = (costs[extra] or 0) + 1
+                touched = true
+            end
         end
     end
     if not touched then
@@ -1300,20 +1352,32 @@ end
 ---- A failed modification roll never reaches here, and vanilla only burns Parts on a failure, so a
 ---- botched install does not eat the scope.
 function OnMsg.WeaponModifiedSuccess(weapon, unit, modAdded, mechanic, modSlot, oldComponent)
-    if not RAT_ATT_ENABLED then
-        return
-    end
-    local item = oldComponent and Rat_AttItemFor(oldComponent, weapon)
-    if not item then
+    if not RAT_ATT_ENABLED or not oldComponent then
         return
     end
     local preferred = mechanic or unit
-    local holder = rat_att_holder(preferred, item)
-    if holder then
-        RestoreSectorOperationResource(holder, item, 1)
-    else
-        ---- nobody has a free tile: the part goes to the sector stash instead of nowhere
-        NetSyncEvent("Rat_AttStashPart", rat_att_sector(preferred), item)
+    local function give(item)
+        local holder = rat_att_holder(preferred, item)
+        if holder then
+            RestoreSectorOperationResource(holder, item, 1)
+        else
+            ---- nobody has a free tile: the part goes to the sector stash instead of nowhere
+            NetSyncEvent("Rat_AttStashPart", rat_att_sector(preferred), item)
+        end
+    end
+    local item = Rat_AttItemFor(oldComponent, weapon)
+    if item then
+        give(item)
+    end
+    local extra = RAT_ATT_EXTRA[oldComponent]
+    if extra then
+        ---- the clone already wears the new component when this fires; the weapon may not yet
+        local cabinet = GetDialog("ModifyWeaponDlg")
+        local dlg = cabinet and cabinet.idModifyDialog
+        local placed = dlg and dlg.weaponClone and dlg.weaponClone.components[modSlot]
+        if RAT_ATT_EXTRA[placed] ~= extra then
+            give(extra)
+        end
     end
 end
 
