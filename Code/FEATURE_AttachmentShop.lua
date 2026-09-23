@@ -226,9 +226,14 @@ function Rat_AttShopEnsureButton()
     end
 end
 
----- Guns Bobby Ray sells come without the attachments he also sells: a scope is bought once, on its
----- own page. Stock parts stay on the gun, since the shop never sells those.
-RAT_ATT_SHOP_STRIP_GUNS = true
+---- New guns come without the factory attachments Bobby Ray also sells. Used guns keep their roll,
+---- which RandomlyModifyWeapon below already gates by tier and weight.
+RAT_ATT_SHOP_STRIP_GUNS = false
+
+---- Used gun roll: an attachment adds this percent of its new price; parts with no item keep the
+---- vanilla flat percent of the gun and roll at this weight.
+RAT_ATT_USED_VALUE = 50
+RAT_ATT_USED_FREE_WEIGHT = 100
 
 local function rat_sold(cid, weapon)
     local item = Rat_AttItemFor(cid, weapon) or RAT_ATT_EXTRA[cid]
@@ -237,7 +242,7 @@ local function rat_sold(cid, weapon)
 end
 
 ---- Swaps every sold attachment for the slot default, an empty slot, or the first unsold option, in
----- that order. Returns how many non-default parts came off, which is what a used gun was priced on.
+---- that order. Returns how many non-default parts came off.
 function Rat_AttStripWeapon(weapon)
     local stripped = 0
     for _, slot in ipairs(weapon.ComponentSlots or empty_table) do
@@ -273,12 +278,66 @@ if not RAT_ATT_OrigRandomlyModifyWeapon then
     RAT_ATT_OrigRandomlyModifyWeapon = RandomlyModifyWeapon
 end
 
----- Used guns: the random parts that are shop attachments come off, and so does their price bump.
+---- Roll weight and price (percent of the gun) of one part; no weight means it cannot roll.
+local function rat_used_part(cid, weapon, tier)
+    local flat = const.BobbyRay.Restock_UsedWeaponComponentPriceMod
+    local item = Rat_AttItemFor(cid, weapon)
+    local id = item or RAT_ATT_EXTRA[cid]
+    local class = id and g_Classes[id]
+    if not class then
+        return RAT_ATT_USED_FREE_WEIGHT, flat
+    end
+    if not class.CanAppearInShop or class.RestockWeight <= 0 or (class.Tier or 1) > tier then
+        return
+    end
+    local price = MulDivRound(class.Cost, RAT_ATT_USED_VALUE, Max(1, weapon.Cost))
+    ---- a bipod barrel is still a barrel: vanilla share for the barrel, item share for the bipod
+    return class.RestockWeight, item and price or price + flat
+end
+
+---- Used guns: vanilla's slot chance and blocking, but each part must have its tier unlocked, rolls
+---- by its shop weight, and adds a share of its own price instead of a flat cut of the gun's.
 function RandomlyModifyWeapon(weapon)
-    local cost_modifier = RAT_ATT_OrigRandomlyModifyWeapon(weapon)
-    if rat_strip_on() then
-        local stripped = Rat_AttStripWeapon(weapon)
-        cost_modifier = Max(0, cost_modifier - stripped * const.BobbyRay.Restock_UsedWeaponComponentPriceMod)
+    if not (RAT_ATT_ENABLED and RAT_ATT_SHOP_ENABLED) then
+        return RAT_ATT_OrigRandomlyModifyWeapon(weapon)
+    end
+    local chance = const.BobbyRay.Restock_UsedWeaponComponentPercentage
+    local tier = BobbyRayShopGetUnlockedTier() or 1
+    local slots = table.icopy(weapon.ComponentSlots or empty_table)
+    table.shuffle(slots, InteractionRand(nil, "BobbyRayShop"))
+    local blocked, rolled, cost_modifier = {}, {}, 0
+    for _, slot in ipairs(slots) do
+        if not blocked[slot.SlotType] and InteractionRand(100, "BobbyRayShop") < chance then
+            local pool, total = {}, 0
+            for _, cid in ipairs(slot.AvailableComponents or empty_table) do
+                local comp = WeaponComponents[cid]
+                local clash
+                for _, b in ipairs(comp and comp.BlockSlots or empty_table) do
+                    clash = clash or rolled[b]
+                end
+                if cid ~= slot.DefaultComponent and comp and not clash then
+                    local weight, price = rat_used_part(cid, weapon, tier)
+                    if weight then
+                        total = total + weight
+                        pool[#pool + 1] = {cid, total, price}
+                    end
+                end
+            end
+            if total > 0 then
+                local roll = InteractionRand(total, "BobbyRayShop")
+                for _, entry in ipairs(pool) do
+                    if roll < entry[2] then
+                        weapon:SetWeaponComponent(slot.SlotType, entry[1])
+                        rolled[slot.SlotType] = true
+                        cost_modifier = cost_modifier + entry[3]
+                        for _, b in ipairs(WeaponComponents[entry[1]].BlockSlots or empty_table) do
+                            blocked[b] = true
+                        end
+                        break
+                    end
+                end
+            end
+        end
     end
     return cost_modifier
 end
@@ -297,12 +356,13 @@ function RestockStandardItem(item_class)
 end
 
 ---- A new gun is delivered from a fresh instance with factory parts, not from the store copy.
+---- Used guns ship as clones of their listing, rolled parts included.
 function OnMsg.BobbyRayShopShipmentSent(shipment)
     if not rat_strip_on() then
         return
     end
     for _, item in ipairs(shipment.items or empty_table) do
-        if IsKindOf(item, "Firearm") then
+        if IsKindOf(item, "Firearm") and not item.Used then
             Rat_AttStripWeapon(item)
         end
     end
@@ -356,6 +416,11 @@ function OnMsg.DataLoaded()
 end
 
 function OnMsg.ModsReloaded()
+    Rat_AttShopSetup()
+end
+
+---- After a Lua reload; the items file registers first, so the bindings are rebuilt by now.
+function OnMsg.AutorunEnd()
     Rat_AttShopSetup()
 end
 

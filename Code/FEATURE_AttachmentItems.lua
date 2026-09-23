@@ -1274,6 +1274,11 @@ function OnMsg.zCore_SlotDepFin()
     if RAT_ATT_ENABLED then
         Rat_AttHookVisuals()
     end
+---- A Lua reload rebuilds the classes and empties the binding tables, and fires neither of the above.
+function OnMsg.AutorunEnd()
+    Rat_AttSetup()
+end
+
 end
 
 ---- SectorOperationResouces is rebuilt from a copy of the vanilla base on every ClassesBuilt, so
