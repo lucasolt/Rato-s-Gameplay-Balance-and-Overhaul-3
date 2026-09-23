@@ -47,10 +47,6 @@ RAT_ATT_SHOP_PAGE_WEIGHT = {
     RatSupport = 100
 }
 
----- Per item overrides, beating tier and page: RestockWeight, MaxStock, Tier. RestockWeight 0 keeps
----- an item out of the shop; any RestockWeight puts a stock part back in. e.g. RAT_Att_Bipod = {RestockWeight = 150}
-RAT_ATT_SHOP_ITEM = {}
-
 ---- Revised Mags files these under Ammo. A magazine is something you bolt onto a gun, so they move
 ---- here; the ids and sort order are theirs.
 RAT_ATT_SHOP_MAGS = {
@@ -144,19 +140,17 @@ end
 function Rat_AttShopEnsureItems()
     local _, stock = Rat_AttCompatible()
     for _, def in ipairs(RAT_ATT_ITEMS) do
-        local over = RAT_ATT_SHOP_ITEM[def.id] or empty_table
-        local hidden = def.reserved or (stock[def.id] and not over.RestockWeight)
-        local tier_n = over.Tier or def.tier
-        local tier = RAT_ATT_SHOP_TIERS[tier_n]
+        local hidden = def.reserved or (stock[def.id] and not def.weight)
+        local tier = RAT_ATT_SHOP_TIERS[def.tier]
         local page = ((def.family == "grenadelauncher" or RAT_ATT_SHOP_SUPPORT[def.id]) and "RatSupport") or
             ((def.family or RAT_ATT_SHOP_MUZZLE[def.id]) and "RatMuzzle") or
             (RAT_ATT_SHOP_SIGHTS[def.id] and "RatSights") or "RatOptics"
-        local weight = over.RestockWeight or
+        local weight = def.weight or
             MulDivRound(tier.RestockWeight, RAT_ATT_SHOP_PAGE_WEIGHT[page] or 100, 100)
         local props = {
             CanAppearInShop = not hidden,
-            Tier = tier_n,
-            MaxStock = over.MaxStock or tier.MaxStock,
+            Tier = def.tier,
+            MaxStock = def.max_stock or tier.MaxStock,
             RestockWeight = hidden and 0 or weight,
             CanBeConsumed = true,
             ShopStackSize = 1,
