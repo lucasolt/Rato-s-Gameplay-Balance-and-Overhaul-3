@@ -48,6 +48,10 @@ RAT_ATT_SIZES = {
 ---- RAT_ATT_PARTS so buying and scrapping never beats the fitting bill. Halved below 50 condition.
 RAT_ATT_SCRAP = {small = 1, medium = 2, large = 3}
 
+---- The item hint lists the guns it fits; past this many distinct names it just says Universal.
+RAT_ATT_UNIVERSAL = 12
+RAT_ATT_HINT = "<bullet_point> Weapon attachment. Install it from the weapon modification screen."
+
 ---- Iron sights, rails and blank shafts stay free -- they are what a gun wears when it wears nothing.
 RAT_ATT_DENY_NAMES = {
     ["Default Iron Sight"] = true,
@@ -903,8 +907,7 @@ if DefineClass then
             Icon = def.icon,
             DisplayName = Untranslated(def.name),
             DisplayNamePlural = Untranslated(def.name),
-            AdditionalHint = Untranslated(
-                "<bullet_point> Weapon attachment. Install it from the weapon modification screen."),
+            AdditionalHint = Untranslated(RAT_ATT_HINT),
             Cost = def.cost,
             MaxStacks = 5
         }
@@ -1178,8 +1181,7 @@ function Rat_AttEnsureDefs()
                 'Icon', def.icon,
                 'DisplayName', Untranslated(def.name),
                 'DisplayNamePlural', Untranslated(def.name),
-                'AdditionalHint', Untranslated(
-                    "<bullet_point> Weapon attachment. Install it from the weapon modification screen."),
+                'AdditionalHint', Untranslated(RAT_ATT_HINT),
                 'Cost', def.cost
             }
             for k, v in pairs(RAT_ATT_SIZES[def.size]) do
@@ -1198,12 +1200,60 @@ function Rat_AttEnsureDefs()
     end
 end
 
+---- Which vanilla or is_tog_patched guns take each item, and whether every one of them ships with it.
+---- fits: item -> {weapon class = true}; stock: item -> true when it is the default on all of them.
+function Rat_AttCompatible()
+    local fits, stock = {}, {}
+    ForEachPreset("InventoryItemCompositeDef", function(p)
+        local cls = g_Classes[p.id]
+        if not IsKindOf(cls, "Firearm") or not (IsVanillaFirearm(cls) or cls.is_tog_patched) then
+            return
+        end
+        for _, slot in ipairs(cls.ComponentSlots or empty_table) do
+            for _, cid in ipairs(slot.AvailableComponents or empty_table) do
+                local item = Rat_AttItemFor(cid, cls)
+                if item then
+                    fits[item] = fits[item] or {}
+                    fits[item][p.id] = true
+                    stock[item] = stock[item] ~= false and slot.DefaultComponent == cid
+                end
+            end
+        end
+    end)
+    return fits, stock
+end
+
+---- Appends the compatible guns to each item's hint. Rebuilt every setup, so a newly patched gun shows up.
+function Rat_AttEnsureHints()
+    local fits = Rat_AttCompatible()
+    for _, def in ipairs(RAT_ATT_ITEMS) do
+        local names = {}
+        for class in pairs(fits[def.id] or empty_table) do
+            local name = _InternalTranslate(g_Classes[class].DisplayName or Untranslated(class))
+            if not table.find(names, name) then
+                names[#names + 1] = name
+            end
+        end
+        table.sort(names)
+        ---- reserved items reach no patched gun yet; no line beats "Fits: nothing"
+        local list = #names > RAT_ATT_UNIVERSAL and "Universal" or table.concat(names, ", ")
+        local hint = Untranslated(#names == 0 and RAT_ATT_HINT or
+                                      (RAT_ATT_HINT .. "<newline><bullet_point> Fits: " .. list))
+        for _, target in ipairs({g_Classes[def.id] or false, (InventoryItemDefs or empty_table)[def.id] or false}) do
+            if target then
+                target.AdditionalHint = hint
+            end
+        end
+    end
+end
+
 function Rat_AttSetup()
     if not RAT_ATT_ENABLED then
         return
     end
     Rat_AttBind()
     Rat_AttEnsureDefs()
+    Rat_AttEnsureHints()
     Rat_AttEnsureResources()
     Rat_AttHookVisuals()
 end

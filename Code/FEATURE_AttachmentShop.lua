@@ -138,31 +138,11 @@ function Rat_AttShopRepairOrphans()
     end
 end
 
----- Stock parts: every vanilla or patched gun that takes the item ships with it (AUG Swarovski, G11
----- ZO-1). They come off the gun they belong to, so the shop never sells them.
-function Rat_AttShopStockItems()
-    local stock = {} -- item -> true while every gun seen so far ships with it
-    ForEachPreset("InventoryItemCompositeDef", function(p)
-        local cls = g_Classes[p.id]
-        if not IsKindOf(cls, "Firearm") or not (IsVanillaFirearm(cls) or cls.is_tog_patched) then
-            return
-        end
-        for _, slot in ipairs(cls.ComponentSlots or empty_table) do
-            for _, cid in ipairs(slot.AvailableComponents or empty_table) do
-                local item = Rat_AttItemFor(cid, cls)
-                if item then
-                    stock[item] = stock[item] ~= false and slot.DefaultComponent == cid
-                end
-            end
-        end
-    end)
-    return stock
-end
-
 ---- The shop properties live on the class: PrepareShopItemsForRestock reads g_Classes, not the
 ---- preset. The preset gets them too, because the store UI reads that one.
+---- Stock parts (AUG Swarovski, G11 ZO-1) come off the gun they belong to, so the shop never sells them.
 function Rat_AttShopEnsureItems()
-    local stock = Rat_AttShopStockItems()
+    local _, stock = Rat_AttCompatible()
     for _, def in ipairs(RAT_ATT_ITEMS) do
         local over = RAT_ATT_SHOP_ITEM[def.id] or empty_table
         local hidden = def.reserved or (stock[def.id] and not over.RestockWeight)
