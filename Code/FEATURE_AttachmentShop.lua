@@ -226,6 +226,88 @@ function Rat_AttShopEnsureButton()
     end
 end
 
+---- Guns Bobby Ray sells come without the attachments he also sells: a scope is bought once, on its
+---- own page. Stock parts stay on the gun, since the shop never sells those.
+RAT_ATT_SHOP_STRIP_GUNS = true
+
+local function rat_sold(cid, weapon)
+    local item = Rat_AttItemFor(cid, weapon) or RAT_ATT_EXTRA[cid]
+    local class = item and g_Classes[item]
+    return class and class.CanAppearInShop
+end
+
+---- Swaps every sold attachment for the slot default, an empty slot, or the first unsold option, in
+---- that order. Returns how many non-default parts came off, which is what a used gun was priced on.
+function Rat_AttStripWeapon(weapon)
+    local stripped = 0
+    for _, slot in ipairs(weapon.ComponentSlots or empty_table) do
+        local cid = weapon.components[slot.SlotType]
+        if cid and cid ~= "" and rat_sold(cid, weapon) then
+            local default = slot.DefaultComponent
+            local repl = default and default ~= "" and default ~= cid and not rat_sold(default, weapon) and default
+            repl = repl or slot.CanBeEmpty and ""
+            if not repl then
+                for _, alt in ipairs(slot.AvailableComponents or empty_table) do
+                    if alt ~= cid and not rat_sold(alt, weapon) then
+                        repl = alt
+                        break
+                    end
+                end
+            end
+            if repl then
+                weapon:SetWeaponComponent(slot.SlotType, repl)
+                if cid ~= default then
+                    stripped = stripped + 1
+                end
+            end
+        end
+    end
+    return stripped
+end
+
+local function rat_strip_on()
+    return RAT_ATT_ENABLED and RAT_ATT_SHOP_ENABLED and RAT_ATT_SHOP_STRIP_GUNS
+end
+
+if not RAT_ATT_OrigRandomlyModifyWeapon then
+    RAT_ATT_OrigRandomlyModifyWeapon = RandomlyModifyWeapon
+end
+
+---- Used guns: the random parts that are shop attachments come off, and so does their price bump.
+function RandomlyModifyWeapon(weapon)
+    local cost_modifier = RAT_ATT_OrigRandomlyModifyWeapon(weapon)
+    if rat_strip_on() then
+        local stripped = Rat_AttStripWeapon(weapon)
+        cost_modifier = Max(0, cost_modifier - stripped * const.BobbyRay.Restock_UsedWeaponComponentPriceMod)
+    end
+    return cost_modifier
+end
+
+if not RAT_ATT_OrigRestockStandardItem then
+    RAT_ATT_OrigRestockStandardItem = RestockStandardItem
+end
+
+---- New guns: the store copy is what the listing shows, so strip it too.
+function RestockStandardItem(item_class)
+    RAT_ATT_OrigRestockStandardItem(item_class)
+    local item = rat_strip_on() and g_BobbyRayStore.standard[item_class]
+    if IsKindOf(item, "Firearm") then
+        Rat_AttStripWeapon(item)
+    end
+end
+
+---- A new gun is delivered from a fresh instance with factory parts, not from the store copy.
+function OnMsg.BobbyRayShopShipmentSent(shipment)
+    if not rat_strip_on() then
+        return
+    end
+    for _, item in ipairs(shipment.items or empty_table) do
+        if IsKindOf(item, "Firearm") then
+            Rat_AttStripWeapon(item)
+        end
+    end
+end
+
 ---- Captured once; a hot reload re-wraps the vanilla function, not itself.
 if not RAT_ATT_OrigShopStatsOther then
     RAT_ATT_OrigShopStatsOther = BobbyRayStoreGetStats_Other
@@ -259,6 +341,14 @@ function Rat_AttShopSetup()
     Rat_AttShopEnsureItems()
     Rat_AttShopRepairOrphans()
     Rat_AttShopEnsureButton()
+    ---- stock from before the flag: new guns only, a used gun's price already includes its parts
+    if rat_strip_on() and g_BobbyRayStore then
+        for _, item in pairs(g_BobbyRayStore.standard or empty_table) do
+            if IsKindOf(item, "Firearm") then
+                Rat_AttStripWeapon(item)
+            end
+        end
+    end
 end
 
 function OnMsg.DataLoaded()
