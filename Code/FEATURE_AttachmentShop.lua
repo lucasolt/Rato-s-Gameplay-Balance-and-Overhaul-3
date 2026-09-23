@@ -274,10 +274,6 @@ local function rat_strip_on()
     return RAT_ATT_ENABLED and RAT_ATT_SHOP_ENABLED and RAT_ATT_SHOP_STRIP_GUNS
 end
 
-if not RAT_ATT_OrigRandomlyModifyWeapon then
-    RAT_ATT_OrigRandomlyModifyWeapon = RandomlyModifyWeapon
-end
-
 ---- Roll weight and price (percent of the gun) of one part; no weight means it cannot roll.
 local function rat_used_part(cid, weapon, tier)
     local flat = const.BobbyRay.Restock_UsedWeaponComponentPriceMod
@@ -297,9 +293,10 @@ end
 
 ---- Used guns: vanilla's slot chance and blocking, but each part must have its tier unlocked, rolls
 ---- by its shop weight, and adds a share of its own price instead of a flat cut of the gun's.
+local orig = Rat_AttOriginal(RandomlyModifyWeapon)
 function RandomlyModifyWeapon(weapon)
     if not (RAT_ATT_ENABLED and RAT_ATT_SHOP_ENABLED) then
-        return RAT_ATT_OrigRandomlyModifyWeapon(weapon)
+        return orig(weapon)
     end
     local chance = const.BobbyRay.Restock_UsedWeaponComponentPercentage
     local tier = BobbyRayShopGetUnlockedTier() or 1
@@ -341,19 +338,18 @@ function RandomlyModifyWeapon(weapon)
     end
     return cost_modifier
 end
-
-if not RAT_ATT_OrigRestockStandardItem then
-    RAT_ATT_OrigRestockStandardItem = RestockStandardItem
-end
+RAT_ATT_WRAPS[RandomlyModifyWeapon] = orig
 
 ---- New guns: the store copy is what the listing shows, so strip it too.
+local orig = Rat_AttOriginal(RestockStandardItem)
 function RestockStandardItem(item_class)
-    RAT_ATT_OrigRestockStandardItem(item_class)
+    orig(item_class)
     local item = rat_strip_on() and g_BobbyRayStore.standard[item_class]
     if IsKindOf(item, "Firearm") then
         Rat_AttStripWeapon(item)
     end
 end
+RAT_ATT_WRAPS[RestockStandardItem] = orig
 
 ---- A new gun is delivered from a fresh instance with factory parts, not from the store copy.
 ---- Used guns ship as clones of their listing, rolled parts included.
@@ -368,16 +364,12 @@ function OnMsg.BobbyRayShopShipmentSent(shipment)
     end
 end
 
----- Captured once; a hot reload re-wraps the vanilla function, not itself.
-if not RAT_ATT_OrigShopStatsOther then
-    RAT_ATT_OrigShopStatsOther = BobbyRayStoreGetStats_Other
-end
-
 ---- Families whose items are named after their first calibre. Boosters span bores (NATO, AK), so
 ---- one calibre in the column would mislead.
 RAT_ATT_SHOP_CAL_FAMILIES = {compensator = true, suppressor = true}
 
 ---- Calibre-bound compensators and suppressors fill the stats column the way magazines do.
+local orig = Rat_AttOriginal(BobbyRayStoreGetStats_Other)
 function BobbyRayStoreGetStats_Other(item)
     local id = item.class or item.id
     for _, def in ipairs(RAT_ATT_ENABLED and RAT_ATT_ITEMS or empty_table) do
@@ -390,8 +382,9 @@ function BobbyRayStoreGetStats_Other(item)
             break
         end
     end
-    return RAT_ATT_OrigShopStatsOther(item)
+    return orig(item)
 end
+RAT_ATT_WRAPS[BobbyRayStoreGetStats_Other] = orig
 
 function Rat_AttShopSetup()
     if not RAT_ATT_SHOP_ENABLED or not RAT_ATT_ENABLED then

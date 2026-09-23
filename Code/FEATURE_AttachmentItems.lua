@@ -983,7 +983,7 @@ function Rat_AttApplyModels(weapon, vis)
             for _, descr in ipairs(WeaponComponents[cid].Visuals or empty_table) do
                 local part = vis.parts[descr.Slot]
                 if IsValid(part) and part:GetEntity() ~= model then
-                    RAT_ATT_NATIVE[part] = part:GetEntity()
+                    part.rat_native = part.rat_native or part:GetEntity()
                     part:ChangeEntity(model)
                     swapped = true
                 end
@@ -995,47 +995,47 @@ function Rat_AttApplyModels(weapon, vis)
     end
 end
 
+---- Our wrapper -> what it wrapped. ReloadLua re-runs vanilla, so a hook usually finds a fresh
+---- function; when it finds one of ours instead (hot load, repeated setup) it wraps what is under it.
+---- Mod code has no `debug` library, so this table is the only way to tell a wrapper of ours.
+RAT_ATT_WRAPS = setmetatable({}, weak_keys_meta)
+
+function Rat_AttOriginal(fn)
+    while RAT_ATT_WRAPS[fn] do
+        fn = RAT_ATT_WRAPS[fn]
+    end
+    return fn
+end
+
 ---- Put back the native model first: the removal pass only deletes a part whose entity matches one
 ---- of the old component's Visuals, so a swapped part would outlive its component.
-function Rat_AttUpdateVisualObj(self, vis)
+function Rat_AttUpdateVisualObj(self, vis, orig)
     vis = vis or self.visual_obj
     local own = IsValid(vis) and vis.weapon == self
     if own then
         for _, part in pairs(vis.parts or empty_table) do
-            if IsValid(part) and RAT_ATT_NATIVE[part] then
-                part:ChangeEntity(RAT_ATT_NATIVE[part])
-                RAT_ATT_NATIVE[part] = nil
+            if IsValid(part) and part.rat_native then
+                part:ChangeEntity(part.rat_native)
+                part.rat_native = nil
             end
         end
     end
-    local orig = RAT_ATT_VIS_ORIG[self.class] or FirearmBase.zz_UpdateVisualObj or FirearmBase.UpdateVisualObj
     orig(self, vis)
     if own and RAT_ATT_ENABLED then
         Rat_AttApplyModels(self, vis)
     end
 end
 
----- Class tables are sealed at runtime (a new member asserts), so what each class had before lives
----- here. Both are captured once: a reload must recognise its own trampoline, not wrap it again.
-if not RAT_ATT_VIS_ORIG then
-    RAT_ATT_VIS_ORIG = {}
-end
-if not RAT_ATT_NATIVE then
-    RAT_ATT_NATIVE = setmetatable({}, weak_keys_meta) -- swapped part -> the entity it came with
-end
-if not RAT_ATT_VisTrampoline then
-    RAT_ATT_VisTrampoline = function(self, vis)
-        return Rat_AttUpdateVisualObj(self, vis)
-    end
-end
-
 ---- Zulib stamps its UpdateVisualObj onto every Firearm class on ModsReloaded, so wrapping a base
----- class does nothing. Wrap each class after it, keeping whatever it had unless that was us.
+---- class does nothing. Each class gets its own wrapper over whatever it had, minus any of ours.
 function Rat_AttHookVisuals()
-    for name, class in pairs(g_Classes) do
-        if IsKindOf(class, "Firearm") and class.UpdateVisualObj ~= RAT_ATT_VisTrampoline then
-            RAT_ATT_VIS_ORIG[name] = class.UpdateVisualObj
-            class.UpdateVisualObj = RAT_ATT_VisTrampoline
+    for _, class in pairs(g_Classes) do
+        if IsKindOf(class, "Firearm") then
+            local orig = Rat_AttOriginal(class.UpdateVisualObj)
+            class.UpdateVisualObj = function(self, vis)
+                return Rat_AttUpdateVisualObj(self, vis, orig)
+            end
+            RAT_ATT_WRAPS[class.UpdateVisualObj] = orig
         end
     end
 end
@@ -1268,17 +1268,17 @@ function OnMsg.DataLoaded()
     Rat_AttSetup()
 end
 
+---- A Lua reload rebuilds the classes and empties the binding tables, and fires neither of the above.
+function OnMsg.AutorunEnd()
+    Rat_AttSetup()
+end
+
 ---- Zulib's ModsReloaded handler runs after ours and re-stamps every Firearm class; it announces
 ---- the end of that with this message, the first moment a wrapper sticks.
 function OnMsg.zCore_SlotDepFin()
     if RAT_ATT_ENABLED then
         Rat_AttHookVisuals()
     end
----- A Lua reload rebuilds the classes and empties the binding tables, and fires neither of the above.
-function OnMsg.AutorunEnd()
-    Rat_AttSetup()
-end
-
 end
 
 ---- SectorOperationResouces is rebuilt from a copy of the vanilla base on every ClassesBuilt, so
@@ -1300,17 +1300,11 @@ local function rat_att_afford(costs, sector)
     return can, per
 end
 
----- Captured once at load. A hot reload finds the global already set and re-wraps the vanilla
----- function, not itself.
-if not RAT_ATT_OrigGetChangesCost then
-    RAT_ATT_OrigGetChangesCost = ModifyWeaponDlg.GetChangesCost
-end
-
 ---- The one hook the whole feature needs: every gate in the modify screen -- the per-option price,
 ---- the greyed out slot, the Modify button, PayCosts -- reads this function.
+local orig = Rat_AttOriginal(ModifyWeaponDlg.GetChangesCost)
 function ModifyWeaponDlg:GetChangesCost(slotFilter, placedComponentOverride)
-    local costs, anyChanged, canAfford, perType =
-        RAT_ATT_OrigGetChangesCost(self, slotFilter, placedComponentOverride)
+    local costs, anyChanged, canAfford, perType = orig(self, slotFilter, placedComponentOverride)
     if not RAT_ATT_ENABLED or not anyChanged or not self.context.weapon or not self.weaponClone then
         return costs, anyChanged, canAfford, perType
     end
@@ -1360,16 +1354,13 @@ function ModifyWeaponDlg:GetChangesCost(slotFilter, placedComponentOverride)
     canAfford, perType = rat_att_afford(costs, self.sector)
     return costs, anyChanged, canAfford, perType
 end
-
-if not RAT_ATT_OrigDifficultyParams then
-    RAT_ATT_OrigDifficultyParams = ModifyWeaponDlg.GetModificationDifficultyParams
-end
+RAT_ATT_WRAPS[ModifyWeaponDlg.GetChangesCost] = orig
 
 ---- The other choke point: the roll, the "needs a better mechanic" gate and the difficulty label on
 ---- the option all read this one function.
+local orig = Rat_AttOriginal(ModifyWeaponDlg.GetModificationDifficultyParams)
 function ModifyWeaponDlg:GetModificationDifficultyParams(componentToChangePreset)
-    local skill, mostSkilled, difficulty, allowed =
-        RAT_ATT_OrigDifficultyParams(self, componentToChangePreset)
+    local skill, mostSkilled, difficulty, allowed = orig(self, componentToChangePreset)
     if not RAT_ATT_ENABLED or not skill or not componentToChangePreset then
         return skill, mostSkilled, difficulty, allowed
     end
@@ -1379,6 +1370,7 @@ function ModifyWeaponDlg:GetModificationDifficultyParams(componentToChangePreset
     difficulty = RAT_ATT_DIFFICULTY
     return skill, mostSkilled, difficulty, (skill - difficulty > 10)
 end
+RAT_ATT_WRAPS[ModifyWeaponDlg.GetModificationDifficultyParams] = orig
 
 ---- Vanilla's restore drops the item on the floor of nowhere when the merc is full: it places the
 ---- item, fails to add it, and the sector fallback is commented out. So pick someone with room.
