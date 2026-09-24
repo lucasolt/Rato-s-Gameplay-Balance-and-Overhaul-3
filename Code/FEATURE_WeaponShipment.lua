@@ -1,20 +1,36 @@
----- Weapon Shipment: rarer, fewer guns above the campaign tier, and a heavier escort.
+---- Weapon Shipment: rarer, fewer guns above the campaign tier (WeaponShipmentRebalance), heavier escort (WeaponShipmentEscort).
 
 ---- Gun weight % by how many tiers the gun sits above the campaign tier (index = gap).
 RAT_WS_BEYOND_TIER_PCT = {25, 5}
 ---- WeaponShipment's share of the dynamic shipment roll, % of its preset weight.
 RAT_WS_SPAWN_WEIGHT_PCT = 50
----- Units added to the escort, by campaign tier.
+---- WeaponShipmentEscort choice -> units added, and units promoted to their _Elite variant (carrier first).
+RAT_WS_ESCORT_LEVELS = {
+    Vanilla = {extra = 0, elites = 0},
+    Reinforced = {extra = 2, elites = 1},
+    Heavy = {extra = 4, elites = 2},
+    Brutal = {extra = 6, elites = 3}
+}
+RAT_WS_ESCORT_DEFAULT = "Reinforced"
+---- Extras are taken in order, so each level is the previous one plus more.
 RAT_WS_ESCORT_EXTRA = {
-    {"LegionGunner_Stronger"},
-    {"LegionGunner_Stronger", "LegionRaidLeader_Stronger"},
-    {"LegionGunner_Stronger", "LegionRaidLeader_Stronger", "LegionRaider_Stronger"}
+    "LegionGunner_Stronger",
+    "LegionRaidLeader_Stronger",
+    "LegionRaider_Stronger",
+    "LegionGunner_Stronger",
+    "LegionMedic_Stronger",
+    "LegionRaider_Stronger"
 }
 
 local rat_ws_pending = false
 
 function Rat_WSEnabled()
     return CurrentModOptions.WeaponShipmentRebalance ~= false
+end
+
+function Rat_WSEscortLevel()
+    return RAT_WS_ESCORT_LEVELS[CurrentModOptions.WeaponShipmentEscort] or
+               RAT_WS_ESCORT_LEVELS[RAT_WS_ESCORT_DEFAULT]
 end
 
 ---- Bobby Ray's unlocked tier is the campaign's progress clock: 1 after Ernie, 2 at two mines, 3 after the flip.
@@ -66,7 +82,8 @@ RAT_ATT_WRAPS[LootDef.GenerateLoot] = orig
 local orig = Rat_AttOriginal(PickShipmentPreset)
 function PickShipmentPreset()
     if not Rat_WSEnabled() then
-        return orig()
+        rat_ws_pending = orig()
+        return rat_ws_pending
     end
     local weights = {}
     for _, group in ipairs(Presets.ShipmentSquadPreset) do
@@ -93,19 +110,33 @@ function GenerateRandEnemySquadUnits(enemy_squad_id)
     local pending = rat_ws_pending
     rat_ws_pending = false
     local preset = pending == "WeaponShipment" and ShipmentPresets[pending]
-    if not preset or preset.enemy_squad_def ~= enemy_squad_id or not Rat_WSEnabled() then
+    if not preset or preset.enemy_squad_def ~= enemy_squad_id then
         return ids, names, sources, visuals
     end
-    ---- The carrier becomes its named elite variant; only one, elite names are a finite pool.
-    local carrier = table.find(sources, EnemySquadDefs[enemy_squad_id].DiamondBriefcaseCarrier)
-    local elite = carrier and ids[carrier] .. "_Elite"
-    if elite and UnitDataDefs[elite] then
-        ids[carrier] = elite
-    end
-    for _, extra in ipairs(RAT_WS_ESCORT_EXTRA[Rat_WSCampaignTier()] or empty_table) do
-        if UnitDataDefs[extra] then
-            ids[#ids + 1] = extra
+    local level = Rat_WSEscortLevel()
+    for i = 1, Min(level.extra, #RAT_WS_ESCORT_EXTRA) do
+        if UnitDataDefs[RAT_WS_ESCORT_EXTRA[i]] then
+            ids[#ids + 1] = RAT_WS_ESCORT_EXTRA[i]
             sources[#sources + 1] = 0
+        end
+    end
+    ---- Each _Elite takes a name from a 20-name Legion pool (gv_UsedEliteNames), hence the small counts.
+    local carrier = table.find(sources, EnemySquadDefs[enemy_squad_id].DiamondBriefcaseCarrier)
+    local order = carrier and {carrier} or {}
+    for i = 1, #ids do
+        if i ~= carrier then
+            order[#order + 1] = i
+        end
+    end
+    local left = level.elites
+    for _, i in ipairs(order) do
+        if left <= 0 then
+            break
+        end
+        local elite = ids[i] .. "_Elite"
+        if UnitDataDefs[elite] then
+            ids[i] = elite
+            left = left - 1
         end
     end
     return ids, names, sources, visuals
