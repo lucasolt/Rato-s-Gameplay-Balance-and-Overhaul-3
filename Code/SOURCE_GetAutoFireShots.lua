@@ -2,6 +2,9 @@ function FirearmBase:GetAutofireShots(action)
     if type(action) == "string" then
         action = CombatActions[action]
     end
+    if action.rat_num_shots then
+        return action.rat_num_shots
+    end
     local shots = action:ResolveValue("num_shots") or 1
     --------------------------------
 

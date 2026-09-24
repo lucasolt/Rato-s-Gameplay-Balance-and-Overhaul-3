@@ -19,6 +19,10 @@ function AISignatureAction:MatchUnit(unit)
     if unit then
         local actions = unit.ui_actions
         local attack_type = self.action_id
+        ---- without a burst limiter a BurstFire signature fires a short autofire instead
+        if attack_type == "BurstFire" then
+            attack_type = Rat_ShortBurstAttackId(unit:GetActiveWeapons())
+        end
         -- local weapon = unit:GetActiveWeapons()
 
         if attack_type == "BurstFire" or attack_type == "AutoFire" or attack_type == "RunAndGun" or

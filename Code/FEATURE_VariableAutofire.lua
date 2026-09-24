@@ -25,6 +25,25 @@ function Rat_ShortBurstAttackId(weapon)
     return "BurstFire"
 end
 
+---- AutoFire defaulting to n rounds, for code that reads the length off the action (AI scoring).
+---- Cached so its identity is stable; rebuilt when the preset object is replaced.
+local auto_views = {}
+function Rat_AutoFireView(n)
+    local view = auto_views[n]
+    if not view or getmetatable(view).__index ~= CombatActions.AutoFire then
+        local preset = CombatActions.AutoFire
+        view = setmetatable({
+            rat_num_shots = n,
+            ---- g_PresetParamCache is keyed by the preset object
+            ResolveValue = function(self, key)
+                return preset:ResolveValue(key)
+            end
+        }, {__index = preset})
+        auto_views[n] = view
+    end
+    return view
+end
+
 function Rat_ClampAutoShots(action, weapon, n)
     n = n or weapon:GetAutofireShots(action)
     local lo = P().MinShots
