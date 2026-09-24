@@ -87,9 +87,21 @@ Keep reasoning and editing in the main session. A subagent's summary is lossy, w
   breaks loading. The same applies to GBO3 and the author's other mods, which use `items.lua`
   in the same format.
 
+  **Exception, authorized on 2026-09-24: adding or removing a mod option.** Copy the shape of the
+  existing `ModItemOptionToggle` / `ModItemOptionChoice` / `ModItemOptionNumber` blocks (`name`,
+  `DisplayName`, `Help`, `DefaultValue`, `ChoiceList`/`MaxValue`/`StepSize`; a toggle omits
+  `DefaultValue` when it is false), and add the same key with its default to `metadata.lua`'s
+  `default_options` (sorted alphabetically). `CurrentModOptions` is per mod: code reads only the
+  options of the mod it belongs to.
+
 * `metadata.lua` — the `code` list defines the **load order** and is mirrored in
-  `items.lua`. Registering a new code file here is allowed (see above); **both files must
-  be updated together**, in the same position. Any other modification requires explicit instruction.
+  `items.lua`. Registering a new code file or a mod option default here is allowed (see above);
+  **both files must be updated together**, in the same position. Any other modification requires
+  explicit instruction.
+
+* **Mod code does not load in dependency order.** A mod that depends on GBO3 (e.g. Rato's AI
+  Overhaul) can run its `Code/` before GBO3's: a GBO3 global used at its file scope is nil (measured
+  2026-09-24, `Rat_AttOriginal`). Across mods, call GBO3 globals only from runtime functions.
 
 * New logic goes in `Code/*.lua`; presets and numbers are produced through the editor.
 
