@@ -112,10 +112,39 @@ function GenerateRandEnemySquadUnits(enemy_squad_id)
 end
 RAT_ATT_WRAPS[GenerateRandEnemySquadUnits] = orig
 
+---- Vanilla's NewDay cooldown is `last - now > 3 days`, never true. Days without a spawn after one.
+RAT_WS_COOLDOWN_DAYS = 3
+
+---- {accum, last} as they were before vanilla's NewDay ran; set only for the midnight tick.
+local rat_ws_midnight = false
+
+local function rat_ws_in_cooldown(last)
+    return last > 0 and Game.CampaignTime - last < RAT_WS_COOLDOWN_DAYS * const.Scale.day
+end
+
 local orig = Rat_AttOriginal(SpawnDynamicDBSquad)
 function SpawnDynamicDBSquad(...)
+    if rat_ws_midnight and rat_ws_in_cooldown(rat_ws_midnight[2]) then
+        return
+    end
     rat_ws_pending = false
     orig(...)
     rat_ws_pending = false
 end
 RAT_ATT_WRAPS[SpawnDynamicDBSquad] = orig
+
+---- NewHour fires right before NewDay in the same tick, after Guardpost's aggro spawn already ran.
+function OnMsg.NewHour()
+    rat_ws_midnight = Rat_WSEnabled() and Game.CampaignTime % const.Scale.day < const.Scale.min and
+                          {DynamicDBSquadAccumChance or 0, DynamicDBSquadLastSpawnTime or 0}
+end
+
+---- Runs after vanilla's handler: undo the day's accumulation and the reset it did for a blocked spawn.
+function OnMsg.NewDay()
+    local snap = rat_ws_midnight
+    rat_ws_midnight = false
+    if snap and rat_ws_in_cooldown(snap[2]) then
+        DynamicDBSquadAccumChance = snap[1]
+        DynamicDBSquadLastSpawnTime = snap[2]
+    end
+end
