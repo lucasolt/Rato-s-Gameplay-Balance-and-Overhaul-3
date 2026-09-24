@@ -184,9 +184,16 @@ A.HandlingHeldMinStr = 70
 ---- HELD RECOIL
 ---- Weight above the pivot is paid in grip and force, never in kick. weigth_held_mul is
 ---- already authored on every weapon, so the ladder needs no per-gun data.
+---- MEASURED 2026-09-23: MG42 standing, 6 rds, merc 95; same scale as the SECOND ORDER block below.
+---- weigth_held_mul: AK47 131, M14SAW 137, RPK74 140, Minimi 156, HK21 157, MG42 182.
+---- ~18% is the floor: only the first round lands.
+---- UP = fewer guns pay. 100 -> 18%, 130 -> 19%, 160 -> 21%, 200 -> 28% (MG42 unpenalised)
 A.RecoilHeldPivot = 130
+---- UP = heavier penalty past the pivot. 0 -> 28%, 30 -> 20%, 60 -> 19%, 100 -> 18%
 A.RecoilHeldSlope = 60 ---- RecoilOtherGain re-amplifies this by 2.5x into max_inc
+---- UP = Strength above 50 waives more of it. 0 -> 18%, 50 -> 19%, 100 -> 23%
 A.RecoilHeldStrRelief = 50
+---- UP = the penalty also widens lateral sway. Barely measurable: 0 -> 200 moves lateral 352' -> 376'
 A.RecoilHeldLatPct = 100
 ---- how much of that penalty each stance still pays: prone rests the gun, standing carries it
 A.RecoilHeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
@@ -210,6 +217,15 @@ A.AimCentroidPct = 100 --100
 ----   "o tiro 2 ainda ameaca"          -> |v| depois do tiro 1 bem abaixo de theta
 ----   "o merc competente segura ate 4" -> |p| no tiro 4 abaixo de theta/2
 ----   "esse calibre e grande demais"   -> CFMax < KickMag, e a rajada foge sozinha
+----
+---- MEASURED 2026-09-23, live Rat_RecoilStep, 160 seeded bursts per value. Notes read
+---- `value -> AK / MG`, each the burst-average CTH of a merc with 80 in every stat, cone
+---- sigma 100' against a torso theta of 167' (a lone round is 75%).
+----   AK = AK47 standing, 6 rds.   MG = MG42 prone on its bipod, MGBurstFire, 8 rds.
+----   x/y = mean |lateral| / |vertical| of the LAST round, in minutes (theta = 167').
+---- Past its Str breakpoint (77) a bipod MG42 is SKILL-CAPPED: ctl_eff hits its hardcoded floor
+---- of 30 and accuracy clamps at 100, so mercs 80 and 95 measure the same. Only the params
+---- that act after that cap (lateral, floor, settle, damping, bipod) move it.
 ---------------------------------------------------------------------------------------------------
 
 ---- Coice bruto de um tiro, com gun 100. `gun` e a parte da ARMA isolada (mod / control): cano,
@@ -220,10 +236,13 @@ A.AimCentroidPct = 100 --100
 ---- MEDIDO: 95 poe o coice do MP5 em 165'/tiro, quase o theta de um torso em pe a 10 tiles. Tem
 ---- de ser dessa ordem: o 2o tiro sai de `kick - cf1`, e se isso for pequeno em relacao ao cone o
 ---- CTH nao se mexe e o 2o tiro fica igual para todos, por mais que a pericia varie.
+---- UP = harder kick, every gun. 60 -> 51/54%, 80 -> 34/50%, 95 -> 23/49%, 110 -> 19/45%, 130 -> 16/42%
+---- AK pays it in climb (y 162' -> 1506'), bipod MG in sideways drift (x 137' -> 215').
 A.RecoilKickBase = 95
 
 ---- Direcao do coice, em graus a direita da vertical. E um TORQUE: tem lado fixo, nao e sorteado.
 ---- Global por enquanto; virar campo por arma exige preset no editor do jogo.
+---- UP = trades climb for rightward drift; hit rate nearly flat. AK x/y: 0 -> 199'/656', 40 -> 452'/502'. MG 0 -> 49%, 40 -> 45%
 A.RecoilKickAngle = 12
 
 ---- FORCA -- o portao do calibre. Teto do contra-esforco como % do coice DESTA arma: em 130 o
@@ -231,17 +250,23 @@ A.RecoilKickAngle = 12
 ---- Nao e "o calibre e grande", e "voce tem musculo para ele": o tamanho do calibre ja esta no
 ---- breakpoint de Forca da arma (MP5 48, AK47 71, MG42 77, Auto5 86) e no coice bruto, que decide
 ---- quanto o cano passeia enquanto a pegada sobe.
+---- UP = a strong shooter can oppose more than the kick. AK 90 -> 22%, 130 -> 23%, 160 -> 24% (merc 95: 24/31/33%)
+---- MG flat at ~48%: the bipod already puts it under the gate.
 A.RecoilCFHeadroom = 130
 
 ---- Afia a penalidade de Forca. `str_control` vem de GetCaliberStrRecoil em base 100 e ja e
 ---- relativo ao breakpoint: 100 = Forca sobrando, ~109 = em cima do breakpoint, ~171 = muito
 ---- abaixo. Em 200 a penalidade dobra, entao quem esta bem abaixo do breakpoint nao estabiliza.
+---- UP = harsher BELOW the breakpoint, nothing above it. Small lever: AK Str 70 100 -> 21% y888',
+---- 300 -> 21% y959'; MG Str 65 100 -> 43%, 300 -> 41%.
 A.RecoilStrGain = 200
 
 ---- PERICIA -- de onde sai o gradiente do 2o tiro. Quanto da pegada entra no cano por tiro, em
 ---- minutos/tiro, com `other_control` neutro. O coice e igual para todos (e da arma); o que muda
 ---- entre mercs e quanto dele ja foi cancelado quando a bala 2 sai. Tambem e o teto de `delta`,
 ---- entao e a escala que RecoilErrorRatio le.
+---- UP = the grip corrects faster. OPPOSITE signs: AK improves, the bipod MG overcorrects.
+---- AK 40 -> 18%, 55 -> 20%, 70 -> 23%, 90 -> 33%, 110 -> 38%; MG 40 -> 52%, 70 -> 49%, 110 -> 40% (y 35' -> 92')
 A.RecoilMaxIncBase = 70
 
 ---- Estica `control` (postura, bipe, Marksmanship, perks E Forca), que so anda entre ~85 e ~109
@@ -250,6 +275,8 @@ A.RecoilMaxIncBase = 70
 ---- breakpoint continua valendo alguma coisa em vez de virar um degrau. O peso relativo sai de
 ---- graca e bate com o old CTH -- la Marks 50->100 mexia a perda 14% e Forca 50->100 mexia 7%,
 ---- e aqui other_control anda 15% contra os 9% de str_control. Mesma proporcao de 2 para 1.
+---- UP = skill (Marks, stance, bipod, Str) spreads mercs further apart. AK merc 95: 100 -> 23%,
+---- 175 -> 25%, 250 -> 31%, 350 -> 41% (merc 80: 21 -> 25%). MG 100 -> 42%, 175+ saturates at 49%.
 A.RecoilOtherGain = 250
 
 ---- T: em quantos tiros o atirador TENTA zerar (p, v). Ganhos do duplo polo em 1 - 1/T:
@@ -258,17 +285,22 @@ A.RecoilOtherGain = 250
 ---- so o freia. Em T = 6 o Kp fica 12x menor que o Kd, o cano para onde estiver e o modelo passa a
 ---- parecer compensacao contra o tiro ANTERIOR em vez de volta ao alvo original. Em 3 o retorno e
 ---- de verdade -- e a rajada de um merc bom se RECUPERA depois do mergulho, em vez de so cair.
+---- UP = slower return to the target. AK near flat (merc 95: 2 -> 33%, 6 -> 29%).
+---- Strong MG lever: 2 -> 56%, 3 -> 49%, 4 -> 41%, 6 -> 38% (x 120' -> 333')
 A.RecoilSettleShots = 3
 
 ---- % de amortecimento critico. Em 100 a trajetoria nominal nao passa do alvo, e entao TODA
 ---- supercompensacao no jogo e um erro do atirador -- que e o comportamento pedido. Abaixo de 100
 ---- a arma oscila ate para o atirador perfeito, que e outra afirmacao (e pior) sobre o mundo.
+---- UP = less overshoot. AK flat (~23%). MG 50 -> 43%, 65 -> 45%, 80 -> 49%, 100 -> 50%, 130 -> 52%
 A.RecoilDamping = 80--100
 
 ---- % da correcao TENTADA que vira erro quando accuracy = 0. Proporcional ao tamanho da correcao,
 ---- como no 1.13: puxar um calibre grande de volta erra mais que ajeitar um pequeno, entao a
 ---- dificuldade do calibre sai do mecanismo em vez de ser tunada arma a arma. Abaixo de ~100 a
 ---- Destreza some: o portao do calibre e deterministico e domina o ruido. Em 140 os dois convivem.
+---- UP = low-Dex mercs err more. DEAD from ~Dex 80 up (accuracy clamps at 100): AK merc 80 is
+---- identical 0..140, 280 -> 24% x269'; merc 95 and the MG are flat at every value.
 A.RecoilErrorRatio = 140
 
 ---- Piso do erro, em % de RecoilMaxIncBase. NUNCA reduzido pela pericia: e por aqui que
@@ -278,6 +310,8 @@ A.RecoilErrorRatio = 140
 ---- MEDIDO: em 10 o merc completo trava e fica imune ao recuo, que e exatamente o que nao pode.
 ---- O piso sai de RecoilMaxIncBase (o valor NEUTRO) e nunca do `max_inc` deste merc: `max_inc` e
 ---- dirigido por pericia, entao escalar o piso nele faria a pericia levantar o proprio erro.
+---- UP = error nobody trains away, both axes. MG 0 -> 52% (y 0'), 15 -> 52%, 25 -> 49%, 35 -> 44%, 50 -> 37% (y 118')
+---- AK barely moves (21 -> 25%): on a climbing gun, random error helps as often as it hurts.
 A.RecoilMinErrorPct = 25
 
 ---- Lateral sway, as % of the counter-force the shooter is applying this shot. A held muzzle is
@@ -287,15 +321,24 @@ A.RecoilMinErrorPct = 25
 ---- someone who is merely letting the gun climb -- he already has a different problem.
 ---- MEDIDO: sem isto, 15% das rajadas ficam com os 6 tiros dentro do alvo, porque o erro so
 ---- perturba o INCREMENTO da forca e um `cf` bem apontado no tiro 2 sobrevive ate o 6.
+---- UP = more sideways sway, largest for whoever grips hardest. AK merc 95: 0 -> 33% x93', 40 -> 31% x169',
+---- 80 -> 28% x304'. MG 0 -> 64% x64', 20 -> 58%, 40 -> 49%, 60 -> 39%, 80 -> 33% x380'
 A.RecoilLateralPct = 40
 
 ---- firing on the move: no brace at all, and the stride throws the muzzle sideways
+---- UP = worse grip / wider sway while running (RunAndGun, RecklessAssault). Not measured.
 A.RecoilMovingCtlPct = 25
 A.RecoilMovingLatPct = 50
 
 ---- Prone on a bipod: the legs stop the climb, not the yaw, so the gun sweeps sideways.
-A.RecoilBipodKickYMul = 60
-A.RecoilBipodLatMul = 200
+---- Any prone gun with a RecoilControlWhenProne component (MG and rifle bipods, AUG heavy barrels), plus the M2 always.
+---- Measured with the other one at 60 / 200. Pair 70 / 300: MG 49% -> 37% (x 168' -> 320', y unchanged 58').
+---- UP = the bipod removes less climb; that also raises cf, which raises lateral. MG 40 -> 53%, 60 -> 49%,
+---- 75 -> 45%, 90 -> 40%, 100 -> 37% (x 135' -> 290')
+A.RecoilBipodKickYMul = 70--60
+---- UP = more sideways sweep on a bipod. The MG-focused lateral knob. MG 100 -> 58% x103',
+---- 200 -> 49% x168', 300 -> 39% x259', 400 -> 33% x380'
+A.RecoilBipodLatMul = 300--200
 
 
 
