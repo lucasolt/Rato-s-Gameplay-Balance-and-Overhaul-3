@@ -355,9 +355,6 @@ function redefine_crosshairUI_function()
                                  args and args.aim or 0, action)
 
             local prep = ""
-            if args.num_shots then
-                prep = args.num_shots .. "<style CrosshairAPTotal>x </style>"
-            end
             ----------------------------^^
 
             local apCost = action:GetAPCost(attacker, args)
@@ -424,6 +421,8 @@ function redefine_crosshairUI_function()
                 self.idAPCostText:SetTextStyle("CrosshairAPCost")
             end
         end
+
+        Rat_UpdateCrosshairRounds(self, attacker, actualAction, args)
 
         WeaponRangeTutorial(self)
         ShowCrosshairTutorial(self)

@@ -1262,6 +1262,10 @@ return {
 			'CodeFileName', "Code/FEATURE_VariableAutofire.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "UI_AutofireRounds",
+			'CodeFileName', "Code/UI_AutofireRounds.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "SOURCE_ChangeMGSetupGetAreaParams",
 			'CodeFileName', "Code/SOURCE_ChangeMGSetupGetAreaParams.lua",
 		}),

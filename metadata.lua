@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 13385,
+	'version', 13386,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -60,6 +60,7 @@ return PlaceObj('ModDef', {
 		"Code/COMBAT_ACTIONS_Sprint.lua",
 		"Code/COMBAT_ACTIONS.lua",
 		"Code/FEATURE_VariableAutofire.lua",
+		"Code/UI_AutofireRounds.lua",
 		"Code/SOURCE_ChangeMGSetupGetAreaParams.lua",
 		"Code/SOURCE_CombatActionGenericAttackGetUIState.lua",
 		"Code/SOURCE_unitEnumUIactions.lua",
@@ -193,8 +194,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1790132122,
-	'code_hash', -4735195036643141567,
+	'saved', 1790284618,
+	'code_hash', -1104535024457705710,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",
