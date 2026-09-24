@@ -1,5 +1,6 @@
 ---- Crosshair strip under the range bar: one cartridge icon per round, selected bright and the
----- rest the unit can still afford shadowed, then the count. Icons: tools/gen_bullet_icons.py.
+---- rest the unit can still afford shadowed, then the count. Fixed-length firearm attacks show
+---- their rounds alone. Icons: tools/gen_bullet_icons.py.
 
 local icon_dir = "Mod/cfahRED/Images/Bullets/"
 local fallback_icon = "556"
@@ -139,19 +140,34 @@ end
 
 ---------------------------------------------------------------------------------------------------
 
+---- rounds a fixed-length attack fires, capped by what is loaded
+local function fixed_shots(weapon, action)
+    local ok, n = pcall(weapon.GetAutofireShots, weapon, action)
+    n = ok and type(n) == "number" and Max(1, n) or 1
+    local ammo = weapon.ammo and weapon.ammo.Amount or 0
+    return ammo > 0 and Min(n, ammo) or n
+end
+
 function Rat_UpdateCrosshairRounds(crosshair, attacker, action, args)
     local win = crosshair.idRatRounds
     if not win then
         return
     end
-    local weapon = args.num_shots and action:GetAttackWeapons(attacker)
-    if not weapon then
+    local weapon = action.ActionType == "Ranged Attack" and action:GetAttackWeapons(attacker)
+    if not IsKindOf(weapon, "Firearm") then
         win:SetVisible(false)
         return
     end
-    local max = Rat_CrosshairMaxShots(attacker, action, weapon, args)
-    win.idRatRoundsStrip:SetRounds(Rat_BulletIcon(weapon), args.num_shots, max)
-    win.idRatRoundsText:SetText(tostring(args.num_shots))
+    local shots, max = args.num_shots
+    if shots then
+        max = Rat_CrosshairMaxShots(attacker, action, weapon, args)
+    else
+        shots = fixed_shots(weapon, action)
+        max = shots
+    end
+    win.idRatRoundsStrip:SetRounds(Rat_BulletIcon(weapon), shots, max)
+    win.idRatRoundsText:SetText(tostring(shots))
+    win.idRatRoundsText:SetVisible(shots > 1)
     win:SetVisible(true)
 end
 
@@ -180,6 +196,7 @@ local rounds_template = PlaceObj('XTemplateWindow', {
         'Id', "idRatRoundsText",
         'VAlign', "center",
         'MinWidth', 24,
+        'FoldWhenHidden', true,
         'Clip', false,
         'UseClipBox', false,
         'TextStyle', "CrosshairAPCost",
