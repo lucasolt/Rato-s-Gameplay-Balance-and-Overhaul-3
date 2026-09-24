@@ -30,6 +30,7 @@ MAT = {
     "tip_red": ((196, 44, 40), 0.4, 14),
     "propellant": ((168, 92, 50), 0.08, 6),
     "propellant_cap": ((128, 64, 36), 0.08, 6),
+    "ring": ((34, 30, 28), 0.15, 8),
     "tip_ap": ((191, 67, 77), 0.3, 10),
     "tip_match": ((220, 140, 28), 0.3, 10),
     "tip_tracer": ((134, 143, 93), 0.3, 10),
@@ -60,14 +61,17 @@ class Round:
         self.y += length
         return self
 
-    def nose(self, length, r, mat, a=1.6, b=1.0, cut=1.0, tip=None, tipfrac=0.0):
-        """r(t) = r * (1 - (t*cut)^a)^b; cut < 1 leaves a flat meplat."""
+    def nose(self, length, r, mat, a=1.6, b=1.0, cut=1.0, tip=None, tipfrac=0.0, ring=0.0):
+        """r(t) = r * (1 - (t*cut)^a)^b; cut < 1 leaves a flat meplat. ring: dark band (mm) under the tip."""
+        ring_t = ring / length
         def rad(t):
             u = t * cut
             return r * max(0.0, 1 - u ** a) ** b
 
         def mat_at(t):
-            return tip if tip and t >= 1 - tipfrac else mat
+            if tip and t >= 1 - tipfrac:
+                return tip
+            return "ring" if ring and t >= 1 - tipfrac - ring_t else mat
         self.segs.append((self.y, self.y + length, rad, mat_at, "cyl"))
         self.y += length
         return self
@@ -91,7 +95,7 @@ class Round:
 
 
 def bottleneck(L, case_len, D, sh0, sh1, neck_r, bullet_r, case_mat, bullet_mat,
-               rim_r=None, ogive=0.72, tip=None, tipfrac=0.0, nose_a=1.5):
+               rim_r=None, ogive=0.72, tip=None, tipfrac=0.0, nose_a=1.5, ring=0.0):
     r = Round().base(D, case_mat, rim_r)
     body_top = D / 2 * 0.95
     r.lin(sh0 - r.y, D / 2, body_top, case_mat)
@@ -99,21 +103,23 @@ def bottleneck(L, case_len, D, sh0, sh1, neck_r, bullet_r, case_mat, bullet_mat,
     r.lin(case_len - sh1, neck_r, neck_r, case_mat)
     exposed = L - case_len
     r.lin(exposed * (1 - ogive), bullet_r, bullet_r, bullet_mat)
-    r.nose(exposed * ogive, bullet_r, bullet_mat, a=nose_a, tip=tip, tipfrac=tipfrac)
+    r.nose(exposed * ogive, bullet_r, bullet_mat, a=nose_a, tip=tip, tipfrac=tipfrac, ring=ring)
     return r
 
 
 def straight(L, case_len, D, bullet_r, case_mat, bullet_mat, rim_r=None, ogive=0.85,
-             a=2.0, b=0.55, cut=1.0, tip=None, tipfrac=0.0):
+             a=2.0, b=0.55, cut=1.0, tip=None, tipfrac=0.0, ring=0.0):
     r = Round().base(D, case_mat, rim_r)
     r.lin(case_len - r.y, D / 2, D / 2 * 0.985, case_mat)
     exposed = L - case_len
     r.lin(exposed * (1 - ogive), bullet_r, bullet_r, bullet_mat)
-    r.nose(exposed * ogive, bullet_r, bullet_mat, a=a, b=b, cut=cut, tip=tip, tipfrac=tipfrac)
+    r.nose(exposed * ogive, bullet_r, bullet_mat, a=a, b=b, cut=cut, tip=tip, tipfrac=tipfrac,
+           ring=ring)
     return r
 
 
 def swc(L, case_len, D, bullet_r, case_mat, rim_r, tip=None, tipfrac=0.0):
+    ring = ring_mm(L) if tip else 0.0
     """Semi-wadcutter lead: full-diameter band, then a truncated cone to a flat."""
     r = Round().base(D, case_mat, rim_r)
     r.lin(case_len - r.y, D / 2, D / 2, case_mat)
@@ -121,10 +127,12 @@ def swc(L, case_len, D, bullet_r, case_mat, rim_r, tip=None, tipfrac=0.0):
     r.lin(exposed * 0.25, bullet_r, bullet_r, "lead")
     cone, r0, r1 = exposed * 0.75, bullet_r * 0.78, bullet_r * 0.58
     split = 1 - (tipfrac if tip else 0.0)
-    rs = r0 + (r1 - r0) * split
-    r.lin(cone * split, r0, rs, "lead")
+    rad = lambda f: r0 + (r1 - r0) * f
+    band = ring / cone
+    r.lin(cone * (split - band), r0, rad(split - band), "lead")
     if tip:
-        r.lin(cone * (1 - split), rs, r1, tip)
+        r.lin(ring, rad(split - band), rad(split), "ring")
+        r.lin(cone * (1 - split), rad(split), r1, tip)
     return r
 
 
@@ -139,7 +147,10 @@ def shotshell(L, D, head_len, hull_mat):
 
 def caseless(L, W, cap_mat="propellant_cap"):
     r = Round()
-    r.lin(L - 3.0, W / 2, W / 2, "propellant", shape="box")
+    ring = ring_mm(L) if cap_mat != "propellant_cap" else 0.0
+    r.lin(L - 3.0 - ring, W / 2, W / 2, "propellant", shape="box")
+    if ring:
+        r.lin(ring, W / 2, W / 2, "ring", shape="box")
     r.lin(3.0, W / 2, W / 2 * 0.92, cap_mat, shape="box")
     return r
 
@@ -155,18 +166,25 @@ VARIANTS = {
 HULL = {None: "hull_basic", "tip_ap": "hull_ap", "tip_match": "hull_match",
         "tip_tracer": "hull_tracer", "tip_hp": "hull_hp"}
 
-VT = 0.35  # painted fraction of a round nose on a variant
-VT_POINTED = 0.55  # a pointed nose tapers, so more of it is painted
+VT = 0.45  # painted fraction of a round nose on a variant
+VT_POINTED = 0.65  # a pointed nose tapers, so more of it is painted
+RING_PX = 1.2  # dark band under a painted tip, in image px
+
+
+def ring_mm(L):
+    return RING_PX * math.sqrt(L) / PX_K
 
 
 def bn(*dims, tip=None, tipfrac=0.0, **kw):
     """bottleneck whose painted tip a variant replaces."""
     return lambda paint: bottleneck(*dims, tip=paint or tip,
-                                    tipfrac=max(VT_POINTED, tipfrac) if paint else tipfrac, **kw)
+                                    tipfrac=max(VT_POINTED, tipfrac) if paint else tipfrac,
+                                    ring=ring_mm(dims[0]) if paint else 0.0, **kw)
 
 
 def st(*dims, **kw):
-    return lambda paint: straight(*dims, tip=paint, tipfrac=VT if paint else 0.0, **kw)
+    return lambda paint: straight(*dims, tip=paint, tipfrac=VT if paint else 0.0,
+                                  ring=ring_mm(dims[0]) if paint else 0.0, **kw)
 
 
 ROUNDS = {
