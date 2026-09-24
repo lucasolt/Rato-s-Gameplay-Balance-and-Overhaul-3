@@ -26,8 +26,7 @@ local caliber_icon = {
     ["7_62x54R"] = "762x54R",
     ["50BMG"] = "50BMG",
     ["30-60"] = "30-60",
-    ["20gauge"] = "20gauge",
-    ["12gauge"] = "20gauge",
+    ["12gauge"] = "12gauge",
     ["7_92x33"] = "7_92x33",
     ["7_92x57"] = "7_92x57",
     ["792x57"] = "7_92x57",
@@ -35,8 +34,18 @@ local caliber_icon = {
     ["4_7x33"] = "4_7x33"
 }
 
+---- ammo colorStyle -> painted tip (hull on shells); Basic has no suffix
+local style_suffix = {
+    AmmoAPColor = "_AP",
+    AmmoMatchColor = "_Match",
+    AmmoTracerColor = "_Tracer",
+    AmmoHPColor = "_HP"
+}
+
 function Rat_BulletIcon(weapon)
-    return icon_dir .. (caliber_icon[weapon and weapon.Caliber] or fallback_icon) .. ".png"
+    local ammo = weapon and weapon.ammo
+    return icon_dir .. (caliber_icon[weapon and weapon.Caliber] or fallback_icon) ..
+               (ammo and style_suffix[ammo.colorStyle] or "") .. ".png"
 end
 
 ---- largest length the unit can pay for now; AP cost is monotonic in num_shots

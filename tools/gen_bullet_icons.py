@@ -1,4 +1,4 @@
-"""Renders the autofire crosshair cartridge icons into Images/Bullets/<id>.png.
+"""Renders the autofire crosshair cartridge icons into Images/Bullets/<id>[_AP|_Match|_Tracer|_HP].png.
 
 Pure stdlib (no PIL). Each round is a stack of radius segments in real millimetres, shaded as a lit
 cylinder. Height is compressed (px ~ sqrt(length)) so a .50 BMG does not dwarf a pistol round.
@@ -30,7 +30,15 @@ MAT = {
     "tip_red": ((196, 44, 40), 0.4, 14),
     "propellant": ((168, 92, 50), 0.08, 6),
     "propellant_cap": ((128, 64, 36), 0.08, 6),
-    "hull_yellow": ((222, 186, 40), 0.2, 8),
+    "tip_ap": ((200, 52, 58), 0.3, 10),
+    "tip_match": ((236, 200, 40), 0.3, 10),
+    "tip_tracer": ((150, 78, 196), 0.3, 10),
+    "tip_hp": ((70, 150, 220), 0.3, 10),
+    "hull_basic": ((62, 104, 66), 0.2, 8),
+    "hull_ap": ((180, 44, 44), 0.2, 8),
+    "hull_match": ((222, 186, 40), 0.2, 8),
+    "hull_tracer": ((126, 64, 170), 0.2, 8),
+    "hull_hp": ((56, 124, 196), 0.2, 8),
 }
 
 
@@ -96,22 +104,27 @@ def bottleneck(L, case_len, D, sh0, sh1, neck_r, bullet_r, case_mat, bullet_mat,
 
 
 def straight(L, case_len, D, bullet_r, case_mat, bullet_mat, rim_r=None, ogive=0.85,
-             a=2.0, b=0.55, cut=1.0):
+             a=2.0, b=0.55, cut=1.0, tip=None, tipfrac=0.0):
     r = Round().base(D, case_mat, rim_r)
     r.lin(case_len - r.y, D / 2, D / 2 * 0.985, case_mat)
     exposed = L - case_len
     r.lin(exposed * (1 - ogive), bullet_r, bullet_r, bullet_mat)
-    r.nose(exposed * ogive, bullet_r, bullet_mat, a=a, b=b, cut=cut)
+    r.nose(exposed * ogive, bullet_r, bullet_mat, a=a, b=b, cut=cut, tip=tip, tipfrac=tipfrac)
     return r
 
 
-def swc(L, case_len, D, bullet_r, case_mat, rim_r):
+def swc(L, case_len, D, bullet_r, case_mat, rim_r, tip=None, tipfrac=0.0):
     """Semi-wadcutter lead: full-diameter band, then a truncated cone to a flat."""
     r = Round().base(D, case_mat, rim_r)
     r.lin(case_len - r.y, D / 2, D / 2, case_mat)
     exposed = L - case_len
     r.lin(exposed * 0.25, bullet_r, bullet_r, "lead")
-    r.lin(exposed * 0.75, bullet_r * 0.78, bullet_r * 0.58, "lead")
+    cone, r0, r1 = exposed * 0.75, bullet_r * 0.78, bullet_r * 0.58
+    split = 1 - (tipfrac if tip else 0.0)
+    rs = r0 + (r1 - r0) * split
+    r.lin(cone * split, r0, rs, "lead")
+    if tip:
+        r.lin(cone * (1 - split), rs, r1, tip)
     return r
 
 
@@ -124,41 +137,64 @@ def shotshell(L, D, head_len, hull_mat):
     return r
 
 
-def caseless(L, W):
+def caseless(L, W, cap_mat="propellant_cap"):
     r = Round()
     r.lin(L - 3.0, W / 2, W / 2, "propellant", shape="box")
-    r.lin(3.0, W / 2, W / 2 * 0.92, "propellant_cap", shape="box")
+    r.lin(3.0, W / 2, W / 2 * 0.92, cap_mat, shape="box")
     return r
 
 
+# ammo colorStyle -> file suffix and paint; Basic keeps each round's own look
+VARIANTS = {
+    "": None,
+    "_AP": "tip_ap",
+    "_Match": "tip_match",
+    "_Tracer": "tip_tracer",
+    "_HP": "tip_hp",
+}
+HULL = {None: "hull_basic", "tip_ap": "hull_ap", "tip_match": "hull_match",
+        "tip_tracer": "hull_tracer", "tip_hp": "hull_hp"}
+
+VT = 0.35  # painted fraction of a round nose on a variant
+VT_POINTED = 0.55  # a pointed nose tapers, so more of it is painted
+
+
+def bn(*dims, tip=None, tipfrac=0.0, **kw):
+    """bottleneck whose painted tip a variant replaces."""
+    return lambda paint: bottleneck(*dims, tip=paint or tip,
+                                    tipfrac=max(VT_POINTED, tipfrac) if paint else tipfrac, **kw)
+
+
+def st(*dims, **kw):
+    return lambda paint: straight(*dims, tip=paint, tipfrac=VT if paint else 0.0, **kw)
+
+
 ROUNDS = {
-    "9mm": straight(29.7, 19.15, 9.96, 4.5, "brass", "copper"),
-    "9x18": straight(25.0, 18.1, 9.95, 4.63, "steel_green", "gilding"),
-    "45ACP": straight(32.4, 22.8, 12.0, 5.74, "brass", "copper", ogive=0.9, b=0.5),
-    "380ACP": straight(25.0, 17.3, 9.5, 4.5, "nickel", "copper", cut=0.8),
-    "44MAG": swc(40.6, 32.6, 11.6, 5.4, "nickel", rim_r=6.55),
-    "50AE": straight(40.9, 32.6, 13.9, 6.35, "brass", "copper", rim_r=6.7, cut=0.78, b=0.5),
-    "5_7x28": bottleneck(43.2, 28.9, 7.95, 23.5, 25.2, 3.25, 2.85, "brass", "copper",
-                         ogive=0.85, tip="tip_black", tipfrac=0.3),
-    "556": bottleneck(57.4, 44.7, 9.6, 36.5, 39.5, 3.2, 2.85, "brass", "copper",
-                      tip="tip_green", tipfrac=0.5),
-    "545x39": bottleneck(57.0, 39.8, 10.0, 30.5, 33.0, 3.15, 2.8, "steel_green", "gilding",
-                         ogive=0.78),
-    "762WP": bottleneck(56.0, 38.7, 11.35, 30.5, 32.5, 4.3, 3.95, "steel_grey", "gilding"),
-    "762NATO": bottleneck(71.0, 51.2, 11.95, 39.6, 43.0, 4.35, 3.9, "brass", "copper"),
-    "308Win": bottleneck(71.0, 51.2, 11.95, 39.6, 43.0, 4.35, 3.9, "nickel", "copper",
-                         tip="tip_red", tipfrac=0.18),
-    "762x54R": bottleneck(77.2, 53.7, 12.37, 45.0, 48.0, 4.3, 3.95, "steel_green", "gilding",
-                          rim_r=7.2),
-    "50BMG": bottleneck(138.0, 99.0, 20.4, 76.0, 84.0, 7.1, 6.5, "brass", "copper",
-                        tip="tip_black", tipfrac=0.3),
-    "30-60": bottleneck(84.8, 63.3, 11.95, 49.5, 53.6, 4.4, 3.9, "brass", "copper"),
-    "20gauge": shotshell(64.0, 17.5, 12.0, "hull_yellow"),
-    "7_92x33": bottleneck(47.8, 33.0, 11.9, 25.3, 27.5, 4.45, 4.1, "steel_dark", "gilding"),
-    "7_92x57": bottleneck(80.5, 57.0, 11.95, 46.5, 50.0, 4.5, 4.1, "brass", "gilding"),
-    "9x39": bottleneck(56.0, 38.7, 11.35, 31.0, 33.0, 5.0, 4.63, "steel_green", "gilding",
-                       ogive=0.6, tip="tip_black", tipfrac=0.2, nose_a=1.8),
-    "4_7x33": caseless(33.0, 8.0),
+    "9mm": st(29.7, 19.15, 9.96, 4.5, "brass", "copper"),
+    "9x18": st(25.0, 18.1, 9.95, 4.63, "steel_green", "gilding"),
+    "45ACP": st(32.4, 22.8, 12.0, 5.74, "brass", "copper", ogive=0.9, b=0.5),
+    "380ACP": st(25.0, 17.3, 9.5, 4.5, "nickel", "copper", cut=0.8),
+    "44MAG": lambda paint: swc(40.6, 32.6, 11.6, 5.4, "nickel", rim_r=6.55, tip=paint, tipfrac=0.4),
+    "50AE": st(40.9, 32.6, 13.9, 6.35, "brass", "copper", rim_r=6.7, cut=0.78, b=0.5),
+    "5_7x28": bn(43.2, 28.9, 7.95, 23.5, 25.2, 3.25, 2.85, "brass", "copper",
+                 ogive=0.85, tip="tip_black", tipfrac=0.3),
+    "556": bn(57.4, 44.7, 9.6, 36.5, 39.5, 3.2, 2.85, "brass", "copper",
+              tip="tip_green", tipfrac=0.5),
+    "545x39": bn(57.0, 39.8, 10.0, 30.5, 33.0, 3.15, 2.8, "steel_green", "gilding", ogive=0.78),
+    "762WP": bn(56.0, 38.7, 11.35, 30.5, 32.5, 4.3, 3.95, "steel_grey", "gilding"),
+    "762NATO": bn(71.0, 51.2, 11.95, 39.6, 43.0, 4.35, 3.9, "brass", "copper"),
+    "308Win": bn(71.0, 51.2, 11.95, 39.6, 43.0, 4.35, 3.9, "nickel", "copper",
+                 tip="tip_red", tipfrac=0.18),
+    "762x54R": bn(77.2, 53.7, 12.37, 45.0, 48.0, 4.3, 3.95, "steel_green", "gilding", rim_r=7.2),
+    "50BMG": bn(138.0, 99.0, 20.4, 76.0, 84.0, 7.1, 6.5, "brass", "copper",
+                tip="tip_black", tipfrac=0.3),
+    "30-60": bn(84.8, 63.3, 11.95, 49.5, 53.6, 4.4, 3.9, "brass", "copper"),
+    "12gauge": lambda paint: shotshell(64.0, 20.2, 12.0, HULL[paint]),
+    "7_92x33": bn(47.8, 33.0, 11.9, 25.3, 27.5, 4.45, 4.1, "steel_dark", "gilding"),
+    "7_92x57": bn(80.5, 57.0, 11.95, 46.5, 50.0, 4.5, 4.1, "brass", "gilding"),
+    "9x39": bn(56.0, 38.7, 11.35, 31.0, 33.0, 5.0, 4.63, "steel_green", "gilding",
+               ogive=0.6, tip="tip_black", tipfrac=0.2, nose_a=1.8),
+    "4_7x33": lambda paint: caseless(33.0, 8.0, paint or "propellant_cap"),
 }
 
 LIGHT = (-0.55, 0.83)  # (x, z): upper-left, towards the viewer
@@ -230,7 +266,8 @@ def write_png(path, W, H, raw):
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    for cid, rnd in ROUNDS.items():
-        W, H, raw = render(rnd)
-        write_png(os.path.join(OUT, cid + ".png"), W, H, raw)
+    for cid, build in ROUNDS.items():
+        for suffix, paint in VARIANTS.items():
+            W, H, raw = render(build(paint))
+            write_png(os.path.join(OUT, cid + suffix + ".png"), W, H, raw)
         print("%-10s %2dx%-3d" % (cid, W, H))
