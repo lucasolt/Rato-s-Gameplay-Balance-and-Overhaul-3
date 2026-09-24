@@ -929,6 +929,10 @@ return {
 		'CodeFileName', "Code/__JamParams.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "__AutofireParams",
+		'CodeFileName', "Code/__AutofireParams.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "CaliberApplyParams",
 		'CodeFileName', "Code/CaliberApplyParams.lua",
 	}),
@@ -1252,6 +1256,10 @@ return {
 		PlaceObj('ModItemCode', {
 			'name', "COMBAT_ACTIONS",
 			'CodeFileName', "Code/COMBAT_ACTIONS.lua",
+		}),
+		PlaceObj('ModItemCode', {
+			'name', "FEATURE_VariableAutofire",
+			'CodeFileName', "Code/FEATURE_VariableAutofire.lua",
 		}),
 		PlaceObj('ModItemCode', {
 			'name', "SOURCE_ChangeMGSetupGetAreaParams",

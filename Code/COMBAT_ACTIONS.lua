@@ -1,8 +1,9 @@
 function rat_combat_actions()
     CombatActions.BurstFire.ActionPointDelta = 0
     CombatActions.SingleShot.ActionPointDelta = -2000
-    CombatActions.AutoFire.ActionPointDelta = 4000
-    CombatActions.MGBurstFire.ActionPointDelta = 1000
+    ---- length is priced per round by RPM (Rat_AutoExtraAP)
+    CombatActions.AutoFire.ActionPointDelta = 0
+    CombatActions.MGBurstFire.ActionPointDelta = 0
 
     CombatActions.Buckshot.ActionPointDelta = 0---2000
     CombatActions.BuckshotBurst.ActionPointDelta = 2000--0
@@ -247,6 +248,9 @@ function rat_combat_actions()
             -- print("no burst")
             return "hidden" -- , T(449447625321, "<color AmmoAPColor>Semi-auto only</color>")
         end
+        if not Rat_HasSelectiveBurst(weapon) then
+            return "hidden"
+        end
         -------------------------------------
 
         return CombatActionGenericAttackGetUIState(self, units, args)
@@ -342,7 +346,7 @@ function rat_combat_actions()
                                                   args and args.aim or 0, action) or 0
 
         local cost = unit:GetAttackAPCost(self, weapon, nil, args and args.aim or 0)
-        cost = cost + ap_extra + ap_delta
+        cost = cost + ap_extra + ap_delta + Rat_AutoExtraAP(self, weapon, args and args.num_shots)
         return cost
     end
 
@@ -824,7 +828,7 @@ function rat_combat_actions()
 
             return weapon and
                        (unit:GetAttackAPCost(self, weapon, nil, args and args.aim or 0) + ap_delta) +
-                       ap_extra or -1
+                       ap_extra + Rat_AutoExtraAP(self, weapon, args and args.num_shots) or -1
         end
 
         return self.ActionPoints
@@ -911,8 +915,8 @@ function rat_combat_actions()
 
     CombatActions.RunAndGun.GetActionResults = function(self, unit, args)
         local weapon = self:GetAttackWeapons(unit)
-        args.attack_id = "BurstFire"
-        args.num_shots = weapon and weapon:GetAutofireShots("BurstFire") or
+        args.attack_id = Rat_ShortBurstAttackId(weapon)
+        args.num_shots = weapon and weapon:GetAutofireShots(args.attack_id) or
                              CombatActions.BurstFire:ResolveValue("num_shots")
         args.multishot = true
 
@@ -933,8 +937,8 @@ function rat_combat_actions()
     CombatActions.SingleShot.Description = T(585854196899,
                                              "Cheap attack that conserves ammo. Has bonus critical chance based on <em>Marksmanship</em> and <em>Dexterity</em> when <em>aimed</em>.")
     -- CombatActions.RunAndGun.Description = T(614189548956, "<em>Once per turn</em>. Move to a new position, using up to <em><DisplayMoveAP> AP</em>. Fire a number of bursts during movement toward the closest enemies. Each shot suffers increased <em>Hipfire</em> and <em>Recoil</em> accuracy penalties.")
-    CombatActions.AutoFire.Description = T(373274572555,
-                                           "Shoots a hail of <em><bullets> bullets</em> and inflict <GameTerm('Suppressed')> even on miss when the enemy is in weapon range. Has <em>recoil</em> penalty based on <em>Strength</em>. Maximum <em>aim</em> level reduced. Critical chance is reduced")
+    CombatActions.AutoFire.Description = T(815903264417,
+                                           "Shoots a burst of <em><bullets> bullets</em>. Use the <em>mouse wheel</em> to change its length; each extra round costs AP by the weapon's rate of fire. Long bursts inflict <GameTerm('Suppressed')> even on miss when the enemy is in weapon range. Has <em>recoil</em> penalty based on <em>Strength</em>. Maximum <em>aim</em> level reduced. Critical chance is reduced")
     CombatActions.DualShot.Description = T(364947777453,
                                            "The Dual Shot attack produces a Basic Attack from each gun. Maximum <em>aim</em> level is reduced. Has a penalty based on <em>Dexterity</em>.")
     CombatActions.MGSetup.Description = T(564696256945,
@@ -1132,8 +1136,8 @@ function rat_combat_actions()
     CombatActions.RecklessAssault.GetActionResults =
         function(self, unit, args)
             local weapon = self:GetAttackWeapons(unit)
-            args.attack_id = "BurstFire"
-            args.num_shots = weapon and weapon:GetAutofireShots("BurstFire") or
+            args.attack_id = Rat_ShortBurstAttackId(weapon)
+            args.num_shots = weapon and weapon:GetAutofireShots(args.attack_id) or
                                  CombatActions.BurstFire:ResolveValue("num_shots")
             args.multishot = true
 
@@ -1381,31 +1385,6 @@ function rat_combat_actions()
     end
 
 
-    CombatActions.MGBurstFire.GetActionDamage = function(self, unit, target, args)
-        local weapon = args and args.weapon or self:GetAttackWeapons(unit, args)
-        if not weapon then
-            return 0
-        end
-        local base = unit and unit:GetBaseDamage(weapon) or weapon.Damage
-        local penalty = self:ResolveValue("dmg_penalty")
-        local num_shots = weapon:GetAutofireShots(self)
-        base = MulDivRound(base, Max(1, 100 + penalty), 100)
-        local damage = num_shots * base
-        return damage, base, damage - base
-    end
-
-    CombatActions.MGBurstFire.GetActionResults = function(self, unit, args)
-        local args = table.copy(args)
-        args.weapon = args.weapon or self:GetAttackWeapons(unit, args)
-        args.num_shots = args.num_shots or args.weapon and args.weapon:GetAutofireShots(self)
-        args.multishot = true
-        args.damage_bonus = 0
-        -- args.cth_loss_per_shot = self:ResolveValue("cth_loss_per_shot")
-        local attack_args = unit:PrepareAttackArgs(self.id, args)
-        local results = attack_args.weapon:GetAttackResults(self, attack_args)
-        return results, attack_args
-    end
-
     CombatActions.MGPack.GetAPCost = function(self, unit, args)
         if unit:HasStatusEffect("ManningEmplacement") or unit.RATOAI_used_mg_setup_this_turn then
             return -1
@@ -1604,7 +1583,7 @@ local t_id_table = {
     [864921833364] = "Make a longer <em>Run and Gun</em>, firing more shots. Move to a new position, using up to <em><DisplayMoveAP> AP</em> Smiley will be <em>Out of Breath</em> after use. Can't be used when <em>Out of Breath</em>.",
     [585854196899] = "Cheap attack that conserves ammo. Has bonus critical chance based on <em>Marksmanship</em> and <em>Dexterity</em> when <em>aimed</em>.",
     [614189548956] = "<em>Once per turn</em>. Move to a new position, using up to <em><DisplayMoveAP> AP</em>. Fire a number of bursts during movement toward the closest enemies. Each shot suffers increased <em>Hipfire</em> and <em>Recoil</em> accuracy penalties.",
-    [373274572555] = "Shoots a hail of <em><bullets> bullets</em> and inflict <GameTerm('Suppressed')> even on miss when the enemy is in weapon range. Has <em>recoil</em> penalty based on <em>Strength</em>. Maximum <em>aim</em> level reduced. Critical chance is reduced.",
+    [815903264417] = "Shoots a burst of <em><bullets> bullets</em>. Use the <em>mouse wheel</em> to change its length; each extra round costs AP by the weapon's rate of fire. Long bursts inflict <GameTerm('Suppressed')> even on miss when the enemy is in weapon range. Has <em>recoil</em> penalty based on <em>Strength</em>. Maximum <em>aim</em> level reduced. Critical chance is reduced.",
     [364947777453] = "The Dual Shot attack produces a Basic Attack from each gun. Maximum <em>aim</em> level is reduced. Has a penalty based on <em>Dexterity</em>.",
     [564696256945] = "Focus on a cone-shaped area, immobilizing yourself and going <em>prone</em>. You can only shoot enemies inside that cone. Accuracy is increased and enemies will provoke <em>interrupt</em> attacks with actions inside the cone (even if your AP are spent). <em>Interrupt</em> attacks have bonus accuracy. Your weapon will have increased <em>Shooting Angle</em> while you are in setup.",
     [226634284341] = "<em>Spends all AP</em>. Any targets who move or shoot in the overwatch area will provoke <GameTerm('Interrupt')> <em>attacks</em>. Accuracy is influenced by the unit's <em>Reflexes</em> (Dex + Agi). The attacks will suffer increased <em>Snapshot</em> penalty.",

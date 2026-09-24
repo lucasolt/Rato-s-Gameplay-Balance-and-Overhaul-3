@@ -2,6 +2,19 @@ local GBO_OriginalFirearmGetBaseAttack = Firearm.GetBaseAttack
 
 -- DoubleBarrel stays visible with slugs and precedes SingleShot in AvailableAttacks.
 function Firearm:GetBaseAttack(unit, force)
+    ---- BurstFire leads most lists (default, OW and AI attack); without a limiter autofire takes its slot
+    local list = self.AvailableAttacks
+    if list and list[1] == "BurstFire" and not Rat_HasSelectiveBurst(self) then
+        local auto_id = table.find(list, "MGBurstFire") and "MGBurstFire" or "AutoFire"
+        if force then
+            return auto_id
+        end
+        local auto = CombatActions[auto_id]
+        local target = auto.RequireTargets and auto:GetDefaultTarget(unit)
+        if auto:GetVisibility({unit}, target) ~= "hidden" then
+            return auto_id
+        end
+    end
     local id = GBO_OriginalFirearmGetBaseAttack(self, unit, force)
     if force or not IsSlugLoaded(self) then
         return id

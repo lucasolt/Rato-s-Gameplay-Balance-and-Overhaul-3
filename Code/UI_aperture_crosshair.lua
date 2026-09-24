@@ -271,10 +271,13 @@ function Rat_UpdateConeRing(crosshair)
         return true
     end
 
-    local num_shots = 1
-    local ok, n = pcall(weapon.GetAutofireShots, weapon, action)
-    if ok and type(n) == "number" then
-        num_shots = Max(1, n)
+    local num_shots = Rat_CrosshairShots(crosshair, attacker, action)
+    if not num_shots then
+        num_shots = 1
+        local ok, n = pcall(weapon.GetAutofireShots, weapon, action)
+        if ok and type(n) == "number" then
+            num_shots = Max(1, n)
+        end
     end
 
     local up = SetLen(Rat_PerpUp(SetLen(dir, 1000)), 1000)

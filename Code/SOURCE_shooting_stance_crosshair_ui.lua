@@ -32,7 +32,8 @@ function redefine_crosshairUI_function()
             step_pos = pContext.override_pos,
             cth_breakdown = true,
             damage_breakdown = true,
-            free_aim = pContext.free_aim
+            free_aim = pContext.free_aim,
+            num_shots = Rat_CrosshairShots(self, attacker, action)
         }
         if not self.context.noAim then
             self.aim = self.aim or 0
@@ -44,6 +45,11 @@ function redefine_crosshairUI_function()
                 self.aim = self.aim - 1
                 args.aim = self.aim
             end
+        end
+        ---- then the burst gives way, down to its minimum
+        while args.num_shots and args.num_shots > const.Combat.Autofire.MinShots and
+            action:GetUIState({attacker}, args) ~= "enabled" do
+            args.num_shots = Rat_CrosshairSetShots(self, action, args.num_shots - 1)
         end
 
         -- Action can no longer be used.
@@ -69,7 +75,8 @@ function redefine_crosshairUI_function()
                                  self.aim or cached_results.ap ~=
                                  attacker.ActionPoints or
                                  cached_results.free_move_ap ~=
-                                 attacker.free_move_ap
+                                 attacker.free_move_ap or
+                                 cached_results.num_shots ~= args.num_shots
 
         if invalidCache then
             local cthCalc, attackResultCalc = {}, {}
@@ -229,7 +236,8 @@ function redefine_crosshairUI_function()
                 crit = crit,
                 aim = self.aim,
                 ap = attacker.ActionPoints,
-                free_move_ap = attacker.free_move_ap
+                free_move_ap = attacker.free_move_ap,
+                num_shots = args.num_shots
             }
 
             if inDarkness and not TutorialHintsState.InDarkness then
@@ -347,6 +355,9 @@ function redefine_crosshairUI_function()
                                  args and args.aim or 0, action)
 
             local prep = ""
+            if args.num_shots then
+                prep = args.num_shots .. "<style CrosshairAPTotal>x </style>"
+            end
             ----------------------------^^
 
             local apCost = action:GetAPCost(attacker, args)
@@ -356,7 +367,7 @@ function redefine_crosshairUI_function()
                 apCost = apCost - ap_extra
                 -- local apCostshoot = (apCost - ap_extra)/ const.Scale.AP 
                 ap_extra = ap_extra / const.Scale.AP
-                prep = ap_extra .. "<style CrosshairAPTotal>+</style>"
+                prep = prep .. ap_extra .. "<style CrosshairAPTotal>+</style>"
 
             end
 

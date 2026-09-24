@@ -290,7 +290,7 @@ function fireprop()
         category = "Caliber",
         id = "burst_selective",
         name = "Selective Burst Fire",
-        help = "Just for metaText display, normally coupled with lower burst delta",
+        help = "Mechanical burst limiter. Without it, a weapon with full auto hides BurstFire and uses autofire instead.",
         editor = "bool",
         default = false,
         template = true,
@@ -406,6 +406,20 @@ function fireprop()
         template = true,
         min = 1,
         max = 20,
+        modifiable = true
+    }
+
+    FirearmProperties.properties[#FirearmProperties.properties +
+        1] = {
+        category = "Caliber",
+        id = "rpm",
+        name = "Rate of Fire (RPM)",
+        help = "Nominal cyclic rate of fire. Sets the AP cost of each extra round in autofire.",
+        editor = "number",
+        default = 600,
+        template = true,
+        min = 1,
+        max = 6000,
         modifiable = true
     }
 
