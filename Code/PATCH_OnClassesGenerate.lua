@@ -182,8 +182,18 @@ function OnMsg.ClassesGenerate(classdefs)
             if perk == "MartialArts" then
                 classdefs.Blood.StartingPerks[i] = "CQCTraining"
             end
+			break
         end
     end
+
+	if classdefs.Grizzly.StartingPerks then
+		for i, perk in ipairs(classdefs.Grizzly.StartingPerks) do
+            if perk == "BloodlustPerk" then
+                classdefs.Grizzly.StartingPerks[i] = "TakeAim"
+            end
+			break
+        end
+	end
 
     if classdefs.GruntyPerk.unit_reactions then
         table.insert(classdefs.GruntyPerk.unit_reactions, {

@@ -11461,6 +11461,12 @@ return {
 				Slot = "Magazine",
 				param_bindings = false,
 			}),
+			PlaceObj('WeaponComponentVisual', {
+				Entity = "WeaponAttA_MagazineAK74_01",
+				Icon = "UI/Icons/Upgrades/AK74_Bakelite_magazine",
+				Slot = "Magazine",
+				param_bindings = false,
+			}),
 		},
 		group = "Default",
 		id = "_Master_MagNormalFine",

@@ -12,7 +12,7 @@ CheatAddItem("itemid")
 - Snipe action bonus crit per aim from 5 to 4.
 - Heavy rain no longer increases aim AP. Instead, it makes aiming less effective 
 - Reflex sights no longer increase range
-- Snapshot penalty for opportunity attacks was decreased (from extra +20% to +10%). Reflex will grant bigger accuracy boost
+- Snapshot penalty for opportunity attacks was decreased (from extra +20% to +10%). Reflex stat scaling will grant bigger accuracy boost
 
 - Light Stock no longer reduces aim accuracy. Increased recoil.
 
@@ -20,7 +20,7 @@ CheatAddItem("itemid")
 
 - Changed fog vision radius reduction. Fog no longer causes grazing hits
 - Critical chance based on aim levels was tuned down
-- Shotgun attack AP cost reduced, same value as single shot
+- Shotgun AP costs tweaked
 - Other balance tweaks that I forgot
 
 - AP Scale changed. What before was 1 AP, now is 10 AP. This opens avenues to tweak ap costs in a more granular way.
@@ -29,6 +29,7 @@ CheatAddItem("itemid")
 
 - Heavy Weapons perk now reduces Shooting Stance AP instead of Setup AP (indirectly still reduces Setup AP). 
 
+- Grizzly new starting perk is Recoil control instead of Killing Spree
 - Fixed and improved Shooting Stance animations (shoutout to @dabhand)
 - Fixed bugs related to shotgun
 
@@ -68,48 +69,101 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 -- -- -- -- -- -- -- -- -- 
 ```
 
-- [ ] Change Grizzly melee perk
+
+GO BACK TO MG SETUP....
+HWT should not decrease MG burst attack, i think
 
 ## Housekeeping
 - [X] Implement unified Component handling, with ancestor/CTH mode
 	- [X] fix/unify with aCTH logic!!!
 	- [ ] Verify if patch called from TOG is redundant.
 - [ ] Remove unused calibers from bobbyrays list
+- [ ] If I keep the rare calibers, need to do something about distribution
+
+- [ ] Take a look at the shipments. I got a tier 3 MG after 2 fights
 
 ## Components
 
 # As inventory items
+
+## Attachments
+- [ ] *Find a use for Lens and Chips*
+- [ ] Component icon and models from ToC for 5.45 Suppressor and 7.62x54R Suppressor, 45 acp Suppressor, Mauser?
+- [X] Currently, P90 is using 5.56 suppressor and compensator - Removed from it
+
+
+## Design
+
 - [ ] Change RS grading. compact -> assault compact -> assault/vulto
 - [ ] Add compact Advanced (Glock RS) to rifles?
 - [ ] Remove Vulto RS from pistols?
-- [ ] Make components scrappable
-- [X] Compensator per caliber
-- [ ] Ak 74 bipod is not using item
-- [ ] Component icon and models from ToC for 5.45 Suppressor and 7.62x54R Suppressor, 45 acp Suppressor, Mauser?
-- [ ] Currently, P90 is using 5.56 suppressor and compensator
-
-## TOG
-- [ ] safety mechanism for discontinued guns to keep their patching, at least to not break saves
-
-# Other
 - [X] Remove TOG handguards (RKs done)
 - [X] no interchangeable stock between RKs
 - [ ] check components that make sense and remove the ones that dont. elegance first.
-- [ ] Re-tune component AP cost now that the scale has changed
+- [X] Re-tune component AP cost now that the scale has changed
 	- [X] Handgun barrels -> 3
 	- [X] Light stock -> 5
 	- [X] Heavy stock - unchanged
 	- [X] Barrels - reduced
-- [ ] See why the mag modification is available even when RevMags is loaded
-- [ ] Mags are bugged visually with RevMags. Probably the updatevisual racing conditions
 
+## Random ideas
+- [ ] Maybe i could use multiple models for the same kind of suppressor
+
+## Code/implementation
+- [X] make components/att have rarity weight on BobbyRays
+- [X] Make components scrappable
+- [X] Compensator per caliber
+- [X] Ak 74 bipod is not using item
+- [ ] Scout suppressor should created, or use the 556 one.
+
+## Other
+
+- [X] See why the mag modification is available even when RevMags is loaded
+- [X] Mags are bugged visually with RevMags. 
 - [X] fix folded stock AP reduction (M11 was bugged)
-- [ ] SKS extended barrel has wrong accuracy param -- Fixed???
+- [X] SKS extended barrel has wrong accuracy param -- Fixed???
 - [X] consider small threshold bonus for the 1.5x scopes as well
+
+
+## New mechanics intended
+- [X] change AP scale
+	- [X] Rotation cost smooth
+	- [X] Manual cycling AP cost dexterity scaling smooth
+		- [X] Retune the costs of manual cycling
+- [ ] Autofire shot count.
+- [x] MG Recoil/setup rework (needs further testing)
+- [x] Crouch and prone effect on the aperture, elliptical
+- [ ] rotating while prone should cost more after the initial angle
+
+## New mechanics (luxury)
+- [ ] **Unify all crits into Crit Scaling.** Make it be per aim, and based on HEC, not level
+- [ ] MG and bipods setting up on cover/crouch
+- [ ] **MEGA LUXURY** Vision cones/directional vision. Would need to make AI take this into account.
+- [ ] agility defense against melee
  
-- [ ] Scopes - turn the floor mul into a readable effect (or just turn it back into increased range?)
+## TOG
+# Code 
+- [ ] safety mechanism for discontinued guns to keep their patching, at least to not break saves (python?)
+
+## EO
+- [ ] Barry Shaped charge is too sensitive to alterations. Increase angle
+
+ 
+## Other balancing
+- [ ] shotgun pellets interaction with gunshurt option
+- [ ] Shotgun pellet balancing and spread, duckbill etc.
+- [ ] Slug damage?
+- [ ] **General balancing:** OW tuning — minor. -> *maybe some action that costs more, tighter ow cone, 3 aim levels?*
+- [ ] Change Grizzly melee perk to recoil or other
+
+## QOL
+- [X] Fix Shooting Stance animation, particulary in regards to mobile attack 
+- [ ] Crosshair AP cost breakdown refactor, for more clear stance ap cost display
+- [ ] Implement F1 "wiki"
 
 - [ ] Turn the dragunov crit (and other similar) into a single effect with params
+
+##### ACTH
 
 ## aCTH Possible fragilities
 - [ ] see if graphic display of single shot recoil is working. POssibly review the burst too
@@ -122,75 +176,11 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 - [ ] check if ricochet damage reduction is still applying
 - [X] Aim is being used in the Interrupt? shows 0 levels
 - [X] Shoot from above when very close. collision is strange. See savegame
-
 - [X] **BUG** Shotgun "killed unit was reported, but no "attack hit" actually struck it." See save Shotty Bug
 
-## AI OVERHAUL - other mod
-- [ ] Maybe do no stat boost in hyena or MELEE Overhaul!
+## aCTH - Cleaning
 
-- [ ] Hyenas and other animals should not be aware of OW
-- [ ] decision making logic relating to grenades-> they should not use if they are very close to another target (that could be killed or kill them)
-- [ ] Pellet precalc damage rationale, does it work?
-- [x] **possible BUG** - Buckshot should not degrade to single shot 
-- [X] Mechanics check
-- [ ] in aCTH they should try to shoot the head if its the only part out of cover
-- [ ] Implement smoke usage.
-- [X] Enemy `LastPos` should generate threat. They should also try to "chase" the last position.
-- [x]  Check grenade distribution.
-  - Give more timed grenades to enemies.
-  - Less frustrating, but still a challenge to the player.
-- [X] Check recoil calc for AI when using aCTH
-- [X] Fix AI trying to shoot prone when there is a very small cover in front of it, making impossible to actually hit (see savegame) **---> Done. Just have to make sure they are not losing turns because of this**
-- [X] Tune `Threat Exposure`, possibly simplify
-	- [X] Fix LOS 
-	- [X] Fix Debug overlay not decomposing ready curve 
-
-## AI Overhaul new stuff
-- [ ] Overwatch against last target pos when unit is hidden. also make them throw grenades at it, specially when at a rooftop
-- [ ] Bandage
-
-## AI Overhaul - minor
-- [ ] Take cover action is more important, should be used
-- [ ] Make sure AI will not try to shoot through walls. (especially with aCTH)
-
-- [ ] enemy behavior under PinDown... if the attack is not very likely to hit, they should not give much fuck
-- [ ] "impatience" mechanic - if they are not being shot and not hitting, they should become more agressive
-- [ ] groups should be more agressive?
-- [ ] **Disabled** pindown action for now
-
-## AI Overhaul - LUXURY
-- [ ] Stealth
-- [ ] Out of sight score when trying to flank
-
-## aCTH Balancing
-- [ ] Possible use the offpart minus damage only for the head... 
-- [ ] Pass at Scopes. Balance the acc numbers
-- [ ] General balancing, but important. If I keep the rare calibers, need to do something about distribution
-- [X] Remove stray from get cover action?
-- [X] Evaluate aim soft cap, to see if new values are not capped (its 70 the cap)
-- [X] Pinned down mod suppression for strays
-- [X] Re-scale Aim Accuracy bonus for more gradient
-	- [X] UV dot
-	- [X] No stock penalty should be re-scaled as handguns have changed. Decide if more range penalty or more aim penalty is appropriate
-	- [X] Light stock?
-	- [X] Match ammo
-	- [X] grips -> its a flat attack accuracy bonus
-	- [X] better handling of the component aim scaler
-- [X] review the Handling while standing penalty
-	- [ ] Decide if Recoil while standing should use the same parameters (currently uses `weigth_held_mul`)
-- [X] Stray shots should have a lower chance to inflict status effects. 
-	- [X] Pellets
-- [ ] Calibrar o recuo de segunda ordem.
-  - Ancorar `KickBase` e o mapa `control -> CFMax` nas duas.
-  - Ver linhas extremas do ladder do `1cc229c`.
-  - Depois conferir um calibre pesado.
-  - Ver `RECOIL MODEL.md`.
-
-## Other balancing
-- [ ] shotgun pellets interaction with gunshurt option
-- [ ] Shotgun pellet balancing and spread, duckbill etc.
-- [ ] Slug damage?
-- [ ] **General balancing:** OW tuning — minor. -> *maybe some action that costs more, tighter ow cone, 3 aim levels?*
+- [ ] Scopes - turn the floor mul into a readable effect (or just turn it back into increased range?)
 
 
 ## Reimplementation necessary
@@ -217,6 +207,31 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 - [X] Check if Run and Gun penalty modifier for recoil was implemented
 
 ------------------------------------------------------------------------------------------------------------------------------
+
+## aCTH Balancing
+- [ ] Possible use the offpart minus damage only for the head... 
+- [ ] Pass at Scopes. Balance the acc numbers
+
+- [X] Remove stray from get cover action?
+- [X] Evaluate aim soft cap, to see if new values are not capped (its 70 the cap)
+- [X] Pinned down mod suppression for strays
+- [X] Re-scale Aim Accuracy bonus for more gradient
+	- [X] UV dot
+	- [X] No stock penalty should be re-scaled as handguns have changed. Decide if more range penalty or more aim penalty is appropriate
+	- [X] Light stock?
+	- [X] Match ammo
+	- [X] grips -> its a flat attack accuracy bonus
+	- [X] better handling of the component aim scaler
+- [X] review the Handling while standing penalty
+	- [ ] Decide if Recoil while standing should use the same parameters (currently uses `weigth_held_mul`)
+- [X] Stray shots should have a lower chance to inflict status effects. 
+	- [X] Pellets
+- [ ] Calibrar o recuo de segunda ordem.
+  - Ancorar `KickBase` e o mapa `control -> CFMax` nas duas.
+  - Ver linhas extremas do ladder do `1cc229c`.
+  - Depois conferir um calibre pesado.
+  - Ver `RECOIL MODEL.md`.
+
 # Later Stuff
 ## aCTH Descriptions that need change
 - [ ] Take cover not grazing mod option
@@ -230,31 +245,50 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 - [X] MG Setup and set up bonuses/held  - the bonus is actually on being prone now
 - [ ] UI CTH should change, put aperture in a differnt setting, also recoil
  
-## New mechanics intended
-- [X] change AP scale
-	- [X] Rotation cost smooth
-	- [X] Manual cycling AP cost dexterity scaling smooth
-		- [X] Retune the costs of manual cycling
-- [ ] Autofire shot count.
-- [x] MG Recoil/setup rework (needs further testing)
-- [x] Crouch and prone effect on the aperture, elliptical
-- [ ] rotating while prone should cost more after the initial angle
-
-## EO
-- [ ] Barry Shaped charge is too sensitive to alterations. Increase angle
-
-## New mechanics (luxury)
-- [ ] **Unify all crits into Crit Scaling.** Make it be per aim, and based on HEC, not level
-- [ ] MG and bipods setting up on cover/crouch
-- [ ] **MEGA LUXURY** Vision cones/directional vision. Would need to make AI take this into account.
-- [ ] agility defense against melee
- 
 
 
-## QOL
-- [X] Fix Shooting Stance animation, particulary in regards to mobile attack 
-- [ ] Crosshair AP cost breakdown refactor, for more clear stance ap cost display
-- [ ] Implement F1 "wiki"
+##### AI OVERHAUL
+
+
+## AI OVERHAUL - other mod
+- [ ] Maybe do no stat boost in hyena or MELEE Overhaul!
+- [ ] Militia custom AI. Stay close, defensive
+- [ ] Hyenas and other animals should not be aware of OW
+- [ ] decision making logic relating to grenades-> they should not use if they are very close to another target (that could be killed or kill them)
+- [ ] Pellet precalc damage rationale, does it work?
+- [x] **possible BUG** - Buckshot should not degrade to single shot 
+- [X] Mechanics check
+- [ ] in aCTH they should try to shoot the head if its the only part out of cover
+
+- [X] Enemy `LastPos` should generate threat. They should also try to "chase" the last position.
+- [x]  Check grenade distribution.
+  - Give more timed grenades to enemies.
+  - Less frustrating, but still a challenge to the player.
+- [X] Check recoil calc for AI when using aCTH
+- [X] Fix AI trying to shoot prone when there is a very small cover in front of it, making impossible to actually hit (see savegame) **---> Done. Just have to make sure they are not losing turns because of this**
+- [X] Tune `Threat Exposure`, possibly simplify
+	- [X] Fix LOS 
+	- [X] Fix Debug overlay not decomposing ready curve 
+
+## AI Overhaul new stuff
+- [ ] Team based strategy. Autoweapons suppress, skirmishers focus on getting closer to kill
+- [ ] Overwatch against last target pos when unit is hidden. also make them throw grenades at it, specially when at a rooftop
+- [ ] Bandage
+- [ ] Implement smoke usage.
+
+## AI Overhaul - minor
+- [ ] Take cover action is more important, should be used
+- [ ] Make sure AI will not try to shoot through walls. (especially with aCTH)
+
+- [ ] enemy behavior under PinDown... if the attack is not very likely to hit, they should not give much fuck
+- [ ] "impatience" mechanic - if they are not being shot and not hitting, they should become more agressive
+- [ ] groups should be more agressive?
+- [ ] **Disabled** pindown action for now
+
+## AI Overhaul - LUXURY
+- [ ] Stealth
+- [ ] Out of sight score when trying to flank
+
 
 
 ------------------------------------------------------------------------------------------------------------------------------

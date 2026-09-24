@@ -114,7 +114,7 @@ function presets_char_effect()
         ------------------------------------------------------------------------------------------------------------		
         if p.id == "GruntyPerk" then
             p.Description = T(313423416367,
-                              "<em>Attacks</em> the <em>closest</em> enemy with a firearm when <em>combat starts</em>, if possible. \n\nThe attack will have 1 aim level and bonus accuracy.\n\nCan't be used with Heavy Weapons.")
+                              "<em>Attacks</em> the <em>closest</em> enemy with a firearm when <em>combat starts</em>, if possible. \n\nThe attack will have 3 aim levels and bonus accuracy.\n\nCan't be used with Heavy Weapons.")
         end
 
         ------------------------------------------------------------------------------------------------------------		

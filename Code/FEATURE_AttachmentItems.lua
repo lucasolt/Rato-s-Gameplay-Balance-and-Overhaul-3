@@ -135,6 +135,8 @@ RAT_ATT_FAMILY_NAMES = {
 ---- id: item class, frozen. comps: the ids known when this was generated; name binds the rest.
 ---- Optional shop overrides, beating tier and page: weight (restock weight; 0 keeps it out of the
 ---- shop, any value puts a stock part back in) and max_stock.
+local priceMul = 50
+
 RAT_ATT_ITEMS = {
     {
         id = "RAT_Att_AWPScope",
@@ -891,6 +893,10 @@ RAT_ATT_ITEMS = {
         any = true
     }
 }
+
+for i, att in ipairs(RAT_ATT_ITEMS) do
+	att.cost = MulDivRound(att.cost, priceMul, 100)
+end
 
 RAT_ATT_ITEM_OF = {} -- component id -> item class
 RAT_ATT_FAMILY_OF = {} -- component id -> family name
