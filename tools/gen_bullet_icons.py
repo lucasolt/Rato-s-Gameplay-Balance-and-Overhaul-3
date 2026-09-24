@@ -30,15 +30,15 @@ MAT = {
     "tip_red": ((196, 44, 40), 0.4, 14),
     "propellant": ((168, 92, 50), 0.08, 6),
     "propellant_cap": ((128, 64, 36), 0.08, 6),
-    "tip_ap": ((200, 52, 58), 0.3, 10),
-    "tip_match": ((236, 200, 40), 0.3, 10),
-    "tip_tracer": ((150, 78, 196), 0.3, 10),
-    "tip_hp": ((70, 150, 220), 0.3, 10),
-    "hull_basic": ((62, 104, 66), 0.2, 8),
-    "hull_ap": ((180, 44, 44), 0.2, 8),
-    "hull_match": ((222, 186, 40), 0.2, 8),
-    "hull_tracer": ((126, 64, 170), 0.2, 8),
-    "hull_hp": ((56, 124, 196), 0.2, 8),
+    "tip_ap": ((191, 67, 77), 0.3, 10),
+    "tip_match": ((220, 140, 28), 0.3, 10),
+    "tip_tracer": ((134, 143, 93), 0.3, 10),
+    "tip_hp": ((109, 187, 209), 0.3, 10),
+    "hull_basic": ((161, 156, 148), 0.2, 8),
+    "hull_ap": ((191, 67, 77), 0.2, 8),
+    "hull_match": ((220, 140, 28), 0.2, 8),
+    "hull_tracer": ((134, 143, 93), 0.2, 8),
+    "hull_hp": ((109, 187, 209), 0.2, 8),
 }
 
 
@@ -144,7 +144,7 @@ def caseless(L, W, cap_mat="propellant_cap"):
     return r
 
 
-# ammo colorStyle -> file suffix and paint; Basic keeps each round's own look
+# ammo colorStyle -> file suffix and paint (the game's TextStyle colors); Basic keeps each round's own look
 VARIANTS = {
     "": None,
     "_AP": "tip_ap",
