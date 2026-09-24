@@ -149,6 +149,10 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
         end
     end
 
+    ---- noise only grows below the reference, so no one gets steadier than the base tuning
+    local noise = 100 + Max(0, (a.RecoilNoiseSkillRef or 0) - (attacker.Marksmanship or 0)) *
+                            (a.RecoilNoiseSkillSlope or 0)
+
     local T = Max(1, a.RecoilSettleShots or 3)
     local ang = Clamp(a.RecoilKickAngle or 0, -90, 90) * 60
 
@@ -169,12 +173,14 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
         max_inc = max_inc * 100,
         ---- floor off the NEUTRAL increment, never off this merc's: `max_inc` is skill-driven now,
         ---- and scaling the floor with it would make skill raise its own error.
-        min_err = MulDivRound((a.RecoilMaxIncBase or 1) * 100, a.RecoilMinErrorPct or 0, 100),
+        min_err = MulDivRound(MulDivRound((a.RecoilMaxIncBase or 1) * 100, a.RecoilMinErrorPct or 0,
+                                          100), noise, 100),
         ---- gains by 1000. Double root at 1 - 1/T gives Kd = 2/T and Kp = 1/T^2.
         kp = MulDivRound(1000, 1, T * T),
         kd = MulDivRound(2000, a.RecoilDamping or 100, 100 * T),
         err_ratio = a.RecoilErrorRatio or 0,
-        lat = lat,
+        lat = MulDivRound(lat, noise, 100),
+        noise = noise,
         ---- Dexterity is the hands; `other_control` is stance and training steadying them. Without
         ---- the second term skill buys a bigger correction AND a proportionally bigger error, and
         ---- cancels itself. Never removes the floor, only the error above it.

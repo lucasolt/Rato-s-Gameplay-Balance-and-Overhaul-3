@@ -325,6 +325,20 @@ A.RecoilMinErrorPct = 25
 ---- 80 -> 28% x304'. MG 0 -> 64% x64', 20 -> 58%, 40 -> 49%, 60 -> 39%, 80 -> 33% x380'
 A.RecoilLateralPct = 40
 
+---- MARKSMANSHIP -> NOISE. Scales RecoilMinErrorPct and RecoilLateralPct by
+---- 100 + (Ref - Marksmanship) * Slope %, never below 100: at Ref and above nothing changes.
+---- Exists because on an easy gun (bipod MG) Marksmanship only drives max_inc, which never binds,
+---- so mercs 40 and 100 fired the MG42 identically. TO TURN OFF: Slope = 0.
+---- Measured with bipod 70/300, Str 90, Dex 80, `Marks -> MG / AK`, Ref 90:
+----   Slope 0: 50 -> 36/21%, 65 -> 39/22%, 80 -> 37/24%, 90 -> 37/28%, 100 -> 39/33%
+----   Slope 2: 50 -> 21/22%, 65 -> 25/23%, 80 -> 33/25%
+----   Slope 3: 50 -> 17/21%, 65 -> 22/23%, 80 -> 30/25%   (AK lateral at Marks 65: 257' -> 464')
+----   Slope 4: 50 -> 15/21%, 65 -> 19/23%, 80 -> 29/25%
+---- AK hit rate barely moves: its climb dominates and Marksmanship already spreads it via max_inc.
+A.RecoilNoiseSkillRef = 90
+---- UP = mercs below Ref are noisier. % extra noise per Marksmanship point short of Ref
+A.RecoilNoiseSkillSlope = 3
+
 ---- firing on the move: no brace at all, and the stride throws the muzzle sideways
 ---- UP = worse grip / wider sway while running (RunAndGun, RecklessAssault). Not measured.
 A.RecoilMovingCtlPct = 25
