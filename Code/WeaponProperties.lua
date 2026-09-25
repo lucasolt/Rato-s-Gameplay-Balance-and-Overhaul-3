@@ -428,7 +428,7 @@ function fireprop()
         category = "Caliber",
         id = "auto_only",
         name = "Full Auto Only",
-        help = "No semi-auto: Single Shot is hidden and autofire goes down to 1 round, with a trigger overrun chance that grows with RPM.",
+        help = "No semi-auto: Single Shot is hidden; a single aimed shot is a 1-round autofire.",
         editor = "bool",
         default = false,
         template = true,

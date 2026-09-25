@@ -60,13 +60,9 @@ function Rat_SingleShotAction(weapon)
     return CombatActions.SingleShot
 end
 
-function Rat_AutoMinShots(weapon)
-    return weapon and weapon.auto_only and 1 or P().MinShots
-end
-
 function Rat_ClampAutoShots(action, weapon, n)
     n = n or weapon:GetAutofireShots(action)
-    local lo = Rat_AutoMinShots(weapon)
+    local lo = P().MinShots
     local ammo = weapon.ammo and weapon.ammo.Amount or lo
     return Clamp(n, lo, Max(lo, ammo))
 end
@@ -85,12 +81,12 @@ function Rat_AutoExtraAP(action, weapon, n)
     return MulDivRound(extra, 1, const.Scale.AP) * const.Scale.AP
 end
 
----- a single tap on an auto-only weapon adds a chance that grows with RPM and shrinks with Composure
+---- a single tap in autofire adds a chance that grows with RPM and shrinks with Composure
 function Rat_AutoOverrunChance(unit, weapon, n)
     local p = P()
     local composure = rGetComposure(unit)
     local chance = Max(0, (p.OverrunComposureRef - composure) * p.OverrunChancePerPoint)
-    if n == 1 and weapon and weapon.auto_only then
+    if n == 1 and weapon then
         local tap = MulDivRound(weapon.rpm or p.RPMRef, p.SingleTapChancePer1000RPM, 1000)
         chance = chance + MulDivRound(tap, Clamp(100 - composure, 0, 100), 100)
     end
@@ -138,7 +134,7 @@ local function variable_ui_state(self, units, args)
         return state, err
     end
     local weapon = self:GetAttackWeapons(units[1], args)
-    if not weapon.ammo or weapon.ammo.Amount < Rat_AutoMinShots(weapon) then
+    if not weapon.ammo or weapon.ammo.Amount < P().MinShots then
         return "disabled", AttackDisableReasons.InsufficientAmmo
     end
     return "enabled"

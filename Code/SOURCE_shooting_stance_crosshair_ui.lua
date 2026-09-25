@@ -47,7 +47,7 @@ function redefine_crosshairUI_function()
             end
         end
         ---- then the burst gives way, down to its minimum
-        while args.num_shots and args.num_shots > Rat_AutoMinShots(action:GetAttackWeapons(attacker)) and
+        while args.num_shots and args.num_shots > const.Combat.Autofire.MinShots and
             action:GetUIState({attacker}, args) ~= "enabled" do
             args.num_shots = Rat_CrosshairSetShots(self, action, args.num_shots - 1)
         end

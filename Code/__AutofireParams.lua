@@ -1,6 +1,6 @@
 ---- Selectable-length autofire (AutoFire and MGBurstFire). Logic in FEATURE_VariableAutofire.lua.
 const.Combat.Autofire = {
-    MinShots = 2,
+    MinShots = 1,
     ---- the length that costs exactly ShootAP + deltas; shorter is cheaper, longer pays per round
     BaseShots = 3,
     ---- AP per extra round at RPMRef; scales by RPMRef / weapon.rpm
@@ -18,6 +18,6 @@ const.Combat.Autofire = {
     OverrunStatusChance = {Suppressed = 10, PinnedDown = 15, Panicked = 30, Berserk = 30},
     ---- max extra rounds per 1000 RPM, at least 1
     OverrunRoundsPer1000RPM = 3,
-    ---- tapping a single round on an auto-only weapon: chance per 1000 RPM, times (100 - Composure)%
+    ---- tapping a single round in autofire: chance per 1000 RPM, times (100 - Composure)%
     SingleTapChancePer1000RPM = 40,
 }
