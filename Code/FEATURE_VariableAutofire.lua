@@ -73,12 +73,14 @@ function Rat_AutoAPPerRound(weapon)
     return MulDivRound(p.APPerRoundRef, p.RPMRef, Max(1, weapon.rpm or p.RPMRef))
 end
 
----- signed: BaseShots costs ShootAP, each round above or below moves it by the per-round cost
+---- signed: BaseShots costs ShootAP, each round above or below moves it by the per-round cost;
+---- never cheaper than a Single Shot with the same weapon
 function Rat_AutoExtraAP(action, weapon, n)
     local p = P()
     n = Rat_ClampAutoShots(action, weapon, n)
     local extra = (n - p.BaseShots) * Rat_AutoAPPerRound(weapon)
-    return MulDivRound(extra, 1, const.Scale.AP) * const.Scale.AP
+    extra = MulDivRound(extra, 1, const.Scale.AP) * const.Scale.AP
+    return Max(extra, rat_getDeltaAP(nil, weapon, "SingleShot") - rat_getDeltaAP(action, weapon))
 end
 
 ---- a single tap in autofire adds a chance that grows with RPM and shrinks with Composure
