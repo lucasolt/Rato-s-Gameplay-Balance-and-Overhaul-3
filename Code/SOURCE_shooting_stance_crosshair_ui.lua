@@ -421,11 +421,11 @@ redefine_crosshairUI_function()
 
 ---------------------------------------------------------------------------------------------------
 local ap_breakdown_labels = {
-    stance = T(771402935518, "STANCE"),
-    rotate = T(771402935519, "ROTATE"),
-    shot = T(771402935520, "SHOT"),
+    stance = T(771402935518, "STN"),
+    rotate = T(771402935519, "ROT"),
+    shot = T(771402935520, "SHT"),
     aim = T(771402935521, "AIM"),
-    recoil = T(771402935522, "RECOIL")
+    recoil = T(771402935522, "RCL")
 }
 
 local function ap_breakdown_col(id)
@@ -434,7 +434,7 @@ local function ap_breakdown_col(id)
         'IdNode', true,
         'LayoutMethod', "VList",
         'VAlign', "center",
-        'Margins', box(5, 0, 5, 0),
+        'Margins', box(3, 0, 3, 0),
         'UseClipBox', false,
         'FoldWhenHidden', true
     }, {
@@ -453,7 +453,7 @@ local function ap_breakdown_col(id)
             'Id', "idValue",
             'HAlign', "center",
             'Padding', box(0, 0, 0, 0),
-            'Margins', box(0, -5, 0, 0),
+            'Margins', box(0, -4, 0, 0),
             'Clip', false,
             'UseClipBox', false,
             'TextStyle', "CrosshairAPTotal",
@@ -462,40 +462,52 @@ local function ap_breakdown_col(id)
     })
 end
 
--- negative bottom margin nets the row to zero height, so the bottom-anchored VList does not rise over the target
+-- sits right of the total inside the AP box; scaled down so the box stays one line tall
 local ap_breakdown_template = PlaceObj('XTemplateWindow', {
     'comment', "rat_ap_breakdown",
     'Id', "idRatAPBreakdown",
     'IdNode', true,
-    'HAlign', "center",
-    'VAlign', "bottom",
+    'VAlign', "center",
     'LayoutMethod', "HList",
-    'Padding', box(4, 2, 4, 2),
-    'Margins', box(0, 0, 0, -44),
+    'Margins', box(0, 0, 6, 0),
+    'ScaleModifier', point(750, 750),
     'UseClipBox', false,
     'Visible', false,
-    'FoldWhenHidden', true,
-    'Background', RGBA(32, 35, 47, 180)
+    'FoldWhenHidden', true
 }, {
+    PlaceObj('XTemplateWindow', {
+        'MinWidth', 1,
+        'MaxWidth', 1,
+        'Margins', box(0, 4, 4, 4),
+        'Background', RGBA(195, 189, 172, 90)
+    }),
     ap_breakdown_col("idRatAPStance"),
     ap_breakdown_col("idRatAPShot"),
     ap_breakdown_col("idRatAPAim"),
     ap_breakdown_col("idRatAPRecoil")
 })
 
----- last child of the bottom VList, hanging under the rounds strip
-function Rat_PatchCrosshairAPBreakdown()
-    local chain = FindXtByProp(XTemplates.ActionCameraCrosshair, 'Id', 'idRange')
-    local vlist = chain and chain[2]
-    if not vlist then
-        return
-    end
-    for i = #vlist, 1, -1 do
-        if vlist[i].comment == "rat_ap_breakdown" then
-            table.remove(vlist, i)
+local function strip_breakdown(parent)
+    for i = #parent, 1, -1 do
+        if parent[i].comment == "rat_ap_breakdown" then
+            table.remove(parent, i)
         end
     end
-    vlist[#vlist + 1] = ap_breakdown_template
+end
+
+---- appended to the "ap indicator" box
+function Rat_PatchCrosshairAPBreakdown()
+    local range = FindXtByProp(XTemplates.ActionCameraCrosshair, 'Id', 'idRange')
+    if range and range[2] then
+        strip_breakdown(range[2])
+    end
+    local chain = FindXtByProp(XTemplates.ActionCameraCrosshair, 'Id', 'idAPCostText')
+    local ap_box = chain and chain[2]
+    if not ap_box then
+        return
+    end
+    strip_breakdown(ap_box)
+    ap_box[#ap_box + 1] = ap_breakdown_template
 end
 
 local function set_col(col, label, value, visible)
@@ -511,6 +523,10 @@ function Rat_UpdateCrosshairAPBreakdown(crosshair, unit, parts)
     local row = crosshair.idRatAPBreakdown
     if not row then
         return
+    end
+    -- set live: XTemplate caches each template's copied props, so a patched LayoutMethod is ignored
+    if row.parent.LayoutMethod ~= "HList" then
+        row.parent:SetLayoutMethod("HList")
     end
     local show_recoil = parts.recoil > 0 or parts.recoil_per_level
     local show = parts.stance > 0 or parts.aim > 0 or show_recoil
@@ -544,11 +560,11 @@ end
 
 local t_id_table = {
     [553504408105] = "Unknown Modifiers",
-    [771402935518] = "STANCE",
-    [771402935519] = "ROTATE",
-    [771402935520] = "SHOT",
+    [771402935518] = "STN",
+    [771402935519] = "ROT",
+    [771402935520] = "SHT",
     [771402935521] = "AIM",
-    [771402935522] = "RECOIL"
+    [771402935522] = "RCL"
 }
 
 ratG_T_table['SOURCE_shooting_stance_crosshair_ui.lua'] = t_id_table
