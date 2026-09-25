@@ -509,28 +509,11 @@ function GetAimMul_Recoil_byCaliber(weapon1)
     end
 end
 
-function Rat_GetROF(weapon, action_id)
-    local num_shots = 3
-    if action_id == "MGBurstFire" then
-        num_shots = weapon.long_shots
-    else
-        action_id = "BurstFire"
-        num_shots = weapon.burst_shots
-    end
-
-    local cost = (weapon.ShootAP + rat_getDeltaAP(false, weapon, action_id)) / R_VanillaAP(1)
-
-    local shotsBoost = GetComponentEffectValue(weapon, "ExtraBurstShots", action_id)
-
-    if shotsBoost then
-        num_shots = num_shots + shotsBoost
-    end
-
-    local ROF = num_shots * 1.00 / cost
-
-    ROF = ROF + 0.25
-    ROF = (ROF - 1.00) * 0.2 + 1.00
-    return ROF
+---- rate-of-fire recoil factor in percent: 100 at ROFRefRPM, scaled by weapon.RPM
+function Rat_GetROF(weapon)
+    local ref = const.Combat.Recoil.ROFRefRPM
+    local rpm = weapon and weapon.RPM or ref
+    return 100 + MulDivRound(rpm - ref, const.Combat.Recoil.ROFGain, ref)
 end
 
 local stacks_multiplier = const.Combat.Recoil.StacksMultiplier
@@ -671,15 +654,11 @@ function get_recoil(attacker, target, target_pos, action, weapon, aim, num_shots
     local ROF
 
     if not IsKindOf(weapon, "Shotgun") then
-        local action_id_rof = action.id or ""
-        if action_id_rof == "GrizzlyPerk" then
-            action_id_rof = "MGBurstFire"
-        end
-        ROF = Rat_GetROF(weapon, action_id_rof)
+        ROF = Rat_GetROF(weapon)
     end
 
-    if ROF and ROF > 1 then
-        mod = mod * ROF
+    if ROF and ROF > 100 then
+        mod = mod * ROF / 100.0
         metaText[#metaText + 1] = rT(851619126995, "(-) High Rate of Fire")
     end
 

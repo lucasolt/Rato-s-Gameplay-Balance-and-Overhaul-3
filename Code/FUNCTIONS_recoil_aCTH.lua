@@ -142,8 +142,7 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
     ---- rate of fire shortens the time BETWEEN shots, so it shortens the reaction -- not the
     ---- force, which is muscle, and not the kick, which is the cartridge.
     if not IsKindOf(weapon, "Shotgun") then
-        local ROF = Rat_GetROF(weapon, (aid == "GrizzlyPerk") and "MGBurstFire" or (aid or ""))
-        local rof100 = ROF and cRound(ROF * 100) or 100
+        local rof100 = Rat_GetROF(weapon)
         if rof100 > 100 then
             max_inc = Max(1, MulDivRound(max_inc, 100, rof100))
         end

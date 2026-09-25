@@ -9,6 +9,8 @@ const.Combat.Recoil.MaxDistforPenalty = 36 -- 26 ----- -18
 const.Combat.Recoil.StacksMultiplier = 0.35 ---- * -- for Persistant Recoil
 const.Combat.Recoil.MGSetupMul = 0.8--0.60 ---- * -- MG Setup recoil reduction
 const.Combat.Recoil.RunAndGunExtraPenalty = -5
+const.Combat.Recoil.ROFRefRPM = 600 -- weapon.RPM with no rate-of-fire recoil
+const.Combat.Recoil.ROFGain = 20 -- % added per ROFRefRPM above the ref (1200 RPM -> 120)
 
 const.Combat.Recoil.Components = {
     VerticalGripMul = 0.95, ---0.92, 
