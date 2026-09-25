@@ -362,15 +362,17 @@ function redefine_crosshairUI_function()
             local stance0 = unit:GetShootingStanceAP(target_arg, weapon, 0, action)
             local aim_ap = Max(0, (apCost - stance_ap) - (cost0 - stance0))
 
-            local recoil_ap, recoil_text = 0, false
+            local recoil_ap, recoil_text, recoil_capped = 0, false, false
             local recoil = attacker:GetStatusEffect("Rat_recoil")
             local aim_penalty = recoil and recoil:ResolveValue("aim_cost")
             if aim_penalty and aim_penalty >= R_VanillaAPToDisplay(0.5) then
                 local min_aim = attacker:GetBaseAimLevelRange(action, weapon)
-                local aim_level = Min(3, Max(0, (args.aim or 0) - min_aim))
+                local aim_level = Max(0, (args.aim or 0) - min_aim)
+                recoil_capped = aim_level > 3
+                aim_level = Min(3, aim_level)
                 -- mirrors Rat_recoil's OnCalcAPCost
                 recoil_ap = Min(aim_ap, cRoundDown(aim_penalty * aim_level) * const.Scale.AP)
-                recoil_text = formatNumber(aim_penalty)
+                recoil_text = not recoil_capped and formatNumber(aim_penalty)
             end
 
             local free_move_ap_used = Min(args.ap_cost_breakdown.move_cost or 0,
@@ -400,7 +402,8 @@ function redefine_crosshairUI_function()
                 shot = Max(0, apCost - stance_ap - aim_ap),
                 aim = aim_ap,
                 recoil = recoil_ap,
-                recoil_text = recoil_text
+                recoil_text = recoil_text,
+                recoil_capped = recoil_capped
             })
             ------------------
             if self.aim ~= 0 then
@@ -565,9 +568,9 @@ function Rat_UpdateCrosshairAPBreakdown(crosshair, unit, parts)
     set_col(row.idRatAPStance, ap_breakdown_labels[in_stance and "rotate" or "stance"],
             T {"<apn(v)>", v = parts.stance}, parts.stance > 0)
     set_col(row.idRatAPShot, ap_breakdown_labels.shot, T {"<apn(v)>", v = parts.shot}, true)
-    -- aim includes recoil; red ties it to the recoil line below
+    -- aim includes recoil: red ties it to the recoil line, amber once recoil stops adding past aim 3
     set_col(row.idRatAPAim, ap_breakdown_labels.aim, T {"<apn(v)>", v = parts.aim}, true,
-            parts.recoil > 0 and "AmmoAPColor")
+            parts.recoil > 0 and (parts.recoil_capped and "215 159 80" or "AmmoAPColor"))
 
     local recoil = row.idRatAPRecoil
     recoil:SetVisible(not not show_recoil)
