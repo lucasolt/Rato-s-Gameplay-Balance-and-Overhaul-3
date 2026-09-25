@@ -941,6 +941,7 @@ function rat_combat_actions()
                                            "Shoots a burst of <em><bullets> bullets</em>. Use the <em>mouse wheel</em> to change its length; each extra round costs AP by the weapon's rate of fire. Long bursts inflict <GameTerm('Suppressed')> even on miss when the enemy is in weapon range. Has <em>recoil</em> penalty based on <em>Strength</em>. Maximum <em>aim</em> level reduced. Critical chance is reduced")
     CombatActions.DualShot.Description = T(364947777453,
                                            "The Dual Shot attack produces a Basic Attack from each gun. Maximum <em>aim</em> level is reduced. Has a penalty based on <em>Dexterity</em>.")
+    CombatActions.MGBurstFire.DisplayName = T(407316882950, "MG Burst")
     CombatActions.MGSetup.Description = T(564696256945,
                                           "Focus on a cone-shaped area, immobilizing yourself and going <em>prone</em>. You can only shoot enemies inside that cone. Accuracy is increased and enemies will provoke <em>interrupt</em> attacks with actions inside the cone (even if your AP are spent). <em>Interrupt</em> attacks have bonus accuracy. Your weapon will have increased <em>Shooting Angle</em> while you are in setup.")
 
@@ -1603,6 +1604,7 @@ local t_id_table = {
     [480046777812] = " within the set cone",
     [617859618521] = "Shoots <em><num> bullets</em> at the target. The accuracy of each shot is reduced by <em>Recoil</em>. Critical chance is reduced.\n\nOnly the first shot will benefit from <em>Aim</em> bonus.",
     [164165234891] = "Snipe",
+    [407316882950] = "MG Burst",
     [854982151651] = "<em>Spends all AP</em>\nThe target is <em><GameTerm('Marked')></em>. At the start of next turn, shoot the target if the target is still in the line of sight. The attack will have max aim levels. Each aim level grants <bonus_crit> extra critical chance. This attack bypasses low cover, has reduced penalties to hit body parts and <em>increases the weapon's effective range by 50%</em>.\n\nSnipe requires a clear line and sight to the target.",
     [231988463514] = "\n\n<em>Recoil</em> is increasing the AP cost by <em>"
 

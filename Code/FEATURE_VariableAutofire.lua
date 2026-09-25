@@ -407,3 +407,24 @@ function CrosshairUI:Attack()
     end
     self:SetVisible(false)
 end
+
+---------------------------------------------------------------------------------------------------
+---- Action bar order: SortKey is per action, not per weapon. With no semi-auto, AutoFire (3) would
+---- sit after Run and Gun (2), so it is ranked first while this unit's bar is built.
+---------------------------------------------------------------------------------------------------
+local GBO_OriginalRecalcUIActions = Unit.RecalcUIActions
+function Unit:RecalcUIActions(...)
+    local weapon = self:GetActiveWeapons()
+    if not (IsKindOf(weapon, "Firearm") and weapon.AutoFireOnly) then
+        return GBO_OriginalRecalcUIActions(self, ...)
+    end
+    local auto = CombatActions.AutoFire
+    local own = rawget(auto, "SortKey")
+    auto.SortKey = -1
+    local ok, res = pcall(GBO_OriginalRecalcUIActions, self, ...)
+    auto.SortKey = own
+    if not ok then
+        error(res)
+    end
+    return res
+end
