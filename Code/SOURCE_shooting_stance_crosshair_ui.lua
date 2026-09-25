@@ -346,41 +346,32 @@ function redefine_crosshairUI_function()
 
             args.ap_cost_breakdown = {}
 
-            ---------------------------
             local weapon = weapon1
             local unit = attacker
             local action = actualAction
-            local ap_extra = unit:GetShootingStanceAP(
-                                 args and args.target or false, weapon,
-                                 args and args.aim or 0, action)
-
-            local prep = ""
-            ----------------------------^^
+            local target_arg = args.target or false
+            local stance_ap = unit:GetShootingStanceAP(target_arg, weapon, args.aim or 0, action)
 
             local apCost = action:GetAPCost(attacker, args)
 
-            ---------------------------
-            if ap_extra > 0 then
-                apCost = apCost - ap_extra
-                -- local apCostshoot = (apCost - ap_extra)/ const.Scale.AP 
-                ap_extra = ap_extra / const.Scale.AP
-                prep = prep .. ap_extra .. "<style CrosshairAPTotal>+</style>"
+            -- aim share = cost delta against the same shot at aim 0, minus the stance AP that aiming unlocks
+            local args0 = table.copy(args)
+            args0.aim = 0
+            args0.ap_cost_breakdown = {}
+            local cost0 = action:GetAPCost(attacker, args0)
+            local stance0 = unit:GetShootingStanceAP(target_arg, weapon, 0, action)
+            local aim_ap = Max(0, (apCost - stance_ap) - (cost0 - stance0))
 
-            end
-
+            local recoil_ap, recoil_per_level = 0, false
             local recoil = attacker:GetStatusEffect("Rat_recoil")
-            local aim_pen_string = ""
-            if recoil then
-                local aim_penalty = recoil:ResolveValue("aim_cost")
-                -- print("aim pen", aim_penalty)
-                if aim_penalty and aim_penalty >= R_VanillaAPToDisplay(0.5) then
-                    aim_penalty = formatNumber(aim_penalty)
-                    aim_pen_string = "<scale 450><color AmmoAPColor>\naim: +" ..
-                                         aim_penalty .. " AP</color>"
-                end
+            local aim_penalty = recoil and recoil:ResolveValue("aim_cost")
+            if aim_penalty and aim_penalty >= R_VanillaAPToDisplay(0.5) then
+                local min_aim = attacker:GetBaseAimLevelRange(action, weapon)
+                local aim_level = Min(3, Max(0, (args.aim or 0) - min_aim))
+                -- mirrors Rat_recoil's OnCalcAPCost
+                recoil_ap = Min(aim_ap, cRoundDown(aim_penalty * aim_level) * const.Scale.AP)
+                recoil_per_level = aim_level == 0 and formatNumber(aim_penalty)
             end
-
-            ------------------------------------
 
             local free_move_ap_used = Min(args.ap_cost_breakdown.move_cost or 0,
                                           attacker.free_move_ap)
@@ -391,29 +382,26 @@ function redefine_crosshairUI_function()
             local after = (unitAp - apCost) / const.Scale.AP -- free move is already accounted for in apCost
             apCost = (before - after) * const.Scale.AP
 
-            -- local has_movement = action.AimType == "melee"
-            -- local apCost, unitAp = attacker:GetUIAdjustedActionCost(cost, has_movement)
-            -- apCost, unitAp = apCost * const.Scale.AP, unitAp * const.Scale.AP
-
-            ---- prep ..
             if g_Combat then
                 self.idAPCostText:SetText(T {
-                    prep ..
-                        "<apn(apCost)><style CrosshairAPTotal><valign bottom -2>/<apn(unitAp)> AP</style>" ..
-                        aim_pen_string,
+                    "<apn(apCost)><style CrosshairAPTotal><valign bottom -2>/<apn(unitAp)> AP</style>",
                     apCost = apCost,
-                    unitAp = unitAp,
-                    aim_pen_string = aim_pen_string
+                    unitAp = unitAp
                 })
             else
                 self.idAPCostText:SetText(T {
-                    prep ..
-                        "<apn(apCost)><style CrosshairAPTotal><valign bottom -2> AP</style>" ..
-                        aim_pen_string,
-                    apCost = apCost,
-                    aim_pen_string = aim_pen_string
+                    "<apn(apCost)><style CrosshairAPTotal><valign bottom -2> AP</style>",
+                    apCost = apCost
                 })
             end
+
+            Rat_UpdateCrosshairAPBreakdown(self, unit, {
+                stance = stance_ap,
+                shot = Max(0, apCost - stance_ap - aim_ap),
+                aim = aim_ap - recoil_ap,
+                recoil = recoil_ap,
+                recoil_per_level = recoil_per_level
+            })
             ------------------
             if self.aim ~= 0 then
                 self.idAPCostText:SetTextStyle("CrosshairAPCostYellow")
@@ -431,10 +419,113 @@ end
 
 redefine_crosshairUI_function()
 
+---------------------------------------------------------------------------------------------------
+local ap_breakdown_cols = {"stance", "shot", "aim"}
+local ap_breakdown_labels = {
+    stance = T(771402935518, "STANCE"),
+    rotate = T(771402935519, "ROTATE"),
+    shot = T(771402935520, "SHOT"),
+    aim = T(771402935521, "AIM")
+}
+
+-- X windows reject dynamic members, so the column refs live here, weak-keyed by crosshair
+local ap_breakdown_ui = setmetatable({}, {__mode = "k"})
+
+-- columns live beside idAPCostText inside the "ap indicator" box; one row so it never grows up over the target
+local function Rat_CrosshairAPBreakdownUI(crosshair)
+    local cols = ap_breakdown_ui[crosshair]
+    if cols then
+        return cols
+    end
+    local holder = crosshair.idAPCostText.parent
+    holder:SetLayoutMethod("HList")
+    crosshair.idAPCostText:SetMargins(box(6, 0, 6, 0))
+    cols = {}
+    cols.sep = XWindow:new({
+        MinWidth = 1,
+        MaxWidth = 1,
+        Margins = box(0, 5, 3, 5),
+        Background = RGBA(195, 189, 172, 90),
+        FoldWhenHidden = true
+    }, holder)
+    for _, key in ipairs(ap_breakdown_cols) do
+        local col = XWindow:new({
+            LayoutMethod = "VList",
+            VAlign = "center",
+            Margins = box(3, 0, 3, 0),
+            FoldWhenHidden = true,
+            UseClipBox = false
+        }, holder)
+        local label = XText:new({
+            TextStyle = "Crosshair_Range",
+            HAlign = "center",
+            Padding = box(0, 0, 0, 0),
+            Translate = true,
+            Clip = false,
+            UseClipBox = false
+        }, col)
+        local value = XText:new({
+            TextStyle = "CrosshairAPTotal",
+            HAlign = "center",
+            Padding = box(0, 0, 0, 0),
+            Margins = box(0, -5, 0, 0),
+            Translate = true,
+            Clip = false,
+            UseClipBox = false
+        }, col)
+        cols[key] = {win = col, label = label, value = value}
+    end
+    -- the first update runs inside the crosshair's Open, which opens these children itself
+    if holder.window_state == "open" then
+        cols.sep:Open()
+        for _, key in ipairs(ap_breakdown_cols) do
+            cols[key].win:Open()
+        end
+    end
+    ap_breakdown_ui[crosshair] = cols
+    return cols
+end
+
+function Rat_UpdateCrosshairAPBreakdown(crosshair, unit, parts)
+    local cols = Rat_CrosshairAPBreakdownUI(crosshair)
+    local show_aim = parts.aim + parts.recoil > 0 or parts.recoil_per_level
+    local show = parts.stance > 0 or show_aim
+    cols.sep:SetVisible(show)
+
+    local in_stance = unit:HasStatusEffect("shooting_stance") or
+                          unit:HasStatusEffect("ManningEmplacement") or
+                          unit:HasStatusEffect("StationedMachineGun")
+    cols.stance.label:SetText(ap_breakdown_labels[in_stance and "rotate" or "stance"])
+    cols.stance.value:SetText(T {"<apn(v)>", v = parts.stance})
+    cols.stance.win:SetVisible(show and parts.stance > 0)
+
+    cols.shot.label:SetText(ap_breakdown_labels.shot)
+    cols.shot.value:SetText(T {"<apn(v)>", v = parts.shot})
+    cols.shot.win:SetVisible(show)
+
+    cols.aim.label:SetText(ap_breakdown_labels.aim)
+    if parts.recoil > 0 then
+        cols.aim.value:SetText(T {"<apn(v)><color AmmoAPColor>+<apn(r)></color>", v = parts.aim,
+                                  r = parts.recoil})
+    elseif parts.recoil_per_level then
+        -- no aim yet: preview what recoil adds per aim level
+        cols.aim.value:SetText(T {"<color AmmoAPColor>+<r>/lvl</color>", r = parts.recoil_per_level})
+    else
+        cols.aim.value:SetText(T {"<apn(v)>", v = parts.aim})
+    end
+    cols.aim.win:SetVisible(show and show_aim)
+end
+
 -- ok
 
 ---------------------------------------------------------------------------------------------------------
 
-local t_id_table = {[553504408105] = "Unknown Modifiers"}
+local t_id_table = {
+    [553504408105] = "Unknown Modifiers",
+    [771402935518] = "STANCE",
+    [771402935519] = "ROTATE",
+    [771402935520] = "SHOT",
+    [771402935521] = "AIM"
+}
 
 ratG_T_table['SOURCE_shooting_stance_crosshair_ui.lua'] = t_id_table
