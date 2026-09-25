@@ -221,6 +221,11 @@ function rat_combat_actions()
     CombatActions.BurstFire.GetUIState = function(self, units, args)
         local unit = units[1]
         local weapon = self:GetAttackWeapons(unit, args)
+        ---- no limiter: hidden before any disable reason, or low ammo would show it greyed out
+        if not weapon or not Rat_HasSelectiveBurst(weapon) or
+            (IsKindOf(weapon, "AR15") and not weapon:HasComponent("Enable_BurstFire")) then
+            return "hidden"
+        end
         local num_shots = weapon:GetAutofireShots(self)
         if not weapon.ammo or weapon.ammo.Amount < num_shots then
             return "disabled", AttackDisableReasons.InsufficientAmmo
@@ -239,19 +244,6 @@ function rat_combat_actions()
             end
         end
         ---------------------
-
-        ------------------------------
-        local side = unit and unit.team and unit.team.side or ''
-        local wep = unit:GetActiveWeapons()
-
-        if IsKindOf(weapon, "AR15") and not weapon:HasComponent("Enable_BurstFire") then
-            -- print("no burst")
-            return "hidden" -- , T(449447625321, "<color AmmoAPColor>Semi-auto only</color>")
-        end
-        if not Rat_HasSelectiveBurst(weapon) then
-            return "hidden"
-        end
-        -------------------------------------
 
         return CombatActionGenericAttackGetUIState(self, units, args)
     end
