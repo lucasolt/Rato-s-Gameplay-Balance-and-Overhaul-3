@@ -420,100 +420,122 @@ end
 redefine_crosshairUI_function()
 
 ---------------------------------------------------------------------------------------------------
-local ap_breakdown_cols = {"stance", "shot", "aim"}
 local ap_breakdown_labels = {
     stance = T(771402935518, "STANCE"),
     rotate = T(771402935519, "ROTATE"),
     shot = T(771402935520, "SHOT"),
-    aim = T(771402935521, "AIM")
+    aim = T(771402935521, "AIM"),
+    recoil = T(771402935522, "RECOIL")
 }
 
--- X windows reject dynamic members, so the column refs live here, weak-keyed by crosshair
-local ap_breakdown_ui = setmetatable({}, {__mode = "k"})
+local function ap_breakdown_col(id)
+    return PlaceObj('XTemplateWindow', {
+        'Id', id,
+        'IdNode', true,
+        'LayoutMethod', "VList",
+        'VAlign', "center",
+        'Margins', box(5, 0, 5, 0),
+        'UseClipBox', false,
+        'FoldWhenHidden', true
+    }, {
+        PlaceObj('XTemplateWindow', {
+            '__class', "XText",
+            'Id', "idLabel",
+            'HAlign', "center",
+            'Padding', box(0, 0, 0, 0),
+            'Clip', false,
+            'UseClipBox', false,
+            'TextStyle', "Crosshair_Range",
+            'Translate', true
+        }),
+        PlaceObj('XTemplateWindow', {
+            '__class', "XText",
+            'Id', "idValue",
+            'HAlign', "center",
+            'Padding', box(0, 0, 0, 0),
+            'Margins', box(0, -5, 0, 0),
+            'Clip', false,
+            'UseClipBox', false,
+            'TextStyle', "CrosshairAPTotal",
+            'Translate', true
+        })
+    })
+end
 
--- columns live beside idAPCostText inside the "ap indicator" box; one row so it never grows up over the target
-local function Rat_CrosshairAPBreakdownUI(crosshair)
-    local cols = ap_breakdown_ui[crosshair]
-    if cols then
-        return cols
+-- negative bottom margin nets the row to zero height, so the bottom-anchored VList does not rise over the target
+local ap_breakdown_template = PlaceObj('XTemplateWindow', {
+    'comment', "rat_ap_breakdown",
+    'Id', "idRatAPBreakdown",
+    'IdNode', true,
+    'HAlign', "center",
+    'VAlign', "bottom",
+    'LayoutMethod', "HList",
+    'Padding', box(4, 2, 4, 2),
+    'Margins', box(0, 0, 0, -44),
+    'UseClipBox', false,
+    'Visible', false,
+    'FoldWhenHidden', true,
+    'Background', RGBA(32, 35, 47, 180)
+}, {
+    ap_breakdown_col("idRatAPStance"),
+    ap_breakdown_col("idRatAPShot"),
+    ap_breakdown_col("idRatAPAim"),
+    ap_breakdown_col("idRatAPRecoil")
+})
+
+---- last child of the bottom VList, hanging under the rounds strip
+function Rat_PatchCrosshairAPBreakdown()
+    local chain = FindXtByProp(XTemplates.ActionCameraCrosshair, 'Id', 'idRange')
+    local vlist = chain and chain[2]
+    if not vlist then
+        return
     end
-    local holder = crosshair.idAPCostText.parent
-    holder:SetLayoutMethod("HList")
-    crosshair.idAPCostText:SetMargins(box(6, 0, 6, 0))
-    cols = {}
-    cols.sep = XWindow:new({
-        MinWidth = 1,
-        MaxWidth = 1,
-        Margins = box(0, 5, 3, 5),
-        Background = RGBA(195, 189, 172, 90),
-        FoldWhenHidden = true
-    }, holder)
-    for _, key in ipairs(ap_breakdown_cols) do
-        local col = XWindow:new({
-            LayoutMethod = "VList",
-            VAlign = "center",
-            Margins = box(3, 0, 3, 0),
-            FoldWhenHidden = true,
-            UseClipBox = false
-        }, holder)
-        local label = XText:new({
-            TextStyle = "Crosshair_Range",
-            HAlign = "center",
-            Padding = box(0, 0, 0, 0),
-            Translate = true,
-            Clip = false,
-            UseClipBox = false
-        }, col)
-        local value = XText:new({
-            TextStyle = "CrosshairAPTotal",
-            HAlign = "center",
-            Padding = box(0, 0, 0, 0),
-            Margins = box(0, -5, 0, 0),
-            Translate = true,
-            Clip = false,
-            UseClipBox = false
-        }, col)
-        cols[key] = {win = col, label = label, value = value}
-    end
-    -- the first update runs inside the crosshair's Open, which opens these children itself
-    if holder.window_state == "open" then
-        cols.sep:Open()
-        for _, key in ipairs(ap_breakdown_cols) do
-            cols[key].win:Open()
+    for i = #vlist, 1, -1 do
+        if vlist[i].comment == "rat_ap_breakdown" then
+            table.remove(vlist, i)
         end
     end
-    ap_breakdown_ui[crosshair] = cols
-    return cols
+    vlist[#vlist + 1] = ap_breakdown_template
+end
+
+local function set_col(col, label, value, visible)
+    col:SetVisible(visible)
+    if visible then
+        col.idLabel:SetText(label)
+        -- a notch under the total's brightness
+        col.idValue:SetText(T {"<color 176 170 154><value></color>", value = value})
+    end
 end
 
 function Rat_UpdateCrosshairAPBreakdown(crosshair, unit, parts)
-    local cols = Rat_CrosshairAPBreakdownUI(crosshair)
-    local show_aim = parts.aim + parts.recoil > 0 or parts.recoil_per_level
-    local show = parts.stance > 0 or show_aim
-    cols.sep:SetVisible(show)
+    local row = crosshair.idRatAPBreakdown
+    if not row then
+        return
+    end
+    local show_recoil = parts.recoil > 0 or parts.recoil_per_level
+    local show = parts.stance > 0 or parts.aim > 0 or show_recoil
+    row:SetVisible(show)
+    if not show then
+        return
+    end
 
     local in_stance = unit:HasStatusEffect("shooting_stance") or
                           unit:HasStatusEffect("ManningEmplacement") or
                           unit:HasStatusEffect("StationedMachineGun")
-    cols.stance.label:SetText(ap_breakdown_labels[in_stance and "rotate" or "stance"])
-    cols.stance.value:SetText(T {"<apn(v)>", v = parts.stance})
-    cols.stance.win:SetVisible(show and parts.stance > 0)
+    set_col(row.idRatAPStance, ap_breakdown_labels[in_stance and "rotate" or "stance"],
+            T {"<apn(v)>", v = parts.stance}, parts.stance > 0)
+    set_col(row.idRatAPShot, ap_breakdown_labels.shot, T {"<apn(v)>", v = parts.shot}, true)
+    set_col(row.idRatAPAim, ap_breakdown_labels.aim, T {"<apn(v)>", v = parts.aim}, true)
 
-    cols.shot.label:SetText(ap_breakdown_labels.shot)
-    cols.shot.value:SetText(T {"<apn(v)>", v = parts.shot})
-    cols.shot.win:SetVisible(show)
-
-    cols.aim.label:SetText(ap_breakdown_labels.aim)
-    if parts.recoil > 0 then
-        cols.aim.value:SetText(T {"<apn(v)><color AmmoAPColor>+<apn(r)></color>", v = parts.aim,
-                                  r = parts.recoil})
-    elseif parts.recoil_per_level then
+    local recoil_col = row.idRatAPRecoil
+    recoil_col:SetVisible(show_recoil)
+    if show_recoil then
+        recoil_col.idLabel:SetText(ap_breakdown_labels.recoil)
         -- no aim yet: preview what recoil adds per aim level
-        cols.aim.value:SetText(T {"<color AmmoAPColor>+<r>/lvl</color>", r = parts.recoil_per_level})
-    else
-        cols.aim.value:SetText(T {"<apn(v)>", v = parts.aim})
+        recoil_col.idValue:SetText(parts.recoil > 0 and
+                                       T {"<color AmmoAPColor>+<apn(r)></color>", r = parts.recoil} or
+                                       T {"<color AmmoAPColor>+<r>/lvl</color>", r = parts.recoil_per_level})
     end
-    cols.aim.win:SetVisible(show and show_aim)
 end
 
 -- ok
@@ -525,7 +547,8 @@ local t_id_table = {
     [771402935518] = "STANCE",
     [771402935519] = "ROTATE",
     [771402935520] = "SHOT",
-    [771402935521] = "AIM"
+    [771402935521] = "AIM",
+    [771402935522] = "RECOIL"
 }
 
 ratG_T_table['SOURCE_shooting_stance_crosshair_ui.lua'] = t_id_table

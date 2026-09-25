@@ -41,6 +41,7 @@ function rat_apply_changes()
     ---- o circulo de mira do crosshair passa a mostrar a abertura real
     Rat_PatchCrosshairAimCircle()
     Rat_PatchCrosshairRounds()
+    Rat_PatchCrosshairAPBreakdown()
 
     GBO_SwapACTHTexts() -- after every preset text above is set
 
