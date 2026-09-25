@@ -314,6 +314,20 @@ function fireprop()
     FirearmProperties.properties[#FirearmProperties.properties +
         1] = {
         category = "Caliber",
+        id = "burst_recoil_delta",
+        name = "Burst Fire Recoil Delta",
+        help = "Burst Fire Recoil Delta",
+        editor = "number",
+        default = 100,
+        template = true,
+        min = 0,
+        max = 500,
+        modifiable = true
+    }
+
+    FirearmProperties.properties[#FirearmProperties.properties +
+        1] = {
+        category = "Caliber",
         id = "auto_recoil_delta",
         name = "Autofire Recoil Delta",
         help = "Autofire Recoil Delta",
