@@ -1,3 +1,5 @@
+local file_str = 'DESCRIPTION_HINTS_get.lua'
+
 function GBO_GetDescriptionHints(self)
     local formattedString = "<style CrosshairAPTotal>"
 
@@ -195,8 +197,8 @@ function GBO_GetDescriptionHints(self)
 			id = "RateOfFire",
 			TranslationTable[638215904417] or "Rate of Fire: ",
 			self.RPM or 0,
-			string.format(" RPM (%d.%d ", tenths / 10, tenths % 10) ..
-				(TranslationTable[638215904418] or "AP per extra round") .. ")" ..
+			string.format(" RPM (<color PDABrowserTextHighlight>%d.%d</color> ", tenths / 10, tenths % 10) ..
+				_InternalTranslate(ratT(file_str, 638215904418, "AP/extra round")) .. ")" ..
 				(self.AutoFireOnly and (TranslationTable[638215904419] or ", full auto only") or "")
 		})
 	end
@@ -255,9 +257,12 @@ local t_id_table = {
 	[184329577856] = "Handling Penalty Multiplier: ",
 	[219437987174] = "Aim accuracy: ",
 	[638215904417] = "Rate of Fire: ",
-	[638215904418] = "AP per extra round",
+	--[638215904418] = "AP per extra round",
 
 }
 
-ratG_T_table['DESCRIPTION_HINTS_get.lua'] = t_id_table
+ratG_T_table[file_str] = ratG_T_table[file_str] or {}
 
+for _, v in ipairs(t_id_table) do
+    table.insert(ratG_T_table[file_str], v)
+end
