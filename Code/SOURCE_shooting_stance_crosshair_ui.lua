@@ -399,7 +399,7 @@ function redefine_crosshairUI_function()
             Rat_UpdateCrosshairAPBreakdown(self, unit, {
                 stance = stance_ap,
                 shot = Max(0, apCost - stance_ap - aim_ap),
-                aim = aim_ap - recoil_ap,
+                aim = aim_ap,
                 recoil = recoil_ap,
                 recoil_text = recoil_text
             })
@@ -426,7 +426,7 @@ local ap_breakdown_labels = {
     rotate = T(771402935519, "ROT"),
     shot = T(771402935520, "SHT"),
     aim = T(771402935521, "AIM"),
-    recoil = T(771402935522, "<color AmmoAPColor>RCL +<r> AP</color>")
+    recoil = T(771402935522, "<color AmmoAPColor>RECOIL: AIM +<r></color>")
 }
 
 local function ap_breakdown_col(id)
@@ -534,12 +534,12 @@ function Rat_PatchCrosshairAPBreakdown()
     ap_box[#ap_box + 1] = ap_breakdown_template
 end
 
-local function set_col(col, label, value, visible)
+local function set_col(col, label, value, visible, color)
     col:SetVisible(visible)
     if visible then
         col.idLabel:SetText(label)
-        -- a notch under the total's brightness
-        col.idValue:SetText(T {"<color 176 170 154><value></color>", value = value})
+        -- default is a notch under the total's brightness
+        col.idValue:SetText(T {"<color " .. (color or "176 170 154") .. "><value></color>", value = value})
     end
 end
 
@@ -551,6 +551,7 @@ function Rat_UpdateCrosshairAPBreakdown(crosshair, unit, parts)
     -- set live: XTemplate caches each template's copied props, so a patched LayoutMethod is ignored
     if row.parent.LayoutMethod ~= "HList" then
         row.parent:SetLayoutMethod("HList")
+        crosshair.idAPCostText:SetScaleModifier(point(870, 870))
     end
     local show_recoil = parts.recoil_text
     local show = parts.stance > 0 or parts.aim > 0 or not not show_recoil
@@ -565,7 +566,9 @@ function Rat_UpdateCrosshairAPBreakdown(crosshair, unit, parts)
     set_col(row.idRatAPStance, ap_breakdown_labels[in_stance and "rotate" or "stance"],
             T {"<apn(v)>", v = parts.stance}, parts.stance > 0)
     set_col(row.idRatAPShot, ap_breakdown_labels.shot, T {"<apn(v)>", v = parts.shot}, true)
-    set_col(row.idRatAPAim, ap_breakdown_labels.aim, T {"<apn(v)>", v = parts.aim}, true)
+    -- aim includes recoil; red ties it to the recoil line below
+    set_col(row.idRatAPAim, ap_breakdown_labels.aim, T {"<apn(v)>", v = parts.aim}, true,
+            parts.recoil > 0 and "AmmoAPColor")
 
     local recoil = row.idRatAPRecoil
     recoil:SetVisible(not not show_recoil)
@@ -584,7 +587,7 @@ local t_id_table = {
     [771402935519] = "ROT",
     [771402935520] = "SHT",
     [771402935521] = "AIM",
-    [771402935522] = "<color AmmoAPColor>RCL +<r> AP</color>"
+    [771402935522] = "<color AmmoAPColor>RECOIL: AIM +<r></color>"
 }
 
 ratG_T_table['SOURCE_shooting_stance_crosshair_ui.lua'] = t_id_table
