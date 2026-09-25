@@ -370,8 +370,7 @@ function redefine_crosshairUI_function()
                 local aim_level = Min(3, Max(0, (args.aim or 0) - min_aim))
                 -- mirrors Rat_recoil's OnCalcAPCost
                 recoil_ap = Min(aim_ap, cRoundDown(aim_penalty * aim_level) * const.Scale.AP)
-                -- at aim 0 show what one aim level would add
-                recoil_text = recoil_ap > 0 and tostring(recoil_ap / const.Scale.AP) or formatNumber(aim_penalty)
+                recoil_text = formatNumber(aim_penalty)
             end
 
             local free_move_ap_used = Min(args.ap_cost_breakdown.move_cost or 0,
@@ -426,7 +425,7 @@ local ap_breakdown_labels = {
     rotate = T(771402935519, "ROT"),
     shot = T(771402935520, "SHT"),
     aim = T(771402935521, "AIM"),
-    recoil = T(771402935522, "<color AmmoAPColor>RECOIL: AIM +<r></color>")
+    recoil = T(771402935522, "<color AmmoAPColor>RECOIL: +<r>/aim</color>")
 }
 
 local function ap_breakdown_col(id)
@@ -587,7 +586,7 @@ local t_id_table = {
     [771402935519] = "ROT",
     [771402935520] = "SHT",
     [771402935521] = "AIM",
-    [771402935522] = "<color AmmoAPColor>RECOIL: AIM +<r></color>"
+    [771402935522] = "<color AmmoAPColor>RECOIL: +<r>/aim</color>"
 }
 
 ratG_T_table['SOURCE_shooting_stance_crosshair_ui.lua'] = t_id_table
