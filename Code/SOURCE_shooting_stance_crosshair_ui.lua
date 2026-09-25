@@ -362,7 +362,7 @@ function redefine_crosshairUI_function()
             local stance0 = unit:GetShootingStanceAP(target_arg, weapon, 0, action)
             local aim_ap = Max(0, (apCost - stance_ap) - (cost0 - stance0))
 
-            local recoil_ap, recoil_per_level = 0, false
+            local recoil_ap, recoil_text = 0, false
             local recoil = attacker:GetStatusEffect("Rat_recoil")
             local aim_penalty = recoil and recoil:ResolveValue("aim_cost")
             if aim_penalty and aim_penalty >= R_VanillaAPToDisplay(0.5) then
@@ -370,7 +370,8 @@ function redefine_crosshairUI_function()
                 local aim_level = Min(3, Max(0, (args.aim or 0) - min_aim))
                 -- mirrors Rat_recoil's OnCalcAPCost
                 recoil_ap = Min(aim_ap, cRoundDown(aim_penalty * aim_level) * const.Scale.AP)
-                recoil_per_level = aim_level == 0 and formatNumber(aim_penalty)
+                -- at aim 0 show what one aim level would add
+                recoil_text = recoil_ap > 0 and tostring(recoil_ap / const.Scale.AP) or formatNumber(aim_penalty)
             end
 
             local free_move_ap_used = Min(args.ap_cost_breakdown.move_cost or 0,
@@ -400,7 +401,7 @@ function redefine_crosshairUI_function()
                 shot = Max(0, apCost - stance_ap - aim_ap),
                 aim = aim_ap - recoil_ap,
                 recoil = recoil_ap,
-                recoil_per_level = recoil_per_level
+                recoil_text = recoil_text
             })
             ------------------
             if self.aim ~= 0 then
@@ -425,7 +426,7 @@ local ap_breakdown_labels = {
     rotate = T(771402935519, "ROT"),
     shot = T(771402935520, "SHT"),
     aim = T(771402935521, "AIM"),
-    recoil = T(771402935522, "RCL")
+    recoil = T(771402935522, "<color AmmoAPColor>RCL +<r> AP</color>")
 }
 
 local function ap_breakdown_col(id)
@@ -481,10 +482,33 @@ local ap_breakdown_template = PlaceObj('XTemplateWindow', {
         'Margins', box(0, 4, 4, 4),
         'Background', RGBA(195, 189, 172, 90)
     }),
-    ap_breakdown_col("idRatAPStance"),
-    ap_breakdown_col("idRatAPShot"),
-    ap_breakdown_col("idRatAPAim"),
-    ap_breakdown_col("idRatAPRecoil")
+    PlaceObj('XTemplateWindow', {
+        'LayoutMethod', "VList",
+        'VAlign', "center",
+        'UseClipBox', false
+    }, {
+        PlaceObj('XTemplateWindow', {
+            'LayoutMethod', "HList",
+            'HAlign', "center",
+            'UseClipBox', false
+        }, {
+            ap_breakdown_col("idRatAPStance"),
+            ap_breakdown_col("idRatAPShot"),
+            ap_breakdown_col("idRatAPAim")
+        }),
+        PlaceObj('XTemplateWindow', {
+            '__class', "XText",
+            'Id', "idRatAPRecoil",
+            'HAlign', "center",
+            'Padding', box(0, 0, 0, 0),
+            'Margins', box(0, -4, 0, 0),
+            'Clip', false,
+            'UseClipBox', false,
+            'FoldWhenHidden', true,
+            'TextStyle', "Crosshair_Range",
+            'Translate', true
+        })
+    })
 })
 
 local function strip_breakdown(parent)
@@ -528,8 +552,8 @@ function Rat_UpdateCrosshairAPBreakdown(crosshair, unit, parts)
     if row.parent.LayoutMethod ~= "HList" then
         row.parent:SetLayoutMethod("HList")
     end
-    local show_recoil = parts.recoil > 0 or parts.recoil_per_level
-    local show = parts.stance > 0 or parts.aim > 0 or show_recoil
+    local show_recoil = parts.recoil_text
+    local show = parts.stance > 0 or parts.aim > 0 or not not show_recoil
     row:SetVisible(show)
     if not show then
         return
@@ -543,14 +567,10 @@ function Rat_UpdateCrosshairAPBreakdown(crosshair, unit, parts)
     set_col(row.idRatAPShot, ap_breakdown_labels.shot, T {"<apn(v)>", v = parts.shot}, true)
     set_col(row.idRatAPAim, ap_breakdown_labels.aim, T {"<apn(v)>", v = parts.aim}, true)
 
-    local recoil_col = row.idRatAPRecoil
-    recoil_col:SetVisible(show_recoil)
+    local recoil = row.idRatAPRecoil
+    recoil:SetVisible(not not show_recoil)
     if show_recoil then
-        recoil_col.idLabel:SetText(ap_breakdown_labels.recoil)
-        -- no aim yet: preview what recoil adds per aim level
-        recoil_col.idValue:SetText(parts.recoil > 0 and
-                                       T {"<color AmmoAPColor>+<apn(r)></color>", r = parts.recoil} or
-                                       T {"<color AmmoAPColor>+<r>/lvl</color>", r = parts.recoil_per_level})
+        recoil:SetText(T {ap_breakdown_labels.recoil, r = parts.recoil_text})
     end
 end
 
@@ -564,7 +584,7 @@ local t_id_table = {
     [771402935519] = "ROT",
     [771402935520] = "SHT",
     [771402935521] = "AIM",
-    [771402935522] = "RCL"
+    [771402935522] = "<color AmmoAPColor>RCL +<r> AP</color>"
 }
 
 ratG_T_table['SOURCE_shooting_stance_crosshair_ui.lua'] = t_id_table
