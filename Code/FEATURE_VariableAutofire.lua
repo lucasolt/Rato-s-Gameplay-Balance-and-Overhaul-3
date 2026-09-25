@@ -428,3 +428,32 @@ function Unit:RecalcUIActions(...)
     end
     return res
 end
+
+---- vanilla lists every AvailableAttacks member as a firing mode; hidden ones showed greyed out on the crosshair
+local GBO_OriginalResolveDefaultFiringModeAction = Unit.ResolveDefaultFiringModeAction
+local rat_fm_units = {}
+local rat_fm_hidden = {}
+function Unit:ResolveDefaultFiringModeAction(firingMode, ui, sync)
+    local id, actions = GBO_OriginalResolveDefaultFiringModeAction(self, firingMode, ui, sync)
+    if not actions or #actions < 2 then
+        return id, actions
+    end
+    rat_fm_units[1] = self
+    table.iclear(rat_fm_hidden)
+    local visible = 0
+    for i, action in ipairs(actions) do
+        rat_fm_hidden[i] = action:GetUIState(rat_fm_units) == "hidden"
+        visible = visible + (rat_fm_hidden[i] and 0 or 1)
+    end
+    ---- all hidden: keep the vanilla list rather than hand back an empty one
+    if visible == 0 or visible == #actions then
+        return id, actions
+    end
+    for i = #actions, 1, -1 do
+        if rat_fm_hidden[i] then
+            id = actions[i].id ~= id and id or nil
+            table.remove(actions, i)
+        end
+    end
+    return id or actions[1].id, actions
+end
