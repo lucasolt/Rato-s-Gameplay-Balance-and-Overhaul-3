@@ -426,6 +426,18 @@ function fireprop()
     FirearmProperties.properties[#FirearmProperties.properties +
         1] = {
         category = "Caliber",
+        id = "auto_only",
+        name = "Full Auto Only",
+        help = "No semi-auto: Single Shot is hidden and autofire goes down to 1 round, with a trigger overrun chance that grows with RPM.",
+        editor = "bool",
+        default = false,
+        template = true,
+        modifiable = true
+    }
+
+    FirearmProperties.properties[#FirearmProperties.properties +
+        1] = {
+        category = "Caliber",
         id = "unwieldy_weapon",
         name = "Unwieldy Weapon",
         help = "Gives a penalty if fired without being prone",

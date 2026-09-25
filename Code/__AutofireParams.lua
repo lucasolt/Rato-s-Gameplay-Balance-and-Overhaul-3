@@ -18,4 +18,6 @@ const.Combat.Autofire = {
     OverrunStatusChance = {Suppressed = 10, PinnedDown = 15, Panicked = 30, Berserk = 30},
     ---- max extra rounds per 1000 RPM, at least 1
     OverrunRoundsPer1000RPM = 3,
+    ---- tapping a single round on an auto-only weapon: chance per 1000 RPM, times (100 - Composure)%
+    SingleTapChancePer1000RPM = 40,
 }

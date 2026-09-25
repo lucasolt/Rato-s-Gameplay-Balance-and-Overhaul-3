@@ -62,7 +62,7 @@ function rat_combat_actions()
     CombatActions.SingleShot.GetUIState = function(self, units, args)
         local unit = units[1]
         local attackWep = self:GetAttackWeapons(unit, args)
-        if not attackWep then
+        if not attackWep or attackWep.auto_only then
             return "hidden"
         end
 
@@ -1067,6 +1067,11 @@ function rat_combat_actions()
         local side = unit and unit.team and unit.team.side or ''
 
         local attackWep = self:GetAttackWeapons(unit, args)
+        ---- no semi-auto: the autofire Run and Gun covers it
+        if attackWep and attackWep.auto_only and
+            table.find(attackWep.AvailableAttacks or empty_table, "RunAndGun") then
+            return "hidden"
+        end
 
         if (IsKindOf(attackWep, "PapovkaSKS_1") or IsKindOf(attackWep, "Papovka2SKS_1") or
             IsKindOfClasses(attackWep, "M70_1", "M70D_1")) then

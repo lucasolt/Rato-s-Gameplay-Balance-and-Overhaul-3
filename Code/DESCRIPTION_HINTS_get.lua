@@ -196,7 +196,8 @@ function GBO_GetDescriptionHints(self)
 			TranslationTable[638215904417] or "Rate of Fire: ",
 			self.rpm or 0,
 			string.format(" RPM (%d.%d ", tenths / 10, tenths % 10) ..
-				(TranslationTable[638215904418] or "AP per extra round") .. ")"
+				(TranslationTable[638215904418] or "AP per extra round") .. ")" ..
+				(self.auto_only and (TranslationTable[638215904419] or ", full auto only") or "")
 		})
 	end
 

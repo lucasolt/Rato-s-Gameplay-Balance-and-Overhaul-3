@@ -25,13 +25,21 @@ function Rat_ShortBurstAttackId(weapon)
     return "BurstFire"
 end
 
----- AutoFire defaulting to n rounds, for code that reads the length off the action (AI scoring).
+---- the weapon's one variable autofire: MGBurstFire where listed, AutoFire otherwise
+function Rat_AutoAttackId(weapon)
+    local list = weapon and weapon.AvailableAttacks or empty_table
+    return table.find(list, "MGBurstFire") and "MGBurstFire" or "AutoFire"
+end
+
+---- autofire defaulting to n rounds, for code that reads the length off the action (AI scoring).
 ---- Cached so its identity is stable; rebuilt when the preset object is replaced.
 local auto_views = {}
-function Rat_AutoFireView(n)
-    local view = auto_views[n]
-    if not view or getmetatable(view).__index ~= CombatActions.AutoFire then
-        local preset = CombatActions.AutoFire
+function Rat_AutoFireView(n, id)
+    id = id or "AutoFire"
+    auto_views[id] = auto_views[id] or {}
+    local view = auto_views[id][n]
+    if not view or getmetatable(view).__index ~= CombatActions[id] then
+        local preset = CombatActions[id]
         view = setmetatable({
             rat_num_shots = n,
             ---- g_PresetParamCache is keyed by the preset object
@@ -39,14 +47,26 @@ function Rat_AutoFireView(n)
                 return preset:ResolveValue(key)
             end
         }, {__index = preset})
-        auto_views[n] = view
+        auto_views[id][n] = view
     end
     return view
 end
 
+---- what a single aimed shot is with this weapon: a 1-round autofire when it has no semi-auto
+function Rat_SingleShotAction(weapon)
+    if IsKindOf(weapon, "Firearm") and weapon.auto_only then
+        return Rat_AutoFireView(1, Rat_AutoAttackId(weapon))
+    end
+    return CombatActions.SingleShot
+end
+
+function Rat_AutoMinShots(weapon)
+    return weapon and weapon.auto_only and 1 or P().MinShots
+end
+
 function Rat_ClampAutoShots(action, weapon, n)
     n = n or weapon:GetAutofireShots(action)
-    local lo = P().MinShots
+    local lo = Rat_AutoMinShots(weapon)
     local ammo = weapon.ammo and weapon.ammo.Amount or lo
     return Clamp(n, lo, Max(lo, ammo))
 end
@@ -65,9 +85,15 @@ function Rat_AutoExtraAP(action, weapon, n)
     return MulDivRound(extra, 1, const.Scale.AP) * const.Scale.AP
 end
 
-function Rat_AutoOverrunChance(unit)
+---- a single tap on an auto-only weapon adds a chance that grows with RPM and shrinks with Composure
+function Rat_AutoOverrunChance(unit, weapon, n)
     local p = P()
-    local chance = Max(0, (p.OverrunComposureRef - rGetComposure(unit)) * p.OverrunChancePerPoint)
+    local composure = rGetComposure(unit)
+    local chance = Max(0, (p.OverrunComposureRef - composure) * p.OverrunChancePerPoint)
+    if n == 1 and weapon and weapon.auto_only then
+        local tap = MulDivRound(weapon.rpm or p.RPMRef, p.SingleTapChancePer1000RPM, 1000)
+        chance = chance + MulDivRound(tap, Clamp(100 - composure, 0, 100), 100)
+    end
     for id, add in pairs(p.OverrunStatusChance) do
         if unit:HasStatusEffect(id) then
             chance = chance + add
@@ -78,7 +104,7 @@ end
 
 ---- rolled only on the committed attack (prediction == false) so previews show the intended length
 function Rat_AutoOverrun(unit, weapon, n)
-    local chance = Rat_AutoOverrunChance(unit)
+    local chance = Rat_AutoOverrunChance(unit, weapon, n)
     if chance <= 0 or unit:Random(100) >= chance then
         return n
     end
@@ -112,7 +138,7 @@ local function variable_ui_state(self, units, args)
         return state, err
     end
     local weapon = self:GetAttackWeapons(units[1], args)
-    if not weapon.ammo or weapon.ammo.Amount < P().MinShots then
+    if not weapon.ammo or weapon.ammo.Amount < Rat_AutoMinShots(weapon) then
         return "disabled", AttackDisableReasons.InsufficientAmmo
     end
     return "enabled"
