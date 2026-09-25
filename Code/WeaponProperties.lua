@@ -288,7 +288,7 @@ function fireprop()
     FirearmProperties.properties[#FirearmProperties.properties +
         1] = {
         category = "Caliber",
-        id = "burst_selective",
+        id = "BurstSelective",
         name = "Selective Burst Fire",
         help = "Mechanical burst limiter. Without it, a weapon with full auto hides BurstFire and uses autofire instead.",
         editor = "bool",
@@ -412,7 +412,7 @@ function fireprop()
     FirearmProperties.properties[#FirearmProperties.properties +
         1] = {
         category = "Caliber",
-        id = "rpm",
+        id = "RPM",
         name = "Rate of Fire (RPM)",
         help = "Nominal cyclic rate of fire. Sets the AP cost of each extra round in autofire.",
         editor = "number",
@@ -426,7 +426,7 @@ function fireprop()
     FirearmProperties.properties[#FirearmProperties.properties +
         1] = {
         category = "Caliber",
-        id = "auto_only",
+        id = "AutoFireOnly",
         name = "Full Auto Only",
         help = "No semi-auto: Single Shot is hidden; a single aimed shot is a 1-round autofire.",
         editor = "bool",

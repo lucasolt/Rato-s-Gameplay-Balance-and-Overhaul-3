@@ -390,7 +390,7 @@ function GetRecoilOther(weapon, attacker, action, persistent)
                 mod = mod * burst_delta
             end
 
-            if weapon.burst_selective or weapon:HasComponent("Reduce_recoil_burst_delta") then
+            if weapon.BurstSelective or weapon:HasComponent("Reduce_recoil_burst_delta") then
                 local name = type(weapon.DisplayName) == "table" and weapon.DisplayName[2] or false
                 local meta_name = name and name .. " Selective Burst" or "Selective Burst"
                 metaText[#metaText + 1] = rT(false, meta_name)

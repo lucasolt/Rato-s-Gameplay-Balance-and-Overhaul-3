@@ -13,7 +13,7 @@ end
 
 ---- no full auto means burst is the only automatic mode, so it stays
 function Rat_HasSelectiveBurst(weapon)
-    return weapon.burst_selective or weapon:HasComponent("Enable_BurstFire") or
+    return weapon.BurstSelective or weapon:HasComponent("Enable_BurstFire") or
                not weapon:CanAutofire()
 end
 
@@ -54,7 +54,7 @@ end
 
 ---- what a single aimed shot is with this weapon: a 1-round autofire when it has no semi-auto
 function Rat_SingleShotAction(weapon)
-    if IsKindOf(weapon, "Firearm") and weapon.auto_only then
+    if IsKindOf(weapon, "Firearm") and weapon.AutoFireOnly then
         return Rat_AutoFireView(1, Rat_AutoAttackId(weapon))
     end
     return CombatActions.SingleShot
@@ -70,7 +70,7 @@ end
 ---- in const.Scale.AP units, unrounded
 function Rat_AutoAPPerRound(weapon)
     local p = P()
-    return MulDivRound(p.APPerRoundRef, p.RPMRef, Max(1, weapon.rpm or p.RPMRef))
+    return MulDivRound(p.APPerRoundRef, p.RPMRef, Max(1, weapon.RPM or p.RPMRef))
 end
 
 ---- signed: BaseShots costs ShootAP, each round above or below moves it by the per-round cost;
@@ -89,7 +89,7 @@ function Rat_AutoOverrunChance(unit, weapon, n)
     local composure = rGetComposure(unit)
     local chance = Max(0, (p.OverrunComposureRef - composure) * p.OverrunChancePerPoint)
     if n == 1 and weapon then
-        local tap = MulDivRound(weapon.rpm or p.RPMRef, p.SingleTapChancePer1000RPM, 1000)
+        local tap = MulDivRound(weapon.RPM or p.RPMRef, p.SingleTapChancePer1000RPM, 1000)
         chance = chance + MulDivRound(tap, Clamp(100 - composure, 0, 100), 100)
     end
     for id, add in pairs(p.OverrunStatusChance) do
@@ -107,7 +107,7 @@ function Rat_AutoOverrun(unit, weapon, n)
         return n
     end
     local p = P()
-    local max_extra = Max(1, MulDivRound(weapon.rpm or p.RPMRef, p.OverrunRoundsPer1000RPM, 1000))
+    local max_extra = Max(1, MulDivRound(weapon.RPM or p.RPMRef, p.OverrunRoundsPer1000RPM, 1000))
     local ammo = weapon.ammo and weapon.ammo.Amount or n
     local extra = Min(1 + unit:Random(max_extra), ammo - n)
     if extra <= 0 then

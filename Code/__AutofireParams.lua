@@ -3,7 +3,7 @@ const.Combat.Autofire = {
     MinShots = 1,
     ---- the length that costs exactly ShootAP + deltas; shorter is cheaper, longer pays per round
     BaseShots = 3,
-    ---- AP per extra round at RPMRef; scales by RPMRef / weapon.rpm
+    ---- AP per extra round at RPMRef; scales by RPMRef / weapon.RPM
     APPerRoundRef = 500,
     RPMRef = 600,
     ---- vanilla AutoFire suppressed the target even on a miss; only bursts this long still do

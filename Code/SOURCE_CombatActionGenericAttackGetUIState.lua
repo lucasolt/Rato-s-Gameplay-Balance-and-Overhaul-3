@@ -7,7 +7,7 @@ function Firearm:GetBaseAttack(unit, force)
     local list = self.AvailableAttacks
     local first = list and list[1]
     if (first == "BurstFire" and not Rat_HasSelectiveBurst(self)) or
-        (first == "SingleShot" and self.auto_only) then
+        (first == "SingleShot" and self.AutoFireOnly) then
         local auto_id = Rat_AutoAttackId(self)
         if force then
             return auto_id
