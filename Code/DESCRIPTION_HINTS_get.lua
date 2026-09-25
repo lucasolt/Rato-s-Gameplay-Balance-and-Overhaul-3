@@ -189,6 +189,17 @@ function GBO_GetDescriptionHints(self)
 	    }
 	}
 
+	if self:CanAutofire() then
+		local tenths = MulDivRound(Rat_AutoAPPerRound(self), 10, const.Scale.AP)
+		table.insert(termList, {
+			id = "RateOfFire",
+			TranslationTable[638215904417] or "Rate of Fire: ",
+			self.rpm or 0,
+			string.format(" RPM (%d.%d ", tenths / 10, tenths % 10) ..
+				(TranslationTable[638215904418] or "AP per extra round") .. ")"
+		})
+	end
+
 	if (self.NumPellets or 0) > 1 then
 	    for _, term in ipairs(shotty_terms) do
 	        table.insert(termList, term)
@@ -242,6 +253,8 @@ local t_id_table = {
     [193184162359] = "Pellet Spread Angle: ",
 	[184329577856] = "Handling Penalty Multiplier: ",
 	[219437987174] = "Aim accuracy: ",
+	[638215904417] = "Rate of Fire: ",
+	[638215904418] = "AP per extra round",
 
 }
 

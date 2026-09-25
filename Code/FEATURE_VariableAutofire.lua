@@ -51,12 +51,17 @@ function Rat_ClampAutoShots(action, weapon, n)
     return Clamp(n, lo, Max(lo, ammo))
 end
 
+---- in const.Scale.AP units, unrounded
+function Rat_AutoAPPerRound(weapon)
+    local p = P()
+    return MulDivRound(p.APPerRoundRef, p.RPMRef, Max(1, weapon.rpm or p.RPMRef))
+end
+
 ---- signed: BaseShots costs ShootAP, each round above or below moves it by the per-round cost
 function Rat_AutoExtraAP(action, weapon, n)
     local p = P()
     n = Rat_ClampAutoShots(action, weapon, n)
-    local per_round = MulDivRound(p.APPerRoundRef, p.RPMRef, Max(1, weapon.rpm or p.RPMRef))
-    local extra = (n - p.BaseShots) * per_round
+    local extra = (n - p.BaseShots) * Rat_AutoAPPerRound(weapon)
     return MulDivRound(extra, 1, const.Scale.AP) * const.Scale.AP
 end
 
