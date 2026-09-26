@@ -4,8 +4,8 @@ Source renders (weapon on the canvas backdrop) live in tools/weapon_icons/src. P
   1. GrabCut cutout, re-run with solid canvas patches forced to background (holes in stocks, guards).
   2. White balance from the low-saturation metal pixels, luma percentiles remapped to vanilla values.
   3. Levelled by `tilt` (degrees CCW), cropped, premultiplied Lanczos downscale, light unsharp.
-  4. Vanilla glow: no offset, 1px spread, gaussian sigma 3.2, opacity 1.2 clamped, rgb (3,3,3) --
-     fitted against 11 vanilla UI/Icons/Weapons DDS files.
+  4. Vanilla glow: no offset, 1px spread, gaussian sigma 3.2, opacity 0.9, rgb (3,3,3) --
+     fitted against 11 vanilla UI/Icons/Weapons DDS files (0.9 matches vanilla's 2-4px ring alpha ~0.37).
 Masks, mask overlays (magenta = removed) and a 3x preview go to tools/weapon_icons/_work.
 
     pip install pillow numpy scipy opencv-python-headless
@@ -28,7 +28,7 @@ SRC = os.path.join(HERE, "weapon_icons", "src")
 WORK = os.path.join(HERE, "weapon_icons", "_work")
 OUT = os.path.join(HERE, "..", "Images")
 
-GLOW_SPREAD, GLOW_SIGMA, GLOW_OP, GLOW_RGB = 1, 3.2, 1.2, (3, 3, 3)
+GLOW_SPREAD, GLOW_SIGMA, GLOW_OP, GLOW_RGB = 1, 3.2, 0.9, (3, 3, 3)
 SRC_PCT = [2, 25, 50, 75, 98]
 
 # rect: GrabCut box (x0, y0, x1, y1) in the source; box: max gun size in the icon;
