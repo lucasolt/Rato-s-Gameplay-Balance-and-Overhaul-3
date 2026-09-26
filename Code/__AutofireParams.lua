@@ -11,9 +11,10 @@ const.Combat.Autofire = {
     ---- length the AI uses for its AutoFire signature (the long, suppressive burst)
     AILongShots = 8,
 
-    ---- Overrun: low Composure lets extra rounds out. Ammo is spent, AP is not.
-    OverrunComposureRef = 70,
-    OverrunChancePerPoint = 2,
+    ---- Overrun: extra rounds slip out; they spend ammo and AP (clamped at 0 AP).
+    ---- Chance on (100 - Composure)^1.5, from Best at Composure 100 to Worst at 0.
+    OverrunChanceBest = 2,
+    OverrunChanceWorst = 60,
     OverrunChanceMax = 60,
     OverrunStatusChance = {Suppressed = 10, PinnedDown = 15, Panicked = 30, Berserk = 30},
     ---- max extra rounds per 1000 RPM, at least 1

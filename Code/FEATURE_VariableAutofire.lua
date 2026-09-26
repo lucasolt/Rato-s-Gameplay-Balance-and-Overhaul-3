@@ -87,7 +87,9 @@ end
 function Rat_AutoOverrunChance(unit, weapon, n)
     local p = P()
     local composure = rGetComposure(unit)
-    local chance = Max(0, (p.OverrunComposureRef - composure) * p.OverrunChancePerPoint)
+    local d = Clamp(100 - composure, 0, 100) * 100
+    local chance = p.OverrunChanceBest +
+                       MulDivRound(p.OverrunChanceWorst - p.OverrunChanceBest, d * Rat_ISqrt(d), 1000000)
     if n == 1 and weapon then
         local tap = MulDivRound(weapon.RPM or p.RPMRef, p.SingleTapChancePer1000RPM, 1000)
         chance = chance + MulDivRound(tap, Clamp(100 - composure, 0, 100), 100)
@@ -113,6 +115,9 @@ function Rat_AutoOverrun(unit, weapon, n)
     if extra <= 0 then
         return n
     end
+    ---- no action_id: ConsumeAP would otherwise re-run the attack's Mobile/FreeMove side effects
+    local ap = MulDivRound(extra * Rat_AutoAPPerRound(weapon), 1, const.Scale.AP) * const.Scale.AP
+    unit:ConsumeAP(ap)
     CombatLog("short", T {
         603418825527, "<name> overruns the trigger: <extra> extra rounds",
         name = unit:GetLogName(),
