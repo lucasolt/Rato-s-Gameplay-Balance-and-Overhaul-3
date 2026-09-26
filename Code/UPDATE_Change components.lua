@@ -32,7 +32,6 @@ function GBO_GeneralUnitItemUpdate(unit, no_version_handling)
 
     if IsMerc(unit) or unit_version < version then
         print("GBO - updating unit:", unit.unitdatadef_id)
-        ---update_components(unit)
         GBO_ReapplyWeaponComponents(unit)
 		GBO_ApplyDefaultSubweapon(unit)
     elseif R_IsAI(unit) then
@@ -55,6 +54,12 @@ local function checkAndSetComponent(weapon, slot, component_id)
 		weapon:SetWeaponComponent(slot, component_id)
 		return true
 	end
+end
+
+-- Re-setting these unloads ammo / rebuilds the subweapon, dumping rounds into the squad bag.
+local function isUnsafeToReapply(slot, component_id)
+	local def = WeaponComponents[component_id]
+	return slot == "Magazine" or (def and def.EnableWeapon)
 end
 
 function GBO_ReapplyWeaponComponents(unit, force)
@@ -80,8 +85,9 @@ function GBO_ReapplyWeaponComponents(unit, force)
 					weapon:SetWeaponComponent("Scope", false)
 
 				elseif IsKindOf(weapon, "AKSU") and slot == "Muzzle" and component_id == "Compensator" then
-					checkAndSetComponent(weapon, "Muzzle", "Compensator_ReducedReliability")					
-				else
+					checkAndSetComponent(weapon, "Muzzle", "Compensator_ReducedReliability")
+
+				elseif not isUnsafeToReapply(slot, component_id) then
                     print("GBO Update - Reapplying component ", component_id, " in slot ", slot,
                           " of weapon ", weapon.class, " owner: ", unit.session_id)
                     checkAndSetComponent(weapon, slot, component_id)
@@ -93,141 +99,6 @@ function GBO_ReapplyWeaponComponents(unit, force)
     unit.rat_unit_updated = version
 end
 
-
---- not used?
-function update_components(unit)
-    if not unit then
-        return
-    end
-
-    local weapons = unit:GetEquippedWeapons(unit.current_weapon) or {}
-    local alt_slot = unit.current_weapon == "Handheld A" and "Handheld B" or "Handheld A"
-
-    table.iappend(weapons, unit:GetEquippedWeapons(alt_slot))
-
-    if not next(weapons) then
-        return
-    end
-
-    -- local bolt = {
-
-    -- {"SteyrScout_1", "Bolt_action_scout"}
-    -- {false, "Bolt_action"}
-
-    -- }
-
-    local function endsWithHandgun(str)
-        if not str then
-            return false
-        end
-        local suffix = "_handgun"
-        return string.sub(str, -#suffix) == suffix
-    end
-
-    for _, weapon in ipairs(weapons) do
-        local wep_version = weapon.rat_updated_in or 0
-        if wep_version < version then
-            -- print("updating weapons for unit:", unit.unitdatadef_id, "weapon:", weapon.class)
-            if IsKindOf(weapon, "VSS_1") then
-                weapon:SetWeaponComponent("Muzzle", "R_VSS_suppressor")
-            end
-
-            if weapon.components then
-                if weapon.components.Barrel then
-                    if IsKindOfClasses(weapon, "RK95_1", "RK62_1") then
-                        local current_comp = weapon.components.Barrel
-                        weapon:SetWeaponComponent("Barrel", current_comp)
-                        ObjModified(weapon)
-                    end
-
-                    if weapon:HasComponent("longbarrel") or weapon:HasComponent("shortbarrel") then
-
-                        local current_comp = weapon.components.Barrel
-
-                        if IsKindOf(weapon, "SubmachineGun") and weapon.is_tog_patched then
-                            
-                            if current_comp == "ToG_Comp_AR_Barrel_Long_1" or current_comp ==
-                                "ToG_Comp_AR_Barrel_Long_2" and
-                                WeaponComponents[current_comp .. "_SMG"] then
-
-                                weapon:SetWeaponComponent("Barrel", current_comp .. "_SMG")
-
-                                ObjModified(weapon)
-
-                            end
-                        elseif not weapon.is_vanilla_firearm then -- IsKindOfClasses(weapon, "Glock17_1", "USP_1", "VikingMP446_1", "B93R_1", "B93RR_1", "P08_1") then
-                            weapon:SetWeaponComponent("Barrel", current_comp)
-
-                        elseif IsKindOfClasses(weapon, "Pistol", "Revolver", "SubmachineGun") then
-
-                            if current_comp == "BarrelLong_jaggerMeister" then
-                                current_comp = "BarrelLong"
-                            end
-
-                            if endsWithHandgun(current_comp) then
-                                weapon:SetWeaponComponent("Barrel", current_comp)
-                            elseif WeaponComponents[current_comp .. "_handgun"] then
-                                weapon:SetWeaponComponent("Barrel", current_comp .. "_handgun")
-                            end
-
-                        else
-                            weapon:SetWeaponComponent("Barrel", current_comp)
-                        end
-
-                        ObjModified(weapon)
-                    end
-
-                end
-
-                if weapon.components.General then
-                    if weapon.components.General == "Bolt_action" then
-                        if IsKindOf(weapon, "SteyrScout_1") then
-                            weapon:SetWeaponComponent("General", "Bolt_action_scout")
-                            ObjModified(weapon)
-                        else
-                            weapon:SetWeaponComponent("General", "Bolt_action")
-                            ObjModified(weapon)
-                        end
-                    end
-                end
-
-                if IsKindOfClasses(weapon, "ColtPeacemaker", "TexRevolver", "ColtAnaconda") then
-
-                    if IsKindOfClasses(weapon, "ColtPeacemaker") then
-                        weapon:SetWeaponComponent("Trigger", "single_action")
-                        ObjModified(weapon)
-                    end
-
-                    if IsKindOfClasses(weapon, "TexRevolver") then
-                        weapon:SetWeaponComponent("Trigger", "single_action_tex")
-                        ObjModified(weapon)
-                    end
-
-                    if IsKindOfClasses(weapon, "ColtAnaconda") then
-                        weapon:SetWeaponComponent("Trigger", "SADA_action")
-                        ObjModified(weapon)
-                    end
-
-                end
-
-                if IsKindOfClasses(weapon, "Winchester1894", "Winchester_Quest") then
-                    if not weapon.components.General or not weapon.components.General ==
-                        "lever_action" then
-                        weapon:SetWeaponComponent("General", "lever_action")
-                        ObjModified(weapon)
-                    end
-                end
-            end
-
-            weapon.rat_updated_in = version
-
-            -- else
-            -- print("Already updated unit:", unit.unitdatadef_id, "weapon:", weapon.class)
-        end
-
-    end
-    unit.rat_unit_updated = version
-end
 
 function change_handgun_barrel(unit)
     if not unit or not IsKindOf(unit, "Unit") or not unit:IsValid() then
