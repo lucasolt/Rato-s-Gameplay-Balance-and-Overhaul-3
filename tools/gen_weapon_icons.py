@@ -1,8 +1,10 @@
 """Builds vanilla-style inventory icons for ToG guns into Images/<Name>_icon.png from in-game renders.
 
-Source renders (weapon on the canvas backdrop) live in tools/weapon_icons/src. Per gun:
-  1. GrabCut cutout, re-run with solid canvas patches forced to background (holes in stocks, guards).
-  2. White balance from the low-saturation metal pixels, luma percentiles remapped to vanilla values.
+Sources live in tools/weapon_icons/src: RGBA captures from capture_weapon_icons.py (clean alpha, neutral
+light, already side-on), or opaque screenshots on the modify-screen canvas. Per gun:
+  1. Screenshots only: GrabCut cutout, re-run with solid canvas patches forced to background.
+  2. Screenshots only: white balance from the low-saturation metal pixels. Then luma percentiles are
+     remapped to vanilla values.
   3. Levelled by `tilt` (degrees CCW), cropped, premultiplied Lanczos downscale, light unsharp.
   4. Vanilla glow: no offset, 1px spread, gaussian sigma 3.2, opacity 0.9, rgb (3,3,3) --
      fitted against 11 vanilla UI/Icons/Weapons DDS files (0.9 matches vanilla's 2-4px ring alpha ~0.37).
@@ -31,19 +33,32 @@ OUT = os.path.join(HERE, "..", "Images")
 GLOW_SPREAD, GLOW_SIGMA, GLOW_OP, GLOW_RGB = 1, 3.2, 0.9, (3, 3, 3)
 SRC_PCT = [2, 25, 50, 75, 98]
 
-# rect: GrabCut box (x0, y0, x1, y1) in the source; box: max gun size in the icon;
-# pct: target luma at SRC_PCT (vanilla black guns ~[10,40,65,95,170]); ratio: metal r:g:b after balance;
-# wood: exclude reddish pixels from the white-balance reference
+# cls: game class, for capture_weapon_icons.py; src: RGBA capture (alpha used as is) or an opaque screenshot
+# (then rect: GrabCut box (x0, y0, x1, y1), wood: skip reddish pixels in the white-balance reference);
+# box: max gun size in the icon; pct: target luma at SRC_PCT (vanilla black guns ~[10,40,65,95,170]);
+# ratio: metal r:g:b after white balance, None to keep the capture's neutral colour; tilt: degrees CCW
 JOBS = {
-    "UMP":      dict(src="UMP.png",      rect=(25, 55, 705, 365), canvas=(216, 110), box=(206, 86),
-                     pct=[8, 38, 62, 90, 160],   ratio=(1.08, 1.04, 1.0), tilt=2.1),
-    "P90":      dict(src="P90.png",      rect=(35, 55, 525, 292), canvas=(216, 110), box=(200, 76),
-                     pct=[8, 38, 60, 90, 165],   ratio=(1.08, 1.04, 1.0), tilt=-1.6),
-    "M1Garand": dict(src="M1Garand.webp", rect=(8, 50, 1058, 280), canvas=(216, 110), box=(206, 70),
-                     pct=[16, 44, 62, 100, 196], ratio=(1.06, 1.02, 1.0), tilt=-0.5, wood=True),
-    "USP":      dict(src="USP.png",      rect=(65, 50, 400, 258), canvas=(108, 110), box=(98, 72),
-                     pct=[10, 36, 58, 88, 160],  ratio=(1.08, 1.04, 1.0), tilt=-0.6),
+    "UMP":      dict(cls="UMP_1",      src="UMP.png",      canvas=(216, 110), box=(206, 86),
+                     pct=[8, 38, 62, 90, 160],   ratio=None, tilt=0),
+    "P90":      dict(cls="P90_2",      src="P90.png",      canvas=(216, 110), box=(200, 76),
+                     pct=[8, 38, 60, 90, 165],   ratio=None, tilt=0),
+    "M1Garand": dict(cls="M1Garand_2", src="M1Garand.png", canvas=(216, 110), box=(206, 70),
+                     pct=[16, 44, 62, 100, 196], ratio=None, tilt=0),
+    "USP":      dict(cls="USP_1",      src="USP.png",      canvas=(108, 110), box=(98, 72),
+                     pct=[10, 36, 58, 88, 160],  ratio=None, tilt=0),
+    "G11":      dict(cls="G11_1",      src="G11.png",      canvas=(216, 110), box=(206, 80),
+                     pct=[8, 38, 62, 90, 160],   ratio=None, tilt=0),
+    "AN94":     dict(cls="AN94_1",     src="AN94.png",     canvas=(216, 110), box=(206, 80),
+                     pct=[8, 38, 62, 90, 165],   ratio=None, tilt=0),
 }
+
+
+def load_source(job):
+    im = Image.open(os.path.join(SRC, job["src"]))
+    if im.mode == "RGBA" and np.array(im)[..., 3].min() < 255:
+        a = np.array(im).astype(float)
+        return a[..., :3], a[..., 3] / 255
+    return np.array(im.convert("RGB")).astype(float), None
 
 
 def canvas_like(img):
@@ -56,6 +71,9 @@ def canvas_like(img):
 
 
 def segment(name, job):
+    _, alpha = load_source(job)
+    if alpha is not None:
+        return alpha > 0.5
     img = cv2.imread(os.path.join(SRC, job["src"]), cv2.IMREAD_COLOR)
     x0, y0, x1, y1 = job["rect"]
     mask = np.zeros(img.shape[:2], np.uint8)
@@ -91,16 +109,17 @@ def measure_tilt(name, job, fg):
 
 
 def build(name, job, m):
-    rgb = np.array(Image.open(os.path.join(SRC, job["src"])).convert("RGB")).astype(float)
+    rgb, src_alpha = load_source(job)
 
-    # white balance from low-saturation (metal) pixels only, so wood keeps its hue
-    p = rgb[m]
-    lowsat = (p.max(1) - p.min(1)) < np.maximum(18, p.max(1) * 0.45)
-    if job.get("wood"):
-        lowsat &= p[:, 0] < p[:, 1] * 1.25
-    ref = p[lowsat].mean(0)
-    gains = np.array(job["ratio"]) / (ref / ref[2])
-    rgb = rgb * (gains / (gains @ [.3, .59, .11]))
+    if job["ratio"]:
+        # white balance from low-saturation (metal) pixels only, so wood keeps its hue
+        p = rgb[m]
+        lowsat = (p.max(1) - p.min(1)) < np.maximum(18, p.max(1) * 0.45)
+        if job.get("wood"):
+            lowsat &= p[:, 0] < p[:, 1] * 1.25
+        ref = p[lowsat].mean(0)
+        gains = np.array(job["ratio"]) / (ref / ref[2])
+        rgb = rgb * (gains / (gains @ [.3, .59, .11]))
 
     # piecewise-linear luma remap, applied as a ratio to keep chroma
     luma = rgb @ [.3, .59, .11]
@@ -109,10 +128,14 @@ def build(name, job, m):
     ys = np.concatenate([[0], job["pct"], [255]])
     rgb = np.clip(rgb * (np.interp(luma, xs, ys) / np.maximum(luma, 1))[..., None], 0, 255)
 
-    # fringe takes the nearest interior colour so canvas yellow does not bleed into the AA edge
-    _, (iy, ix) = ndimage.distance_transform_edt(~ndimage.binary_erosion(m, iterations=2), return_indices=True)
-    rgb = rgb[iy, ix]
-    alpha = ndimage.gaussian_filter(ndimage.binary_erosion(m, iterations=1).astype(float), 0.8)
+    if src_alpha is not None:
+        alpha = src_alpha
+        m = alpha > 0.02
+    else:
+        # fringe takes the nearest interior colour so canvas yellow does not bleed into the AA edge
+        _, (iy, ix) = ndimage.distance_transform_edt(~ndimage.binary_erosion(m, iterations=2), return_indices=True)
+        rgb = rgb[iy, ix]
+        alpha = ndimage.gaussian_filter(ndimage.binary_erosion(m, iterations=1).astype(float), 0.8)
 
     if job["tilt"]:
         rgb = np.dstack([ndimage.rotate(rgb[..., c], job["tilt"], reshape=True, order=3, mode="nearest")
