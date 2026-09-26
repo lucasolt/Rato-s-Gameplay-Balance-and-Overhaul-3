@@ -35,10 +35,11 @@ MAT = {
     "tip_match": ((220, 140, 28), 0.3, 10),
     "tip_tracer": ((134, 143, 93), 0.3, 10),
     "tip_hp": ((109, 187, 209), 0.3, 10),
-    "hull_basic": ((161, 156, 148), 0.2, 8),
-    "hull_ap": ((191, 67, 77), 0.2, 8),
-    "hull_match": ((220, 140, 28), 0.2, 8),
-    "hull_tracer": ((134, 143, 93), 0.2, 8),
+    # shotshell hulls follow the inventory icons, not the TextStyle colors (sampled 2026-09-26)
+    "hull_basic": ((67, 124, 37), 0.2, 8),
+    "hull_ap": ((124, 44, 34), 0.2, 8),
+    "hull_match": ((36, 108, 116), 0.2, 8),
+    "hull_tracer": ((149, 120, 11), 0.2, 8),
     "hull_hp": ((109, 187, 209), 0.2, 8),
 }
 
