@@ -50,6 +50,13 @@ end
 
 local force_reapply = Platform.rat and true
 
+local function checkAndSetComponent(weapon, slot, component_id)
+	if WeaponComponents[component_id] then
+		weapon:SetWeaponComponent(slot, component_id)
+		return true
+	end
+end
+
 function GBO_ReapplyWeaponComponents(unit, force)
     if not unit or not IsKindOf(unit, "Unit") or not unit:IsValid() then
         return
@@ -72,13 +79,12 @@ function GBO_ReapplyWeaponComponents(unit, force)
 				if IsKindOf(weapon, "MP40") and slot == "Scope" and component_id == "ImprovedIronsight" then
 					weapon:SetWeaponComponent("Scope", false)
 
-				elseif IsKindOf(weapon, "AKSU") and slot == "Muzzle" and component_id == "MuzzleBooster" then
-					weapon:SetWeaponComponent("Muzzle", "MuzzleBooster_Reliability")	
-				
-				elseif WeaponComponents[component_id] then
+				elseif IsKindOf(weapon, "AKSU") and slot == "Muzzle" and component_id == "Compensator" then
+					checkAndSetComponent(weapon, "Muzzle", "Compensator_ReducedReliability")					
+				else
                     print("GBO Update - Reapplying component ", component_id, " in slot ", slot,
                           " of weapon ", weapon.class, " owner: ", unit.session_id)
-                    weapon:SetWeaponComponent(slot, component_id)
+                    checkAndSetComponent(weapon, slot, component_id)
                 end
             end
             weapon.rat_updated_in = version
@@ -87,6 +93,8 @@ function GBO_ReapplyWeaponComponents(unit, force)
     unit.rat_unit_updated = version
 end
 
+
+--- not used?
 function update_components(unit)
     if not unit then
         return
@@ -250,9 +258,8 @@ function change_handgun_barrel(unit)
                     if weapon:HasComponent("longbarrel") or weapon:HasComponent("shortbarrel") then
                         local current_comp = weapon.components.Barrel
                         if (current_comp == "ToG_Comp_AR_Barrel_Long_1" or current_comp ==
-                            "ToG_Comp_AR_Barrel_Long_2_SMG") and
-                            WeaponComponents[current_comp .. "_SMG"] then
-                            weapon:SetWeaponComponent("Barrel", current_comp .. "_SMG")
+                            "ToG_Comp_AR_Barrel_Long_2") and
+                            checkAndSetComponent(weapon, "Barrel", current_comp .. "_SMG") then
                             ObjModified(weapon)
                         end
                     end
@@ -272,9 +279,8 @@ function change_handgun_barrel(unit)
                         end
 
                         if not endsWithHandgun(current_comp) and
-                            WeaponComponents[current_comp .. "_handgun"] then
+                            checkAndSetComponent(weapon, "Barrel", current_comp .. "_handgun") then
                             print("GBO: updating handgun barrel component")
-                            weapon:SetWeaponComponent("Barrel", current_comp .. "_handgun")
                             ObjModified(weapon)
                         end
                     end
@@ -300,8 +306,8 @@ function GBO_ApplyDefaultSubweapon(unit)
 
     for _, weapon in ipairs(weapons) do
 		if IsKindOf(weapon, "A91_1") then
-			if weapon.components and weapon.components.Under and weapon.components.Under ~= "A91_GrenadeLauncher" then
-				weapon:SetWeaponComponent("Under", "A91_GrenadeLauncher")
+			if weapon.components and weapon.components.Under and weapon.components.Under ~= "A91_GrenadeLauncher"
+				and checkAndSetComponent(weapon, "Under", "A91_GrenadeLauncher") then
 				ObjModified(weapon)
 			end
 		end
