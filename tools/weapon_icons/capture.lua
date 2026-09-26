@@ -1,4 +1,5 @@
--- Run by tools/capture_weapon_icons.py through dap_eval (-c); needs ModifyWeaponDlg open in the game.
+-- Run by tools/capture_weapon_icons.py through dap_eval (-c). Uses the open ModifyWeaponDlg, or opens one on the
+-- selected merc's weapon and closes it afterwards.
 -- Per class: spawn a default copy, show it exactly side-on, take four shots (gun/no gun x black/bright backdrop)
 -- for difference matting, under neutral light (LUT and LightColor1..4 white). Everything is restored afterwards.
 local CLASSES = { --CLASSES-- }
@@ -6,12 +7,22 @@ local OUT = "AppData/rat_icons/"
 
 CreateRealTimeThread(function()
 	local log = {}
-	local cab = GetDialog("ModifyWeaponDlg")
-	local d = cab and rawget(cab, "idModifyDialog")
-	if not d then
-		AsyncStringToFile(OUT .. "done.txt", "ERR ModifyWeaponDlg is not open")
+	local opened_here = not GetDialog("ModifyWeaponDlg")
+	if opened_here and Selection[1] then
+		OpenModifyFromInventory(Selection[1])
+	end
+	local cab, d
+	local t0 = now()
+	repeat
+		Sleep(100)
+		cab = GetDialog("ModifyWeaponDlg")
+		d = cab and rawget(cab, "idModifyDialog")
+	until (d and d.weaponModel and not IsValidThread(d.weaponSlideInThread)) or now() - t0 > 8000
+	if not (d and d.weaponModel) then
+		AsyncStringToFile(OUT .. "done.txt", "ERR could not open ModifyWeaponDlg (select a merc with a firearm)")
 		return
 	end
+	Sleep(500)
 	local pf, plane = rawget(cab, "prefab"), rawget(cab, "background")
 	local orig_idx, orig_count = d.selectedWeapon, #d.allWeapons
 	local axis, angle = g_Cabinet:GetAxis(), g_Cabinet:GetAngle()
@@ -102,6 +113,9 @@ CreateRealTimeThread(function()
 		DoneObject(w)
 	end
 	g_Cabinet:SetAxisAngle(axis, angle, 0)
+	if opened_here then
+		CloseDialog("ModifyWeaponDlg")
+	end
 	AsyncStringToFile(OUT .. "done.txt", table.concat(log, "\n"))
 end)
 return "started"

@@ -35,7 +35,8 @@ SRC_PCT = [2, 25, 50, 75, 98]
 
 # cls: game class, for capture_weapon_icons.py; src: RGBA capture (alpha used as is) or an opaque screenshot
 # (then rect: GrabCut box (x0, y0, x1, y1), wood: skip reddish pixels in the white-balance reference);
-# box: max gun size in the icon; pct: target luma at SRC_PCT (vanilla black guns ~[10,40,65,95,170]);
+# box: max gun size in the icon; pct: target luma at SRC_PCT (vanilla black guns ~[10,40,65,95,170]), None keeps
+# the capture's tone (light-coloured guns: remapping them to black-gun targets would crush them);
 # ratio: metal r:g:b after white balance, None to keep the capture's neutral colour; tilt: degrees CCW
 JOBS = {
     "UMP":      dict(cls="UMP_1",      src="UMP.png",      canvas=(216, 110), box=(206, 86),
@@ -50,6 +51,12 @@ JOBS = {
                      pct=[8, 38, 62, 90, 160],   ratio=None, tilt=0),
     "AN94":     dict(cls="AN94_1",     src="AN94.png",     canvas=(216, 110), box=(206, 80),
                      pct=[8, 38, 62, 90, 165],   ratio=None, tilt=0),
+    "TAR21":    dict(cls="TAR21_1",    src="TAR21.png",    canvas=(216, 110), box=(206, 80),
+                     pct=None,                   ratio=None, tilt=0),
+    "HK53":     dict(cls="HK53_1",     src="HK53.png",     canvas=(216, 110), box=(206, 80),
+                     pct=[8, 38, 62, 90, 165],   ratio=None, tilt=0),
+    "Glock17":  dict(cls="Glock17_1",  src="Glock17.png",  canvas=(108, 110), box=(98, 72),
+                     pct=None,                   ratio=None, tilt=0),
 }
 
 
@@ -121,12 +128,13 @@ def build(name, job, m):
         gains = np.array(job["ratio"]) / (ref / ref[2])
         rgb = rgb * (gains / (gains @ [.3, .59, .11]))
 
-    # piecewise-linear luma remap, applied as a ratio to keep chroma
-    luma = rgb @ [.3, .59, .11]
-    src_pct = np.percentile(luma[m], SRC_PCT)
-    xs = np.concatenate([[0], src_pct, [max(255, src_pct[-1] + 1)]])
-    ys = np.concatenate([[0], job["pct"], [255]])
-    rgb = np.clip(rgb * (np.interp(luma, xs, ys) / np.maximum(luma, 1))[..., None], 0, 255)
+    if job["pct"]:
+        # piecewise-linear luma remap, applied as a ratio to keep chroma
+        luma = rgb @ [.3, .59, .11]
+        src_pct = np.percentile(luma[m], SRC_PCT)
+        xs = np.concatenate([[0], src_pct, [max(255, src_pct[-1] + 1)]])
+        ys = np.concatenate([[0], job["pct"], [255]])
+        rgb = np.clip(rgb * (np.interp(luma, xs, ys) / np.maximum(luma, 1))[..., None], 0, 255)
 
     if src_alpha is not None:
         alpha = src_alpha

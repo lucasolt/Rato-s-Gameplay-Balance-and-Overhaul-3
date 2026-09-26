@@ -1,6 +1,6 @@
 """Captures clean, level weapon renders from the running game into tools/weapon_icons/src/<Name>.png (RGBA).
 
-Open any weapon in the Modify Weapon screen first. tools/weapon_icons/capture.lua then spawns a default copy of
+In a loaded map (a merc selected), tools/weapon_icons/capture.lua opens the Modify Weapon screen if needed, spawns a default copy of
 each class there, turns it exactly side-on (cabinet axis_z 180 deg: camera looks along +Y, barrel is local +X), and
 renders it isolated: neutral LUT, white scene light colours (the cabinet's are warm), no vignette/bloom/sharpening/particles/sky/UI, DLSS at 100%.
 Four shots per gun (gun and empty, over dark sky and a bright plane) give exact alpha by difference matting:
