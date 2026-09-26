@@ -579,9 +579,9 @@ effect the component never had. Fixing this means renaming one side or teaching
 - params: `AimAccuracyIncrease=1`
 - ids: Galil_Brake_Default
 
-### x1 &nbsp; `SilentShots,IncreaseConditionDegradationMul,DecreaseAimAccuracy,flanker,compensator_effect_ugly_silencer,DecreaseOverwatchAngle`
+### x1 &nbsp; `SilentShots,IncreaseConditionDegradationRate,DecreaseAimAccuracy,flanker,compensator_effect_ugly_silencer,DecreaseOverwatchAngle`
 
-- params: `AimAccuracyDecrease=1,ConditionDegradationMulIncrease=20,NoiseMultiplier=50%,OverwatchAngleDecrease=95`
+- params: `AimAccuracyDecrease=1,ConditionDegradationRateIncrease=20,NoiseMultiplier=50%,OverwatchAngleDecrease=95`
 - ids: ImprovisedSuppressor
 
 ### x1 &nbsp; `IncreaseAimAccuracy,IncreaseMaxAimActions,CritBonusWhenFullyAimed`

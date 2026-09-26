@@ -1,10 +1,6 @@
 
 local file_str = 'FUNCTIONS_aCTH_ChangeTexts.lua'
-function ratT(file_str, id, text)
-	ratG_T_table[file_str] = ratG_T_table[file_str] or {}
-	ratG_T_table[file_str][id] = text
-	return T(id, text)
-end
+
 ---- Texts whose mechanic differs under aCTH: {map, id, field, old CTH text, aCTH text}.
 local acth_text_swaps = {
     ---- PBbonus feeds Handling (Rat_ApertureHandlingMul) instead of a point blank bonus

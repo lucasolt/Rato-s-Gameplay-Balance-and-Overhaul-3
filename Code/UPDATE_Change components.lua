@@ -71,6 +71,10 @@ function GBO_ReapplyWeaponComponents(unit, force)
             for slot, component_id in sorted_pairs(components) do
 				if IsKindOf(weapon, "MP40") and slot == "Scope" and component_id == "ImprovedIronsight" then
 					weapon:SetWeaponComponent("Scope", false)
+
+				elseif IsKindOf(weapon, "AKSU") and slot == "Muzzle" and component_id == "MuzzleBooster" then
+					weapon:SetWeaponComponent("Muzzle", "MuzzleBooster_Reliability")	
+				
 				elseif WeaponComponents[component_id] then
                     print("GBO Update - Reapplying component ", component_id, " in slot ", slot,
                           " of weapon ", weapon.class, " owner: ", unit.session_id)

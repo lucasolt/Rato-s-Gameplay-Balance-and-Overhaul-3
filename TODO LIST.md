@@ -33,6 +33,11 @@ CheatAddItem("itemid")
 - Fixed and improved Shooting Stance animations (shoutout to @dabhand)
 - Fixed bugs related to shotgun
 
+- Fixed missing property burst_recoil_delta
+
+- Option for rebalanced weapon shipment loot
+- Fixed some bugs in weapon shipment conditions and cooldown
+
 -- new CTH mode: aCTH --
 
 This was created because I felt that accuracy was too high on long ranges, and just shooting first was what determined a fight result. I want it to feel more like a firefight, prolonged, suppression based (please use the Pinned Down mod).
@@ -73,6 +78,13 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 GO BACK TO MG SETUP....
 HWT should not decrease MG burst attack, i think
 
+## Fire modes
+- [ ] maybe change the effect on HK receivers for better clarity
+- [ ] Implement selective burst on HK21 and other MGs that have them
+- [ ] Fix MG description hints not showing ROF
+- [X] Recoil booster
+- [X] MG 58 RPM should be adjusted
+
 ## Housekeeping
 - [X] Implement unified Component handling, with ancestor/CTH mode
 	- [X] fix/unify with aCTH logic!!!
@@ -80,7 +92,7 @@ HWT should not decrease MG burst attack, i think
 - [ ] Remove unused calibers from bobbyrays list
 - [ ] If I keep the rare calibers, need to do something about distribution
 
-- [ ] Take a look at the shipments. I got a tier 3 MG after 2 fights
+- [X] Take a look at the shipments. I got a tier 3 MG after 2 fights
 
 ## Components
 
@@ -88,7 +100,8 @@ HWT should not decrease MG burst attack, i think
 
 ## Attachments
 - [ ] *Find a use for Lens and Chips*
-- [ ] Component icon and models from ToC for 5.45 Suppressor and 7.62x54R Suppressor, 45 acp Suppressor, Mauser?
+- [ ] Component icon and models from ToC for 5.45 Suppressor and 7.62x54R Suppressor, 45 acp Suppressor, 44 suppressor rifle, Mauser? What about guns that change calibers?
+- [ ] Remove change caliber from RPK and Winchester. Maybe create 2 deagles?
 - [X] Currently, P90 is using 5.56 suppressor and compensator - Removed from it
 
 
@@ -134,6 +147,7 @@ HWT should not decrease MG burst attack, i think
 - [x] MG Recoil/setup rework (needs further testing)
 - [x] Crouch and prone effect on the aperture, elliptical
 - [ ] rotating while prone should cost more after the initial angle
+- [ ] bonus crit per aim only on the first shot of the burst?
 
 ## New mechanics (luxury)
 - [ ] **Unify all crits into Crit Scaling.** Make it be per aim, and based on HEC, not level
@@ -193,8 +207,9 @@ HWT should not decrease MG burst attack, i think
 
 - [X] How to deal with scopes that give bonuses to hit body parts or bypass cover?
   - Handzolt. -- Just gave it more acc/worst snapshot
+  - [ ] Thermal scope
 
-- [ ] What about grazing? Is it possible to keep it in the game?
+
 - [X] gas, smoke, other grazing mechanics need to be changed
 
 - [X] Grizzly Perk - **there is something in the recoil cacl, check if its enough**

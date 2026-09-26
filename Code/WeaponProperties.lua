@@ -26,8 +26,8 @@ function OnMsg.ClassesGenerate()
                 modifiable = true
             }, {
 				category = "GBO",
-                id = "ConditionDegradationMul",
-                name = "ConditionDegradationMul",
+                id = "ConditionDegradationRate",
+                name = "ConditionDegradationRate",
                 help = "",
                 editor = "number",
                 default = 100,

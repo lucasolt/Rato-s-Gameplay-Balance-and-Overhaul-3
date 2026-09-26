@@ -280,12 +280,12 @@ GBO_COMP_TRAITS = {
 		effects = {			
 			"IncreaseDamage",
 			"ChangeCaliberToBMG",
-			"ReduceReliability",
+			--"ReduceReliability",
 			"StanceAPincrease" -- as it is a handgun, normally long barrel do not extend
 		},
 		params = {
 			DamageIncrease = 10,
-			ReliabilityDecrease = 10,
+			--ReliabilityDecrease = 10,
 			APincrease = 2,
 		}
 	},
@@ -357,13 +357,13 @@ GBO_BASE_RECIPES = {
     Suppressor = {
         effects = {
             "SilentShots", "flanker", "compensator_effect_silencer", "DecreaseOverwatchAngle",
-            "IncreaseConditionDegradationMul"
+            "IncreaseConditionDegradationRate"
         },
         params = {
             NoiseMultiplier = 30,
             bonus_cth_flank = 10,
             OverwatchAngle = 97,
-            ConditionDegradationMulIncrease = 10
+            ConditionDegradationRateIncrease = 10
         },
         pct = {NoiseMultiplier = true}
     },

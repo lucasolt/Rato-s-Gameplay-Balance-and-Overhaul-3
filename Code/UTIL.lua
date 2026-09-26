@@ -17,6 +17,13 @@ function cRound(num)
     return numf
 end
 
+
+function ratT(file_str, id, text, return_untranslated)
+	ratG_T_table[file_str] = ratG_T_table[file_str] or {}
+	ratG_T_table[file_str][id] = text
+	return return_untranslated and Untranslated(text) or T(id, text)
+end
+
 function GBO_ChangeParamAndUpdateCache(class, param, value)
     if class and class.Parameters then
         if not param then

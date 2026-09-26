@@ -2,7 +2,7 @@
 -- selected merc's weapon and closes it afterwards.
 -- Per class: spawn a default copy, show it exactly side-on, take four shots (gun/no gun x black/bright backdrop)
 -- for difference matting, under neutral light (LUT and LightColor1..4 white). Everything is restored afterwards.
-local CLASSES = { --CLASSES-- }
+local CLASSES --= { --CLASSES-- }
 local OUT = "AppData/rat_icons/"
 
 CreateRealTimeThread(function()

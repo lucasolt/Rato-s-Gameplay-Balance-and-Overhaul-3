@@ -1096,6 +1096,23 @@ return {
 			group = "Default",
 			id = "ScopeAimThresholdBonus",
 		}),
+		PlaceObj('ModItemWeaponComponentEffect', {
+			Description = T(319176881444, --[[ModItemWeaponComponentEffect IncreaseRPMMul Description]] "Increases <em>RPM</em>"),
+			ModificationType = "Multiply",
+			Parameters = {
+				PlaceObj('PresetParamPercent', {
+					'Name', "rpm_increase_mul",
+					'Value', 110,
+					'Tag', "<rpm_increase_mul>%",
+				}),
+			},
+			RequiredParams = {
+				"rpm_increase_mul",
+			},
+			StatToModify = "RPM",
+			group = "Stats",
+			id = "IncreaseRPMMul",
+		}),
 		PlaceObj('ModItemCode', {
 			'name', "COMPONENT_weaponcomp_effects",
 			'comment', "------------------ COMPONENT EFFECT",
@@ -3168,19 +3185,19 @@ return {
 		Icon = "UI/Icons/Upgrades/booster_NATO",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"ExtraBurstShots",
+			"IncreaseRPMMul",
 			"recoil_booster_effect",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
-				'Name', "dmg",
-				'Value', 4,
-				'Tag', "<dmg>",
-			}),
-			PlaceObj('PresetParamNumber', {
 				'Name', "extra_shots",
 				'Value', 5,
 				'Tag', "<extra_shots>",
+			}),
+			PlaceObj('PresetParamPercent', {
+				'Name', "rpm_increase_mul",
+				'Value', 110,
+				'Tag', "<rpm_increase_mul>%",
 			}),
 		},
 		Slot = "Muzzle",
@@ -3273,6 +3290,121 @@ return {
 	}),
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 15,
+		DisplayName = T(664185038687, --[[ModItemWeaponComponent MuzzleBooster_Reliability DisplayName]] "Recoil Booster"),
+		Icon = "UI/Icons/Upgrades/booster_NATO",
+		ModificationDifficulty = 0,
+		ModificationEffects = {
+			"IncreaseRPMMul",
+			"IncreaseReliability",
+			"recoil_booster_effect",
+		},
+		Parameters = {
+			PlaceObj('PresetParamNumber', {
+				'Name', "extra_shots",
+				'Value', 5,
+				'Tag', "<extra_shots>",
+			}),
+			PlaceObj('PresetParamPercent', {
+				'Name', "rpm_increase_mul",
+				'Value', 110,
+				'Tag', "<rpm_increase_mul>%",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "ReliabilityIncrease",
+				'Value', 10,
+				'Tag', "<ReliabilityIncrease>",
+			}),
+		},
+		Slot = "Muzzle",
+		Tags = set( "CloseQuarters", "Intimate", "Precision", "Strategic", "Tactical" ),
+		Visuals = {
+			PlaceObj('WeaponComponentVisual', {
+				Entity = "WeaponAttA_BoosterNATO",
+				Slot = "Muzzle",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "AK47",
+				Entity = "WeaponAttA_BoosterWP",
+				Icon = "UI/Icons/Upgrades/AK_muzzle_booster",
+				Slot = "Muzzle",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "AK74",
+				Entity = "WeaponAttA_BoosterWP",
+				Icon = "UI/Icons/Upgrades/AK_muzzle_booster",
+				Slot = "Muzzle",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "RPK74",
+				Entity = "WeaponAttA_BoosterWP",
+				Icon = "UI/Icons/Upgrades/AK_muzzle_booster",
+				Slot = "Muzzle",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "AKSU",
+				Entity = "WeaponAttA_BoosterWP",
+				Icon = "UI/Icons/Upgrades/AK_muzzle_booster",
+				Slot = "Muzzle",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "G36",
+				Entity = "WeaponAttA_CompensatorHKG36_02",
+				Slot = "Muzzle",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "AR15",
+				Entity = "WeaponAttA_BoosterNATO",
+				Slot = "Muzzle",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "FNFAL",
+				Entity = "WeaponAttA_BoosterNATO",
+				Slot = "Muzzle",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "M14SAW",
+				Entity = "WeaponAttA_BoosterM14",
+				Slot = "Muzzle",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "HK21",
+				Entity = "WeaponAttA_BoosterNATO",
+				Slot = "Muzzle",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "M4Commando",
+				Entity = "WeaponAttA_BoosterNATO",
+				Slot = "Muzzle",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "M16A2",
+				Entity = "WeaponAttA_BoosterNATO",
+				Slot = "Muzzle",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "Galil_FlagHill",
+				Entity = "WeaponAttA_MuzzleGalil",
+				Slot = "Muzzle",
+				param_bindings = false,
+			}),
+		},
+		group = "Muzzle",
+		id = "MuzzleBooster_Reliability",
+	}),
+	PlaceObj('ModItemWeaponComponent', {
+		Cost = 15,
 		DisplayName = T(909732062029, --[[ModItemWeaponComponent MuzzleBooster_Glock18 DisplayName]] "Default Chamber"),
 		Icon = "UI/Icons/Upgrades/booster_NATO",
 		ModificationDifficulty = 0,
@@ -3288,17 +3420,16 @@ return {
 		ModificationDifficulty = -10,
 		ModificationEffects = {
 			"SilentShots",
-			"IncreaseConditionDegradationMul",
+			"IncreaseConditionDegradationRate",
 			"DecreaseAimAccuracy",
-			"flanker",
 			"compensator_effect_ugly_silencer",
 			"DecreaseOverwatchAngle",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
-				'Name', "ConditionDegradationMulIncrease",
+				'Name', "ConditionDegradationRateIncrease",
 				'Value', 20,
-				'Tag', "<ConditionDegradationMulIncrease>",
+				'Tag', "<ConditionDegradationRateIncrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "AimAccuracyDecrease",
@@ -3360,16 +3491,16 @@ return {
 		DisplayName = T(341620548059, --[[ModItemWeaponComponent Suppressor DisplayName]] "Suppressor"),
 		GBO_ComponentTraits = "Self",
 		GBO_OverrideEffects = {
-			"IncreaseConditionDegradationMul",
+			"IncreaseConditionDegradationRate",
 			"SilentShots",
 			"compensator_effect_silencer",
-			"flanker",
+			"IncreaseRPMMul",
 		},
 		GBO_OverrideParams = {
 			PlaceObj('PresetParamNumber', {
-				'Name', "ConditionDegradationMulIncrease",
+				'Name', "ConditionDegradationRateIncrease",
 				'Value', 10,
-				'Tag', "<ConditionDegradationMulIncrease>",
+				'Tag', "<ConditionDegradationRateIncrease>",
 			}),
 			PlaceObj('PresetParamPercent', {
 				'Name', "NoiseMultiplier",
@@ -3382,29 +3513,29 @@ return {
 				'Tag', "<OverwatchAngle>",
 			}),
 			PlaceObj('PresetParamNumber', {
-				'Name', "bonus_cth_flank",
-				'Value', 10,
-				'Tag', "<bonus_cth_flank>",
+				'Name', "rpm_increase_mul",
+				'Value', 112,
+				'Tag', "<rpm_increase_mul>",
 			}),
 		},
 		Icon = "UI/Icons/Upgrades/beretta_silencer",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"IncreaseConditionDegradationMul",
+			"IncreaseConditionDegradationRate",
+			"IncreaseRPMMul",
 			"SilentShots",
 			"compensator_effect_silencer",
-			"flanker",
 			"DecreaseOverwatchAngle",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
-				'Name', "ConditionDegradationMulIncrease",
-				'Value', 10,
-				'Tag', "<ConditionDegradationMulIncrease>",
+				'Name', "ConditionDegradationRateIncrease",
+				'Value', 12,
+				'Tag', "<ConditionDegradationRateIncrease>",
 			}),
 			PlaceObj('PresetParamPercent', {
 				'Name', "NoiseMultiplier",
-				'Value', 30,
+				'Value', 25,
 				'Tag', "<NoiseMultiplier>%",
 			}),
 			PlaceObj('PresetParamNumber', {
@@ -3413,9 +3544,9 @@ return {
 				'Tag', "<OverwatchAngleDecrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
-				'Name', "bonus_cth_flank",
-				'Value', 10,
-				'Tag', "<bonus_cth_flank>",
+				'Name', "rpm_increase_mul",
+				'Value', 112,
+				'Tag', "<rpm_increase_mul>",
 			}),
 		},
 		Slot = "Muzzle",
@@ -7059,7 +7190,6 @@ return {
 				"StanceAPincrease",
 				"IncreaseDamage",
 				"ChangeCaliberToBMG",
-				"ReduceReliability",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -7086,11 +7216,6 @@ return {
 					'Name', "RangeIncrease",
 					'Value', 2,
 					'Tag', "<RangeIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "ReliabilityDecrease",
-					'Value', 10,
-					'Tag', "<ReliabilityDecrease>",
 				}),
 			},
 			Slot = "Barrel",

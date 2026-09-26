@@ -57,7 +57,7 @@ end
 ---------------------------------------------------------------------------------------------------
 
 function FirearmBase:GetBaseDegradePerShot()
-	return MulDivRound(const.Weapons.DegradePerShot, self.ConditionDegradationMul or 100, 100)
+	return MulDivRound(const.Weapons.DegradePerShot, self.ConditionDegradationRate or 100, 100)
 end
 
 function FirearmBase:ReliabilityCheck(attacker, num_shots)

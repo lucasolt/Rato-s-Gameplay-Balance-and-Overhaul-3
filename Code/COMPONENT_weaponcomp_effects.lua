@@ -1214,18 +1214,18 @@ function weapon_components_rat()
             PlaceObj(
                 'PresetParamNumber', {
                     'Name',
-                    "ConditionDegradationMulIncrease",
+                    "ConditionDegradationRateIncrease",
                     'Tag',
-                    "<ConditionDegradationMulIncrease>",
+                    "<ConditionDegradationRateIncrease>",
                     'Default', 10
                 })
         },
         RequiredParams = {
-            "ConditionDegradationMulIncrease"
+            "ConditionDegradationRateIncrease"
         },
-        StatToModify = "ConditionDegradationMul",
+        StatToModify = "ConditionDegradationRate",
         group = "Stats",
-        id = "IncreaseConditionDegradationMul"
+        id = "IncreaseConditionDegradationRate"
     })
 
     -------------------------------------------------------------------------

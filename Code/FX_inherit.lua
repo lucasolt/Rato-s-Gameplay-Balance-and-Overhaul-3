@@ -29,7 +29,8 @@ function rat_apply_inherit(rules)
         ToG_VFX_Muzzle = {
             "VigM2_Barrel_def_1", "PP91_Barrel_def_1", "RAT_TOG_compensator",
             "RAT_TOG_CompensatorNoEntity"
-        }
+        },
+		MuzzleBooster = {"MuzzleBooster_Reliability"}
     }
 
     -- Iterate over the data table to populate the rules

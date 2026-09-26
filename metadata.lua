@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 13386,
+	'version', 13419,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -194,8 +194,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1790284618,
-	'code_hash', -1104535024457705710,
+	'saved', 1790396900,
+	'code_hash', 3159289479880673966,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",
@@ -313,6 +313,11 @@ return PlaceObj('ModDef', {
 			'ClassDisplayName', "Modification Effects",
 		}),
 		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponentEffect",
+			'Id', "IncreaseRPMMul",
+			'ClassDisplayName', "Modification Effects",
+		}),
+		PlaceObj('ModResourcePreset', {
 			'Class', "CombatAction",
 			'Id', "Sprint",
 			'ClassDisplayName', "Combat Action",
@@ -400,6 +405,11 @@ return PlaceObj('ModDef', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "WeaponComponent",
 			'Id', "MuzzleBooster",
+			'ClassDisplayName', "Weapon component",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "WeaponComponent",
+			'Id', "MuzzleBooster_Reliability",
 			'ClassDisplayName', "Weapon component",
 		}),
 		PlaceObj('ModResourcePreset', {
