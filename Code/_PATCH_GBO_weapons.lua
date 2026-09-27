@@ -34,7 +34,7 @@ function RatoTOG_Patch()
 	A91_2.PointBlankBonus = 1
 	A91_2.PreparedAttackType = "Overwatch"
 	A91_2.AvailableAttacks = {"BurstFire", "SingleShot", "AutoFire", "CancelShot"}
-	A91_2.Rat_swap_ap = 3
+	A91_2.Rat_swap_ap = 30
 	A91_2.RPM = 700
 	A91_2.BurstSelective = false
 	A91_2.wep_base_recoil_mul = 98
@@ -86,12 +86,12 @@ function RatoTOG_Patch()
 	AN94_1.PointBlankBonus = 1
 	AN94_1.PreparedAttackType = "Overwatch"
 	AN94_1.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	AN94_1.Rat_swap_ap = 3
+	AN94_1.Rat_swap_ap = 30
 	AN94_1.burst_shots = 2
 	AN94_1.RPM = 600
 	AN94_1.BurstSelective = true
-	AN94_1.AutoFireCustomDeltaAP = 1
-	AN94_1.SingleShotCustomDeltaAP = 2
+	AN94_1.AutoFireCustomDeltaAP = 10
+	AN94_1.SingleShotCustomDeltaAP = 20
 	AN94_1.hyperburst = 85
 	AN94_1.burst_recoil_delta = 5
 	AN94_1.long_recoil_delta = 85
@@ -152,7 +152,7 @@ function RatoTOG_Patch()
 	AR10std.PointBlankBonus = 1
 	AR10std.PreparedAttackType = "Overwatch"
 	AR10std.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	AR10std.Rat_swap_ap = 3
+	AR10std.Rat_swap_ap = 30
 	AR10std.RPM = 700
 	AR10std.BurstSelective = false
 	AR10std.wep_base_recoil_mul = 94
@@ -211,10 +211,10 @@ function RatoTOG_Patch()
 	B93RR_1.PointBlankBonus = 1
 	B93RR_1.PreparedAttackType = "Overwatch"
 	B93RR_1.AvailableAttacks = {"BurstFire", "SingleShot", "DualShot", "CancelShot", "MobileShot", "RunAndGun"}
-	B93RR_1.Rat_swap_ap = 1
+	B93RR_1.Rat_swap_ap = 10
 	B93RR_1.RPM = 1100
 	B93RR_1.BurstSelective = true
-	B93RR_1.SingleShotCustomDeltaAP = 1
+	B93RR_1.SingleShotCustomDeltaAP = 10
 	B93RR_1.burst_recoil_delta = 90
 	B93RR_1.wep_base_recoil_mul = 115
 	B93RR_1.weigth_held_mul = 108
@@ -278,7 +278,7 @@ function RatoTOG_Patch()
 	Delisle_1.PointBlankBonus = 1
 	Delisle_1.PreparedAttackType = "Both"
 	Delisle_1.AvailableAttacks = {"SingleShot", "CancelShot"}
-	Delisle_1.Rat_swap_ap = 3
+	Delisle_1.Rat_swap_ap = 30
 	Delisle_1.BurstSelective = false
 	Delisle_1.wep_base_recoil_mul = 112
 	Delisle_1.weigth_held_mul = 128
@@ -336,11 +336,11 @@ function RatoTOG_Patch()
 	G11_1.PointBlankBonus = 1
 	G11_1.PreparedAttackType = "Overwatch"
 	G11_1.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	G11_1.Rat_swap_ap = 3
+	G11_1.Rat_swap_ap = 30
 	G11_1.RPM = 460
 	G11_1.BurstSelective = true
-	G11_1.AutoFireCustomDeltaAP = 1
-	G11_1.SingleShotCustomDeltaAP = 1
+	G11_1.AutoFireCustomDeltaAP = 10
+	G11_1.SingleShotCustomDeltaAP = 10
 	G11_1.hyperburst = 75
 	G11_1.burst_recoil_delta = 50
 	G11_1.long_recoil_delta = 100
@@ -399,7 +399,7 @@ function RatoTOG_Patch()
 	G3A3_1.PointBlankBonus = 1
 	G3A3_1.PreparedAttackType = "Overwatch"
 	G3A3_1.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	G3A3_1.Rat_swap_ap = 3
+	G3A3_1.Rat_swap_ap = 30
 	G3A3_1.RPM = 600
 	G3A3_1.BurstSelective = false
 	G3A3_1.wep_base_recoil_mul = 105
@@ -459,7 +459,7 @@ function RatoTOG_Patch()
 	G3A3Green_1.PointBlankBonus = 1
 	G3A3Green_1.PreparedAttackType = "Overwatch"
 	G3A3Green_1.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	G3A3Green_1.Rat_swap_ap = 3
+	G3A3Green_1.Rat_swap_ap = 30
 	G3A3Green_1.RPM = 600
 	G3A3Green_1.BurstSelective = false
 	G3A3Green_1.wep_base_recoil_mul = 105
@@ -520,7 +520,7 @@ function RatoTOG_Patch()
 	Gewehr43_1.PointBlankBonus = 1
 	Gewehr43_1.PreparedAttackType = "Both"
 	Gewehr43_1.AvailableAttacks = {"SingleShot", "CancelShot"}
-	Gewehr43_1.Rat_swap_ap = 3
+	Gewehr43_1.Rat_swap_ap = 30
 	Gewehr43_1.BurstSelective = false
 	Gewehr43_1.wep_base_recoil_mul = 92
 	Gewehr43_1.weigth_held_mul = 125
@@ -579,7 +579,7 @@ function RatoTOG_Patch()
 	Glock17_1.PointBlankBonus = 1
 	Glock17_1.PreparedAttackType = "Overwatch"
 	Glock17_1.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	Glock17_1.Rat_swap_ap = 1
+	Glock17_1.Rat_swap_ap = 10
 	Glock17_1.BurstSelective = false
 	Glock17_1.wep_base_recoil_mul = 116
 	Glock17_1.weigth_held_mul = 104
@@ -641,7 +641,7 @@ function RatoTOG_Patch()
 	HK23E_1.PointBlankBonus = 1
 	HK23E_1.PreparedAttackType = "Machine Gun"
 	HK23E_1.AvailableAttacks = {"MGBurstFire"}
-	HK23E_1.Rat_swap_ap = 3
+	HK23E_1.Rat_swap_ap = 30
 	HK23E_1.RPM = 800
 	HK23E_1.BurstSelective = false
 	HK23E_1.wep_base_recoil_mul = 85
@@ -701,7 +701,7 @@ function RatoTOG_Patch()
 	HK23ECamo_1.PointBlankBonus = 1
 	HK23ECamo_1.PreparedAttackType = "Machine Gun"
 	HK23ECamo_1.AvailableAttacks = {"MGBurstFire"}
-	HK23ECamo_1.Rat_swap_ap = 3
+	HK23ECamo_1.Rat_swap_ap = 30
 	HK23ECamo_1.RPM = 800
 	HK23ECamo_1.BurstSelective = false
 	HK23ECamo_1.wep_base_recoil_mul = 85
@@ -760,7 +760,7 @@ function RatoTOG_Patch()
 	HK33A2_1.PointBlankBonus = 1
 	HK33A2_1.PreparedAttackType = "Overwatch"
 	HK33A2_1.AvailableAttacks = {"BurstFire", "SingleShot", "CancelShot"}
-	HK33A2_1.Rat_swap_ap = 3
+	HK33A2_1.Rat_swap_ap = 30
 	HK33A2_1.RPM = 750
 	HK33A2_1.BurstSelective = false
 	HK33A2_1.weigth_held_mul = 129
@@ -880,7 +880,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	M1911_1.PointBlankBonus = 1
 	M1911_1.PreparedAttackType = "Overwatch"
 	M1911_1.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	M1911_1.Rat_swap_ap = 1
+	M1911_1.Rat_swap_ap = 10
 	M1911_1.BurstSelective = false
 	M1911_1.wep_base_recoil_mul = 113
 	M1911_1.weigth_held_mul = 107
@@ -942,7 +942,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	M1Garand_2.PointBlankBonus = 1
 	M1Garand_2.PreparedAttackType = "Overwatch"
 	M1Garand_2.AvailableAttacks = {"SingleShot", "CancelShot"}
-	M1Garand_2.Rat_swap_ap = 3
+	M1Garand_2.Rat_swap_ap = 30
 	M1Garand_2.BurstSelective = false
 	M1Garand_2.wep_base_recoil_mul = 90
 	M1Garand_2.weigth_held_mul = 132
@@ -1002,7 +1002,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	M70_1.PointBlankBonus = 1
 	M70_1.PreparedAttackType = "Overwatch"
 	M70_1.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	M70_1.Rat_swap_ap = 3
+	M70_1.Rat_swap_ap = 30
 	M70_1.RPM = 600
 	M70_1.BurstSelective = false
 	M70_1.wep_base_recoil_mul = 97
@@ -1061,7 +1061,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	M76_1.PointBlankBonus = 1
 	M76_1.PreparedAttackType = "Both"
 	M76_1.AvailableAttacks = {"SingleShot", "CancelShot"}
-	M76_1.Rat_swap_ap = 3
+	M76_1.Rat_swap_ap = 30
 	M76_1.BurstSelective = false
 	M76_1.wep_base_recoil_mul = 85
 	M76_1.weigth_held_mul = 132
@@ -1177,7 +1177,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	MAC11_1.PointBlankBonus = 1
 	MAC11_1.PreparedAttackType = "Overwatch"
 	MAC11_1.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "DualShot", "RunAndGun", "CancelShot"}
-	MAC11_1.Rat_swap_ap = 1
+	MAC11_1.Rat_swap_ap = 10
 	MAC11_1.burst_shots = 4
 	MAC11_1.auto_shots = 12
 	MAC11_1.RPM = 1200
@@ -1238,7 +1238,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	MicroUZI_1.PointBlankBonus = 1
 	MicroUZI_1.PreparedAttackType = "Overwatch"
 	MicroUZI_1.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "DualShot", "RunAndGun", "CancelShot"}
-	MicroUZI_1.Rat_swap_ap = 1
+	MicroUZI_1.Rat_swap_ap = 10
 	MicroUZI_1.burst_shots = 4
 	MicroUZI_1.auto_shots = 12
 	MicroUZI_1.RPM = 1200
@@ -1301,7 +1301,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	Mosin_1.PointBlankBonus = 1
 	Mosin_1.PreparedAttackType = "Both"
 	Mosin_1.AvailableAttacks = {"SingleShot", "CancelShot"}
-	Mosin_1.Rat_swap_ap = 3
+	Mosin_1.Rat_swap_ap = 30
 	Mosin_1.BurstSelective = false
 	Mosin_1.wep_base_recoil_mul = 93
 	Mosin_1.weigth_held_mul = 128
@@ -1358,7 +1358,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	P08_1.PointBlankBonus = 1
 	P08_1.PreparedAttackType = "Overwatch"
 	P08_1.AvailableAttacks = {"SingleShot", "DualShot", "LeftHandShot", "RightHandShot", "CancelShot", "MobileShot"}
-	P08_1.Rat_swap_ap = 1
+	P08_1.Rat_swap_ap = 10
 	P08_1.BurstSelective = false
 	P08_1.wep_base_recoil_mul = 131
 	P08_1.weigth_held_mul = 107
@@ -1485,7 +1485,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	Papovka2SKS_1.PointBlankBonus = 1
 	Papovka2SKS_1.PreparedAttackType = "Overwatch"
 	Papovka2SKS_1.AvailableAttacks = {"SingleShot", "CancelShot", "MobileShot"}
-	Papovka2SKS_1.Rat_swap_ap = 3
+	Papovka2SKS_1.Rat_swap_ap = 30
 	Papovka2SKS_1.BurstSelective = false
 	Papovka2SKS_1.wep_base_recoil_mul = 94
 	Papovka2SKS_1.weigth_held_mul = 127
@@ -1546,7 +1546,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	PapovkaSKS_1.PointBlankBonus = 1
 	PapovkaSKS_1.PreparedAttackType = "Overwatch"
 	PapovkaSKS_1.AvailableAttacks = {"SingleShot", "CancelShot", "MobileShot"}
-	PapovkaSKS_1.Rat_swap_ap = 3
+	PapovkaSKS_1.Rat_swap_ap = 30
 	PapovkaSKS_1.BurstSelective = false
 	PapovkaSKS_1.wep_base_recoil_mul = 94
 	PapovkaSKS_1.weigth_held_mul = 127
@@ -1663,7 +1663,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	PP91_1.PointBlankBonus = 1
 	PP91_1.PreparedAttackType = "Overwatch"
 	PP91_1.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "RunAndGun", "CancelShot"}
-	PP91_1.Rat_swap_ap = 1
+	PP91_1.Rat_swap_ap = 10
 	PP91_1.RPM = 900
 	PP91_1.BurstSelective = false
 	PP91_1.wep_base_recoil_mul = 121
@@ -1721,7 +1721,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	RK62_1.PointBlankBonus = 1
 	RK62_1.PreparedAttackType = "Overwatch"
 	RK62_1.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	RK62_1.Rat_swap_ap = 3
+	RK62_1.Rat_swap_ap = 30
 	RK62_1.RPM = 700
 	RK62_1.BurstSelective = false
 	RK62_1.wep_base_recoil_mul = 101
@@ -1777,7 +1777,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	RK95_1.PointBlankBonus = 1
 	RK95_1.PreparedAttackType = "Overwatch"
 	RK95_1.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	RK95_1.Rat_swap_ap = 3
+	RK95_1.Rat_swap_ap = 30
 	RK95_1.RPM = 650
 	RK95_1.BurstSelective = false
 	RK95_1.wep_base_recoil_mul = 99
@@ -1836,7 +1836,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	RPD_1.PointBlankBonus = 1
 	RPD_1.PreparedAttackType = "Machine Gun"
 	RPD_1.AvailableAttacks = {"MGBurstFire"}
-	RPD_1.Rat_swap_ap = 3
+	RPD_1.Rat_swap_ap = 30
 	RPD_1.RPM = 650
 	RPD_1.BurstSelective = false
 	RPD_1.AutoFireOnly = true
@@ -1898,7 +1898,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	SKS_1.PointBlankBonus = 1
 	SKS_1.PreparedAttackType = "Overwatch"
 	SKS_1.AvailableAttacks = {"SingleShot", "CancelShot", "MobileShot"}
-	SKS_1.Rat_swap_ap = 3
+	SKS_1.Rat_swap_ap = 30
 	SKS_1.BurstSelective = false
 	SKS_1.wep_base_recoil_mul = 93
 	SKS_1.weigth_held_mul = 127
@@ -1957,7 +1957,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	SSG69_1.PointBlankBonus = 1
 	SSG69_1.PreparedAttackType = "Both"
 	SSG69_1.AvailableAttacks = {"SingleShot", "CancelShot"}
-	SSG69_1.Rat_swap_ap = 3
+	SSG69_1.Rat_swap_ap = 30
 	SSG69_1.BurstSelective = false
 	SSG69_1.wep_base_recoil_mul = 86
 	SSG69_1.weigth_held_mul = 130
@@ -2074,7 +2074,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	SteyrScout_1.PointBlankBonus = 1
 	SteyrScout_1.PreparedAttackType = "Both"
 	SteyrScout_1.AvailableAttacks = {"SingleShot", "CancelShot"}
-	SteyrScout_1.Rat_swap_ap = 3
+	SteyrScout_1.Rat_swap_ap = 30
 	SteyrScout_1.BurstSelective = false
 	SteyrScout_1.wep_base_recoil_mul = 91
 	SteyrScout_1.weigth_held_mul = 132
@@ -2135,7 +2135,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	STG44R_1.PointBlankBonus = 1
 	STG44R_1.PreparedAttackType = "Overwatch"
 	STG44R_1.AvailableAttacks = {"BurstFire", "SingleShot", "AutoFire", "CancelShot"}
-	STG44R_1.Rat_swap_ap = 3
+	STG44R_1.Rat_swap_ap = 30
 	STG44R_1.RPM = 550
 	STG44R_1.BurstSelective = false
 	STG44R_1.wep_base_recoil_mul = 90
@@ -2196,7 +2196,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	TAR21_1.PointBlankBonus = 1
 	TAR21_1.PreparedAttackType = "Overwatch"
 	TAR21_1.AvailableAttacks = {"BurstFire", "SingleShot", "AutoFire", "CancelShot"}
-	TAR21_1.Rat_swap_ap = 3
+	TAR21_1.Rat_swap_ap = 30
 	TAR21_1.RPM = 750
 	TAR21_1.BurstSelective = false
 	TAR21_1.wep_base_recoil_mul = 101
@@ -2258,7 +2258,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	Type56A_1.PointBlankBonus = 1
 	Type56A_1.PreparedAttackType = "Overwatch"
 	Type56A_1.AvailableAttacks = {"SingleShot", "CancelShot", "MobileShot"}
-	Type56A_1.Rat_swap_ap = 3
+	Type56A_1.Rat_swap_ap = 30
 	Type56A_1.RPM = 600
 	Type56A_1.BurstSelective = false
 	Type56A_1.wep_base_snapshot_mul = 93
@@ -2369,7 +2369,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	Type56B_1.PointBlankBonus = 1
 	Type56B_1.PreparedAttackType = "Overwatch"
 	Type56B_1.AvailableAttacks = {"SingleShot", "CancelShot", "MobileShot"}
-	Type56B_1.Rat_swap_ap = 3
+	Type56B_1.Rat_swap_ap = 30
 	Type56B_1.RPM = 600
 	Type56B_1.BurstSelective = false
 	Type56B_1.wep_base_snapshot_mul = 93
@@ -2425,7 +2425,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	Type56C_1.PointBlankBonus = 1
 	Type56C_1.PreparedAttackType = "Overwatch"
 	Type56C_1.AvailableAttacks = {"SingleShot", "CancelShot", "MobileShot"}
-	Type56C_1.Rat_swap_ap = 3
+	Type56C_1.Rat_swap_ap = 30
 	Type56C_1.RPM = 600
 	Type56C_1.BurstSelective = false
 	Type56C_1.wep_base_snapshot_mul = 93
@@ -2481,7 +2481,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	Type56D_1.PointBlankBonus = 1
 	Type56D_1.PreparedAttackType = "Overwatch"
 	Type56D_1.AvailableAttacks = {"SingleShot", "CancelShot", "MobileShot"}
-	Type56D_1.Rat_swap_ap = 3
+	Type56D_1.Rat_swap_ap = 30
 	Type56D_1.RPM = 600
 	Type56D_1.BurstSelective = false
 	Type56D_1.wep_base_snapshot_mul = 93
@@ -2599,7 +2599,7 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	USP_1.PointBlankBonus = 1
 	USP_1.PreparedAttackType = "Overwatch"
 	USP_1.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	USP_1.Rat_swap_ap = 1
+	USP_1.Rat_swap_ap = 10
 	USP_1.BurstSelective = false
 	USP_1.wep_base_recoil_mul = 117
 	USP_1.weigth_held_mul = 105
@@ -2659,7 +2659,7 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	VigM2_1.PointBlankBonus = 1
 	VigM2_1.PreparedAttackType = "Overwatch"
 	VigM2_1.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "DualShot", "RunAndGun", "CancelShot"}
-	VigM2_1.Rat_swap_ap = 1
+	VigM2_1.Rat_swap_ap = 10
 	VigM2_1.RPM = 600
 	VigM2_1.BurstSelective = false
 	VigM2_1.AutoFireOnly = true
@@ -2719,7 +2719,7 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	VikingMP446_1.PointBlankBonus = 1
 	VikingMP446_1.PreparedAttackType = "Overwatch"
 	VikingMP446_1.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	VikingMP446_1.Rat_swap_ap = 1
+	VikingMP446_1.Rat_swap_ap = 10
 	VikingMP446_1.BurstSelective = false
 	VikingMP446_1.wep_base_recoil_mul = 114
 	VikingMP446_1.weigth_held_mul = 105
@@ -2777,7 +2777,7 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	VSK94_1.PointBlankBonus = 1
 	VSK94_1.PreparedAttackType = "Both"
 	VSK94_1.AvailableAttacks = {"SingleShot", "BurstFire", "CancelShot", "AutoFire", "RunAndGun"}
-	VSK94_1.Rat_swap_ap = 3
+	VSK94_1.Rat_swap_ap = 30
 	VSK94_1.RPM = 800
 	VSK94_1.BurstSelective = false
 	VSK94_1.burst_recoil_delta = 110
@@ -2840,7 +2840,7 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	VSS_1.PointBlankBonus = 1
 	VSS_1.PreparedAttackType = "Overwatch"
 	VSS_1.AvailableAttacks = {"SingleShot", "CancelShot", "BurstFire", "AutoFire"}
-	VSS_1.Rat_swap_ap = 3
+	VSS_1.Rat_swap_ap = 30
 	VSS_1.RPM = 850
 	VSS_1.BurstSelective = false
 	VSS_1.burst_recoil_delta = 108
@@ -2912,7 +2912,7 @@ function RatoTOG_LegacyPatch()
 	Groza_1.PointBlankBonus = 1
 	Groza_1.PreparedAttackType = "Overwatch"
 	Groza_1.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot", "RunAndGun"}
-	Groza_1.Rat_swap_ap = 3
+	Groza_1.Rat_swap_ap = 30
 	Groza_1.BurstSelective = true
 	Groza_1.burst_recoil_delta = 85
 	Groza_1.wep_base_recoil_mul = 113
@@ -2982,7 +2982,7 @@ function RatoGBO_WepPatch()
 	AA12.AvailableAttacks = {"BuckshotBurst", "Buckshot", "CancelShotCone", "BurstFire", "SingleShot", "CancelShot"}
 	AA12.BuckshotConeAngle = 355
 	AA12.BuckshotFalloffDamage = 50
-	AA12.Rat_swap_ap = 3
+	AA12.Rat_swap_ap = 30
 	AA12.RPM = 300
 	AA12.wep_base_recoil_mul = 90
 	AA12.weigth_held_mul = 133
@@ -3028,7 +3028,7 @@ function RatoGBO_WepPatch()
 	AK47.PointBlankBonus = 1
 	AK47.PreparedAttackType = "Overwatch"
 	AK47.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	AK47.Rat_swap_ap = 3
+	AK47.Rat_swap_ap = 30
 	AK47.RPM = 600
 	AK47.wep_base_recoil_mul = 99
 	AK47.weigth_held_mul = 131
@@ -3071,7 +3071,7 @@ function RatoGBO_WepPatch()
 	AK74.PointBlankBonus = 1
 	AK74.PreparedAttackType = "Overwatch"
 	AK74.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	AK74.Rat_swap_ap = 3
+	AK74.Rat_swap_ap = 30
 	AK74.RPM = 600
 	AK74.wep_base_recoil_mul = 100
 	AK74.weigth_held_mul = 127
@@ -3116,7 +3116,7 @@ function RatoGBO_WepPatch()
 	AKSU.PointBlankBonus = 1
 	AKSU.PreparedAttackType = "Overwatch"
 	AKSU.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "RunAndGun", "CancelShot"}
-	AKSU.Rat_swap_ap = 2
+	AKSU.Rat_swap_ap = 20
 	AKSU.RPM = 636
 	AKSU.wep_base_recoil_mul = 119
 	AKSU.weigth_held_mul = 120
@@ -3161,7 +3161,7 @@ function RatoGBO_WepPatch()
 	AR15.PointBlankBonus = 1
 	AR15.PreparedAttackType = "Overwatch"
 	AR15.AvailableAttacks = {"SingleShot", "BurstFire", "CancelShot"}
-	AR15.Rat_swap_ap = 3
+	AR15.Rat_swap_ap = 30
 	AR15.RPM = 800
 	AR15.wep_base_recoil_mul = 101
 	AR15.weigth_held_mul = 121
@@ -3206,7 +3206,7 @@ function RatoGBO_WepPatch()
 	AUG.PointBlankBonus = 1
 	AUG.PreparedAttackType = "Overwatch"
 	AUG.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	AUG.Rat_swap_ap = 3
+	AUG.Rat_swap_ap = 30
 	AUG.RPM = 700
 	AUG.BurstSelective = true
 	AUG.burst_recoil_delta = 95
@@ -3256,7 +3256,7 @@ function RatoGBO_WepPatch()
 	Auto5.AvailableAttacks = {"Buckshot", "CancelShotCone", "SingleShot", "CancelShot"}
 	Auto5.BuckshotConeAngle = 300
 	Auto5.BuckshotFalloffDamage = 50
-	Auto5.Rat_swap_ap = 3
+	Auto5.Rat_swap_ap = 30
 	Auto5.wep_base_recoil_mul = 98
 	Auto5.weigth_held_mul = 100
 	Auto5.wep_base_snapshot_mul = 100
@@ -3301,7 +3301,7 @@ function RatoGBO_WepPatch()
 	Auto5_quest.AvailableAttacks = {"BuckshotBurst", "BurstFire"}
 	Auto5_quest.BuckshotConeAngle = 300
 	Auto5_quest.BuckshotFalloffDamage = 100
-	Auto5_quest.Rat_swap_ap = 3
+	Auto5_quest.Rat_swap_ap = 30
 	Auto5_quest.wep_base_recoil_mul = 98
 	Auto5_quest.weigth_held_mul = 100
 	Auto5_quest.wep_base_snapshot_mul = 100
@@ -3338,7 +3338,7 @@ function RatoGBO_WepPatch()
 	BarretM82.PointBlankBonus = 1
 	BarretM82.PreparedAttackType = "Both"
 	BarretM82.AvailableAttacks = {"SingleShot", "CancelShot"}
-	BarretM82.Rat_swap_ap = 4
+	BarretM82.Rat_swap_ap = 40
 	BarretM82.wep_base_recoil_mul = 85
 	BarretM82.weigth_held_mul = 200
 	BarretM82.wep_base_snapshot_mul = 159
@@ -3384,7 +3384,7 @@ function RatoGBO_WepPatch()
 	Bereta92.PointBlankBonus = 1
 	Bereta92.PreparedAttackType = "Overwatch"
 	Bereta92.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	Bereta92.Rat_swap_ap = 1
+	Bereta92.Rat_swap_ap = 10
 	Bereta92.wep_base_recoil_mul = 115
 	Bereta92.weigth_held_mul = 106
 	Bereta92.wep_base_snapshot_mul = 71
@@ -3427,7 +3427,7 @@ function RatoGBO_WepPatch()
 	BrowningM2HMG.PointBlankBonus = 1
 	BrowningM2HMG.PreparedAttackType = "Machine Gun"
 	BrowningM2HMG.AvailableAttacks = {"MGBurstFire"}
-	BrowningM2HMG.Rat_swap_ap = 3
+	BrowningM2HMG.Rat_swap_ap = 30
 	BrowningM2HMG.long_shots = 5
 	BrowningM2HMG.RPM = 500
 	BrowningM2HMG.AutoFireOnly = true
@@ -3469,7 +3469,7 @@ function RatoGBO_WepPatch()
 	ColtAnaconda.PointBlankBonus = 1
 	ColtAnaconda.PreparedAttackType = "Overwatch"
 	ColtAnaconda.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	ColtAnaconda.Rat_swap_ap = 1
+	ColtAnaconda.Rat_swap_ap = 10
 	ColtAnaconda.wep_base_recoil_mul = 106
 	ColtAnaconda.weigth_held_mul = 110
 	ColtAnaconda.wep_base_snapshot_mul = 75
@@ -3515,7 +3515,7 @@ function RatoGBO_WepPatch()
 	ColtPeacemaker.PointBlankBonus = 1
 	ColtPeacemaker.PreparedAttackType = "Overwatch"
 	ColtPeacemaker.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	ColtPeacemaker.Rat_swap_ap = 1
+	ColtPeacemaker.Rat_swap_ap = 10
 	ColtPeacemaker.wep_base_recoil_mul = 107
 	ColtPeacemaker.weigth_held_mul = 105
 	ColtPeacemaker.wep_base_snapshot_mul = 73
@@ -3560,7 +3560,7 @@ function RatoGBO_WepPatch()
 	DesertEagle.PointBlankBonus = 1
 	DesertEagle.PreparedAttackType = "Overwatch"
 	DesertEagle.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	DesertEagle.Rat_swap_ap = 1
+	DesertEagle.Rat_swap_ap = 10
 	DesertEagle.wep_base_recoil_mul = 99
 	DesertEagle.weigth_held_mul = 115
 	DesertEagle.wep_base_snapshot_mul = 77
@@ -3608,7 +3608,7 @@ function RatoGBO_WepPatch()
 	DoubleBarrelShotgun.AvailableAttacks = {"Buckshot", "DoubleBarrel", "CancelShotCone", "SingleShot", "CancelShot"}
 	DoubleBarrelShotgun.BuckshotConeAngle = 390
 	DoubleBarrelShotgun.BuckshotFalloffDamage = 50
-	DoubleBarrelShotgun.Rat_swap_ap = 3
+	DoubleBarrelShotgun.Rat_swap_ap = 30
 	DoubleBarrelShotgun.wep_base_recoil_mul = 100
 	DoubleBarrelShotgun.weigth_held_mul = 100
 	DoubleBarrelShotgun.wep_base_snapshot_mul = 100
@@ -3650,7 +3650,7 @@ function RatoGBO_WepPatch()
 	DragunovSVD.PointBlankBonus = 1
 	DragunovSVD.PreparedAttackType = "Both"
 	DragunovSVD.AvailableAttacks = {"SingleShot", "CancelShot"}
-	DragunovSVD.Rat_swap_ap = 3
+	DragunovSVD.Rat_swap_ap = 30
 	DragunovSVD.wep_base_recoil_mul = 92
 	DragunovSVD.weigth_held_mul = 132
 	DragunovSVD.wep_base_snapshot_mul = 117
@@ -3694,7 +3694,7 @@ function RatoGBO_WepPatch()
 	FAMAS.PointBlankBonus = 1
 	FAMAS.PreparedAttackType = "Overwatch"
 	FAMAS.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	FAMAS.Rat_swap_ap = 3
+	FAMAS.Rat_swap_ap = 30
 	FAMAS.RPM = 1000
 	FAMAS.BurstSelective = true
 	FAMAS.burst_recoil_delta = 90
@@ -3741,7 +3741,7 @@ function RatoGBO_WepPatch()
 	FNFAL.PointBlankBonus = 1
 	FNFAL.PreparedAttackType = "Overwatch"
 	FNFAL.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	FNFAL.Rat_swap_ap = 3
+	FNFAL.Rat_swap_ap = 30
 	FNFAL.RPM = 650
 	FNFAL.wep_base_recoil_mul = 95
 	FNFAL.weigth_held_mul = 132
@@ -3787,7 +3787,7 @@ function RatoGBO_WepPatch()
 	FNMinimi.PointBlankBonus = 1
 	FNMinimi.PreparedAttackType = "Machine Gun"
 	FNMinimi.AvailableAttacks = {"MGBurstFire"}
-	FNMinimi.Rat_swap_ap = 3
+	FNMinimi.Rat_swap_ap = 30
 	FNMinimi.RPM = 800
 	FNMinimi.AutoFireOnly = true
 	FNMinimi.wep_base_recoil_mul = 91
@@ -3832,12 +3832,12 @@ function RatoGBO_WepPatch()
 	G36.PointBlankBonus = 1
 	G36.PreparedAttackType = "Overwatch"
 	G36.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	G36.Rat_swap_ap = 3
+	G36.Rat_swap_ap = 30
 	G36.burst_shots = 2
 	G36.RPM = 750
 	G36.BurstSelective = true
-	G36.AutoFireCustomDeltaAP = 1
-	G36.SingleShotCustomDeltaAP = 1
+	G36.AutoFireCustomDeltaAP = 10
+	G36.SingleShotCustomDeltaAP = 10
 	G36.burst_recoil_delta = 70
 	G36.wep_base_recoil_mul = 98
 	G36.weigth_held_mul = 128
@@ -3883,7 +3883,7 @@ function RatoGBO_WepPatch()
 	Galil.PointBlankBonus = 1
 	Galil.PreparedAttackType = "Overwatch"
 	Galil.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	Galil.Rat_swap_ap = 3
+	Galil.Rat_swap_ap = 30
 	Galil.RPM = 650
 	Galil.wep_base_recoil_mul = 92
 	Galil.weigth_held_mul = 131
@@ -3929,7 +3929,7 @@ function RatoGBO_WepPatch()
 	Galil_FlagHill.PointBlankBonus = 1
 	Galil_FlagHill.PreparedAttackType = "Overwatch"
 	Galil_FlagHill.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	Galil_FlagHill.Rat_swap_ap = 3
+	Galil_FlagHill.Rat_swap_ap = 30
 	Galil_FlagHill.RPM = 650
 	Galil_FlagHill.wep_base_recoil_mul = 100
 	Galil_FlagHill.weigth_held_mul = 100
@@ -3965,7 +3965,7 @@ function RatoGBO_WepPatch()
 	Gewehr98.PointBlankBonus = 1
 	Gewehr98.PreparedAttackType = "Both"
 	Gewehr98.AvailableAttacks = {"SingleShot", "CancelShot"}
-	Gewehr98.Rat_swap_ap = 3
+	Gewehr98.Rat_swap_ap = 30
 	Gewehr98.wep_base_recoil_mul = 89
 	Gewehr98.weigth_held_mul = 132
 	Gewehr98.wep_base_snapshot_mul = 126
@@ -4009,12 +4009,12 @@ function RatoGBO_WepPatch()
 	Glock18.PointBlankBonus = 1
 	Glock18.PreparedAttackType = "Overwatch"
 	Glock18.AvailableAttacks = {"BurstFire", "SingleShot", "DualShot", "CancelShot", "MobileShot", "RunAndGun", "AutoFire"}
-	Glock18.Rat_swap_ap = 1
+	Glock18.Rat_swap_ap = 10
 	Glock18.burst_shots = 4
 	Glock18.auto_shots = 12
 	Glock18.RPM = 1200
-	Glock18.AutoFireCustomDeltaAP = 1
-	Glock18.SingleShotCustomDeltaAP = 1
+	Glock18.AutoFireCustomDeltaAP = 10
+	Glock18.SingleShotCustomDeltaAP = 10
 	Glock18.burst_recoil_delta = 108
 	Glock18.long_recoil_delta = 108
 	Glock18.auto_recoil_delta = 108
@@ -4062,7 +4062,7 @@ function RatoGBO_WepPatch()
 	GoldenGun.PointBlankBonus = 1
 	GoldenGun.PreparedAttackType = "Both"
 	GoldenGun.AvailableAttacks = {"SingleShot"}
-	GoldenGun.Rat_swap_ap = 3
+	GoldenGun.Rat_swap_ap = 30
 	GoldenGun.wep_base_recoil_mul = 100
 	GoldenGun.weigth_held_mul = 100
 	GoldenGun.wep_base_snapshot_mul = 100
@@ -4099,7 +4099,7 @@ function RatoGBO_WepPatch()
 	HiPower.PointBlankBonus = 1
 	HiPower.PreparedAttackType = "Overwatch"
 	HiPower.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	HiPower.Rat_swap_ap = 1
+	HiPower.Rat_swap_ap = 10
 	HiPower.wep_base_recoil_mul = 115
 	HiPower.weigth_held_mul = 107
 	HiPower.wep_base_snapshot_mul = 71
@@ -4144,7 +4144,7 @@ function RatoGBO_WepPatch()
 	HK21.PointBlankBonus = 1
 	HK21.PreparedAttackType = "Machine Gun"
 	HK21.AvailableAttacks = {"MGBurstFire"}
-	HK21.Rat_swap_ap = 3
+	HK21.Rat_swap_ap = 30
 	HK21.RPM = 850
 	HK21.wep_base_recoil_mul = 89
 	HK21.weigth_held_mul = 157
@@ -4189,7 +4189,7 @@ function RatoGBO_WepPatch()
 	LionRoar.PointBlankBonus = 1
 	LionRoar.PreparedAttackType = "Overwatch"
 	LionRoar.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "RunAndGun"}
-	LionRoar.Rat_swap_ap = 1
+	LionRoar.Rat_swap_ap = 10
 	LionRoar.RPM = 600
 	LionRoar.wep_base_recoil_mul = 108
 	LionRoar.weigth_held_mul = 100
@@ -4229,7 +4229,7 @@ function RatoGBO_WepPatch()
 	M14SAW.PointBlankBonus = 1
 	M14SAW.PreparedAttackType = "Both"
 	M14SAW.AvailableAttacks = {"SingleShot", "CancelShot"}
-	M14SAW.Rat_swap_ap = 3
+	M14SAW.Rat_swap_ap = 30
 	M14SAW.RPM = 700
 	M14SAW.wep_base_recoil_mul = 87
 	M14SAW.weigth_held_mul = 137
@@ -4275,7 +4275,7 @@ function RatoGBO_WepPatch()
 	M14SAW_AUTO.PointBlankBonus = 1
 	M14SAW_AUTO.PreparedAttackType = "Overwatch"
 	M14SAW_AUTO.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
-	M14SAW_AUTO.Rat_swap_ap = 3
+	M14SAW_AUTO.Rat_swap_ap = 30
 	M14SAW_AUTO.RPM = 700
 	M14SAW_AUTO.burst_recoil_delta = 125
 	M14SAW_AUTO.long_recoil_delta = 125
@@ -4326,7 +4326,7 @@ function RatoGBO_WepPatch()
 	M16A2.PointBlankBonus = 1
 	M16A2.PreparedAttackType = "Overwatch"
 	M16A2.AvailableAttacks = {"BurstFire", "SingleShot", "CancelShot"}
-	M16A2.Rat_swap_ap = 3
+	M16A2.Rat_swap_ap = 30
 	M16A2.RPM = 800
 	M16A2.BurstSelective = true
 	M16A2.burst_recoil_delta = 90
@@ -4373,7 +4373,7 @@ function RatoGBO_WepPatch()
 	M24Sniper.PointBlankBonus = 1
 	M24Sniper.PreparedAttackType = "Both"
 	M24Sniper.AvailableAttacks = {"SingleShot", "CancelShot"}
-	M24Sniper.Rat_swap_ap = 3
+	M24Sniper.Rat_swap_ap = 30
 	M24Sniper.wep_base_recoil_mul = 91
 	M24Sniper.weigth_held_mul = 137
 	M24Sniper.wep_base_snapshot_mul = 119
@@ -4420,7 +4420,7 @@ function RatoGBO_WepPatch()
 	M41Shotgun.AvailableAttacks = {"Buckshot", "CancelShotCone", "SingleShot", "CancelShot"}
 	M41Shotgun.BuckshotConeAngle = 240
 	M41Shotgun.BuckshotFalloffDamage = 50
-	M41Shotgun.Rat_swap_ap = 3
+	M41Shotgun.Rat_swap_ap = 30
 	M41Shotgun.wep_base_recoil_mul = 104
 	M41Shotgun.weigth_held_mul = 127
 	M41Shotgun.wep_base_snapshot_mul = 97
@@ -4463,7 +4463,7 @@ function RatoGBO_WepPatch()
 	M4Commando.PointBlankBonus = 1
 	M4Commando.PreparedAttackType = "Overwatch"
 	M4Commando.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "RunAndGun", "CancelShot"}
-	M4Commando.Rat_swap_ap = 2
+	M4Commando.Rat_swap_ap = 20
 	M4Commando.RPM = 800
 	M4Commando.wep_base_recoil_mul = 116
 	M4Commando.weigth_held_mul = 117
@@ -4509,7 +4509,7 @@ function RatoGBO_WepPatch()
 	MG42.PointBlankBonus = 1
 	MG42.PreparedAttackType = "Machine Gun"
 	MG42.AvailableAttacks = {"MGBurstFire"}
-	MG42.Rat_swap_ap = 3
+	MG42.Rat_swap_ap = 30
 	MG42.RPM = 1200
 	MG42.AutoFireOnly = true
 	MG42.wep_base_recoil_mul = 82
@@ -4555,7 +4555,7 @@ function RatoGBO_WepPatch()
 	MG58.PointBlankBonus = 1
 	MG58.PreparedAttackType = "Machine Gun"
 	MG58.AvailableAttacks = {"MGBurstFire"}
-	MG58.Rat_swap_ap = 3
+	MG58.Rat_swap_ap = 30
 	MG58.long_shots = 7
 	MG58.RPM = 1500
 	MG58.AutoFireOnly = true
@@ -4598,7 +4598,7 @@ function RatoGBO_WepPatch()
 	MP40.PointBlankBonus = 1
 	MP40.PreparedAttackType = "Overwatch"
 	MP40.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "RunAndGun", "CancelShot"}
-	MP40.Rat_swap_ap = 2
+	MP40.Rat_swap_ap = 20
 	MP40.RPM = 500
 	MP40.AutoFireOnly = true
 	MP40.wep_base_recoil_mul = 95
@@ -4643,7 +4643,7 @@ function RatoGBO_WepPatch()
 	MP5.PointBlankBonus = 1
 	MP5.PreparedAttackType = "Overwatch"
 	MP5.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "RunAndGun", "CancelShot"}
-	MP5.Rat_swap_ap = 2
+	MP5.Rat_swap_ap = 20
 	MP5.RPM = 800
 	MP5.wep_base_recoil_mul = 109
 	MP5.weigth_held_mul = 120
@@ -4687,7 +4687,7 @@ function RatoGBO_WepPatch()
 	MP5K.PointBlankBonus = 1
 	MP5K.PreparedAttackType = "Overwatch"
 	MP5K.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "DualShot", "RunAndGun", "CancelShot"}
-	MP5K.Rat_swap_ap = 2
+	MP5K.Rat_swap_ap = 20
 	MP5K.RPM = 900
 	MP5K.wep_base_recoil_mul = 109
 	MP5K.weigth_held_mul = 114
@@ -4735,7 +4735,7 @@ function RatoGBO_WepPatch()
 	PSG1.PointBlankBonus = 1
 	PSG1.PreparedAttackType = "Both"
 	PSG1.AvailableAttacks = {"SingleShot", "CancelShot"}
-	PSG1.Rat_swap_ap = 3
+	PSG1.Rat_swap_ap = 30
 	PSG1.wep_base_recoil_mul = 87
 	PSG1.weigth_held_mul = 150
 	PSG1.wep_base_snapshot_mul = 128
@@ -4781,7 +4781,7 @@ function RatoGBO_WepPatch()
 	RPK74.PointBlankBonus = 1
 	RPK74.PreparedAttackType = "Machine Gun"
 	RPK74.AvailableAttacks = {"MGBurstFire"}
-	RPK74.Rat_swap_ap = 3
+	RPK74.Rat_swap_ap = 30
 	RPK74.RPM = 600
 	RPK74.wep_base_recoil_mul = 91
 	RPK74.weigth_held_mul = 140
@@ -4825,7 +4825,7 @@ function RatoGBO_WepPatch()
 	TexRevolver.PointBlankBonus = 1
 	TexRevolver.PreparedAttackType = "Overwatch"
 	TexRevolver.AvailableAttacks = {"SingleShot", "DualShot", "CancelShot", "MobileShot"}
-	TexRevolver.Rat_swap_ap = 1
+	TexRevolver.Rat_swap_ap = 10
 	TexRevolver.wep_base_recoil_mul = 107
 	TexRevolver.weigth_held_mul = 100
 	TexRevolver.wep_base_snapshot_mul = 73
@@ -4868,7 +4868,7 @@ function RatoGBO_WepPatch()
 	UZI.PointBlankBonus = 1
 	UZI.PreparedAttackType = "Overwatch"
 	UZI.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "DualShot", "RunAndGun", "CancelShot"}
-	UZI.Rat_swap_ap = 1
+	UZI.Rat_swap_ap = 10
 	UZI.RPM = 600
 	UZI.wep_base_recoil_mul = 110
 	UZI.weigth_held_mul = 119
@@ -4913,7 +4913,7 @@ function RatoGBO_WepPatch()
 	Winchester_Quest.PointBlankBonus = 1
 	Winchester_Quest.PreparedAttackType = "Both"
 	Winchester_Quest.AvailableAttacks = {"SingleShot", "CancelShot", "MobileShot"}
-	Winchester_Quest.Rat_swap_ap = 3
+	Winchester_Quest.Rat_swap_ap = 30
 	Winchester_Quest.wep_base_recoil_mul = 97
 	Winchester_Quest.weigth_held_mul = 100
 	Winchester_Quest.wep_base_snapshot_mul = 100
@@ -4952,7 +4952,7 @@ function RatoGBO_WepPatch()
 	Winchester1894.PointBlankBonus = 1
 	Winchester1894.PreparedAttackType = "Both"
 	Winchester1894.AvailableAttacks = {"SingleShot", "CancelShot", "MobileShot"}
-	Winchester1894.Rat_swap_ap = 3
+	Winchester1894.Rat_swap_ap = 30
 	Winchester1894.wep_base_recoil_mul = 97
 	Winchester1894.weigth_held_mul = 121
 	Winchester1894.wep_base_snapshot_mul = 107

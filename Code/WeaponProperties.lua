@@ -6,23 +6,23 @@ function OnMsg.ClassesGenerate()
                 -- category = "Caliber",
                 id = "SingleShotCustomDeltaAP",
                 name = "SingleShotCustomDelta AP",
-                help = "(not in scale)",
+                help = "In displayed AP (10 = 1 vanilla AP)",
                 editor = "number",
                 default = 0,
                 template = true,
-                min = -50,
-                max = 50,
+                min = -500,
+                max = 500,
                 modifiable = true
             }, {
                 -- category = "Caliber",
                 id = "AutoFireCustomDeltaAP",
                 name = "AutoFireCustomDelta AP",
-                help = "(not in scale)",
+                help = "In displayed AP (10 = 1 vanilla AP)",
                 editor = "number",
                 default = 0,
                 template = true,
-                min = -50,
-                max = 50,
+                min = -500,
+                max = 500,
                 modifiable = true
             }, {
 				category = "GBO",
@@ -87,7 +87,7 @@ function OnMsg.ClassesGenerate()
     }
 
 
-    SubmachineGun.SingleShotCustomDeltaAP = 1
+    SubmachineGun.SingleShotCustomDeltaAP = 10
 
 end
 
@@ -548,12 +548,12 @@ function fireprop()
         -- category = "Caliber",
         id = "Rat_swap_ap",
         name = "Swap AP",
-        help = "Swap AP (not in scale)",
+        help = "Swap AP, in displayed AP (10 = 1 vanilla AP)",
         editor = "number",
-        default = 2,
+        default = 20,
         template = true,
         min = 0,
-        max = 50,
+        max = 500,
         modifiable = true
     }
 

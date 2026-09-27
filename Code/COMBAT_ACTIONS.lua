@@ -98,6 +98,7 @@ function rat_combat_actions()
             return 0
         end
 
+        -- displayed AP; Rat_swap_ap is authored in it
         local ap = 0
 
         local free_swap = true
@@ -110,7 +111,7 @@ function rat_combat_actions()
                 local ap_add = weapon.Rat_swap_ap
 
                 if weapon:HasComponent("FreeWeaponSwap") then
-                    ap_add = Max(0, ap_add - 2)
+                    ap_add = Max(0, ap_add - 20)
                 end
 
                 if not IsKindOfClasses(weapon, "Pistol", "Revolver") or weapon.pistol_swap then
@@ -128,7 +129,7 @@ function rat_combat_actions()
                 ap = ap + ap_add
             elseif IsKindOfClasses(weapon, "MeeleWeapons") then
                 if weapon.LargeItem > 0 then
-                    ap = ap + 1
+                    ap = ap + 10
                 end
             end
         end
@@ -136,13 +137,13 @@ function rat_combat_actions()
         -- print("ap", ap)
 
         if free_swap then
-            if ap < 2 then
+            if ap < 20 then
 
                 return 0
             end
         end
 
-        return R_VanillaAP(ap)
+        return ap * const.Scale.AP
 
         -------------------------
 
