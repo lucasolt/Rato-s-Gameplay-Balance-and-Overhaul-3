@@ -250,6 +250,15 @@ RAT_ATT_ITEMS = {
         comps = {"PSG_DefaultScope", "RAT_TOG_PSGScope", "RAT_TOG_PSGScope_rpk_mount"}
     },
     {
+        id = "RAT_Att_ITLMARS1x",
+        name = "ITL MARS 1x",
+        icon = "Mod/KKh3Yhf/Images/TAR21_Scope_icon.png",
+        size = "medium",
+        cost = 3500,
+        tier = 2,
+        comps = {"TAR21_Scope_Rflx_1"}
+    },
+    {
         id = "RAT_Att_PSO1M21Scope4x",
         name = "PSO-1M2-1 Scope 4x",
         icon = "Mod/KKh3Yhf/Images/VSS_Scope_icon.png",
@@ -301,7 +310,8 @@ RAT_ATT_ITEMS = {
         size = "medium",
         cost = 3500,
         tier = 2,
-        comps = {"MP7_Scope_1", "TAR21_Scope_Rflx_1"}
+        reserved = true,
+        comps = {"MP7_Scope_1"}
     },
     {
         id = "RAT_Att_SniperScope4x",

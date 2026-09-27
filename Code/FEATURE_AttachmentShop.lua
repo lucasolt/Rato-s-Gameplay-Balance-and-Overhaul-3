@@ -20,7 +20,8 @@ RAT_ATT_SHOP_SIGHTS = {
     RAT_Att_AssaltoReflexSight1x = true,
     RAT_Att_AssaltoReflexSight1xPistol = true,
     RAT_Att_VigilanteReflexSight1x = true,
-    RAT_Att_ReflexSight = true
+    RAT_Att_ReflexSight = true,
+    RAT_Att_ITLMARS1x = true
 }
 
 ---- Muzzle devices and the underbarrel gear (bipod, grenade launchers) get their own pages; everything
