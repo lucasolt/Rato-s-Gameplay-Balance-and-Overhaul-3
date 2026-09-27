@@ -161,19 +161,47 @@ local function HintBar(id, v, ref)
     return s
 end
 
----- penetration lives on the ammo; an unloaded gun shows its caliber's Basic ammo rating
-function Rat_DisplayPenetrationClass(weapon)
-    local pen = weapon.PenetrationClass
+---- term = {label, value, suffix, bar =, bar_v =, bar_ref =, base =}; base is the grey reference
+local function HintLine(term)
+    local bar_ref = term.bar_ref or (type(term.base) == "number" and term.base)
+    return HintBar(term.bar, term.bar_v or term[2], bar_ref) .. "  " ..
+               "<color PDABrowserFlavorMedium>" .. term[1] .. "</color>" ..
+               "<color PDABrowserTextHighlight>" .. term[2] .. "</color>" .. term[3] ..
+               ((term.base and term.base ~= term[2]) and ("<color PDABrowserFlavor> (" .. term.base .. term[3] .. ")</color>") or "") ..
+               "\n"
+end
+
+---- caliber stats live on the ammo; an unloaded gun shows its caliber's Basic ammo values
+function Rat_BasicAmmoProp(weapon, prop)
+    local value = weapon[prop]
     if not IsKindOf(weapon, "Firearm") or weapon.ammo then
-        return pen
+        return value
     end
     local ammo = Rat_BasicAmmoClass(weapon)
     for _, mod in ipairs(ammo and ammo.Modifications or empty_table) do
-        if mod.target_prop == "PenetrationClass" then
-            pen = MulDivRound(pen, mod.mod_mul, 1000) + mod.mod_add
+        if mod.target_prop == prop then
+            value = MulDivRound(value, mod.mod_mul, 1000) + mod.mod_add
         end
     end
-    return Clamp(pen, 1, #PenetrationClassIds)
+    return value
+end
+
+function Rat_DisplayPenetrationClass(weapon)
+    return Clamp(Rat_BasicAmmoProp(weapon, "PenetrationClass"), 1, #PenetrationClassIds)
+end
+
+---- caliber-only stats, shown in the rollover's ammo panel instead of the weapon hints
+function Rat_GetCaliberHints(weapon)
+    if not IsKindOf(weapon, "Firearm") then
+        return ""
+    end
+    local s = HintLine{TranslationTable[684546854913] or "Base critical chance: ",
+                       Rat_BasicAmmoProp(weapon, "CritChance"), "%", bar = "Crit"} ..
+                  HintLine{TranslationTable[247182652462] or "Extra critical damage: ",
+                           Rat_BasicAmmoProp(weapon, "CritDamage"), "%", bar = "CritDamage"} ..
+                  HintLine{TranslationTable[158466723759] or "Recommended Strength: ",
+                           Recoil_StrBreakpoint(weapon), TranslationTable[785975283217] or " STR"}
+    return T{"<style CrosshairAPTotal>" .. s:sub(1, -2) .. "</style>"}
 end
 
 local function SetTemplateFunc(node, name, func)
@@ -197,6 +225,28 @@ function Rat_PatchWeaponRollover()
             local obj = ResolvePropObj(self.context)
             return GetPenetrationClassUIText(IsKindOf(obj, "Firearm") and Rat_DisplayPenetrationClass(obj) or value)
         end)
+    end
+    ---- first "ammo" block is the gun's own caliber row; the second is the subweapon's
+    path = FindXtByProp(XTemplates.RolloverInventoryWeaponBase, "comment", "ammo")
+    if path and not FindXtByProp(path[1], "Id", "idRatCaliberHints") then
+        table.insert(path[1], PlaceObj("XTemplateWindow", {
+            "__class", "XText",
+            "Id", "idRatCaliberHints",
+            "Margins", box(0, 4, 0, 0),
+            "HandleMouse", false,
+            "TextStyle", "InventoryRolloverHint",
+            "Translate", true,
+            "HideOnEmpty", true,
+            "FoldWhenHidden", true,
+        }, {
+            PlaceObj("XTemplateFunc", {
+                "name", "Open(self)",
+                "func", function(self)
+                    XText.Open(self)
+                    self:SetText(Rat_GetCaliberHints(ResolvePropObj(self.context)))
+                end,
+            }),
+        }))
     end
     path = FindXtByProp(XTemplates.ModifyWeaponDlg, "Id", "idValue")
     if path then
@@ -249,23 +299,11 @@ function GBO_GetDescriptionHints(self)
 	        bar = "Noise",
 	    },
 	    {
-	        id = "BaseCriticalChance",
-	        TranslationTable[684546854913] or "Base critical chance: ",
-	        self.CritChance, "%",
-	        bar = "Crit",
-	    },
-	    {
 	        id = "CriticalPerAim",
 	        TranslationTable[318826540117] or "Critical chance per aim: ",
 	        HintHundredths(crit_per_aim), "%",
 	        base = owner and HintHundredths(HintCritPerAim(self, HintReference)),
 	        bar = "CritPerAim", bar_v = crit_per_aim, bar_ref = owner and HintCritPerAim(self, HintReference),
-	    },
-	    {
-	        id = "ExtraCriticalDamage",
-	        TranslationTable[247182652462] or "Extra critical damage: ",
-	        self.CritDamage, "%",
-	        bar = "CritDamage",
 	    },
 		{
 			id = "AimAccuracy",
@@ -307,12 +345,6 @@ function GBO_GetDescriptionHints(self)
 	        base = owner and HintHundredths(HintRecoil(self, HintReference)),
 	        bar = "Recoil", bar_v = recoil, bar_ref = owner and HintRecoil(self, HintReference),
 	    },
-	    {
-	        id = "RecommendedStrength",
-	        TranslationTable[158466723759] or "Recommended Strength: ",
-	        Recoil_StrBreakpoint(self),
-	        TranslationTable[785975283217] or " STR"
-	    }
 	}
 
 	local shotty_terms = {
@@ -372,15 +404,7 @@ function GBO_GetDescriptionHints(self)
 
 	for _, term in ipairs(termList) do
 		if not angularCTHActive or not AngularCthActiveExclusionList[term.id] then
-			local bar_ref = term.bar_ref or (type(term.base) == "number" and term.base)
-	    	formattedString = formattedString ..
-	    	    HintBar(term.bar, term.bar_v or term[2], bar_ref) .. "  " ..
-	    	    "<color PDABrowserFlavorMedium>" .. term[1] ..
-	    	    "</color>" ..
-	    	    "<color PDABrowserTextHighlight>" .. term[2] ..
-	    	    "</color>" .. term[3] ..
-	    	    ((term.base and term.base ~= term[2]) and ("<color PDABrowserFlavor> (" .. term.base .. term[3] .. ")</color>") or "") ..
-	    	    "\n"
+	    	formattedString = formattedString .. HintLine(term)
 		end
 	end
 
