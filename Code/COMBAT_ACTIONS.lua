@@ -896,7 +896,7 @@ function rat_combat_actions()
     end
 
     CombatActions.RunAndGun.GetAPCost = function(self, unit, args)
-        local cost, cost_aimed = rat_MobileAction_AP(self, unit)
+        local cost, cost_aimed = rat_MobileAction_AP(self, unit, args)
 
         -- if unit:UIHasAP(cost_aimed, self.id) then
         return cost_aimed, true
@@ -1031,7 +1031,7 @@ function rat_combat_actions()
         -- local ap_extra = mobile_stance_ap(unit, weapon)
         -- local cost_aimed = cost + ap_extra
 
-        local cost, cost_aimed = rat_MobileAction_AP(self, unit)
+        local cost, cost_aimed = rat_MobileAction_AP(self, unit, args)
 
         -- if unit:UIHasAP(cost_aimed, self.id) then
         return cost_aimed, true
@@ -1192,7 +1192,7 @@ function rat_combat_actions()
 
     CombatActions.RecklessAssault.GetAPCost = function(self, unit, args)
 
-        local cost, cost_aimed = rat_MobileAction_AP(self, unit)
+        local cost, cost_aimed = rat_MobileAction_AP(self, unit, args)
         if unit:UIHasAP(cost_aimed, self.id) then
 
             return cost_aimed, true

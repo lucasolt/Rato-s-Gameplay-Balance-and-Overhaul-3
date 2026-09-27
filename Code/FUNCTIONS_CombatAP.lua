@@ -201,13 +201,17 @@ function GetHipfire_StanceAP(unit, weapon) ---- not used
     return 0 -- ap_hipfire * const.Scale.AP
 end
 ---------------------------------------------------------------------------------------------------
-function rat_MobileAction_AP(action, unit)
+function rat_MobileAction_AP(action, unit, args)
 
     if not unit or not action then
         return 0, 0
     end
 
-    local weapon = action:GetAttackWeapons(unit)
+    ---- args.weapon: the inventory rollover prices a weapon that is not the active one
+    local weapon = action:GetAttackWeapons(unit, args)
+    if not weapon then
+        return -1, -1
+    end
     local att_cost = unit:GetAttackAPCost(action, weapon, nil, 0) -- CombatActions.BurstFire.GetAPCost(self, unit, args)
     local ap_delta = rat_getDeltaAP(action, weapon)
     local cost = att_cost + ap_delta
