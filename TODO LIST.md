@@ -38,6 +38,16 @@ CheatAddItem("itemid")
 - Option for rebalanced weapon shipment loot
 - Fixed some bugs in weapon shipment conditions and cooldown
 
+-- Attachments --
+
+Scopes, sights, side attachments, muzzle attachments, bipods, GL now are inventory items that will be sold by Bobby's Ray. You can attach and dettach them from weapons. Compatibility is variable.
+
+-- New Mechanic: Autofire with variable bullet count --
+
+When you use autofire, you will be able to choose the ammount of bullets you want to fire. Burst Fire action has been removed and kept only on weapons with selective fire. 
+Weapons now have RPM stat, that influences how much AP each additional shot cost.
+Muzzle booster now increases RPM slightly. Suppressors also increase RPM and no longer have the bonus dmg against flanked units. AKSU will have a reliability decrease if using a compensator (because it has no backpressure of the booster or suppressor)
+
 -- new CTH mode: aCTH --
 
 This was created because I felt that accuracy was too high on long ranges, and just shooting first was what determined a fight result. I want it to feel more like a firefight, prolonged, suppression based (please use the Pinned Down mod).
@@ -84,6 +94,9 @@ HWT should not decrease MG burst attack, i think
 - [ ] Fix MG description hints not showing ROF
 - [X] Recoil booster
 - [X] MG 58 RPM should be adjusted
+- [ ] Investigate Burst fire AP or RPM
+- [ ] Solve the AKSU reliability dilemma
+- [ ] Selective burst should have better crit scaling in general?
 
 ## Housekeeping
 - [X] Implement unified Component handling, with ancestor/CTH mode

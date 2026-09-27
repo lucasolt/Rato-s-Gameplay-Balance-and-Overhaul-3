@@ -18,7 +18,7 @@ function rat_apply_inherit(rules)
             "RAT_VSK_Suppressor", "RAT_TOG_suppressor_762", "RAT_TOG_suppressor_wp",
             "SteyrS_Muzzle_def_1", "VSK94_barrel_def_1"
         },
-        Compensator = {"RAT_TOG_compensator", "LionRoar_compensator"},
+        Compensator = {"RAT_TOG_compensator", "LionRoar_compensator", "Compensator_ReducedReliability"},
         LaserDot = {"RAT_TOG_laser_dot", "TAR21_Scope_Rflx_1"},
         UVDot = {"RAT_TOG_uv_dot"},
         -- HE_Grenade = {"HE_Grenade_1"},
@@ -30,7 +30,8 @@ function rat_apply_inherit(rules)
             "VigM2_Barrel_def_1", "PP91_Barrel_def_1", "RAT_TOG_compensator",
             "RAT_TOG_CompensatorNoEntity"
         },
-		MuzzleBooster = {"MuzzleBooster_Reliability"}
+		MuzzleBooster = {"MuzzleBooster_Reliability"},
+
     }
 
     -- Iterate over the data table to populate the rules
