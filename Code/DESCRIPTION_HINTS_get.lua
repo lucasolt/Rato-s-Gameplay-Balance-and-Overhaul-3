@@ -15,27 +15,17 @@ function GBO_GetDescriptionHints(self)
         return string.format("%.2f", recoil)
     end
 
-    local function GetHipfire_mul(self) -- ok
-        local weapon = self
+    local angularCTHActive = IsACHTActive()
+    ---- only the classic CTH scales hipfire/snapshot/PB by the merc; aCTH reads no stat there
+    local classic_owner = not angularCTHActive and owner
 
-        local attacker = false
-        local action = false
-        local aim = 0
-        local display = true
-        local hip = GetWeaponHipfireOrSnapshotMul(weapon, attacker, action, display, aim)
-        return string.format("%.2f", hip)
-    end
-
-    local function GetSnapshot_mul(self) ---ok
-
-        local weapon = self
-
-        local attacker = false
-        local action = false
-        local aim = 1
-        local display = true
-        local hip = GetWeaponHipfireOrSnapshotMul(weapon, attacker, action, display, aim)
-        return string.format("%.2f", hip)
+    ---- aim 0 = hipfire, 1 = snapshot; Reflexes factor mirrors CTH_hipfire_and_snapshot.lua
+    local function GetHipSnap_mul(self, aim, unit)
+        local mul = GetWeaponHipfireOrSnapshotMul(self, false, false, true, aim)
+        if unit then
+            mul = mul * (1.35 - 0.70 * rGetReflex(unit) / 100)
+        end
+        return string.format("%.2f", mul)
     end
 
     local function Getangle_display(self)
@@ -44,13 +34,18 @@ function GBO_GetDescriptionHints(self)
         return string.format("%.2f", angle)
     end
 
-    local function GetPBbonus_display(self)
-        -- return 0
-
-        local weapon = self
-        local value = GetPBbonus(weapon)
-
-        return value
+    ---- Hand-Eye scaling mirrors CTH_pointblank.lua; a negative bonus scales inversely there
+    local function GetPBbonus_display(self, unit)
+        local pb = GetPBbonus(self)
+        if not unit then
+            return pb
+        end
+        local min, max = const.Combat.R_MinAimScaling, const.Combat.R_MaxAimScaling
+        local scale = Clamp(min + MulDivRound(max - min, rGetHandEyeCoordination(unit) - 10, 90), min, max)
+        if pb < 0 then
+            scale = 150 - scale
+        end
+        return MulDivRound(pb, scale, 100)
     end
 
     local function GetSTR_RECOIL(self)
@@ -88,7 +83,6 @@ function GBO_GetDescriptionHints(self)
         return string.format("%s%d.%02d", sign, per_aim / 100, per_aim % 100)
     end
 
-    local angularCTHActive = IsACHTActive()
 	local termList = {
 	    {
 	        id = "ShootingStanceCost",
@@ -137,18 +131,21 @@ function GBO_GetDescriptionHints(self)
 	        angularCTHActive and (TranslationTable[184329577856] or "Handling Penalty Multiplier: ") or (TranslationTable[651371401489] or "Point Blank Range Accuracy: "),
 			---- em aCTH o manejo e multiplicador de cone: mesma leitura de hipfire/snapshot/recoil, MENOR = melhor
 	        angularCTHActive and string.format("%.2f", Rat_ApertureHandlingMul(self) / 100.0)
-				or (GetPBbonus_display(self) or 0),
-			angularCTHActive and "X" or "%"
+				or GetPBbonus_display(self, classic_owner),
+			angularCTHActive and "X" or "%",
+	        base = classic_owner and GetPBbonus_display(self),
 	    },
 	    {
 	        id = "HipfirePenaltyMultiplier",
 	        TranslationTable[852084205321] or "Hipfire Penalty Multiplier: ",
-	        GetHipfire_mul(self) or 0, "X"
+	        GetHipSnap_mul(self, 0, classic_owner), "X",
+	        base = classic_owner and GetHipSnap_mul(self, 0),
 	    },
 	    {
 	        id = "SnapshotPenaltyMultiplier",
 	        TranslationTable[258395588915] or "Snapshot Penalty Multiplier: ",
-	        GetSnapshot_mul(self) or 0, "X"
+	        GetHipSnap_mul(self, 1, classic_owner), "X",
+	        base = classic_owner and GetHipSnap_mul(self, 1),
 	    },
 	    {
 	        id = "RecoilPenaltyMultiplier",
