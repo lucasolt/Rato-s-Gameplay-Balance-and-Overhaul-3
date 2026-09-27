@@ -83,6 +83,13 @@ local function GetHintBarRanges()
             return
         end
         local w = PlaceInventoryItem(preset.id)
+        ---- loaded, since caliber noise (CaliberApplyParams) lives on the ammo, not the gun
+        local ammos = w.Caliber and GetAmmosWithCaliber(w.Caliber) or empty_table
+        local ammo_def = table.find_value(ammos, "id", "_" .. w.Caliber .. "_Basic") or ammos[1]
+        ---- same modifiers Firearm:Reload adds, without spawning ammo items
+        for _, mod in ipairs(ammo_def and g_Classes[ammo_def.id].Modifications or empty_table) do
+            w:AddModifier("ammo", mod.target_prop, mod.mod_mul, mod.mod_add)
+        end
         for id, row in pairs(HintBarRows) do
             if not row.applies or row.applies(w) then
                 local ok, v = pcall(row.value, w)
@@ -117,7 +124,7 @@ local function HintBarFrac(id, v)
 end
 
 ---- bar built from 4px-unit tiles: <image> cannot clip, and 1px tiles truncate to 0 width at ImageScale 500
-local HintBarSeg, HintBarSegs, HintBarDiv = 12, 4, 1
+local HintBarSeg, HintBarSegs, HintBarDiv = 10, 4, 1
 local HintBarUnits = HintBarSeg * HintBarSegs + HintBarDiv * (HintBarSegs - 1)
 local HintBarImg = "Mod/cfahRED/Images/StatBar/"
 local HintBarColors = {fill = "206 200 178", ref = "110 106 92", empty = "52 57 68", gap = "12 12 12"}
@@ -153,6 +160,14 @@ local function HintBar(id, v, ref)
         end
     end
     return s
+end
+
+---- vanilla caps the weapon rollover at 370, which wraps every barred hint line
+function Rat_WidenWeaponRollover()
+    local path = FindXtByProp(XTemplates.RolloverInventoryWeaponBase, "Id", "idContent")
+    if path then
+        path[1].MaxWidth = 470
+    end
 end
 
 function GBO_GetDescriptionHints(self)

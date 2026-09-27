@@ -36,6 +36,7 @@ function rat_apply_changes()
     place_scope_pen_cth()
     place_hipfire_cth()
     recoil_template()
+    Rat_WidenWeaponRollover()
 
     place_angular_cth()
     ---- o circulo de mira do crosshair passa a mostrar a abertura real
