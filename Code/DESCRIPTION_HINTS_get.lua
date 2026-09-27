@@ -293,6 +293,6 @@ local t_id_table = {
 
 ratG_T_table[file_str] = ratG_T_table[file_str] or {}
 
-for _, v in ipairs(t_id_table) do
-    table.insert(ratG_T_table[file_str], v)
+for id, text in pairs(t_id_table) do
+    ratG_T_table[file_str][id] = text
 end
