@@ -509,6 +509,26 @@ end
 ---------------------------------------------------------------------------------------------------
 
 
+local StrengthHipfireActions = {BuckshotBurst = true, MGBurstFire = true, GrizzlyPerk = true,
+                                AutoFire = true}
+
+---- % applied to the hipfire/snapshot excess by the attacker's attribute; stat pick mirrors classic.
+function Rat_StepAttrMul(attacker, action, aim, opportunity_attack)
+    local a = P()
+    local impact = a.StepAttrImpact or 0
+    if impact == 0 or not attacker or attacker.placeholder then
+        return 100
+    end
+    local stat, key = rGetReflex(attacker), "Reflexes"
+    if not opportunity_attack and aim < 1 and action then
+        local str = attacker.Strength or 0
+        if StrengthHipfireActions[action.id] or (action.id == "BurstFire" and str > stat) then
+            stat, key = str, "Strength"
+        end
+    end
+    return Max(0, 100 - MulDivRound(impact, stat - (a.StepAttrPivot or 50), 50)), key
+end
+
 ---- Retorna sigma e a lista de contribuicoes (para a UI mostrar em minutos de cone,
 ---- no lugar da lista aditiva de pontos percentuais que o modelo antigo exibia).
 function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
@@ -587,7 +607,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
 
     --- 5. degrau de "arma no ombro" (hipfire/snapshot). GetWeaponHipfireOrSnapshotMul
     ---    escala so o EXCESSO do alargamento, nunca o cone inteiro. Ver AimStep em __ApertureParams.lua.
-    local hipsnap, step = 100, 100
+    local hipsnap, step, step_meta = 100, 100, nil
     if aim <= a.AimStepMaxLevel then
         if weapon and GetWeaponHipfireOrSnapshotMul then
             local m = GetWeaponHipfireOrSnapshotMul(weapon, attacker, action, true, aim)
@@ -599,6 +619,14 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
             ---- `hipsnap` ja traz wep_base_hip_mul / wep_base_snapshot_mul da arma; nao ha
             ---- segundo multiplicador de manejo aqui de proposito.
             excess = MulDivRound(excess, hipsnap, 100)
+            local attr_mul, attr_key = Rat_StepAttrMul(attacker, action, aim, opportunity_attack)
+            if attr_mul ~= 100 then
+                excess = MulDivRound(excess, attr_mul, 100)
+                local lbl = (a.StepAttrMeta or empty_table)[attr_key]
+                if lbl then
+                    step_meta = {T {lbl.id, lbl.text, pct = Rat_ConeMulTag(attr_mul)}}
+                end
+            end
             local cqc = attacker and not attacker.placeholder and (a.CQCStepReduc or 0) > 0 and
                             attacker:GetStatusEffect("CQCTraining")
             if cqc then
@@ -616,6 +644,9 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
             end
             if cqc then
                 meta[#meta + 1] = cqc.DisplayName
+            end
+            if step_meta then
+                meta[#meta + 1] = step_meta[1]
             end
 
         end
@@ -658,6 +689,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
         decay = decay,
         decay_ladder = ladder,
         step = step,
+        step_meta = step_meta,
         floor = floor,
         aim_meta = aim_meta
     }

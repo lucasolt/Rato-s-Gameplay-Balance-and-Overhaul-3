@@ -120,6 +120,15 @@ A.AimStep = {
 A.AimStepMaxLevel = 2 --- acima disso a arma esta encostada: alargamento 100
 ---- CQC Training: % of the hipfire/snapshot excess removed. Calibrated against AutoWeapons.
 A.CQCStepReduc = 30
+---- Attribute on the step excess, like classic: excess x (100 - Impact*(stat - Pivot)/50). 0 disables.
+---- Impact 35 / Pivot 50 = classic's x1.35 at stat 0, x0.65 at 100. Stat is Reflexes, or Strength
+---- for hipfired autofire-type attacks (see Rat_StepAttrMul).
+A.StepAttrImpact = 35
+A.StepAttrPivot = 50
+A.StepAttrMeta = {
+    Reflexes = {id = 742063918825, text = "Reflexes <pct>"},
+    Strength = {id = 380571264917, text = "Strength <pct>"}
+}
 
 ---- Rotulo do degrau, por nivel de mira. `<pct>` recebe o alargamento que o degrau aplicou. Nivel
 ---- sem entrada cai no [1]; a lista e o que decide o nome, nao um if aim == 0 dentro da funcao.
@@ -467,7 +476,9 @@ local t_id_table = {
     [274905618332] = "(-) Crouching",
     [599531270289] = "(-) Low Strength",
     [617384902551] = "(-) Camouflaged",
-	[195731482566] = "(-) Not prone"
+	[195731482566] = "(-) Not prone",
+    [742063918825] = "Reflexes <pct>",
+    [380571264917] = "Strength <pct>"
 }
 
 ratG_T_table['__ApertureCTHParams.lua'] = t_id_table

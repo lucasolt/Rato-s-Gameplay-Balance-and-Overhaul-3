@@ -322,7 +322,7 @@ function Rat_ConeFactors(data)
     if parts.step and parts.step ~= 100 then
         out[#out + 1] = {name = (aim == 0) and T(592038471265, "Hipfire") or
                              T(837465019283, "Snapshot"),
-                         tag = Rat_ConeMulTag(parts.step)}
+                         tag = Rat_ConeMulTag(parts.step), sub = parts.step_meta}
     end
 
     ---- o cano herdado nao alarga o cone, desloca o centro -- mas a coluna aqui e toda em % de
