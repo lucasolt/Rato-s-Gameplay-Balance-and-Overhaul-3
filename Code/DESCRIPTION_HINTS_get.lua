@@ -217,11 +217,30 @@ local function SetTemplateFunc(node, name, func)
     end
 end
 
+local WeaponRolloverWidth = 470
+
+---- the shop grid's PEN column reads the empty gun too
+local BobbyRayStoreGetStats_Firearm_vanilla = BobbyRayStoreGetStats_Firearm
+function BobbyRayStoreGetStats_Firearm(item)
+    local stats = BobbyRayStoreGetStats_Firearm_vanilla(item)
+    for _, stat in ipairs(stats) do
+        if TGetID(stat[1]) == 842354777573 then
+            stat[2] = GetPenetrationClassUIText(Rat_DisplayPenetrationClass(item))
+        end
+    end
+    return stats
+end
+
 function Rat_PatchWeaponRollover()
     ---- vanilla caps the weapon rollover at 370, which wraps every barred hint line
     local path = FindXtByProp(XTemplates.RolloverInventoryWeaponBase, "Id", "idContent")
     if path then
-        path[1].MaxWidth = 470
+        path[1].MaxWidth = WeaponRolloverWidth
+    end
+    ---- Bobby Ray wraps the same rollover in its own 350 cap
+    path = FindXtByProp(XTemplates.RolloverInventoryBobbyRay, "__template", "RolloverInventoryWeapon")
+    if path then
+        path[1].MaxWidth = WeaponRolloverWidth
     end
     path = FindXtByProp(XTemplates.RolloverInventoryWeaponBase, "comment", "penetration")
     if path then
