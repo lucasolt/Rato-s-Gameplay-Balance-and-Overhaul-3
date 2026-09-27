@@ -33,12 +33,12 @@ const.Calibers = {
     Match = {
         CostMul = 250,
         AdditionalHint = T({
-            "<bullet_point> Increased bonus from Aiming\n<bullet_point> Increased range\n<bullet_point> Increased Critical Chance scaling"
+            "<bullet_point> Increased bonus from Aiming\n<bullet_point> Increased range\n<bullet_point> Increased Critical Chance per aim"
         }),
         Modifications = {
             AimAccuracy = 2,
             WeaponRange = 2,
-            CritChanceScaled = 10
+            CritPerAim = 100
         }
     },
 

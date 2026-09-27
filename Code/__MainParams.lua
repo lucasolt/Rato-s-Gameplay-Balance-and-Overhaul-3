@@ -81,10 +81,6 @@ const.Combat.Perks.SaviorAdrenalineRushBonusAP = R_VanillaAPToDisplay(2)
 
 ----- Critical
 const.Combat.Critical = {}
----- per-aim values are hundredths of %, added to CritPerAim and scaled by Hand-Eye
-const.Combat.Critical.PrismScopeCritPerAim = 300
-const.Combat.Critical.LaserDotCritPerAim = 200
-const.Combat.Critical.ScaledToPerAim = 10 -- CritChanceScaled modifiers (components, Match ammo) x this -> CritPerAim
 const.Combat.Critical.PSOScopeCritOnAimed = 10
 const.Combat.Critical.FirstAimCrit = 6
 -------------

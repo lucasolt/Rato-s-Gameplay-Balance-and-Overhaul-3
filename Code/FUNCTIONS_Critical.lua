@@ -1,4 +1,4 @@
----- merc level no longer scales crit; CritChanceScaled only reaches CritPerAim through its modifiers
+---- merc level no longer scales crit; per-aim crit lives in CritPerAim
 function UnitProperties:GetBaseCrit(weapon)
     return weapon.CritChance
 end
@@ -7,17 +7,9 @@ function UnitProperties:Getbase_BaseCrit(weapon)
     return weapon.base_CritChance
 end
 
----- hundredths of % per aim level at Hand-Eye 100
+---- hundredths of % per aim level at Hand-Eye 100; components and ammo modify CritPerAim itself
 function Rat_WeaponCritPerAim(weapon, action_id)
     local per_aim = weapon.CritPerAim
-    if weapon:HasComponent("critical_per_aim_scope") then
-        per_aim = per_aim + const.Combat.Critical.PrismScopeCritPerAim
-    end
-    if weapon:HasComponent("critical_per_aim_laser") then
-        per_aim = per_aim + const.Combat.Critical.LaserDotCritPerAim
-    end
-    local scaled_mod = weapon.CritChanceScaled - weapon.base_CritChanceScaled
-    per_aim = per_aim + scaled_mod * const.Combat.Critical.ScaledToPerAim
     if action_id == "PinDown" then
         per_aim = per_aim + const.Combat.PindownCritPerAimLevel
     end

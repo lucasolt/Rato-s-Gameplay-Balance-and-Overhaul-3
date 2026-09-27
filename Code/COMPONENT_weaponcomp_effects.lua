@@ -310,8 +310,49 @@ function weapon_components_rat()
     })
 
     PlaceObj('WeaponComponentEffect', {
-        Description = T(687659582586,
+        Description = T(318826540120,
+                        "Increases critical chance per aim level"),
+        Parameters = {
+            PlaceObj(
+                'PresetParamNumber', {
+                    'Name',
+                    "CritPerAimIncrease",
+                    'Tag',
+                    "<CritPerAimIncrease>"
+                })
+        },
+        RequiredParams = {
+            "CritPerAimIncrease"
+        },
+        StatToModify = "CritPerAim",
+        group = "Stats",
+        id = "IncreaseCritPerAim"
+    })
+
+    PlaceObj('WeaponComponentEffect', {
+        Description = T(318826540121,
                         "Decreases critical chance per aim level"),
+        ModificationType = "Subtract",
+        Parameters = {
+            PlaceObj(
+                'PresetParamNumber', {
+                    'Name',
+                    "CritPerAimDecrease",
+                    'Tag',
+                    "<CritPerAimDecrease>"
+                })
+        },
+        RequiredParams = {
+            "CritPerAimDecrease"
+        },
+        StatToModify = "CritPerAim",
+        group = "Stats",
+        id = "DecreaseCritPerAim"
+    })
+
+    PlaceObj('WeaponComponentEffect', {
+        Description = T(687659582586,
+                        "Decreases critical chance bonus that scales per merc level"),
         ModificationType = "Subtract",
         Parameters = {
             PlaceObj(
@@ -1310,14 +1351,11 @@ function weapon_components_rat()
             }
         end
     end
-
-    ---- CritChanceScaled modifiers now feed CritPerAim (Rat_WeaponCritPerAim)
-    WeaponComponentEffects.IncreaseCritChangeScaled.Description =
-        T(318826540120, "Increases critical chance per aim level")
 end
 
 local t_table = {
     [318826540120] = 'Increases critical chance per aim level',
+    [318826540121] = 'Decreases critical chance per aim level',
     [183998509789] = 'Grants bonus Critical Chance per aim level',
     [954592406374] = 'Reduce AP necessary to swap to this weapon',
     [388838149410] = 'Reduced <em>recoil penalty</em>. Reduced <em>Hipfire</em> and <em>Snapshot</em> penalty',
@@ -1340,7 +1378,7 @@ local t_table = {
     [624517971084] = 'Decreased <em>Recoil</em> penalty when using the <em>Burst Fire</em> attack mode',
     [486765316396] = 'Changes caliber to 7.62x54mmR',
     [953726500783] = 'Changes caliber to 7.62x39mm WP',
-    [687659582586] = 'Decreases critical chance per aim level',
+    [687659582586] = 'Decreases critical chance bonus that scales per merc level',
     [939111789534] = 'Decreases base critical chance',
     [398049834770] = 'Reduced <em>recoil penalty</em>',
     [954822518050] = 'Slightly reduced <em>recoil penalty</em>',

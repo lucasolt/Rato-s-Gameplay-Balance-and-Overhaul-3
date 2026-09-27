@@ -501,10 +501,9 @@ GBO_BASE_RECIPES = {
 			--"hipfire_dot_effect_uv",
 			"DecreaseSnapshotMul",
 			"DecreaseHipfireMul",
-			"IncreaseCritChangeScaled",
-			"critical_per_aim_laser"},
+			"IncreaseCritPerAim"},
 		params = {
-			CritChangeScaledIncrease = 10,
+			CritPerAimIncrease = 300,
 			snap_mul_reduc = const.Combat.SnapshotHipfire.Components.LaserMul or 90,
 			hipfire_mul_reduc = const.Combat.SnapshotHipfire.Components.LaserMul or 90
 		},
@@ -753,10 +752,11 @@ GBO_BASE_RECIPES = {
             "IncreaseRange",
             "ScopePenalty1",
             "DecreaseOverwatchAngle",
-            "critical_per_aim_scope",
+            "IncreaseCritPerAim",
             "IncreaseAimAccuracy"
         },
         params = {
+            CritPerAimIncrease = 300,
             RangeIncrease = 6,
             OverwatchAngleDecrease = 90,
             AimAccuracyIncrease = 2
@@ -959,8 +959,7 @@ GBO_BASE_RECIPES = {
         effects = {
             "IncreaseOverwatchAngle",
             "hipfire_dot_effect_laser",
-            "IncreaseCritChangeScaled",
-            "critical_per_aim_laser",
+            "IncreaseCritPerAim",
             "reflex_sight_close_range",
             "AccuracyBonusWhenAimed"
         },
@@ -969,7 +968,7 @@ GBO_BASE_RECIPES = {
             OverwatchAngleIncrease = 130,
             Close_bonus = 5,
             snap_reduc = 15,
-            CritChangeScaledIncrease = 10
+            CritPerAimIncrease = 300
         }
     },
     ImprovedIronsight_AR15 = {
