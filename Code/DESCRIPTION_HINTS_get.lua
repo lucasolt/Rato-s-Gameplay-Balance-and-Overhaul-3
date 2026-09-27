@@ -49,8 +49,10 @@ local function HintHundredths(v)
     return string.format("%s%d.%02d", sign, v / 100, v % 100)
 end
 
----- bar value of each row at the reference merc, for the preset scan; lower = smaller is better
+---- bar value of each row at the reference merc, for the preset scan; `range` skips the scan.
+---- lower = smaller is better, which only picks the gap color: bars always grow with the value, like vanilla
 local HintBarRows = {
+    RecStr = {lower = true, range = {30, 100}},
     StanceAP = {lower = true, value = function(w) return HintStanceAP(w, HintReference) end},
     Angle = {value = function(w) return w:GetProperty("OverwatchAngle") end},
     Reliability = {value = function(w) return w.Reliability end},
@@ -90,7 +92,7 @@ local function GetHintBarRanges()
             w:AddModifier("ammo", mod.target_prop, mod.mod_mul, mod.mod_add)
         end
         for id, row in pairs(HintBarRows) do
-            if not row.applies or row.applies(w) then
+            if not row.range and (not row.applies or row.applies(w)) then
                 local ok, v = pcall(row.value, w)
                 if ok and v then
                     lo[id] = Min(lo[id] or v, v)
@@ -114,19 +116,19 @@ function OnMsg.NewMapLoaded()
 end
 
 local function HintBarFrac(id, v)
-    local r = GetHintBarRanges()[id]
+    local r = HintBarRows[id] and HintBarRows[id].range or GetHintBarRanges()[id]
     if not r or not v then
         return
     end
-    local frac = Clamp(MulDivRound(v - r[1], 1000, r[2] - r[1]), 0, 1000)
-    return HintBarRows[id].lower and 1000 - frac or frac
+    return Clamp(MulDivRound(v - r[1], 1000, r[2] - r[1]), 0, 1000)
 end
 
 ---- bar built from 4px-unit tiles: <image> cannot clip, and 1px tiles truncate to 0 width at ImageScale 500
 local HintBarSeg, HintBarSegs, HintBarDiv = 10, 4, 1
 local HintBarUnits = HintBarSeg * HintBarSegs + HintBarDiv * (HintBarSegs - 1)
 local HintBarImg = "Mod/cfahRED/Images/StatBar/"
-local HintBarColors = {fill = "206 200 178", ref = "110 106 92", empty = "52 57 68", gap = "12 12 12"}
+---- sampled from vanilla weapon_meter / _red / _green / weapon_panel
+local HintBarColors = {fill = "195 189 172", worse = "191 67 77", better = "124 130 96", empty = "56 57 63", gap = "12 12 12"}
 
 local function HintBarTiles(units, color)
     local s = ""
@@ -139,21 +141,23 @@ local function HintBarTiles(units, color)
     return s
 end
 
----- fill up to the owner's value, dim up to the reference when the reference is better
+---- solid up to the lower of owner/reference; the span between is red when the owner is worse, green when better (vanilla's convention)
 local function HintBar(id, v, ref)
     local fv = HintBarFrac(id, v)
     if not fv then
         return "<image " .. HintBarImg .. "blank.png 1000>"
     end
-    local fr = Max(fv, HintBarFrac(id, ref) or fv)
+    local fr = HintBarFrac(id, ref) or fv
+    local lower = HintBarRows[id].lower
+    local worse = (lower and fv > fr) or (not lower and fv < fr)
     local total = HintBarSeg * HintBarSegs
-    fv, fr = MulDivRound(total, fv, 1000), MulDivRound(total, fr, 1000)
+    local lo, hi = MulDivRound(total, Min(fv, fr), 1000), MulDivRound(total, Max(fv, fr), 1000)
     local s = ""
     for i = 0, HintBarSegs - 1 do
         local a = i * HintBarSeg
-        local f = Clamp(fv - a, 0, HintBarSeg)
-        local r = Clamp(fr - a, 0, HintBarSeg) - f
-        s = s .. HintBarTiles(f, "fill") .. HintBarTiles(r, "ref") .. HintBarTiles(HintBarSeg - f - r, "empty")
+        local f = Clamp(lo - a, 0, HintBarSeg)
+        local r = Clamp(hi - a, 0, HintBarSeg) - f
+        s = s .. HintBarTiles(f, "fill") .. HintBarTiles(r, worse and "worse" or "better") .. HintBarTiles(HintBarSeg - f - r, "empty")
         if i < HintBarSegs - 1 then
             s = s .. HintBarTiles(HintBarDiv, "gap")
         end
@@ -200,7 +204,7 @@ function Rat_GetCaliberHints(weapon)
                   HintLine{TranslationTable[247182652462] or "Extra critical damage: ",
                            Rat_BasicAmmoProp(weapon, "CritDamage"), "%", bar = "CritDamage"} ..
                   HintLine{TranslationTable[158466723759] or "Recommended Strength: ",
-                           Recoil_StrBreakpoint(weapon), TranslationTable[785975283217] or " STR"}
+                           Recoil_StrBreakpoint(weapon), TranslationTable[785975283217] or " STR", bar = "RecStr"}
     return T{"<style CrosshairAPTotal>" .. s:sub(1, -2) .. "</style>"}
 end
 
