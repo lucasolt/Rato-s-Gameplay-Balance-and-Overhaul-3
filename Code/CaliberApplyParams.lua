@@ -246,6 +246,13 @@ function OnMsg.zCore_ClassesGenerate()
     ApplyAmmoParams("_44CAL_Subsonic", _44CAL_Subsonic, {})
 end
 
+---- the caliber's Basic ammo (or its first ammo) stands in for an unloaded gun's caliber stats
+function Rat_BasicAmmoClass(weapon)
+    local ammos = weapon.Caliber and GetAmmosWithCaliber(weapon.Caliber) or empty_table
+    local def = table.find_value(ammos, "id", "_" .. tostring(weapon.Caliber) .. "_Basic") or ammos[1]
+    return def and g_Classes[def.id]
+end
+
 function print_ammos()
     ForEachPreset("InventoryItemCompositeDef", function(p)
         if p.object_class == "Ammo" then

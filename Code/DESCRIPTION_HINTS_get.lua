@@ -84,10 +84,9 @@ local function GetHintBarRanges()
         end
         local w = PlaceInventoryItem(preset.id)
         ---- loaded, since caliber noise (CaliberApplyParams) lives on the ammo, not the gun
-        local ammos = w.Caliber and GetAmmosWithCaliber(w.Caliber) or empty_table
-        local ammo_def = table.find_value(ammos, "id", "_" .. w.Caliber .. "_Basic") or ammos[1]
+        local ammo = Rat_BasicAmmoClass(w)
         ---- same modifiers Firearm:Reload adds, without spawning ammo items
-        for _, mod in ipairs(ammo_def and g_Classes[ammo_def.id].Modifications or empty_table) do
+        for _, mod in ipairs(ammo and ammo.Modifications or empty_table) do
             w:AddModifier("ammo", mod.target_prop, mod.mod_mul, mod.mod_add)
         end
         for id, row in pairs(HintBarRows) do
@@ -162,11 +161,49 @@ local function HintBar(id, v, ref)
     return s
 end
 
----- vanilla caps the weapon rollover at 370, which wraps every barred hint line
-function Rat_WidenWeaponRollover()
+---- penetration lives on the ammo; an unloaded gun shows its caliber's Basic ammo rating
+function Rat_DisplayPenetrationClass(weapon)
+    local pen = weapon.PenetrationClass
+    if not IsKindOf(weapon, "Firearm") or weapon.ammo then
+        return pen
+    end
+    local ammo = Rat_BasicAmmoClass(weapon)
+    for _, mod in ipairs(ammo and ammo.Modifications or empty_table) do
+        if mod.target_prop == "PenetrationClass" then
+            pen = MulDivRound(pen, mod.mod_mul, 1000) + mod.mod_add
+        end
+    end
+    return Clamp(pen, 1, #PenetrationClassIds)
+end
+
+local function SetTemplateFunc(node, name, func)
+    for _, child in ipairs(node) do
+        if child.name == name then
+            child.func = func
+            return
+        end
+    end
+end
+
+function Rat_PatchWeaponRollover()
+    ---- vanilla caps the weapon rollover at 370, which wraps every barred hint line
     local path = FindXtByProp(XTemplates.RolloverInventoryWeaponBase, "Id", "idContent")
     if path then
         path[1].MaxWidth = 470
+    end
+    path = FindXtByProp(XTemplates.RolloverInventoryWeaponBase, "comment", "penetration")
+    if path then
+        SetTemplateFunc(path[1], "CreatePropValText(self, value, scale)", function(self, value, scale)
+            local obj = ResolvePropObj(self.context)
+            return GetPenetrationClassUIText(IsKindOf(obj, "Firearm") and Rat_DisplayPenetrationClass(obj) or value)
+        end)
+    end
+    path = FindXtByProp(XTemplates.ModifyWeaponDlg, "Id", "idValue")
+    if path then
+        SetTemplateFunc(path[1], "Open(self)", function(self)
+            XText.Open(self)
+            self:SetText(GetArmorClassUIText(Rat_DisplayPenetrationClass(self.context)))
+        end)
     end
 end
 
