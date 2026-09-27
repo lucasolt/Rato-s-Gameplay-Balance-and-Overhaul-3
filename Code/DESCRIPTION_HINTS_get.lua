@@ -104,6 +104,18 @@ function GBO_GetDescriptionHints(self)
         return string.format("%.2f", angle)
     end
 
+    ---- at the owner's Hand-Eye; unowned weapons show the nominal value (Hand-Eye 100)
+    local function GetCritPerAim_display(self)
+        local per_aim = Rat_WeaponCritPerAim(self)
+        local unit = self.owner and (g_Units[self.owner] or gv_UnitData[self.owner])
+        if unit then
+            per_aim = MulDivRound(per_aim, rGetHandEyeCoordination(unit), 100)
+        end
+        local sign = per_aim < 0 and "-" or ""
+        per_aim = abs(per_aim)
+        return string.format("%s%d.%02d", sign, per_aim / 100, per_aim % 100)
+    end
+
     local angularCTHActive = IsACHTActive()
 	local termList = {
 	    {
@@ -132,9 +144,9 @@ function GBO_GetDescriptionHints(self)
 	        self.CritChance, "%"
 	    },
 	    {
-	        id = "MaximumCriticalScaling",
-	        TranslationTable[507781478006] or "Maximum critical scaling: ",
-	        self.CritChanceScaled, "%"
+	        id = "CriticalPerAim",
+	        TranslationTable[318826540117] or "Critical chance per aim: ",
+	        GetCritPerAim_display(self), "%"
 	    },
 	    {
 	        id = "ExtraCriticalDamage",
@@ -203,6 +215,22 @@ function GBO_GetDescriptionHints(self)
 		})
 	end
 
+	local crit_idx = table.find(termList, "id", "CriticalPerAim")
+	if self:CanAutofire() then
+		table.insert(termList, crit_idx + 1, {
+			id = "AutofireCritical",
+			TranslationTable[318826540119] or "Critical chance on autofire: ",
+			"x" .. const.Combat.AutoFireCritMul, "%"
+		})
+	end
+	if Rat_HasSelectiveBurst(self) and table.find(self.AvailableAttacks or empty_table, "BurstFire") then
+		table.insert(termList, crit_idx + 1, {
+			id = "BurstCritical",
+			TranslationTable[318826540118] or "Critical chance on burst: ",
+			"x" .. self.BurstCritMul, "%"
+		})
+	end
+
 	if (self.NumPellets or 0) > 1 then
 	    for _, term in ipairs(shotty_terms) do
 	        table.insert(termList, term)
@@ -243,7 +271,9 @@ local t_id_table = {
     [412593832155] = "Reliability: ",
     [654134899415] = "Noise Radius: ",
     [684546854913] = "Base critical chance: ",
-    [507781478006] = "Maximum critical scaling: ",
+    [318826540117] = "Critical chance per aim: ",
+    [318826540118] = "Critical chance on burst: ",
+    [318826540119] = "Critical chance on autofire: ",
     [247182652462] = "Extra critical damage: ",
     [651371401489] = "Point Blank Range Accuracy: ",
     [852084205321] = "Hipfire Penalty Multiplier: ",

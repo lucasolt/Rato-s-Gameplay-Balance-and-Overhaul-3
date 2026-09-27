@@ -1,6 +1,5 @@
 ----- Crit
-const.Combat.BurstFireCriticalChanceMul = 70 -- % -- Crit * Constant / 100
----TODO: Change all my crit per aim to be per aim and then make it not affect burst fire
+const.Combat.AutoFireCritMul = 30 -- % of crit kept by autofire; BurstFire uses the weapon's BurstCritMul
 
 ----- CTH
 const.Combat.SprintingCTH = -10 --- to hit sprinting target
@@ -67,7 +66,7 @@ const.Combat.BoltActionDexMaxReduction = R_VanillaAPToDisplay(2)
 const.Combat.TexPerkCycleAPDiscount = 2
 
 ------ Pindown (Sniping)
-const.Combat.PindownCritPerAimLevel = 4
+const.Combat.PindownCritPerAimLevel = 400 -- hundredths of %, added to CritPerAim
 const.Combat.PindownAimLevelsForAPCost = 2
 const.Combat.PindownRangeMul = 150 --- MulDivRound
 
@@ -82,11 +81,12 @@ const.Combat.Perks.SaviorAdrenalineRushBonusAP = R_VanillaAPToDisplay(2)
 
 ----- Critical
 const.Combat.Critical = {}
-const.Combat.Critical.PrismScopeCritPerAim = 3 -- 4
-const.Combat.Critical.LaserDotCritPerAim = 2
-const.Combat.Critical.PSOScopeCritOnAimed = 10 
+---- per-aim values are hundredths of %, added to CritPerAim and scaled by Hand-Eye
+const.Combat.Critical.PrismScopeCritPerAim = 300
+const.Combat.Critical.LaserDotCritPerAim = 200
+const.Combat.Critical.ScaledToPerAim = 10 -- CritChanceScaled modifiers (components, Match ammo) x this -> CritPerAim
+const.Combat.Critical.PSOScopeCritOnAimed = 10
 const.Combat.Critical.FirstAimCrit = 6
-const.Combat.HandEyeCritScalingFactor = 80
 -------------
 const.Combat.AwareSightRange = 56
 const.Combat.UnawareSightRange = 18

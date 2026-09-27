@@ -7,12 +7,10 @@ function Unit:GetBaseAimLevelRange(action, target)
         if IsKindOf(actionWep, "Firearm") then
             local singleMaxActions = {
 				["DualShot"] = true,
-				["AutoFire"]= true,
 				["GrizzlyPerk"]= true
 			}
 
 			if const.Combat.Aperture.Enabled then
-				singleMaxActions["AutoFire"] = nil
 				singleMaxActions["DualShot"] = nil
 				if action.id == "DualShot" then
 					max = Min(3, max)

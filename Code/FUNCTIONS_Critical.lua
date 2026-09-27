@@ -1,41 +1,55 @@
----TODO: change the perk per aim
-function hand_eye_crit(action_id, weapon, attacker, aim)
-    if not action_id then
+---- merc level no longer scales crit; CritChanceScaled only reaches CritPerAim through its modifiers
+function UnitProperties:GetBaseCrit(weapon)
+    return weapon.CritChance
+end
+
+function UnitProperties:Getbase_BaseCrit(weapon)
+    return weapon.base_CritChance
+end
+
+---- hundredths of % per aim level at Hand-Eye 100
+function Rat_WeaponCritPerAim(weapon, action_id)
+    local per_aim = weapon.CritPerAim
+    if weapon:HasComponent("critical_per_aim_scope") then
+        per_aim = per_aim + const.Combat.Critical.PrismScopeCritPerAim
+    end
+    if weapon:HasComponent("critical_per_aim_laser") then
+        per_aim = per_aim + const.Combat.Critical.LaserDotCritPerAim
+    end
+    local scaled_mod = weapon.CritChanceScaled - weapon.base_CritChanceScaled
+    per_aim = per_aim + scaled_mod * const.Combat.Critical.ScaledToPerAim
+    if action_id == "PinDown" then
+        per_aim = per_aim + const.Combat.PindownCritPerAimLevel
+    end
+    return per_aim
+end
+
+function Rat_CritPerAimCrit(weapon, attacker, action_id, aim)
+    if aim <= 0 then
         return 0
     end
-
-    -- Firearm.CritScalingFactor = 100
-    -- Firearm.BustShotCritScalingFactor = 100
-    -- Firearm.SingleShotCritScalingFactor = 300
-    -- G36.BustShotCritScalingFactor = 250
-    -- SniperRifle.SingleShotCritScalingFactor = 500
-
-    local single_factor = 3.0
-    local not_single = 1.0
-    local burst_factor = not_single
-
-    if IsKindOf(weapon, "SniperRifle") then
-        single_factor = 5.0
-    end
-
-    if IsKindOf(weapon, "G36") then
-        burst_factor = 3.25
-    end
-
     local hand_eye = rGetHandEyeCoordination(attacker)
+    return MulDivRound(Rat_WeaponCritPerAim(weapon, action_id) * aim, hand_eye, 100 * 100)
+end
 
-    local factor = not_single
+local rat_autofire_crit_actions = {
+    AutoFire = true,
+    MGBurstFire = true,
+    GrizzlyPerk = true,
+    BuckshotBurst = true
+}
 
-    if action_id == "SingleShot" or action_id == "PinDown" then
-        factor = single_factor
-    elseif action_id == "BurstFire" then
-        factor = burst_factor
+function Rat_CritFireModeMul(action_id, weapon)
+    if action_id == "RunAndGun" or action_id == "RecklessAssault" then
+        action_id = Rat_ShortBurstAttackId(weapon)
     end
-
-    local hec_factor = hand_eye * factor
-    local crit_HEC = cRound(MulDivRound(hec_factor, const.Combat.HandEyeCritScalingFactor,100) / 100 * (0 + (aim or 0)))
-
-    return crit_HEC
+    if action_id == "BurstFire" then
+        return weapon.BurstCritMul
+    end
+    if rat_autofire_crit_actions[action_id] then
+        return const.Combat.AutoFireCritMul
+    end
+    return 100
 end
 
 function OnMsg.GatherCritChanceModifications(attacker, target, action_id, weapon, data)
@@ -44,58 +58,25 @@ function OnMsg.GatherCritChanceModifications(attacker, target, action_id, weapon
         return
     end
 
-    local aim = data.aim
-
-    -- if attacker.unit_command == "GrizzlyPerk" then
-    -- action_id == "MGBurstFire"
-    -- end
-
-    if not aim then
-        aim = 0
-    end
+    local aim = data.aim or 0
 
     local crit_chance_breakdown = {base = data.crit_chance}
 
-    ----------- HEC
-    local crit_HEC = hand_eye_crit(action_id, weapon, attacker, aim) or 0
-    crit_chance_breakdown["HEC"] = crit_HEC
-    data.crit_chance = data.crit_chance + crit_HEC
-    -----------
-
-    ----------- Pindown (Sniping)
-    if action_id == "PinDown" then
-        local crit_pindown = const.Combat.PindownCritPerAimLevel * aim
-        crit_chance_breakdown["PinDown"] = crit_pindown
-        data.crit_chance = data.crit_chance + crit_pindown
-    end
-    -----------
+    local crit_per_aim = Rat_CritPerAimCrit(weapon, attacker, action_id, aim)
+    crit_chance_breakdown["per_aim"] = crit_per_aim
+    data.crit_chance = data.crit_chance + crit_per_aim
 
     ----------- Components
-    if weapon and weapon:HasComponent("critical_per_aim_scope") then
-        local crit_scope_aim = const.Combat.Critical.PrismScopeCritPerAim * aim
-        crit_chance_breakdown["critical_per_aim_scope"] = crit_scope_aim
-        data.crit_chance = data.crit_chance + crit_scope_aim
-    end
-
-    if weapon and weapon:HasComponent("critical_per_aim_laser") then
-        local laser_aim = const.Combat.Critical.LaserDotCritPerAim * aim
-        laser_aim = cRound(laser_aim)
-        crit_chance_breakdown["critical_per_aim_laser"] = laser_aim
-        data.crit_chance = data.crit_chance + laser_aim
-    end
-
-    if weapon and weapon:HasComponent("pso_dragunov_scope_critical") and aim > 1 then
+    if weapon:HasComponent("pso_dragunov_scope_critical") and aim > 1 then
         local pso_bonus = const.Combat.Critical.PSOScopeCritOnAimed
         data.crit_chance = data.crit_chance + pso_bonus
         crit_chance_breakdown["PSO_scope"] = pso_bonus
     end
 
-    if weapon and weapon:HasComponent("first_aim_crit") then
-        if aim and aim > 0 then
-            local first_aim_bonus = const.Combat.Critical.FirstAimCrit
-            data.crit_chance = data.crit_chance + first_aim_bonus
-            crit_chance_breakdown["first_aim_bonus"] = first_aim_bonus
-        end
+    if weapon:HasComponent("first_aim_crit") and aim > 0 then
+        local first_aim_bonus = const.Combat.Critical.FirstAimCrit
+        data.crit_chance = data.crit_chance + first_aim_bonus
+        crit_chance_breakdown["first_aim_bonus"] = first_aim_bonus
     end
 
     if aim > 0 then
@@ -119,14 +100,13 @@ function OnMsg.GatherCritChanceModifications(attacker, target, action_id, weapon
     end
     --------
 
-    ----------- Burst Critical Reduction
-    if action_id == "BurstFire" or action_id == "AutoFire" or action_id == "RunAndGun" or action_id ==
-        "MGBurstFire" or action_id == "GrizzlyPerk" or action_id == "BuckshotBurst" then
-
-        data.crit_chance = MulDivRound(data.crit_chance, const.Combat.BurstFireCriticalChanceMul,
-                                       100)
+    ---- flat CritChance (ammo like 5.45 tumbling) has nothing to do with the firing mode
+    local mode_mul = Rat_CritFireModeMul(action_id, weapon)
+    if mode_mul ~= 100 then
+        local flat = weapon.CritChance
+        data.crit_chance = flat + MulDivRound(data.crit_chance - flat, mode_mul, 100)
+        crit_chance_breakdown["fire_mode_mul"] = mode_mul
     end
-    ----------
 
     data.crit_chance_breakdown = crit_chance_breakdown
 end

@@ -520,7 +520,7 @@ function rat_combat_actions()
             end
         end
 
-        return T {descr, bonus_crit = const.Combat.PindownCritPerAimLevel}
+        return T {descr, bonus_crit = const.Combat.PindownCritPerAimLevel / 100}
     end
     CombatActions.PinDown.GetActionResults = function(self, unit, args)
         local attack_args = unit:PrepareAttackArgs(self.id, args)
@@ -927,10 +927,10 @@ function rat_combat_actions()
 
     -- CombatActions.RecklessAssault.Description = T(864921833364, "Make a longer <em>Run and Gun</em>, firing more shots. Move to a new position, using up to <em><DisplayMoveAP> AP</em> Smiley will be <em>Out of Breath</em> after use. Can't be used when <em>Out of Breath</em>.")
     CombatActions.SingleShot.Description = T(585854196899,
-                                             "Cheap attack that conserves ammo. Has bonus critical chance based on <em>Marksmanship</em> and <em>Dexterity</em> when <em>aimed</em>.")
+                                             "Cheap attack that conserves ammo. Keeps the full critical chance from <em>aiming</em>.")
     -- CombatActions.RunAndGun.Description = T(614189548956, "<em>Once per turn</em>. Move to a new position, using up to <em><DisplayMoveAP> AP</em>. Fire a number of bursts during movement toward the closest enemies. Each shot suffers increased <em>Hipfire</em> and <em>Recoil</em> accuracy penalties.")
     CombatActions.AutoFire.Description = T(815903264417,
-                                           "Shoots a burst of <em><bullets> bullets</em>. Use the <em>mouse wheel</em> to change its length; each extra round costs AP by the weapon's rate of fire. Long bursts inflict <GameTerm('Suppressed')> even on miss when the enemy is in weapon range. Has <em>recoil</em> penalty based on <em>Strength</em>. Maximum <em>aim</em> level reduced. Critical chance is reduced")
+                                           "Shoots a burst of <em><bullets> bullets</em>. Use the <em>mouse wheel</em> to change its length; each extra round costs AP by the weapon's rate of fire. Long bursts inflict <GameTerm('Suppressed')> even on miss when the enemy is in weapon range. Has <em>recoil</em> penalty based on <em>Strength</em>. Critical chance is reduced")
     CombatActions.DualShot.Description = T(364947777453,
                                            "The Dual Shot attack produces a Basic Attack from each gun. Maximum <em>aim</em> level is reduced. Has a penalty based on <em>Dexterity</em>.")
     CombatActions.MGBurstFire.DisplayName = T(407316882950, "MG Burst")
@@ -1579,9 +1579,9 @@ local t_id_table = {
     [865874231348] = "<color AmmoAPColor>Out of Breath</color>",
     [536142745929] = "<color AmmoAPColor>Out of Breath</color>",
     [864921833364] = "Make a longer <em>Run and Gun</em>, firing more shots. Move to a new position, using up to <em><DisplayMoveAP> AP</em> Smiley will be <em>Out of Breath</em> after use. Can't be used when <em>Out of Breath</em>.",
-    [585854196899] = "Cheap attack that conserves ammo. Has bonus critical chance based on <em>Marksmanship</em> and <em>Dexterity</em> when <em>aimed</em>.",
+    [585854196899] = "Cheap attack that conserves ammo. Keeps the full critical chance from <em>aiming</em>.",
     [614189548956] = "<em>Once per turn</em>. Move to a new position, using up to <em><DisplayMoveAP> AP</em>. Fire a number of bursts during movement toward the closest enemies. Each shot suffers increased <em>Hipfire</em> and <em>Recoil</em> accuracy penalties.",
-    [815903264417] = "Shoots a burst of <em><bullets> bullets</em>. Use the <em>mouse wheel</em> to change its length; each extra round costs AP by the weapon's rate of fire. Long bursts inflict <GameTerm('Suppressed')> even on miss when the enemy is in weapon range. Has <em>recoil</em> penalty based on <em>Strength</em>. Maximum <em>aim</em> level reduced. Critical chance is reduced.",
+    [815903264417] = "Shoots a burst of <em><bullets> bullets</em>. Use the <em>mouse wheel</em> to change its length; each extra round costs AP by the weapon's rate of fire. Long bursts inflict <GameTerm('Suppressed')> even on miss when the enemy is in weapon range. Has <em>recoil</em> penalty based on <em>Strength</em>. Critical chance is reduced.",
     [364947777453] = "The Dual Shot attack produces a Basic Attack from each gun. Maximum <em>aim</em> level is reduced. Has a penalty based on <em>Dexterity</em>.",
     [564696256945] = "Focus on a cone-shaped area, immobilizing yourself and going <em>prone</em>. You can only shoot enemies inside that cone. Accuracy is increased and enemies will provoke <em>interrupt</em> attacks with actions inside the cone (even if your AP are spent). <em>Interrupt</em> attacks have bonus accuracy. Your weapon will have increased <em>Shooting Angle</em> while you are in setup.",
     [226634284341] = "<em>Spends all AP</em>. Any targets who move or shoot in the overwatch area will provoke <GameTerm('Interrupt')> <em>attacks</em>. Accuracy is influenced by the unit's <em>Reflexes</em> (Dex + Agi). The attacks will suffer increased <em>Snapshot</em> penalty.",

@@ -107,45 +107,6 @@ function IsAimed_Mobile(self, unit, ap)
     return true
 end
 ---------------------------------------------------------------------------------------------------
-function hand_eye_crit(action_id, weapon, attacker, aim)
-    if not action_id then
-        return 0
-    end
-
-    -- Firearm.CritScalingFactor = 100
-    -- Firearm.BustShotCritScalingFactor = 100
-    -- Firearm.SingleShotCritScalingFactor = 300
-    -- G36.BustShotCritScalingFactor = 250
-    -- SniperRifle.SingleShotCritScalingFactor = 500
-
-    local single_factor = 3.0
-    local not_single = 1.0
-    local burst_factor = not_single
-
-    if IsKindOf(weapon, "SniperRifle") then
-        single_factor = 5.0
-    end
-
-    if IsKindOf(weapon, "G36") then
-        burst_factor = 2.5
-    end
-
-    local hand_eye = rGetHandEyeCoordination(attacker)
-
-    local factor = not_single
-
-    if action_id == "SingleShot" or action_id == "PinDown" then
-        factor = single_factor
-    elseif action_id == "BurstFire" then
-        factor = burst_factor
-    end
-
-    local hec_factor = hand_eye * factor
-    local crit_HEC = cRound(hec_factor / 100 * (0 + (aim or 0)))
-
-    return crit_HEC
-end
----------------------------------------------------------------------------------------------------
 function Is_AimingAttack()
     local dlg = GetInGameInterfaceModeDlg()
     if IsKindOf(dlg, "IModeCombatAttackBase") then

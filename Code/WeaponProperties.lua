@@ -59,6 +59,28 @@ function OnMsg.ClassesGenerate()
                 max = 1000,
                 modifiable = true
 
+			}, {
+				category = "GBO",
+                id = "CritPerAim",
+                name = "Crit Per Aim",
+                help = "Crit chance per aim level at Hand-Eye 100, in hundredths of % (250 = 2.5%)",
+                editor = "number",
+                default = 200,
+                template = true,
+                min = -1000,
+                max = 5000,
+                modifiable = true
+			}, {
+				category = "GBO",
+                id = "BurstCritMul",
+                name = "Burst Crit Mul",
+                help = "% of the crit chance kept by BurstFire (the aim-independent flat crit is exempt)",
+                editor = "number",
+                default = 60,
+                template = true,
+                min = 0,
+                max = 100,
+                modifiable = true
 			},
 
         }
