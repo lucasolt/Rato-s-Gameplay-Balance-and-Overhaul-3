@@ -138,10 +138,11 @@ end
 ---- The shop properties live on the class: PrepareShopItemsForRestock reads g_Classes, not the
 ---- preset. The preset gets them too, because the store UI reads that one.
 ---- Stock parts (AUG Swarovski, G11 ZO-1) come off the gun they belong to, so the shop never sells them.
+---- Neither does it sell an item no loaded gun takes (ToG-only optics with ToG off).
 function Rat_AttShopEnsureItems()
-    local _, stock = Rat_AttCompatible()
+    local fits, stock = Rat_AttCompatible()
     for _, def in ipairs(RAT_ATT_ITEMS) do
-        local hidden = def.reserved or (stock[def.id] and not def.weight)
+        local hidden = def.reserved or not fits[def.id] or (stock[def.id] and not def.weight)
         local tier = RAT_ATT_SHOP_TIERS[def.tier]
         local page = ((def.family == "grenadelauncher" or RAT_ATT_SHOP_SUPPORT[def.id]) and "RatSupport") or
             ((def.family or RAT_ATT_SHOP_MUZZLE[def.id]) and "RatMuzzle") or
