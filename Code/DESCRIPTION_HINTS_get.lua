@@ -3,33 +3,15 @@ local file_str = 'DESCRIPTION_HINTS_get.lua'
 function GBO_GetDescriptionHints(self)
     local formattedString = "<style CrosshairAPTotal>"
 
-    local function GetRecoil_mul(self)
+    local owner = self.owner and (not gv_SatelliteView and g_Units[self.owner] or gv_UnitData[self.owner])
+    ---- merc stats cap at 100, so this is the weapon's own best value
+    local reference = {placeholder = true, Marksmanship = 100, Dexterity = 100, Strength = 100}
 
-        local weapon = self
-
-        local attacker = false
-
-        if self.owner then
-            attacker = not gv_SatelliteView and g_Units[self.owner] or gv_UnitData[self.owner]
-        else
-            attacker = {}
-            attacker.placeholder = true
-            attacker.Marksmanship = 100
-            attacker.Strength = 100 -- Recoil_StrBreakpoint(self)
-        end
-
-        local display = true
-        local recoil = GetWepRecoil(weapon, attacker, display)
-
-        local other = 1.0
-        local caliber = 1.0
+    local function GetRecoil_mul(self, attacker)
+        local recoil = GetWepRecoil(self, attacker, true)
         if attacker then
-            other = GetRecoilOther(weapon, attacker, false)
-            caliber = GetCaliberStrRecoil(weapon, attacker)
+            recoil = recoil * GetRecoilOther(self, attacker, false) * GetCaliberStrRecoil(self, attacker)
         end
-
-        recoil = recoil * other * caliber
-
         return string.format("%.2f", recoil)
     end
 
@@ -80,12 +62,7 @@ function GBO_GetDescriptionHints(self)
         return str
     end
 
-    local function GetAPStance_display(self)
-        -- return 0
-        -- local ap = self.APStance
-
-        local unit = g_Units[self.owner] or gv_UnitData[self.owner]
-
+    local function GetAPStance_display(self, unit)
         local ap = MulDivRound(GetWeapon_StanceAP(unit, self, true), 1, const.Scale.AP)
         local aim_cost = MulDivRound(Get_AimCost(unit), 1, const.Scale.AP)
         -- if unit then
@@ -104,13 +81,8 @@ function GBO_GetDescriptionHints(self)
         return string.format("%.2f", angle)
     end
 
-    ---- at the owner's Hand-Eye; unowned weapons show the nominal value (Hand-Eye 100)
-    local function GetCritPerAim_display(self)
-        local per_aim = Rat_WeaponCritPerAim(self)
-        local unit = self.owner and (g_Units[self.owner] or gv_UnitData[self.owner])
-        if unit then
-            per_aim = MulDivRound(per_aim, rGetHandEyeCoordination(unit), 100)
-        end
+    local function GetCritPerAim_display(self, unit)
+        local per_aim = MulDivRound(Rat_WeaponCritPerAim(self), rGetHandEyeCoordination(unit), 100)
         local sign = per_aim < 0 and "-" or ""
         per_aim = abs(per_aim)
         return string.format("%s%d.%02d", sign, per_aim / 100, per_aim % 100)
@@ -121,7 +93,8 @@ function GBO_GetDescriptionHints(self)
 	    {
 	        id = "ShootingStanceCost",
 	        TranslationTable[242435461626] or "Shooting Stance Cost: ",
-	        GetAPStance_display(self) or 0, " AP"
+	        GetAPStance_display(self, owner or reference), " AP",
+	        base = owner and GetAPStance_display(self, reference),
 	    },
 	    {
 	        id = "ShootingAngle",
@@ -146,7 +119,8 @@ function GBO_GetDescriptionHints(self)
 	    {
 	        id = "CriticalPerAim",
 	        TranslationTable[318826540117] or "Critical chance per aim: ",
-	        GetCritPerAim_display(self), "%"
+	        GetCritPerAim_display(self, owner or reference), "%",
+	        base = owner and GetCritPerAim_display(self, reference),
 	    },
 	    {
 	        id = "ExtraCriticalDamage",
@@ -178,9 +152,9 @@ function GBO_GetDescriptionHints(self)
 	    },
 	    {
 	        id = "RecoilPenaltyMultiplier",
-	        (self.owner and (TranslationTable[151451884832] or "Recoil Penalty Multiplier: ")) or
-	            (TranslationTable[896979362710] or "Minimum Recoil Multiplier: "),
-	        GetRecoil_mul(self) or 0, "X"
+	        TranslationTable[151451884832] or "Recoil Penalty Multiplier: ",
+	        GetRecoil_mul(self, owner or reference), "X",
+	        base = owner and GetRecoil_mul(self, reference),
 	    },
 	    {
 	        id = "RecommendedStrength",
@@ -219,15 +193,17 @@ function GBO_GetDescriptionHints(self)
 	if self:CanAutofire() then
 		table.insert(termList, crit_idx + 1, {
 			id = "AutofireCritical",
-			TranslationTable[318826540119] or "Critical chance on autofire: ",
-			"x" .. const.Combat.AutoFireCritMul, "%"
+			TranslationTable[318826540119] or "Critical chance on autofire: " ,
+			--"x" .. const.Combat.AutoFireCritMul, "%"
+			const.Combat.AutoFireCritMul/100.00, "x"
 		})
 	end
 	if Rat_HasSelectiveBurst(self) and table.find(self.AvailableAttacks or empty_table, "BurstFire") then
 		table.insert(termList, crit_idx + 1, {
 			id = "BurstCritical",
 			TranslationTable[318826540118] or "Critical chance on burst: ",
-			"x" .. self.BurstCritMul, "%"
+			--"x" .. self.BurstCritMul, "%"
+			self.BurstCritMul/100.00, "x"
 		})
 	end
 
@@ -248,7 +224,9 @@ function GBO_GetDescriptionHints(self)
 	    	    "<color PDABrowserFlavorMedium>" .. term[1] ..
 	    	    "</color>" ..
 	    	    "<color PDABrowserTextHighlight>" .. term[2] ..
-	    	    "</color>" .. term[3] .. "\n"
+	    	    "</color>" .. term[3] ..
+	    	    ((term.base and term.base ~= term[2]) and ("<color PDABrowserFlavor> (" .. term.base .. term[3] .. ")</color>") or "") ..
+	    	    "\n"
 		end
 	end
 
@@ -279,7 +257,6 @@ local t_id_table = {
     [852084205321] = "Hipfire Penalty Multiplier: ",
     [258395588915] = "Snapshot Penalty Multiplier: ",
     [151451884832] = "Recoil Penalty Multiplier: ",
-    [896979362710] = "Minimum Recoil Multiplier: ",
     [158466723759] = "Recommended Strength: ",
     [785975283217] = " STR",
     [719583632117] = "Number of Pellets: ",
