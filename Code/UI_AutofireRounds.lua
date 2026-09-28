@@ -142,7 +142,11 @@ end
 
 ---- rounds a fixed-length attack fires, capped by what is loaded
 local function fixed_shots(weapon, action)
-    local ok, n = pcall(weapon.GetAutofireShots, weapon, action)
+    ---- DoubleBarrel fires its "bullets" param (results.fired), not num_shots
+    local ok, n = true, action:ResolveValue("bullets")
+    if not n then
+        ok, n = pcall(weapon.GetAutofireShots, weapon, action)
+    end
     n = ok and type(n) == "number" and Max(1, n) or 1
     local ammo = weapon.ammo and weapon.ammo.Amount or 0
     return ammo > 0 and Min(n, ammo) or n
