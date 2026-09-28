@@ -85,6 +85,45 @@ local function HintSwapAP(weapon)
     return ap
 end
 
+---- the weapon-only half of the fire modes' GetUIState (COMBAT_ACTIONS.lua): modes the gun lacks
+local function HintAttackHidden(weapon, id)
+    if not IsKindOf(weapon, "Firearm") then
+        return false
+    end
+    if id == "BurstFire" then
+        return not Rat_HasSelectiveBurst(weapon) or
+                   (IsKindOf(weapon, "AR15") and not weapon:HasComponent("Enable_BurstFire"))
+    elseif id == "SingleShot" then
+        return weapon.AutoFireOnly
+    elseif id == "MobileShot" then
+        return weapon.AutoFireOnly and table.find(weapon.AvailableAttacks or empty_table, "RunAndGun")
+    end
+    return false
+end
+
+local HintMechanismLabel = ratT(file_str, 285374032193, "Operation")
+local HintCyclingLabel = ratT(file_str, 608246246045, "Action")
+---- keyed without underscores: recoil_mechanism spells "Bolt_Action", Rat_cycling "BoltAction"
+local HintMechanismNames = {
+    GasOperated = ratT(file_str, 541468575245, "Gas Operated"),
+    RecoilOperated = ratT(file_str, 372078613063, "Recoil Operated"),
+    ShortRecoil = ratT(file_str, 951379947642, "Short Recoil"),
+    RollerDelayed = ratT(file_str, 545422117275, "Roller-Delayed Blowback"),
+    Blowback = ratT(file_str, 248357646755, "Blowback"),
+    StrikerFired = ratT(file_str, 449197275880, "Striker Fired"),
+    Revolver = ratT(file_str, 203993894214, "Revolver"),
+    SingleShot = ratT(file_str, 305432457434, "Single Shot"),
+    BreakAction = ratT(file_str, 134961306884, "Break Action"),
+    PumpAction = ratT(file_str, 248130161322, "Pump Action"),
+    BoltAction = ratT(file_str, 979693802164, "Bolt Action"),
+    LeverAction = ratT(file_str, 387632024720, "Lever Action"),
+    SingleAction = ratT(file_str, 747722846624, "Single Action"),
+    DoubleAction = ratT(file_str, 949408355343, "Double Action"),
+    SADoubleAction = ratT(file_str, 285374032194, "Single/Double Action"),
+    SemiAuto = ratT(file_str, 608246246046, "Semi-Automatic"),
+    Auto = ratT(file_str, 541468575246, "Automatic"),
+}
+
 ---- one ammo's modifiers on the gun's own value, stacked the way Firearm:Reload adds them
 local function HintAmmoProp(value, ammo, prop)
     for _, mod in ipairs(ammo and ammo.Modifications or empty_table) do
@@ -353,15 +392,27 @@ function Rat_PatchWeaponRollover()
             }),
         }))
     end
-    ---- More Info panel: swap and reload AP below the attack costs
+    ---- More Info panel: attack AP list skips hidden fire modes; swap/reload AP and mechanism below it
     path = FindXtByProp(XTemplates.InventoryRolloverInfo, "class", "XTemplateForEach")
-    if path and not FindXtByProp(path[2], "Id", "idRatHandlingAP") then
+    if path then
+        local each = path[1]
+        ---- kept on the node so a Lua reload doesn't wrap the wrapper
+        each.rat_vanilla_condition = each.rat_vanilla_condition or each.condition
+        local vanilla_condition = each.rat_vanilla_condition
+        each.condition = function(parent, context, item, i)
+            return vanilla_condition(parent, context, item, i) and not HintAttackHidden(ResolvePropObj(context), item)
+        end
+        local old = table.find(path[2], "Id", "idRatHandlingAP")
+        if old then
+            table.remove(path[2], old)
+        end
         local function row(id)
             return PlaceObj("XTemplateWindow", {
                 "__class", "XNameValueText",
                 "Id", id,
                 "TextStyle", "PDABrowserTitleSmall",
                 "TextStyleRight", "PDASectorInfo_SectionItem",
+                "FoldWhenHidden", true,
             })
         end
         table.insert(path[2], PlaceObj("XTemplateWindow", {
@@ -373,6 +424,8 @@ function Rat_PatchWeaponRollover()
         }, {
             row("idSwap"),
             row("idReload"),
+            row("idMechanism"),
+            row("idCycling"),
             PlaceObj("XTemplateFunc", {
                 "name", "Open(self)",
                 "func", function(self)
@@ -387,6 +440,16 @@ function Rat_PatchWeaponRollover()
                     self.idSwap:SetValueText(T{499138807753, ap, val = HintSwapAP(weapon)})
                     self.idReload:SetNameText(CombatActions.Reload.DisplayName)
                     self.idReload:SetValueText(T{499138807753, ap, val = MulDivRound(weapon.ReloadAP or 0, 1, const.Scale.AP)})
+                    local shown
+                    for _, r in ipairs{{self.idMechanism, HintMechanismLabel, "recoil_mechanism"},
+                                       {self.idCycling, HintCyclingLabel, "Rat_cycling"}} do
+                        local text = HintMechanismNames[(weapon[r[3]] or ""):gsub("_", "")]
+                        ---- manual actions name both the same (Bolt Action / Bolt Action)
+                        r[1]:SetVisible(not not text and text ~= shown)
+                        shown = text
+                        r[1]:SetNameText(r[2])
+                        r[1]:SetValueText(text or "")
+                    end
                 end,
             }),
         }))
