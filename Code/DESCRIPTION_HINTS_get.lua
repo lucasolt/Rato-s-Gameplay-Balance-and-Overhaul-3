@@ -1,12 +1,14 @@
 local file_str = 'DESCRIPTION_HINTS_get.lua'
 
----- merc stats cap at 100, so this is the weapon's own best value
-local HintReference = {placeholder = true, Marksmanship = 100, Dexterity = 100, Agility = 100, Strength = 100}
+---- every Hint* value with a nil unit is the gun alone: no stat bonus or penalty (the grey bracket)
+local HintNoStats = {placeholder = true, Marksmanship = 0, Dexterity = 0, Agility = 0, Strength = 0}
+local HintFullStats = {placeholder = true, Marksmanship = 100, Dexterity = 100, Agility = 100, Strength = 100}
 
+---- the caliber's kick at Strength 100 belongs to the gun; only the Strength penalty above it is the merc's
 local function HintRecoil(weapon, attacker)
-    local recoil = GetWepRecoil(weapon, attacker, true)
+    local recoil = GetWepRecoil(weapon, attacker, true) * GetCaliberStrRecoil(weapon, attacker or HintFullStats)
     if attacker then
-        recoil = recoil * GetRecoilOther(weapon, attacker, false) * GetCaliberStrRecoil(weapon, attacker)
+        recoil = recoil * GetRecoilOther(weapon, attacker, false)
     end
     return cRound(recoil * 100)
 end
@@ -47,7 +49,7 @@ end
 local function HintAim(weapon, unit, acth)
     local acc = weapon.AimAccuracy * 100
     if acth then
-        return MulDivRound(acc, Clamp(rGetHandEyeCoordination(unit), 10, 100), 100)
+        return unit and MulDivRound(acc, Clamp(rGetHandEyeCoordination(unit), 10, 100), 100) or acc
     end
     if IsKindOfClasses(weapon, "Pistol", "Revolver") then
         acc = acc / 2
@@ -58,7 +60,7 @@ local function HintAim(weapon, unit, acth)
     if weapon:HasComponent("light_stock_aim_reduce") then
         acc = MulDivRound(acc, 90, 100)
     end
-    return MulDivRound(MulDivRound(acc, HintHandEyeScale(unit), 100), const.Combat.R_AimMul, 100)
+    return MulDivRound(MulDivRound(acc, unit and HintHandEyeScale(unit) or 100, 100), const.Combat.R_AimMul, 100)
 end
 
 ---- classic aim is fractional per level; aCTH's is an integer stat
@@ -148,6 +150,7 @@ local function HintAmmoPellets(w, ammo)
 end
 
 local function HintStanceAP(weapon, unit)
+    unit = unit or HintNoStats
     return MulDivRound(GetWeapon_StanceAP(unit, weapon, true), 1, const.Scale.AP) +
                MulDivRound(Get_AimCost(unit), 1, const.Scale.AP)
 end
@@ -161,7 +164,7 @@ local function HintCycleAP(weapon, unit)
 end
 
 local function HintCritPerAim(weapon, unit)
-    return MulDivRound(Rat_WeaponCritPerAim(weapon), rGetHandEyeCoordination(unit), 100)
+    return MulDivRound(Rat_WeaponCritPerAim(weapon), unit and rGetHandEyeCoordination(unit) or 100, 100)
 end
 
 local function HintHundredths(v)
@@ -170,8 +173,8 @@ local function HintHundredths(v)
     return string.format("%s%d.%02d", sign, v / 100, v % 100)
 end
 
----- bar value of each row at the reference merc, for the preset scan; `range` skips the scan and
----- `ammo` rows scan every ammo of the caliber instead of the Basic one.
+---- bar value of each row for the preset scan, taken for the gun alone and for a stat-100 merc; `range`
+---- skips the scan and `ammo` rows scan every ammo of the caliber instead of the Basic one.
 ---- lower = smaller is better, which only picks the gap color: bars always grow with the value, like vanilla
 local HintBarRows = {
     Pellets = {ammo = HintAmmoPellets},
@@ -179,20 +182,20 @@ local HintBarRows = {
         return HintAmmoPellets(w, ammo) and HintAmmoProp(w.BuckshotConeAngle or 0, ammo, "BuckshotConeAngle")
     end},
     RecStr = {lower = true, range = {30, 100}},
-    StanceAP = {lower = true, value = function(w) return HintStanceAP(w, HintReference) end},
-    CycleAP = {lower = true, value = function(w) return HintCycleAP(w, HintReference) end},
+    StanceAP = {lower = true, value = HintStanceAP},
+    CycleAP = {lower = true, value = HintCycleAP},
     Angle = {value = function(w) return w:GetProperty("OverwatchAngle") end},
     Reliability = {value = function(w) return w.Reliability end},
     Noise = {lower = true, value = function(w) return w.Noise end},
     Crit = {value = function(w) return w.CritChance end},
-    CritPerAim = {value = function(w) return HintCritPerAim(w, HintReference) end},
+    CritPerAim = {value = HintCritPerAim},
     CritDamage = {value = function(w) return w.CritDamage end},
-    AimAccuracy = {value = function(w) return HintAim(w, HintReference, IsACHTActive()) end},
-    PB = {value = function(w) return GetPBbonus(w) end},
+    AimAccuracy = {value = function(w, unit) return HintAim(w, unit, IsACHTActive()) end},
+    PB = {value = HintPB},
     Handling = {lower = true, value = function(w) return Rat_ApertureHandlingMul(w) end},
-    Hipfire = {lower = true, value = function(w) return HintHipSnap(w, 0) end},
-    Snapshot = {lower = true, value = function(w) return HintHipSnap(w, 1) end},
-    Recoil = {lower = true, value = function(w) return HintRecoil(w, HintReference) end},
+    Hipfire = {lower = true, value = function(w, unit) return HintHipSnap(w, 0, unit, IsACHTActive()) end},
+    Snapshot = {lower = true, value = function(w, unit) return HintHipSnap(w, 1, unit, IsACHTActive()) end},
+    Recoil = {lower = true, value = HintRecoil},
     RPM = {value = function(w) return w.RPM or 0 end, applies = function(w) return w:CanAutofire() end},
 }
 
@@ -235,9 +238,11 @@ local function GetHintBarRanges()
         end
         for id, row in pairs(HintBarRows) do
             if row.value and (not row.applies or row.applies(w)) then
-                local ok, v = pcall(row.value, w)
-                if ok and v then
-                    widen(id, v)
+                for _, unit in ipairs{false, HintFullStats} do
+                    local ok, v = pcall(row.value, w, unit or nil)
+                    if ok and v then
+                        widen(id, v)
+                    end
                 end
             end
         end
@@ -271,18 +276,20 @@ local HintBarImg = "Mod/cfahRED/Images/StatBar/"
 ---- sampled from vanilla weapon_meter / _red / _green / weapon_panel
 local HintBarColors = {fill = "195 189 172", worse = "191 67 77", better = "124 130 96", empty = "56 57 63", gap = "12 12 12"}
 
-local function HintBarTiles(units, color)
+---- tile = "u" solid, "h" hatched
+local function HintBarTiles(units, color, tile)
     local s = ""
     for _, u in ipairs{8, 4, 2, 1} do
         while units >= u do
-            s = s .. "<image " .. HintBarImg .. "u" .. u .. ".png 1000 " .. HintBarColors[color] .. ">"
+            s = s .. "<image " .. HintBarImg .. (tile or "u") .. u .. ".png 1000 " .. HintBarColors[color] .. ">"
             units = units - u
         end
     end
     return s
 end
 
----- solid up to the lower of owner/reference; the span between is red when the owner is worse, green when better (vanilla's convention)
+---- ref is the gun alone. The span between it and the owner's value is red when worse, green when
+---- better; solid when the owner adds to the gun, hatched when the owner takes away from it
 local function HintBar(id, v, ref)
     local fv = HintBarFrac(id, v)
     if not fv then
@@ -298,7 +305,8 @@ local function HintBar(id, v, ref)
         local a = i * HintBarSeg
         local f = Clamp(lo - a, 0, HintBarSeg)
         local r = Clamp(hi - a, 0, HintBarSeg) - f
-        s = s .. HintBarTiles(f, "fill") .. HintBarTiles(r, worse and "worse" or "better") .. HintBarTiles(HintBarSeg - f - r, "empty")
+        s = s .. HintBarTiles(f, "fill") .. HintBarTiles(r, worse and "worse" or "better", fv < fr and "h") ..
+                HintBarTiles(HintBarSeg - f - r, "empty")
         if i < HintBarSegs - 1 then
             s = s .. HintBarTiles(HintBarDiv, "gap")
         end
@@ -504,22 +512,21 @@ function GBO_GetDescriptionHints(self)
     local formattedString = "<style CrosshairAPTotal>"
 
     local owner = self.owner and (not gv_SatelliteView and g_Units[self.owner] or gv_UnitData[self.owner])
-    local unit = owner or HintReference
 
     local angularCTHActive = IsACHTActive()
     ---- aCTH's Handling row reads no stat, unlike classic PB
     local classic_owner = not angularCTHActive and owner
 
-    local stance_ap, crit_per_aim, recoil = HintStanceAP(self, unit), HintCritPerAim(self, unit), HintRecoil(self, unit)
+    local stance_ap, crit_per_aim, recoil = HintStanceAP(self, owner), HintCritPerAim(self, owner), HintRecoil(self, owner)
     local hip, snap = HintHipSnap(self, 0, owner, angularCTHActive), HintHipSnap(self, 1, owner, angularCTHActive)
     local pb = HintPB(self, classic_owner)
     local handling = Rat_ApertureHandlingMul(self)
-    local aim = HintAim(self, unit, angularCTHActive)
-    local aim_ref = owner and HintAim(self, HintReference, angularCTHActive)
+    local aim = HintAim(self, owner, angularCTHActive)
+    local aim_ref = owner and HintAim(self, nil, angularCTHActive)
 
     local reliability_suffix = "%"
     if Platform.rat then
-        local jam = self.Condition < const.Weapons.JamConditionGate and self:GetJamChance(unit, self.Condition) or 0
+        local jam = self.Condition < const.Weapons.JamConditionGate and self:GetJamChance(owner or HintFullStats, self.Condition) or 0
         reliability_suffix = string.format("%% (jam %d%%)", jam)
     end
 
@@ -528,7 +535,7 @@ function GBO_GetDescriptionHints(self)
 	        id = "ShootingStanceCost",
 	        TranslationTable[242435461626] or "Shooting Stance Cost: ",
 	        stance_ap, " AP",
-	        base = owner and HintStanceAP(self, HintReference),
+	        base = owner and HintStanceAP(self),
 	        bar = "StanceAP",
 	    },
 	    {
@@ -553,8 +560,8 @@ function GBO_GetDescriptionHints(self)
 	        id = "CriticalPerAim",
 	        TranslationTable[318826540117] or "Critical chance per aim: ",
 	        HintHundredths(crit_per_aim), "%",
-	        base = owner and HintHundredths(HintCritPerAim(self, HintReference)),
-	        bar = "CritPerAim", bar_v = crit_per_aim, bar_ref = owner and HintCritPerAim(self, HintReference),
+	        base = owner and HintHundredths(HintCritPerAim(self)),
+	        bar = "CritPerAim", bar_v = crit_per_aim, bar_ref = owner and HintCritPerAim(self),
 	    },
 		{
 			id = "AimAccuracy",
@@ -594,18 +601,18 @@ function GBO_GetDescriptionHints(self)
 	        id = "RecoilPenaltyMultiplier",
 	        TranslationTable[151451884832] or "Recoil Penalty Multiplier: ",
 	        HintHundredths(recoil), "X",
-	        base = owner and HintHundredths(HintRecoil(self, HintReference)),
-	        bar = "Recoil", bar_v = recoil, bar_ref = owner and HintRecoil(self, HintReference),
+	        base = owner and HintHundredths(HintRecoil(self)),
+	        bar = "Recoil", bar_v = recoil, bar_ref = owner and HintRecoil(self),
 	    },
 	}
 
-	local cycle_ap = HintCycleAP(self, unit)
+	local cycle_ap = HintCycleAP(self, owner)
 	if cycle_ap then
 		table.insert(termList, table.find(termList, "id", "ShootingStanceCost") + 1, {
 			id = "CyclingCost",
 			TranslationTable[573918264051] or "Cycling Cost: ",
 			cycle_ap, " AP",
-			base = owner and HintCycleAP(self, HintReference),
+			base = owner and HintCycleAP(self),
 			bar = "CycleAP",
 		})
 	end
