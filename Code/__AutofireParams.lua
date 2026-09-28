@@ -1,8 +1,10 @@
 ---- Selectable-length autofire (AutoFire and MGBurstFire). Logic in FEATURE_VariableAutofire.lua.
 const.Combat.Autofire = {
     MinShots = 1,
-    ---- the length that costs exactly ShootAP + deltas; shorter is cheaper, longer pays per round
-    BaseShots = 3,
+    ---- AutoFire and MGBurstFire replace the gun's ShootAP with BaseAP, which buys BaseShots rounds;
+    ---- per-gun weight goes in AutoFireCustomDeltaAP. Each round past BaseShots pays by RPM.
+    BaseAP = 2000,
+    BaseShots = 1,
     ---- AP per extra round at RPMRef; scales by RPMRef / weapon.RPM
     APPerRoundRef = 500,
     RPMRef = 600,

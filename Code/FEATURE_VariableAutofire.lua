@@ -81,13 +81,14 @@ function Rat_AutoPricedShots(action, weapon, n)
     return Max(P().MinShots, n or weapon:GetAutofireShots(action))
 end
 
----- signed: BaseShots costs ShootAP, each round above or below moves it by the per-round cost;
----- never cheaper than a Single Shot with the same weapon
+---- added to a cost that already holds ShootAP, so it swaps ShootAP for BaseAP (perks modify additively,
+---- so the swap commutes); rounds past BaseShots pay by RPM. Never cheaper than a Single Shot
 function Rat_AutoExtraAP(action, weapon, n)
     local p = P()
     n = Rat_AutoPricedShots(action, weapon, n)
     local extra = (n - p.BaseShots) * Rat_AutoAPPerRound(weapon)
     extra = MulDivRound(extra, 1, const.Scale.AP) * const.Scale.AP
+    extra = extra + p.BaseAP - (weapon.AttackAP or weapon.ShootAP or 0)
     return Max(extra, rat_getDeltaAP(nil, weapon, "SingleShot") - rat_getDeltaAP(action, weapon))
 end
 
