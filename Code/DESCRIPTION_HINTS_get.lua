@@ -101,7 +101,15 @@ local function HintAttackHidden(weapon, id)
     return false
 end
 
-local HintMechanismLabel = ratT(file_str, 285374032193, "Operation")
+---- whose AP an attack is priced with: the owner, else the merc whose inventory is open.
+---- GetAPCost needs a spawned Unit, so UnitData (satellite view, unit off map) gets nil
+local function HintAPUnit(owner_id)
+    local id = owner_id or (GetInventoryUnit() or SelectedObj or empty_table).session_id
+    local unit = id and g_Units[id]
+    return IsKindOf(unit, "Unit") and unit or nil
+end
+
+local HintMechanismLabel =ratT(file_str, 285374032193, "Operation")
 local HintCyclingLabel = ratT(file_str, 608246246045, "Action")
 ---- keyed without underscores: recoil_mechanism spells "Bolt_Action", Rat_cycling "BoltAction"
 local HintMechanismNames = {
@@ -401,6 +409,19 @@ function Rat_PatchWeaponRollover()
         local vanilla_condition = each.rat_vanilla_condition
         each.condition = function(parent, context, item, i)
             return vanilla_condition(parent, context, item, i) and not HintAttackHidden(ResolvePropObj(context), item)
+        end
+        ---- vanilla prices only an equipped gun; anything else fell back to ShootAP + ActionPointDelta
+        each.rat_vanilla_run_after = each.rat_vanilla_run_after or each.run_after
+        local vanilla_run_after = each.rat_vanilla_run_after
+        each.run_after = function(child, context, item, i, n, last)
+            vanilla_run_after(child, context, item, i, n, last)
+            local weapon = ResolvePropObj(context)
+            local unit = HintAPUnit(child.parent:GetContext().owner)
+            local ap = unit and CombatActions[item]:GetAPCost(unit, {weapon = weapon})
+            if ap and ap ~= -1 then
+                child.idPropVal:SetValueText(T{499138807753, "<val><style PDABrowserTitleSmall> AP</style>",
+                                               val = MulDivRound(ap, 1, const.Scale.AP)})
+            end
         end
         local old = table.find(path[2], "Id", "idRatHandlingAP")
         if old then
