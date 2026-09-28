@@ -275,8 +275,10 @@ local HintBarUnits = HintBarSeg * HintBarSegs + HintBarDiv * (HintBarSegs - 1)
 local HintBarImg = "Mod/cfahRED/Images/StatBar/"
 ---- sampled from vanilla weapon_meter / _red / _green / weapon_panel
 local HintBarColors = {fill = "195 189 172", worse = "191 67 77", better = "124 130 96", empty = "56 57 63", gap = "12 12 12",
-                      ---- removed span: the same hues, lighter but kept saturated
-                      worse_removed = "240 110 120", better_removed = "170 200 105"}
+                      ---- removed span, tinting the hatch tiles
+                      worse_removed = "215 110 118", better_removed = "165 185 115"}
+---- hatch tiles from tools/gen_bar_hatch.py: file prefix, and period / 4
+local HintBarHatchImg, HintBarHatchSlices = "x", 4
 
 local function HintBarTiles(units, color)
     local s = ""
@@ -289,11 +291,11 @@ local function HintBarTiles(units, color)
     return s
 end
 
----- one tile per unit: s0-s3 are 4px slices of a 16px diagonal (5px stripes, transparent gaps), picked by bar position so stripes line up
+---- one tile per unit, each a 4px slice of one diagonal, picked by bar position so stripes line up
 local function HintBarHatch(pos, units, color)
     local s = ""
     for u = pos, pos + units - 1 do
-        s = s .. "<image " .. HintBarImg .. "s" .. (u % 4) .. ".png 1000 " .. HintBarColors[color] .. ">"
+        s = s .. "<image " .. HintBarImg .. HintBarHatchImg .. (u % HintBarHatchSlices) .. ".png 1000 " .. HintBarColors[color] .. ">"
     end
     return s
 end
