@@ -152,6 +152,14 @@ local function HintStanceAP(weapon, unit)
                MulDivRound(Get_AimCost(unit), 1, const.Scale.AP)
 end
 
+---- manual cycle AP after a shot, Dexterity-reduced; nil when the gun cycles itself
+local function HintCycleAP(weapon, unit)
+    if not (weapon:HasComponent("bolt_action_ap") or weapon:HasComponent("DASA_action_ap")) then
+        return
+    end
+    return MulDivRound(rat_get_manual_cyclingAP(unit, weapon), 1, const.Scale.AP)
+end
+
 local function HintCritPerAim(weapon, unit)
     return MulDivRound(Rat_WeaponCritPerAim(weapon), rGetHandEyeCoordination(unit), 100)
 end
@@ -172,6 +180,7 @@ local HintBarRows = {
     end},
     RecStr = {lower = true, range = {30, 100}},
     StanceAP = {lower = true, value = function(w) return HintStanceAP(w, HintReference) end},
+    CycleAP = {lower = true, value = function(w) return HintCycleAP(w, HintReference) end},
     Angle = {value = function(w) return w:GetProperty("OverwatchAngle") end},
     Reliability = {value = function(w) return w.Reliability end},
     Noise = {lower = true, value = function(w) return w.Noise end},
@@ -590,6 +599,17 @@ function GBO_GetDescriptionHints(self)
 	    },
 	}
 
+	local cycle_ap = HintCycleAP(self, unit)
+	if cycle_ap then
+		table.insert(termList, table.find(termList, "id", "ShootingStanceCost") + 1, {
+			id = "CyclingCost",
+			TranslationTable[573918264051] or "Cycling Cost: ",
+			cycle_ap, " AP",
+			base = owner and HintCycleAP(self, HintReference),
+			bar = "CycleAP",
+		})
+	end
+
 	---- barrels change the spread, so it stays with the gun; the loaded (or Basic) ammo still widens it
 	if (Rat_BasicAmmoProp(self, "NumPellets") or 0) > 1 then
 		local spread = Rat_BasicAmmoProp(self, "BuckshotConeAngle") or 0
@@ -658,6 +678,7 @@ end
 local t_id_table = {
     [153781665575] = "\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Cumbersome (no Free Move)\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Increases Stance AP cost by 1 (negated by high Strength)\n",
     [242435461626] = "Shooting Stance Cost: ",
+    [573918264051] = "Cycling Cost: ",
     [766379566745] = "Shooting Angle: ",
     [412593832155] = "Reliability: ",
     [654134899415] = "Noise Radius: ",
