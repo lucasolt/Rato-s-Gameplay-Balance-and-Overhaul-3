@@ -285,10 +285,7 @@ function Rat_GetCaliberHints(weapon)
     ---- slugs load 0 pellets
     local pellets = Rat_BasicAmmoProp(weapon, "NumPellets") or 0
     if pellets > 1 then
-        local spread = Rat_BasicAmmoProp(weapon, "BuckshotConeAngle") or 0
-        s = s .. HintLine{TranslationTable[719583632117] or "Number of Pellets: ", pellets, "", bar = "Pellets"} ..
-                HintLine{TranslationTable[193184162359] or "Pellet Spread Angle: ",
-                         string.format("%.2f", spread / 60.0), "º", bar = "Spread", bar_v = spread}
+        s = s .. HintLine{TranslationTable[719583632117] or "Number of Pellets: ", pellets, "", bar = "Pellets"}
     end
     return T{"<style CrosshairAPTotal>" .. s:sub(1, -2) .. "</style>"}
 end
@@ -501,6 +498,17 @@ function GBO_GetDescriptionHints(self)
 	        bar = "Recoil", bar_v = recoil, bar_ref = owner and HintRecoil(self, HintReference),
 	    },
 	}
+
+	---- barrels change the spread, so it stays with the gun; the loaded (or Basic) ammo still widens it
+	if (Rat_BasicAmmoProp(self, "NumPellets") or 0) > 1 then
+		local spread = Rat_BasicAmmoProp(self, "BuckshotConeAngle") or 0
+		table.insert(termList, {
+			id = "PelletSpreadAngle",
+			TranslationTable[193184162359] or "Pellet Spread Angle: ",
+			string.format("%.2f", spread / 60.0), "º",
+			bar = "Spread", bar_v = spread,
+		})
+	end
 
 	if self:CanAutofire() then
 		local tenths = MulDivRound(Rat_AutoAPPerRound(self), 10, const.Scale.AP)
