@@ -20,6 +20,21 @@ function OnMsg.UnitCreated(unit)
 	GBO_GeneralUnitItemUpdate(unit)
 end
 
+-- Component values are baked per CTH mode; an option changed outside the save leaves them stale.
+local function isCTHModeStale(weapon)
+    return IsKindOf(weapon, "Firearm") and weapon.rat_updated_cth_mode ~= RAT_ApertureCTHMode
+end
+
+local function hasCTHModeStaleWeapon(unit)
+    for _, wslot in ipairs({"Handheld A", "Handheld B"}) do
+        for _, weapon in ipairs(unit:GetEquippedWeapons(wslot) or empty_table) do
+            if isCTHModeStale(weapon) then
+                return true
+            end
+        end
+    end
+end
+
 function GBO_GeneralUnitItemUpdate(unit, no_version_handling)
     if not unit or not IsKindOf(unit, "Unit") or not unit:IsValid() then
         return
@@ -30,7 +45,7 @@ function GBO_GeneralUnitItemUpdate(unit, no_version_handling)
 
     local unit_version = no_version_handling and -1 or unit.rat_unit_updated or 0
 
-    if IsMerc(unit) or unit_version < version then
+    if IsMerc(unit) or unit_version < version or hasCTHModeStaleWeapon(unit) then
         print("GBO - updating unit:", unit.unitdatadef_id)
         GBO_ReapplyWeaponComponents(unit)
 		GBO_ApplyDefaultSubweapon(unit)
@@ -78,7 +93,7 @@ function GBO_ReapplyWeaponComponents(unit, force)
 
     for _, weapon in ipairs(weapons) do
         local wep_version = weapon.rat_updated_in or 0
-        if wep_version < version or force_reapply or force then
+        if wep_version < version or isCTHModeStale(weapon) or force_reapply or force then
             local components = weapon.components
             for slot, component_id in sorted_pairs(components) do
 				if IsKindOf(weapon, "MP40") and slot == "Scope" and component_id == "ImprovedIronsight" then
@@ -94,6 +109,10 @@ function GBO_ReapplyWeaponComponents(unit, force)
                 end
             end
             weapon.rat_updated_in = version
+            if IsKindOf(weapon, "Firearm") then
+                weapon.rat_updated_cth_mode = RAT_ApertureCTHMode
+            end
+            ObjModified(weapon)
         end
     end
     unit.rat_unit_updated = version

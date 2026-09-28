@@ -609,6 +609,17 @@ function fireprop()
 
     FirearmProperties.properties[#FirearmProperties.properties +
         1] = {
+        id = "rat_updated_cth_mode",
+        name = "rat_updated_cth_mode",
+        help = "CTH mode the components were last applied in",
+        editor = "text",
+        default = "",
+        template = false,
+        modifiable = true
+    }
+
+    FirearmProperties.properties[#FirearmProperties.properties +
+        1] = {
         id = "Rat_cycling",
         name = "Cycling Mechanism",
         help = "Cycling Mechanism",

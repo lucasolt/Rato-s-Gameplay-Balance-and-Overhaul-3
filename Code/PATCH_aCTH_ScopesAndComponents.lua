@@ -419,6 +419,7 @@ function Rat_ReapplyApertureComponents()
                         end
                         w.rat_updated_in =
                             nil
+                        w.rat_updated_cth_mode = RAT_ApertureCTHMode
                         ObjModified(w)
                     end
                 end
