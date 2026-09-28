@@ -155,12 +155,14 @@ local function HintStanceAP(weapon, unit)
                MulDivRound(Get_AimCost(unit), 1, const.Scale.AP)
 end
 
----- manual cycle AP after a shot, Dexterity-reduced; nil when the gun cycles itself
-local function HintCycleAP(weapon, unit)
-    if not (weapon:HasComponent("bolt_action_ap") or weapon:HasComponent("DASA_action_ap")) then
+---- manual cycle AP after a shot, Dexterity-reduced; nil when the gun cycles itself.
+---- double_action: firing without cycling, which rat_get_manual_cyclingAP caps at the manual cost
+local function HintCycleAP(weapon, unit, double_action)
+    local da = weapon:HasComponent("DASA_action_ap")
+    if double_action and not da or not (da or weapon:HasComponent("bolt_action_ap")) then
         return
     end
-    return MulDivRound(rat_get_manual_cyclingAP(unit, weapon), 1, const.Scale.AP)
+    return MulDivRound(rat_get_manual_cyclingAP(unit, weapon, double_action), 1, const.Scale.AP)
 end
 
 local function HintCritPerAim(weapon, unit)
@@ -184,6 +186,8 @@ local HintBarRows = {
     RecStr = {lower = true, range = {30, 100}},
     StanceAP = {lower = true, value = HintStanceAP},
     CycleAP = {lower = true, value = HintCycleAP},
+    ---- scan-only: double action shares the cycling bar, so its costs widen that range
+    CycleDA = {into = "CycleAP", value = function(w, unit) return HintCycleAP(w, unit, true) end},
     Angle = {value = function(w) return w:GetProperty("OverwatchAngle") end},
     Reliability = {value = function(w) return w.Reliability end},
     Noise = {lower = true, value = function(w) return w.Noise end},
@@ -241,7 +245,7 @@ local function GetHintBarRanges()
                 for _, unit in ipairs{false, HintFullStats} do
                     local ok, v = pcall(row.value, w, unit or nil)
                     if ok and v then
-                        widen(id, v)
+                        widen(row.into or id, v)
                     end
                 end
             end
@@ -269,39 +273,13 @@ local function HintBarFrac(id, v)
     return Clamp(MulDivRound(v - r[1], 1000, r[2] - r[1]), 0, 1000)
 end
 
----- bar built from 4px-unit tiles: <image> cannot clip, and 1px tiles truncate to 0 width at ImageScale 500
-local HintBarSeg, HintBarSegs, HintBarDiv = 10, 4, 1
-local HintBarUnits = HintBarSeg * HintBarSegs + HintBarDiv * (HintBarSegs - 1)
-local HintBarImg = "Mod/cfahRED/Images/StatBar/"
----- sampled from vanilla weapon_meter / _red / _green / weapon_panel
-local HintBarColors = {fill = "195 189 172", worse = "191 67 77", better = "124 130 96", empty = "56 57 63", gap = "12 12 12",
-                      ---- removed span, tinting the hatch tiles
-                      worse_removed = "215 110 118", better_removed = "165 185 115"}
----- hatch tiles from tools/gen_bar_hatch.py: file prefix, and period / 4
-local HintBarHatchImg, HintBarHatchSlices = "x", 4
-
-local function HintBarTiles(units, color)
-    local s = ""
-    for _, u in ipairs{8, 4, 2, 1} do
-        while units >= u do
-            s = s .. "<image " .. HintBarImg .. "u" .. u .. ".png 1000 " .. HintBarColors[color] .. ">"
-            units = units - u
-        end
-    end
-    return s
-end
-
----- one tile per unit, each a 4px slice of one diagonal, picked by bar position so stripes line up
-local function HintBarHatch(pos, units, color)
-    local s = ""
-    for u = pos, pos + units - 1 do
-        s = s .. "<image " .. HintBarImg .. HintBarHatchImg .. (u % HintBarHatchSlices) .. ".png 1000 " .. HintBarColors[color] .. ">"
-    end
-    return s
-end
+---- 4 segment images + 3 dividers per bar from tools/gen_hint_bars.py, which holds every colour. XText
+---- truncates each <image> to whole pixels, so a fixed image count keeps rows equal at any UI scale
+local HintBarSeg, HintBarSegs = 10, 4
+local HintBarImg = "Mod/cfahRED/Images/HintBar/"
 
 ---- ref is the gun alone. The span between it and the owner's value is red when worse, green when
----- better; solid when the owner adds to the gun, hatched when the owner takes away from it
+---- better; solid when the owner raises the value, hatched when the owner lowers it
 local function HintBar(id, v, ref)
     local fv = HintBarFrac(id, v)
     if not fv then
@@ -310,6 +288,7 @@ local function HintBar(id, v, ref)
     local fr = HintBarFrac(id, ref) or fv
     local lower = HintBarRows[id].lower
     local worse = (lower and fv > fr) or (not lower and fv < fr)
+    local kind = (worse and "_w" or "_b") .. (fv < fr and "h" or "s")
     local total = HintBarSeg * HintBarSegs
     local lo, hi = MulDivRound(total, Min(fv, fr), 1000), MulDivRound(total, Max(fv, fr), 1000)
     local s = ""
@@ -317,13 +296,8 @@ local function HintBar(id, v, ref)
         local a = i * HintBarSeg
         local f = Clamp(lo - a, 0, HintBarSeg)
         local r = Clamp(hi - a, 0, HintBarSeg) - f
-        local color = worse and "worse" or "better"
-        s = s .. HintBarTiles(f, "fill") ..
-                (fv < fr and HintBarHatch(i * (HintBarSeg + HintBarDiv) + f, r, color .. "_removed") or HintBarTiles(r, color)) ..
-                HintBarTiles(HintBarSeg - f - r, "empty")
-        if i < HintBarSegs - 1 then
-            s = s .. HintBarTiles(HintBarDiv, "gap")
-        end
+        s = s .. (i > 0 and "<image " .. HintBarImg .. "div.png 1000>" or "") ..
+                "<image " .. HintBarImg .. "b" .. f .. "_" .. r .. (r > 0 and kind or "") .. ".png 1000>"
     end
     return s
 end
@@ -630,6 +604,16 @@ function GBO_GetDescriptionHints(self)
 			bar = "CycleAP",
 		})
 	end
+	local da_ap = HintCycleAP(self, owner, true)
+	if da_ap then
+		table.insert(termList, table.find(termList, "id", "CyclingCost") + 1, {
+			id = "DoubleActionCost",
+			TranslationTable[524204987393] or "Double Action Cost: ",
+			da_ap, " AP",
+			base = owner and HintCycleAP(self, nil, true),
+			bar = "CycleAP",
+		})
+	end
 
 	---- barrels change the spread, so it stays with the gun; the loaded (or Basic) ammo still widens it
 	if (Rat_BasicAmmoProp(self, "NumPellets") or 0) > 1 then
@@ -700,6 +684,7 @@ local t_id_table = {
     [153781665575] = "\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Cumbersome (no Free Move)\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Increases Stance AP cost by 1 (negated by high Strength)\n",
     [242435461626] = "Shooting Stance Cost: ",
     [573918264051] = "Cycling Cost: ",
+    [524204987393] = "Double Action Cost: ",
     [766379566745] = "Shooting Angle: ",
     [412593832155] = "Reliability: ",
     [654134899415] = "Noise Radius: ",
