@@ -191,9 +191,10 @@ local HintBarRows = {
     Angle = {value = function(w) return w:GetProperty("OverwatchAngle") end},
     Reliability = {value = function(w) return w.Reliability end},
     Noise = {lower = true, value = function(w) return w.Noise end},
-    Crit = {value = function(w) return w.CritChance end},
+    ---- every ammo of the caliber, so HP/AP modifiers land inside the range
+    Crit = {ammo = function(w, ammo) return HintAmmoProp(w.CritChance, ammo, "CritChance") end},
     CritPerAim = {value = HintCritPerAim},
-    CritDamage = {value = function(w) return w.CritDamage end},
+    CritDamage = {ammo = function(w, ammo) return HintAmmoProp(w.CritDamage, ammo, "CritDamage") end},
     AimAccuracy = {value = function(w, unit) return HintAim(w, unit, IsACHTActive()) end},
     PB = {value = HintPB},
     Handling = {lower = true, value = function(w) return Rat_ApertureHandlingMul(w) end},
@@ -325,21 +326,40 @@ function Rat_DisplayPenetrationClass(weapon)
     return Clamp(Rat_BasicAmmoProp(weapon, "PenetrationClass"), 1, #PenetrationClassIds)
 end
 
----- caliber-only stats, shown in the rollover's ammo panel instead of the weapon hints
-function Rat_GetCaliberHints(weapon)
-    if not IsKindOf(weapon, "Firearm") then
+---- caliber stats, shared by the weapon rollover's ammo panel and the ammo item rollover.
+---- A row reads `prop` through the ammo, or `value(item)`; `show(v)` hides it
+local CaliberHintRows = {
+    {tid = 684546854913, text = "Base critical chance: ", prop = "CritChance", suffix = "%", bar = "Crit"},
+    {tid = 247182652462, text = "Extra critical damage: ", prop = "CritDamage", suffix = "%", bar = "CritDamage"},
+    {tid = 158466723759, text = "Recommended Strength: ", value = function(item) return (Recoil_StrBreakpoint(item)) end,
+     suffix_tid = 785975283217, suffix = " STR", bar = "RecStr"},
+    ---- slugs load 0 pellets; a lone ammo item has no gun to multiply
+    {tid = 719583632117, text = "Number of Pellets: ", prop = "NumPellets", suffix = "", bar = "Pellets",
+     show = function(v) return v > 1 end},
+}
+
+---- a Firearm reads its loaded (or Basic) ammo on its own stats; an Ammo item shows its modifiers on a zero base
+local function CaliberHintValue(item, row)
+    if row.value then
+        return row.value(item)
+    end
+    if IsKindOf(item, "Ammo") then
+        return HintAmmoProp(0, item, row.prop)
+    end
+    return Rat_BasicAmmoProp(item, row.prop)
+end
+
+function Rat_GetCaliberHints(item)
+    if not IsKindOfClasses(item, "Firearm", "Ammo") then
         return ""
     end
-    local s = HintLine{TranslationTable[684546854913] or "Base critical chance: ",
-                       Rat_BasicAmmoProp(weapon, "CritChance"), "%", bar = "Crit"} ..
-                  HintLine{TranslationTable[247182652462] or "Extra critical damage: ",
-                           Rat_BasicAmmoProp(weapon, "CritDamage"), "%", bar = "CritDamage"} ..
-                  HintLine{TranslationTable[158466723759] or "Recommended Strength: ",
-                           Recoil_StrBreakpoint(weapon), TranslationTable[785975283217] or " STR", bar = "RecStr"}
-    ---- slugs load 0 pellets
-    local pellets = Rat_BasicAmmoProp(weapon, "NumPellets") or 0
-    if pellets > 1 then
-        s = s .. HintLine{TranslationTable[719583632117] or "Number of Pellets: ", pellets, "", bar = "Pellets"}
+    local s = ""
+    for _, row in ipairs(CaliberHintRows) do
+        local v = CaliberHintValue(item, row) or 0
+        if not row.show or row.show(v) then
+            s = s .. HintLine{TranslationTable[row.tid] or row.text, v,
+                              row.suffix_tid and TranslationTable[row.suffix_tid] or row.suffix, bar = row.bar}
+        end
     end
     return T{"<style CrosshairAPTotal>" .. s:sub(1, -2) .. "</style>"}
 end
@@ -385,27 +405,30 @@ function Rat_PatchWeaponRollover()
             return GetPenetrationClassUIText(IsKindOf(obj, "Firearm") and Rat_DisplayPenetrationClass(obj) or value)
         end)
     end
-    ---- first "ammo" block is the gun's own caliber row; the second is the subweapon's
-    path = FindXtByProp(XTemplates.RolloverInventoryWeaponBase, "comment", "ammo")
-    if path and not FindXtByProp(path[1], "Id", "idRatCaliberHints") then
-        table.insert(path[1], PlaceObj("XTemplateWindow", {
-            "__class", "XText",
-            "Id", "idRatCaliberHints",
-            "Margins", box(0, 4, 0, 0),
-            "HandleMouse", false,
-            "TextStyle", "InventoryRolloverHint",
-            "Translate", true,
-            "HideOnEmpty", true,
-            "FoldWhenHidden", true,
-        }, {
-            PlaceObj("XTemplateFunc", {
-                "name", "Open(self)",
-                "func", function(self)
-                    XText.Open(self)
-                    self:SetText(Rat_GetCaliberHints(ResolvePropObj(self.context)))
-                end,
-            }),
-        }))
+    ---- caliber rows in both rollovers. Weapon: the first "ammo" block is the gun's own caliber row (the second
+    ---- is the subweapon's). Ammo item: the generic rollover's "ammo" group, after vanilla's modifier list
+    for _, tmpl in ipairs{XTemplates.RolloverInventoryWeaponBase, XTemplates.RolloverInventoryBase} do
+        path = FindXtByProp(tmpl, "comment", "ammo")
+        if path and not FindXtByProp(path[1], "Id", "idRatCaliberHints") then
+            table.insert(path[1], PlaceObj("XTemplateWindow", {
+                "__class", "XText",
+                "Id", "idRatCaliberHints",
+                "Margins", box(0, 4, 0, 0),
+                "HandleMouse", false,
+                "TextStyle", "InventoryRolloverHint",
+                "Translate", true,
+                "HideOnEmpty", true,
+                "FoldWhenHidden", true,
+            }, {
+                PlaceObj("XTemplateFunc", {
+                    "name", "Open(self)",
+                    "func", function(self)
+                        XText.Open(self)
+                        self:SetText(Rat_GetCaliberHints(ResolvePropObj(self.context)))
+                    end,
+                }),
+            }))
+        end
     end
     ---- More Info panel: attack AP list skips hidden fire modes; swap/reload AP and mechanism below it
     path = FindXtByProp(XTemplates.InventoryRolloverInfo, "class", "XTemplateForEach")
