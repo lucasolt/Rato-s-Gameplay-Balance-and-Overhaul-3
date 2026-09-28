@@ -35,6 +35,10 @@ item behavior, character effects, AI, and gameplay mechanics
 through the engine's partial override system — they do not redefine entire entities,
 only the fields that are changed.
 
+**The live weapon set:** only firearms with `is_vanilla_firearm` or `is_tog_patched` set to true
+exist for balancing. Every other Firearm preset (many ToG guns) is intentionally unpatched and
+keeps raw values — exclude them from preset scans, stat tables and balance samples.
+
 ## Debugging the game
 
 See `DEBUG SERVER.md` for instructions on connecting to the debug server and retrieving realtime

@@ -203,7 +203,9 @@ local function GetHintBarRanges()
     end
     ForEachPreset("InventoryItemCompositeDef", function(preset)
         local class = g_Classes[preset.id]
-        if not IsKindOf(class, "Firearm") or IsKindOf(class, "HeavyWeapon") then
+        ---- unpatched presets keep raw values and would stretch every range
+        if not IsKindOf(class, "Firearm") or IsKindOf(class, "HeavyWeapon") or
+            not (class.is_vanilla_firearm or class.is_tog_patched) then
             return
         end
         local w = PlaceInventoryItem(preset.id)
