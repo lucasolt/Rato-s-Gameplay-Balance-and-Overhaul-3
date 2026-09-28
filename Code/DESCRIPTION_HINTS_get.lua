@@ -276,7 +276,7 @@ local HintBarImg = "Mod/cfahRED/Images/StatBar/"
 ---- sampled from vanilla weapon_meter / _red / _green / weapon_panel
 local HintBarColors = {fill = "195 189 172", worse = "191 67 77", better = "124 130 96", empty = "56 57 63", gap = "12 12 12"}
 
----- tile = "u" solid, "h" hatched
+---- tile = "u" solid, "o" outlined
 local function HintBarTiles(units, color, tile)
     local s = ""
     for _, u in ipairs{8, 4, 2, 1} do
@@ -289,7 +289,7 @@ local function HintBarTiles(units, color, tile)
 end
 
 ---- ref is the gun alone. The span between it and the owner's value is red when worse, green when
----- better; solid when the owner adds to the gun, hatched when the owner takes away from it
+---- better; solid when the owner adds to the gun, outlined when the owner takes away from it
 local function HintBar(id, v, ref)
     local fv = HintBarFrac(id, v)
     if not fv then
@@ -305,7 +305,7 @@ local function HintBar(id, v, ref)
         local a = i * HintBarSeg
         local f = Clamp(lo - a, 0, HintBarSeg)
         local r = Clamp(hi - a, 0, HintBarSeg) - f
-        s = s .. HintBarTiles(f, "fill") .. HintBarTiles(r, worse and "worse" or "better", fv < fr and "h") ..
+        s = s .. HintBarTiles(f, "fill") .. HintBarTiles(r, worse and "worse" or "better", fv < fr and "o") ..
                 HintBarTiles(HintBarSeg - f - r, "empty")
         if i < HintBarSegs - 1 then
             s = s .. HintBarTiles(HintBarDiv, "gap")
