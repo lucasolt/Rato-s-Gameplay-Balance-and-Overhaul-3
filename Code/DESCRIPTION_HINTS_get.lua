@@ -422,6 +422,11 @@ function Rat_PatchWeaponRollover()
                 child.idPropVal:SetValueText(T{499138807753, "<val><style PDABrowserTitleSmall> AP</style>",
                                                val = MulDivRound(ap, 1, const.Scale.AP)})
             end
+            ---- the length that cost pays for, since the wheel changes it
+            if Rat_IsVariableAuto(CombatActions[item]) and IsKindOf(weapon, "Firearm") then
+                child.idPropVal:SetNameText(T{396207518843, "<action> (<num> rounds)", action = CombatActions[item].DisplayName,
+                                              num = Rat_AutoPricedShots(CombatActions[item], weapon)})
+            end
         end
         local old = table.find(path[2], "Id", "idRatHandlingAP")
         if old then
@@ -670,6 +675,7 @@ local t_id_table = {
 	[184329577856] = "Handling Penalty Multiplier: ",
 	[219437987174] = "Aim accuracy: ",
 	[638215904417] = "Rate of Fire: ",
+	[396207518843] = "<action> (<num> rounds)",
 	--[638215904418] = "AP per extra round",
 
 }

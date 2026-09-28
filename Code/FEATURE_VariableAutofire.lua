@@ -73,11 +73,19 @@ function Rat_AutoAPPerRound(weapon)
     return MulDivRound(p.APPerRoundRef, p.RPMRef, Max(1, weapon.RPM or p.RPMRef))
 end
 
+---- length an attack is priced at: an empty gun can't fire, so its default length stands instead of 1
+function Rat_AutoPricedShots(action, weapon, n)
+    if weapon.ammo then
+        return Rat_ClampAutoShots(action, weapon, n)
+    end
+    return Max(P().MinShots, n or weapon:GetAutofireShots(action))
+end
+
 ---- signed: BaseShots costs ShootAP, each round above or below moves it by the per-round cost;
 ---- never cheaper than a Single Shot with the same weapon
 function Rat_AutoExtraAP(action, weapon, n)
     local p = P()
-    n = Rat_ClampAutoShots(action, weapon, n)
+    n = Rat_AutoPricedShots(action, weapon, n)
     local extra = (n - p.BaseShots) * Rat_AutoAPPerRound(weapon)
     extra = MulDivRound(extra, 1, const.Scale.AP) * const.Scale.AP
     return Max(extra, rat_getDeltaAP(nil, weapon, "SingleShot") - rat_getDeltaAP(action, weapon))
