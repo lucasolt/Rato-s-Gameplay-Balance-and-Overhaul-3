@@ -257,15 +257,12 @@ function rat_get_manual_cyclingAP(unit, weapon, shooting)
     bolt_ap_manual = bolt_ap_manual * const.Scale.AP
     DASA_action_ap = DASA_action_ap and DASA_action_ap * const.Scale.AP
 
-    -- Linear Dexterity reduction, rounded to displayed AP.
-    local dex_start, dex_full = const.Combat.BoltActionDexStart, const.Combat.BoltActionDexFull
-    local dex_steps = MulDivRound(Clamp(dex - dex_start, 0, dex_full - dex_start),
-                                  const.Combat.BoltActionDexMaxReduction, dex_full - dex_start)
+    -- Hyperbolic Dexterity reduction: approaches max_pct of the base, never reaches it; rounded to displayed AP.
+    local max_pct = const.Combat.BoltActionDexMaxPct + (tex_perk and const.Combat.TexPerkCycleMaxPct or 0)
+    local over = Max(0, dex - const.Combat.BoltActionDexStart)
+    local red_pct = MulDivRound(max_pct, over, over + const.Combat.BoltActionDexHalf)
+    local dex_steps = MulDivRound(bolt_ap_manual, red_pct, 100 * const.Scale.AP)
     bolt_ap_manual = bolt_ap_manual - dex_steps * const.Scale.AP
-
-    if tex_perk then
-        bolt_ap_manual = bolt_ap_manual - R_VanillaAP(const.Combat.TexPerkCycleAPDiscount)
-    end
 
     if DASA_action_ap and (bolt_ap_manual < DASA_action_ap) then
         DASA_action_ap = bolt_ap_manual

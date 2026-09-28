@@ -61,9 +61,9 @@ const.Combat.ShootMoveSMGorHandgun_FreeMoveMul = 50
 
 ----- BoltAction
 const.Combat.BoltActionDexStart = 65
-const.Combat.BoltActionDexFull = 100--95
-const.Combat.BoltActionDexMaxReduction = R_VanillaAPToDisplay(2)
-const.Combat.TexPerkCycleAPDiscount = 2
+const.Combat.BoltActionDexMaxPct = 75 -- asymptote of the cycle cost reduction, % of base
+const.Combat.BoltActionDexHalf = 15 -- Dex above Start that yields half of MaxPct
+const.Combat.TexPerkCycleMaxPct = 15 -- added to MaxPct
 
 ------ Pindown (Sniping)
 const.Combat.PindownCritPerAimLevel = 400 -- hundredths of %, added to CritPerAim
