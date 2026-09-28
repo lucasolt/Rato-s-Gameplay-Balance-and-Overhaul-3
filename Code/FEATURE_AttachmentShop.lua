@@ -36,7 +36,7 @@ RAT_ATT_SHOP_SUPPORT = {RAT_Att_Bipod = true}
 RAT_ATT_SHOP_TIERS = {
     {MaxStock = 3, RestockWeight = 100},
     {MaxStock = 2, RestockWeight = 60},
-    {MaxStock = 1, RestockWeight = 30}
+    {MaxStock = 1, RestockWeight = 40}
 }
 
 ---- Percent applied to the tier weight, per page. Weights compete across the whole Attachments

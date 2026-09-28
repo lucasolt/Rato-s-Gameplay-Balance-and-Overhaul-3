@@ -5321,7 +5321,7 @@ return {
 			DisplayName = T(542909535789, --[[ModItemWeaponComponent ScopeCOG DisplayName]] "Prism Scope 2x"),
 			GBO_ComponentTraits = "Scope._2x",
 			GBO_OverrideEffects = {
-				"critical_per_aim_scope",
+				"IncreaseCritPerAim",
 			},
 			GBO_OverrideParams = {
 				PlaceObj('PresetParamNumber', {
@@ -5334,11 +5334,16 @@ return {
 					'Value', 6,
 					'Tag', "<RangeIncrease>",
 				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "CritPerAimIncrease",
+					'Value', 320,
+					'Tag', "<CritPerAimIncrease>",
+				}),
 			},
 			Icon = "UI/Icons/Upgrades/prism_scope",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
-				"critical_per_aim_scope",
+				"IncreaseCritPerAim",
 				"IncreaseMaxAimActions",
 				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
@@ -5350,6 +5355,11 @@ return {
 					'Name', "AimAccuracyIncrease",
 					'Value', 2,
 					'Tag', "<AimAccuracyIncrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "CritPerAimIncrease",
+					'Value', 320,
+					'Tag', "<CritPerAimIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "MaxAimActionsIncrease",
@@ -6675,6 +6685,9 @@ return {
 					'Type', "FineSteelPipe",
 				}),
 			},
+			BlockSlots = {
+				"Muzzle",
+			},
 			Cost = 30,
 			DisplayName = T(967483558415, --[[ModItemWeaponComponent winni_to54r DisplayName]] "W1895 7.62x54R Barrel Adaptation"),
 			GBO_ComponentTraits = "Barrel.Long, Barrel.to762_54R",
@@ -6718,7 +6731,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "ReliabilityDecreasePercent",
-					'Value', 50,
+					'Value', 60,
 					'Tag', "<ReliabilityDecreasePercent>",
 				}),
 			},
@@ -7178,6 +7191,9 @@ return {
 					'Amount', 1,
 					'Type', "FineSteelPipe",
 				}),
+			},
+			BlockSlots = {
+				"Muzzle",
 			},
 			Cost = 40,
 			DisplayName = T(682294285321, --[[ModItemWeaponComponent Barrel50BMG_DesertEagle DisplayName]] ".50 AE Barrel"),
@@ -7652,7 +7668,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "ReliabilityIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<ReliabilityIncrease>",
 				}),
 			},
@@ -8147,7 +8163,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "ReliabilityIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<ReliabilityIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -8309,7 +8325,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "ReliabilityIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<ReliabilityIncrease>",
 				}),
 			},
@@ -9226,7 +9242,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "ReliabilityIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<ReliabilityIncrease>",
 				}),
 			},
@@ -9285,7 +9301,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "ReliabilityIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<ReliabilityIncrease>",
 				}),
 			},
@@ -9424,7 +9440,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "ReliabilityIncrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<ReliabilityIncrease>",
 				}),
 			},
@@ -10091,7 +10107,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "ReliabilityDecrease",
-					'Value', 10,
+					'Value', 6,
 					'Tag', "<ReliabilityDecrease>",
 				}),
 			},
@@ -17951,19 +17967,18 @@ return {
 		EnableAimFX = true,
 		GBO_ComponentTraits = "Self",
 		GBO_OverrideEffects = {
-			"IncreaseCritChangeScaled",
-			"critical_per_aim_laser",
+			"IncreaseCritPerAim",
 		},
 		GBO_OverrideParams = {
-			PlaceObj('PresetParamNumber', {
-				'Name', "CritChangeScaledIncrease",
-				'Value', 10,
-				'Tag', "<CritChangeScaledIncrease>",
-			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "hip_mul",
 				'Value', 90,
 				'Tag', "<hip_mul>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "CritPerAimIncrease",
+				'Value', 250,
+				'Tag', "<CritPerAimIncrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "snapshot_mul",
@@ -17974,16 +17989,15 @@ return {
 		Icon = "UI/Icons/Upgrades/side_laser",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"IncreaseCritChangeScaled",
-			"critical_per_aim_laser",
+			"IncreaseCritPerAim",
 			"DecreaseHipfireMul",
 			"DecreaseSnapshotMul",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
-				'Name', "CritChangeScaledIncrease",
-				'Value', 10,
-				'Tag', "<CritChangeScaledIncrease>",
+				'Name', "CritPerAimIncrease",
+				'Value', 250,
+				'Tag', "<CritPerAimIncrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "hipfire_mul_reduc",
@@ -19048,7 +19062,15 @@ return {
 		Icon = "UI/Icons/Upgrades/m16_muzzle",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
+			"ReduceReliability",
 			"compensator_effect",
+		},
+		Parameters = {
+			PlaceObj('PresetParamNumber', {
+				'Name', "ReliabilityDecrease",
+				'Value', 10,
+				'Tag', "<ReliabilityDecrease>",
+			}),
 		},
 		Slot = "Muzzle",
 		Tags = set( "CloseQuarters", "Intimate", "Precision", "Strategic", "Tactical" ),
@@ -19209,6 +19231,9 @@ return {
 				'Amount', 1,
 				'Type', "FineSteelPipe",
 			}),
+		},
+		BlockSlots = {
+			"Muzzle",
 		},
 		Cost = 60,
 		DisplayName = T(629405789801, --[[ModItemWeaponComponent rpk_to762wp DisplayName]] "Retrofitted RPK Barrel"),
@@ -19846,16 +19871,15 @@ return {
 		Icon = "UI/Icons/Upgrades/side_laser",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"IncreaseCritChangeScaled",
-			"critical_per_aim_laser",
+			"IncreaseCritPerAim",
 			"DecreaseHipfireMul",
 			"DecreaseSnapshotMul",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
-				'Name', "CritChangeScaledIncrease",
-				'Value', 10,
-				'Tag', "<CritChangeScaledIncrease>",
+				'Name', "CritPerAimIncrease",
+				'Value', 250,
+				'Tag', "<CritPerAimIncrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "hipfire_mul_reduc",
@@ -19939,16 +19963,15 @@ return {
 		Icon = "UI/Icons/Upgrades/side_laser",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"IncreaseCritChangeScaled",
-			"critical_per_aim_laser",
+			"IncreaseCritPerAim",
 			"DecreaseHipfireMul",
 			"DecreaseSnapshotMul",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
-				'Name', "CritChangeScaledIncrease",
-				'Value', 10,
-				'Tag', "<CritChangeScaledIncrease>",
+				'Name', "CritPerAimIncrease",
+				'Value', 250,
+				'Tag', "<CritPerAimIncrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "hipfire_mul_reduc",
@@ -20004,16 +20027,15 @@ return {
 		Icon = "UI/Icons/Upgrades/side_laser",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"IncreaseCritChangeScaled",
-			"critical_per_aim_laser",
+			"IncreaseCritPerAim",
 			"DecreaseHipfireMul",
 			"DecreaseSnapshotMul",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
-				'Name', "CritChangeScaledIncrease",
-				'Value', 10,
-				'Tag', "<CritChangeScaledIncrease>",
+				'Name', "CritPerAimIncrease",
+				'Value', 250,
+				'Tag', "<CritPerAimIncrease>",
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "hipfire_mul_reduc",

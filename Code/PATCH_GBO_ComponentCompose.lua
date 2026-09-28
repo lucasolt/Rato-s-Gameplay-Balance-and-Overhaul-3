@@ -214,7 +214,7 @@ GBO_COMP_TRAITS = {
     },
     ["Barrel.Improved"] = {
         effects = {"IncreaseReliability"},
-        params = {ReliabilityIncrease = 10}
+        params = {ReliabilityIncrease = 6}
     },
     ["Mag.Reduced2"] = {
         effects = {"ReduceMagazineSize"},
@@ -222,7 +222,7 @@ GBO_COMP_TRAITS = {
     },
 	["General.ReduceReliability"]= {
         effects = {"ReduceReliability"},
-        params = {ReliabilityDecrease = 10}
+        params = {ReliabilityDecrease = 6}
     },
 	["Mag.Multiplier150"]= {
         effects = {"MagazineSizeMultiplier"},
@@ -297,7 +297,7 @@ GBO_COMP_TRAITS = {
 		},
 		params = {
 			DamageIncrease = 7,
-			ReliabilityDecreasePercent = 50,
+			ReliabilityDecreasePercent = 60,
 		}
 	},
 

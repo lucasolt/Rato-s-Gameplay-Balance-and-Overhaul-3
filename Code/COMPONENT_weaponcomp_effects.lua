@@ -1,11 +1,5 @@
 function weapon_components_rat()
 
-    PlaceObj('WeaponComponentEffect', {
-        Description = T(183998509789,
-                        "Grants bonus Critical Chance per aim level"),
-        group = "FX Placeholders",
-        id = "teste"
-    })
 
     PlaceObj('WeaponComponentEffect', {
         Comment = "ChangeWeapon combat action",
@@ -311,7 +305,7 @@ function weapon_components_rat()
 
     PlaceObj('WeaponComponentEffect', {
         Description = T(318826540120,
-                        "Increases critical chance per aim level"),
+                        "Increases Critical Chance per aim level"),
         Parameters = {
             PlaceObj(
                 'PresetParamNumber', {
@@ -331,7 +325,7 @@ function weapon_components_rat()
 
     PlaceObj('WeaponComponentEffect', {
         Description = T(318826540121,
-                        "Decreases critical chance per aim level"),
+                        "Decreases Critical Chance per aim level"),
         ModificationType = "Subtract",
         Parameters = {
             PlaceObj(
@@ -586,7 +580,7 @@ function weapon_components_rat()
 
     PlaceObj('WeaponComponentEffect', {
         Description = T(369880626294,
-                        "Grants bonus Critical Chance with aimed attacks"),
+                        "Grants bonus Critical Chance for aimed attacks"),
         group = "FX Placeholders",
         id = "first_aim_crit"
     })
@@ -1354,8 +1348,8 @@ function weapon_components_rat()
 end
 
 local t_table = {
-    [318826540120] = 'Increases critical chance per aim level',
-    [318826540121] = 'Decreases critical chance per aim level',
+    [318826540120] = 'Increases Critical chance per aim level',
+    [318826540121] = 'Decreases Critical chance per aim level',
     [183998509789] = 'Grants bonus Critical Chance per aim level',
     [954592406374] = 'Reduce AP necessary to swap to this weapon',
     [388838149410] = 'Reduced <em>recoil penalty</em>. Reduced <em>Hipfire</em> and <em>Snapshot</em> penalty',
@@ -1378,8 +1372,8 @@ local t_table = {
     [624517971084] = 'Decreased <em>Recoil</em> penalty when using the <em>Burst Fire</em> attack mode',
     [486765316396] = 'Changes caliber to 7.62x54mmR',
     [953726500783] = 'Changes caliber to 7.62x39mm WP',
-    [687659582586] = 'Decreases critical chance bonus that scales per merc level',
-    [939111789534] = 'Decreases base critical chance',
+    [687659582586] = 'Decreases Critical Chance bonus that scales per merc level',
+    [939111789534] = 'Decreases base Critical Chance',
     [398049834770] = 'Reduced <em>recoil penalty</em>',
     [954822518050] = 'Slightly reduced <em>recoil penalty</em>',
     [598891097935] = 'Reduced <em>recoil penalty</em>',
@@ -1397,7 +1391,7 @@ local t_table = {
     [213711882780] = 'Grants significant bonus Accuracy to attacks with 4+ aim levels - bonus is based on <em>Weapon Aim Accuracy</em>',
     [247212055308] = 'Grants bonus Accuracy to attacks with 2+ aim levels - bonus is based on <em>Weapon Aim Accuracy</em>',
     [872923011488] = 'Grants bonus Critical Chance to attacks with 2+ aim levels',
-    [369880626294] = 'Grants bonus Critical Chance with aimed attacks',
+    [369880626294] = 'Grants bonus Critical Chance for aimed attacks',
     [905983597373] = 'Grants a small bonus Critical Chance per aim level',
     [617033974337] = 'Slightly reduced penalty to <em>target body parts</em> with attacks with 3+ aim levels',
     [337691694250] = 'Increase AP cost when attacking',

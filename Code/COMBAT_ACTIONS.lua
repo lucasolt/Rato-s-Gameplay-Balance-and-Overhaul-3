@@ -5,8 +5,11 @@ function rat_combat_actions()
     CombatActions.AutoFire.ActionPointDelta = 0
     CombatActions.MGBurstFire.ActionPointDelta = 0
 
-    CombatActions.Buckshot.ActionPointDelta = 0---2000
-    CombatActions.BuckshotBurst.ActionPointDelta = 2000--0
+    -- These shotguns values need to follow single and burst shot values, so 
+	-- so Slug single shot keeps the correct value as well.
+	CombatActions.Buckshot.ActionPointDelta = -2000
+	CombatActions.DoubleBarrel.ActionPointDelta = 0 -- 1000
+    CombatActions.BuckshotBurst.ActionPointDelta = 0
 
     CombatActions.DualShot.ActionPointDelta = 0
 
@@ -393,11 +396,12 @@ function rat_combat_actions()
         end
         local weapon = weapon1
         local action = self
+		local delta = self.ActionPointDelta or 0
 
         local ap_extra = unit:GetShootingStanceAP(args and args.target or false, weapon,
                                                   args and args.aim or 0, action) or 0
 
-        return unit:GetAttackAPCost(self, weapon1, false, args and args.aim or 0) + ap_extra or -1
+        return unit:GetAttackAPCost(self, weapon1, false, args and args.aim or 0) + ap_extra + delta or -1
     end
 
     CombatActions.DoubleBarrel.GetAPCost = function(self, unit, args)
@@ -414,8 +418,8 @@ function rat_combat_actions()
         local ap_extra = unit:GetShootingStanceAP(args and args.target or false, weapon,
                                                   args and args.aim or 0, action) or 0
 
-        local cost = unit:GetAttackAPCost(self, weapon1, false, args and args.aim or 0) + ap_extra
-        return cost and cost + self.ActionPoints or -1
+        local cost = unit:GetAttackAPCost(self, weapon1, false, args and args.aim or 0) + ap_extra 
+        return cost and cost + self.ActionPointDelta or -1
     end
 
     ----------------------------- Pindown
