@@ -246,11 +246,20 @@ function OnMsg.zCore_ClassesGenerate()
     ApplyAmmoParams("_44CAL_Subsonic", _44CAL_Subsonic, {})
 end
 
+---- ammo ids don't always spell the caliber (7_62x54R -> _7_62x54_Basic), so match the suffix
+local BasicAmmoSuffixes = {"_Basic", "_Buckshot"}
+
 ---- the caliber's Basic ammo (or its first ammo) stands in for an unloaded gun's caliber stats
 function Rat_BasicAmmoClass(weapon)
     local ammos = weapon.Caliber and GetAmmosWithCaliber(weapon.Caliber) or empty_table
-    local def = table.find_value(ammos, "id", "_" .. tostring(weapon.Caliber) .. "_Basic") or ammos[1]
-    return def and g_Classes[def.id]
+    for _, suffix in ipairs(BasicAmmoSuffixes) do
+        for _, def in ipairs(ammos) do
+            if def.id:ends_with(suffix) then
+                return g_Classes[def.id]
+            end
+        end
+    end
+    return ammos[1] and g_Classes[ammos[1].id]
 end
 
 function print_ammos()

@@ -57,6 +57,11 @@ local acth_text_swaps = {
         ratT(file_str,777731488769, "<em>Machine guns</em> need to be set before firing to avoid suffering a heavy <em>Accuracy</em> penalty."),
         ratT(file_str,681987343557, "Heavy weapons such as <em>machine guns</em> suffer heavy <em>Accuracy</em> and <em>Recoil</em> penalties unless fired <em>prone</em>. Setting up a machine gun puts you prone.")},
 
+    ---- A.AimDecayMuls.HandgunPenalty is 100: aCTH does not halve handgun aim
+    {"WeaponType", "Handgun", "Description",
+        T(264319486518, "Handguns, like pistols and revolvers, are very accurate at point-blank range. However, they are short ranged and are not effective against Armor.\n\n<em>Attacks with Handguns have their aim accuracy reduced by half.\n\n<em>Recovers half Free Move AP after firing.</em>\n\nSpecial attack: Mobile Shot"),
+        ratT(file_str,847215093618, "Handguns, like pistols and revolvers, are very accurate at point-blank range. However, they are short ranged and are not effective against Armor.\n\n<em>Recovers half Free Move AP after firing.</em>\n\nSpecial attack: Mobile Shot")},
+
     ---- camouflage shrinks the visible silhouette (A.CamoExposedPct) instead of weakening aim
     {"InventoryItemDefs", "CamoArmor_Light", "AdditionalHint",
         ratT(file_str,990395288798, "<bullet_point> Harder to detect by enemies\n<bullet_point> Aiming is less effective against camouflaged targets\n<bullet_point> Can't be combined with weave or ceramics"),
@@ -122,8 +127,8 @@ function GBO_SwapACTHTexts()
     for _, s in ipairs(acth_text_swaps) do
         if (not s.mod or IsMod_loaded(s.mod)) and not (s.no_mod and IsMod_loaded(s.no_mod)) then
             local idx = (s.sim and sim or not s.sim and acth) and 5 or 4
-            ---- GameTerm has no global map
-            local map = s[1] == "GameTerm" and Presets.GameTerm.Default or _G[s[1]]
+            ---- GameTerm and WeaponType have no global map
+            local map = (s[1] == "GameTerm" or s[1] == "WeaponType") and Presets[s[1]].Default or _G[s[1]]
             local preset = (map or empty_table)[s[2]]
             if preset then
                 preset[s[3]] = s[idx]

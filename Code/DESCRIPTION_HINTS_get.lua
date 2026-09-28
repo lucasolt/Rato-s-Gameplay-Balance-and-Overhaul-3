@@ -11,13 +11,22 @@ local function HintRecoil(weapon, attacker)
     return cRound(recoil * 100)
 end
 
----- aim 0 = hipfire, 1 = snapshot; Reflexes factor mirrors CTH_hipfire_and_snapshot.lua
-local function HintHipSnap(weapon, aim, unit)
+---- aim 0 = hipfire, 1 = snapshot; Reflexes factor mirrors CTH_hipfire_and_snapshot.lua (classic)
+---- and Rat_StepAttrMul (aCTH), which both scale the same step excess the weapon mul does
+local function HintHipSnap(weapon, aim, unit, acth)
     local mul = GetWeaponHipfireOrSnapshotMul(weapon, false, false, true, aim)
-    if unit then
+    if unit and acth then
+        return MulDivRound(cRound(mul * 100), Rat_StepAttrMul(unit, nil, aim), 100)
+    elseif unit then
         mul = mul * (1.35 - 0.70 * rGetReflex(unit) / 100)
     end
     return cRound(mul * 100)
+end
+
+---- classic Hand-Eye scale, as % (CTH_aim.lua / CTH_pointblank.lua)
+local function HintHandEyeScale(unit)
+    local min, max = const.Combat.R_MinAimScaling, const.Combat.R_MaxAimScaling
+    return Clamp(min + MulDivRound(max - min, rGetHandEyeCoordination(unit) - 10, 90), min, max)
 end
 
 ---- Hand-Eye scaling mirrors CTH_pointblank.lua; a negative bonus scales inversely there
@@ -26,12 +35,69 @@ local function HintPB(weapon, unit)
     if not unit then
         return pb
     end
-    local min, max = const.Combat.R_MinAimScaling, const.Combat.R_MaxAimScaling
-    local scale = Clamp(min + MulDivRound(max - min, rGetHandEyeCoordination(unit) - 10, 90), min, max)
+    local scale = HintHandEyeScale(unit)
     if pb < 0 then
         scale = 150 - scale
     end
     return MulDivRound(pb, scale, 100)
+end
+
+---- per-aim-level bonus in hundredths. Classic mirrors CTH_aim.lua; aCTH mirrors Rat_ApertureAimDecay,
+---- whose closing is proportional to AimAccuracy x Hand-Eye while A.DecayBase is 0
+local function HintAim(weapon, unit, acth)
+    local acc = weapon.AimAccuracy * 100
+    if acth then
+        return MulDivRound(acc, Clamp(rGetHandEyeCoordination(unit), 10, 100), 100)
+    end
+    if IsKindOfClasses(weapon, "Pistol", "Revolver") then
+        acc = acc / 2
+    end
+    if GetComponentEffectValue(weapon, "ReduceAimAccuracy", "cth_penalty") then
+        acc = acc / 2
+    end
+    if weapon:HasComponent("light_stock_aim_reduce") then
+        acc = MulDivRound(acc, 90, 100)
+    end
+    return MulDivRound(MulDivRound(acc, HintHandEyeScale(unit), 100), const.Combat.R_AimMul, 100)
+end
+
+---- classic aim is fractional per level; aCTH's is an integer stat
+local function HintAimText(v, acth)
+    if acth then
+        return tostring(MulDivRound(v, 1, 100))
+    end
+    v = MulDivRound(v, 1, 10)
+    return string.format("%d.%d", v / 10, v % 10)
+end
+
+---- mirrors ChangeWeapon.GetAPCost for this gun alone, in displayed AP
+local function HintSwapAP(weapon)
+    if IsKindOf(weapon, "HeavyWeapon") then
+        return MulDivRound(R_VanillaAP(4), 1, const.Scale.AP)
+    end
+    local ap = weapon.Rat_swap_ap or 0
+    if weapon:HasComponent("FreeWeaponSwap") then
+        ap = Max(0, ap - 20)
+    end
+    if IsKindOfClasses(weapon, "Pistol", "Revolver") and not weapon.pistol_swap and ap < 20 then
+        return 0
+    end
+    return ap
+end
+
+---- one ammo's modifiers on the gun's own value, stacked the way Firearm:Reload adds them
+local function HintAmmoProp(value, ammo, prop)
+    for _, mod in ipairs(ammo and ammo.Modifications or empty_table) do
+        if mod.target_prop == prop then
+            value = MulDivRound(value, mod.mod_mul, 1000) + mod.mod_add
+        end
+    end
+    return value
+end
+
+local function HintAmmoPellets(w, ammo)
+    local n = HintAmmoProp(w.NumPellets or 0, ammo, "NumPellets")
+    return n > 1 and n or nil
 end
 
 local function HintStanceAP(weapon, unit)
@@ -49,9 +115,14 @@ local function HintHundredths(v)
     return string.format("%s%d.%02d", sign, v / 100, v % 100)
 end
 
----- bar value of each row at the reference merc, for the preset scan; `range` skips the scan.
+---- bar value of each row at the reference merc, for the preset scan; `range` skips the scan and
+---- `ammo` rows scan every ammo of the caliber instead of the Basic one.
 ---- lower = smaller is better, which only picks the gap color: bars always grow with the value, like vanilla
 local HintBarRows = {
+    Pellets = {ammo = HintAmmoPellets},
+    Spread = {lower = true, ammo = function(w, ammo)
+        return HintAmmoPellets(w, ammo) and HintAmmoProp(w.BuckshotConeAngle or 0, ammo, "BuckshotConeAngle")
+    end},
     RecStr = {lower = true, range = {30, 100}},
     StanceAP = {lower = true, value = function(w) return HintStanceAP(w, HintReference) end},
     Angle = {value = function(w) return w:GetProperty("OverwatchAngle") end},
@@ -60,7 +131,7 @@ local HintBarRows = {
     Crit = {value = function(w) return w.CritChance end},
     CritPerAim = {value = function(w) return HintCritPerAim(w, HintReference) end},
     CritDamage = {value = function(w) return w.CritDamage end},
-    AimAccuracy = {value = function(w) return w.AimAccuracy end},
+    AimAccuracy = {value = function(w) return HintAim(w, HintReference, IsACHTActive()) end},
     PB = {value = function(w) return GetPBbonus(w) end},
     Handling = {lower = true, value = function(w) return Rat_ApertureHandlingMul(w) end},
     Hipfire = {lower = true, value = function(w) return HintHipSnap(w, 0) end},
@@ -79,12 +150,25 @@ local function GetHintBarRanges()
         return HintBarRanges
     end
     local lo, hi = {}, {}
+    local function widen(id, v)
+        lo[id] = Min(lo[id] or v, v)
+        hi[id] = Max(hi[id] or v, v)
+    end
     ForEachPreset("InventoryItemCompositeDef", function(preset)
         local class = g_Classes[preset.id]
         if not IsKindOf(class, "Firearm") or IsKindOf(class, "HeavyWeapon") then
             return
         end
         local w = PlaceInventoryItem(preset.id)
+        ---- ammo rows read the unloaded gun, before the Basic modifiers below
+        for _, def in ipairs(w.Caliber and GetAmmosWithCaliber(w.Caliber) or empty_table) do
+            for id, row in pairs(HintBarRows) do
+                local v = row.ammo and row.ammo(w, g_Classes[def.id])
+                if v then
+                    widen(id, v)
+                end
+            end
+        end
         ---- loaded, since caliber noise (CaliberApplyParams) lives on the ammo, not the gun
         local ammo = Rat_BasicAmmoClass(w)
         ---- same modifiers Firearm:Reload adds, without spawning ammo items
@@ -92,11 +176,10 @@ local function GetHintBarRanges()
             w:AddModifier("ammo", mod.target_prop, mod.mod_mul, mod.mod_add)
         end
         for id, row in pairs(HintBarRows) do
-            if not row.range and (not row.applies or row.applies(w)) then
+            if row.value and (not row.applies or row.applies(w)) then
                 local ok, v = pcall(row.value, w)
                 if ok and v then
-                    lo[id] = Min(lo[id] or v, v)
-                    hi[id] = Max(hi[id] or v, v)
+                    widen(id, v)
                 end
             end
         end
@@ -181,13 +264,7 @@ function Rat_BasicAmmoProp(weapon, prop)
     if not IsKindOf(weapon, "Firearm") or weapon.ammo then
         return value
     end
-    local ammo = Rat_BasicAmmoClass(weapon)
-    for _, mod in ipairs(ammo and ammo.Modifications or empty_table) do
-        if mod.target_prop == prop then
-            value = MulDivRound(value, mod.mod_mul, 1000) + mod.mod_add
-        end
-    end
-    return value
+    return HintAmmoProp(value, Rat_BasicAmmoClass(weapon), prop)
 end
 
 function Rat_DisplayPenetrationClass(weapon)
@@ -205,6 +282,14 @@ function Rat_GetCaliberHints(weapon)
                            Rat_BasicAmmoProp(weapon, "CritDamage"), "%", bar = "CritDamage"} ..
                   HintLine{TranslationTable[158466723759] or "Recommended Strength: ",
                            Recoil_StrBreakpoint(weapon), TranslationTable[785975283217] or " STR", bar = "RecStr"}
+    ---- slugs load 0 pellets
+    local pellets = Rat_BasicAmmoProp(weapon, "NumPellets") or 0
+    if pellets > 1 then
+        local spread = Rat_BasicAmmoProp(weapon, "BuckshotConeAngle") or 0
+        s = s .. HintLine{TranslationTable[719583632117] or "Number of Pellets: ", pellets, "", bar = "Pellets"} ..
+                HintLine{TranslationTable[193184162359] or "Pellet Spread Angle: ",
+                         string.format("%.2f", spread / 60.0), "º", bar = "Spread", bar_v = spread}
+    end
     return T{"<style CrosshairAPTotal>" .. s:sub(1, -2) .. "</style>"}
 end
 
@@ -271,6 +356,44 @@ function Rat_PatchWeaponRollover()
             }),
         }))
     end
+    ---- More Info panel: swap and reload AP below the attack costs
+    path = FindXtByProp(XTemplates.InventoryRolloverInfo, "class", "XTemplateForEach")
+    if path and not FindXtByProp(path[2], "Id", "idRatHandlingAP") then
+        local function row(id)
+            return PlaceObj("XTemplateWindow", {
+                "__class", "XNameValueText",
+                "Id", id,
+                "TextStyle", "PDABrowserTitleSmall",
+                "TextStyleRight", "PDASectorInfo_SectionItem",
+            })
+        end
+        table.insert(path[2], PlaceObj("XTemplateWindow", {
+            "__class", "XContextWindow",
+            "Id", "idRatHandlingAP",
+            "IdNode", true,
+            "LayoutMethod", "VList",
+            "FoldWhenHidden", true,
+        }, {
+            row("idSwap"),
+            row("idReload"),
+            PlaceObj("XTemplateFunc", {
+                "name", "Open(self)",
+                "func", function(self)
+                    XContextWindow.Open(self)
+                    local weapon = ResolvePropObj(self.context)
+                    if not IsKindOf(weapon, "Firearm") then
+                        self:SetVisible(false)
+                        return
+                    end
+                    local ap = "<val><style PDABrowserTitleSmall> AP</style>"
+                    self.idSwap:SetNameText(CombatActions.ChangeWeapon.DisplayName)
+                    self.idSwap:SetValueText(T{499138807753, ap, val = HintSwapAP(weapon)})
+                    self.idReload:SetNameText(CombatActions.Reload.DisplayName)
+                    self.idReload:SetValueText(T{499138807753, ap, val = MulDivRound(weapon.ReloadAP or 0, 1, const.Scale.AP)})
+                end,
+            }),
+        }))
+    end
     path = FindXtByProp(XTemplates.ModifyWeaponDlg, "Id", "idValue")
     if path then
         SetTemplateFunc(path[1], "Open(self)", function(self)
@@ -287,13 +410,21 @@ function GBO_GetDescriptionHints(self)
     local unit = owner or HintReference
 
     local angularCTHActive = IsACHTActive()
-    ---- only the classic CTH scales hipfire/snapshot/PB by the merc; aCTH reads no stat there
+    ---- aCTH's Handling row reads no stat, unlike classic PB
     local classic_owner = not angularCTHActive and owner
 
     local stance_ap, crit_per_aim, recoil = HintStanceAP(self, unit), HintCritPerAim(self, unit), HintRecoil(self, unit)
-    local hip, snap = HintHipSnap(self, 0, classic_owner), HintHipSnap(self, 1, classic_owner)
+    local hip, snap = HintHipSnap(self, 0, owner, angularCTHActive), HintHipSnap(self, 1, owner, angularCTHActive)
     local pb = HintPB(self, classic_owner)
     local handling = Rat_ApertureHandlingMul(self)
+    local aim = HintAim(self, unit, angularCTHActive)
+    local aim_ref = owner and HintAim(self, HintReference, angularCTHActive)
+
+    local reliability_suffix = "%"
+    if Platform.rat then
+        local jam = self.Condition < const.Weapons.JamConditionGate and self:GetJamChance(unit, self.Condition) or 0
+        reliability_suffix = string.format("%% (jam %d%%)", jam)
+    end
 
 	local termList = {
 	    {
@@ -312,13 +443,13 @@ function GBO_GetDescriptionHints(self)
 	    {
 	        id = "Reliability",
 	        TranslationTable[412593832155] or "Reliability: ",
-	        self.Reliability, "%",
+	        self.Reliability, reliability_suffix,
 	        bar = "Reliability",
 	    },
 	    {
 	        id = "NoiseRadius",
 	        TranslationTable[654134899415] or "Noise Radius: ",
-	        self.Noise, " tiles",
+	        Rat_BasicAmmoProp(self, "Noise"), " tiles",
 	        bar = "Noise",
 	    },
 	    {
@@ -331,8 +462,9 @@ function GBO_GetDescriptionHints(self)
 		{
 			id = "AimAccuracy",
 			TranslationTable[219437987174] or "Aim accuracy: ",
-			self.AimAccuracy, "",
-			bar = "AimAccuracy",
+			HintAimText(aim, angularCTHActive), "",
+			base = aim_ref and HintAimText(aim_ref, angularCTHActive),
+			bar = "AimAccuracy", bar_v = aim, bar_ref = aim_ref,
 		},
 	    angularCTHActive and {
 	        id = "PointBlankRangeAccuracy",
@@ -351,15 +483,15 @@ function GBO_GetDescriptionHints(self)
 	        id = "HipfirePenaltyMultiplier",
 	        TranslationTable[852084205321] or "Hipfire Penalty Multiplier: ",
 	        HintHundredths(hip), "X",
-	        base = classic_owner and HintHundredths(HintHipSnap(self, 0)),
-	        bar = "Hipfire", bar_v = hip, bar_ref = classic_owner and HintHipSnap(self, 0),
+	        base = owner and HintHundredths(HintHipSnap(self, 0)),
+	        bar = "Hipfire", bar_v = hip, bar_ref = owner and HintHipSnap(self, 0),
 	    },
 	    {
 	        id = "SnapshotPenaltyMultiplier",
 	        TranslationTable[258395588915] or "Snapshot Penalty Multiplier: ",
 	        HintHundredths(snap), "X",
-	        base = classic_owner and HintHundredths(HintHipSnap(self, 1)),
-	        bar = "Snapshot", bar_v = snap, bar_ref = classic_owner and HintHipSnap(self, 1),
+	        base = owner and HintHundredths(HintHipSnap(self, 1)),
+	        bar = "Snapshot", bar_v = snap, bar_ref = owner and HintHipSnap(self, 1),
 	    },
 	    {
 	        id = "RecoilPenaltyMultiplier",
@@ -368,19 +500,6 @@ function GBO_GetDescriptionHints(self)
 	        base = owner and HintHundredths(HintRecoil(self, HintReference)),
 	        bar = "Recoil", bar_v = recoil, bar_ref = owner and HintRecoil(self, HintReference),
 	    },
-	}
-
-	local shotty_terms = {
-	    {
-	        id = "NumberOfPellets",
-	        TranslationTable[7195836321172] or "Number of Pellets: ",
-	        self.NumPellets or 0, ""
-	    },
-	    {
-	        id = "PelletSpreadAngle",
-	        TranslationTable[193184162359] or "Pellet Spread Angle: ",
-	        string.format("%.2f", self:GetProperty("BuckshotConeAngle") / 60.0), "º"
-	    }
 	}
 
 	if self:CanAutofire() then
@@ -412,12 +531,6 @@ function GBO_GetDescriptionHints(self)
 			--"x" .. self.BurstCritMul, "%"
 			self.BurstCritMul/100.00, "x"
 		})
-	end
-
-	if (self.NumPellets or 0) > 1 then
-	    for _, term in ipairs(shotty_terms) do
-	        table.insert(termList, term)
-	    end
 	end
 
 	local AngularCthActiveExclusionList = {
