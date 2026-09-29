@@ -425,23 +425,46 @@ function Rat_ShopPurgeHiddenStock()
     end
 end
 
----- Ammo unlocks with the first shop gun that fires it. Zulib's preset tier (Basic 1, AP/HP/Tracer 2,
----- Match 3) becomes the variant's step up from there, capped at 3.
-function Rat_AmmoFollowGunTiers()
-    local first = {}
+---- Ammo restock weight in percent of Zulib's flat per-variant weight. Scale is the square root of the
+---- caliber's gun weight over the average caliber's, clamped; custom calibers get a higher floor since
+---- vanilla loot does not drop them. Variants (authored tier above 1) are thinned on top.
+RAT_AMMO_WEIGHT = {Floor = 35, CustomFloor = 60, Ceiling = 250, VariantPct = 60}
+
+---- Ammo unlocks with the first shop gun that fires it, never before Zulib's variant tier (Basic 1,
+---- AP/HP/Tracer 2, Match 3). A custom caliber no shop gun fires (conversions, loot) keeps its tier and
+---- sits at the custom floor; vanilla ordnance with no Firearm (mortar, rockets) is left alone.
+function Rat_AmmoShopParams()
+    local first, gun_w = {}, {}
     ForEachPreset("InventoryItemCompositeDef", function(p)
         local gun = g_Classes[p.id]
         if IsKindOf(gun, "Firearm") and (gun.is_vanilla_firearm or gun.is_tog_patched) and gun.Caliber and
             gun.CanAppearInShop and (gun.RestockWeight or 0) > 0 then
             first[gun.Caliber] = Min(first[gun.Caliber] or gun.Tier, gun.Tier)
+            gun_w[gun.Caliber] = (gun_w[gun.Caliber] or 0) + gun.RestockWeight
         end
     end)
+    local total, n = 0, 0
+    for _, w in pairs(gun_w) do
+        total, n = total + w, n + 1
+    end
+    local mean = Max(1, n > 0 and total / n or 1)
+    local cfg = RAT_AMMO_WEIGHT
     ForEachPreset("InventoryItemCompositeDef", function(p)
         local ammo = g_Classes[p.id]
-        local base = IsKindOf(ammo, "Ammo") and first[ammo.Caliber]
-        if base then
-            ---- the preset keeps the authored tier; only the class is rewritten, so this stays idempotent
-            ammo.Tier = Min(3, base + Max(0, (p.Tier or 1) - 1))
+        local cal = IsKindOf(ammo, "Ammo") and FindPreset("Caliber", ammo.Caliber)
+        local base = cal and first[cal.id]
+        if base or cal and cal.mod then
+            ---- read from the preset, which is never rewritten, so repeated passes do not compound
+            local tier = p.Tier or 1
+            local weight = p.RestockWeight or g_Classes[p.object_class].RestockWeight
+            local floor = cal.mod and cfg.CustomFloor or cfg.Floor
+            local scale = Clamp(Rat_ISqrt(MulDivRound(gun_w[cal.id] or 0, 10000, mean)), floor, cfg.Ceiling)
+            weight = MulDivRound(weight, scale, 100)
+            if tier > 1 then
+                weight = MulDivRound(weight, cfg.VariantPct, 100)
+            end
+            ammo.Tier = Max(base or tier, tier)
+            ammo.RestockWeight = Max(1, weight)
         end
     end)
 end
@@ -449,7 +472,7 @@ end
 ---- Gun tiers are final only after the ToG patch, so resolve them at the moment they are read.
 local orig = Rat_AttOriginal(BobbyRayStoreRestock)
 function BobbyRayStoreRestock(...)
-    Rat_AmmoFollowGunTiers()
+    Rat_AmmoShopParams()
     return orig(...)
 end
 RAT_ATT_WRAPS[BobbyRayStoreRestock] = orig
