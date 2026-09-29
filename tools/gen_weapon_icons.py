@@ -57,6 +57,8 @@ JOBS = {
                      pct=[8, 38, 62, 90, 165],   ratio=None, tilt=0),
     "Glock17":  dict(cls="Glock17_1",  src="Glock17.png",  canvas=(108, 110), box=(98, 72),
                      pct=None,                   ratio=None, tilt=0),
+    "M1A":      dict(cls="M14SAW",     src="M1A.png",      canvas=(216, 110), box=(206, 70),
+                     pct=[16, 44, 62, 100, 196], ratio=None, tilt=0),
 }
 
 
