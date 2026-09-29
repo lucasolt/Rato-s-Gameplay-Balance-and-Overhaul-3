@@ -365,68 +365,11 @@ function OnMsg.ModsReloaded()
     end
 end
 
----- Empurra o override para as armas ja equipadas em campo, sem esperar UnitCreated. Reaplica TODO
----- componente, nao so as opticas conhecidas: o valor da instancia foi calculado sobre a base
----- ANTIGA da classe, entao trocar WeaponRange exige recomputar tambem cano longo, bipe, etc.
---TODO: probably this is vestigial, clean or salvage
+---- instances keep modifiers computed on the old defs, so every safe component is re-set, not only optics
 function Rat_ReapplyApertureComponents()
-    local n = 0
-    for _, u in ipairs(
-                    g_Units or
-                        empty_table) do
-        if IsValid(u) then
-            for _, wslot in ipairs({
-                "Handheld A",
-                "Handheld B"
-            }) do
-                for _, w in ipairs(
-                                u:GetEquippedWeapons(
-                                    wslot) or
-                                    empty_table) do
-                    ---- a instancia guarda o WeaponRange resolvido no momento em que foi criada;
-                    ---- trocar a base da classe nao chega ate ela sozinho.
-                    --if IsKindOf(w,
-                    --            "Firearm") and
-                    --    RAT_APERTURE_WEAPON_RANGE[w.class] then
-                    --    local base =
-                    --        rawget(
-                    --            g_Classes[w.class],
-                    --            "base_WeaponRange")
-                    --    if rawget(w,
-                    --              "base_WeaponRange") ~=
-                    --        nil and base then
-                    --        w:SetBase(
-                    --            "WeaponRange",
-                    --            base)
-                    --    else
-                    --        w:RestoreModifiableValue(
-                    --            "WeaponRange")
-                    --    end
-                    --end
-                    if IsKindOf(w,
-                                "Firearm") and
-                        w.components then
-                        for cslot, cid in
-                            sorted_pairs(
-                                w.components) do
-                            if WeaponComponents[cid] then
-                                w:SetWeaponComponent(
-                                    cslot,
-                                    cid)
-                                n = n +
-                                        1
-                            end
-                        end
-                        w.rat_updated_in =
-                            nil
-                        w.rat_updated_cth_mode = RAT_ApertureCTHMode
-                        ObjModified(w)
-                    end
-                end
-            end
-            u.combat_cache = nil
-        end
+    local n = GBO_RefreshCTHModeItems(true)
+    for _, u in ipairs(g_Units or empty_table) do
+        u.combat_cache = nil
     end
-    return "aperture: reaplicado em " ..
-               n .. " componentes"
+    return "aperture: reaplicado em " .. n .. " armas"
 end

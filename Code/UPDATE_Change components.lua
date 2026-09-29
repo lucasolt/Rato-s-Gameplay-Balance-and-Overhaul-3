@@ -77,6 +77,33 @@ local function isUnsafeToReapply(slot, component_id)
 	return slot == "Magazine" or (def and def.EnableWeapon)
 end
 
+-- Re-sets the safe components so their modifiers come from the current (mode-composed) defs.
+function Rat_RefreshCTHModeWeapon(weapon)
+    for slot, component_id in sorted_pairs(weapon.components or empty_table) do
+        if not isUnsafeToReapply(slot, component_id) then
+            checkAndSetComponent(weapon, slot, component_id)
+        end
+    end
+    weapon.rat_updated_cth_mode = RAT_ApertureCTHMode
+    ObjModified(weapon)
+end
+
+-- Every live item, not just equipped ones: bag and stash weapons keep the modifiers baked when attached.
+function GBO_RefreshCTHModeItems(force)
+    local n = 0
+    for _, item in pairs(g_ItemIdToItem or empty_table) do
+        if IsKindOf(item, "Firearm") and not rawget(item, "is_clone") and (force or isCTHModeStale(item)) then
+            Rat_RefreshCTHModeWeapon(item)
+            n = n + 1
+        end
+    end
+    return n
+end
+
+function OnMsg.ZuluGameLoaded()
+    GBO_RefreshCTHModeItems()
+end
+
 function GBO_ReapplyWeaponComponents(unit, force)
     if not unit or not IsKindOf(unit, "Unit") or not unit:IsValid() then
         return
