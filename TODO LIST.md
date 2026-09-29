@@ -16,7 +16,6 @@ CheatAddItem("itemid")
 
 - Light Stock no longer reduces aim accuracy. Increased recoil.
 
-- NEW MECHANIC: Redesigned reliability mechanics. The value will now govern the chance of jamming instead of condition degradation by shot. The formula was changed, high reliability weapons will be able to perform even when in lower condition.
 
 - Changed fog vision radius reduction. Fog no longer causes grazing hits
 - Critical chance based on aim levels was tuned down
@@ -38,6 +37,9 @@ CheatAddItem("itemid")
 - Option for rebalanced weapon shipment loot
 - Fixed some bugs in weapon shipment conditions and cooldown
 
+- Bobby's Ray ammo distribution was improved
+
+- NEW MECHANIC: Redesigned reliability mechanics. The value will now govern the chance of jamming instead of condition degradation by shot. The formula was changed, high reliability weapons will be able to perform even when in lower condition. Suppressors now increase condition degradation rate.
 
 
 -- New Mechanic: Autofire with variable bullet count --
@@ -97,15 +99,20 @@ The UI section that displays Recoil, Snapshot etc was reworked. The displayed nu
 GO BACK TO MG SETUP....
 HWT should not decrease MG burst attack, i think
 
-- [ ] Morale effects using old AP scale
-
+- [ ] minor - review AP calc so it can yield less than 10 step
+- [X] Morale effects using old AP scale
+- [ ] POssibly rescale parts gained
+- [ ] Check unjam mechanic skill. If flat, turn into a skill check.
+- [ ] Investigate Tier unlocking. Balance it
 - [ ] Possibly remove the extra +1 ap from aiming from shooting stance. Better control if everything comes from the stance ap property?
 
+- [ ] Gasmask AP reduction not in scale
+- [ ] Maybe handling scaling would improve acc for mercs - less random, less enemy biased
 ## Fire modes
-- [ ] Need some AP checks, so that merc can select the autofire if he can fire 2 bullets
+- [X] Need some AP checks, so that merc can select the autofire if he can fire 2 bullets
 - [ ] maybe change the effect on HK receivers for better clarity
 - [ ] Implement selective burst on HK21 and other MGs that have them
-- [ ] Fix MG description hints not showing ROF
+- [X] Fix MG description hints not showing ROF
 - [X] Recoil booster
 - [X] MG 58 RPM should be adjusted
 - [X] Investigate Burst fire AP or RPM
@@ -113,17 +120,19 @@ HWT should not decrease MG burst attack, i think
 - [X] Selective burst should have better crit scaling in general?
 
 ## UI
+- [ ] recoil delta on actions
 - [X] Caliber/ammo params should have their own section (remove critical damage and base chance from d.hints)
 - [X] Aim could be scaled by merc and handgun status? in d.hints
 - [X] Number of pellets to caliber section
 - [X] Further details should include Ap to swap and AP to reload
 - [X] Noise even when no ammo loaded
+- [X] BobbyRay is showing the old crit scaling
 
 ## Housekeeping
 - [X] Implement unified Component handling, with ancestor/CTH mode
 	- [X] fix/unify with aCTH logic!!!
-	- [ ] Verify if patch called from TOG is redundant.
-- [ ] Remove unused calibers from bobbyrays list
+	- [X] Verify if patch called from TOG is redundant. - Its not, visual changes and foldable stock foldability
+- [X] Remove unused calibers from bobbyrays list
 
 
 - [X] Take a look at the shipments. I got a tier 3 MG after 2 fights
@@ -134,7 +143,7 @@ HWT should not decrease MG burst attack, i think
 
 ## Attachments
 - [ ] Spreadsheet for attachment costs
-- [ ] *Find a use for Lens and Chips*
+- [ ] *Find a use for Lens and Chips*  !!!
 - [ ] Component icon and models from ToC for 5.45 Suppressor and 7.62x54R Suppressor, 45 acp Suppressor, 44 suppressor rifle, Mauser? What about guns that change calibers?
 - [X] Barrels that change caliber now block muzzle so no incompatibility.
 	- [ ] Could create custom logic for it tho.
@@ -144,12 +153,13 @@ HWT should not decrease MG burst attack, i think
 ## Design
 
 - [X] Change RS grading. compact -> assault compact -> assault/vulto
-- [ ] Add compact Advanced (Glock RS) to rifles?
-- [ ] Remove Vulto RS from pistols?
+- [ ] Change advanced RS for pistol name
+- [ ] ? Add compact Advanced (Glock RS) to rifles?
+- [ ] ? Remove Vulto RS from pistols?
 - [X] Remove TOG handguards (RKs done)
 - [X] no interchangeable stock between RKs
 - [ ] check components that make sense and remove the ones that dont. elegance first.
-- [ ] ACOG could increase min aim level by 1 for aimed attacks.
+- [ ] ? ACOG could increase min aim level by 1 for aimed attacks.
 - [X] Re-tune component AP cost now that the scale has changed
 	- [X] Handgun barrels -> 3
 	- [X] Light stock -> 5
@@ -204,13 +214,13 @@ HWT should not decrease MG burst attack, i think
 - [X] Fix Shooting Stance animation, particulary in regards to mobile attack 
 - [X] Crosshair AP cost breakdown refactor, for more clear stance ap cost display
 - [ ] Implement F1 "wiki"
-- [ ] Grazing hits due to take cover show as if they are from Fog in floating text
+- [X] Grazing hits due to take cover show as if they are from Fog in floating text
 
 
 ##### ACTH
 
 ## aCTH Possible fragilities
-- [ ] Changing to oldCTH does not update Aim Acc from component already applied... Investigate better way to do it
+- [X] Changing to oldCTH does not update Aim Acc from component already applied... Investigate better way to do it
 - [ ] Kalyna missed a shot in oldCTH OW, but it hit? - Investigate
 - [X] In aCTH mode, Reflexes don't affect hipfire or snapshot at all, unlike classic mode. If that wasn't intended, the Reflexes factor could be applied to the hipfire/snapshot cone widening in
 - [ ] see if graphic display of single shot recoil is working. POssibly review the burst too
@@ -267,8 +277,8 @@ HWT should not decrease MG burst attack, i think
 
 # Later Stuff
 ## aCTH Descriptions that need change
-- [ ] Handguns "insert key" additional hints show reduced aim acc
-- [ ] Take cover not grazing mod option
+- [X] Handguns "insert key" additional hints show reduced aim acc
+- [X] Take cover not grazing mod option
 - [X] Smoke not grazing. Decide if LOS
 - [ ] Recoil CTH UI display
 - [ ] Snapshot will not reset when shooting the same target **Only at page description**

@@ -49,7 +49,7 @@ RAT_ATT_SIZES = {
 RAT_ATT_SCRAP = {small = 1, medium = 2, large = 3}
 
 ---- The item hint lists the guns it fits; past this many distinct names it just says Universal.
-RAT_ATT_UNIVERSAL = 12
+RAT_ATT_UNIVERSAL = 20
 RAT_ATT_HINT = "<bullet_point> Weapon attachment. Install it from the weapon modification screen."
 
 ---- Iron sights, rails and blank shafts stay free -- they are what a gun wears when it wears nothing.

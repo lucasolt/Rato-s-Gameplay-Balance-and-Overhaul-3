@@ -9,7 +9,6 @@ DefineClass.M14SAW_AUTO = {
 	ScrapParts = 10,
 	Reliability = 80,
 	Icon = "UI/Icons/Weapons/M14",
-	SubIcon = "Mod/cfahRED/Images/m143.png",
 	DisplayName = T(664499471719, --[[ModItemInventoryItemCompositeDef M14SAW_AUTO DisplayName]] "M-14"),
 	DisplayNamePlural = T(300513013967, --[[ModItemInventoryItemCompositeDef M14SAW_AUTO DisplayNamePlural]] "M-14s"),
 	colorStyle = "",
