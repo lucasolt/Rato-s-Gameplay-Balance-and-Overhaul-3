@@ -201,7 +201,7 @@ local HintBarRows = {
     Hipfire = {lower = true, value = function(w, unit) return HintHipSnap(w, 0, unit, IsACHTActive()) end},
     Snapshot = {lower = true, value = function(w, unit) return HintHipSnap(w, 1, unit, IsACHTActive()) end},
     Recoil = {lower = true, value = HintRecoil},
-    RPM = {value = function(w) return w.RPM or 0 end, applies = function(w) return w:CanAutofire() end},
+    RPM = {value = function(w) return w.RPM or 0 end, applies = function(w) return Rat_HasVariableAuto(w) end},
 }
 
 ---- headroom past the stock extremes, since components push values beyond them
@@ -649,7 +649,7 @@ function GBO_GetDescriptionHints(self)
 		})
 	end
 
-	if self:CanAutofire() then
+	if Rat_HasVariableAuto(self) then
 		local tenths = MulDivRound(Rat_AutoAPPerRound(self), 10, const.Scale.AP)
 		table.insert(termList, {
 			id = "RateOfFire",
@@ -663,7 +663,7 @@ function GBO_GetDescriptionHints(self)
 	end
 
 	local crit_idx = table.find(termList, "id", "CriticalPerAim")
-	if self:CanAutofire() then
+	if Rat_HasVariableAuto(self) then
 		table.insert(termList, crit_idx + 1, {
 			id = "AutofireCritical",
 			TranslationTable[318826540119] or "Critical chance on autofire: " ,

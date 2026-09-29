@@ -31,6 +31,11 @@ function Rat_AutoAttackId(weapon)
     return table.find(list, "MGBurstFire") and "MGBurstFire" or "AutoFire"
 end
 
+---- CanAutofire looks for "AutoFire" by name, so it is false on MGs (MGBurstFire only)
+function Rat_HasVariableAuto(weapon)
+    return weapon:CanAutofire() or table.find(weapon.AvailableAttacks or empty_table, "MGBurstFire")
+end
+
 ---- autofire defaulting to n rounds, for code that reads the length off the action (AI scoring).
 ---- Cached so its identity is stable; rebuilt when the preset object is replaced.
 local auto_views = {}
