@@ -1040,6 +1040,9 @@ function Rat_AttUpdateVisualObj(self, vis, orig)
     if own and RAT_ATT_ENABLED then
         Rat_AttApplyModels(self, vis)
     end
+    if own then
+        ApplyWeaponComponentOffset(self, vis) -- CommonLib's own wrapper is overwritten by ToG/Zulib
+    end
 end
 
 ---- Zulib stamps its UpdateVisualObj onto every Firearm class on ModsReloaded, so wrapping a base

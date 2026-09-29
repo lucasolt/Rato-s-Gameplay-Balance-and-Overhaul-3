@@ -71,7 +71,6 @@ return PlaceObj('ModDef', {
 		"Code/TOC_ChangeEntity.lua",
 		"Code/COMPATIBILITY_SmartOverwatch.lua",
 		"Code/COMPATIBILITY_RevMags.lua",
-		"Code/COMPATIBILITY_ZulibCalibersAttachOffset.lua",
 		"Code/COMPATIBILITY_DescriptiveCTH.lua",
 		"Code/BOBBYRAY_category_pairs.lua",
 		"Code/CTH_2weaponfire.lua",
