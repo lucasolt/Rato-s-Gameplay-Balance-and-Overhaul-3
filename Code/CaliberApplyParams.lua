@@ -142,13 +142,13 @@ function ApplyAmmoParams(class_id, class, ...)
         for k, v in pairs(ttable.Modifications or {}) do
             caliber_data.Modifications[k] = caliber_data.Modifications[k] or
                                                 {mod_add = 0, mod_mul = false}
+            local mod = caliber_data.Modifications[k]
             if type(v) == "table" then
-                caliber_data.Modifications[k].mod_add = caliber_data.Modifications[k].mod_add + v[1]
-                caliber_data.Modifications[k].mod_mul =
-                    (caliber_data.Modifications[k].mod_mul or 0) + v[2]
+                mod.mod_add = mod.mod_add + v[1]
+                -- mul is absolute permille; stacked muls compose like the engine's Modifier
+                mod.mod_mul = mod.mod_mul and MulDivRound(mod.mod_mul, v[2], 1000) or v[2]
             else
-                caliber_data.Modifications[k].mod_add = caliber_data.Modifications[k].mod_add + v
-                caliber_data.Modifications[k].mod_mul = 1000
+                mod.mod_add = mod.mod_add + v
             end
         end
 
