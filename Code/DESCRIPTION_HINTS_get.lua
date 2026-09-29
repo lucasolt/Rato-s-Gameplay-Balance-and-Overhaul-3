@@ -382,6 +382,10 @@ function BobbyRayStoreGetStats_Firearm(item)
     for _, stat in ipairs(stats) do
         if TGetID(stat[1]) == 842354777573 then
             stat[2] = GetPenetrationClassUIText(Rat_DisplayPenetrationClass(item))
+        ---- vanilla CRIT is CritChance + level-scaled CritChanceScaled, which crit no longer reads
+        elseif TGetID(stat[1]) == 921500948697 then
+            stat[1] = ratT(file_str, 921500948698, "CRIT/AIM")
+            stat[2] = Untranslated(HintHundredths(HintCritPerAim(item)) .. "%")
         end
     end
     return stats
