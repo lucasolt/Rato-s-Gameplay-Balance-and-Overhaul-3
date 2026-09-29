@@ -63,7 +63,8 @@ RAT_ATT_SHOP_MAGS = {
 local function rat_shop_subcats(self)
     local list = {}
     ForEachPreset("BobbyRayShopSubCategory", function(p)
-        if p.Category == self.id and p.id ~= "Missing" then
+        ---- an id placed in two groups is walked twice; keep only the copy FindPreset resolves
+        if p.Category == self.id and p.id ~= "Missing" and FindPreset("BobbyRayShopSubCategory", p.id) == p then
             list[#list + 1] = p
         end
     end)
@@ -388,7 +389,44 @@ function BobbyRayStoreGetStats_Other(item)
 end
 RAT_ATT_WRAPS[BobbyRayStoreGetStats_Other] = orig
 
+---- Revised Gear's face and NVG slots are not body parts; vanilla indexes nil there and the store
+---- list stops respawning at that entry, which then breaks every hover on the page.
+RAT_SHOP_SLOT_NAMES = {FaceItem = "Face", NVG = "NVG"}
+
+local orig = Rat_AttOriginal(BobbyRayStoreGetStats_Armor)
+function BobbyRayStoreGetStats_Armor(item)
+    if Presets.TargetBodyPart.Default[item.Slot] then
+        return orig(item)
+    end
+    return {
+        {T(113963825061, "DR"), T{580888120593, "<percent(number)>", number = item.DamageReduction + item.AdditionalReduction}},
+        {T(260685017729, "SLOT"), Untranslated(RAT_SHOP_SLOT_NAMES[item.Slot] or tostring(item.Slot))},
+        {T(842354777573, "PEN"), GetPenetrationClassUIText(item.PenetrationClass)}
+    }
+end
+RAT_ATT_WRAPS[BobbyRayStoreGetStats_Armor] = orig
+
+---- Stock outlives the class that allowed it: Zulib hides ammo of calibres no gun uses, and those
+---- listings fall back to the Missing page, i.e. Other.
+function Rat_ShopPurgeHiddenStock()
+    if not g_BobbyRayStore then
+        return
+    end
+    local units = g_BobbyRayCart and g_BobbyRayCart.units
+    for class, item in pairs(g_BobbyRayStore.standard or empty_table) do
+        local cls = g_Classes[class]
+        if not (cls and cls.CanAppearInShop) then
+            g_BobbyRayStore.standard[class] = nil
+            g_BobbyRayStore.standard_ids[item.id] = nil
+            if units then
+                units[item.id] = nil
+            end
+        end
+    end
+end
+
 function Rat_AttShopSetup()
+    Rat_ShopPurgeHiddenStock()
     if not RAT_ATT_SHOP_ENABLED or not RAT_ATT_ENABLED then
         return
     end
