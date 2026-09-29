@@ -302,6 +302,13 @@ function CombatTeam:GetMoraleLevelAndEffectsText()
     return T{834924000608, "Team Morale: <level><newline><effects><newline><newline>The morale level of each merc is influenced by Team Morale and various individual factors. Morale <em>modifies AP</em> and can trigger positive and negative effects based on the <em>highest Leadership</em> among the mercs.", level = MoraleLevelName[morale] or morale, effects = effects_text}
 end
 
+-- Utility.lua: merc rollover printed the raw morale level as AP.
+function TFormat.MercMoraleText(context_obj)
+    local personalMorale = context_obj:GetPersonalMorale()
+    local ap = R_VanillaAPToDisplay(personalMorale)
+    return MoraleLevelName[personalMorale] .. ( personalMorale ~= 0 and T{450959430309, " (<apValue>AP)", apValue = ap > 0 and (Untranslated("+") .. ap) or ap} or "")
+end
+
 -- ClassDef-Effects: scripted AP grants are authored in whole vanilla AP.
 function UnitGrantAP:__exec(obj, context)
     if IsKindOf(obj, "Unit") and not obj:IsDead() then
