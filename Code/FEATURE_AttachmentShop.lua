@@ -425,6 +425,35 @@ function Rat_ShopPurgeHiddenStock()
     end
 end
 
+---- Ammo unlocks with the first shop gun that fires it. Zulib's preset tier (Basic 1, AP/HP/Tracer 2,
+---- Match 3) becomes the variant's step up from there, capped at 3.
+function Rat_AmmoFollowGunTiers()
+    local first = {}
+    ForEachPreset("InventoryItemCompositeDef", function(p)
+        local gun = g_Classes[p.id]
+        if IsKindOf(gun, "Firearm") and (gun.is_vanilla_firearm or gun.is_tog_patched) and gun.Caliber and
+            gun.CanAppearInShop and (gun.RestockWeight or 0) > 0 then
+            first[gun.Caliber] = Min(first[gun.Caliber] or gun.Tier, gun.Tier)
+        end
+    end)
+    ForEachPreset("InventoryItemCompositeDef", function(p)
+        local ammo = g_Classes[p.id]
+        local base = IsKindOf(ammo, "Ammo") and first[ammo.Caliber]
+        if base then
+            ---- the preset keeps the authored tier; only the class is rewritten, so this stays idempotent
+            ammo.Tier = Min(3, base + Max(0, (p.Tier or 1) - 1))
+        end
+    end)
+end
+
+---- Gun tiers are final only after the ToG patch, so resolve them at the moment they are read.
+local orig = Rat_AttOriginal(BobbyRayStoreRestock)
+function BobbyRayStoreRestock(...)
+    Rat_AmmoFollowGunTiers()
+    return orig(...)
+end
+RAT_ATT_WRAPS[BobbyRayStoreRestock] = orig
+
 function Rat_AttShopSetup()
     Rat_ShopPurgeHiddenStock()
     if not RAT_ATT_SHOP_ENABLED or not RAT_ATT_ENABLED then
