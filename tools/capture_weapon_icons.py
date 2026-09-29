@@ -11,12 +11,14 @@ The gun's shadow is disabled so it cannot fall on the plane. Afterwards build th
     python tools/capture_weapon_icons.py UMP G11      # some of them
 """
 import os
+import re
 import subprocess
 import sys
 import time
 
 import numpy as np
 from PIL import Image
+from scipy import ndimage
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -35,7 +37,8 @@ def capture(names):
     classes = ", ".join('{"%s", "%s"}' % (n, JOBS[n]["cls"]) for n in names)
     script = os.path.join(SHOTS, "_capture.lua")
     with open(script, "w", encoding="utf-8") as fh:
-        fh.write(lua.replace("--CLASSES--", classes))
+        # whole line, so a formatter mangling the placeholder cannot leave CLASSES nil
+        fh.write(re.sub(r"^local CLASSES\b.*$","local CLASSES = { %s }" % classes, lua, count=1, flags=re.M))
     subprocess.run([sys.executable, os.path.join(HERE, "dap_eval.py"), "--quiet", "-c", "-f", script], check=True)
     done = os.path.join(SHOTS, "done.txt")
     deadline = time.time() + 30 + 15 * len(names)
@@ -65,6 +68,12 @@ def matte(name):
         print(f"  {name}: {weak.mean():.1%} of pixels have a weak backdrop difference")
     alpha = np.clip(alpha, 0, 1)
     alpha[alpha < 0.02] = 0
+    # stray specks off the gun would widen the crop; keep the largest blob, parts within 15px merged
+    lab, n = ndimage.label(ndimage.binary_dilation(alpha > 0.1, iterations=15))
+    if n > 1:
+        keep = lab == np.argmax(np.bincount(lab.ravel())[1:]) + 1
+        print(f"  {name}: dropped {n - 1} stray blob(s), {(alpha[~keep] > 0.1).sum()} px")
+        alpha[~keep] = 0
     col = np.clip((fd - (1 - alpha[..., None]) * bd) / np.maximum(alpha[..., None], 1e-3), 0, 255)
 
     ys, xs = np.nonzero(alpha > 0.1)
