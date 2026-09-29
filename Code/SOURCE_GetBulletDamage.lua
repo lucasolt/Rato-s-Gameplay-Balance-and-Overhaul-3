@@ -6,6 +6,16 @@ local function take_cover_skips_graze(weapon, action, attacker, obj)
 		obj:HasStatusEffect("Protected") and IsACHTActive(weapon, action, attacker, true)
 end
 
+local zero_graze_reasons = {fog = "FogGrazeChance", duststorm = "DustStormGrazeChance"}
+
+---- Weapon.lua overwrites "cover" with fog/duststorm even when those add 0%: the graze came from cover
+function Rat_FixGrazingReason(hit)
+	local chance_key = hit.grazing and zero_graze_reasons[hit.grazing_reason]
+	if chance_key and (const.EnvEffects[chance_key] or 0) <= 0 then
+		hit.grazing_reason = "cover"
+	end
+end
+
 function Firearm:BulletCalcDamage(hit_data, ricochet_idx)
 
 
@@ -78,6 +88,7 @@ function Firearm:BulletCalcDamage(hit_data, ricochet_idx)
 		if skip_cover_graze then
 			self.IgnoreCoverReduction = own_ignore_cover
 		end
+		Rat_FixGrazingReason(hit)
 		Rat_OffPartRollEffects(attacker, hit, prediction)
 
 		hit.impact_force = hit.damage > 0 and impact_force + self:GetDistanceImpactForce(hit.distance) or 0
