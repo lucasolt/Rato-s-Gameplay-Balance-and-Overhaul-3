@@ -150,6 +150,11 @@ local function variable_execute(self, units, args)
 end
 
 local function variable_ui_state(self, units, args)
+    ---- no length chosen (action bar): the player can pick the shortest, so price that one; AI keeps its length
+    if not (args and args.num_shots) and not self.rat_num_shots and not R_IsAI(units[1]) then
+        args = args and table.copy(args) or {}
+        args.num_shots = P().MinShots
+    end
     local state, err = CombatActionGenericAttackGetUIState(self, units, args)
     if state ~= "enabled" then
         return state, err
@@ -264,7 +269,20 @@ function Rat_CrosshairShots(crosshair, attacker, action)
         return
     end
     local cur = crosshair.rat_shots and crosshair.rat_shots[action.id]
-    return Rat_CrosshairSetShots(crosshair, action, Rat_ClampAutoShots(action, weapon, cur))
+    local n = Rat_ClampAutoShots(action, weapon, cur)
+    ---- first open: the action bar only guaranteed the shortest length, so start at the longest affordable
+    if not cur then
+        local ctx = crosshair.context
+        local lo = P().MinShots
+        while n > lo and not attacker:UIHasAP(action:GetAPCost(attacker, {
+            target = ctx and ctx.target,
+            aim = crosshair.aim or 0,
+            num_shots = n
+        })) do
+            n = n - 1
+        end
+    end
+    return Rat_CrosshairSetShots(crosshair, action, n)
 end
 
 ---- refuses a step the unit cannot pay for at the current aim level
