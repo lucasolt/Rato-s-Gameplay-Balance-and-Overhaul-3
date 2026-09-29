@@ -1825,6 +1825,11 @@ return {
 				"old CTH",
 			},
 		}),
+		PlaceObj('ModItemOptionToggle', {
+			'name', "ACTHTakeCoverGraze",
+			'DisplayName', "aCTH: Take Cover grazes",
+			'Help', "With simulated aCTH, cover already stops bullets, so Take Cover no longer turns hits into grazes. Enable to restore the vanilla graze chance on top of it.",
+		}),
 		PlaceObj('ModItemOptionNumber', {
 			'name', "noise_setting_num",
 			'DisplayName', "Firearm Noise* %",

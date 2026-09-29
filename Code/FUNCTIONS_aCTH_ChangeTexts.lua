@@ -102,6 +102,10 @@ local acth_text_swaps = {
     {"InventoryItemDefs", "MortarShell_Gas", "AdditionalHint", sim = true,
         T(789422211618, "<bullet_point> Inflicts <em>Choking</em>\n<bullet_point> Ranged attacks passing through gas become Grazing hits\n<bullet_point> Almost silent"),
         ratT(file_str,862617049536, "<bullet_point> Inflicts <em>Choking</em>\n<bullet_point> Ranged attacks passing through gas are less accurate\n<bullet_point> Almost silent")},
+    ---- simulated shots skip Take Cover's graze roll (SOURCE_GetBulletDamage), so no graze and no auto-picked part
+    {"CharacterEffectDefs", "Protected", "Description", sim = true, no_option = "ACTHTakeCoverGraze",
+        T(682670978880, "While coming from the <em>other side</em> of the <em>Cover</em> attacks against this unit have a high chance to become <em>Grazing hits</em> and the targeted body part is selected automatically."),
+        ratT(file_str,815530927461, "Crouched behind <em>Cover</em>. Attacks from the <em>other side</em> have to pass through the cover, which stops the bullets that hit it. They do not become <em>Grazing hits</em>.")},
     ---- Explosive Overhaul rewrites the grenade hints in its own format (RatoEO_Patch, items.lua)
     {"InventoryItemDefs", "SmokeGrenade", "AdditionalHint", mod = "RATONADE", sim = true,
         T(109176686173, "<EO_description_hints>\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Ranged attacks passing through gas become <color EmStyle>grazing</color> hits\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> No damage\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Almost silent"),
@@ -121,12 +125,14 @@ local acth_text_swaps = {
 }
 
 ---- Runs after rat_apply_changes() and on every CTH mode change (GBO_ApplyApertureCTHMode).
----- Optional row keys: `sim` follows simulated aCTH instead of aCTH; `mod`/`no_mod` gate on a mod id.
+---- Optional row keys: `sim` follows simulated aCTH instead of aCTH; `mod`/`no_mod` gate on a mod id;
+---- `no_option` keeps the old CTH text while that mod option is on.
 function GBO_SwapACTHTexts()
     local acth, sim = IsACHTActive(), IsACHTActive(nil, nil, nil, true)
     for _, s in ipairs(acth_text_swaps) do
         if (not s.mod or IsMod_loaded(s.mod)) and not (s.no_mod and IsMod_loaded(s.no_mod)) then
-            local idx = (s.sim and sim or not s.sim and acth) and 5 or 4
+            local on = s.sim and sim or not s.sim and acth
+            local idx = (on and not (s.no_option and CurrentModOptions[s.no_option])) and 5 or 4
             ---- GameTerm and WeaponType have no global map
             local map = (s[1] == "GameTerm" or s[1] == "WeaponType") and Presets[s[1]].Default or _G[s[1]]
             local preset = (map or empty_table)[s[2]]

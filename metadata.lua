@@ -172,6 +172,7 @@ return PlaceObj('ModDef', {
 		"InventoryItem/M14SAW_AUTO.lua",
 	},
 	'default_options', {
+		ACTHTakeCoverGraze = false,
 		AIWeaponStanceMul = 100,
 		ApertureCTH = "aCTH",
 		AwareSight = "56 (GBO Default)",
