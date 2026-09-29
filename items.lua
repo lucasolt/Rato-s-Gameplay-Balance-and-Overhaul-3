@@ -1279,6 +1279,10 @@ return {
 			'CodeFileName', "Code/FEATURE_VariableAutofire.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "COMBAT_ACTIONS_BulletHell",
+			'CodeFileName', "Code/COMBAT_ACTIONS_BulletHell.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "UI_AutofireRounds",
 			'CodeFileName', "Code/UI_AutofireRounds.lua",
 		}),

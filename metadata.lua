@@ -60,6 +60,7 @@ return PlaceObj('ModDef', {
 		"Code/COMBAT_ACTIONS_Sprint.lua",
 		"Code/COMBAT_ACTIONS.lua",
 		"Code/FEATURE_VariableAutofire.lua",
+		"Code/COMBAT_ACTIONS_BulletHell.lua",
 		"Code/UI_AutofireRounds.lua",
 		"Code/SOURCE_ChangeMGSetupGetAreaParams.lua",
 		"Code/SOURCE_CombatActionGenericAttackGetUIState.lua",

@@ -56,7 +56,7 @@ function Firearm:GetAttackResults(action, attack_args)
         consumed_ammo = Max(consumed_ammo, aoe_params and aoe_params.used_ammo or 0)
     end
 
-    if action.id == "BulletHell" then
+    if action.id == "BulletHell" and aoe_params then
         target_pos = attack_args.step_pos +
                          SetLen2D((target_pos - attack_args.step_pos):SetZ(0),
                                   aoe_params.max_range * const.SlabSizeX)
@@ -100,8 +100,16 @@ function Firearm:GetAttackResults(action, attack_args)
     end
     -----------------------------------
 
-    local fired, jammed, condition, ammo_type = self:PrecalcAmmoUse(attacker, consumed_ammo,
-                                                                    prediction)
+    ---- split attacks (Bullet Hell) roll reliability once for the whole trigger pull
+    local fired, jammed, condition, ammo_type
+    local ammo_roll = attack_args.rat_ammo_precalc
+    if ammo_roll then
+        fired, jammed, condition, ammo_type = ammo_roll.fired, ammo_roll.jammed,
+                                              ammo_roll.condition, ammo_roll.ammo_type
+    else
+        fired, jammed, condition, ammo_type = self:PrecalcAmmoUse(attacker, consumed_ammo,
+                                                                  prediction)
+    end
     if type(fired) == "number" and num_shots > 0 then
         num_shots = Min(fired, num_shots)
         shot_attack_args.num_shots = fired

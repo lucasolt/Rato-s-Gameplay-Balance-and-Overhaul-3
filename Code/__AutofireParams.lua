@@ -23,4 +23,8 @@ const.Combat.Autofire = {
     OverrunRoundsPer1000RPM = 3,
     ---- tapping a single round in autofire: chance per 1000 RPM, times (100 - Composure)%
     SingleTapChancePer1000RPM = 40,
+
+    ---- Bullet Hell (COMBAT_ACTIONS_BulletHell.lua): fewest rounds one engaged enemy receives,
+    ---- which caps how many enemies a magazine is split across
+    BulletHellMinShotsPerTarget = 3,
 }
