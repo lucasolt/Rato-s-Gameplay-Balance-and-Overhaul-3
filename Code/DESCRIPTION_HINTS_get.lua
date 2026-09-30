@@ -698,8 +698,10 @@ function GBO_GetDescriptionHints(self)
 	formattedString = formattedString .. "</style>"
 
 	if self:IsCumbersome() then
-	    formattedString = formattedString .. (TranslationTable[153781665575] or
-	        "\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Cumbersome (no Free Move)\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Increases Stance AP cost by 1 (negated by high Strength)\n")
+	    local cumbersome_text = TranslationTable[153781665575] or
+	        "\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Cumbersome (no Free Move)\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Increases Stance AP cost by <ap> (negated by high Strength)\n"
+	    -- function replacement: the AP value is not a gsub pattern
+	    formattedString = formattedString .. cumbersome_text:gsub("<ap>", function() return tostring(R_VanillaAPToDisplay(1)) end)
 	end
 
 	return T {formattedString}
@@ -708,7 +710,7 @@ end
 
 
 local t_id_table = {
-    [153781665575] = "\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Cumbersome (no Free Move)\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Increases Stance AP cost by 1 (negated by high Strength)\n",
+    [153781665575] = "\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Cumbersome (no Free Move)\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Increases Stance AP cost by <ap> (negated by high Strength)\n",
     [242435461626] = "Shooting Stance Cost: ",
     [573918264051] = "Cycling Cost: ",
     [524204987393] = "Double Action Cost: ",
