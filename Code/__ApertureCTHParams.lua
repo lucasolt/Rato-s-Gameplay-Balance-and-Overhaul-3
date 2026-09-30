@@ -363,6 +363,9 @@ A.RecoilBipodKickYMul = 70--60
 ---- 200 -> 49% x168', 300 -> 39% x259', 400 -> 33% x380'
 A.RecoilBipodLatMul = 300--200
 
+---- Max muzzle climb in kicks of this gun (0 = none); stabilisable guns peak 270-534' < 4 kicks, held MG42 hit 5046' in 12
+A.RecoilClimbCapKicks = 4
+
 
 
 ----------------------------------------------------------------------------------------

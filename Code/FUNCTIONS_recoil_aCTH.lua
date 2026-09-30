@@ -184,6 +184,8 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
         ---- the second term skill buys a bigger correction AND a proportionally bigger error, and
         ---- cancels itself. Never removes the floor, only the error above it.
         accuracy = Clamp(MulDivRound(attacker.Dexterity or 0, 100, Max(30, other_control)), 0, 100),
+        ---- centiminutes; 0 = no ceiling
+        climb_cap = kick * 100 * (a.RecoilClimbCapKicks or 0),
         ---- minutes, for reading and for the gate: kick_min > cf_min means unstabilisable
         kick_min = kick,
         cf_min = cf_max,
@@ -236,6 +238,21 @@ function Rat_RecoilStep(prof, st, rnd)
         st.vx = st.vx + err_term(rnd, 0, MulDivRound(vlen(st.cx, st.cy), prof.lat, 100))
     end
     st.px, st.py = st.px + st.vx, st.py + st.vy
+
+    ---- below the Str gate the climb is unbounded; pin the muzzle at the ceiling and drop outward velocity
+    local cap = prof.climb_cap or 0
+    if cap > 0 then
+        local p2 = st.px * st.px + st.py * st.py
+        if p2 > cap * cap then
+            local r = Rat_ISqrt(p2)
+            st.px, st.py = MulDivRound(st.px, cap, r), MulDivRound(st.py, cap, r)
+            local out_v = MulDivRound(st.vx, st.px, cap) + MulDivRound(st.vy, st.py, cap)
+            if out_v > 0 then
+                st.vx = st.vx - MulDivRound(st.px, out_v, cap)
+                st.vy = st.vy - MulDivRound(st.py, out_v, cap)
+            end
+        end
+    end
 end
 
 ---------------------------------------------------------------------------------------------------
