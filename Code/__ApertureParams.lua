@@ -188,6 +188,13 @@ A.CrosshairWedgeMaxPct = 400
 ---- para o tipFade dele. Estende reto para cima ate este piso; 0 desliga. Ver ladder_strokes.
 A.CrosshairFanMinPct = 50
 
+---- Cone shadow: cells of the ring whose bullet stops on something before the target plane.
+A.CrosshairShadow = true
+A.CrosshairShadowSectors = 16
+A.CrosshairShadowBands = 3
+---- a stop closer than this to the target plane is the target's own ground, not an obstacle
+A.CrosshairShadowPlaneTol = 30
+
 ---- ESTILO por traco, para poder mexer no visual sem recompilar nada. A chave e o id do traco:
 ---- "ring" (o anel), "wedge" (a cunha do recuo herdado), "climb" (a regua da rajada), "fanl" e
 ---- "fanr" (o leque dela).
@@ -257,6 +264,15 @@ A.MeshStyle = {
 
 
 A.MeshStyle.fanr = A.MeshStyle.fanl -- sao iguais, so mudam a orientacao do leque
+
+---- `tris`: pts are already world triangles (the cone shadow cells)
+A.MeshStyle.shadow = {
+    shader = "default_polyline",
+    depth = false,
+    color = RGB(200, 45, 35),
+    tris = true,
+    fillAlpha = 90
+}
 
 
 

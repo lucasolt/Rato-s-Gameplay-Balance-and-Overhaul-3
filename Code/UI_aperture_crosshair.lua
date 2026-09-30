@@ -173,6 +173,120 @@ local function persist_wedge(at, spread, sigma, sy, fan, color, anchor)
     Rat_ShowStroke("wedge", Rat_WedgeContour(at, top, wide, tick), color, anchor)
 end
 
+---------------------------------------------------------------------------------------------------
+---- CONE SHADOW: the ring is split in sectors x bands, one bullet trace per cell through its middle,
+---- and the cells whose bullet stops before the target plane are filled. Traced like the real shot
+---- (Firearm:GetAttackResults sim branch), from the origin PrepareAttackArgs resolves -- including a
+---- step-out from cover. Fixed seed, no synced random: safe in prediction.
+---------------------------------------------------------------------------------------------------
+
+local SHADOW_SEED = 7919
+local shadow_cache, shadow_count = {}, 0
+
+function Rat_ResetConeShadowCache()
+    shadow_cache, shadow_count = {}, 0
+end
+
+---- The bullet halted short of the plane point `p` without crossing the target first.
+local function stops_short(l, ap, p, target, tol)
+    local stop = l and l.stuck_pos
+    if not stop then
+        return false
+    end
+    local sd = ap:Dist(Rat_ValidZ(stop))
+    if sd >= ap:Dist(p) - tol then
+        return false
+    end
+    for _, h in ipairs(l.hits or empty_table) do
+        if h.obj == target and h.pos and ap:Dist(h.pos) <= sd then
+            return false
+        end
+    end
+    return true
+end
+
+---- World triangles of the blocked cells, or false. `ring` = {center, radius, dir, ry, ry_dn, fan, fan_sat}.
+function Rat_ConeShadowTris(attacker, target, action, part, aim, override_pos, ring)
+    local a = const.Combat.Aperture
+    local nS = Max(3, a.CrosshairShadowSectors or 16)
+    local nB = Max(1, a.CrosshairShadowBands or 3)
+    local spot = part or g_DefaultShotBodyPart
+    local key = xxhash(attacker:GetPos(), override_pos or point20, attacker.stance, target.handle,
+                       ring.center, spot, action.id, aim, ring.radius, ring.ry or 0, ring.ry_dn or 0,
+                       ring.fan or 0, nS, nB)
+    local hit = shadow_cache[key]
+    if hit ~= nil then
+        return hit
+    end
+
+    local tris = false
+    local args = attacker:PrepareAttackArgs(action.id, {target = target, target_spot_group = spot,
+                                                        step_pos = override_pos, aim = aim})
+    local l1 = args and args.lof and args.lof[1]
+    local rim = l1 and l1.attack_pos and
+                    Rat_RingPoints(ring.center, ring.radius, ring.dir, nS, ring.ry, ring.ry_dn,
+                                   ring.fan, ring.fan_sat)
+    if rim then
+        local ap = Rat_MuzzleStepOut(attacker, Rat_ValidZ(l1.attack_pos),
+                                     Rat_SimAimPos(args.lof, spot, target:GetPos()), args, target)
+        local c = ring.center
+        local function at(p, f)
+            return c + MulDivRound(p - c, f, 1000)
+        end
+        local samples, cells = {}, {}
+        for b = 1, nB do
+            local f0, f1 = MulDivRound(1000, b - 1, nB), MulDivRound(1000, b, nB)
+            for i = 1, nS do
+                samples[#samples + 1] = at((rim[i] + rim[i + 1]) / 2, (f0 + f1) / 2)
+                cells[#cells + 1] = {rim[i], rim[i + 1], f0, f1}
+            end
+        end
+
+        local probe = table.copy(args)
+        probe.can_use_covers = false
+        probe.output_collisions = true
+        probe.additional_colliders = target
+        probe.require_los = nil
+        probe.range = ap:Dist(c) + 4 * const.SlabSizeX
+        if Rat_SmokeReplacesGraze(args.weapon, action, attacker) then
+            probe.ignore_smoke = true
+        end
+        Rat_SimLoFOverrides(probe, ap, SHADOW_SEED, args.ignore_colliders)
+        local data = GetLoFData(attacker, samples, probe)
+
+        local tol = a.CrosshairShadowPlaneTol or 0
+        for j, p in ipairs(samples) do
+            if stops_short(Rat_SimLoF(data and data[j]), ap, p, target, tol) then
+                tris = tris or {}
+                local cl = cells[j]
+                local i0, j0 = at(cl[1], cl[3]), at(cl[2], cl[3])
+                local i1, j1 = at(cl[1], cl[4]), at(cl[2], cl[4])
+                tris[#tris + 1], tris[#tris + 2], tris[#tris + 3] = i1, j1, j0
+                ---- the inner band is a wedge: its inner edge is the center point
+                if cl[3] > 0 then
+                    tris[#tris + 1], tris[#tris + 2], tris[#tris + 3] = i1, j0, i0
+                end
+            end
+        end
+    end
+
+    if shadow_count < 256 then
+        shadow_cache[key] = tris
+        shadow_count = shadow_count + 1
+    end
+    return tris
+end
+
+local function update_shadow(attacker, target, action, part, aim, override_pos, ring)
+    local tris = const.Combat.Aperture.CrosshairShadow and
+                     Rat_ConeShadowTris(attacker, target, action, part, aim, override_pos, ring)
+    if tris then
+        Rat_ShowStroke("shadow", tris, const.clrRed, ring.center)
+    else
+        Rat_HideStroke("shadow")
+    end
+end
+
 ---- Sai do caminho: devolve o circulo 2D e apaga o anel do mundo.
 local function fallback(self, context, ...)
     Rat_HideConeRing()
@@ -265,6 +379,11 @@ function Rat_UpdateConeRing(crosshair)
             rfan, rfan_sat = ray(fan), Rat_ConeRadius(dist, sy)
         end
     end
+
+    update_shadow(attacker, target, action, part, aim, c.override_pos, {
+        center = center, radius = radius, dir = dir, ry = ry, ry_dn = ry_dn, fan = rfan,
+        fan_sat = rfan_sat
+    })
 
     if not a.CrosshairRecoilLadder then
         Rat_ShowConeRing(center, radius, dir, color, nil, ry, ry_dn, rfan, rfan_sat)

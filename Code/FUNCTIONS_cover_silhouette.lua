@@ -52,6 +52,7 @@ function Rat_InvalidateExposureCache()
     if Rat_ResetClearanceCache then
         Rat_ResetClearanceCache()
     end
+    Rat_ResetConeShadowCache()
 end
 
 function OnMsg.NewMap()

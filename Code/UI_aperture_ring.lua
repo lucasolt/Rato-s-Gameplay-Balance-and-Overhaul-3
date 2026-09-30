@@ -156,7 +156,7 @@ end
 ---- Geometria SOLIDA (fita ou regiao) precisa de topologia de triangulo -- um shader de linha nao
 ---- desenha nada com ela. Promove default_polyline ao shader de fita; um shader explicito e mantido.
 local function solid_style(st)
-    return st and (st.fill or (st.width or 0) > 0)
+    return st and (st.fill or st.tris or (st.width or 0) > 0)
 end
 
 function Rat_StrokeStyle(obj, id)
@@ -297,7 +297,13 @@ function Rat_StrokeMesh(id, pts, color, st)
     local vpstr = pstr("", 1024)
     local width = (st and st.width) or 0
     local tf, bf = (st and st.tipFade) or 0, (st and st.baseFade) or 0
-    if st and st.fill then
+    if st and st.tris then
+        local r, g, bl = GetRGB(color)
+        local c = RGBA(r, g, bl, st.fillAlpha or 60)
+        for i = 1, #pts do
+            AppendVertex(vpstr, pts[i], c)
+        end
+    elseif st and st.fill then
         fan(vpstr, pts, color, st.fillAlpha or 60, bf)
         ribbon(vpstr, pts, color, (width > 0) and width or 8, st.coreAlpha or 255, tf, st.dash or 0, bf)
     elseif width > 0 then
