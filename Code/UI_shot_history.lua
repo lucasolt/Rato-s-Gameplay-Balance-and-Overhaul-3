@@ -38,6 +38,18 @@ function Rat_SweepShotTraces()
     return n
 end
 
+---- ordinal de ataque de cada record; records com o mesmo `group` seguidos sao um ataque so
+local function attack_ordinals(q)
+    local ord, n = {}, 0
+    for i, rec in ipairs(q) do
+        if not (rec.group and i > 1 and q[i - 1].group == rec.group) then
+            n = n + 1
+        end
+        ord[i] = n
+    end
+    return ord, n
+end
+
 ---- Guarda o ataque na fila da unidade. Recebe a MESMA tabela de Rat_SimSnapshot, de proposito:
 ---- miss/end_pos/dano so sao escritos depois, pelo laco de tiros de Firearm:GetAttackResults.
 function Rat_ShotHistoryPush(rec)
@@ -52,7 +64,13 @@ function Rat_ShotHistoryPush(rec)
     end
     q[#q + 1] = rec
     local keep = P().ShotHistoryAttacks or 4
-    while #q > keep do
+    local ord, n = attack_ordinals(q)
+    ---- descarta o ataque mais velho inteiro, nao um burst dele
+    local drop = 0
+    while drop < #q and ord[drop + 1] <= n - keep do
+        drop = drop + 1
+    end
+    for _ = 1, drop do
         table.remove(q, 1)
     end
     if g_RatShotTracesOn then
@@ -204,9 +222,11 @@ function Rat_DrawShotTraces(unit)
 
     local oldest = P().ShotHistoryOldPct or 35
     local n = 0
+    local ord, attacks = attack_ordinals(q)
     for a, rec in ipairs(q) do
-        ---- o mais novo (a == #q) fica cheio; os de tras descem ate `oldest`
-        local pct = (#q > 1) and (oldest + MulDivRound(100 - oldest, a - 1, #q - 1)) or 100
+        ---- o ataque mais novo fica cheio; os de tras descem ate `oldest`
+        local pct = (attacks > 1) and
+                        (oldest + MulDivRound(100 - oldest, ord[a] - 1, attacks - 1)) or 100
         ---- Z invalido degrada a aritmetica de vetor para 2D e a linha sai deitada no chao
         local from = rec.attack_pos and Rat_RingValidZ(rec.attack_pos)
         for i, sh in ipairs(rec.shots or empty_table) do

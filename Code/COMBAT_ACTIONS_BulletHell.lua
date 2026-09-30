@@ -74,6 +74,11 @@ local function bh_empty_cone(action, unit, args, weapon, total, main)
 end
 
 local function bh_action_results(self, unit, args)
+    ---- the cone aim shows no damage or CTH for this action; a preview would run one burst per target
+    ---- on every mouse move. Only the committed attack (FirearmAttack sets prediction = false) resolves.
+    if args.prediction ~= false then
+        return {}, args
+    end
     local weapon = args.weapon or self:GetAttackWeapons(unit, args)
     local total = Clamp(weapon.ammo.Amount, self:ResolveValue("min_ammo"),
                         self:ResolveValue("max_ammo"))
@@ -95,6 +100,7 @@ local function bh_action_results(self, unit, args)
     local fired, jammed, condition, ammo_type = weapon:PrecalcAmmoUse(unit, total, prediction)
 
     local attacks, attacks_args, packets = {}, {}, {}
+    local group = {}
     for i, t in ipairs(targets) do
         local sub = table.copy(raw)
         sub.target = t.obj
@@ -106,6 +112,7 @@ local function bh_action_results(self, unit, args)
         sub.num_shots = t.shots
         sub.multishot = true
         sub.damage_bonus = dmg_bonus
+        sub.rat_attack_group = group
         sub.rat_ammo_precalc = {
             fired = fired and t.shots or false,
             jammed = jammed,
