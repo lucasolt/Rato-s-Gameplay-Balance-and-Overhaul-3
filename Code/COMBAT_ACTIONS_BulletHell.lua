@@ -1,6 +1,7 @@
----- Bullet Hell as traversing autofire: the rounds are split across the visible enemies in the cone,
----- and each share is a real autofire burst at that enemy (aCTH sim, recoil, body parts, cover).
----- Every engaged enemy is Suppressed and forced prone; vanilla hit everyone in the cone as AoE.
+---- Bullet Hell as an area sweep: the rounds are spread evenly across the cone at standing-torso
+---- height and fired as real simulated bullets (shooter's own cone, one continuous recoil walk).
+---- Whatever unit a bullet crosses is hit as an off-part hit; no damage bonus. Everyone in the cone
+---- with line of fire is Suppressed and forced prone, as in vanilla.
 
 local bh_status = {"Suppressed", "SuppressionChangeStance"}
 
@@ -8,74 +9,101 @@ local function valid_z(pt)
     return pt:IsValidZ() and pt or pt:SetTerrainZ()
 end
 
----- engaged enemies with their round share, in sweep order (the vanilla fan's +half to -half)
-function Rat_BulletHellTargets(unit, weapon, target_pos, step_pos, total)
+---- the cone the aim UI draws (Targeting_AOE_Cone): radius is the cursor distance, clamped
+local function bh_cone(unit, weapon, target_pos, step_pos)
     local aoe = weapon:GetAreaAttackParams("BulletHell", unit, target_pos, step_pos)
     local sp, tp = valid_z(step_pos), valid_z(target_pos)
-    ---- same range the aim cone draws (Targeting_AOE_Cone)
     local range = Clamp(sp:Dist(tp), aoe.min_range * const.SlabSizeX,
                         aoe.max_range * const.SlabSizeX)
-    ---- always the prediction query, so the preview and the shot engage the same list
-    local objs, los = GetAreaAttackTargets(step_pos, aoe.stance or unit.stance, true, range, 0,
-                                           aoe.cone_angle, target_pos, unit:GetOccupiedPos(), true)
-    local list = {}
-    for i, obj in ipairs(objs) do
-        if IsKindOf(obj, "Unit") and obj ~= unit and not obj:IsDead() and unit:IsOnEnemySide(obj) and
-            (los[i] or 0) > 0 and HasVisibilityTo(unit.team, obj) then
-            list[#list + 1] = {obj = obj, dist = sp:Dist(obj:GetPos())}
-        end
-    end
-    if #list == 0 then
-        return list
-    end
-
-    ---- nearest first when the magazine can't cover everyone; the remainder goes to the nearest too
-    table.sort(list, function(a, b)
-        if a.dist ~= b.dist then
-            return a.dist < b.dist
-        end
-        return a.obj.handle < b.obj.handle
-    end)
-    local per = Max(1, const.Combat.Autofire.BulletHellMinShotsPerTarget)
-    local n = Clamp(total / per, 1, #list)
-    for i = #list, n + 1, -1 do
-        list[i] = nil
-    end
-    local base, rem = total / n, total % n
-    local axis = CalcOrientation(sp, tp)
-    for i, t in ipairs(list) do
-        t.shots = base + (i <= rem and 1 or 0)
-        t.angle = AngleDiff(CalcOrientation(sp, t.obj:GetPos()), axis)
-    end
-    table.sort(list, function(a, b)
-        if a.angle ~= b.angle then
-            return a.angle > b.angle
-        end
-        return a.obj.handle < b.obj.handle
-    end)
-    return list
+    return aoe, sp, tp, range
 end
 
----- no one to engage: the rounds still go downrange at max range, fanned like vanilla
-local function bh_empty_cone(action, unit, args, weapon, total, main)
-    local aoe = weapon:GetAreaAttackParams(action.id, unit, main.target_pos, main.step_pos)
-    local fb = table.copy(args)
-    fb.weapon = weapon
-    fb.num_shots = total
-    fb.step_pos = main.step_pos
-    fb.target = main.step_pos + SetLen2D((main.target_pos - main.step_pos):SetZ(0),
-                                         aoe.max_range * const.SlabSizeX)
-    fb.target = valid_z(fb.target)
-    fb.target_pos = nil
-    local attack_args = unit:PrepareAttackArgs(action.id, fb)
-    local results = weapon:GetAttackResults(action, attack_args)
-    results.rat_bh_fan = true
-    return results, attack_args
+---- n aim points evenly across the arc (vanilla fan order, +half to -half), over the floor there
+function Rat_BulletHellSweepPoints(unit, weapon, target_pos, step_pos, n)
+    local aoe, sp, tp, range = bh_cone(unit, weapon, target_pos, step_pos)
+    local axis = CalcOrientation(sp, tp)
+    local half = aoe.cone_angle / 2
+    local height = const.Combat.Autofire.BulletHellAimHeight
+    local points = {}
+    for i = 1, n do
+        local angle = (n > 1) and (axis + half - MulDivRound(2 * half, i - 1, n - 1)) or axis
+        local p = RotateRadius(range, angle, sp)
+        local floor = GetPassSlab(p)
+        local z = floor and valid_z(floor):z() or terrain.GetHeight(p)
+        points[i] = p:SetZ(z + height)
+    end
+    return points
+end
+
+---- sim_ctx planner for rat_sweep (GetAttackResults): same scatter and recoil walk as
+---- Rat_SimPlanShots, but the cone is the shooter's alone -- there is no target to resolve it against
+function Rat_SweepPlanShots(ctx)
+    local sweep = ctx.args.rat_sweep
+    local attacker, weapon = ctx.attacker, ctx.weapon
+    local auto = sweep.crit_action
+    local sigma = Rat_GetAperture(weapon, attacker, auto, 0, false)
+    if not sigma or sigma < 1 then
+        return nil
+    end
+    local cone = {rat_sigma = sigma, rat_vsigma = Rat_RecoilPersistSigma(attacker, auto, weapon, 0)}
+    local sigma_y, sigma_y_dn = Rat_ConeSigmaY(cone)
+    local fan = Rat_ConeFanX(cone)
+    ctx.sigma, ctx.sigma_y, ctx.sigma_y_dn, ctx.fan, ctx.vsigma = sigma, sigma_y, sigma_y_dn, fan,
+                                                                  cone.rat_vsigma
+
+    local n = #sweep.points
+    local prof = (n > 1) and Rat_RecoilProfile(attacker, auto, weapon, n) or nil
+    local st = prof and Rat_RecoilState() or nil
+    local rnd = function(k)
+        return attacker:Random(k)
+    end
+    local attack_pos = Rat_ValidZ(ctx.attack_pos)
+    local shots = {}
+    for i = 1, n do
+        local aim = Rat_ValidZ(sweep.points[i])
+        local lat, mu = 0, 0
+        if st then
+            lat, mu = Rat_RecoilPoint(st)
+            local axis = Rat_RecoilWalkAxis(attacker, attack_pos, aim)
+            local lat_axis = Rat_RecoilLateralAxis(axis, SetLen(aim - attack_pos, 1000))
+            aim = Rat_RecoilWalkPoint(attack_pos, aim, axis, mu, lat_axis, lat)
+        end
+        shots[i] = {
+            sigma = sigma,
+            mu = mu,
+            lat = lat,
+            target_pos = Rat_ShotScatterPoint(attacker, attack_pos, aim, sigma, sigma_y, sigma_y_dn,
+                                              fan)
+        }
+        if st then
+            Rat_RecoilStep(prof, st, rnd)
+        end
+    end
+    if st then
+        Rat_RecoilPersistStash(attacker, st)
+    end
+    ctx.recoil, ctx.num_shots, ctx.shots = prof, n, shots
+    return shots
+end
+
+---- the unit the bullet reached first; it becomes that shot's target
+function Rat_SweepFirstUnit(hit_data, attacker)
+    local from = hit_data.attack_pos
+    local best, best_d
+    for _, h in ipairs(hit_data.hits or empty_table) do
+        local obj = h.obj
+        if IsKindOf(obj, "Unit") and obj ~= attacker and not obj:IsDead() then
+            local d = (from and h.pos) and from:Dist(h.pos) or 0
+            if not best or d < best_d then
+                best, best_d = obj, d
+            end
+        end
+    end
+    return best
 end
 
 local function bh_action_results(self, unit, args)
-    ---- the cone aim shows no damage or CTH for this action; a preview would run one burst per target
-    ---- on every mouse move. Only the committed attack (FirearmAttack sets prediction = false) resolves.
+    ---- the cone aim shows no damage or CTH for this action; only the committed attack resolves
     if args.prediction ~= false then
         return {}, args
     end
@@ -85,75 +113,33 @@ local function bh_action_results(self, unit, args)
     local raw = table.copy(args)
     raw.weapon = weapon
     raw.num_shots = total
-    ---- the unit faces the cone axis; per-target args ride in results.attacks_args
-    local main = unit:PrepareAttackArgs(self.id, raw)
-    main.target_pos = main.target_pos or raw.target:GetPos()
+    raw.multishot = true
+    raw.damage_bonus = 0
+    local attack_args = unit:PrepareAttackArgs(self.id, raw)
+    local target_pos = attack_args.target_pos or raw.target:GetPos()
+    attack_args.rat_sweep = {
+        points = Rat_BulletHellSweepPoints(unit, weapon, target_pos, attack_args.step_pos, total),
+        crit_action = CombatActions[Rat_AutoAttackId(weapon)]
+    }
+    local results = weapon:GetAttackResults(self, attack_args)
 
-    local targets = Rat_BulletHellTargets(unit, weapon, main.target_pos, main.step_pos, total)
-    if #targets == 0 then
-        return bh_empty_cone(self, unit, raw, weapon, total, main)
-    end
-
-    local auto = CombatActions[Rat_AutoAttackId(weapon)]
-    local dmg_bonus = (auto.id == "AutoFire") and auto:ResolveValue("dmg_penalty") or 0
-    local prediction = main.prediction
-    local fired, jammed, condition, ammo_type = weapon:PrecalcAmmoUse(unit, total, prediction)
-
-    local attacks, attacks_args, packets = {}, {}, {}
-    local group = {}
-    for i, t in ipairs(targets) do
-        local sub = table.copy(raw)
-        sub.target = t.obj
-        sub.target_pos = nil
-        sub.lof = nil
-        sub.target_spot_group = nil
-        sub.step_pos = main.step_pos
-        sub.aim = 0
-        sub.num_shots = t.shots
-        sub.multishot = true
-        sub.damage_bonus = dmg_bonus
-        sub.rat_attack_group = group
-        sub.rat_ammo_precalc = {
-            fired = fired and t.shots or false,
-            jammed = jammed,
-            condition = condition,
-            ammo_type = ammo_type
-        }
-        local sub_args = unit:PrepareAttackArgs(auto.id, sub)
-        attacks[i] = weapon:GetAttackResults(auto, sub_args)
-        attacks_args[i] = sub_args
-        packets[i] = {target = t.obj, effects = bh_status}
-        ---- a jam stops the trigger pull on the first burst
-        if not fired then
-            break
+    if results.fired then
+        local _, sp, tp, range = bh_cone(unit, weapon, target_pos, attack_args.step_pos)
+        local aoe = weapon:GetAreaAttackParams(self.id, unit, target_pos, attack_args.step_pos)
+        local objs, los = GetAreaAttackTargets(sp, aoe.stance or unit.stance, false, range, 0,
+                                               aoe.cone_angle, tp, unit:GetOccupiedPos(), true)
+        results.extra_packets = results.extra_packets or {}
+        for i, obj in ipairs(objs) do
+            if IsKindOf(obj, "Unit") and obj ~= unit and not obj:IsDead() and (los[i] or 0) > 0 then
+                table.insert(results.extra_packets, {target = obj, effects = bh_status})
+            end
         end
     end
-
-    local results = MergeAttacks(attacks, attacks_args)
-    if fired then
-        results.extra_packets = packets
-    end
-    return results, main
+    return results, attack_args
 end
 
----- vanilla UnitActions.lua BulletHellOverwriteShots, kept only for the empty-cone fallback: the
----- traversing bursts are real shots and must not be rotated after their hits were resolved
+---- vanilla rotates the shots after their hits were resolved; the sweep plans real directions instead
 function BulletHellOverwriteShots(attack)
-    if not attack.rat_bh_fan then
-        return
-    end
-    local weapon = attack.weapon
-    local halfAngle = DivRound(weapon.OverwatchAngle, 2)
-    local newAngle = halfAngle
-    local angleStep = MulDivRound(weapon.OverwatchAngle, 2, #attack.shots)
-    for _, shot in ipairs(attack.shots) do
-        shot.target_pos = RotateAxis(shot.target_pos, point(0, 0, 4069), newAngle, shot.attack_pos)
-        shot.stuck_pos = RotateAxis(shot.stuck_pos, point(0, 0, 4069), newAngle, shot.attack_pos)
-        if abs(newAngle) >= halfAngle then
-            angleStep = -angleStep
-        end
-        newAngle = newAngle + angleStep
-    end
 end
 
 function Rat_ApplyBulletHell()
@@ -161,6 +147,6 @@ function Rat_ApplyBulletHell()
     local perk = CharacterEffectDefs.BulletHell
     if perk then
         perk.Description = T(482915370264,
-                             "Sweep a long <em>autofire</em> burst across every visible enemy in the cone. Each enemy takes its own share of the rounds, and all of them are <GameTerm('Suppressed')> and sent <GameTerm('Prone')>.")
+                             "Sweep a long <em>autofire</em> burst evenly across the cone at torso height. Anyone the bullets cross is hit, and everyone in the cone is <GameTerm('Suppressed')> and sent <GameTerm('Prone')>.")
     end
 end

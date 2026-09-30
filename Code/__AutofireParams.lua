@@ -24,7 +24,7 @@ const.Combat.Autofire = {
     ---- tapping a single round in autofire: chance per 1000 RPM, times (100 - Composure)%
     SingleTapChancePer1000RPM = 40,
 
-    ---- Bullet Hell (COMBAT_ACTIONS_BulletHell.lua): fewest rounds one engaged enemy receives,
-    ---- which caps how many enemies a magazine is split across
-    BulletHellMinShotsPerTarget = 3,
+    ---- Bullet Hell (COMBAT_ACTIONS_BulletHell.lua): sweep aim height over the floor. Measured torso
+    ---- spot: standing 1005, crouched 715, prone ~150-190
+    BulletHellAimHeight = 1000,
 }

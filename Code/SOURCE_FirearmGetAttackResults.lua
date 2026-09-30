@@ -100,16 +100,8 @@ function Firearm:GetAttackResults(action, attack_args)
     end
     -----------------------------------
 
-    ---- split attacks (Bullet Hell) roll reliability once for the whole trigger pull
-    local fired, jammed, condition, ammo_type
-    local ammo_roll = attack_args.rat_ammo_precalc
-    if ammo_roll then
-        fired, jammed, condition, ammo_type = ammo_roll.fired, ammo_roll.jammed,
-                                              ammo_roll.condition, ammo_roll.ammo_type
-    else
-        fired, jammed, condition, ammo_type = self:PrecalcAmmoUse(attacker, consumed_ammo,
-                                                                  prediction)
-    end
+    local fired, jammed, condition, ammo_type = self:PrecalcAmmoUse(attacker, consumed_ammo,
+                                                                    prediction)
     if type(fired) == "number" and num_shots > 0 then
         num_shots = Min(fired, num_shots)
         shot_attack_args.num_shots = fired
@@ -398,17 +390,22 @@ function Firearm:GetAttackResults(action, attack_args)
     ---- SIMULACAO: inverte o pipeline vanilla -- sorteia o desvio na abertura, dispara, a geometria decide
     ---- acerto e parte do corpo. Mesma LUT de Rayleigh do CTH (taxa esperada igual); muda a consequencia do erro.
     local sim_shots, sim_ctx
+    ---- area sweep (Bullet Hell): planned aim points, and each bullet's target is the unit it crossed
+    local sweep = shot_attack_args.rat_sweep
     ---- AlwaysHits nao pode virar sorteio de geometria; alvo que nao e objeto (ponto) nunca
     ---- aparece como `hit.obj`, entao todo tiro seria erro.
-    if not prediction and const.Combat.Aperture.SimulateShots and not action.AlwaysHits and
-        IsValid(target) and IsACHTActive(attack_args.weapon or self, action, attacker) then
+    if not prediction and const.Combat.Aperture.SimulateShots and
+        (sweep or (not action.AlwaysHits and IsValid(target) and
+            IsACHTActive(attack_args.weapon or self, action, attacker))) then
         ---- passo do cano ANTES do sim_ctx, para que o cone, a bala, o snapshot e os pellets
         ---- saiam todos do MESMO ponto -- e do mesmo que Rat_MuzzleClearance usou na previsao.
-        attack_results.attack_pos =
-            Rat_MuzzleStepOut(attacker, attack_results.attack_pos,
-                              Rat_SimAimPos(shot_attack_args.lof,
-                                            shot_attack_args.target_spot_group, target_pos),
-                              shot_attack_args, target)
+        if not sweep then
+            attack_results.attack_pos =
+                Rat_MuzzleStepOut(attacker, attack_results.attack_pos,
+                                  Rat_SimAimPos(shot_attack_args.lof,
+                                                shot_attack_args.target_spot_group, target_pos),
+                                  shot_attack_args, target)
+        end
 
         ---- Rat_SimPlanShots: a mesma funcao que o visualizador chama
         sim_ctx = {
@@ -438,7 +435,7 @@ function Firearm:GetAttackResults(action, attack_args)
             persist = true,
             args = shot_attack_args
         }
-        sim_shots = Rat_SimPlanShots(sim_ctx)
+        sim_shots = sweep and Rat_SweepPlanShots(sim_ctx) or Rat_SimPlanShots(sim_ctx)
         if sim_shots then
             ---- resultado passa a ser acumulado do que cada bala fez
             miss, crit = true, false
@@ -587,6 +584,7 @@ function Firearm:GetAttackResults(action, attack_args)
 
         local attack_data, miss_target_pos, hit_data
         local sim = sim_shots and sim_shots[i]
+        local shot_tgt = target
         if sim then
             ---- dispara no ponto sorteado sem ignorar o alvo; a geometria decide o acerto.
             Rat_SimLoFOverrides(shot_attack_args, attack_results.attack_pos, attacker:Random(),
@@ -677,8 +675,11 @@ function Firearm:GetAttackResults(action, attack_args)
 
         ---- a bala ja voou: se cruzou o alvo, acertou. Corrige `shot_miss` aqui e o resto le dele.
         if sim then
+            if sweep then
+                shot_tgt = Rat_SweepFirstUnit(hit_data, attacker)
+            end
             local hit_it
-            hit_it, shot_hit_spot = Rat_SimHitSpot(hit_data, target)
+            hit_it, shot_hit_spot = Rat_SimHitSpot(hit_data, shot_tgt)
             shot_miss = not hit_it
 
             ---- crit da parte ATINGIDA, nao da mirada (CalcCritChance le args.target_spot_group,
@@ -687,15 +688,19 @@ function Firearm:GetAttackResults(action, attack_args)
             if not shot_miss and shot_hit_spot then
                 local aimed = shot_attack_args.target_spot_group
                 shot_attack_args.target_spot_group = shot_hit_spot
-                shot_crit_chance = attacker:CalcCritChance(self, target, action, shot_attack_args,
+                shot_crit_chance = attacker:CalcCritChance(self, shot_tgt,
+                                                           sweep and sweep.crit_action or action,
+                                                           shot_attack_args,
                                                            shot_attack_args.step_pos)
                 shot_attack_args.target_spot_group = aimed
             end
 
             ---- wrong part of the right target: soft stray, the crit is mostly taken away.
+            ---- a sweep aims at no one, so every unit it crosses takes the off-part hit
             shot_off_part = (not shot_miss) and
-                                Rat_IsOffPart(rat_aimed_part, shot_hit_spot,
-                                              is_pellet_shot and not slug_shot)
+                                (sweep and true or
+                                    Rat_IsOffPart(rat_aimed_part, shot_hit_spot,
+                                                  is_pellet_shot and not slug_shot))
             shot_crit_chance = Rat_OffPartCritChance(shot_crit_chance, shot_off_part)
 
             ---- crit rolado por tiro, so vale se a bala chegou. Sem multishot (Buckshot, DoubleBarrel,
@@ -712,7 +717,7 @@ function Firearm:GetAttackResults(action, attack_args)
 
             ---- STRAY ignora `leading_shot`: BulletCalcDamage marca stray por `obj ~= hit_data.target`
             ---- e vanilla so marca o 1o tiro leading -> acertos 2..N virariam stray (-50% dano). Cruzou o alvo = acertou.
-            dmg_target = (not shot_miss) and target or false
+            dmg_target = (not shot_miss) and shot_tgt or false
 
             miss = miss and shot_miss
             crit = crit or shot_crit
@@ -769,9 +774,9 @@ function Firearm:GetAttackResults(action, attack_args)
                     hit.stray = nil
                 end
                 ---- read back in GetBulletDamage, where damage and effects are still open
-                hit.rat_offpart = (hit.obj == target) and shot_off_part or nil
+                hit.rat_offpart = (hit.obj == shot_tgt) and shot_off_part or nil
                 ---- part damage_mod and applied_effect (Groin -> Suppressed) read hit.spot_group
-                if hit.obj == target and shot_hit_spot then
+                if hit.obj == shot_tgt and shot_hit_spot then
                     hit.spot_group = shot_hit_spot
                 end
             end
@@ -803,7 +808,7 @@ function Firearm:GetAttackResults(action, attack_args)
         local dbg_rec = sim and g_RatLastSimShots and g_RatLastSimShots.shots[i]
         if dbg_rec then
             for _, hit in ipairs(hit_data.hits or empty_table) do
-                if hit.obj == target then
+                if hit.obj == shot_tgt then
                     dbg_rec.stray = hit.stray and true or false
                     dbg_rec.off_part = hit.rat_offpart and true or false
                     dbg_rec.damage = hit.damage
