@@ -53,6 +53,59 @@ function Shotgun:GetNumPellets(unit, action_id)
     return pellets
 end
 
+---- Scatter geometry shared by the shot and Rat_ExpectedPelletsOnTarget: pellet offsets are drawn
+---- with radius uniform in [min_offset, scatter], measured at `range` along the main pellet's line.
+function Rat_PelletScatterRadii(weapon, cone_angle)
+    local range = weapon.WeaponRange * const.SlabSizeX
+    local min_offset = 35 * guic
+    local scatter_range = 20 * const.SlabSizeX
+    local scatter = Max(min_offset, MulDivRound(scatter_range, sin(cone_angle / 2),
+                                                Max(1, cos(cone_angle / 2))))
+    return range, min_offset, scatter
+end
+
+---------------------------------------------------------------------------------------------------
+---- Expected pellets on the target per shell, x100, main pellet included, GIVEN the main pellet
+---- lands on the aimed spot. Pure (no Random, no LoF), so the AI can ask it per destination.
+---- Deterministic 8x4 grid over the same (theta, radius) draw as GetPelletScatterData, tested
+---- against the target's angular extents (Rat_TargetExtents, cover ignored). Pellets are all or
+---- nothing for slugs: parallel slugs fly together.
+---------------------------------------------------------------------------------------------------
+function Rat_ExpectedPelletsOnTarget(attacker, weapon, action, target, attacker_pos, spot, cone_angle)
+    local pellets = weapon:GetNumPellets(attacker, action and action.id) or 0
+    if pellets <= 1 or IsSlugLoaded(weapon) then
+        return Max(1, pellets) * 100
+    end
+    attacker_pos = attacker_pos or attacker:GetPos()
+    if not cone_angle then
+        local aoe = weapon:GetAreaAttackParams(action.id, attacker, target:GetPos())
+        cone_angle = aoe and aoe.cone_angle
+    end
+    local up, down, right, left = Rat_TargetExtents(attacker_pos, target, spot or "Torso", 100)
+    if not up or not cone_angle then
+        return pellets * 100
+    end
+    local range, min_offset, scatter = Rat_PelletScatterRadii(weapon, cone_angle)
+    local var_offset = Max(0, scatter - min_offset)
+    local vf = weapon.VerticalPelletSpreadFactorMul or 100
+    local thetas, radii = 8, 4
+    local inside = 0
+    for ti = 0, thetas - 1 do
+        local theta = MulDivRound(360 * 60, 2 * ti + 1, 2 * thetas)
+        local s, c = sin(theta), cos(theta)
+        for ri = 0, radii - 1 do
+            local radius = min_offset + MulDivRound(var_offset, 2 * ri + 1, 2 * radii)
+            local off = MulDivRound(radius, 3438, Max(1, range)) ---- arcminutes
+            local dx = MulDivRound(off, s, 4096)
+            local dy = MulDivRound(MulDivRound(off, c, 4096), vf, 100)
+            if dx >= -left and dx <= right and dy >= -down and dy <= up then
+                inside = inside + 1
+            end
+        end
+    end
+    return 100 + MulDivRound((pellets - 1) * 100, inside, thetas * radii)
+end
+
 function Firearm:GetPelletScatterData(attacker, action, attack_pos, target_pos, num_vectors,
                                       aoe_params, attack_results, shot_attack_args)
 
@@ -60,17 +113,9 @@ function Firearm:GetPelletScatterData(attacker, action, attack_pos, target_pos, 
         return {}
     end
     aoe_params = aoe_params or self:GetAreaAttackParams(action.id, attacker, target_pos)
-    local range = self.WeaponRange * const.SlabSizeX
     local dir = SetLen(target_pos - attack_pos, guim)
-
-    local min_offset = 35 * guic
-    ----
-    local scatter_range = 20 * const.SlabSizeX -- range
     local max_angle_offset = 360 * 60
-    ----
-    local scatter = Max(min_offset, MulDivRound(scatter_range, sin(aoe_params.cone_angle / 2),
-                                                Max(1, cos(aoe_params.cone_angle / 2))))
-
+    local range, min_offset, scatter = Rat_PelletScatterRadii(self, aoe_params.cone_angle)
     local var_offset = Max(0, scatter - min_offset)
 
     local targets = {}
