@@ -309,6 +309,8 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 			---- os dois eixos do cone: sem eles a bala e o anel voltam ao circulo e param de
 			---- concordar com o CTH que acabou de sair daqui (Rat_ConeSigmaY le os dois)
 			args.rat_vsigma, args.rat_stretch = mod_data.rat_vsigma, mod_data.rat_stretch
+			---- head aims only: % of the hits that land on the head (the rest are off-part)
+			args.rat_head_share = mod_data.rat_head_share
 		end
 	else
 		base = Max(0, mod_data.enabled and MulDivRound(base + mod_data.mod_add, mod_data.mod_mul, 100) or 0)

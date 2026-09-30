@@ -130,11 +130,13 @@ function Rat_ConeCTH(data)
     local sigma_y, sigma_y_dn = Rat_ConeSigmaY(data)
     local fan = Rat_ConeFanX(data)
     local cth
+    data.rat_head_share = nil
     if data.rat_ext_up then
-        cth = Clamp(Rat_SeparableCTH(sigma, data.rat_ext_up, data.rat_ext_down, data.rat_ext_right,
-                                     data.rat_ext_left, data.rat_ext_head, sigma_y, sigma_y_dn,
-                                     fan), a.MinCTH,
-                    a.MaxCTH)
+        local raw, head_share = Rat_SeparableCTH(sigma, data.rat_ext_up, data.rat_ext_down,
+                                                 data.rat_ext_right, data.rat_ext_left,
+                                                 data.rat_ext_head, sigma_y, sigma_y_dn, fan)
+        cth = Clamp(raw, a.MinCTH, a.MaxCTH)
+        data.rat_head_share = head_share
         data.rat_theta = Rat_ThetaEquivalent(sigma, cth) or data.rat_theta
     else
         ---- sem extensoes nao ha eixo a distinguir: o circulo de mesma AREA entrega a mesma

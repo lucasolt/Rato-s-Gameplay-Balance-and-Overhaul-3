@@ -778,8 +778,12 @@ function Rat_SeparableCTH(sigma, up, down, right, left, head, sigma_y, sigma_y_d
     sigma_y_down = (sigma_y_down and sigma_y_down >= 1) and sigma_y_down or sigma_y
     local body_up = up
     local p_head = 0
+    ---- head mass whether or not it is split from the box: feeds the 2nd return only
+    local p_head_any
     if head then
         local hu, hr, hw, hh = head[1], head[2], head[3], head[4]
+        p_head_any = MulDivRound(normal_band(hr - hw, hr + hw, sigma),
+                                 normal_band(hu - hh, hu + hh, sigma_y), 1000)
         ---- Separar so vale se a cabeca chega ao topo E o corpo pendura ABAIXO dela, em vez de
         ---- se espalhar ao lado. Em `ar_TakeCover_Idle` a cabeca fica encaixada entre os ombros
         ---- (o spot Torso do motor chega a ficar ACIMA do da cabeca) e deitado o corpo fica ao
@@ -788,9 +792,12 @@ function Rat_SeparableCTH(sigma, up, down, right, left, head, sigma_y, sigma_y_d
         ---- cabeca sobra igual a de pe, e ai separa.
         if hu + hh >= up - hh and down > right + left then
             body_up = Min(up, hu - hh) --- o tronco comeca no ombro, abaixo da cabeca
-            p_head = MulDivRound(normal_band(hr - hw, hr + hw, sigma),
-                                 normal_band(hu - hh, hu + hh, sigma_y), 1000)
+            p_head = p_head_any
         end
+    end
+    ---- 2nd return: % of the landing mass that is head (nil = no head rect); the AI prices head aims by it
+    local function head_share(total)
+        return p_head_any and Min(100, MulDivRound(p_head_any, 100, Max(1, total))) or nil
     end
     ---- duas metades coladas no zero: cada lado leva metade da massa com o SEU sigma. Com os dois
     ---- iguais isto e identico a uma faixa so, porque normal_band e aditiva em intervalos vizinhos.
@@ -798,8 +805,8 @@ function Rat_SeparableCTH(sigma, up, down, right, left, head, sigma_y, sigma_y_d
     local p_body = MulDivRound(px, normal_band(-down, 0, sigma_y_down), 1000)
 
     if not fan_top or fan_top < 1 or body_up <= 0 then
-        return MulDivRound(p_body + MulDivRound(px, normal_band(0, body_up, sigma_y), 1000) + p_head,
-                           100, 1000)
+        local total = p_body + MulDivRound(px, normal_band(0, body_up, sigma_y), 1000) + p_head
+        return MulDivRound(total, 100, 1000), head_share(total)
     end
 
     ---- a cunha: cada fatia leva a SUA largura, pela altura do meio dela. A abertura para de
@@ -813,7 +820,7 @@ function Rat_SeparableCTH(sigma, up, down, right, left, head, sigma_y, sigma_y_d
         p_body = p_body +
                      MulDivRound(normal_band(-left, right, sx), normal_band(y0, y1, sigma_y), 1000)
     end
-    return MulDivRound(p_body + p_head, 100, 1000)
+    return MulDivRound(p_body + p_head, 100, 1000), head_share(p_body + p_head)
 end
 
 ---- Abertura lateral da cunha no topo, em minutos. Mesmo tremor que alonga o eixo vertical.
