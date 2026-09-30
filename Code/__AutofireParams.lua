@@ -29,4 +29,6 @@ const.Combat.Autofire = {
     BulletHellAimHeight = 1000,
     ---- a sweep bearing within this half-width (mm) of a visible enemy aims at his torso instead
     BulletHellSilhouetteHalfWidth = 300,
+    ---- fixed cone (arcminutes) whatever the gun; a stock UZI measures 1523 live
+    BulletHellConeAngle = 1600,
 }

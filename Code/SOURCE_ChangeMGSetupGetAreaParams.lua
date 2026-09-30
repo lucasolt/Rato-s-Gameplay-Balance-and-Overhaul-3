@@ -9,6 +9,8 @@ function Firearm:GetAreaAttackParams(action_id, attacker, target_pos, step_pos, 
             params.cone_angle = MulDivRound(params.cone_angle, const.Combat.MGSetupConeMul, 100)
             params.cone_angle = params.cone_angle + const.Combat.MGSetupConeFlat
         end
+    elseif action_id == "BulletHell" and params.cone_angle then
+        params.cone_angle = const.Combat.Autofire.BulletHellConeAngle
     end
     ---------
     return params
