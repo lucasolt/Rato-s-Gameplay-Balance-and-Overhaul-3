@@ -1,5 +1,5 @@
----- Bullet Hell as an area sweep: the rounds are spread evenly across the cone at standing-torso
----- height and fired as real simulated bullets (shooter's own cone, one continuous recoil walk).
+---- Bullet Hell as an area sweep: the rounds are spread evenly across the cone, dipping to the torso
+---- of any visible enemy on their bearing and at standing-torso height elsewhere, and fired as real simulated bullets (shooter's own cone, one continuous recoil walk).
 ---- Whatever unit a bullet crosses is hit as an off-part hit; no damage bonus. Everyone in the cone
 ---- with line of fire is Suppressed and forced prone, as in vanilla.
 
@@ -18,19 +18,66 @@ local function bh_cone(unit, weapon, target_pos, step_pos)
     return aoe, sp, tp, range
 end
 
----- n aim points evenly across the arc (vanilla fan order, +half to -half), over the floor there
-function Rat_BulletHellSweepPoints(unit, weapon, target_pos, step_pos, n)
+---- units in the cone with line of fire, as vanilla's AoE saw them
+local function bh_cone_units(unit, weapon, target_pos, step_pos)
+    local aoe, sp, tp, range = bh_cone(unit, weapon, target_pos, step_pos)
+    local objs, los = GetAreaAttackTargets(sp, aoe.stance or unit.stance, false, range, 0,
+                                           aoe.cone_angle, tp, unit:GetOccupiedPos(), true)
+    local list = {}
+    for i, obj in ipairs(objs) do
+        if IsKindOf(obj, "Unit") and obj ~= unit and not obj:IsDead() and (los[i] or 0) > 0 then
+            list[#list + 1] = obj
+        end
+    end
+    return list
+end
+
+---- visible enemies with the bearing and half-width they cover, for the sweep to dip onto
+local function bh_silhouettes(unit, sp, units)
+    local half_w = const.Combat.Autofire.BulletHellSilhouetteHalfWidth
+    local list = {}
+    for _, obj in ipairs(units) do
+        local ok, torso = pcall(obj.GetStaticSpotPos, obj, "Torso")
+        if ok and torso and unit:IsOnEnemySide(obj) and HasVisibilityTo(unit.team, obj) then
+            local d = Max(1, sp:Dist2D(obj:GetPos()))
+            list[#list + 1] = {
+                bearing = CalcOrientation(sp, obj:GetPos()),
+                half = atan(half_w, d),
+                dist = d,
+                torso = valid_z(torso),
+                handle = obj.handle
+            }
+        end
+    end
+    return list
+end
+
+---- n aim points evenly across the arc (vanilla fan order, +half to -half). A bearing that crosses a
+---- visible enemy aims at his torso (nearest wins); elsewhere at standing-torso height over the floor.
+function Rat_BulletHellSweepPoints(unit, weapon, target_pos, step_pos, n, units)
     local aoe, sp, tp, range = bh_cone(unit, weapon, target_pos, step_pos)
     local axis = CalcOrientation(sp, tp)
     local half = aoe.cone_angle / 2
     local height = const.Combat.Autofire.BulletHellAimHeight
+    local sils = bh_silhouettes(unit, sp, units or bh_cone_units(unit, weapon, target_pos, step_pos))
     local points = {}
     for i = 1, n do
         local angle = (n > 1) and (axis + half - MulDivRound(2 * half, i - 1, n - 1)) or axis
-        local p = RotateRadius(range, angle, sp)
-        local floor = GetPassSlab(p)
-        local z = floor and valid_z(floor):z() or terrain.GetHeight(p)
-        points[i] = p:SetZ(z + height)
+        local sil
+        for _, s in ipairs(sils) do
+            if abs(AngleDiff(angle, s.bearing)) <= s.half and
+                (not sil or s.dist < sil.dist or (s.dist == sil.dist and s.handle < sil.handle)) then
+                sil = s
+            end
+        end
+        if sil then
+            points[i] = RotateRadius(sil.dist, angle, sp):SetZ(sil.torso:z())
+        else
+            local p = RotateRadius(range, angle, sp)
+            local floor = GetPassSlab(p)
+            local z = floor and valid_z(floor):z() or terrain.GetHeight(p)
+            points[i] = p:SetZ(z + height)
+        end
     end
     return points
 end
@@ -117,22 +164,18 @@ local function bh_action_results(self, unit, args)
     raw.damage_bonus = 0
     local attack_args = unit:PrepareAttackArgs(self.id, raw)
     local target_pos = attack_args.target_pos or raw.target:GetPos()
+    local units = bh_cone_units(unit, weapon, target_pos, attack_args.step_pos)
     attack_args.rat_sweep = {
-        points = Rat_BulletHellSweepPoints(unit, weapon, target_pos, attack_args.step_pos, total),
+        points = Rat_BulletHellSweepPoints(unit, weapon, target_pos, attack_args.step_pos, total,
+                                           units),
         crit_action = CombatActions[Rat_AutoAttackId(weapon)]
     }
     local results = weapon:GetAttackResults(self, attack_args)
 
     if results.fired then
-        local _, sp, tp, range = bh_cone(unit, weapon, target_pos, attack_args.step_pos)
-        local aoe = weapon:GetAreaAttackParams(self.id, unit, target_pos, attack_args.step_pos)
-        local objs, los = GetAreaAttackTargets(sp, aoe.stance or unit.stance, false, range, 0,
-                                               aoe.cone_angle, tp, unit:GetOccupiedPos(), true)
         results.extra_packets = results.extra_packets or {}
-        for i, obj in ipairs(objs) do
-            if IsKindOf(obj, "Unit") and obj ~= unit and not obj:IsDead() and (los[i] or 0) > 0 then
-                table.insert(results.extra_packets, {target = obj, effects = bh_status})
-            end
+        for _, obj in ipairs(units) do
+            table.insert(results.extra_packets, {target = obj, effects = bh_status})
         end
     end
     return results, attack_args

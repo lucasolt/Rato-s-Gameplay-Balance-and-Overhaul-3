@@ -27,4 +27,6 @@ const.Combat.Autofire = {
     ---- Bullet Hell (COMBAT_ACTIONS_BulletHell.lua): sweep aim height over the floor. Measured torso
     ---- spot: standing 1005, crouched 715, prone ~150-190
     BulletHellAimHeight = 1000,
+    ---- a sweep bearing within this half-width (mm) of a visible enemy aims at his torso instead
+    BulletHellSilhouetteHalfWidth = 300,
 }
