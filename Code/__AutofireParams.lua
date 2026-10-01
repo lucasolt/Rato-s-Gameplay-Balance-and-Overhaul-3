@@ -24,6 +24,12 @@ const.Combat.Autofire = {
     ---- tapping a single round in autofire: chance per 1000 RPM, times (100 - Composure)%
     SingleTapChancePer1000RPM = 40,
 
+    ---- Cadence (FEATURE_AutofireCadence.lua): rounds per fire-anim loop; the anim speed (per 1000)
+    ---- is scaled so one loop lasts that many RPM intervals. 3 at 600 RPM plays the 300 ms anim at 1x
+    CadenceShotsPerAnim = 3,
+    CadenceAnimSpeedMin = 400,
+    CadenceAnimSpeedMax = 3000,
+
     ---- Bullet Hell (COMBAT_ACTIONS_BulletHell.lua): sweep aim height over the floor. Measured torso
     ---- spot: standing 1005, crouched 715, prone ~150-190
     BulletHellAimHeight = 1000,

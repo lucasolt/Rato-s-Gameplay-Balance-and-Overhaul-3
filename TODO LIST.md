@@ -106,7 +106,10 @@ HWT should not decrease MG burst attack, i think
 - [ ] Investigate Tier unlocking. Balance it
 - [ ] Possibly remove the extra +1 ap from aiming from shooting stance. Better control if everything comes from the stance ap property?
 
+- [ ] As I am introducing a lot of fractioned AP, maybe a mouseover shows how many attacks (in stance or not, aim? at a position. something to help the player process easily instead of having to mentally calculate)
+
 - [ ] Gasmask AP reduction not in scale
+- [ ] Cumbersome stance ap not in scale (description hints, display only)
 - [ ] Maybe handling scaling would improve acc for mercs - less random, less enemy biased
 ## Fire modes
 - [X] Need some AP checks, so that merc can select the autofire if he can fire 2 bullets
@@ -118,8 +121,10 @@ HWT should not decrease MG burst attack, i think
 - [X] Investigate Burst fire AP or RPM
 - [ ] Solve the AKSU reliability dilemma
 - [X] Selective burst should have better crit scaling in general?
-
+- [ ] psycho trait
+- [ ] Mg should have a higher base cost?
 ## UI
+- [ ] Burst weapon AP is stale number right now.
 - [ ] recoil delta on actions
 - [X] Caliber/ammo params should have their own section (remove critical damage and base chance from d.hints)
 - [X] Aim could be scaled by merc and handgun status? in d.hints
@@ -247,7 +252,7 @@ HWT should not decrease MG burst attack, i think
 - [X] gas, smoke, other grazing mechanics need to be changed
 - [X] Grizzly Perk - **there is something in the recoil cacl, check if its enough**
 - [X] CQC bonus perk?
-- [ ] Major Perk (Bullet hell) **important**
+- [X] Major Perk (Bullet hell) **important**
 - [X] Spiritual Perk
 - [X] MGSetup Get AP (**ended up decreasing delta by 1**)
 - [X] Check if Run and Gun penalty modifier for recoil was implemented
@@ -280,14 +285,14 @@ HWT should not decrease MG burst attack, i think
 - [X] Handguns "insert key" additional hints show reduced aim acc
 - [X] Take cover not grazing mod option
 - [X] Smoke not grazing. Decide if LOS
-- [ ] Recoil CTH UI display
+- [ ] Recoil CTH UI display - currently show  -x% per shot, which worked for the old CTH. Need a new way to make the player have some idea (even tho i have the V reticle...)
 - [ ] Snapshot will not reset when shooting the same target **Only at page description**
 - [X] DualShot max aim = 3 instead of 1
 - [X] Autofire max aim levels no longer 1
 - [X] Burst shots no longer lose aim bonus (logic is different)
 - [X] Camouflage effect
 - [X] MG Setup and set up bonuses/held  - the bonus is actually on being prone now
-- [ ] UI CTH should change, put aperture in a differnt setting, also recoil
+- [ ] UI CTH should change in aCTH - A separate line for the actual final accuracy, that shows the aperture size vs target size. The modifiers should be like 1.2x instead of 120% (to not confuse with probability) and they should 
  
 
 
