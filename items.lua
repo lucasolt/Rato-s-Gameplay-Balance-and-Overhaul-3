@@ -17079,7 +17079,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "ap_manual",
-				'Value', 25,
+				'Value', 20,
 				'Tag', "<ap_manual>",
 			}),
 		},
@@ -17101,7 +17101,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "ap_manual",
-				'Value', 20,
+				'Value', 15,
 				'Tag', "<ap_manual>",
 			}),
 		},
@@ -17121,7 +17121,7 @@ return {
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "ap_manual",
-				'Value', 20,
+				'Value', 15,
 				'Tag', "<ap_manual>",
 			}),
 		},
@@ -17140,7 +17140,7 @@ return {
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "ap_manual",
-				'Value', 20,
+				'Value', 15,
 				'Tag', "<ap_manual>",
 			}),
 		},
@@ -17148,25 +17148,6 @@ return {
 		Tags = set( "CloseQuarters", "Intimate", "Precision", "Strategic", "Tactical" ),
 		group = "Default",
 		id = "single_action",
-	}),
-	PlaceObj('ModItemWeaponComponent', {
-		Cost = 10,
-		DisplayName = T(172582207154, --[[ModItemWeaponComponent single_action_tex DisplayName]] "Single Action Mechanism"),
-		ModificationDifficulty = 0,
-		ModificationEffects = {
-			"bolt_action_ap",
-		},
-		Parameters = {
-			PlaceObj('PresetParamNumber', {
-				'Name', "ap_manual",
-				'Value', 20,
-				'Tag', "<ap_manual>",
-			}),
-		},
-		Slot = "Trigger",
-		Tags = set( "CloseQuarters", "Intimate", "Precision", "Strategic", "Tactical" ),
-		group = "Default",
-		id = "single_action_tex",
 	}),
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 20,
@@ -17197,7 +17178,7 @@ return {
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "ap_manual",
-				'Value', 20,
+				'Value', 15,
 				'Tag', "<ap_manual>",
 			}),
 			PlaceObj('PresetParamNumber', {

@@ -99,18 +99,16 @@ The UI section that displays Recoil, Snapshot etc was reworked. The displayed nu
 GO BACK TO MG SETUP....
 HWT should not decrease MG burst attack, i think
 
-- [ ] minor - review AP calc so it can yield less than 10 step
-- [X] Morale effects using old AP scale
-- [ ] POssibly rescale parts gained
-- [ ] Check unjam mechanic skill. If flat, turn into a skill check.
-- [ ] Investigate Tier unlocking. Balance it
-- [ ] Possibly remove the extra +1 ap from aiming from shooting stance. Better control if everything comes from the stance ap property?
 
-- [ ] As I am introducing a lot of fractioned AP, maybe a mouseover shows how many attacks (in stance or not, aim? at a position. something to help the player process easily instead of having to mentally calculate)
 
-- [ ] Gasmask AP reduction not in scale
-- [ ] Cumbersome stance ap not in scale (description hints, display only)
-- [ ] Maybe handling scaling would improve acc for mercs - less random, less enemy biased
+- [ ] Operation to gather herbs automatically
+- [ ] Review nostock effect on aim, Its becoming hard to make nostock SMGs to have more aim than pistols...
+
+## AI new stuff
+- [ ] OW against doors
+- [ ] When enemy goes out of view, he should not leave behind his position to the player
+
+
 ## Fire modes
 - [X] Need some AP checks, so that merc can select the autofire if he can fire 2 bullets
 - [ ] maybe change the effect on HK receivers for better clarity
@@ -124,6 +122,7 @@ HWT should not decrease MG burst attack, i think
 - [ ] psycho trait
 - [ ] Mg should have a higher base cost?
 ## UI
+- [ ] As I am introducing a lot of fractioned AP, maybe a mouseover shows how many attacks (in stance or not, aim? at a position. something to help the player process easily instead of having to mentally calculate)
 - [ ] Burst weapon AP is stale number right now.
 - [ ] recoil delta on actions
 - [X] Caliber/ammo params should have their own section (remove critical damage and base chance from d.hints)
@@ -139,14 +138,25 @@ HWT should not decrease MG burst attack, i think
 	- [X] Verify if patch called from TOG is redundant. - Its not, visual changes and foldable stock foldability
 - [X] Remove unused calibers from bobbyrays list
 
+## General
+- [ ] Check unjam mechanic skill. If flat, turn into a skill check.
+- [ ] Heavy rain aim acctriggering inside?
 
-- [X] Take a look at the shipments. I got a tier 3 MG after 2 fights
+## new AP scale
+- [X] Cumbersome stance ap not in scale (description hints, display only)
+- [ ] Gasmask AP reduction not in scale
+- [X] minor - review AP calc so it can yield less than 10 step
+- [X] Morale effects using old AP scale
 
 ## Components
 
+- [X] Take a look at the shipments. I got a tier 3 MG after 2 fights
 # As inventory items
 
 ## Attachments
+- [ ] Investigate Tier unlocking. Balance it
+- [ ] Possibly rescale parts gained
+- [ ] CUAE handling of attachments
 - [ ] Spreadsheet for attachment costs
 - [ ] *Find a use for Lens and Chips*  !!!
 - [ ] Component icon and models from ToC for 5.45 Suppressor and 7.62x54R Suppressor, 45 acp Suppressor, 44 suppressor rifle, Mauser? What about guns that change calibers?
@@ -225,6 +235,9 @@ HWT should not decrease MG burst attack, i think
 ##### ACTH
 
 ## aCTH Possible fragilities
+- [ ] Maybe handling scaling would improve acc for mercs - less random, less enemy biased
+- [ ] Important: pellets can hit the shooter at adjacent range. Probably other weapons as well. Need to make sure the vector does not touch the shooter
+- [ ] Enemies try to shoot thru the floor (run and gun) - see save
 - [X] Changing to oldCTH does not update Aim Acc from component already applied... Investigate better way to do it
 - [ ] Kalyna missed a shot in oldCTH OW, but it hit? - Investigate
 - [X] In aCTH mode, Reflexes don't affect hipfire or snapshot at all, unlike classic mode. If that wasn't intended, the Reflexes factor could be applied to the hipfire/snapshot cone widening in
