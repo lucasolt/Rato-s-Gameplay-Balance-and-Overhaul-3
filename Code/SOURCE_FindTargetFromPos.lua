@@ -54,6 +54,8 @@ function FindTargetFromPos(action_id, attacker, action, enemies, atk_pos, weapon
     else
         max_range = max_range and (max_range * const.SlabSizeX)
     end
+    ---- callers pass GetEnemies' cached g_UnitEnemies table; sorting it in place reorders it for everyone
+    enemies = table.icopy(enemies)
     table.sort(enemies, function(a, b)
         local distA = a:GetDist(atk_pos)
         local distB = b:GetDist(atk_pos)
