@@ -142,6 +142,7 @@ return PlaceObj('ModDef', {
 		"Code/SOURCE_GetMaxAP.lua",
 		"Code/SOURCE_UnitCanAttack.lua",
 		"Code/SOURCE_UnitSetTargetDummyFromPos.lua",
+		"Code/SOURCE_FindTargetFromPos.lua",
 		"Code/SOURCE_FirearmFireBullet.lua",
 		"Code/SOURCE_Firearm_GetItemStatusUI and QuickReloadButton.lua",
 		"Code/SOURCE_FirearmGetImpactForce.lua",

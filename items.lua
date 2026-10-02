@@ -1643,6 +1643,10 @@ return {
 		'CodeFileName', "Code/SOURCE_UnitSetTargetDummyFromPos.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "SOURCE_FindTargetFromPos",
+		'CodeFileName', "Code/SOURCE_FindTargetFromPos.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "SOURCE_FirearmFireBullet",
 		'CodeFileName', "Code/SOURCE_FirearmFireBullet.lua",
 	}),
