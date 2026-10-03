@@ -177,16 +177,26 @@ function Rat_PsychoUpgrade(unit, action, args)
     return true
 end
 
+---- chance (%) that an overrun keeps going one more round
+function Rat_AutoOverrunContinue(weapon)
+    local p = P()
+    return Min(MulDivRound(weapon.RPM or p.RPMRef, p.OverrunContinuePer1000RPM, 1000), p.OverrunContinueMax)
+end
+
 ---- rolled only on the committed attack (prediction == false) so previews show the intended length
 function Rat_AutoOverrun(unit, weapon, n)
     local chance = Rat_AutoOverrunChance(unit, weapon, n)
     if chance <= 0 or unit:Random(100) >= chance then
         return n
     end
-    local p = P()
-    local max_extra = Max(1, MulDivRound(weapon.RPM or p.RPMRef, p.OverrunRoundsPer1000RPM, 1000))
     local ammo = weapon.ammo and weapon.ammo.Amount or n
-    local extra = Min(1 + unit:Random(max_extra), ammo - n)
+    local cap = Min(P().OverrunMaxRounds, ammo - n)
+    local more = Rat_AutoOverrunContinue(weapon)
+    local extra = 1
+    while extra < cap and unit:Random(100) < more do
+        extra = extra + 1
+    end
+    extra = Min(extra, cap)
     if extra <= 0 then
         return n
     end
