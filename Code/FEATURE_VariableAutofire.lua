@@ -104,6 +104,9 @@ function Rat_AutoOverrunChance(unit, weapon, n)
     local d = Clamp(100 - composure, 0, 100) * 100
     local chance = p.OverrunChanceBest +
                        MulDivRound(p.OverrunChanceWorst - p.OverrunChanceBest, d * Rat_ISqrt(d), 1000000)
+    ---- faster guns fire more rounds within the same trigger reaction; the tap term below already has RPM
+    local rpm = weapon and weapon.RPM or p.RPMRef
+    chance = MulDivRound(chance, Max(0, 100 + MulDivRound(rpm - p.RPMRef, p.OverrunRPMWeight, p.RPMRef)), 100)
     if n == 1 and weapon then
         local tap = MulDivRound(weapon.RPM or p.RPMRef, p.SingleTapChancePer1000RPM, 1000)
         chance = chance + MulDivRound(tap, Clamp(100 - composure, 0, 100), 100)

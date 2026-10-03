@@ -11,7 +11,7 @@ const.Combat.Autofire = {
     ---- vanilla AutoFire suppressed the target even on a miss; only bursts this long still do
     SuppressMinShots = 6,
     ---- length the AI uses for its AutoFire signature (the long, suppressive burst)
-    AILongShots = 8,
+    AILongShots = 6,
 
     ---- Overrun: extra rounds slip out; they spend ammo and AP (clamped at 0 AP).
     ---- Chance on (100 - Composure)^1.5, from Best at Composure 100 to Worst at 0.
@@ -19,6 +19,8 @@ const.Combat.Autofire = {
     OverrunChanceWorst = 70,
     OverrunChanceMax = 70,
     OverrunStatusChance = {Suppressed = 10, PinnedDown = 15, Panicked = 30, Berserk = 30},
+    ---- % of the RPM deviation from RPMRef applied to the Composure chance: 50 -> 1200 RPM x1.5, 400 x0.83
+    OverrunRPMWeight = 50,
     ---- an overrun fires 1 extra round, then each further one slips out with this chance (geometric):
     ---- RPM x per-1000 / 1000, capped; 600 RPM -> 30%: +1 70%, +2 21%, +3 6%
     OverrunContinuePer1000RPM = 50,
