@@ -113,6 +113,9 @@ end
 
 local HintMechanismLabel =ratT(file_str, 285374032193, "Operation")
 local HintCyclingLabel = ratT(file_str, 608246246045, "Action")
+local HintBurstCritLabel = ratT(file_str, 318826540120, "Burst Critical Chance")
+local HintAutoCritLabel = ratT(file_str, 318826540121, "Autofire Critical Chance")
+local HintAutoRecoilLabel = ratT(file_str, 318826540122, "Autofire Recoil")
 ---- keyed without underscores: recoil_mechanism spells "Bolt_Action", Rat_cycling "BoltAction"
 local HintMechanismNames = {
     GasOperated = ratT(file_str, 541468575245, "Gas Operated"),
@@ -486,6 +489,9 @@ function Rat_PatchWeaponRollover()
             row("idReload"),
             row("idMechanism"),
             row("idCycling"),
+            row("idBurstCrit"),
+            row("idAutoCrit"),
+            row("idAutoRecoil"),
             PlaceObj("XTemplateFunc", {
                 "name", "Open(self)",
                 "func", function(self)
@@ -509,6 +515,19 @@ function Rat_PatchWeaponRollover()
                         shown = text
                         r[1]:SetNameText(r[2])
                         r[1]:SetValueText(text or "")
+                    end
+                    local attacks = weapon.AvailableAttacks or empty_table
+                    local auto_delta = weapon.auto_recoil_delta or 100
+                    for _, r in ipairs{
+                        {self.idBurstCrit, HintBurstCritLabel, weapon.BurstCritMul,
+                         Rat_HasSelectiveBurst(weapon) and table.find(attacks, "BurstFire")},
+                        {self.idAutoCrit, HintAutoCritLabel, const.Combat.AutoFireCritMul, Rat_HasVariableAuto(weapon)},
+                        {self.idAutoRecoil, HintAutoRecoilLabel, auto_delta,
+                         auto_delta ~= 100 and table.find(attacks, "AutoFire") and not HintAttackHidden(weapon, "AutoFire")},
+                    } do
+                        r[1]:SetVisible(not not r[4])
+                        r[1]:SetNameText(r[2])
+                        r[1]:SetValueText(Untranslated(HintHundredths(r[3] or 100) .. "x"))
                     end
                 end,
             }),
@@ -666,24 +685,6 @@ function GBO_GetDescriptionHints(self)
 		})
 	end
 
-	local crit_idx = table.find(termList, "id", "CriticalPerAim")
-	if Rat_HasVariableAuto(self) then
-		table.insert(termList, crit_idx + 1, {
-			id = "AutofireCritical",
-			TranslationTable[318826540119] or "Critical chance on autofire: " ,
-			--"x" .. const.Combat.AutoFireCritMul, "%"
-			const.Combat.AutoFireCritMul/100.00, "x"
-		})
-	end
-	if Rat_HasSelectiveBurst(self) and table.find(self.AvailableAttacks or empty_table, "BurstFire") then
-		table.insert(termList, crit_idx + 1, {
-			id = "BurstCritical",
-			TranslationTable[318826540118] or "Critical chance on burst: ",
-			--"x" .. self.BurstCritMul, "%"
-			self.BurstCritMul/100.00, "x"
-		})
-	end
-
 	local AngularCthActiveExclusionList = {
 		--PointBlankRangeAccuracy = true
 	}
@@ -719,8 +720,6 @@ local t_id_table = {
     [654134899415] = "Noise Radius: ",
     [684546854913] = "Base critical chance: ",
     [318826540117] = "Critical chance per aim: ",
-    [318826540118] = "Critical chance on burst: ",
-    [318826540119] = "Critical chance on autofire: ",
     [247182652462] = "Extra critical damage: ",
     [651371401489] = "Point Blank Range Accuracy: ",
     [852084205321] = "Hipfire Penalty Multiplier: ",
