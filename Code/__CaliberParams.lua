@@ -185,24 +185,20 @@ const.Calibers = {
     _9x18 = {
         Cost = 35,
         Modifications = {
-            PenetrationClass = 0,
-            CritDamage = -2,
-            CritChance = -2
+            PenetrationClass = 0
         }
     },
     _380ACP = {
         Cost = 40,
         Modifications = {
-            PenetrationClass = 0,
-            CritDamage = -2
+            PenetrationClass = 0
         }
     },
     _45ACP = {
         Cost = 65,
         Modifications = {
             PenetrationClass = 0,
-            CritDamage = 2,
-            CritChance = 1
+            CritDamage = 20
         }
     },
 
@@ -216,9 +212,7 @@ const.Calibers = {
     _5_7x28 = {
         Cost = 180,
         Modifications = {
-            PenetrationClass = 1,
-            CritChance = 1,
-            CritDamage = -1
+            PenetrationClass = 1
         }
     },
 
@@ -228,7 +222,7 @@ const.Calibers = {
         }),
         Cost = 150,
         Modifications = {
-            CritChance = 15,
+            CritChance = 8,
             PenetrationClass = 2
         }
     },
@@ -246,8 +240,7 @@ const.Calibers = {
     _4_7x33 = {
         Cost = 250,
         Modifications = {
-            PenetrationClass = 2,
-            CritDamage = -15
+            PenetrationClass = 2
         }
     },
 
@@ -275,15 +268,14 @@ const.Calibers = {
     _9x39 = {
         Cost = 200,
         Modifications = {
-            PenetrationClass = 1
+            PenetrationClass = 2
             -- Noise = 13
         }
     },
     _7_92x33 = {
         Cost = 70,
         Modifications = {
-            PenetrationClass = 2,
-            CritChance = -2
+            PenetrationClass = 2
         }
     },
     _762NATO = {
@@ -310,8 +302,7 @@ const.Calibers = {
     _7_92x57 = {
         Cost = 80,
         Modifications = {
-            PenetrationClass = 2,
-            CritDamage = -5
+            PenetrationClass = 2
         }
     },
     _12gauge = {
