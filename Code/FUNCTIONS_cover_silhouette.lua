@@ -505,13 +505,33 @@ end
 ---- A.MuzzleStepOut a frente RESOLVE. Parede, pedra grande e alvo realmente coberto continuam
 ---- bloqueando: a segunda condicao nunca fecha. Determinista, nao consome random.
 ---------------------------------------------------------------------------------------------------
+---- Long gun at one tile: the engine muzzle sits inside or past the target, so aim points fall
+---- behind it. Pull it back onto the shooter->aim line, A.MuzzlePointBlankGap short of the aim.
+function Rat_MuzzlePointBlank(attacker, attack_pos, aim_pos, args)
+    local gap = P().MuzzlePointBlankGap or 0
+    if gap <= 0 then
+        return attack_pos
+    end
+    local anchor = Rat_ValidZ((args and args.step_pos) or attacker:GetPos()):SetZ(attack_pos:z())
+    local along = aim_pos - anchor
+    local len = along:Len()
+    if len <= gap or len - Dot(attack_pos - anchor, along) / len >= gap then
+        return attack_pos
+    end
+    return anchor + MulDivRound(along, len - gap, len)
+end
+
 function Rat_MuzzleStepOut(attacker, attack_pos, aim_pos, args, target)
     local a = P()
-    local step = a.MuzzleStepOut or 0
-    if step <= 0 or not attack_pos or not aim_pos or not IsValid(attacker) or not IsValid(target) then
+    if not attack_pos or not aim_pos or not IsValid(attacker) or not IsValid(target) then
         return attack_pos
     end
     attack_pos, aim_pos = Rat_ValidZ(attack_pos), Rat_ValidZ(aim_pos)
+    attack_pos = Rat_MuzzlePointBlank(attacker, attack_pos, aim_pos, args)
+    local step = a.MuzzleStepOut or 0
+    if step <= 0 then
+        return attack_pos
+    end
     local dist = attack_pos:Dist(aim_pos)
     if dist < 1 then
         return attack_pos
@@ -641,7 +661,8 @@ function Rat_MuzzleClearance(attacker, target, attacker_pos, target_pos, weapon,
         probe.target_pos = p
         local l = Rat_SimLoF(GetLoFData(attacker, p, probe))
         local stop = l and (l.stuck_pos or l.lof_pos2)
-        local dead = stop and ap:Dist(stop) < near
+        local dead = stop and ap:Dist(stop) < near and
+                         not table.find(l.hits or empty_table, "obj", target)
         if not dead then
             alive = alive + 1
         end

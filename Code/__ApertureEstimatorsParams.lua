@@ -170,6 +170,11 @@ A.MuzzleProbeNearPct = 25
 ---- dava 0. Vale para os dois lados. 0 desliga o passo.
 A.MuzzleStepOut = 300
 
+---- Minimum muzzle-to-aim distance, in units. Barry crouched with a double barrel one tile from a
+---- standing goon: engine muzzle 53 units from the Torso aim, past the Head aim (24/24 pellets back
+---- into Barry). 500 clears a body's half-depth with margin. 0 disables.
+A.MuzzlePointBlankGap = 500
+
 ---- IA nao paga o anel no PENSAMENTO (4 raios x ~8 ms por destino candidato estouraria o turno),
 ---- so na EXECUCAO, uma vez por ataque -- ver RATOAI_ClearShotStance no mod de IA. Mesma divisao
 ---- de A.CoverAIFallback e pelo mesmo motivo.

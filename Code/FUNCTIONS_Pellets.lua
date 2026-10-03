@@ -244,7 +244,8 @@ function PelletLoFArgs(attacker, attack_pos, range)
     lof_args.fire_relative_point_attack = false
     lof_args.clamp_to_target = true
     lof_args.extend_shot_start_to_attacker = false
-    lof_args.can_hit_attacker = true
+    ---- vanilla's ricochet args say true; from the muzzle it lets point-blank pellets hit the shooter
+    lof_args.can_hit_attacker = false
     lof_args.ignore_los = true
     lof_args.inside_attack_area_check = false
     lof_args.forced_hit_on_eye_contact = false
