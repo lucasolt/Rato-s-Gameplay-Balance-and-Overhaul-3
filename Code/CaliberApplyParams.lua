@@ -246,7 +246,8 @@ function OnMsg.zCore_ClassesGenerate()
     ApplyAmmoParams("_44CAL_Subsonic", _44CAL_Subsonic, {})
 end
 
----- caliber base damage, shifted by barrel length against the caliber's reference barrel; nil = keep the sheet value
+---- caliber base damage, shifted by barrel length against the caliber's reference barrel; nil = keep the sheet value.
+---- Applied to classes by gunshurt (OPTIONS_GunsHurt.lua), the one pass that owns weapon Damage.
 function Rat_CaliberDamage(caliber, barrel_len)
     local d = caliber and const.CaliberDamage[caliber]
     if not d then
@@ -257,21 +258,6 @@ function Rat_CaliberDamage(caliber, barrel_len)
         delta = Clamp(MulDivRound(barrel_len - d.barrel, d.per_100mm, 1000), d.min, d.max)
     end
     return d.base + delta
-end
-
----- after every mod's ClassesGenerate (the sheet patches) and before Guns Hurt snapshots at ClassesBuilt
-function OnMsg.ClassesPostprocess()
-    ClassDescendants("Firearm", function(name, class)
-        if not Rat_IsLiveFirearm(class) then
-            return
-        end
-        local dmg = Rat_CaliberDamage(class.Caliber, class.rat_barrel_len)
-        if dmg then
-            rawset(class, "Damage", dmg)
-            ---- Modifiable copies base_ in its own Postprocess handler, which may run before this one
-            rawset(class, "base_Damage", dmg)
-        end
-    end)
 end
 
 ---- ammo ids don't always spell the caliber (7_62x54R -> _7_62x54_Basic), so match the suffix
