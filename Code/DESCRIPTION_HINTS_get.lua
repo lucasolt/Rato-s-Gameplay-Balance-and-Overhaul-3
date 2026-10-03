@@ -115,7 +115,7 @@ local HintMechanismLabel =ratT(file_str, 285374032193, "Operation")
 local HintCyclingLabel = ratT(file_str, 608246246045, "Action")
 local HintBurstCritLabel = ratT(file_str, 318826540120, "Burst Critical Chance")
 local HintAutoCritLabel = ratT(file_str, 318826540121, "Autofire Critical Chance")
-local HintAutoRecoilLabel = ratT(file_str, 318826540122, "Autofire Recoil")
+local HintAutoRecoilLabel = ratT(file_str, 318826540122, "Autofire Recoil Penalty")
 ---- keyed without underscores: recoil_mechanism spells "Bolt_Action", Rat_cycling "BoltAction"
 local HintMechanismNames = {
     GasOperated = ratT(file_str, 541468575245, "Gas Operated"),
@@ -176,6 +176,18 @@ local function HintHundredths(v)
     local sign = v < 0 and "-" or ""
     v = abs(v)
     return string.format("%s%d.%02d", sign, v / 100, v % 100)
+end
+
+---- the Recoil row times AutoFire's own factors in GetRecoilOther; stance left out so the hint stays put
+local function HintAutoRecoil(weapon, unit)
+    local net = MulDivRound(HintRecoil(weapon, unit), weapon.auto_recoil_delta or 100, 100)
+    if weapon:HasComponent("recoil_bump") then
+        net = cRound(net * const.Combat.Recoil.Components.RecoilBumpMul)
+    end
+    if unit and unit:HasStatusEffect("AutoWeapons") then
+        net = cRound(net * const.Combat.Recoil.Perks.AutoWeaponsMul)
+    end
+    return net
 end
 
 ---- bar value of each row for the preset scan, taken for the gun alone and for a stat-100 merc; `range`
@@ -518,16 +530,22 @@ function Rat_PatchWeaponRollover()
                     end
                     local attacks = weapon.AvailableAttacks or empty_table
                     local auto_delta = weapon.auto_recoil_delta or 100
+                    local auto_recoil = auto_delta ~= 100 and table.find(attacks, "AutoFire") and
+                                            not HintAttackHidden(weapon, "AutoFire")
+                    local owner = weapon.owner and (not gv_SatelliteView and g_Units[weapon.owner] or gv_UnitData[weapon.owner])
                     for _, r in ipairs{
-                        {self.idBurstCrit, HintBurstCritLabel, weapon.BurstCritMul,
-                         Rat_HasSelectiveBurst(weapon) and table.find(attacks, "BurstFire")},
-                        {self.idAutoCrit, HintAutoCritLabel, const.Combat.AutoFireCritMul, Rat_HasVariableAuto(weapon)},
-                        {self.idAutoRecoil, HintAutoRecoilLabel, auto_delta,
-                         auto_delta ~= 100 and table.find(attacks, "AutoFire") and not HintAttackHidden(weapon, "AutoFire")},
+                        {self.idBurstCrit, HintBurstCritLabel, Rat_HasSelectiveBurst(weapon) and table.find(attacks, "BurstFire"),
+                         function() return HintHundredths(weapon.BurstCritMul or 100) .. "x" end},
+                        {self.idAutoCrit, HintAutoCritLabel, Rat_HasVariableAuto(weapon),
+                         function() return HintHundredths(const.Combat.AutoFireCritMul) .. "x" end},
+                        {self.idAutoRecoil, HintAutoRecoilLabel, auto_recoil, function()
+                            return HintHundredths(HintAutoRecoil(weapon, owner)) ..
+                                       string.format("x (%+d%%)", auto_delta - 100)
+                        end},
                     } do
-                        r[1]:SetVisible(not not r[4])
+                        r[1]:SetVisible(not not r[3])
                         r[1]:SetNameText(r[2])
-                        r[1]:SetValueText(Untranslated(HintHundredths(r[3] or 100) .. "x"))
+                        r[1]:SetValueText(r[3] and Untranslated(r[4]()) or "")
                     end
                 end,
             }),
