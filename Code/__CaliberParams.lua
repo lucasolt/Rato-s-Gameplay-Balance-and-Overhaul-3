@@ -384,6 +384,9 @@ const.Calibers = {
     }
 }
 
+---- weapon Damage = base + Clamp((barrel_len - barrel) * per_100mm / 1000, min, max); per_100mm is in tenths
+const.CaliberDamage = {}
+
 function print_const_ammos()
     local amm = const.Calibers
     for k, v in pairs(amm) do
