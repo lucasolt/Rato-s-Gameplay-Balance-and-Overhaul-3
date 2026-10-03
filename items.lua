@@ -1271,6 +1271,10 @@ return {
 			'CodeFileName', "Code/COMBAT_ACTIONS_Sprint.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "FEATURE_BlindRunAndGun",
+			'CodeFileName', "Code/FEATURE_BlindRunAndGun.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "COMBAT_ACTIONS",
 			'CodeFileName', "Code/COMBAT_ACTIONS.lua",
 		}),

@@ -47,12 +47,19 @@ end
 
 ---- Sight modifiers read the unit's sight from where it stands; a mobile shot is judged from its step tile.
 local function SeesFromStep(attacker, target, attacker_pos)
-    if not attacker_pos or not IsValid(target) or
-        attacker_pos:Dist2D(attacker:GetPos()) <= const.SlabSizeX / 2 then
+    if not attacker_pos or not IsValid(target) then
         return false
     end
-    local pos = attacker_pos:IsValidZ() and attacker_pos or attacker_pos:SetTerrainZ()
-    return CheckLOS(target, pos, attacker:GetSightRadius(target)) and true or false
+    local sight = attacker:GetSightRadius(target)
+    if attacker_pos:Dist2D(attacker:GetPos()) > const.SlabSizeX / 2 then
+        local pos = attacker_pos:IsValidZ() and attacker_pos or attacker_pos:SetTerrainZ()
+        return CheckLOS(target, pos, sight) and true or false
+    end
+    ---- inside a combat action his sight is frozen at where the action started (Visibility.lua:1110)
+    if g_VisibilityUpdateSuspendReasons[attacker] then
+        return CheckLOS(target, attacker, sight) and true or false
+    end
+    return false
 end
 
 function mobile_los_cth()

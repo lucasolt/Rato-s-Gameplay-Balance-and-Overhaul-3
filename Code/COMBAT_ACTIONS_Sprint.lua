@@ -257,6 +257,7 @@ end
 ---- him, the stance would be anchored on the cover tile with the line to the target running through
 ---- the cover object. He now stays on the step-out tile, with the cover tile kept as the peek
 ---- anchor for CTH. Lives next to Unit:Sprint, the same vanilla function trimmed of its attacks.
+---- Second change: target re-picks happen after the move, through Rat_MobileFreshTarget (Blind Run and Gun).
 ---------------------------------------------------------------------------------------------------
 
 function Unit:RunAndGun(action_id, cost_ap, args)
@@ -317,12 +318,8 @@ function Unit:RunAndGun(action_id, cost_ap, args)
             goto continue
         end
         NetUpdateHash("RunAndGun_1", self, attack.mobile_attack_pos, attack.mobile_attack_target)
-        if attack.mobile_attack_pos and (not IsValidTarget(attack.mobile_attack_target) or attack.mobile_attack_target:IsIncapacitated()) then
-            local enemies = table.ifilter(action:GetTargets({self}), function(idx, u) return IsValidTarget(u) and not u:IsIncapacitated() end)
-            NetUpdateHash("RunAndGun_Branch_1", self, attack.mobile_attack_pos, #enemies)
-            attack.mobile_attack_target = FindTargetFromPos(action_id, self, action, enemies, point(point_unpack(attack.mobile_attack_pos)), weapon)
-        end
-        if attack.mobile_attack_pos and IsValidTarget(attack.mobile_attack_target) then
+        ---- a fallen planned target is replaced after the move, from what the merc sees at the stop
+        if attack.mobile_attack_pos then
             if action_camera and i == 1 then
                 SetTimeFactorSmooth(tf/2, smooth_tf_change_duration)
             end
@@ -342,9 +339,7 @@ function Unit:RunAndGun(action_id, cost_ap, args)
 
             -- recheck target, as they might have died while we were moving
             if not IsValidTarget(attack.mobile_attack_target) or attack.mobile_attack_target:IsIncapacitated() then
-                local enemies = table.ifilter(action:GetTargets({self}), function(idx, u) return IsValidTarget(u) and not u:IsIncapacitated() end)
-                NetUpdateHash("RunAndGun_Branch_1_1", self, attack.mobile_attack_pos, #enemies)
-                attack.mobile_attack_target = FindTargetFromPos(action_id, self, action, enemies, point(point_unpack(attack.mobile_attack_pos)), weapon)
+                attack.mobile_attack_target = Rat_MobileFreshTarget(self, action_id, action, attack.mobile_attack_pos, weapon)
                 if not IsValidTarget(attack.mobile_attack_target) then
                     goto continue
                 end
