@@ -221,7 +221,7 @@ local rounds_template = PlaceObj('XTemplateWindow', {
         'FoldWhenHidden', true,
         'Clip', false,
         'UseClipBox', false,
-        'TextStyle', "CrosshairAPCost",
+        'TextStyle', "Crosshair_Range",
         'TextHAlign', "left"
     })
 })
