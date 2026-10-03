@@ -97,13 +97,11 @@ GBO_COMP_TRAITS = {
             "longbarrel",
 			"IncreaseRange",
 			"IncreaseAimAccuracy",
-			"IncreaseDamage",
             "StanceAPincrease"
         },
         params = {
             OverwatchAngle = 95,
             RangeIncrease = 4,
-            DamageIncrease = 1,
             AimAccuracyIncrease = 2,
             APincrease = barrel_ap
         },
@@ -131,11 +129,10 @@ GBO_COMP_TRAITS = {
 		},
     },
     ["Barrel.Short"] = {
-        effects = {"shortbarrel", "ReduceRange", "ReduceDamage", "StanceAPdecrease"},
+        effects = {"shortbarrel", "ReduceRange", "StanceAPdecrease"},
         params = {
             OverwatchAngle = 107,
             RangeDecrease = 2,
-            DamageReduced = 1,
             APdecrease = barrel_ap
         },
 		modes = {
@@ -192,7 +189,6 @@ GBO_COMP_TRAITS = {
 			},
 		params = {
 			RangeIncrease = 2,
-			DamageIncrease = 1,
 			AimAccuracyIncrease = 1,
 			OverwatchAngle = 92,
 			APincrease = 3
@@ -278,25 +274,21 @@ GBO_COMP_TRAITS = {
 --	},
 	["Barrel.to50AE"]={
 		effects = {			
-			"IncreaseDamage",
 			"ChangeCaliberToBMG",
 			--"ReduceReliability",
 			"StanceAPincrease" -- as it is a handgun, normally long barrel do not extend
 		},
 		params = {
-			DamageIncrease = 10,
 			--ReliabilityDecrease = 10,
 			APincrease = 2,
 		}
 	},
 	["Barrel.to762_54R"]={
 		effects = {			
-			"IncreaseDamage",
 			"ChangeCaliberTo762_54r",
 			"ReduceReliabilityPercent",
 		},
 		params = {
-			DamageIncrease = 7,
 			ReliabilityDecreasePercent = 60,
 		}
 	},
@@ -513,13 +505,11 @@ GBO_BASE_RECIPES = {
 			"IncreaseRange",
 			"IncreaseAimAccuracy",
 			"longbarrel",
-			"IncreaseDamage",
 			"StanceAPincrease",
 			"DecreaseOverwatchAngle",
 		},
 		params = {
 			RangeIncrease = 4,
-			DamageIncrease = 1,
 			AimAccuracyIncrease = 2,
 			APincrease = 10,
 			OverwatchAngleDecrease = 95,
@@ -534,12 +524,10 @@ GBO_BASE_RECIPES = {
 		effects = {
 			"ReduceRange",
 			"shortbarrel",
-			"ReduceDamage",
 			"IncreaseOverwatchAngle",
 			"StanceAPdecrease",
 		},
 		params = {
-			DamageReduced = 1,
 			RangeDecrease = 2,
 			OverwatchAngleIncrease = 107,
 			APdecrease = 10
@@ -560,13 +548,11 @@ GBO_BASE_RECIPES = {
 		effects = {
 			"ReduceRange",
 			"shortbarrel",
-			"ReduceDamage",
 			"IncreaseOverwatchAngle",
 			"StanceAPdecrease",
 			"ReduceMagazineSize"
 		},
 		params = {
-			DamageReduced = 1,
 			RangeDecrease = 2,
 			OverwatchAngleIncrease = 107,
 			APdecrease = 10,
