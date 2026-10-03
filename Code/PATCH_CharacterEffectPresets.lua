@@ -44,6 +44,7 @@ function presets_char_effect()
 
         --------------------------------------------------------------------------------------------
         if p.id == 'AutoWeapons' then ------------AutoWeapons
+            p.Description = ratT(file_str, 483920175316, "Reduced <em>Recoil</em> with <em>Burst Fire</em> and <em>Auto Fire</em>.\n\nLess likely to <em>overrun the trigger</em> in <em>Auto Fire</em>.")
             for _, param in ipairs(p.Parameters) do
                 if param.Name == 'automatics_penalty_reduction' then
                     param.Value = 100 ---  not used anymore
@@ -61,6 +62,11 @@ function presets_char_effect()
                     end
                 })
             }
+        end
+
+        --------------------------------------------------------------------------------------------
+        if p.id == "Psycho" then
+            p.Description = ratT(file_str, 483920175317, "Can decide to use a more vicious attack than the one selected: a <em>Single Shot</em> becomes a burst, and <em>Auto Fire</em> fires up to twice as many rounds at no extra <em>AP</em>.\n\nMore likely to <em>overrun the trigger</em> in <em>Auto Fire</em>.\n\nAdditional <em>conversation options</em>.")
         end
 
         --------------------------------------------------------------------------------------------

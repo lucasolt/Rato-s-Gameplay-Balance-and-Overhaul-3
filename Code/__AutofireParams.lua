@@ -32,6 +32,8 @@ const.Combat.Autofire = {
     PsychoSingleShots = 3,
     ---- added to the overrun chance in automatic
     PsychoOverrunChance = 10,
+    ---- Auto Weapons perk: percent of the overrun chance kept (multiplier, so it never reaches 0)
+    AutoWeaponsOverrunMul = 50,
 
     ---- Cadence (FEATURE_AutofireCadence.lua): rounds per fire-anim loop; the anim speed (per 1000)
     ---- is scaled so one loop lasts that many RPM intervals. 3 at 600 RPM plays the 300 ms anim at 1x

@@ -116,6 +116,9 @@ function Rat_AutoOverrunChance(unit, weapon, n)
     if HasPerk(unit, "Psycho") then
         chance = chance + p.PsychoOverrunChance
     end
+    if HasPerk(unit, "AutoWeapons") then
+        chance = MulDivRound(chance, p.AutoWeaponsOverrunMul, 100)
+    end
     return Min(chance, p.OverrunChanceMax)
 end
 
