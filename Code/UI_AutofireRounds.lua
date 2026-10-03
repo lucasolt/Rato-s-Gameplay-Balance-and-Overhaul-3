@@ -172,6 +172,13 @@ function Rat_UpdateCrosshairRounds(crosshair, attacker, action, args)
     win.idRatRoundsStrip:SetRounds(Rat_BulletIcon(weapon), shots, max)
     win.idRatRoundsText:SetText(tostring(shots))
     win.idRatRoundsText:SetVisible(shots > 1)
+    local overrun = Platform.rat and const.Combat.Autofire.ShowOverrunChance and args.num_shots and
+                        Rat_IsVariableAuto(action)
+    if overrun then
+        win.idRatOverrunText:SetText(Untranslated(string.format("overrun %d%%",
+            Rat_AutoOverrunChance(attacker, weapon, shots))))
+    end
+    win.idRatOverrunText:SetVisible(overrun and true or false)
     win:SetVisible(true)
 end
 
@@ -200,6 +207,17 @@ local rounds_template = PlaceObj('XTemplateWindow', {
         'Id', "idRatRoundsText",
         'VAlign', "center",
         'MinWidth', 24,
+        'FoldWhenHidden', true,
+        'Clip', false,
+        'UseClipBox', false,
+        'TextStyle', "CrosshairAPCost",
+        'TextHAlign', "left"
+    }),
+    PlaceObj('XTemplateWindow', {
+        '__class', "XText",
+        'Id', "idRatOverrunText",
+        'VAlign', "center",
+        'Visible', false,
         'FoldWhenHidden', true,
         'Clip', false,
         'UseClipBox', false,
