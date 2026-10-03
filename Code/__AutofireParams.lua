@@ -24,6 +24,15 @@ const.Combat.Autofire = {
     ---- tapping a single round in autofire: chance per 1000 RPM, times (100 - Composure)%
     SingleTapChancePer1000RPM = 40,
 
+    ---- Psycho: on proc, autofire doubles its length for free (AP already paid); added rounds capped
+    PsychoProcChance = 6,
+    PsychoShotsMul = 200,
+    PsychoMaxExtra = 10,
+    ---- a Single Shot upgraded to autofire (no burst limiter) fires this many rounds
+    PsychoSingleShots = 3,
+    ---- added to the overrun chance in automatic
+    PsychoOverrunChance = 10,
+
     ---- Cadence (FEATURE_AutofireCadence.lua): rounds per fire-anim loop; the anim speed (per 1000)
     ---- is scaled so one loop lasts that many RPM intervals. 3 at 600 RPM plays the 300 ms anim at 1x
     CadenceShotsPerAnim = 3,

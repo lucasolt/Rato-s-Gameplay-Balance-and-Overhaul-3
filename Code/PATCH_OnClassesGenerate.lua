@@ -90,26 +90,8 @@ function OnMsg.ClassesGenerate(classdefs)
         for i, react in ipairs(reac) do
             if react.Event == "OnFirearmAttackStart" then
                 react.Handler = function(self, target, attacker, attack_target, action, attack_args)
-                    if target == attacker and
-                        (action.id == "SingleShot" or action.id == "BurstFire") then
-                        if attacker:Random(100) < self:ResolveValue("procChance") then
-                            local weapon = action:GetAttackWeapons(attacker)
-                            if action.id == "SingleShot" and
-                                table.find(weapon.AvailableAttacks, "BurstFire") then
-                                attack_args.replace_action = "BurstFire"
-                                PlayVoiceResponse(attacker, "Psycho")
-                            elseif action.id == "BurstFire" and
-                                table.find(weapon.AvailableAttacks, "AutoFire") then
-                                attack_args.replace_action = "AutoFire"
-                                -----
-                                attack_args.num_shots =
-                                    attacker:GetActiveWeapons():GetAutofireShots(
-                                        CombatActions[attack_args.replace_action]) or
-                                        attack_args.num_shots
-                                -----
-                                PlayVoiceResponse(attacker, "Psycho")
-                            end
-                        end
+                    if target == attacker and Rat_PsychoUpgrade(attacker, action, attack_args) then
+                        PlayVoiceResponse(attacker, "Psycho")
                     end
                 end
             end

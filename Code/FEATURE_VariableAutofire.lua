@@ -113,7 +113,65 @@ function Rat_AutoOverrunChance(unit, weapon, n)
             chance = chance + add
         end
     end
+    if HasPerk(unit, "Psycho") then
+        chance = chance + p.PsychoOverrunChance
+    end
     return Min(chance, p.OverrunChanceMax)
+end
+
+---- Psycho: free longer burst. Runs in OnFirearmAttackStart, after the AP was paid and before the
+---- committed GetActionResults, so the added rounds cost ammo only. True when it changed the attack.
+function Rat_PsychoUpgrade(unit, action, args)
+    local id = action and action.id
+    if id ~= "SingleShot" and id ~= "BurstFire" and not Rat_IsVariableAuto(action) then
+        return false
+    end
+    local weapon = action:GetAttackWeapons(unit, args)
+    if not IsKindOf(weapon, "Firearm") or not weapon.ammo then
+        return false
+    end
+    local p = P()
+    if unit:Random(100) >= p.PsychoProcChance then
+        return false
+    end
+    local attacks = weapon.AvailableAttacks or empty_table
+    if id == "SingleShot" then
+        ---- BurstFire is listed but hidden on guns without a burst limiter; only those go to autofire
+        if Rat_HasSelectiveBurst(weapon) and table.find(attacks, "BurstFire") then
+            args.replace_action = "BurstFire"
+            return true
+        end
+        if not Rat_HasVariableAuto(weapon) then
+            return false
+        end
+        local auto_id = Rat_AutoAttackId(weapon)
+        args.replace_action = auto_id
+        args.num_shots = Rat_ClampAutoShots(CombatActions[auto_id], weapon, p.PsychoSingleShots)
+        return true
+    end
+    local n = args.num_shots or weapon:GetAutofireShots(action)
+    local auto_id = id
+    if id == "BurstFire" then
+        if not Rat_HasVariableAuto(weapon) then
+            return false
+        end
+        auto_id = Rat_AutoAttackId(weapon)
+    end
+    local extra = Min(MulDivRound(n, p.PsychoShotsMul - 100, 100), p.PsychoMaxExtra)
+    local shots = Rat_ClampAutoShots(CombatActions[auto_id], weapon, n + extra)
+    if shots <= n then
+        return false
+    end
+    if auto_id ~= id then
+        args.replace_action = auto_id
+    end
+    args.num_shots = shots
+    CombatLog("short", T {
+        603418825528, "<name> holds the trigger: <extra> extra rounds",
+        name = unit:GetLogName(),
+        extra = shots - n
+    })
+    return true
 end
 
 ---- rolled only on the committed attack (prediction == false) so previews show the intended length
