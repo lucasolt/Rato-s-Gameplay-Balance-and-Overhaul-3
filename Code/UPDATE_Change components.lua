@@ -183,7 +183,7 @@ function change_handgun_barrel(unit)
                 end
             end
         end
-        if weapon.is_vanilla_firearm and
+        if IsVanillaFirearm(weapon) and
             IsKindOfClasses(weapon, "Pistol", "Revolver", "SubmachineGun") then
             if weapon.components then
                 if weapon.components.Barrel then

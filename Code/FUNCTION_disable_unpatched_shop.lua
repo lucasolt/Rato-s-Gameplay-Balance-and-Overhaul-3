@@ -97,3 +97,8 @@ function IsVanillaFirearm(weapon)
 
     return false
 end
+
+---- the balanced weapon set; is_vanilla_firearm is inherited by ToG subclasses of vanilla guns (WA2000_1)
+function Rat_IsLiveFirearm(weapon)
+    return IsKindOf(weapon, "Firearm") and (weapon.is_tog_patched or IsVanillaFirearm(weapon))
+end

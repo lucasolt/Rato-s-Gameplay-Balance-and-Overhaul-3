@@ -437,7 +437,7 @@ function Rat_AmmoShopParams()
     local first, gun_w = {}, {}
     ForEachPreset("InventoryItemCompositeDef", function(p)
         local gun = g_Classes[p.id]
-        if IsKindOf(gun, "Firearm") and (gun.is_vanilla_firearm or gun.is_tog_patched) and gun.Caliber and
+        if Rat_IsLiveFirearm(gun) and gun.Caliber and
             gun.CanAppearInShop and (gun.RestockWeight or 0) > 0 then
             first[gun.Caliber] = Min(first[gun.Caliber] or gun.Tier, gun.Tier)
             gun_w[gun.Caliber] = (gun_w[gun.Caliber] or 0) + gun.RestockWeight
