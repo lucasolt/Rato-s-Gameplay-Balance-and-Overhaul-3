@@ -424,6 +424,24 @@ function Rat_PatchWeaponRollover()
     if path then
         path[1].MaxWidth = WeaponRolloverWidth
     end
+    ---- header AP: vanilla shows the raw ShootAP/AttackAP; price the default attack like the More Info list
+    path = FindXtByProp(XTemplates.RolloverInventoryWeaponBase, "comment", "ap indicator")
+    if path then
+        local node = path[1]
+        node.rat_vanilla_update = node.rat_vanilla_update or node.OnContextUpdate
+        local vanilla_update = node.rat_vanilla_update
+        node.OnContextUpdate = function(self, context, ...)
+            local weapon = ResolvePropObj(self.context)
+            local unit = IsKindOf(weapon, "Firearm") and HintAPUnit(weapon.owner)
+            local action = unit and CombatActions[weapon:GetBaseAttack(unit, true)]
+            local ap = action and action:GetAPCost(unit, {weapon = weapon})
+            if not ap or ap == -1 then
+                return vanilla_update(self, context, ...)
+            end
+            self:SetText(T{519320974014, "<apn(ap)> <style PDARolloverHeaderDark>AP</style>", ap = ap})
+            XContextControl.OnContextUpdate(self, context)
+        end
+    end
     path = FindXtByProp(XTemplates.RolloverInventoryWeaponBase, "comment", "penetration")
     if path then
         SetTemplateFunc(path[1], "CreatePropValText(self, value, scale)", function(self, value, scale)
