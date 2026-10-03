@@ -104,7 +104,11 @@ function Rat_ApplyAPScaleParams()
             ScaleParam(preset, entry[3])
         end
     end
-    -- Item APCost is a whole-AP class value consumed as APCost * const.Scale.AP.
+    Rat_ApplyAPScaleItemCosts()
+end
+
+-- Item APCost is a whole-AP class value consumed as APCost * const.Scale.AP.
+function Rat_ApplyAPScaleItemCosts()
     ForEachPreset("InventoryItemCompositeDef", function(preset)
         local class = g_Classes[preset.id]
         if class and IsKindOf(class, "MiscItemProperties") then
@@ -125,6 +129,11 @@ end
 
 function OnMsg.ModsReloaded()
     Rat_ApplyAPScaleParams()
+end
+
+-- ReloadLua rebuilds the classes (APCost back to vanilla) but keeps presets, so only the class half needs redoing.
+function OnMsg.AutorunEnd()
+    Rat_ApplyAPScaleItemCosts()
 end
 
 ---------------------------------------------------------------------------------------------------
