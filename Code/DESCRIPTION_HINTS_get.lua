@@ -115,7 +115,9 @@ local HintMechanismLabel =ratT(file_str, 285374032193, "Operation")
 local HintCyclingLabel = ratT(file_str, 608246246045, "Action")
 local HintBurstCritLabel = ratT(file_str, 318826540120, "Burst Critical Chance")
 local HintAutoCritLabel = ratT(file_str, 318826540121, "Autofire Critical Chance")
+local HintBurstRecoilLabel = ratT(file_str, 318826540123, "Burst Recoil Penalty")
 local HintAutoRecoilLabel = ratT(file_str, 318826540122, "Autofire Recoil Penalty")
+local HintLongRecoilLabel = ratT(file_str, 318826540124, "Long Burst Recoil Penalty")
 ---- keyed without underscores: recoil_mechanism spells "Bolt_Action", Rat_cycling "BoltAction"
 local HintMechanismNames = {
     GasOperated = ratT(file_str, 541468575245, "Gas Operated"),
@@ -178,10 +180,10 @@ local function HintHundredths(v)
     return string.format("%s%d.%02d", sign, v / 100, v % 100)
 end
 
----- the Recoil row times AutoFire's own factors in GetRecoilOther; stance left out so the hint stays put
-local function HintAutoRecoil(weapon, unit)
-    local net = MulDivRound(HintRecoil(weapon, unit), weapon.auto_recoil_delta or 100, 100)
-    if weapon:HasComponent("recoil_bump") then
+---- the Recoil row times the fire mode's own factors in GetRecoilOther; stance left out so the hint stays put
+local function HintModeRecoil(weapon, unit, delta_prop, bump)
+    local net = MulDivRound(HintRecoil(weapon, unit), weapon[delta_prop] or 100, 100)
+    if bump and weapon:HasComponent("recoil_bump") then
         net = cRound(net * const.Combat.Recoil.Components.RecoilBumpMul)
     end
     if unit and unit:HasStatusEffect("AutoWeapons") then
@@ -503,7 +505,9 @@ function Rat_PatchWeaponRollover()
             row("idCycling"),
             row("idBurstCrit"),
             row("idAutoCrit"),
+            row("idBurstRecoil"),
             row("idAutoRecoil"),
+            row("idLongRecoil"),
             PlaceObj("XTemplateFunc", {
                 "name", "Open(self)",
                 "func", function(self)
@@ -529,19 +533,27 @@ function Rat_PatchWeaponRollover()
                         r[1]:SetValueText(text or "")
                     end
                     local attacks = weapon.AvailableAttacks or empty_table
-                    local auto_delta = weapon.auto_recoil_delta or 100
-                    local auto_recoil = auto_delta ~= 100 and table.find(attacks, "AutoFire") and
-                                            not HintAttackHidden(weapon, "AutoFire")
+                    local has_burst = Rat_HasSelectiveBurst(weapon) and table.find(attacks, "BurstFire") and
+                                          not HintAttackHidden(weapon, "BurstFire")
                     local owner = weapon.owner and (not gv_SatelliteView and g_Units[weapon.owner] or gv_UnitData[weapon.owner])
+                    local function recoil_row(win, label, attack, delta_prop, bump)
+                        local delta = weapon[delta_prop] or 100
+                        return {win, label, delta ~= 100 and attack, function()
+                            return HintHundredths(HintModeRecoil(weapon, owner, delta_prop, bump)) ..
+                                       string.format("x (%+d%%)", delta - 100)
+                        end}
+                    end
                     for _, r in ipairs{
-                        {self.idBurstCrit, HintBurstCritLabel, Rat_HasSelectiveBurst(weapon) and table.find(attacks, "BurstFire"),
+                        {self.idBurstCrit, HintBurstCritLabel, has_burst,
                          function() return HintHundredths(weapon.BurstCritMul or 100) .. "x" end},
                         {self.idAutoCrit, HintAutoCritLabel, Rat_HasVariableAuto(weapon),
                          function() return HintHundredths(const.Combat.AutoFireCritMul) .. "x" end},
-                        {self.idAutoRecoil, HintAutoRecoilLabel, auto_recoil, function()
-                            return HintHundredths(HintAutoRecoil(weapon, owner)) ..
-                                       string.format("x (%+d%%)", auto_delta - 100)
-                        end},
+                        recoil_row(self.idBurstRecoil, HintBurstRecoilLabel, has_burst, "burst_recoil_delta", true),
+                        recoil_row(self.idAutoRecoil, HintAutoRecoilLabel,
+                                   table.find(attacks, "AutoFire") and not HintAttackHidden(weapon, "AutoFire"),
+                                   "auto_recoil_delta", true),
+                        recoil_row(self.idLongRecoil, HintLongRecoilLabel, table.find(attacks, "MGBurstFire"),
+                                   "long_recoil_delta"),
                     } do
                         r[1]:SetVisible(not not r[3])
                         r[1]:SetNameText(r[2])
