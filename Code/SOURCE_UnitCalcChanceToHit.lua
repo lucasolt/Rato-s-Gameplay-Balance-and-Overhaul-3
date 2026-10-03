@@ -174,6 +174,9 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 			return
 		end
 		
+		if Rat_SeesFromStep(mod.id, self, target, attacker_pos) then
+			return
+		end
 		local lof = false -- Currently unused by any modifier
 		local apply, value, nameOverride, metaText, idOverride = mod:CalcValue(self, target, target_spot_group, action, weapon, weapon2, lof, aim, opportunity_attack, attacker_pos, target_pos)
 		if args and not args.prediction then

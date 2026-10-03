@@ -46,8 +46,13 @@ end
 
 
 ---- Sight modifiers read the unit's sight from where it stands; a mobile shot is judged from its step tile.
-local function SeesFromStep(attacker, target, attacker_pos)
-    if not attacker_pos or not IsValid(target) then
+---- Gated in Unit:CalcChanceToHit, not in CalcValue: CommonLib's ChangeProp on NoLineOfSight reapplies
+---- after our DataLoaded and would undo a preset override.
+local SightModifiers = {NoLineOfSight = true, SeenBySpotter = true}
+
+function Rat_SeesFromStep(mod_id, attacker, target, attacker_pos)
+    if not SightModifiers[mod_id] or not attacker_pos or not IsValid(target) or
+        HasVisibilityTo(attacker, target) then
         return false
     end
     local sight = attacker:GetSightRadius(target)
@@ -60,41 +65,4 @@ local function SeesFromStep(attacker, target, attacker_pos)
         return CheckLOS(target, attacker, sight) and true or false
     end
     return false
-end
-
-function mobile_los_cth()
-    local mods = Presets.ChanceToHitModifier.Default
-    ---- CommonLib's version (unit sight instead of team sight), plus the step tile
-    mods["NoLineOfSight"].CalcValue = function(self, attacker, target, body_part_def, action,
-                                               weapon1, weapon2, lof, aim, opportunity_attack,
-                                               attacker_pos, target_pos)
-        if HasVisibilityTo(attacker, target) then
-            return false, 0
-        end
-        if not IsKindOf(weapon1, "Firearm") or not attacker or not target then
-            return false, 0
-        end
-        if SeesFromStep(attacker, target, attacker_pos) then
-            return false, 0
-        end
-        return true, self:ResolveValue("Penalty")
-    end
-    ---- copy of ChanceToHitModifier.lua:693, plus the step tile
-    mods["SeenBySpotter"].CalcValue = function(self, attacker, target, body_part_def, action,
-                                               weapon1, weapon2, lof, aim, opportunity_attack,
-                                               attacker_pos, target_pos)
-        if not attacker or not target or VisibilityCheckAll(attacker, target, nil, const.uvVisible) then
-            return false, 0
-        end
-        if not IsKindOf(weapon1, "Firearm") then
-            return false, 0
-        end
-        if SeesFromStep(attacker, target, attacker_pos) then
-            return false, 0
-        end
-        if not attacker.team or not VisibilityCheckAll(attacker.team, target, nil, const.uvVisible) then
-            return true, self:ResolveValue("BlindFirePenalty")
-        end
-        return true, self:ResolveValue("SpotterPenalty"), T(431888134623, "Seen by Spotter")
-    end
 end

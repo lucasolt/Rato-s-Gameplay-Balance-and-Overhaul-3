@@ -89,7 +89,7 @@ function Rat_MobileFreshTarget(unit, action_id, action, pos, weapon)
     return target
 end
 
----- Preview of a blind plan: avatar, AP cost and a short line per stop along the path, no target data.
+---- Preview of a blind plan: AP cost and a tick per stop, no target data.
 local Targeting_Mobile_orig = Targeting_Mobile
 
 function Targeting_Mobile(dialog, blackboard, command, pt)
@@ -124,21 +124,15 @@ function Targeting_Mobile(dialog, blackboard, command, pt)
     end
     SetAPIndicator(false, "unreachable")
 
+    ---- vertical tick per stop: a line along the path read as aiming at whatever lay ahead (corpses)
     local color = Mesh.ColorFromTextStyle("LineOfFire")
     local fx_shot_lines = {}
-    local prev = attacker:GetPos()
     for i, pos in ipairs(blackboard.shot_positions) do
         fx_shot_lines[i] = false
         if pos then
             local x, y, z = point_unpack(pos)
-            local attack_pos = point(x, y, z or terrain.GetHeight(x, y) + dialog.fx_lof_offset)
-            local dir = (attack_pos - prev):SetZ(0)
-            if dir:Len() > 0 then
-                fx_shot_lines[i] = AddShotVisual(nil, attack_pos,
-                                                 attack_pos + SetLen(dir, 3 * const.SlabSizeX),
-                                                 color)
-            end
-            prev = attack_pos
+            local base = point(x, y, z or terrain.GetHeight(x, y))
+            fx_shot_lines[i] = AddShotVisual(nil, base, base:AddZ(2 * guim), color)
         end
     end
     blackboard.fx_shot_lines = fx_shot_lines
