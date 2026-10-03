@@ -260,10 +260,10 @@ function Rat_CaliberDamage(caliber, barrel_len)
     return d.base + delta
 end
 
----- a gun's damage for `caliber` (default: its own); a hold overrides the caliber rule
-function Rat_WeaponCaliberDamage(weapon, caliber)
+---- a gun's damage for `caliber` and `barrel_len` (default: its own); a hold overrides the caliber rule
+function Rat_WeaponCaliberDamage(weapon, caliber, barrel_len)
     return const.WeaponDamageHold[weapon.class] or
-               Rat_CaliberDamage(caliber or weapon.Caliber, weapon.rat_barrel_len)
+               Rat_CaliberDamage(caliber or weapon.Caliber, barrel_len or weapon.rat_barrel_len)
 end
 
 local function changes_caliber(component_id)
@@ -276,23 +276,52 @@ local function changes_caliber(component_id)
     end
 end
 
----- A converted gun takes its new caliber's damage: the conversion's own hand-tuned Damage effect is
----- dropped, the rest of it (aim, range, reliability) stays. Rebuilt from scratch so a save's
----- replayed modifier can't carry an old value.
+---- % of the stock barrel a part stands for; nil = not a barrel-length part
+local function barrel_length_pct(component_id)
+    local def = WeaponComponents[component_id]
+    for _, effect_id in ipairs(def and def.ModificationEffects or empty_table) do
+        local pct = const.BarrelTraitLength[effect_id]
+        if pct then
+            return pct
+        end
+    end
+end
+
+---- rat_barrel_len describes the gun as shipped, so a part counts relative to the stock barrel part
+function Rat_EffectiveBarrelLength(weapon)
+    local len = weapon.rat_barrel_len or 0
+    local installed = weapon.components and weapon.components.Barrel
+    if len <= 0 or not installed then
+        return len
+    end
+    local stock
+    for _, slot in ipairs(g_Classes[weapon.class].ComponentSlots or empty_table) do
+        if slot.SlotType == "Barrel" then
+            stock = slot.DefaultComponent
+        end
+    end
+    return MulDivRound(len, barrel_length_pct(installed) or 100, barrel_length_pct(stock) or 100)
+end
+
+---- Caliber conversions and barrel-length parts set damage through the caliber rule: their own
+---- hand-tuned Damage effect is dropped, the rest (aim, range, AP) stays. Rebuilt from scratch so a
+---- save's replayed modifier can't carry an old value.
 function Rat_RebuildBallistics(weapon)
     if not Rat_IsLiveFirearm(weapon) then
         return
     end
     weapon:RemoveModifier("rat_ballistics", "Damage")
-    if weapon.Caliber == g_Classes[weapon.class].Caliber then
+    local converted = weapon.Caliber ~= g_Classes[weapon.class].Caliber
+    local barrel = weapon.components and weapon.components.Barrel
+    if not converted and not barrel_length_pct(barrel) then
         return
     end
-    local dmg = Rat_WeaponCaliberDamage(weapon)
+    local dmg = Rat_WeaponCaliberDamage(weapon, weapon.Caliber, Rat_EffectiveBarrelLength(weapon))
     if not dmg then
         return
     end
     for _, component_id in pairs(weapon.components or empty_table) do
-        if component_id and changes_caliber(component_id) then
+        if component_id and (changes_caliber(component_id) or barrel_length_pct(component_id)) then
             weapon:RemoveModifier(component_id, "Damage")
         end
     end

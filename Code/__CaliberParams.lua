@@ -380,8 +380,8 @@ const.CaliberDamage = {
     ["9mm"] = {base = 19, barrel = 115, per_100mm = 15, min = -1, max = 2},
     ["5_7x28"] = {base = 18, barrel = 260, per_100mm = 10, min = -1, max = 1},
     ["45ACP"] = {base = 22, barrel = 127, per_100mm = 10, min = -1, max = 1},
-    ---- .44 Magnum: a carbine barrel gains much more than a pistol round would
-    ["44CAL"] = {base = 27, barrel = 150, per_100mm = 10, min = -1, max = 4},
+    ---- magnum handgun rounds keep gaining velocity per inch; the .44 carbine hits the cap
+    ["44CAL"] = {base = 27, barrel = 150, per_100mm = 20, min = -1, max = 4},
     ["9x39"] = {base = 25, barrel = 200, per_100mm = 10, min = -1, max = 1},
     ["4_7x33"] = {base = 25, barrel = 380, per_100mm = 8, min = -2, max = 1},
     ["5_45x39"] = {base = 26, barrel = 415, per_100mm = 8, min = -3, max = 1},
@@ -393,8 +393,14 @@ const.CaliberDamage = {
     ["30-60"] = {base = 37, barrel = 610, per_100mm = 6, min = -2, max = 1},
     ["7_92x57"] = {base = 37, barrel = 600, per_100mm = 6, min = -2, max = 1},
     ---- hand cannon: Desert Eagle through its .50 barrel
-    ["50AE"] = {base = 30, barrel = 150, per_100mm = 10, min = -1, max = 3},
+    ["50AE"] = {base = 30, barrel = 150, per_100mm = 20, min = -1, max = 3},
     ["50BMG"] = {base = 72, barrel = 730, per_100mm = 10, min = -5, max = 2}
+}
+
+---- barrel parts change length, not damage: % of the stock barrel (rat_barrel_len), keyed by family trait
+const.BarrelTraitLength = {
+    longbarrel = 130,
+    shortbarrel = 70
 }
 
 ---- fixed damage that ignores caliber and barrel. The emplaced M2 fires 5-round bursts of full .50 hits
