@@ -1137,26 +1137,7 @@ return {
 				            return T("")
 			end,
 			GetActionDescription = function (self, units)
-				            local description = self.Description
-				            local unit = units and units[1]
-				            if not unit then
-				                return self:GetActionDisplayName()
-				            end
-				            ----------------
-				
-				            local weapon = self:GetAttackWeapons(unit)
-				            local DisplayMoveAP = rat_getMobileshot_moveAP(self, unit, weapon)
-				            description = T(979712456456, "Rush to a new position, using up to <em>" ..
-				                                DisplayMoveAP .. " Move AP</em>. The unit will be sligthly harder to hit until the start of it's next turn.")
-				            local args = false
-				            local cost = self.GetAPCost(self, unit, args)
-				
-				            description = description ..
-				                              T(966648741688, "\n\nThe unit will be <em>Out of Breath</em>.")
-				            -------
-				            return T {
-				                description
-				            }
+				       return Rat_SprintDescription(self, units)
 			end,
 			GetActionDisplayName = function (self, units)
 				            local name = self.DisplayName
@@ -1565,12 +1546,32 @@ return {
 		'CodeFileName', "Code/SOURCE_APScale_vanilla.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "SOURCE_UnitRunAndGun",
+		'CodeFileName', "Code/SOURCE_UnitRunAndGun.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "SOURCE_UnitCalcChanceToHit",
 		'CodeFileName', "Code/SOURCE_UnitCalcChanceToHit.lua",
 	}),
 	PlaceObj('ModItemCode', {
 		'name', "SOURCE_Unit:EnterCombat",
 		'CodeFileName', "Code/SOURCE_Unit_EnterCombat.lua",
+	}),
+	PlaceObj('ModItemCode', {
+		'name', "SOURCE_UnitCanAttack",
+		'CodeFileName', "Code/SOURCE_UnitCanAttack.lua",
+	}),
+	PlaceObj('ModItemCode', {
+		'name', "SOURCE_UnitSetTargetDummyFromPos",
+		'CodeFileName', "Code/SOURCE_UnitSetTargetDummyFromPos.lua",
+	}),
+	PlaceObj('ModItemCode', {
+		'name', "SOURCE_UnitPropertiesGetMaxAP",
+		'CodeFileName', "Code/SOURCE_UnitPropertiesGetMaxAP.lua",
+	}),
+	PlaceObj('ModItemCode', {
+		'name', "shooting_stance_functions",
+		'CodeFileName', "Code/shooting_stance_functions.lua",
 	}),
 	PlaceObj('ModItemCode', {
 		'name', "SOURCE_GetBulletDamage",
@@ -1639,18 +1640,6 @@ return {
 		'CodeFileName', "Code/SOURCE_ReliabilityAndJam.lua",
 	}),
 	PlaceObj('ModItemCode', {
-		'name', "SOURCE_GetMaxAP",
-		'CodeFileName', "Code/SOURCE_GetMaxAP.lua",
-	}),
-	PlaceObj('ModItemCode', {
-		'name', "SOURCE_UnitCanAttack",
-		'CodeFileName', "Code/SOURCE_UnitCanAttack.lua",
-	}),
-	PlaceObj('ModItemCode', {
-		'name', "SOURCE_UnitSetTargetDummyFromPos",
-		'CodeFileName', "Code/SOURCE_UnitSetTargetDummyFromPos.lua",
-	}),
-	PlaceObj('ModItemCode', {
 		'name', "SOURCE_FindTargetFromPos",
 		'CodeFileName', "Code/SOURCE_FindTargetFromPos.lua",
 	}),
@@ -1679,10 +1668,6 @@ return {
 		'name', "shooting_stance_aoesector_functions",
 		'comment', "funcoes q criam os cones",
 		'CodeFileName', "Code/shooting_stance_aoesector_functions.lua",
-	}),
-	PlaceObj('ModItemCode', {
-		'name', "shooting_stance_functions",
-		'CodeFileName', "Code/shooting_stance_functions.lua",
 	}),
 	PlaceObj('ModItemFolder', {
 		'name', "Properties",
