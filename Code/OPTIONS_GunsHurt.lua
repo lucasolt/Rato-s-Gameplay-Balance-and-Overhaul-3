@@ -1,18 +1,10 @@
+function Rat_GunsHurtMul()
+    local str = CurrentModOptions['guns_hurt']
+    return str and tonumber(string.match(str, "[+-]?%d+")) or 100
+end
+
 function gunshurt()
-
-    local function extractNumberWithSignFromString(str)
-        if not str then
-            return false
-        end
-        local num = tonumber(string.match(str, "[+-]?%d+"))
-        if num then
-            return num
-        else
-            return false
-        end
-    end
-
-    local mul = extractNumberWithSignFromString(CurrentModOptions['guns_hurt']) or 100
+    local mul = Rat_GunsHurtMul()
 
     ForEachPreset("InventoryItemCompositeDef", function(w)
         local item = g_Classes[w.id]
@@ -27,8 +19,7 @@ function gunshurt()
             end
 
             ---- the caliber rule reads the current Caliber, which Zulib swaps after the build
-            local caliber_dmg = Rat_IsLiveFirearm(item) and
-                                    Rat_CaliberDamage(item.Caliber, item.rat_barrel_len)
+            local caliber_dmg = Rat_IsLiveFirearm(item) and Rat_WeaponCaliberDamage(item)
             item.Damage = MulDivRound(caliber_dmg or orig.dmg, mul, 100)
             item.base_Damage = MulDivRound(caliber_dmg or orig.basedmg, mul, 100)
 

@@ -260,6 +260,64 @@ function Rat_CaliberDamage(caliber, barrel_len)
     return d.base + delta
 end
 
+---- a gun's damage for `caliber` (default: its own); a hold overrides the caliber rule
+function Rat_WeaponCaliberDamage(weapon, caliber)
+    return const.WeaponDamageHold[weapon.class] or
+               Rat_CaliberDamage(caliber or weapon.Caliber, weapon.rat_barrel_len)
+end
+
+local function changes_caliber(component_id)
+    local def = WeaponComponents[component_id]
+    for _, effect_id in ipairs(def and def.ModificationEffects or empty_table) do
+        local effect = WeaponComponentEffects[effect_id]
+        if effect and effect.CaliberChange then
+            return true
+        end
+    end
+end
+
+---- A converted gun takes its new caliber's damage: the conversion's own hand-tuned Damage effect is
+---- dropped, the rest of it (aim, range, reliability) stays. Rebuilt from scratch so a save's
+---- replayed modifier can't carry an old value.
+function Rat_RebuildBallistics(weapon)
+    if not Rat_IsLiveFirearm(weapon) then
+        return
+    end
+    weapon:RemoveModifier("rat_ballistics", "Damage")
+    if weapon.Caliber == g_Classes[weapon.class].Caliber then
+        return
+    end
+    local dmg = Rat_WeaponCaliberDamage(weapon)
+    if not dmg then
+        return
+    end
+    for _, component_id in pairs(weapon.components or empty_table) do
+        if component_id and changes_caliber(component_id) then
+            weapon:RemoveModifier(component_id, "Damage")
+        end
+    end
+    local target = MulDivRound(dmg, Rat_GunsHurtMul(), 100)
+    weapon:AddModifier("rat_ballistics", "Damage", 1000, target - weapon.base_Damage)
+end
+
+local set_weapon_component = FirearmBase.SetWeaponComponent
+
+function FirearmBase:SetWeaponComponent(...)
+    set_weapon_component(self, ...)
+    Rat_RebuildBallistics(self)
+end
+
+local place_inventory_item = PlaceInventoryItem
+
+---- a loaded save replays applied_modifiers, including an old rat_ballistics value
+function PlaceInventoryItem(item_id, instance, ...)
+    local obj = place_inventory_item(item_id, instance, ...)
+    if instance and IsKindOf(obj, "FirearmBase") then
+        Rat_RebuildBallistics(obj)
+    end
+    return obj
+end
+
 ---- ammo ids don't always spell the caliber (7_62x54R -> _7_62x54_Basic), so match the suffix
 local BasicAmmoSuffixes = {"_Basic", "_Buckshot"}
 
