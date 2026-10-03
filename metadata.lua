@@ -173,6 +173,7 @@ return PlaceObj('ModDef', {
 		"Code/FEATURE_AttachmentShop.lua",
 		"Code/FEATURE_GatherHerbs.lua",
 		"Code/FEATURE_NoRevealMemory.lua",
+		"Code/FIX_NoVisibilityReload.lua",
 		"InventoryItem/M14SAW_AUTO.lua",
 	},
 	'default_options', {

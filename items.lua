@@ -1780,6 +1780,10 @@ return {
 			'name', "FEATURE_NoRevealMemory",
 			'CodeFileName', "Code/FEATURE_NoRevealMemory.lua",
 		}),
+		PlaceObj('ModItemCode', {
+			'name', "FIX_NoVisibilityReload",
+			'CodeFileName', "Code/FIX_NoVisibilityReload.lua",
+		}),
 		PlaceObj('ModItemOptionChoice', {
 			'name', "guns_hurt",
 			'DisplayName', "<color 64 128 196>Guns Freaking Hurt (%)</color>",
