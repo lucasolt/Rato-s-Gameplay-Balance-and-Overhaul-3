@@ -84,6 +84,7 @@ return PlaceObj('ModDef', {
 		"Code/CTH_bipod.lua",
 		"Code/CTH_cover_prone.lua",
 		"Code/CTH_smoke.lua",
+		"Code/CTH_gasmask.lua",
 		"Code/CTH_ow_cth.lua",
 		"Code/CTH_ranged_melee_penal.lua",
 		"Code/CTH_held_mg.lua",

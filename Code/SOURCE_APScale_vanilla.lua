@@ -167,7 +167,7 @@ function Unit:GetAttackAPCost(action, weapon, action_ap_cost, aim, delta)
     return ap, aimCost
 end
 
--- Unit.lua: morale and gas mask AP at turn start were whole vanilla AP.
+-- Unit.lua: morale AP at turn start was whole vanilla AP.
 function Unit:BeginTurn(new_turn)
     NetUpdateHash("BeginTurn_Start")
     self:SetAttackReason()
@@ -259,9 +259,7 @@ function Unit:BeginTurn(new_turn)
             self:ConsumeAP(Min(self.ActionPoints, R_VanillaAP(-morale)))
         end
 
-        if self:GetItemInSlot("Head", "GasMaskBase") then
-            self:ConsumeAP(R_VanillaAP(1))
-        end
+        ---- vanilla gas mask -1 AP removed; it is a CTH penalty instead (CTH_gasmask.lua)
 
         if self.command == "Die" then
             SnapCameraToObj(self)
