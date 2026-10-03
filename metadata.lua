@@ -172,6 +172,7 @@ return PlaceObj('ModDef', {
 		"Code/FEATURE_AttachmentItems.lua",
 		"Code/FEATURE_AttachmentShop.lua",
 		"Code/FEATURE_GatherHerbs.lua",
+		"Code/FEATURE_NoRevealMemory.lua",
 		"InventoryItem/M14SAW_AUTO.lua",
 	},
 	'default_options', {
@@ -183,6 +184,7 @@ return PlaceObj('ModDef', {
 		MuteIMPVoice = false,
 		NightDetect = "-40 (Rato's Default)",
 		NightSight = "-40 (Rato's Default)",
+		NoRevealMemory = false,
 		UnawareSight = "18 (rato's GBO default)",
 		VanillaFreeMoveBonus = 0,
 		ai_penal_setting = "0 (default for Rato's GBO)",

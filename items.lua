@@ -1776,6 +1776,10 @@ return {
 			'name', "FEATURE_GatherHerbs",
 			'CodeFileName', "Code/FEATURE_GatherHerbs.lua",
 		}),
+		PlaceObj('ModItemCode', {
+			'name', "FEATURE_NoRevealMemory",
+			'CodeFileName', "Code/FEATURE_NoRevealMemory.lua",
+		}),
 		PlaceObj('ModItemOptionChoice', {
 			'name', "guns_hurt",
 			'DisplayName', "<color 64 128 196>Guns Freaking Hurt (%)</color>",
@@ -1836,6 +1840,11 @@ return {
 				"aCTH Lite",
 				"old CTH",
 			},
+		}),
+		PlaceObj('ModItemOptionToggle', {
+			'name', "NoRevealMemory",
+			'DisplayName', "No revealed-enemy memory",
+			'Help', "Vanilla keeps an enemy you glimpsed visible through walls until your turn ends. Enable to show enemies only while one of your units actually sees them (applies to every side).",
 		}),
 		PlaceObj('ModItemOptionToggle', {
 			'name', "ACTHTakeCoverGraze",
