@@ -31,3 +31,35 @@ function Unit:RevealTo(obj, combat)
         g_Combat:ApplyVisibility()
     end
 end
+
+---- Vanilla AI camera assumes a tracked unit stays revealed: RevealUnitBeforeMove queues the reveal we
+---- strip, and the follow loop (CombatCamera.lua:1604) centers on group_to_follow with no sight check.
+local CenterCameraOnObj_orig = CenterCameraOnObj
+
+function CenterCameraOnObj(objs, floor, sleep_time)
+    if CurrentModOptions.NoRevealMemory and g_Combat and objs then
+        objs = table.ifilter(objs, function(_, obj)
+            return not IsKindOf(obj, "Unit") or obj.visible
+        end)
+    end
+    return CenterCameraOnObj_orig(objs, floor, sleep_time)
+end
+
+local StartCinematicCombatCamera_orig = StartCinematicCombatCamera
+
+function StartCinematicCombatCamera(attacker, target)
+    if CurrentModOptions.NoRevealMemory and not attacker.visible then
+        return
+    end
+    return StartCinematicCombatCamera_orig(attacker, target)
+end
+
+local ShouldTrackMeleeCharge_orig = ShouldTrackMeleeCharge
+
+function ShouldTrackMeleeCharge(attacker, target)
+    if CurrentModOptions.NoRevealMemory and not attacker.visible then
+        g_TrackingChargeAttacker = false
+        return
+    end
+    return ShouldTrackMeleeCharge_orig(attacker, target)
+end
