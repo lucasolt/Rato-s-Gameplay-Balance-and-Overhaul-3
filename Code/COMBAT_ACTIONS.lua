@@ -987,7 +987,7 @@ function rat_combat_actions()
 
         ----------
         local weapon = self:GetAttackWeapons(unit) -- or unit:GetActiveWeapons()
-        local DisplayMoveAP = rat_getMobileshot_moveAP(self, unit, weapon)
+        local DisplayMoveAP = R_VanillaAPToDisplay(rat_getMobileshot_moveAP(self, unit, weapon))
         local description = T(336535188124,
                               "Move to a new position, using up to <em>" .. DisplayMoveAP ..
                                   " Move AP</em>.\n\nFire a number of bursts during movement toward the closest enemies. \n\nEach shot suffers increased <em>Hipfire</em> and <em>Recoil</em> accuracy penalties.")
@@ -1115,7 +1115,7 @@ function rat_combat_actions()
         ----------------
 
         local weapon = self:GetAttackWeapons(unit) -- or unit:GetActiveWeapons()
-        local DisplayMoveAP = rat_getMobileshot_moveAP(self, unit, weapon)
+        local DisplayMoveAP = R_VanillaAPToDisplay(rat_getMobileshot_moveAP(self, unit, weapon))
         -- description = T(293499216453, "<em>Once per turn</em>. Move to a new location using up to <em>" .. DisplayMoveAP .. " Move AP</em>, and then shoot the closest enemy.\n\nThe attack suffers increased <em>Hipfire</em> accuracy penalty.")	
         description = T(941284364456, "Move to a new position, using up to <em>" .. DisplayMoveAP ..
                             " Move AP</em>.\n\nFire a number of shots during movement toward the closest enemies. \n\nEach shot suffers increased <em>Hipfire</em> accuracy penalty.")
@@ -1160,7 +1160,7 @@ function rat_combat_actions()
 
         local unit = units and units[1]
         local weapon = self:GetAttackWeapons(unit) -- or unit:GetActiveWeapons()
-        local DisplayMoveAP = rat_getMobileshot_moveAP(self, unit, weapon)
+        local DisplayMoveAP = R_VanillaAPToDisplay(rat_getMobileshot_moveAP(self, unit, weapon))
         local description = T(317545478698,
                               "Make a longer <em>Run and Gun</em>, firing more shots. Move to a new position, using up to <em>" ..
                                   DisplayMoveAP ..
@@ -1277,7 +1277,7 @@ function rat_combat_actions()
 
         local unit = units and units[1]
         local weapon = self:GetAttackWeapons(unit) -- or unit:GetActiveWeapons()
-        local DisplayMoveAP = rat_getMobileshot_moveAP(self, unit, weapon)
+        local DisplayMoveAP = R_VanillaAPToDisplay(rat_getMobileshot_moveAP(self, unit, weapon))
         local description = T(248617882285,
                               "Move to another position using up to <em>" .. DisplayMoveAP ..
                                   " Move AP</em>, while <em>throwing knives</em> at nearby enemies.")
