@@ -117,9 +117,11 @@ function Targeting_Mobile(dialog, blackboard, command, pt)
     blackboard.rat_blind_drawn = goto_pos
 
     local attacker, action = dialog.attacker, dialog.action
-    local movement_mode = IsKindOf(dialog, "IModeCombatMovement")
-    UpdateMovementAvatar(dialog, goto_pos, movement_mode and blackboard.fxToDoStance or "Standing",
-                         "update_pos")
+    if blackboard.movement_avatar then
+        local movement_mode = IsKindOf(dialog, "IModeCombatMovement")
+        UpdateMovementAvatar(dialog, goto_pos,
+                             movement_mode and blackboard.fxToDoStance or "Standing", "update_pos")
+    end
     SetAPIndicator(false, "unreachable")
 
     local color = Mesh.ColorFromTextStyle("LineOfFire")
