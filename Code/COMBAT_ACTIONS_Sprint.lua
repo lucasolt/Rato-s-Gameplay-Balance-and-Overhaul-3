@@ -100,6 +100,19 @@ function IModeCombatSprint:Confirm()
     return IModeCombatAttackBase.Confirm(self)
 end
 
+function Rat_SprintDescription(self, units)
+    local unit = units and units[1]
+    if not unit then
+        return self:GetActionDisplayName()
+    end
+    -- Sprint's move AP params are authored in displayed AP, unlike the other mobile attacks.
+    local move_ap = rat_getMobileshot_moveAP(self, unit, self:GetAttackWeapons(unit))
+    return T(503817264190, "Rush to a new position, using up to <em>" .. move_ap ..
+                 " Move AP</em>. The unit will be slightly harder to hit until the start of its next turn." ..
+                 "\n\nHigher <em>Agility</em> increases the Move AP, while bulky equipped weapons reduce it.") ..
+               T(966648741688, "\n\nThe unit will be <em>Out of Breath</em>.")
+end
+
 function OnMsg.ClassesBuilt()
     PlaceObj('XTemplate', {
         group = "Zulu",

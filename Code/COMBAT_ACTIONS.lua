@@ -1418,6 +1418,11 @@ function rat_combat_actions()
     g_PresetParamCache[CombatActions.MGBurstFire]['dmg_penalty'] = 0
     --g_PresetParamCache[CombatActions.MGBurstFire]['num_shots'] = 6
 
+    -- Our own preset: an editor save writes this one-liner back into items.lua, which is the intended end state.
+    CombatActions.Sprint.GetActionDescription = function(self, units)
+        return Rat_SprintDescription(self, units)
+    end
+
 end
 
 ---------------------------------------------------------------------------------------------------
