@@ -1788,6 +1788,10 @@ return {
 			'name', "FIX_NoVisibilityReload",
 			'CodeFileName', "Code/FIX_NoVisibilityReload.lua",
 		}),
+		PlaceObj('ModItemCode', {
+			'name', "FEATURE_StepOutGate",
+			'CodeFileName', "Code/FEATURE_StepOutGate.lua",
+		}),
 		PlaceObj('ModItemOptionChoice', {
 			'name', "guns_hurt",
 			'DisplayName', "<color 64 128 196>Guns Freaking Hurt (%)</color>",
