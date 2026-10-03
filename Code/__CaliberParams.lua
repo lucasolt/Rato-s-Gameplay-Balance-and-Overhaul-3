@@ -385,7 +385,25 @@ const.Calibers = {
 }
 
 ---- weapon Damage = base + Clamp((barrel_len - barrel) * per_100mm / 1000, min, max); per_100mm is in tenths
-const.CaliberDamage = {}
+const.CaliberDamage = {
+    ["380ACP"] = {base = 16, barrel = 120, per_100mm = 15, min = -1, max = 2},
+    ["9x18"] = {base = 16, barrel = 120, per_100mm = 15, min = -1, max = 2},
+    ["9mm"] = {base = 19, barrel = 115, per_100mm = 15, min = -1, max = 2},
+    ["5_7x28"] = {base = 18, barrel = 260, per_100mm = 10, min = -1, max = 1},
+    ["45ACP"] = {base = 22, barrel = 127, per_100mm = 10, min = -1, max = 1},
+    ---- .44 Magnum: a carbine barrel gains much more than a pistol round would
+    ["44CAL"] = {base = 27, barrel = 150, per_100mm = 10, min = -1, max = 4},
+    ["9x39"] = {base = 25, barrel = 200, per_100mm = 10, min = -1, max = 1},
+    ["4_7x33"] = {base = 25, barrel = 380, per_100mm = 8, min = -2, max = 1},
+    ["5_45x39"] = {base = 26, barrel = 415, per_100mm = 8, min = -3, max = 1},
+    ["556"] = {base = 26, barrel = 500, per_100mm = 8, min = -3, max = 1},
+    ["762WP"] = {base = 31, barrel = 415, per_100mm = 8, min = -2, max = 1},
+    ["7_92x33"] = {base = 29, barrel = 425, per_100mm = 8, min = -2, max = 1},
+    ["762NATO"] = {base = 35, barrel = 500, per_100mm = 6, min = -2, max = 1},
+    ["7_62x54R"] = {base = 36, barrel = 600, per_100mm = 6, min = -2, max = 1},
+    ["30-60"] = {base = 37, barrel = 610, per_100mm = 6, min = -2, max = 1},
+    ["7_92x57"] = {base = 37, barrel = 600, per_100mm = 6, min = -2, max = 1}
+}
 
 function print_const_ammos()
     local amm = const.Calibers
