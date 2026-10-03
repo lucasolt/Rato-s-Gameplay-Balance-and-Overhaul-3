@@ -1487,27 +1487,8 @@ function rat_MGSetup_StanceAP(unit, from_stance, ignore_free_move)
         return ap
     end
 
-    -----------------------------------------------------------------------------------------------
-    ---- O DESCONTO E EM AP INTEIRO. `free_move_ap` e um orcamento de MOVIMENTO e vive fora da
-    ---- grade: `FreeMove.OnAdded` calcula `MulDivRound(Agility - 40, const.Scale.AP, 10)`, entao
-    ---- Agility 55 da 1500 -- um AP e meio. Isso e legitimo para andar, onde o custo por tile
-    ---- tambem e fracionado, e nao e legitimo aqui: custo de ACAO no jogo e sempre multiplo de
-    ---- `const.Scale.AP`. Descontar 1500 crus de uma parcela de 2000 devolvia 500, e o MGSetup
-    ---- inteiro passava a custar 6500 -- 6,5 AP, numero que nao existe em lugar nenhum da UI.
-    ----
-    ---- Piso na grade, e o piso e o lado certo: com 1 de free move o desconto e 1, nunca 2. Com
-    ---- os numeros medidos (custo 8, parcela de prone 2, free 1,5):
-    ----     deitar na mao   -> prone custa 2, dos quais 1 de free e 1 de AP; depois monta por 6
-    ----                        ============================================> 7 de AP real
-    ----     montar de pe    -> 8 - 2 + (2 - 1) = 7
-    ---- Sem o piso o caminho de pe sairia por 6,5, ou seja MAIS BARATO que fazer na mao -- o
-    ---- pedagio invertido, que e tao ruim quanto o original.
-    ----
-    ---- `x % const.Scale.AP` NAO e o no-op que o CLAUDE.md do RATOAI manda desconfiar (aquele e
-    ---- `x % 1` depois de divisao inteira). Aqui o modulo e 1000 e trunca de verdade.
-    -----------------------------------------------------------------------------------------------
+    ---- No floor to whole AP: with Scale.AP = 100 a fractional free move (Agility 55 = 1.5 AP) is displayable.
     local desconto = Min(ap, Max(0, unit.free_move_ap or 0))
-    desconto = desconto - desconto % const.Scale.AP
 
     return Max(0, ap - desconto)
 end
