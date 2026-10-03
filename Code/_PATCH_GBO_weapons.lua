@@ -484,7 +484,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	MAC11_1.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "DualShot", "RunAndGun", "CancelShot"}
 	MAC11_1.Rat_swap_ap = 10
 	MAC11_1.burst_shots = 4
-	MAC11_1.auto_shots = 12
+	MAC11_1.auto_shots = 4
 	MAC11_1.RPM = 1200
 	MAC11_1.BurstSelective = false
 	MAC11_1.wep_base_recoil_mul = 122
@@ -869,7 +869,7 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	P90_2.PreparedAttackType = "Overwatch"
 	P90_2.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "RunAndGun", "CancelShot"}
 	P90_2.burst_shots = 4
-	P90_2.auto_shots = 12
+	P90_2.auto_shots = 4
 	P90_2.RPM = 900
 	P90_2.BurstSelective = false
 	P90_2.wep_base_recoil_mul = 113
@@ -2349,7 +2349,7 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	MicroUZI_1.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "DualShot", "RunAndGun", "CancelShot"}
 	MicroUZI_1.Rat_swap_ap = 10
 	MicroUZI_1.burst_shots = 4
-	MicroUZI_1.auto_shots = 12
+	MicroUZI_1.auto_shots = 4
 	MicroUZI_1.RPM = 1200
 	MicroUZI_1.BurstSelective = false
 	MicroUZI_1.wep_base_recoil_mul = 117
@@ -5207,7 +5207,7 @@ function RatoGBO_WepPatch()
 	Glock18.AvailableAttacks = {"BurstFire", "SingleShot", "DualShot", "CancelShot", "MobileShot", "RunAndGun", "AutoFire"}
 	Glock18.Rat_swap_ap = 10
 	Glock18.burst_shots = 4
-	Glock18.auto_shots = 12
+	Glock18.auto_shots = 4
 	Glock18.RPM = 1200
 	Glock18.AutoFireCustomDeltaAP = 10
 	Glock18.SingleShotCustomDeltaAP = 10

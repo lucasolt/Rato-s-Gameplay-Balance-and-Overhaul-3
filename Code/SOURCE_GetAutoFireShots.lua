@@ -8,11 +8,16 @@ function FirearmBase:GetAutofireShots(action)
     local shots = action:ResolveValue("num_shots") or 1
     --------------------------------
 
-    ---- AutoFire is selectable now (FEATURE_VariableAutofire); this is only its default length
-    if action.id == "BurstFire" or action.id == "RunAndGun" or action.id == "RecklessAssault" or
-        action.id == "BuckshotBurst" or action.id == "AutoFire" then
+    local id = action.id
+    if id == "RunAndGun" or id == "RecklessAssault" then
+        id = Rat_ShortBurstAttackId(self)
+    end
+    ---- burst_shots is the selective burst; AutoFire is selectable (FEATURE_VariableAutofire), auto_shots is its default
+    if id == "BurstFire" or id == "BuckshotBurst" then
         shots = self.burst_shots or 3
-    elseif action.id == "MGBurstFire" or action.id == "GrizzlyPerk" then
+    elseif id == "AutoFire" then
+        shots = self.auto_shots or 3
+    elseif id == "MGBurstFire" or id == "GrizzlyPerk" then
         shots = self.long_shots or 6
     end
 
