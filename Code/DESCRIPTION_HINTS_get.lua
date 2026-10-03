@@ -113,9 +113,9 @@ end
 
 local HintMechanismLabel =ratT(file_str, 285374032193, "Operation")
 local HintCyclingLabel = ratT(file_str, 608246246045, "Action")
-local HintBurstCritLabel = ratT(file_str, 318826540120, "Burst Critical Chance")
+local HintBurstCritLabel = ratT(file_str, 318826540120, "Selective Burst Critical Chance")
 local HintAutoCritLabel = ratT(file_str, 318826540121, "Autofire Critical Chance")
-local HintBurstRecoilLabel = ratT(file_str, 318826540123, "Burst Recoil Penalty")
+local HintBurstRecoilLabel = ratT(file_str, 318826540123, "Selective Burst Recoil Penalty")
 local HintAutoRecoilLabel = ratT(file_str, 318826540122, "Autofire Recoil Penalty")
 local HintLongRecoilLabel = ratT(file_str, 318826540124, "Long Burst Recoil Penalty")
 ---- keyed without underscores: recoil_mechanism spells "Bolt_Action", Rat_cycling "BoltAction"
@@ -178,6 +178,11 @@ local function HintHundredths(v)
     local sign = v < 0 and "-" or ""
     v = abs(v)
     return string.format("%s%d.%02d", sign, v / 100, v % 100)
+end
+
+---- value in the panel's value style, units muted like vanilla's " AP"
+local function HintMulText(v, extra)
+    return HintHundredths(v) .. "<style PDABrowserTitleSmall>x" .. (extra or "") .. "</style>"
 end
 
 ---- the Recoil row times the fire mode's own factors in GetRecoilOther; stance left out so the hint stays put
@@ -539,15 +544,15 @@ function Rat_PatchWeaponRollover()
                     local function recoil_row(win, label, attack, delta_prop, bump)
                         local delta = weapon[delta_prop] or 100
                         return {win, label, delta ~= 100 and attack, function()
-                            return HintHundredths(HintModeRecoil(weapon, owner, delta_prop, bump)) ..
-                                       string.format("x (%+d%%)", delta - 100)
+                            return HintMulText(HintModeRecoil(weapon, owner, delta_prop, bump),
+                                               string.format(" (%+d%%)", delta - 100))
                         end}
                     end
                     for _, r in ipairs{
                         {self.idBurstCrit, HintBurstCritLabel, has_burst,
-                         function() return HintHundredths(weapon.BurstCritMul or 100) .. "x" end},
+                         function() return HintMulText(weapon.BurstCritMul or 100) end},
                         {self.idAutoCrit, HintAutoCritLabel, Rat_HasVariableAuto(weapon),
-                         function() return HintHundredths(const.Combat.AutoFireCritMul) .. "x" end},
+                         function() return HintMulText(const.Combat.AutoFireCritMul) end},
                         recoil_row(self.idBurstRecoil, HintBurstRecoilLabel, has_burst, "burst_recoil_delta", true),
                         recoil_row(self.idAutoRecoil, HintAutoRecoilLabel,
                                    table.find(attacks, "AutoFire") and not HintAttackHidden(weapon, "AutoFire"),
