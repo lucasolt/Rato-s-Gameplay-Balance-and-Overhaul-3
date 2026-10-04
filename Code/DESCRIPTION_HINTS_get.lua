@@ -605,9 +605,11 @@ function Rat_PatchWeaponRollover()
                     ---- shown when the gun has a raw not-prone malus; the value carries the owner's Strength relief
                     local function handling_row(win, label, stance)
                         return {win, label, IsACHTActive() and Rat_HandlingNotPronePen(weapon, nil, stance) > 0, function()
-                            local pen = Rat_HandlingNotPronePen(weapon, owner, stance)
-                            return HintMulText(MulDivRound(Rat_HandlingBaseMul(weapon, owner), 100 + pen, 100),
-                                               string.format(" (+%d%%)", pen))
+                            local raw = Rat_HandlingNotPronePen(weapon, nil, stance)
+                            local pen = owner and Rat_HandlingNotPronePen(weapon, owner, stance) or raw
+                            local extra = pen == raw and string.format(" (+%d%%)", raw) or
+                                              string.format(" (+%d%% -%d%% STR)", raw, raw - pen)
+                            return HintMulText(MulDivRound(Rat_HandlingBaseMul(weapon, owner), 100 + pen, 100), extra)
                         end}
                     end
                     for _, r in ipairs{
