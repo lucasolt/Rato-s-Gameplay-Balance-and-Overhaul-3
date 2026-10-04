@@ -402,6 +402,10 @@ const.BarrelTraitLength = {
     longbarrel = 130,
     shortbarrel = 70
 }
+---- parts that model a specific real barrel, in mm; beats the trait %
+const.BarrelPartLength = {
+    Mosin_Barrel_long_1 = 730 -- carbine model -> M91/30
+}
 
 ---- fixed damage that ignores caliber and barrel. The emplaced M2 fires 5-round bursts of full .50 hits
 ---- at whoever walks into its arc; at 72 a burst is a near-certain kill

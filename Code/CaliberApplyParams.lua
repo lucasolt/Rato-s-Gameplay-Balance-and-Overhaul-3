@@ -276,8 +276,12 @@ local function changes_caliber(component_id)
     end
 end
 
----- % of the stock barrel a part stands for; nil = not a barrel-length part
+---- % of the stock barrel a part stands for; nil = not a barrel-length part. An absolute-length part
+---- reads 100 here: it only marks it, Rat_EffectiveBarrelLength returns its mm directly
 local function barrel_length_pct(component_id)
+    if const.BarrelPartLength[component_id] then
+        return 100
+    end
     local def = WeaponComponents[component_id]
     for _, effect_id in ipairs(def and def.ModificationEffects or empty_table) do
         local pct = const.BarrelTraitLength[effect_id]
@@ -293,6 +297,9 @@ function Rat_EffectiveBarrelLength(weapon)
     local installed = weapon.components and weapon.components.Barrel
     if len <= 0 or not installed then
         return len
+    end
+    if const.BarrelPartLength[installed] then
+        return const.BarrelPartLength[installed]
     end
     local stock
     for _, slot in ipairs(g_Classes[weapon.class].ComponentSlots or empty_table) do
