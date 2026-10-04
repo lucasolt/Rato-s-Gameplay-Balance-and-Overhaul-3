@@ -3182,7 +3182,7 @@ function RatoGBO_WepPatch()
 	AR15.PreparedAttackType = "Overwatch"
 	AR15.AvailableAttacks = {"SingleShot", "BurstFire", "CancelShot"}
 	AR15.Rat_swap_ap = 30
-	AR15.RPM = 800
+	AR15.RPM = 600
 	AR15.wep_base_recoil_mul = 101
 	AR15.weigth_held_mul = 121
 	AR15.wep_base_snapshot_mul = 101
@@ -3672,6 +3672,7 @@ function RatoGBO_WepPatch()
 	Auto5_quest.PointBlankBonus = 1
 	Auto5_quest.PreparedAttackType = "Overwatch"
 	Auto5_quest.AvailableAttacks = {"BuckshotBurst", "BurstFire"}
+	Auto5_quest.RPM = 350
 	Auto5_quest.BuckshotConeAngle = 300
 	Auto5_quest.BuckshotFalloffDamage = 100
 	Auto5_quest.Rat_swap_ap = 30

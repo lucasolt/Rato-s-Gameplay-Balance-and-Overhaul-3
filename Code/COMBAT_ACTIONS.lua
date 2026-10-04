@@ -382,7 +382,7 @@ function rat_combat_actions()
                                                   args and args.aim or 0, action) or 0
 
         return (unit:GetAttackAPCost(self, weapon1, false, args and args.aim or 0) + ap_extra +
-                   ap_delta) or -1
+                   ap_delta) + Rat_AutoExtraAP(self, weapon, weapon:GetAutofireShots(self)) or -1
     end
 
     CombatActions.Buckshot.GetAPCost = function(self, unit, args)

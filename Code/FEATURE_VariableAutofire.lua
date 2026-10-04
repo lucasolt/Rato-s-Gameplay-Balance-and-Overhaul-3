@@ -91,16 +91,19 @@ function Rat_AutoPricedShots(action, weapon, n)
     return Max(P().MinShots, n or weapon:GetAutofireShots(action))
 end
 
----- added to a cost that already holds ShootAP, so it swaps ShootAP for BaseAP (perks modify additively,
----- so the swap commutes); rounds past BaseShots pay by RPM. Never cheaper than a Single Shot
+local burst_limited = {BurstFire = true, BuckshotBurst = true}
+
+---- added to a cost that already holds ShootAP + the action's delta: the first round costs a Single Shot
+---- (AutoFireCustomDeltaAP stays on top), rounds past BaseShots pay by RPM. Never cheaper than a Single Shot
 function Rat_AutoExtraAP(action, weapon, n)
     local p = P()
     n = Rat_AutoPricedShots(action, weapon, n)
-    local rpm = action and action.id == "BurstFire" and Rat_BurstRPM(weapon) or nil
+    local rpm = burst_limited[action.id] and Rat_BurstRPM(weapon) or nil
     local extra = (n - p.BaseShots) * Rat_AutoAPPerRound(weapon, rpm)
     extra = MulDivRound(extra, 1, const.Scale.AP) * const.Scale.AP
-    extra = extra + p.BaseAP - (weapon.AttackAP or weapon.ShootAP or 0)
-    return Max(extra, rat_getDeltaAP(nil, weapon, "SingleShot") - rat_getDeltaAP(action, weapon))
+    local single = rat_getDeltaAP(nil, weapon, "SingleShot")
+    extra = extra + single - (action.ActionPointDelta or 0)
+    return Max(extra, single - rat_getDeltaAP(action, weapon))
 end
 
 ---- a single tap in autofire adds a chance that grows with RPM and shrinks with Composure
