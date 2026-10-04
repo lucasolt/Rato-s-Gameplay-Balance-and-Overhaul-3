@@ -118,6 +118,8 @@ local HintAutoCritLabel = ratT(file_str, 318826540121, "Autofire Critical Chance
 local HintBurstRecoilLabel = ratT(file_str, 318826540123, "Selective Burst Recoil Penalty")
 local HintAutoRecoilLabel = ratT(file_str, 318826540122, "Autofire Recoil Penalty")
 local HintLongRecoilLabel = ratT(file_str, 318826540124, "Long Burst Recoil Penalty")
+local HintHandlingStandLabel = ratT(file_str, 318826540125, "Handling Penalty, Standing")
+local HintHandlingCrouchLabel = ratT(file_str, 318826540126, "Handling Penalty, Crouched")
 ---- keyed without underscores: recoil_mechanism spells "Bolt_Action", Rat_cycling "BoltAction"
 local HintMechanismNames = {
     GasOperated = ratT(file_str, 541468575245, "Gas Operated"),
@@ -224,7 +226,7 @@ local HintBarRows = {
     CritDamage = {ammo = function(w, ammo) return HintAmmoProp(w.CritDamage, ammo, "CritDamage") end},
     AimAccuracy = {value = function(w, unit) return HintAim(w, unit, IsACHTActive()) end},
     PB = {value = HintPB},
-    Handling = {lower = true, value = function(w) return Rat_ApertureHandlingMul(w) end},
+    Handling = {lower = true, value = Rat_HandlingBaseMul},
     Hipfire = {lower = true, value = function(w, unit) return HintHipSnap(w, 0, unit, IsACHTActive()) end},
     Snapshot = {lower = true, value = function(w, unit) return HintHipSnap(w, 1, unit, IsACHTActive()) end},
     Recoil = {lower = true, value = HintRecoil},
@@ -563,6 +565,8 @@ function Rat_PatchWeaponRollover()
             row("idBurstRecoil"),
             row("idAutoRecoil"),
             row("idLongRecoil"),
+            row("idHandlingStand"),
+            row("idHandlingCrouch"),
             PlaceObj("XTemplateFunc", {
                 "name", "Open(self)",
                 "func", function(self)
@@ -598,6 +602,14 @@ function Rat_PatchWeaponRollover()
                                                string.format(" (%+d%%)", delta - 100))
                         end}
                     end
+                    ---- shown when the gun has a raw not-prone malus; the value carries the owner's Strength relief
+                    local function handling_row(win, label, stance)
+                        return {win, label, IsACHTActive() and Rat_HandlingNotPronePen(weapon, nil, stance) > 0, function()
+                            local pen = Rat_HandlingNotPronePen(weapon, owner, stance)
+                            return HintMulText(MulDivRound(Rat_HandlingBaseMul(weapon, owner), 100 + pen, 100),
+                                               string.format(" (+%d%%)", pen))
+                        end}
+                    end
                     for _, r in ipairs{
                         {self.idBurstCrit, HintBurstCritLabel, has_burst,
                          function() return HintMulText(weapon.BurstCritMul or 100) end},
@@ -609,6 +621,8 @@ function Rat_PatchWeaponRollover()
                                    "auto_recoil_delta", true),
                         recoil_row(self.idLongRecoil, HintLongRecoilLabel, table.find(attacks, "MGBurstFire"),
                                    "long_recoil_delta"),
+                        handling_row(self.idHandlingStand, HintHandlingStandLabel, "Standing"),
+                        handling_row(self.idHandlingCrouch, HintHandlingCrouchLabel, "Crouch"),
                     } do
                         r[1]:SetVisible(not not r[3])
                         r[1]:SetNameText(r[2])
@@ -633,13 +647,12 @@ function GBO_GetDescriptionHints(self)
     local owner = self.owner and (not gv_SatelliteView and g_Units[self.owner] or gv_UnitData[self.owner])
 
     local angularCTHActive = IsACHTActive()
-    ---- aCTH's Handling row reads no stat, unlike classic PB
     local classic_owner = not angularCTHActive and owner
 
     local stance_ap, crit_per_aim, recoil = HintStanceAP(self, owner), HintCritPerAim(self, owner), HintRecoil(self, owner)
     local hip, snap = HintHipSnap(self, 0, owner, angularCTHActive), HintHipSnap(self, 1, owner, angularCTHActive)
     local pb = HintPB(self, classic_owner)
-    local handling = Rat_ApertureHandlingMul(self)
+    local handling = Rat_HandlingBaseMul(self, owner)
     local aim = HintAim(self, owner, angularCTHActive)
     local aim_ref = owner and HintAim(self, nil, angularCTHActive)
 
@@ -694,7 +707,8 @@ function GBO_GetDescriptionHints(self)
 	        TranslationTable[184329577856] or "Handling Penalty Multiplier: ",
 			---- em aCTH o manejo e multiplicador de cone: mesma leitura de hipfire/snapshot/recoil, MENOR = melhor
 	        HintHundredths(handling), "X",
-	        bar = "Handling", bar_v = handling,
+	        base = owner and HintHundredths(Rat_HandlingBaseMul(self)),
+	        bar = "Handling", bar_v = handling, bar_ref = owner and Rat_HandlingBaseMul(self),
 	    } or {
 	        id = "PointBlankRangeAccuracy",
 	        TranslationTable[651371401489] or "Point Blank Range Accuracy: ",

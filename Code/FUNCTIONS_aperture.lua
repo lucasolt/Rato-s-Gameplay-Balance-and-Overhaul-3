@@ -403,11 +403,8 @@ end
 ---- MANEJO -> multiplicador da abertura base. GetPBbonus ja soma classe + arma + componentes
 ---- (cano, bullpup, grips, handguard), entao todo componente que dava Point Blank Accuracy passa
 ---- a dar manejo sem nenhum trabalho por componente. MENOR = melhor.
-----
----- `attacker` e opcional -- DESCRIPTION_HINTS_get.lua chama isto sem merc, so para o tooltip da
----- arma, e sem postura nao ha o que penalizar. Devolve o multiplicador e, se houve penalidade de
----- peso, o metaText dela (mesmo weigth_held_mul do recuo, ver RecoilHeldPivot em FUNCTIONS_recoil_aCTH.lua).
-function Rat_ApertureHandlingMul(weapon, attacker, action)
+---- Gun + Hand-Eye only, no stance: the tooltip and the bar scan read this part alone.
+function Rat_HandlingBaseMul(weapon, attacker)
     local a = P()
     if not IsKindOf(weapon, "FirearmProperties") or not GetPBbonus then
         return 100
@@ -418,14 +415,14 @@ function Rat_ApertureHandlingMul(weapon, attacker, action)
 	local pb_handling = pb == 0 and 100 or 100 - MulDivRound(a.PBHandlingScale or 100, pb, 100)
 	handling = MulDivRound(handling, pb_handling, 100)
     ---- the weapon's OWN quality is capped here, same as before this penalty existed. The standing
-    ---- malus below applies AFTER, uncapped -- a weapon already sitting at the ceiling (Barrett:
+    ---- malus applies AFTER, uncapped -- a weapon already sitting at the ceiling (Barrett:
     ---- 141 pre-clamp) would otherwise absorb the whole penalty into the clamp and show the meta
     ---- tag with zero actual effect, same as AimStep's hipfire/snapshot excess a few steps down.
     handling = Clamp(handling, a.HandlingMin or 60, a.HandlingMax or 140)
 
     local meta
     local impact = a.HandlingAttrImpact or 0
-    if attacker and not attacker.placeholder and impact ~= 0 and handling ~= 100 then
+    if attacker and impact ~= 0 and handling ~= 100 then
         local hec = rGetHandEyeCoordination(attacker)
         local pivot, span = a.HandlingAttrPivot or 70, a.HandlingAttrSpan or 30
         local skill = MulDivRound(impact, Clamp(hec - pivot, -span, span), span)
@@ -438,47 +435,49 @@ function Rat_ApertureHandlingMul(weapon, attacker, action)
             meta = {a.HandlingAttrHighMeta}
         end
     end
+    return handling, meta
+end
+
+---- Not-prone malus in % for `stance` (same weigth_held_mul ladder as RecoilHeldPivot). Without an
+---- attacker there is no Strength relief: the raw penalty of the gun.
+function Rat_HandlingNotPronePen(weapon, attacker, stance)
+    local a = P()
+    local stance_mul = (a.HandlingHeldStanceMul and a.HandlingHeldStanceMul[stance]) or 100
+    if stance_mul <= 0 or not IsKindOf(weapon, "FirearmProperties") then
+        return 0
+    end
+    local excess = Max(0, (weapon.HandlingNotProneMul or 100) - (a.HandlingHeldPivot or 100))
+    local low_str
+    if attacker then
+        local str = attacker.Strength or 0
+        local min_str = a.HandlingHeldMinStr or 50
+        low_str = str <= min_str
+        if str > min_str then
+            excess = Max(0, excess - MulDivRound(a.HandlingHeldStrRelief or 0, Min(str, 100) - min_str, 100 - min_str))
+        end
+    end
+    return MulDivRound(MulDivRound(excess, a.HandlingHeldSlope or 0, 100), stance_mul, 100), low_str
+end
+
+---- `attacker` e opcional -- sem merc nao ha postura nem stat. Devolve o multiplicador e o metaText.
+function Rat_ApertureHandlingMul(weapon, attacker, action)
+    local a = P()
+    local handling, meta = Rat_HandlingBaseMul(weapon, attacker)
 
     ---- Grizzly waives the not-prone malus, same as the weight malus in recoil
     if attacker and not (action and action.id == "GrizzlyPerk") then
-        local stance_mul = (a.HandlingHeldStanceMul and a.HandlingHeldStanceMul[attacker.stance]) or 100
-        if stance_mul > 0 then
-            local excess = Max(0, (weapon.HandlingNotProneMul or 100) - (a.HandlingHeldPivot or 100))
-			--local str = attacker.Strength or 0
-			--local min_str = a.HandlingHeldMinStr or 50
-            --local low_str = str <= min_str
-            --if str > min_str then
-            --    excess = MulDivRound(excess, 100 - MulDivRound(a.HandlingHeldStrRelief or 0,
-            --                                                   Min(str, 100) - min_str, min_str), 100)
-            --end
-			
-			---- Absolute STR reduction
-			local str = attacker.Strength or 0
-			local min_str = a.HandlingHeldMinStr or 50
-			local low_str = str <= min_str
-					
-			if str > min_str then
-			    local str_relief = MulDivRound(
-			        a.HandlingHeldStrRelief or 0,
-			        Min(str, 100) - min_str,
-			        100 - min_str
-			    )
-			
-			    excess = Max(0, excess - str_relief)
-			end
-            local pen = MulDivRound(MulDivRound(excess, a.HandlingHeldSlope or 0, 100), stance_mul, 100)
-            if pen > 0 then
-                handling = MulDivRound(handling, 100 + pen, 100)
-                ---- rotulo pela postura que cobrou, nao "Standing" fixo: agachado tambem paga
-                local tag = (a.HandlingHeldStanceMeta or empty_table)[attacker.stance]
-                if tag then
-                    meta = meta or {}
-                    meta[#meta + 1] = tag
-                end
-                if low_str and a.HandlingHeldLowStrMeta then
-                    meta = meta or {}
-                    meta[#meta + 1] = a.HandlingHeldLowStrMeta
-                end
+        local pen, low_str = Rat_HandlingNotPronePen(weapon, attacker, attacker.stance)
+        if pen > 0 then
+            handling = MulDivRound(handling, 100 + pen, 100)
+            ---- rotulo pela postura que cobrou, nao "Standing" fixo: agachado tambem paga
+            local tag = (a.HandlingHeldStanceMeta or empty_table)[attacker.stance]
+            if tag then
+                meta = meta or {}
+                meta[#meta + 1] = tag
+            end
+            if low_str and a.HandlingHeldLowStrMeta then
+                meta = meta or {}
+                meta[#meta + 1] = a.HandlingHeldLowStrMeta
             end
         end
     end
