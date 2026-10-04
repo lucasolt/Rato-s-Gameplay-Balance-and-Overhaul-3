@@ -210,6 +210,7 @@ local HintBarRows = {
         return HintAmmoPellets(w, ammo) and HintAmmoProp(w.BuckshotConeAngle or 0, ammo, "BuckshotConeAngle")
     end},
     RecStr = {lower = true, range = {30, 100}},
+    Penetration = {range = {0, 5}},
     StanceAP = {lower = true, value = HintStanceAP},
     CycleAP = {lower = true, value = HintCycleAP},
     ---- scan-only: double action shares the cycling bar, so its costs widen that range
@@ -366,6 +367,12 @@ local CaliberHintRows = {
          return base and HintAmmoProp(base, item, "Damage")
      end,
      note = function(item) return " @ " .. const.CaliberDamage[item.Caliber].barrel .. " mm" end},
+    ---- ammo adds to the gun's class, and every gun carries the Firearm default
+    {tid = 531760248907, text = "Armor penetration: ", ammo_only = true, bar = "Penetration",
+     value = function(item)
+         return Clamp(HintAmmoProp(Firearm.PenetrationClass, item, "PenetrationClass"), 1, #PenetrationClassIds)
+     end,
+     display = function(v) return _InternalTranslate(GetPenetrationClassUIText(v)) end},
     {tid = 684546854913, text = "Base critical chance: ", prop = "CritChance", suffix = "%", bar = "Crit"},
     {tid = 247182652462, text = "Extra critical damage: ", prop = "CritDamage", suffix = "%", bar = "CritDamage"},
     {tid = 158466723759, text = "Recommended Strength: ", value = function(item) return (Recoil_StrBreakpoint(item)) end,
@@ -404,7 +411,8 @@ function Rat_GetCaliberHints(item)
             if row.note then
                 suffix = suffix .. "<color PDABrowserFlavor>" .. row.note(item) .. "</color>"
             end
-            s = s .. HintLine{TranslationTable[row.tid] or row.text, v, suffix, bar = row.bar}
+            s = s .. HintLine{TranslationTable[row.tid] or row.text, row.display and row.display(v) or v, suffix,
+                              bar = row.bar, bar_v = v}
         end
     end
     return T{"<style CrosshairAPTotal>" .. s:sub(1, -2) .. "</style>"}
@@ -826,6 +834,7 @@ local t_id_table = {
 	[638215904417] = "Rate of Fire: ",
 	[529418307726] = "Barrel Length: ",
 	[531760248906] = "Base damage: ",
+	[531760248907] = "Armor penetration: ",
 	[396207518843] = "<action> (<num> rounds)",
 	--[638215904418] = "AP per extra round",
 
