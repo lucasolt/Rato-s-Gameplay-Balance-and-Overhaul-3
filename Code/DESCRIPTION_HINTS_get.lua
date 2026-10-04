@@ -229,6 +229,10 @@ local HintBarRows = {
     Recoil = {lower = true, value = HintRecoil},
     RPM = {value = function(w) return w.RPM or 0 end, applies = function(w) return Rat_HasVariableAuto(w) end},
     Barrel = {value = function(w) return Rat_EffectiveBarrelLength(w) end, applies = function(w) return Rat_HasBarrelRule(w) end},
+    CaliberDamage = {ammo = function(w, ammo)
+        local base = Rat_CaliberDamage(w.Caliber)
+        return base and HintAmmoProp(base, ammo, "Damage")
+    end},
 }
 
 ---- headroom past the stock extremes, since components push values beyond them
@@ -353,8 +357,15 @@ function Rat_DisplayPenetrationClass(weapon)
 end
 
 ---- caliber stats, shared by the weapon rollover's ammo panel and the ammo item rollover.
----- A row reads `prop` through the ammo, or `value(item)`; `show(v)` hides it
+---- A row reads `prop` through the ammo, or `value(item)`; `show(v)` hides it, `ammo_only` skips the gun rollover
 local CaliberHintRows = {
+    ---- the gun shows its own barrel-adjusted Damage; the round shows the caliber's at its reference barrel
+    {tid = 531760248906, text = "Base damage: ", ammo_only = true, bar = "CaliberDamage",
+     value = function(item)
+         local base = Rat_CaliberDamage(item.Caliber)
+         return base and HintAmmoProp(base, item, "Damage")
+     end,
+     note = function(item) return " @ " .. const.CaliberDamage[item.Caliber].barrel .. " mm" end},
     {tid = 684546854913, text = "Base critical chance: ", prop = "CritChance", suffix = "%", bar = "Crit"},
     {tid = 247182652462, text = "Extra critical damage: ", prop = "CritDamage", suffix = "%", bar = "CritDamage"},
     {tid = 158466723759, text = "Recommended Strength: ", value = function(item) return (Recoil_StrBreakpoint(item)) end,
@@ -380,11 +391,20 @@ function Rat_GetCaliberHints(item)
         return ""
     end
     local s = ""
+    local is_ammo = IsKindOf(item, "Ammo")
     for _, row in ipairs(CaliberHintRows) do
-        local v = CaliberHintValue(item, row) or 0
-        if not row.show or row.show(v) then
-            s = s .. HintLine{TranslationTable[row.tid] or row.text, v,
-                              row.suffix_tid and TranslationTable[row.suffix_tid] or row.suffix, bar = row.bar}
+        local v
+        if row.ammo_only then
+            v = is_ammo and CaliberHintValue(item, row)
+        else
+            v = CaliberHintValue(item, row) or 0
+        end
+        if v and (not row.show or row.show(v)) then
+            local suffix = row.suffix_tid and TranslationTable[row.suffix_tid] or row.suffix or ""
+            if row.note then
+                suffix = suffix .. "<color PDABrowserFlavor>" .. row.note(item) .. "</color>"
+            end
+            s = s .. HintLine{TranslationTable[row.tid] or row.text, v, suffix, bar = row.bar}
         end
     end
     return T{"<style CrosshairAPTotal>" .. s:sub(1, -2) .. "</style>"}
@@ -803,6 +823,7 @@ local t_id_table = {
 	[219437987174] = "Aim accuracy: ",
 	[638215904417] = "Rate of Fire: ",
 	[529418307726] = "Barrel Length: ",
+	[531760248906] = "Base damage: ",
 	[396207518843] = "<action> (<num> rounds)",
 	--[638215904418] = "AP per extra round",
 
