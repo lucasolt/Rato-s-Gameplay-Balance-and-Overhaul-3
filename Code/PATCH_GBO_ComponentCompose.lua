@@ -156,7 +156,6 @@ GBO_COMP_TRAITS = {
 			},
 		},
     },
-    ---- cano curto de pistola: sem perda de dano nem de AP de postura, e o cone abre menos.
     ["Barrel.ShortHandgun"] = {
         effects = {
 			"shortbarrel",
@@ -166,7 +165,8 @@ GBO_COMP_TRAITS = {
         params = {
 			OverwatchAngle = 105,
 		 	RangeDecrease = 2,
-			APdecrease = 3
+			---- the short barrel's length costs damage now; the AP saving matches the rifle short barrel
+			APdecrease = 5
 		},
 		modes = {
 			aCTH = {

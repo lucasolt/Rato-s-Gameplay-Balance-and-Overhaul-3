@@ -100,7 +100,31 @@ function GBO_RefreshCTHModeItems(force)
     return n
 end
 
+---- parts a gun no longer offers, swapped for their replacement in old saves
+GBO_RetiredComponents = {
+    ---- the Winchester (.44) takes the handgun barrel family
+    Winchester1894 = {
+        Barrel = {BarrelLong = "BarrelLong_handgun", long_barrel_light = "long_barrel_light_handgun"}
+    }
+}
+
+function GBO_ReplaceRetiredComponents(weapon)
+    local map = GBO_RetiredComponents[weapon.class]
+    for slot, component_id in sorted_pairs(map and weapon.components or empty_table) do
+        local new_id = map[slot] and map[slot][component_id]
+        if new_id and checkAndSetComponent(weapon, slot, new_id) then
+            print("GBO Update - replacing retired component", component_id, "with", new_id, "on", weapon.class)
+            ObjModified(weapon)
+        end
+    end
+end
+
 function OnMsg.ZuluGameLoaded()
+    for _, item in pairs(g_ItemIdToItem or empty_table) do
+        if IsKindOf(item, "Firearm") and not rawget(item, "is_clone") then
+            GBO_ReplaceRetiredComponents(item)
+        end
+    end
     GBO_RefreshCTHModeItems()
 end
 
