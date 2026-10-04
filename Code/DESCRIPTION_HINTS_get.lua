@@ -197,6 +197,10 @@ local function HintModeRecoil(weapon, unit, delta_prop, bump)
     return net
 end
 
+function Rat_HasBarrelRule(weapon)
+    return (weapon.rat_barrel_len or 0) > 0 and Rat_CaliberDamage(weapon.Caliber) ~= nil
+end
+
 ---- bar value of each row for the preset scan, taken for the gun alone and for a stat-100 merc; `range`
 ---- skips the scan and `ammo` rows scan every ammo of the caliber instead of the Basic one.
 ---- lower = smaller is better, which only picks the gap color: bars always grow with the value, like vanilla
@@ -224,6 +228,7 @@ local HintBarRows = {
     Snapshot = {lower = true, value = function(w, unit) return HintHipSnap(w, 1, unit, IsACHTActive()) end},
     Recoil = {lower = true, value = HintRecoil},
     RPM = {value = function(w) return w.RPM or 0 end, applies = function(w) return Rat_HasVariableAuto(w) end},
+    Barrel = {value = function(w) return Rat_EffectiveBarrelLength(w) end, applies = function(w) return Rat_HasBarrelRule(w) end},
 }
 
 ---- headroom past the stock extremes, since components push values beyond them
@@ -737,6 +742,19 @@ function GBO_GetDescriptionHints(self)
 		})
 	end
 
+	---- only where length drives damage (no flare gun, no 12 gauge); grey is the stock barrel
+	if Rat_HasBarrelRule(self) then
+		local barrel = Rat_EffectiveBarrelLength(self)
+		table.insert(termList, {
+			id = "BarrelLength",
+			TranslationTable[529418307726] or "Barrel Length: ",
+			barrel, " mm",
+			base = barrel ~= self.rat_barrel_len and self.rat_barrel_len or nil,
+			---- no better/worse span: length is a trade-off
+			bar = "Barrel", bar_ref = barrel,
+		})
+	end
+
 	local AngularCthActiveExclusionList = {
 		--PointBlankRangeAccuracy = true
 	}
@@ -784,6 +802,7 @@ local t_id_table = {
 	[184329577856] = "Handling Penalty Multiplier: ",
 	[219437987174] = "Aim accuracy: ",
 	[638215904417] = "Rate of Fire: ",
+	[529418307726] = "Barrel Length: ",
 	[396207518843] = "<action> (<num> rounds)",
 	--[638215904418] = "AP per extra round",
 
