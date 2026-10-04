@@ -65,6 +65,9 @@ const.Combat.BoltActionDexMaxPct = 75 -- asymptote of the cycle cost reduction, 
 const.Combat.BoltActionDexHalf = 15 -- Dex above Start that yields half of MaxPct
 const.Combat.TexPerkCycleBasePct = 50 -- % taken off the base cost before the Dex curve
 
+----- Shotgun: ShootAP is the buckshot price; slug attacks cost this much less (x const.Scale.AP)
+const.Combat.ShotgunBuckshotExtraAP = 10
+
 ------ Pindown (Sniping)
 const.Combat.PindownCritPerAimLevel = 400 -- hundredths of %, added to CritPerAim
 const.Combat.PindownAimLevelsForAPCost = 2

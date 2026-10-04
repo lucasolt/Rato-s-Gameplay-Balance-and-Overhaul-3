@@ -2607,7 +2607,7 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	B93RR_1.Rat_swap_ap = 10
 	B93RR_1.RPM = 1100
 	B93RR_1.BurstSelective = true
-	B93RR_1.SingleShotCustomDeltaAP = 1
+	B93RR_1.SingleShotCustomDeltaAP = 10
 	B93RR_1.burst_recoil_delta = 90
 	B93RR_1.wep_base_recoil_mul = 115
 	B93RR_1.weigth_held_mul = 108

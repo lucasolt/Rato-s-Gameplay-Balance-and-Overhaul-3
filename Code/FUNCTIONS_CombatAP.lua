@@ -283,6 +283,8 @@ function rat_get_manual_cyclingAP(unit, weapon, shooting)
 end
 
 ---------------------------------------------------------------------------------------------------
+local slug_actions = {SingleShot = true, BurstFire = true, CancelShot = true}
+
 function rat_getDeltaAP(action, weapon, action_id_override)
     local base = 0
     local action_id = ''
@@ -304,6 +306,11 @@ function rat_getDeltaAP(action, weapon, action_id_override)
 
     elseif action_id == "AutoFire" then
         base = base + (weapon.AutoFireCustomDeltaAP or 0) * const.Scale.AP
+    end
+
+    ---- shotgun ShootAP is the buckshot price; slugs follow the rifle single shot
+    if slug_actions[action_id] and IsKindOf(weapon, "Shotgun") then
+        base = base - const.Combat.ShotgunBuckshotExtraAP * const.Scale.AP
     end
 
     return base
