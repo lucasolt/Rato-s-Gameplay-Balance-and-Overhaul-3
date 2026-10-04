@@ -45,10 +45,6 @@ A.ConeMulEffects = {
         id = "BonusAccuracyWhenFullyAimed", -- Heavy Stock
         param = "bonus_cth",
         required_aim = 3
-    }, {
-        id = "AccuracyBonusWhenAimed_vgrip", -- Vgrip
-        param = "bonus_cth_v",
-        no_dual = true -- one hand per gun, no grip to hold
     }
 }
 

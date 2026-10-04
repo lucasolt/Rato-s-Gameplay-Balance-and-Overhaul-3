@@ -26,7 +26,7 @@ const.Combat.Snapshot.InterruptMul = 110 --- MulDivRound
 const.Combat.SnapshotHipfire.Components = {
     LaserMul = 90,--0.90, -- 0.88,
     VerticalGripMul = 0.97, -- 0.95,
-    TacticalGripMul = 0.92, -- 0.90,
+    TacticalGripMul = 0.86, -- 0.92,
     LightStockMul = 0.94 -- 0.92
 }
 

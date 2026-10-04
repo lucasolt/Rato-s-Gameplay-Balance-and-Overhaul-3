@@ -92,6 +92,8 @@ A.AimDecayMuls = {
 	         meta = T {271472323596, "Prone"}},
 	ProneGripPenalty = {mul = 105, stance = "Prone", component = "grip_prone_penalty",
 	                    meta = T {856431894569, "(-) Grip while prone"}},
+	TacGripHinge = {mul = 103, component = "tac_grip_hinge",
+	                cond = function(weapon, attacker) return not attacker or attacker.stance ~= "Prone" end},
 	---- stocks are flat AimAccuracy penalties now: A.ComponentEffectsAimBonus
 }
 

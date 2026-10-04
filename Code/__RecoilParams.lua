@@ -13,7 +13,7 @@ const.Combat.Recoil.ROFRefRPM = 600 -- weapon.RPM with no rate-of-fire recoil
 const.Combat.Recoil.ROFGain = 20 -- % added per ROFRefRPM above the ref (1200 RPM -> 120)
 
 const.Combat.Recoil.Components = {
-    VerticalGripMul = 0.95, ---0.92, 
+    VerticalGripMul = 0.90, ---0.95,
     FoldableGripMul = 0.97, ---0.97,
     NoStockMul = {SubmachineGun = 1.40, Other = 1.70},
     CompensatorMul = 0.91, -- 0.90,

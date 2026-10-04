@@ -66,7 +66,7 @@ The silent regressions on this branch.
 
 | id | Owner | What it did | Status |
 |----|-------|-------------|--------|
-| `AccuracyBonusWhenAimed_vgrip` | M | `+bonus_cth_v` points when not dual-wielding | **dead** — vertical grip lost its aim bonus entirely |
+| `AccuracyBonusWhenAimed_vgrip` | M | `+bonus_cth_v` points when not dual-wielding | **dead on purpose** (2026-10-04) — in aCTH the vertical grip is the recoil grip |
 | `reflex_sight_close_range` | M | `+Close_bonus` inside close range | **dead** — yet still attached to 5 reflex/laser profiles, [SetScopeEffects.lua:219](Code/SetScopeEffects.lua:219) |
 | `light_stock_aim_reduce` | M | `bonus * 0.90` | **dead** — has an unwired door-D entry, §3.1 |
 | `ReduceAimAccuracy` | V | `bonus * 0.5` | **dead** — has an unwired door-D entry, §3.1 |

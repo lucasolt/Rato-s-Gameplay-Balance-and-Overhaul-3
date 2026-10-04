@@ -768,6 +768,13 @@ function weapon_components_rat()
     })
 
     PlaceObj('WeaponComponentEffect', {
+        Description = T(418350927716,
+                        "Slightly decreased Aim accuracy unless prone"),
+        group = "FX Placeholders",
+        id = "tac_grip_hinge"
+    })
+
+    PlaceObj('WeaponComponentEffect', {
         Description = T(685331648680,
                         "Increases max aim level by <MaxAimActionsIncrease>"),
         Parameters = {
@@ -1416,6 +1423,7 @@ local t_table = {
     [982346640578] = 'Slightly reduced <em>recoil penalty</em>',
     [845256852079] = 'Reduced <em>Hipfire and Snapshot penalty</em>',
     [952508575329] = 'Slightly increased Point-Blank range accuracy bonus',
+    [418350927716] = 'Slightly decreased Aim accuracy unless prone',
     [685331648680] = 'Increases max aim level by <MaxAimActionsIncrease>',
     [832057249458] = 'Increases aim accuracy in <em>close range</em> by <Close_bonus>%',
     [244679400091] = 'Reduces <em>Snapshot Penalty</em> by <snap_reduc>%',
