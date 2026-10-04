@@ -3,32 +3,69 @@
 ---- regardless of LOS, and TurnStart re-reveals whoever is in it -- one glimpse in the enemy turn kept
 ---- him on screen through walls for the whole next turn. The Revealed status (no Hidden this turn) stays.
 local RevealTo_orig = Unit.RevealTo
+local attack_revealing = false
 
-function Unit:RevealTo(obj, combat)
-    RevealTo_orig(self, obj, combat)
-    if not CurrentModOptions.NoRevealMemory or not (combat or g_Combat) then
-        return
-    end
-    local team = IsValid(obj) and obj.team or obj
-    if not IsKindOf(team, "CombatTeam") then
-        return
-    end
-    table.remove_value(g_RevealedUnits[team] or empty_table, self)
+-- Returns true when the team lost sight of the unit entirely.
+local function StripReveal(unit, team)
+    table.remove_value(g_RevealedUnits[team] or empty_table, unit)
     local vis = g_Visibility[team]
-    local flags = vis and vis[self]
+    local flags = vis and vis[unit]
     if not flags then
         return
     end
     flags = flags - band(flags, const.uvRevealed)
     if flags ~= 0 then
-        vis[self] = flags
+        vis[unit] = flags
         return
     end
-    vis[self] = nil
-    table.remove_value(vis, self)
-    InvalidateDiplomacy()
-    if g_Combat then
-        g_Combat:ApplyVisibility()
+    vis[unit] = nil
+    table.remove_value(vis, unit)
+    return true
+end
+
+---- The attack reveal is the exception: it lasts as vanilla (until the shooter's team's next turn), but only at
+---- the tile he fired from -- the target team knows where the shot came from, not where he went.
+function Unit:RevealTo(obj, combat)
+    local team = IsValid(obj) and obj.team or obj
+    -- Every other reveal is stripped, so a listed unit carries an attack reveal (TurnStart re-reveals it).
+    local attack_revealed = table.find(g_RevealedUnits[team] or empty_table, self)
+    RevealTo_orig(self, obj, combat)
+    if not CurrentModOptions.NoRevealMemory or not (combat or g_Combat) then
+        return
+    end
+    -- "starting" is the queued reveal of the attack that opened combat.
+    if attack_revealing or attack_revealed or combat == "starting" or not IsKindOf(team, "CombatTeam") then
+        return
+    end
+    if StripReveal(self, team) then
+        InvalidateDiplomacy()
+        if g_Combat then
+            g_Combat:ApplyVisibility()
+        end
+    end
+end
+
+local AttackReveal_orig = Unit.AttackReveal
+
+function Unit:AttackReveal(...)
+    attack_revealing = true
+    local ok, err = pcall(AttackReveal_orig, self, ...)
+    attack_revealing = false
+    if not ok then
+        error(err)
+    end
+end
+
+local function DropAttackReveal(unit)
+    local dropped
+    for team, list in pairs(g_RevealedUnits) do
+        if table.find(list, unit) then
+            StripReveal(unit, team)
+            dropped = true
+        end
+    end
+    if dropped then
+        InvalidateDiplomacy()
     end
 end
 
@@ -84,7 +121,11 @@ local function SetSeenMidMove(unit, team, seen)
 end
 
 function OnMsg.UnitMovementStart(unit)
-    if not CurrentModOptions.NoRevealMemory or not g_Combat or unit.team.control == "UI" then
+    if not CurrentModOptions.NoRevealMemory or not g_Combat then
+        return
+    end
+    DropAttackReveal(unit)
+    if unit.team.control == "UI" then
         return
     end
     CreateGameTimeThread(function()
