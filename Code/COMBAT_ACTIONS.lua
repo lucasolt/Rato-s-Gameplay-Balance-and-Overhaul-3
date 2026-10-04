@@ -317,10 +317,10 @@ function rat_combat_actions()
                                                       args and args.aim or 0, action) or 0
             local ap_delta = rat_getDeltaAP(self, weapon)
 
-            -- print("burst cost",(unit:GetAttackAPCost(self, weapon, nil, args and args.aim or 0) + ap_delta) + ap_extra or -1)
+            ---- same price as autofire of that length, at the burst's own RPM
             return weapon and
                        (unit:GetAttackAPCost(self, weapon, nil, args and args.aim or 0) + ap_delta) +
-                       ap_extra or -1
+                       ap_extra + Rat_AutoExtraAP(self, weapon, weapon:GetAutofireShots(self)) or -1
         end
 
         return self.ActionPoints

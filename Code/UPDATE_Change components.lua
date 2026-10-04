@@ -100,11 +100,15 @@ function GBO_RefreshCTHModeItems(force)
     return n
 end
 
----- parts a gun no longer offers, swapped for their replacement in old saves
+---- parts a gun no longer offers, swapped for their replacement in old saves; false removes the part
 GBO_RetiredComponents = {
     ---- the Winchester (.44) takes the handgun barrel family
     Winchester1894 = {
         Barrel = {BarrelLong = "BarrelLong_handgun", long_barrel_light = "long_barrel_light_handgun"}
+    },
+    ---- its +5 autofire rounds became a higher RPM
+    LionRoar = {
+        Internal = {Internal_plus_burstshot = false}
     }
 }
 
@@ -112,7 +116,12 @@ function GBO_ReplaceRetiredComponents(weapon)
     local map = GBO_RetiredComponents[weapon.class]
     for slot, component_id in sorted_pairs(map and weapon.components or empty_table) do
         local new_id = map[slot] and map[slot][component_id]
-        if new_id and checkAndSetComponent(weapon, slot, new_id) then
+        if new_id == false then
+            weapon:SetWeaponComponent(slot, nil)
+            weapon.components[slot] = nil
+            print("GBO Update - removing retired component", component_id, "from", weapon.class)
+            ObjModified(weapon)
+        elseif new_id and checkAndSetComponent(weapon, slot, new_id) then
             print("GBO Update - replacing retired component", component_id, "with", new_id, "on", weapon.class)
             ObjModified(weapon)
         end

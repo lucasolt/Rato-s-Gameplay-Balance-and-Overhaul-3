@@ -462,6 +462,20 @@ function fireprop()
     FirearmProperties.properties[#FirearmProperties.properties +
         1] = {
         category = "Caliber",
+        id = "BurstRPM",
+        name = "Burst Rate of Fire (RPM)",
+        help = "Cyclic rate inside the selective burst, when the limiter fires faster than full auto (AN-94, G11). 0 uses RPM.",
+        editor = "number",
+        default = 0,
+        template = true,
+        min = 0,
+        max = 6000,
+        modifiable = true
+    }
+
+    FirearmProperties.properties[#FirearmProperties.properties +
+        1] = {
+        category = "Caliber",
         id = "AutoFireOnly",
         name = "Full Auto Only",
         help = "No semi-auto: Single Shot is hidden; a single aimed shot is a 1-round autofire.",

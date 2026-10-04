@@ -548,6 +548,7 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	G11_1.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "CancelShot"}
 	G11_1.Rat_swap_ap = 30
 	G11_1.RPM = 460
+	G11_1.BurstRPM = 2100
 	G11_1.BurstSelective = true
 	G11_1.AutoFireCustomDeltaAP = 10
 	G11_1.SingleShotCustomDeltaAP = 10
@@ -937,6 +938,7 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	AN94_1.Rat_swap_ap = 30
 	AN94_1.burst_shots = 2
 	AN94_1.RPM = 600
+	AN94_1.BurstRPM = 1800
 	AN94_1.BurstSelective = true
 	AN94_1.AutoFireCustomDeltaAP = 10
 	AN94_1.SingleShotCustomDeltaAP = 20
@@ -4927,7 +4929,7 @@ function RatoGBO_WepPatch()
 	LionRoar.PreparedAttackType = "Overwatch"
 	LionRoar.AvailableAttacks = {"BurstFire", "AutoFire", "SingleShot", "RunAndGun"}
 	LionRoar.Rat_swap_ap = 10
-	LionRoar.RPM = 600
+	LionRoar.RPM = 900
 	LionRoar.wep_base_recoil_mul = 108
 	LionRoar.weigth_held_mul = 100
 	LionRoar.wep_base_snapshot_mul = 95
@@ -4941,7 +4943,7 @@ function RatoGBO_WepPatch()
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> OUR weapon
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Burst fire has 4 shots
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Limited ammo capacity]]}
-	LionRoar.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'LionRoar_compensator', Modifiable = false, AvailableComponents = {'LionRoar_compensator', }}, {CanBeEmpty = false, SlotType = 'Internal', DefaultComponent = 'Internal_plus_burstshot', Modifiable = false, AvailableComponents = {'Internal_plus_burstshot', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNo', Modifiable = false, AvailableComponents = {'StockNo', }}}
+	LionRoar.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'LionRoar_compensator', Modifiable = false, AvailableComponents = {'LionRoar_compensator', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNo', Modifiable = false, AvailableComponents = {'StockNo', }}}
 	LionRoar.PenetrationClass = 1
 
 

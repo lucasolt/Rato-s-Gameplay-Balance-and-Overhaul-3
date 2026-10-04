@@ -259,6 +259,27 @@ function weapon_components_rat()
     })
 
     PlaceObj('WeaponComponentEffect', {
+        Description = T(741352906119,
+                        "<em>Rate of Fire</em> reduced by <RPMDecrease> RPM"),
+        ModificationType = "Subtract",
+        Parameters = {
+            PlaceObj(
+                'PresetParamNumber', {
+                    'Name',
+                    "RPMDecrease",
+                    'Value', 0, 'Tag',
+                    "<RPMDecrease>"
+                })
+        },
+        RequiredParams = {
+            "RPMDecrease"
+        },
+        StatToModify = "RPM",
+        group = "Stats",
+        id = "DecreaseRPM"
+    })
+
+    PlaceObj('WeaponComponentEffect', {
         Description = T(531446098401, --[[WeaponComponentEffect ReduceDamage Description]]
                         "Damaged increased by <DamageIncreasedMul>%"),
         ModificationType = "Multiply",

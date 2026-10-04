@@ -757,6 +757,8 @@ function GBO_GetDescriptionHints(self)
 			self.RPM or 0,
 			string.format(" RPM (<color PDABrowserTextHighlight>%d.%d</color> ", tenths / 10, tenths % 10) ..
 				_InternalTranslate(ratT(file_str, 638215904418, "AP/extra round")) .. ")" ..
+				((self.BurstRPM or 0) > 0 and string.format(", %d ", self.BurstRPM) ..
+					_InternalTranslate(ratT(file_str, 741352906118, "in burst")) or "") ..
 				(self.AutoFireOnly and (TranslationTable[638215904419] or ", full auto only") or ""),
 			bar = "RPM",
 		})

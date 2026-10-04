@@ -12,7 +12,8 @@ function Rat_CadenceInterval(action, results)
     if #(results.shots or empty_table) < 2 then
         return
     end
-    local rpm = results.weapon.RPM or const.Combat.Autofire.RPMRef
+    local rpm = action.id == "BurstFire" and Rat_BurstRPM(results.weapon) or results.weapon.RPM or
+                    const.Combat.Autofire.RPMRef
     return MulDivRound(60000, 1, Max(1, rpm))
 end
 

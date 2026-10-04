@@ -443,6 +443,11 @@ GBO_BASE_RECIPES = {
         effects = {"NoFullAuto", "Reduce_recoil_burst_delta"},
         params = {BurstRecoilDeltaMul = 90}
     },
+    ---- bump firing cycles slower and less evenly than the M16's 800: AR15 800 -> 600
+    StockBump = {
+        effects = {"EnableFullAuto", "Enable_BurstFire", "recoil_bump", "DecreaseRPM"},
+        params = {RPMDecrease = 200}
+    },
     _Master_B93RR_grip_fld_TOG = {
         effects = {"ReduceReloadAP"},
         params = {ReloadAPDecrease = 1}

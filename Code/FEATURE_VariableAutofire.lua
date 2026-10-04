@@ -72,10 +72,15 @@ function Rat_ClampAutoShots(action, weapon, n)
     return Clamp(n, lo, Max(lo, ammo))
 end
 
+function Rat_BurstRPM(weapon)
+    local rpm = weapon.BurstRPM or 0
+    return rpm > 0 and rpm or weapon.RPM or P().RPMRef
+end
+
 ---- in const.Scale.AP units, unrounded
-function Rat_AutoAPPerRound(weapon)
+function Rat_AutoAPPerRound(weapon, rpm)
     local p = P()
-    return MulDivRound(p.APPerRoundRef, p.RPMRef, Max(1, weapon.RPM or p.RPMRef))
+    return MulDivRound(p.APPerRoundRef, p.RPMRef, Max(1, rpm or weapon.RPM or p.RPMRef))
 end
 
 ---- length an attack is priced at: an empty gun can't fire, so its default length stands instead of 1
@@ -91,7 +96,8 @@ end
 function Rat_AutoExtraAP(action, weapon, n)
     local p = P()
     n = Rat_AutoPricedShots(action, weapon, n)
-    local extra = (n - p.BaseShots) * Rat_AutoAPPerRound(weapon)
+    local rpm = action and action.id == "BurstFire" and Rat_BurstRPM(weapon) or nil
+    local extra = (n - p.BaseShots) * Rat_AutoAPPerRound(weapon, rpm)
     extra = MulDivRound(extra, 1, const.Scale.AP) * const.Scale.AP
     extra = extra + p.BaseAP - (weapon.AttackAP or weapon.ShootAP or 0)
     return Max(extra, rat_getDeltaAP(nil, weapon, "SingleShot") - rat_getDeltaAP(action, weapon))
