@@ -33,7 +33,8 @@ function Unit:RevealTo(obj, combat)
 end
 
 ---- A hidden mover is judged at his final tile (CombatGoto visibility_override) and visibility is frozen during
----- his action, so with the pre-move reveal stripped he popped in at the destination. Show him once actually seen.
+---- his action, so with the pre-move reveal stripped he popped in at the destination. While he moves, show him
+---- only while actually seen; the end-of-action visibility update takes over from there.
 local MidMoveSightInterval = 150
 
 local function SeenMidMove(unit, team)
@@ -64,18 +65,22 @@ local function SeenMidMove(unit, team)
     end
 end
 
-local function ShowMidMove(unit, team)
+local function SetSeenMidMove(unit, team, seen)
     local vis = g_Visibility[team]
     if not vis then
         vis = {}
         g_Visibility[team] = vis
     end
-    if not vis[unit] then
-        table.insert(vis, unit)
+    if seen then
+        if not vis[unit] then
+            table.insert(vis, unit)
+        end
+        vis[unit] = bor(vis[unit] or 0, const.uvVisible)
+    else
+        -- Any nonzero flag counts as seen (HasVisibilityTo), so drop the entry rather than the bit.
+        vis[unit] = nil
+        table.remove_value(vis, unit)
     end
-    vis[unit] = bor(vis[unit] or 0, const.uvVisible)
-    InvalidateDiplomacy()
-    g_Combat:ApplyVisibility()
 end
 
 function OnMsg.UnitMovementStart(unit)
@@ -84,22 +89,30 @@ function OnMsg.UnitMovementStart(unit)
     end
     CreateGameTimeThread(function()
         while IsValid(unit) and unit.in_combat_movement and g_Combat and not unit:IsDead() do
-            local pending
             if not unit:HasStatusEffect("Hidden") then
+                local changed
                 for _, team in ipairs(g_Teams) do
-                    if team.control == "UI" and team ~= unit.team and not HasVisibilityTo(team, unit) then
-                        if SeenMidMove(unit, team) then
-                            ShowMidMove(unit, team)
-                        else
-                            pending = true
+                    if team.control == "UI" and team ~= unit.team then
+                        local seen = SeenMidMove(unit, team) or false
+                        if seen ~= HasVisibilityTo(team, unit) then
+                            SetSeenMidMove(unit, team, seen)
+                            changed = true
                         end
                     end
                 end
-            else
-                pending = true
+                if changed then
+                    InvalidateDiplomacy()
+                    g_Combat:ApplyVisibility()
+                end
             end
-            if not pending then
-                return
+            -- The AI turn ring is an attach SetVisible leaves alone; it would mark him through walls.
+            local contour = g_AITurnContours[unit.handle]
+            if IsValid(contour) then
+                if unit.visible then
+                    contour:SetEnumFlags(const.efVisible)
+                else
+                    contour:ClearEnumFlags(const.efVisible)
+                end
             end
             Sleep(MidMoveSightInterval)
         end
