@@ -424,6 +424,21 @@ function Rat_ApertureHandlingMul(weapon, attacker, action)
     handling = Clamp(handling, a.HandlingMin or 60, a.HandlingMax or 140)
 
     local meta
+    local impact = a.HandlingAttrImpact or 0
+    if attacker and not attacker.placeholder and impact ~= 0 and handling ~= 100 then
+        local hec = rGetHandEyeCoordination(attacker)
+        local pivot, span = a.HandlingAttrPivot or 70, a.HandlingAttrSpan or 30
+        local skill = MulDivRound(impact, Clamp(hec - pivot, -span, span), span)
+        ---- good merc grows a bonus and shrinks a penalty
+        local dev = handling - 100
+        handling = 100 + MulDivRound(dev, 100 + (dev < 0 and skill or -skill), 100)
+        if hec < pivot then
+            meta = {a.HandlingAttrLowMeta}
+        elseif hec >= (a.HandlingAttrHighAt or 85) then
+            meta = {a.HandlingAttrHighMeta}
+        end
+    end
+
     ---- Grizzly waives the not-prone malus, same as the weight malus in recoil
     if attacker and not (action and action.id == "GrizzlyPerk") then
         local stance_mul = (a.HandlingHeldStanceMul and a.HandlingHeldStanceMul[attacker.stance]) or 100
@@ -456,7 +471,10 @@ function Rat_ApertureHandlingMul(weapon, attacker, action)
                 handling = MulDivRound(handling, 100 + pen, 100)
                 ---- rotulo pela postura que cobrou, nao "Standing" fixo: agachado tambem paga
                 local tag = (a.HandlingHeldStanceMeta or empty_table)[attacker.stance]
-                meta = tag and {tag} or nil
+                if tag then
+                    meta = meta or {}
+                    meta[#meta + 1] = tag
+                end
                 if low_str and a.HandlingHeldLowStrMeta then
                     meta = meta or {}
                     meta[#meta + 1] = a.HandlingHeldLowStrMeta

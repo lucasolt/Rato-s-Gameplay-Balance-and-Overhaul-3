@@ -171,6 +171,16 @@ A.HandlingMin = 60
 A.HandlingMax = 160
 A.HandlingUseBaseMul = true
 
+---- Hand-Eye scales the handling DEVIATION from 100, never the multiplier: the sign survives, so a
+---- bad-handling gun never beats a good one whatever the merc. HEC pivot +- span -> +-impact %.
+---- Live spread (2026-10-04): p10 86, median 94, p90 107; at 20 a ~4-point gap is the crossover.
+A.HandlingAttrImpact = 20
+A.HandlingAttrPivot = 70
+A.HandlingAttrSpan = 30
+A.HandlingAttrLowMeta = T(273969979692, "(-) Low Hand-Eye Coordination")
+A.HandlingAttrHighMeta = T(699324351174, "High Hand-Eye Coordination")
+A.HandlingAttrHighAt = 85
+
 ---- Standing widens the cone for a heavy gun, same weigth_held_mul ladder as the recoil weight
 ---- penalty (RecoilHeldPivot). LIGHT by default -- LOWER slope than recoil on purpose, this is
 ---- aim, not muzzle control -- and it only bites past the pivot, so most guns pay nothing.
@@ -480,6 +490,8 @@ local t_id_table = {
     [511836641651] = "(-) Standing",
     [274905618332] = "(-) Crouching",
     [599531270289] = "(-) Low Strength",
+    [273969979692] = "(-) Low Hand-Eye Coordination",
+    [699324351174] = "High Hand-Eye Coordination",
     [617384902551] = "(-) Camouflaged",
 	[195731482566] = "(-) Not prone",
     [742063918825] = "Reflexes <pct>",
