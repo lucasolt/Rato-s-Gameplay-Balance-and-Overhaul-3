@@ -347,6 +347,37 @@ function PlaceInventoryItem(item_id, instance, ...)
     return obj
 end
 
+---- console: live gun damage, stock and per damage-changing part, to AppData/rat_damage_report.csv
+function Rat_DamageReport()
+    local rows = {"weapon,slot,component,caliber,barrel_len,damage,stock_damage"}
+    ForEachPreset("InventoryItemCompositeDef", function(p)
+        local class = g_Classes[p.id]
+        if not Rat_IsLiveFirearm(class) or IsKindOf(class, "HeavyWeapon") then
+            return
+        end
+        local stock = PlaceInventoryItem(p.id)
+        local stock_dmg = stock.Damage
+        rows[#rows + 1] = string.format("%s,,stock,%s,%d,%d,%d", p.id, stock.Caliber, Rat_EffectiveBarrelLength(stock),
+            stock_dmg, stock_dmg)
+        DoneObject(stock)
+        for _, slot in ipairs(class.ComponentSlots or empty_table) do
+            for _, component_id in ipairs(slot.AvailableComponents or empty_table) do
+                if component_id ~= slot.DefaultComponent then
+                    local w = PlaceInventoryItem(p.id)
+                    w:SetWeaponComponent(slot.SlotType, component_id)
+                    if slot.SlotType == "Barrel" or w.Damage ~= stock_dmg or w.Caliber ~= stock.Caliber then
+                        rows[#rows + 1] = string.format("%s,%s,%s,%s,%d,%d,%d", p.id, slot.SlotType, component_id,
+                            w.Caliber, Rat_EffectiveBarrelLength(w), w.Damage, stock_dmg)
+                    end
+                    DoneObject(w)
+                end
+            end
+        end
+    end)
+    AsyncStringToFile("AppData/rat_damage_report.csv", table.concat(rows, "\n"))
+    print("Rat_DamageReport:", #rows - 1, "rows -> AppData/rat_damage_report.csv")
+end
+
 ---- ammo ids don't always spell the caliber (7_62x54R -> _7_62x54_Basic), so match the suffix
 local BasicAmmoSuffixes = {"_Basic", "_Buckshot"}
 
