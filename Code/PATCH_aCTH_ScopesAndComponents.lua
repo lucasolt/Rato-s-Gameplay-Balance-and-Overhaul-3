@@ -16,7 +16,8 @@ local A = const.Combat.Aperture
 ---- only 2 have traits, so a trait would drop the penalty from the other 60. Revisit once they do.
 A.ComponentEffectsAimBonus = {
     {id = "light_stock_aim_reduce", from = 1, acc = -4}, -- light/unfolded stocks; -8 equals the old x110 decay at acc 22
-    {id = "ReduceAimAccuracy", from = 1, acc = -12}, -- no/folded stocks
+    ---- uncomposed ToG no/folded stocks; same 65 as no_stock_aim_mul (MultiplyAimAccuracy) in the compositor
+    {id = "ReduceAimAccuracy", from = 1, mul = 65},
 }
 
 ---- A CEREJA da optica: multiplicador do PISO do cone por ampliacao (Rat_ApertureFloor). E a unica

@@ -94,7 +94,7 @@ A.AimDecayMuls = {
 	                    meta = T {856431894569, "(-) Grip while prone"}},
 	TacGripHinge = {mul = 103, component = "tac_grip_hinge",
 	                cond = function(weapon, attacker) return not attacker or attacker.stance ~= "Prone" end},
-	---- stocks are flat AimAccuracy penalties now: A.ComponentEffectsAimBonus
+	---- stocks live in A.ComponentEffectsAimBonus: light flat, no/folded a mul on AimAccuracy
 }
 
 ---- CAMUFLAGEM. Alvo camuflado e mais dificil de VER, entao encolhe a SILHUETA -- nao alarga o

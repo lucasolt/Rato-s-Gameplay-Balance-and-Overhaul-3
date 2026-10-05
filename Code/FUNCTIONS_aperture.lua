@@ -236,7 +236,8 @@ function GetApertureAimComponentEffects(weapon, attacker, action)
             list[#list + 1] = eff
 			meta = meta or {}
 			local name = comp.DisplayName or ""
-			meta[#meta +1] = (eff.acc or 0) < 0 and name ~= "" and Untranslated("(-) ") .. name or name
+			local penalty = (eff.acc or 0) < 0 or (eff.mul or 100) < 100
+			meta[#meta +1] = penalty and name ~= "" and Untranslated("(-) ") .. name or name
         end
     end
 
@@ -280,11 +281,29 @@ end
 function GetApertureComponentAccBonus(optics, level)
     local bonus = 0
     for _, o in ipairs(optics or empty_table) do
-        if level >= o.from and (not o.to or level <= o.to) then
+        if o.acc and level >= o.from and (not o.to or level <= o.to) then
             bonus = bonus + o.acc
         end
     end
     return bonus
+end
+
+function GetApertureComponentAccMul(optics, level)
+    local mul = 100
+    for _, o in ipairs(optics or empty_table) do
+        if o.mul and level >= o.from and (not o.to or level <= o.to) then
+            mul = MulDivRound(mul, o.mul, 100)
+        end
+    end
+    return mul
+end
+
+---- `mul` entries scale the whole stat (barrels/caliber included); `acc` entries add after
+function Rat_ApertureAimAcc(weapon, attacker, level, optics)
+    optics = optics or GetApertureAimComponentEffects(weapon, attacker)
+    level = level or 1
+    local acc = (weapon and weapon.AimAccuracy) or 3
+    return MulDivRound(acc, GetApertureComponentAccMul(optics, level), 100) + GetApertureComponentAccBonus(optics, level)
 end
 
 ---- Quanto o nivel `level` de mira fecha o cone, em % (80 = 80% do anterior). AimAccuracy da o
@@ -355,10 +374,8 @@ end
 function Rat_ApertureAimDecay(weapon, attacker, level, optics)
     local a = P()
 
-    local acc = (weapon and weapon.AimAccuracy) or 3
 	local meta = {}
-
-    acc = acc + GetApertureComponentAccBonus(optics or GetApertureAimComponentEffects(weapon, attacker), level or 1)
+    local acc = Rat_ApertureAimAcc(weapon, attacker, level, optics)
 
     local decay = 100 - (a.DecayBase + a.DecayScale * acc)
 

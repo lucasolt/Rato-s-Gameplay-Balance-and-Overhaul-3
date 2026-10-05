@@ -49,6 +49,7 @@ end
 local function HintAim(weapon, unit, acth)
     local acc = weapon.AimAccuracy * 100
     if acth then
+        acc = MulDivRound(acc, GetApertureComponentAccMul(GetApertureAimComponentEffects(weapon, unit), 1), 100)
         return unit and MulDivRound(acc, Clamp(rGetHandEyeCoordination(unit), 10, 100), 100) or acc
     end
     if IsKindOfClasses(weapon, "Pistol", "Revolver") then

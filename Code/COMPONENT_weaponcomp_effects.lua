@@ -123,6 +123,28 @@ function weapon_components_rat()
     })
 
     PlaceObj('WeaponComponentEffect', {
+        Comment = "Engine applies (base + adds) * mul, so it scales barrel/caliber bonuses too.",
+        Description = T(527381946025,
+                        "Greatly decreases Accuracy bonus from Aiming"),
+        ModificationType = "Multiply",
+        Parameters = {
+            PlaceObj(
+                'PresetParamNumber', {
+                    'Name',
+                    "AimAccuracyMul",
+                    'Tag',
+                    "<AimAccuracyMul>"
+                })
+        },
+        RequiredParams = {
+            "AimAccuracyMul"
+        },
+        StatToModify = "AimAccuracy",
+        group = "Stats",
+        id = "MultiplyAimAccuracy"
+    })
+
+    PlaceObj('WeaponComponentEffect', {
         Comment = "Increases the bonus of the Aiming cth modifier. Scales per aim level. ReduceAimAccuracy reduces the same stat, but is implemented through the cth modifier.",
         Description = T(107850155064,
                         "test"),
