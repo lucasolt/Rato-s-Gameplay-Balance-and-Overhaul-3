@@ -14,7 +14,7 @@ const.Combat.Recoil.ROFGain = 20 -- % added per ROFRefRPM above the ref (1200 RP
 
 const.Combat.Recoil.Components = {
     VerticalGripMul = 0.90, ---0.95,
-    FoldableGripMul = 0.97, ---0.97,
+    FoldableGripMul = 0.95, ---0.97,
     NoStockMul = {SubmachineGun = 1.40, Other = 1.70},
     CompensatorMul = 0.91, -- 0.90,
     RecoilBoosterMul = 0.97, -- 0.96,

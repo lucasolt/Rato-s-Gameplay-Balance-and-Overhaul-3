@@ -16,15 +16,10 @@ CheatAddItem("itemid")
 
 - Light Stock no longer reduces aim accuracy. Increased recoil.
 
-
 - Changed fog vision radius reduction. Fog no longer causes grazing hits
-- Critical chance based on aim levels was tuned down
 - Shotgun AP costs tweaked
 - Other balance tweaks that I forgot
 
-- AP Scale changed. What before was 1 AP, now is 10 AP. This opens avenues to tweak ap costs in a more granular way.
-- Manually cycling AP has been tweaked (it cost less). The effects from dexterity are now not in threshold steps, but instead are a smooth progression. Every point of dexterity helps (mostly)
-- Components impact on shooting stance cost was changed (barrels and stock have less increase, handgun barrels have a very small change now)
 
 - Heavy Weapons perk now reduces Shooting Stance AP instead of Setup AP (indirectly still reduces Setup AP). 
 
@@ -32,12 +27,24 @@ CheatAddItem("itemid")
 - Fixed and improved Shooting Stance animations (shoutout to @dabhand)
 - Fixed bugs related to shotgun
 
+- Gas mask reduce accuracy instead of AP
 - Fixed missing property burst_recoil_delta
 
-- Option for rebalanced weapon shipment loot
-- Fixed some bugs in weapon shipment conditions and cooldown
+- Option for rebalanced weapon shipment loot AI MOD
+- Fixed some bugs in weapon shipment conditions and cooldown AI MOD
 
 - Bobby's Ray ammo distribution was improved
+
+-- Caliber damage re-escaled --
+Big calibers (7.62 and the like) have had increased damage (and recoil)
+Barrel length and caliber now determines the damage of the weapon. Some calibers have length cap at which they do not increase damage anymore. Extended and short barrels dynamically change the damage now (tho mostly little changed)
+
+
+-- New AP Scale -- 
+- AP Scale changed. What before was 1 AP, now is 10 AP. This opens avenues to tweak ap costs in a more granular way.
+- Manually cycling AP has been tweaked (it cost less). The effects from dexterity are now not in threshold steps, but instead are a smooth progression. Every point of dexterity helps (mostly)
+- Components impact on shooting stance cost was changed (barrels and stock have less increase, handgun barrels have a very small change now)
+
 
 - Visibility changes: 
 you no longer see the enemy in your screen if no merc has vision of it (no visibility memory). Can be disabled on mod options.
@@ -50,8 +57,17 @@ Changed mobile attacks targeting aquisition, so now you can try to use it even i
 
 When you use autofire, you will be able to choose the ammount of bullets you want to fire. Burst Fire action has been removed and kept only on weapons with selective fire. 
 Weapons now have RPM stat, that influences how much AP each additional shot cost.
+
+There is a chance, based on Composure (marks + wisdom) and RPM of the weapon, of shooting more bullets than intended when using autofire. You will pay the AP cost if this happens. Psycho increases the chance, Automatic Weapons perk decreases it. Tring to one tap increases the chance.
+
+Some weapons are only capable of automatic fire. (no single shot, but you can try to onetap)
+
+Psycho has been reworked, the chance of triggering the upgrade is now 6% instead of 3%. In case of this triggering, no extra AP is deducted. single shot becomes automatic fire with 3 shots. Selective burst becomse 2 bursts. automatic fire double bullet count, capped on 10
+
 Muzzle booster now increases RPM slightly. Suppressors also increase RPM and no longer have the bonus dmg against flanked units. AKSU will have a reliability decrease if using a compensator (because it has no backpressure of the booster or suppressor)
 Selective Burst now has better critical scaling than autofire, but less than single shot.
+
+
 
 -- new CTH mode: aCTH --
 
@@ -68,7 +84,7 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have stoma
 (aCTH) Recoil:
 - Recoil deviation is simulated. Str controls how much you control, dexterity/marksmanship will help you get back on target.
 - MGs have recoil penalty (and the aforementioned handling penalty) when firing not prone. There are no penalties to fire without setup, that is, the benefits have been all transfered to being prone or having a bipod. MG Setup is now a way to OW (with one bonus attack per turn)
-- Being prone with a bipod will have reduce the vertical component of recoil.
+- Being prone with a bipod will reduce the vertical component of recoil.
 
 
 (aCTH) Aim and Sights:
@@ -102,4 +118,4 @@ The UI section that displays Recoil, Snapshot etc was reworked. The displayed nu
 ```
 
 Technical details:
-
+changed logic that made mercs step out of cover to shoot

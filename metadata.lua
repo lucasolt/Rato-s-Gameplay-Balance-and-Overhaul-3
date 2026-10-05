@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 3,
 	'version_minor', 60,
-	'version', 13455,
+	'version', 13470,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -205,8 +205,8 @@ return PlaceObj('ModDef', {
 		targeted_multiplier = "100 (default for Rato's GBO)",
 	},
 	'has_data', true,
-	'saved', 1791042862,
-	'code_hash', -4397121533819429658,
+	'saved', 1791152174,
+	'code_hash', -8554447582772898227,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",
@@ -710,7 +710,7 @@ return PlaceObj('ModDef', {
 		}),
 		PlaceObj('ModResourcePreset', {
 			'Class', "WeaponComponent",
-			'Id', "VerticalGrip_aug",
+			'Id', "TacGrip_aug",
 			'ClassDisplayName', "Weapon component",
 		}),
 		PlaceObj('ModResourcePreset', {

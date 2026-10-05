@@ -6723,7 +6723,6 @@ return {
 				"longbarrel",
 				"IncreaseRange",
 				"IncreaseAimAccuracy",
-				"IncreaseDamage",
 				"StanceAPincrease",
 				"ChangeCaliberTo762_54r",
 				"ReduceReliabilityPercent",
@@ -6739,11 +6738,6 @@ return {
 					'Name', "AimAccuracyIncrease",
 					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
-					'Value', 8,
-					'Tag', "<DamageIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -7232,7 +7226,6 @@ return {
 				"longbarrel",
 				"DecreaseOverwatchAngle",
 				"StanceAPincrease",
-				"IncreaseDamage",
 				"ChangeCaliberToBMG",
 			},
 			Parameters = {
@@ -7245,11 +7238,6 @@ return {
 					'Name', "AimAccuracyIncrease",
 					'Value', 3,
 					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
-					'Value', 11,
-					'Tag', "<DamageIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -7509,11 +7497,6 @@ return {
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
-					'Value', 1,
-					'Tag', "<DamageIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
 					'Value', 95,
 					'Tag', "<OverwatchAngleDecrease>",
@@ -7678,11 +7661,6 @@ return {
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
-					'Value', 1,
-					'Tag', "<DamageIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
 					'Value', 92,
 					'Tag', "<OverwatchAngleDecrease>",
@@ -7845,11 +7823,6 @@ return {
 					'Tag', "<AimAccuracyIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
-					'Value', 1,
-					'Tag', "<DamageIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
 					'Value', 92,
 					'Tag', "<OverwatchAngleDecrease>",
@@ -7992,7 +7965,6 @@ return {
 				"longbarrel",
 				"IncreaseRange",
 				"IncreaseAimAccuracy",
-				"IncreaseDamage",
 				"StanceAPincrease",
 				"heavy_barrel_effect",
 				"DecreaseOverwatchAngle",
@@ -8007,11 +7979,6 @@ return {
 					'Name', "AimAccuracyIncrease",
 					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
-					'Value', 1,
-					'Tag', "<DamageIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -8152,7 +8119,6 @@ return {
 				"longbarrel",
 				"IncreaseRange",
 				"IncreaseAimAccuracy",
-				"IncreaseDamage",
 				"StanceAPincrease",
 				"IncreaseReliability",
 				"AccuracyBonusProne",
@@ -8171,11 +8137,6 @@ return {
 					'Name', "AimAccuracyIncrease",
 					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
-					'Value', 1,
-					'Tag', "<DamageIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -8318,7 +8279,6 @@ return {
 				"longbarrel",
 				"IncreaseRange",
 				"IncreaseAimAccuracy",
-				"IncreaseDamage",
 				"StanceAPincrease",
 				"IncreaseReliability",
 				"DecreaseOverwatchAngle",
@@ -8333,11 +8293,6 @@ return {
 					'Name', "AimAccuracyIncrease",
 					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
-					'Value', 1,
-					'Tag', "<DamageIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -8481,7 +8436,6 @@ return {
 				"longbarrel",
 				"IncreaseRange",
 				"IncreaseAimAccuracy",
-				"IncreaseDamage",
 				"StanceAPincrease",
 				"hipfire_light_barrel",
 				"ExtraOverwatchShots",
@@ -8497,11 +8451,6 @@ return {
 					'Name', "AimAccuracyIncrease",
 					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
-					'Value', 1,
-					'Tag', "<DamageIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -8649,7 +8598,6 @@ return {
 				"longbarrel",
 				"IncreaseRange",
 				"IncreaseAimAccuracy",
-				"IncreaseDamage",
 				"StanceAPincrease",
 				"hipfire_light_barrel",
 				"ExtraOverwatchShots",
@@ -8669,11 +8617,6 @@ return {
 					'Name', "AimAccuracyIncrease",
 					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
-					'Value', 1,
-					'Tag', "<DamageIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -8814,7 +8757,6 @@ return {
 				"longbarrel",
 				"IncreaseRange",
 				"IncreaseAimAccuracy",
-				"IncreaseDamage",
 				"StanceAPincrease",
 				"AccuracyBonusProne",
 				"bipod_penalty",
@@ -8832,11 +8774,6 @@ return {
 					'Name', "AimAccuracyIncrease",
 					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
-					'Value', 1,
-					'Tag', "<DamageIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -8974,7 +8911,6 @@ return {
 				"longbarrel",
 				"IncreaseRange",
 				"IncreaseAimAccuracy",
-				"IncreaseDamage",
 				"StanceAPincrease",
 				"DecreaseOverwatchAngle",
 			},
@@ -8988,11 +8924,6 @@ return {
 					'Name', "AimAccuracyIncrease",
 					'Value', 6,
 					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageIncrease",
-					'Value', 1,
-					'Tag', "<DamageIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleDecrease",
@@ -9172,7 +9103,6 @@ return {
 			ModificationEffects = {
 				"shortbarrel",
 				"ReduceRange",
-				"ReduceDamage",
 				"StanceAPdecrease",
 				"DecreaseAimAccuracy",
 				"IncreaseOverwatchAngle",
@@ -9187,11 +9117,6 @@ return {
 					'Name', "AimAccuracyDecrease",
 					'Value', 4,
 					'Tag', "<AimAccuracyDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
@@ -9234,7 +9159,6 @@ return {
 			ModificationEffects = {
 				"shortbarrel",
 				"ReduceRange",
-				"ReduceDamage",
 				"StanceAPdecrease",
 				"DecreaseAimAccuracy",
 				"IncreaseReliability",
@@ -9250,11 +9174,6 @@ return {
 					'Name', "AimAccuracyDecrease",
 					'Value', 4,
 					'Tag', "<AimAccuracyDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
@@ -9307,7 +9226,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 3,
+					'Value', 5,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9432,7 +9351,6 @@ return {
 			ModificationEffects = {
 				"shortbarrel",
 				"ReduceRange",
-				"ReduceDamage",
 				"StanceAPdecrease",
 				"DecreaseAimAccuracy",
 				"IncreaseReliability",
@@ -9448,11 +9366,6 @@ return {
 					'Name', "AimAccuracyDecrease",
 					'Value', 4,
 					'Tag', "<AimAccuracyDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
@@ -9564,7 +9477,6 @@ return {
 			ModificationEffects = {
 				"shortbarrel",
 				"ReduceRange",
-				"ReduceDamage",
 				"StanceAPdecrease",
 				"DecreaseAimAccuracy",
 				"hipfire_light_barrel",
@@ -9581,11 +9493,6 @@ return {
 					'Name', "AimAccuracyDecrease",
 					'Value', 4,
 					'Tag', "<AimAccuracyDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
@@ -9707,7 +9614,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 3,
+					'Value', 5,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9840,7 +9747,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 3,
+					'Value', 5,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9966,7 +9873,6 @@ return {
 			ModificationEffects = {
 				"shortbarrel",
 				"ReduceRange",
-				"ReduceDamage",
 				"StanceAPdecrease",
 				"DecreaseAimAccuracy",
 				"IncreaseOverwatchAngle",
@@ -9981,11 +9887,6 @@ return {
 					'Name', "AimAccuracyDecrease",
 					'Value', 4,
 					'Tag', "<AimAccuracyDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
@@ -10306,7 +10207,7 @@ return {
 			},
 			Cost = 25,
 			DisplayName = T(385898999120, --[[ModItemWeaponComponent BarrelShort_Winchester DisplayName]] "Short Barrel"),
-			GBO_ComponentTraits = "Barrel.Short",
+			GBO_ComponentTraits = "Barrel.ShortHandgun",
 			GBO_OverrideEffects = {
 				"ReduceMagazineSize",
 			},
@@ -10322,7 +10223,6 @@ return {
 			ModificationEffects = {
 				"shortbarrel",
 				"ReduceRange",
-				"ReduceDamage",
 				"StanceAPdecrease",
 				"DecreaseAimAccuracy",
 				"ReduceMagazineSize",
@@ -10336,13 +10236,8 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "AimAccuracyDecrease",
-					'Value', 4,
+					'Value', 2,
 					'Tag', "<AimAccuracyDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "MagazineSizeDecrease",
@@ -10351,12 +10246,12 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
-					'Value', 107,
+					'Value', 105,
 					'Tag', "<OverwatchAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeDecrease",
-					'Value', 4,
+					'Value', 2,
 					'Tag', "<RangeDecrease>",
 				}),
 			},
@@ -10388,7 +10283,6 @@ return {
 			ModificationEffects = {
 				"shortbarrel",
 				"ReduceRange",
-				"ReduceDamage",
 				"StanceAPdecrease",
 				"DecreaseAimAccuracy",
 				"IncreaseOverwatchAngle",
@@ -10403,11 +10297,6 @@ return {
 					'Name', "AimAccuracyDecrease",
 					'Value', 4,
 					'Tag', "<AimAccuracyDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "DamageReduced",
-					'Value', 1,
-					'Tag', "<DamageReduced>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
@@ -10870,6 +10759,13 @@ return {
 			"Vert_grip_recoil",
 			"grip_prone_penalty",
 		},
+		GBO_OverrideModes = {
+			PlaceObj('GBO_ComponentModeOverride', {
+				'RemoveEffects', {
+					"AccuracyBonusWhenAimed_vgrip",
+				},
+			}),
+		},
 		GBO_OverrideParams = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "bonus_cth_v",
@@ -10880,7 +10776,6 @@ return {
 		Icon = "UI/Icons/Upgrades/mp5_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"AccuracyBonusWhenAimed_vgrip",
 			"Vert_grip_recoil",
 			"grip_prone_penalty",
 		},
@@ -10992,21 +10887,22 @@ return {
 		BlockSlots = {
 			"Grenadelauncher",
 		},
+		Comment = "",
 		Cost = 25,
-		DisplayName = T(473538307720, --[[ModItemWeaponComponent VerticalGrip_aug DisplayName]] "Vertical Grip"),
-		GBO_ComponentAncestor = "VerticalGrip",
+		DisplayName = T(473538307720, --[[ModItemWeaponComponent TacGrip_aug DisplayName]] "Foldable Grip"),
+		GBO_ComponentAncestor = "TacGrip",
 		Icon = "UI/Icons/Upgrades/mp5_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"AccuracyBonusWhenAimed_vgrip",
-			"Vert_grip_recoil",
-			"grip_prone_penalty",
+			"tac_grip_hipfire",
+			"tac_grip_recoil",
+			"tac_grip_hinge",
 		},
 		Parameters = {
-			PlaceObj('PresetParamNumber', {
-				'Name', "bonus_cth_v",
-				'Value', 3,
-				'Tag', "<bonus_cth_v>",
+			PlaceObj('PresetParamPercent', {
+				'Name', "accuracy",
+				'Value', 5,
+				'Tag', "<accuracy>%",
 			}),
 		},
 		Slot = "Under",
@@ -11084,8 +10980,7 @@ return {
 				param_bindings = false,
 			}),
 		},
-		comment = "----------- UNDER",
-		id = "VerticalGrip_aug",
+		id = "TacGrip_aug",
 		param_bindings = {},
 	}),
 	PlaceObj('ModItemWeaponComponent', {
@@ -11377,7 +11272,6 @@ return {
 		Icon = "UI/Icons/Upgrades/ak47_vertical_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"AccuracyBonusWhenAimed_vgrip",
 			"Vert_grip_recoil",
 			"grip_prone_penalty",
 		},
@@ -16950,7 +16844,6 @@ return {
 		Icon = "UI/Icons/Upgrades/mp5_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"AccuracyBonusWhenAimed_vgrip",
 			"Vert_grip_recoil",
 			"grip_prone_penalty",
 		},
@@ -17000,7 +16893,6 @@ return {
 		Icon = "UI/Icons/Upgrades/mp5_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"AccuracyBonusWhenAimed_vgrip",
 			"Vert_grip_recoil",
 			"grip_prone_penalty",
 		},
@@ -17044,7 +16936,6 @@ return {
 		Icon = "UI/Icons/Upgrades/mp5_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"AccuracyBonusWhenAimed_vgrip",
 			"Vert_grip_recoil",
 			"grip_prone_penalty",
 		},
@@ -18779,10 +18670,9 @@ return {
 		Icon = "UI/Icons/Upgrades/tactical_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"grip_prone_penalty",
-			"tac_grip_PB",
 			"tac_grip_hipfire",
 			"tac_grip_recoil",
+			"tac_grip_hinge",
 		},
 		Parameters = {
 			PlaceObj('PresetParamPercent', {
@@ -19324,7 +19214,6 @@ return {
 		Icon = "UI/Icons/Upgrades/ak47_vertical_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"AccuracyBonusWhenAimed_vgrip",
 			"Vert_grip_recoil",
 			"grip_prone_penalty",
 		},
@@ -19355,7 +19244,6 @@ return {
 		Icon = "UI/Icons/Upgrades/ak47_vertical_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"AccuracyBonusWhenAimed_vgrip",
 			"Vert_grip_recoil",
 			"grip_prone_penalty",
 		},
@@ -19486,7 +19374,6 @@ return {
 		ModificationDifficulty = 20,
 		ModificationEffects = {
 			"EnableFullAuto",
-			"Enable_BurstFire",
 			"recoil_bump",
 		},
 		Slot = "Stock",
@@ -20142,13 +20029,24 @@ return {
 	}),
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 30,
-		DisplayName = T(341429701273, --[[ModItemWeaponComponent TacGrip DisplayName]] "Tactical Grip"),
+		DisplayName = T(341429701273, --[[ModItemWeaponComponent TacGrip DisplayName]] "Foldable Grip"),
 		GBO_ComponentTraits = "Self",
 		GBO_OverrideEffects = {
 			"grip_prone_penalty",
 			"tac_grip_PB",
 			"tac_grip_hipfire",
 			"tac_grip_recoil",
+		},
+		GBO_OverrideModes = {
+			PlaceObj('GBO_ComponentModeOverride', {
+				'Effects', {
+					"tac_grip_hinge",
+				},
+				'RemoveEffects', {
+					"tac_grip_PB",
+					"grip_prone_penalty",
+				},
+			}),
 		},
 		GBO_OverrideParams = {
 			PlaceObj('PresetParamPercent', {
@@ -20160,10 +20058,9 @@ return {
 		Icon = "UI/Icons/Upgrades/tactical_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"grip_prone_penalty",
-			"tac_grip_PB",
 			"tac_grip_hipfire",
 			"tac_grip_recoil",
+			"tac_grip_hinge",
 		},
 		Parameters = {
 			PlaceObj('PresetParamPercent', {
@@ -20244,10 +20141,9 @@ return {
 		Icon = "UI/Icons/Upgrades/mp5_grip",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"grip_prone_penalty",
-			"tac_grip_PB",
 			"tac_grip_hipfire",
 			"tac_grip_recoil",
+			"tac_grip_hinge",
 		},
 		Parameters = {
 			PlaceObj('PresetParamPercent', {

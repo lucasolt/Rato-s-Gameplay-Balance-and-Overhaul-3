@@ -5,7 +5,7 @@ const.Combat.Autofire = {
     ---- weight, AutoFire only); each round past BaseShots pays by RPM (BurstRPM in a burst)
     BaseShots = 1,
     ---- AP per extra round at RPMRef; scales by RPMRef / weapon.RPM
-    APPerRoundRef = 500,
+    APPerRoundRef = 750,
     RPMRef = 600,
     ---- vanilla AutoFire suppressed the target even on a miss; only bursts this long still do
     SuppressMinShots = 6,
@@ -37,7 +37,7 @@ const.Combat.Autofire = {
     ---- added to the overrun chance in automatic
     PsychoOverrunChance = 10,
     ---- Auto Weapons perk: percent of the overrun chance kept (multiplier, so it never reaches 0)
-    AutoWeaponsOverrunMul = 50,
+    AutoWeaponsOverrunMul = 80,
     ---- with Platform.rat: overrun chance next to the round count on the crosshair
     ShowOverrunChance = true,
 

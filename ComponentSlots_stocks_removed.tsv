@@ -1,0 +1,791 @@
+M76_1	"{
+    {
+        SlotType = 'Stock',
+        DefaultComponent = 'm76_stock_def_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {'m76_stock_def_1'}
+    },
+    {
+        SlotType = 'Magazine',
+        DefaultComponent = 'm76_mag_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {'m76_mag_def_1'}
+    },
+    {
+        SlotType = 'Muzzle',
+        DefaultComponent = 'ToG_VFX_Muzzle',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'ImprovisedSuppressor',
+            'RAT_TOG_suppressor',
+            'RAT_TOG_compensator',
+            'ToG_VFX_Muzzle'
+        }
+    },
+    {
+        SlotType = 'Scope',
+        DefaultComponent = 'ImprovedIronsight',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'RAT_TOG_Reflex_rpk_mount',
+            'RAT_TOG_ACOG_rpk_mount',
+            'RAT_TOG_compactRS_rpk_mount',
+            'RAT_TOG_Prism_rpk_mount',
+            'RAT_TOG_vigilanceRS_rpk_mount',
+            'RAT_TOG_thermal_rpk_mount',
+            'RAT_TOG_WideScope_rpk_mount',
+            'RAT_TOG_LRoptics_rpk_mount',
+            'm76_scope_1',
+            'RAT_TOG_LRoptics_advanced_rpk_mount',
+            'ImprovedIronsight'
+        }
+    },
+    {
+        SlotType = 'Barrel',
+        DefaultComponent = 'm76_barrel_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'm76_barrel_def_1',
+            'm76_barrel_ext_1'
+        }
+    }
+}"
+AR10std	"{
+    {
+        SlotType = 'Barrel',
+        DefaultComponent = 'AR10_barrel_def',
+        Modifiable = true,
+        AvailableComponents = {
+            'AR10_barrel_shrt',
+            'AR10_barrel_def',
+            'AR10_barrel_ext'
+        }
+    },
+    {
+        SlotType = 'Scope',
+        CanBeEmpty = true,
+        Modifiable = true,
+        AvailableComponents = {
+            'RAT_TOG_ACOG',
+            'RAT_TOG_LRoptics',
+            'RAT_TOG_Prism',
+            'RAT_TOG_Reflex',
+            'RAT_TOG_WideScope',
+            'RAT_TOG_compactRS',
+            'RAT_TOG_vigilanceRS'
+        }
+    },
+    {
+        SlotType = 'Muzzle',
+        DefaultComponent = 'AR10_muzzle_def',
+        Modifiable = true,
+        AvailableComponents = {
+            'RAT_TOG_compensator',
+            'RAT_TOG_suppressor_762',
+            'MuzzleBooster',
+            'ImprovisedSuppressor',
+            'AR10_muzzle_def'
+        }
+    },
+    {
+        SlotType = 'Bipod',
+        CanBeEmpty = true,
+        Modifiable = true,
+        AvailableComponents = {'U100_bipod_fld_1'}
+    },
+    {
+        SlotType = 'Magazine',
+        DefaultComponent = 'AR10_mag_def',
+        Modifiable = true,
+        AvailableComponents = {
+            'AR10_mag_def',
+            'AR10_mag_dual'
+        }
+    },
+    {
+        SlotType = 'Stock',
+        DefaultComponent = 'AR10_stock_def',
+        Modifiable = false,
+        AvailableComponents = {'AR10_stock_def'}
+    },
+    {
+        SlotType = 'Side2',
+        DefaultComponent = 'side_2_empty',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'side_2_empty',
+            'ToG_Flashlight_2',
+            'ToG_Red_Dot_2',
+            'ToG_UV_Dot_2'
+        }
+    },
+    {
+        SlotType = 'Mountfront',
+        DefaultComponent = 'mountfront_empty',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'mountfront_empty',
+            'AR10_grip_mountfront',
+            'ToG_NatoGL'
+        }
+    }
+}"
+Papovka2SKS_1	"{
+    {
+        SlotType = 'Bipod',
+        DefaultComponent = 'Papovka2_Bay_fld_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Papovka2_Bay_fld_1',
+            'Papovka2_Bay_unfld_1'
+        }
+    },
+    {
+        SlotType = 'Mountfront',
+        DefaultComponent = 'Papovka2_Grnd_fld_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Papovka2_Grnd_fld_1',
+            'Papovka2_Grnd_unfld_1'
+        }
+    },
+    {
+        SlotType = 'Scope',
+        CanBeEmpty = true,
+        Modifiable = true,
+        AvailableComponents = {
+            'RAT_TOG_ACOG',
+            'RAT_TOG_WideScope',
+            'RAT_TOG_LRoptics',
+            'RAT_TOG_Prism',
+            'RAT_TOG_Reflex',
+            'RAT_TOG_compactRS',
+            'RAT_TOG_laser_dot',
+            'RAT_TOG_uv_dot',
+            'RAT_TOG_vigilanceRS',
+            'RAT_TOG_thermal',
+            'LROptics_DragunovDefault'
+        }
+    },
+    {
+        SlotType = 'Mount',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {}
+    },
+    {
+        SlotType = 'General',
+        DefaultComponent = 'Papovka2_Bolt_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {'Papovka2_Bolt_1'}
+    },
+    {
+        SlotType = 'Muzzle',
+        DefaultComponent = 'ToG_VFX_Muzzle',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {'ToG_VFX_Muzzle'}
+    },
+    {
+        SlotType = 'Gassblock',
+        DefaultComponent = 'RAT_pap_compensator',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {'RAT_pap_compensator'}
+    },
+    {
+        SlotType = 'Barrel',
+        DefaultComponent = 'Papovka2_Barrel_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Papovka2_Barrel_def_1',
+            'Papovka2_Barrel_ext_1',
+            'Papovka2_Barrel_shrt_1'
+        }
+    },
+    {
+        SlotType = 'Stock',
+        DefaultComponent = 'Papovka2_Stock_def_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {'Papovka2_Stock_def_1'}
+    },
+    {
+        SlotType = 'Magazine',
+        DefaultComponent = 'Papovka2_Mag_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Papovka2_Mag_def_1',
+            'Papovka2_Mag_ext_1'
+        }
+    }
+}"
+PapovkaSKS_1	"{
+    {
+        SlotType = 'Bipod',
+        DefaultComponent = 'Papovka_Bay_fld_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Papovka_Bay_fld_1',
+            'Papovka_Bay_unfld_1'
+        }
+    },
+    {
+        SlotType = 'Mountfront',
+        DefaultComponent = 'Papovka_Grnd_fld_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Papovka_Grnd_fld_1',
+            'Papovka_Grnd_unfld_1'
+        }
+    },
+    {
+        SlotType = 'Scope',
+        CanBeEmpty = true,
+        Modifiable = true,
+        AvailableComponents = {
+            'RAT_TOG_ACOG',
+            'RAT_TOG_WideScope',
+            'RAT_TOG_LRoptics',
+            'RAT_TOG_Prism',
+            'RAT_TOG_Reflex',
+            'RAT_TOG_compactRS',
+            'RAT_TOG_laser_dot',
+            'RAT_TOG_uv_dot',
+            'RAT_TOG_vigilanceRS',
+            'RAT_TOG_thermal',
+            'LROptics_DragunovDefault'
+        }
+    },
+    {
+        SlotType = 'Mount',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {}
+    },
+    {
+        SlotType = 'Gassblock',
+        DefaultComponent = 'RAT_pap_compensator',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {'RAT_pap_compensator'}
+    },
+    {
+        SlotType = 'Muzzle',
+        DefaultComponent = 'ToG_VFX_Muzzle',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {'ToG_VFX_Muzzle'}
+    },
+    {
+        SlotType = 'Barrel',
+        DefaultComponent = 'Papovka_Barrel_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Papovka_Barrel_ext_1',
+            'Papovka_Barrel_shrt_1',
+            'Papovka_Barrel_def_1'
+        }
+    },
+    {
+        SlotType = 'Stock',
+        DefaultComponent = 'Papovka_Stock_def_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {'Papovka_Stock_def_1'}
+    },
+    {
+        SlotType = 'Magazine',
+        DefaultComponent = 'Papovka_Mag_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Papovka2_Mag_def_1',
+            'Papovka2_Mag_ext_1'
+        }
+    },
+    {
+        SlotType = 'General',
+        DefaultComponent = 'Papovka_Bolt_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {'Papovka_Bolt_1'}
+    }
+}"
+STG44R_1	"{
+    {
+        SlotType = 'Muzzle',
+        DefaultComponent = 'ToG_VFX_Muzzle',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Compensator',
+            'ToG_VFX_Muzzle'
+        }
+    },
+    {
+        SlotType = 'Magazine',
+        DefaultComponent = 'STG44_Mag_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {'STG44_Mag_def_1'}
+    },
+    {
+        SlotType = 'Barrel',
+        DefaultComponent = 'STG44_Barrel_def_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {'STG44_Barrel_def_1'}
+    },
+    {
+        SlotType = 'Stock',
+        DefaultComponent = 'STG44_Stock_def_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {'STG44_Stock_def_1'}
+    },
+    {
+        SlotType = 'Scope',
+        CanBeEmpty = true,
+        Modifiable = true,
+        AvailableComponents = {'GW43_Scope_1'}
+    }
+}"
+Type56A_1	"{
+    {
+        SlotType = 'Bipod',
+        DefaultComponent = 'Type56A_Bay_fld_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Type56A_Bay_fld_1',
+            'Type56A_Bay_unfld_1'
+        }
+    },
+    {
+        SlotType = 'Scope',
+        CanBeEmpty = true,
+        Modifiable = true,
+        AvailableComponents = {
+            'RAT_TOG_ACOG',
+            'RAT_TOG_WideScope',
+            'RAT_TOG_LRoptics',
+            'RAT_TOG_Prism',
+            'RAT_TOG_Reflex',
+            'RAT_TOG_compactRS',
+            'RAT_TOG_laser_dot',
+            'RAT_TOG_uv_dot',
+            'RAT_TOG_vigilanceRS',
+            'RAT_TOG_thermal',
+            'LROptics_DragunovDefault'
+        }
+    },
+    {
+        SlotType = 'General',
+        DefaultComponent = 'Type56A_Bolt_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {
+            'Papovka2_Bolt_1',
+            'Papovka_Bolt_1',
+            'Type56A_Bolt_1',
+            'Type56B_Bolt_1',
+            'Type56C_Bolt_1',
+            'Type56D_Bolt_1'
+        }
+    },
+    {
+        SlotType = 'Mount',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {}
+    },
+    {
+        SlotType = 'Muzzle',
+        DefaultComponent = 'ToG_VFX_Muzzle',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'RAT_TOG_compensator',
+            'ToG_VFX_Muzzle'
+        }
+    },
+    {
+        SlotType = 'Barrel',
+        DefaultComponent = 'Type56A_Barrel_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Type56A_Barrel_shrt_1',
+            'Type56A_Barrel_def_1',
+            'Type56A_Barrel_ext_1'
+        }
+    },
+    {
+        SlotType = 'Stock',
+        DefaultComponent = 'Type56A_stock_def_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {'Type56A_stock_def_1'}
+    },
+    {
+        SlotType = 'Magazine',
+        DefaultComponent = 'Type56A_Mag_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Papovka_Mag_ext_1',
+            'Type56A_Mag_def_1'
+        }
+    }
+}"
+Type56B_1	"{
+    {
+        SlotType = 'Bipod',
+        DefaultComponent = 'Type56B_Bay_fld_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Type56B_Bay_fld_1',
+            'Type56B_Bay_unfld_1'
+        }
+    },
+    {
+        SlotType = 'Scope',
+        CanBeEmpty = true,
+        Modifiable = true,
+        AvailableComponents = {
+            'RAT_TOG_ACOG',
+            'RAT_TOG_WideScope',
+            'RAT_TOG_LRoptics',
+            'RAT_TOG_Prism',
+            'RAT_TOG_Reflex',
+            'RAT_TOG_compactRS',
+            'RAT_TOG_laser_dot',
+            'RAT_TOG_uv_dot',
+            'RAT_TOG_vigilanceRS',
+            'RAT_TOG_thermal',
+            'LROptics_DragunovDefault'
+        }
+    },
+    {
+        SlotType = 'General',
+        DefaultComponent = 'Type56B_Bolt_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {
+            'Papovka2_Bolt_1',
+            'Papovka_Bolt_1',
+            'Type56A_Bolt_1',
+            'Type56B_Bolt_1',
+            'Type56C_Bolt_1',
+            'Type56D_Bolt_1'
+        }
+    },
+    {
+        SlotType = 'Mount',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {}
+    },
+    {
+        SlotType = 'Muzzle',
+        DefaultComponent = 'ToG_VFX_Muzzle',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'RAT_TOG_compensator',
+            'ToG_VFX_Muzzle'
+        }
+    },
+    {
+        SlotType = 'Barrel',
+        DefaultComponent = 'Type56B_Barrel_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Type56B_Barrel_shrt_1',
+            'Type56B_Barrel_def_1',
+            'Type56B_Barrel_ext_1'
+        }
+    },
+    {
+        SlotType = 'Stock',
+        DefaultComponent = 'Type56B_stock_def_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {'Type56B_stock_def_1'}
+    },
+    {
+        SlotType = 'Magazine',
+        DefaultComponent = 'Type56B_Mag_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Papovka_Mag_ext_1',
+            'Type56B_Mag_def_1'
+        }
+    }
+}"
+Type56C_1	"{
+    {
+        SlotType = 'Bipod',
+        DefaultComponent = 'Type56C_Bay_fld_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Type56C_Bay_fld_1',
+            'Type56C_Bay_unfld_1'
+        }
+    },
+    {
+        SlotType = 'General',
+        DefaultComponent = 'Type56C_Bolt_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {
+            'Papovka2_Bolt_1',
+            'Papovka_Bolt_1',
+            'Type56A_Bolt_1',
+            'Type56B_Bolt_1',
+            'Type56C_Bolt_1',
+            'Type56D_Bolt_1'
+        }
+    },
+    {
+        SlotType = 'Scope',
+        CanBeEmpty = true,
+        Modifiable = true,
+        AvailableComponents = {
+            'RAT_TOG_ACOG',
+            'RAT_TOG_WideScope',
+            'RAT_TOG_LRoptics',
+            'RAT_TOG_Prism',
+            'RAT_TOG_Reflex',
+            'RAT_TOG_compactRS',
+            'RAT_TOG_laser_dot',
+            'RAT_TOG_uv_dot',
+            'RAT_TOG_vigilanceRS',
+            'RAT_TOG_thermal',
+            'LROptics_DragunovDefault'
+        }
+    },
+    {
+        SlotType = 'Mount',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {}
+    },
+    {
+        SlotType = 'Muzzle',
+        DefaultComponent = 'ToG_VFX_Muzzle',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'RAT_TOG_compensator',
+            'ToG_VFX_Muzzle'
+        }
+    },
+    {
+        SlotType = 'Barrel',
+        DefaultComponent = 'Type56C_Barrel_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Type56C_Barrel_shrt_1',
+            'Type56C_Barrel_def_1',
+            'Type56C_Barrel_ext_1'
+        }
+    },
+    {
+        SlotType = 'Stock',
+        DefaultComponent = 'Type56C_stock_def_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {'Type56C_stock_def_1'}
+    },
+    {
+        SlotType = 'Magazine',
+        DefaultComponent = 'Type56C_Mag_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Papovka_Mag_ext_1',
+            'Type56C_Mag_def_1'
+        }
+    }
+}"
+Type56D_1	"{
+    {
+        SlotType = 'Bipod',
+        DefaultComponent = 'Type56D_Bay_fld_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Type56D_Bay_fld_1',
+            'Type56D_Bay_unfld_1'
+        }
+    },
+    {
+        SlotType = 'General',
+        DefaultComponent = 'Type56D_Bolt_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {
+            'Papovka2_Bolt_1',
+            'Papovka_Bolt_1',
+            'Type56A_Bolt_1',
+            'Type56B_Bolt_1',
+            'Type56C_Bolt_1',
+            'Type56D_Bolt_1'
+        }
+    },
+    {
+        SlotType = 'Scope',
+        CanBeEmpty = true,
+        Modifiable = true,
+        AvailableComponents = {
+            'RAT_TOG_ACOG',
+            'RAT_TOG_WideScope',
+            'RAT_TOG_LRoptics',
+            'RAT_TOG_Prism',
+            'RAT_TOG_Reflex',
+            'RAT_TOG_compactRS',
+            'RAT_TOG_laser_dot',
+            'RAT_TOG_uv_dot',
+            'RAT_TOG_vigilanceRS',
+            'RAT_TOG_thermal',
+            'LROptics_DragunovDefault'
+        }
+    },
+    {
+        SlotType = 'Mount',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {}
+    },
+    {
+        SlotType = 'Muzzle',
+        DefaultComponent = 'ToG_VFX_Muzzle',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'RAT_TOG_compensator',
+            'RAT_TOG_suppressor',
+            'ToG_VFX_Muzzle'
+        }
+    },
+    {
+        SlotType = 'Barrel',
+        DefaultComponent = 'Type56D_Barrel_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Type56D_Barrel_shrt_1',
+            'Type56D_Barrel_def_1',
+            'Type56D_Barrel_ext_1'
+        }
+    },
+    {
+        SlotType = 'Stock',
+        DefaultComponent = 'Type56D_stock_def_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {'Type56D_stock_def_1'}
+    },
+    {
+        SlotType = 'Magazine',
+        DefaultComponent = 'Type56D_Mag_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'Papovka_Mag_ext_1',
+            'Type56D_Mag_def_1'
+        }
+    }
+}"
+RK62_1	"{
+    {
+        SlotType = 'Stock',
+        DefaultComponent = 'RK62_Stock_def_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {'RK62_Stock_def_1'}
+    },
+    {
+        SlotType = 'Magazine',
+        DefaultComponent = 'RK62_Mag_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'RK62_Mag_def_1',
+            'RK62_Mag_ext_1'
+        }
+    },
+    {
+        SlotType = 'Handguard',
+        DefaultComponent = 'RK62_Handguard_def_1',
+        CanBeEmpty = false,
+        Modifiable = false,
+        AvailableComponents = {
+            'RK62_Handguard_shrt_1',
+            'RK62_Handguard_def_1',
+            'RK62_Handguard_ext_1'
+        }
+    },
+    {
+        SlotType = 'Scope',
+        DefaultComponent = 'RK62_Irons_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'RAT_TOG_Reflex',
+            'RAT_TOG_ACOG',
+            'RAT_TOG_compactRS',
+            'RAT_TOG_Prism',
+            'RAT_TOG_vigilanceRS',
+            'RAT_TOG_thermal',
+            'RAT_TOG_WideScope',
+            'RAT_TOG_LRoptics',
+            'RAT_TOG_LRoptics_advanced',
+            'RK62_Irons_1'
+        }
+    },
+    {
+        SlotType = 'Muzzle',
+        DefaultComponent = 'RK62_Muzzle_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'RK62_Muzzle_def_1',
+            'MuzzleBooster',
+            'RAT_TOG_suppressor'
+        }
+    },
+    {
+        SlotType = 'Barrel',
+        DefaultComponent = 'RK62_Barrel_def_1',
+        CanBeEmpty = false,
+        Modifiable = true,
+        AvailableComponents = {
+            'RK62_Barrel_shrt_1',
+            'RK62_Barrel_def_1',
+            'RK62_Barrel_ext_1'
+        }
+    }
+}"

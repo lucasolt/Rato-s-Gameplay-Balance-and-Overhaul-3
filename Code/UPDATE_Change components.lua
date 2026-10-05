@@ -109,7 +109,11 @@ GBO_RetiredComponents = {
     ---- its +5 autofire rounds became a higher RPM
     LionRoar = {
         Internal = {Internal_plus_burstshot = false}
-    }
+    },
+
+	B93RR_1 = {
+		Under = {B93RR_grip_fld_1 = "B93RR_grip_unfld_1"}
+	}
 }
 
 function GBO_ReplaceRetiredComponents(weapon)
