@@ -160,7 +160,8 @@ function GetWeapon_StanceAP(unit, weapon, display)
 
 	if IsKindOfClasses(weapon, "MachineGun", "HeavyWeapon") and HasPerk(unit, "HeavyWeaponsTraining") then
     	local effect = unit:GetStatusEffect("HeavyWeaponsTraining")
-    	local reduction = effect:ResolveValue("ap_cost_reduction") * const.Scale.AP
+    	---- own value: the perk's ap_cost_reduction also drives vanilla's attack AP discount
+    	local reduction = const.Combat.HeavyWeaponsStanceReduction * const.Scale.AP
     	local minCost = effect:ResolveValue("min_ap_cost") * const.Scale.AP
     	raw = Max(minCost, raw - reduction)
 	end
