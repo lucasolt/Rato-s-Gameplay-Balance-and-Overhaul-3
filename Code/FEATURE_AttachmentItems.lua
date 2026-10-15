@@ -512,7 +512,7 @@ RAT_ATT_ITEMS = {
     {
         id = "RAT_Att_CompensatorMauser",
         name = "Compensator (7.92 Mauser)",
-        icon = "UI/Icons/Upgrades/muzzle_fal_01",
+        icon = "Mod/cfahRED/Images/76254r_comp.png",
         size = "small",
         cost = 1000,
         tier = 1,
@@ -907,6 +907,35 @@ RAT_ATT_ITEMS = {
 for i, att in ipairs(RAT_ATT_ITEMS) do
 	att.cost = MulDivRound(att.cost, priceMul, 100)
 end
+
+---- Tons of Components models for the calibre items that share a vanilla model with another item.
+local TOC_ICONS = "Mod/KQkEVHf/Icons/Upgrades/"
+RAT_ATT_TOC_MODELS = {
+    RAT_Att_Suppressor545 = {"ToC_Silencer_7", TOC_ICONS .. "ToC_Silencer_7.png"}, -- Silentium Whisper, a PBS-4
+    RAT_Att_Suppressor54R = {"ToC_Silencer_6", TOC_ICONS .. "ToC_Silencer_6.png"},
+    RAT_Att_Suppressor9x39 = {"ToC_Silencer_10", TOC_ICONS .. "ToC_Silencer_10.png"},
+    RAT_Att_SuppressorMauser = {"ToC_Silencer_4", TOC_ICONS .. "ToC_Silencer_4.png"},
+    RAT_Att_Suppressor44Rifle = {"ToC_Silencer_9", TOC_ICONS .. "ToC_Silencer_9.png"},
+    RAT_Att_Suppressor45SMG = {"ToC_Silencer_SB100", TOC_ICONS .. "ToC_Silencer_sb100.png"},
+    RAT_Att_Compensator45 = {"ToC_Muzzle_3", TOC_ICONS .. "ToC_Muzzle_3.png"},
+    RAT_Att_CompensatorMauser = {"ToC_Muzzle_4", TOC_ICONS .. "ToC_Muzzle_4.png"},
+    RAT_Att_CompensatorM14 = {"ToC_Muzzle_6", TOC_ICONS .. "ToC_Muzzle_6.png"}
+}
+
+---- Runs before the classes are built, which bake the icon. Class ids stay the same either way.
+function Rat_AttUseToCModels()
+    if not IsMod_loaded("KQkEVHf") then
+        return
+    end
+    for _, def in ipairs(RAT_ATT_ITEMS) do
+        local toc = RAT_ATT_TOC_MODELS[def.id]
+        if toc then
+            def.model, def.icon = toc[1], toc[2]
+        end
+    end
+end
+
+Rat_AttUseToCModels()
 
 RAT_ATT_ITEM_OF = {} -- component id -> item class
 RAT_ATT_FAMILY_OF = {} -- component id -> family name
