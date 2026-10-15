@@ -1304,25 +1304,31 @@ function Rat_AttEnsureHints()
     end
 end
 
----- Components whose model the item replaced on their only gun show the item's icon on the bench.
-RAT_ATT_COMP_ICONS = {
-    SteyrS_Muzzle_def_1 = "UI/Icons/Upgrades/556_suppressor"
-}
-
-function Rat_AttEnsureCompIcons()
-    for cid, icon in pairs(RAT_ATT_COMP_ICONS) do
-        local comp = (WeaponComponents or empty_table)[cid]
-        if comp then
-            comp.Icon = icon
-        end
+---- Where the item replaces the model, the bench shows the item's icon: one component id serves
+---- many calibres, so its own icon is right for one of them at best.
+function Rat_AttComponentIcon(comp, weapon, orig)
+    local family = RAT_ATT_ENABLED and weapon and comp and RAT_ATT_FAMILY_OF[comp.id]
+    local slot = family and table.find_value(weapon.ComponentSlots or empty_table, "SlotType", comp.Slot)
+    local def = slot and comp.id ~= slot.DefaultComponent and Rat_AttFamilyDef(family, weapon)
+    if def and def.model and IsValidEntity(def.model) then
+        return def.icon
     end
+    return orig(comp, weapon)
+end
+
+function Rat_AttHookIcon()
+    local orig = Rat_AttOriginal(GetWeaponComponentIcon)
+    GetWeaponComponentIcon = function(comp, weapon)
+        return Rat_AttComponentIcon(comp, weapon, orig)
+    end
+    RAT_ATT_WRAPS[GetWeaponComponentIcon] = orig
 end
 
 function Rat_AttSetup()
     if not RAT_ATT_ENABLED then
         return
     end
-    Rat_AttEnsureCompIcons()
+    Rat_AttHookIcon()
     Rat_AttBind()
     Rat_AttEnsureDefs()
     Rat_AttEnsureHints()
