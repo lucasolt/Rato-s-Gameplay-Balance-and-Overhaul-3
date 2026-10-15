@@ -768,7 +768,8 @@ RAT_ATT_ITEMS = {
         tier = 2,
         family = "suppressor",
         calibers = {"556", "5_7x28", "4_7x33"},
-        model = "WeaponAttA_SuppressorNATO"
+        model = "WeaponAttA_SuppressorNATO",
+        offsets = {SteyrScout_1 = point(-20, 0, 0)}
     },
     {
         id = "RAT_Att_Suppressor762",
@@ -1027,6 +1028,7 @@ function Rat_AttApplyModels(weapon, vis)
                 local part = vis.parts[descr.Slot]
                 if IsValid(part) and part:GetEntity() ~= model then
                     part.rat_native = part.rat_native or part:GetEntity()
+                    part.rat_offset = def.offsets and def.offsets[weapon.class]
                     part:ChangeEntity(model)
                     swapped = true
                 end
@@ -1060,6 +1062,7 @@ function Rat_AttUpdateVisualObj(self, vis, orig)
             if IsValid(part) and part.rat_native then
                 part:ChangeEntity(part.rat_native)
                 part.rat_native = nil
+                part.rat_offset = nil
             end
         end
     end
@@ -1069,6 +1072,12 @@ function Rat_AttUpdateVisualObj(self, vis, orig)
     end
     if own then
         ApplyWeaponComponentOffset(self, vis) -- CommonLib's own wrapper is overwritten by ToG/Zulib
+        ---- on top of the component's own offset, which the pass above just reset
+        for _, part in pairs(vis.parts or empty_table) do
+            if IsValid(part) and part.rat_offset then
+                part:SetAttachOffset(part:GetAttachOffset() + part.rat_offset)
+            end
+        end
     end
 end
 
@@ -1295,10 +1304,25 @@ function Rat_AttEnsureHints()
     end
 end
 
+---- Components whose model the item replaced on their only gun show the item's icon on the bench.
+RAT_ATT_COMP_ICONS = {
+    SteyrS_Muzzle_def_1 = "UI/Icons/Upgrades/556_suppressor"
+}
+
+function Rat_AttEnsureCompIcons()
+    for cid, icon in pairs(RAT_ATT_COMP_ICONS) do
+        local comp = (WeaponComponents or empty_table)[cid]
+        if comp then
+            comp.Icon = icon
+        end
+    end
+end
+
 function Rat_AttSetup()
     if not RAT_ATT_ENABLED then
         return
     end
+    Rat_AttEnsureCompIcons()
     Rat_AttBind()
     Rat_AttEnsureDefs()
     Rat_AttEnsureHints()
