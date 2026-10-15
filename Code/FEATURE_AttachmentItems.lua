@@ -73,7 +73,7 @@ RAT_ATT_DENY_NAMES = {
     ["Default Muzzle Brake"] = true,
     ["Default Compensator"] = true,
     ["Improvised Suppressor"] = true, -- the fallback you can always make out of parts, by design
-    ["Integral Suppressor"] = true, -- built into the barrel: VSK-94, De Lisle, Steyr Scout
+    ["Integral Suppressor"] = true, -- built into the barrel: VSK-94, De Lisle
     ["grenade"] = true, -- the 22mm rifle grenade rides the muzzle but is ammunition
     ["Gatling-style rotating six-barrel assembly"] = true
 }
@@ -93,7 +93,6 @@ RAT_ATT_RENAME = {
     ReflexSightAdvanced_Glock = "\"Assalto\" Reflex Sight 1x (Pistol)",
     RAT_TOG_Reflex_pistol = "\"Assalto\" Reflex Sight 1x (Pistol)",
     RAT_TOG_Reflex_pistol_rpk_mount = "\"Assalto\" Reflex Sight 1x (Pistol)",
-    SteyrS_Muzzle_def_1 = "Integral Suppressor",
     RAT_VSK_Suppressor = "Integral Suppressor"
 }
 
@@ -107,7 +106,7 @@ RAT_ATT_FAMILIES = {
                    "hk33_muzzle_1", "AUGCompensator_03", "Compensator_Glock"},
     booster = {"MuzzleBooster"},
     suppressor = {"Suppressor", "RAT_TOG_suppressor", "RAT_TOG_suppressor_762", "RAT_TOG_suppressor_wp",
-                  "Suppressor_Anaconda", "ToG_Shotgun_Silencer"},
+                  "Suppressor_Anaconda", "ToG_Shotgun_Silencer", "SteyrS_Muzzle_def_1"},
     ---- Removable underbarrel launchers only. Built-in ones (A91) and the fold/unfold rifle grenade
     ---- toggles (BM59, M70, PAP) stay free, like bayonets.
     grenadelauncher = {"AK47_Launcher", "GrenadeLauncher", "GrenadeLauncher_AUG", "GrenadeLauncher_Commando",
