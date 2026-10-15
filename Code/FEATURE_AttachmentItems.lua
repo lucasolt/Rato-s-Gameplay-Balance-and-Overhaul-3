@@ -628,6 +628,7 @@ RAT_ATT_ITEMS = {
         family = "compensator",
         guns = {"HK33A2_1", "HK53_1", "HK23E_1", "HK23ECamo_1"}
     },
+    ---- Retired: the M14 takes the 7.62 NATO item. Kept unbound so saves holding one still load.
     {
         id = "RAT_Att_CompensatorM14",
         name = "Compensator (M14)",
@@ -635,8 +636,7 @@ RAT_ATT_ITEMS = {
         size = "small",
         cost = 2000,
         tier = 2,
-        family = "compensator",
-        guns = {"M14SAW", "M14SAW_AUTO"}
+        family = "compensator"
     },
     {
         id = "RAT_Att_CompensatorBarrett",
@@ -918,8 +918,7 @@ RAT_ATT_TOC_MODELS = {
     RAT_Att_Suppressor44Rifle = {"ToC_Silencer_9", TOC_ICONS .. "ToC_Silencer_9.png"},
     RAT_Att_Suppressor45SMG = {"ToC_Silencer_SB100", TOC_ICONS .. "ToC_Silencer_sb100.png"},
     RAT_Att_Compensator45 = {"ToC_Muzzle_3", TOC_ICONS .. "ToC_Muzzle_3.png"},
-    RAT_Att_CompensatorMauser = {"ToC_Muzzle_4", TOC_ICONS .. "ToC_Muzzle_4.png"},
-    RAT_Att_CompensatorM14 = {"ToC_Muzzle_6", TOC_ICONS .. "ToC_Muzzle_6.png"}
+    RAT_Att_CompensatorMauser = {"ToC_Muzzle_4", TOC_ICONS .. "ToC_Muzzle_4.png"}
 }
 
 ---- Runs before the classes are built, which bake the icon. Class ids stay the same either way.
