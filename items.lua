@@ -1774,8 +1774,8 @@ return {
 			'CodeFileName', "Code/OPTIONS_PartsGain.lua",
 		}),
 		PlaceObj('ModItemCode', {
-			'name', "FEATURE_AttachmentItemsData",
-			'CodeFileName', "Code/FEATURE_AttachmentItemsData.lua",
+			'name', "FEATURE_AttachmentBalance",
+			'CodeFileName', "Code/FEATURE_AttachmentBalance.lua",
 		}),
 		PlaceObj('ModItemCode', {
 			'name', "FEATURE_AttachmentItems",

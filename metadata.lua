@@ -175,7 +175,7 @@ return PlaceObj('ModDef', {
 		"Code/OPTIONS_GunsHurt.lua",
 		"Code/OPTIONS_MuteIMP.lua",
 		"Code/OPTIONS_PartsGain.lua",
-		"Code/FEATURE_AttachmentItemsData.lua",
+		"Code/FEATURE_AttachmentBalance.lua",
 		"Code/FEATURE_AttachmentItems.lua",
 		"Code/FEATURE_AttachmentShop.lua",
 		"Code/FEATURE_GatherHerbs.lua",

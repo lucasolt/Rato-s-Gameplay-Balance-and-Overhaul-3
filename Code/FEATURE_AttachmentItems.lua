@@ -131,27 +131,682 @@ RAT_ATT_FAMILY_NAMES = {
     ["Suppressor"] = "suppressor"
 }
 
----- RAT_ATT_ITEMS (id frozen, comps, shop overrides) is generated from the attachments sheet into
----- FEATURE_AttachmentItemsData.lua by GBO_AttachmentsToLua.ipynb; edit the sheet, not that file.
+---- id: item class, frozen. comps: the ids known when this was generated; name binds the rest.
+---- Balance (size, cost, tier, shop weight/max_stock/scrap) is not here: it comes from the
+---- attachments sheet via GBO_AttachmentsToLua.ipynb into FEATURE_AttachmentBalance.lua.
 local priceMul = 50
+
+RAT_ATT_ITEMS = {
+    {
+        id = "RAT_Att_AWPScope",
+        name = "AWP Scope",
+        icon = "Mod/KKh3Yhf/Images/AWP_Scope_icon.png",
+        reserved = true,
+        comps = {"AWP_Scope_1"}
+    },
+    {
+        id = "RAT_Att_AssaltoReflexSight1x",
+        name = "\"Assalto\" Reflex Sight 1x",
+        icon = "UI/Icons/Upgrades/scope_reflex",
+        comps = {"RAT_TOG_Reflex", "RAT_TOG_Reflex_rpk_mount", "ReflexSightAdvanced"}
+    },
+    {
+        id = "RAT_Att_AssaltoReflexSight1xPistol",
+        name = "\"Assalto\" Reflex Sight 1x (Pistol)",
+        icon = "Mod/cfahRED/Images/glockRS.png",--UI/Icons/Upgrades/scope_reflex",
+        comps = {"RAT_TOG_Reflex_pistol", "RAT_TOG_Reflex_pistol_rpk_mount", "ReflexSightAdvanced_Glock"}
+    },
+    {
+        id = "RAT_Att_AutomagScope",
+        name = "Automag Scope",
+        icon = "Mod/KKh3Yhf/Images/Automag_Scope_icon.png",
+        reserved = true,
+        comps = {"Automag_Scope_1"}
+    },
+    {
+        id = "RAT_Att_CAWSScope",
+        name = "CAWS Scope",
+        icon = "Mod/KKh3Yhf/Images/CAWS_Scope_icon.png",
+        reserved = true,
+        comps = {"Caws_Scope_1"}
+    },
+    {
+        id = "RAT_Att_CompactReflexSight1x",
+        name = "Compact Reflex Sight 1x",
+        icon = "UI/Icons/Upgrades/compact_reflex_sight",
+        comps = {"RAT_TOG_compactRS", "RAT_TOG_compactRS_rpk_mount", "ReflexSight"}
+    },
+    {
+        id = "RAT_Att_CrossfireIIx4",
+        name = "Crossfire II x4",
+        icon = "Mod/KKh3Yhf/Images/SteyrScout_Scope.png",
+        comps = {"SteyrS_Scope_1", "_Master_SteyrS_Scope_TOG"}
+    },
+    {
+        id = "RAT_Att_DigitalScope2x",
+        name = "Digital Scope 2x",
+        icon = "UI/Icons/Upgrades/g36_scope_01", -- the component's own icon is the generic one; the G36 art is on its visual
+        comps = {"G36_SCOPE"}
+    },
+    {
+        id = "RAT_Att_DigitalScope4x2x",
+        name = "Digital Scope 4x/2x",
+        icon = "UI/Icons/Upgrades/g36_scope_02", -- the component's own icon is the generic one; the G36 art is on its visual
+        comps = {"SCOPE_G36_2"}
+    },
+    {
+        id = "RAT_Att_Flashlight",
+        name = "Flashlight",
+        icon = "UI/Icons/Upgrades/side_light",
+        comps = {"Flashlight", "Flashlight_Anaconda", "Flashlight_PSG_M1", "Flashlight_aa12", "RAT_TOG_flashlight", "RAT_TOG_flashlight_rpk_mount", "ToG_Flashlight_1"}
+    },
+    {
+        id = "RAT_Att_G11ZieloptikZO1",
+        name = "G11 Zieloptik ZO-1",
+        icon = "Mod/KKh3Yhf/Images/G11_Scope_icon.png",
+        comps = {"G11_Scope_1"}
+    },
+    {
+        id = "RAT_Att_HensoldtZFScope6x",
+        name = "Hensoldt ZF Scope 6x",
+        icon = "UI/Icons/Upgrades/custom_PSG1_scope",
+        comps = {"PSG_DefaultScope", "RAT_TOG_PSGScope", "RAT_TOG_PSGScope_rpk_mount"}
+    },
+    {
+        id = "RAT_Att_ITLMARS1x",
+        name = "ITL MARS 1x",
+        icon = "Mod/KKh3Yhf/Images/TAR21_Scope_icon.png",
+        comps = {"TAR21_Scope_Rflx_1"}
+    },
+    {
+        id = "RAT_Att_PSO1M21Scope4x",
+        name = "PSO-1M2-1 Scope 4x",
+        icon = "Mod/KKh3Yhf/Images/VSS_Scope_icon.png",
+        comps = {"VSS_Scope_1", "_Master_PSO-1M2_Scope_TOG"}
+    },
+    {
+        id = "RAT_Att_PSO1Scope4x",
+        name = "PSO-1 Scope 4x",
+        icon = "UI/Icons/Upgrades/custom_Dragunov_scope",
+        comps = {"LROptics_DragunovDefault"}
+    },
+    {
+        id = "RAT_Att_PrismScope2x",
+        name = "Prism Scope 2x",
+        icon = "UI/Icons/Upgrades/prism_scope",
+        comps = {"RAT_TOG_Prism", "RAT_TOG_Prism_rpk_mount", "ScopeCOG"}
+    },
+    {
+        id = "RAT_Att_QuickPrismScope2x",
+        name = "Quick Prism Scope 2x",
+        icon = "UI/Icons/Upgrades/scope_thermal",
+        comps = {"RAT_TOG_ACOG", "RAT_TOG_ACOG_rpk_mount", "ScopeCOGQuick"}
+    },
+    {
+        id = "RAT_Att_RedDot",
+        name = "Red Dot",
+        icon = "UI/Icons/Upgrades/side_laser", -- 7 of the 8 use this; MK23_laser_1 brings its own
+        comps = {"LaserDot", "LaserDot_Anaconda", "LaserDot_PSG_M1", "LaserDot_aa12", "MK23_laser_1", "RAT_TOG_laser_dot", "RAT_TOG_laser_dot_rpk_mount", "ToG_Red_Dot_1"}
+    },
+    {
+        id = "RAT_Att_ReflexSight",
+        name = "Reflex Sight",
+        icon = "Mod/KKh3Yhf/Images/MP7_reddot.png",
+        reserved = true,
+        comps = {"MP7_Scope_1"}
+    },
+    {
+        id = "RAT_Att_SniperScope4x",
+        name = "Sniper Scope 4x",
+        icon = "UI/Icons/Upgrades/scope_longrange",
+        comps = {"LROptics", "RAT_TOG_LRoptics", "RAT_TOG_LRoptics_rpk_mount"}
+    },
+    {
+        id = "RAT_Att_SniperScope6x",
+        name = "Sniper Scope 6x",
+        icon = "UI/Icons/Upgrades/sniper_scope_x10",
+        comps = {"LROpticsAdvanced", "RAT_TOG_LRoptics_advanced", "RAT_TOG_LRoptics_advanced_rpk_mount"}
+    },
+    {
+        id = "RAT_Att_SniperScopex5",
+        name = "Sniper Scope x5",
+        icon = "UI/Icons/Upgrades/custom_Dragunov_scope",
+        reserved = true,
+        comps = {"AN94_Scope_1", "SKS_Scope"}
+    },
+    {
+        id = "RAT_Att_SniperScopex8",
+        name = "Sniper Scope x8",
+        icon = "Mod/KKh3Yhf/Images/NTW20_scope.png",
+        reserved = true,
+        comps = {"NTW_20_Scope_1"}
+    },
+    {
+        id = "RAT_Att_SwarovskiOptikScope15x",
+        name = "Swarovski Optik Scope 1.5x",
+        icon = "UI/Icons/Upgrades/custom_Steyr_AUG_scope",
+        comps = {"AUGScope_Default"}
+    },
+    {
+        id = "RAT_Att_TacticalDevice",
+        name = "Tactical Device",
+        icon = "UI/Icons/Upgrades/side_laserlight",
+        comps = {"FlashlightDot", "FlashlightDot_Anaconda", "FlashlightDot_PSG_M1", "FlashlightDot_aa12", "RAT_TOG_tactical_dot", "RAT_TOG_tactical_dot_rpk_mount"}
+    },
+    {
+        id = "RAT_Att_ThermalScope4x",
+        name = "Thermal Scope 4x",
+        icon = "UI/Icons/Upgrades/scope_ACOG",
+        comps = {"RAT_TOG_thermal", "RAT_TOG_thermal_rpk_mount", "ThermalScope", "ThermalScope_1", "ThermalScope_2"}
+    },
+    {
+        id = "RAT_Att_UVDot",
+        name = "UV Dot",
+        icon = "UI/Icons/Upgrades/side_laser",
+        comps = {"RAT_TOG_uv_dot", "RAT_TOG_uv_dot_rpk_mount", "ToG_UV_Dot_1", "UVDot", "UVDot_Anaconda", "UVDot_PSG_M1", "UVDot_aa12"}
+    },
+    {
+        id = "RAT_Att_VigilanteReflexSight1x",
+        name = "\"Vigilante\" Reflex Sight 1x",
+        icon = "Mod/KQkEVHf/Icons/Upgrades/ToC_Scope_kentaur.png",
+        comps = {"RAT_TOG_vigilanceRS", "RAT_TOG_vigilanceRS_rpk_mount", "_ReflexSIghtVigilance"}
+    },
+    {
+        id = "RAT_Att_VultoWideScope2x",
+        name = "\"Vulto\" Wide Scope 2x",
+        icon = "Mod/KKh3Yhf/Images/L85A1_scope.png",
+        comps = {"RAT_TOG_WideScope", "RAT_TOG_WideScope_rpk_mount", "WideScope"}
+    },
+    {
+        id = "RAT_Att_WA2000Scope",
+        name = "WA2000 Scope",
+        icon = "Mod/KKh3Yhf/Images/WA2000_Scope_icon_1.png",
+        reserved = true,
+        comps = {"WA2000_Scope_1"}
+    },
+    {
+        id = "RAT_Att_ZF4Scopex15",
+        name = "ZF-4 Scope x1.5",
+        icon = "Mod/KKh3Yhf/Images/G43_Scope_icon.png",
+        comps = {"GW43_Scope_1", "_Master_GW43_Scope_TOG"}
+    },
+    {
+        id = "RAT_Att_ZF846x",
+        name = "ZF 84 6x",
+        icon = "Mod/KKh3Yhf/Images/SSG69_Scope_icon.png",
+        comps = {"SSG69_Scope_1", "_Master_SSG69_Scope_TOG"}
+    },
+    {
+        id = "RAT_Att_ZRAKx4Scope",
+        name = "ZRAK x4 Scope",
+        icon = "Mod/KKh3Yhf/Images/M76_scope.png",
+        comps = {"_Master_m76_scope_TOG", "m76_scope_1"}
+    },
+    {
+        id = "RAT_Att_Bipod",
+        name = "Bipod",
+        icon = "UI/Icons/Upgrades/ak47_bipod",
+        ---- Bipod_Under and Bipod_Galil sit in the Under slot, which name binding does not scan
+        comps = {"AN94_Bip_def_1", "Bipod", "Bipod_MG42", "Bipod_m82", "G11_Bipod_1", "ToG_Bipod_1", "U100_bipod_fld_1",
+                 "Bipod_Under", "Bipod_Galil"}
+    },
+    ---- Vertical and folding grips, each gun keeping its own model. Integral ones stay free: the AUG's
+    ---- TacGrip_aug is left out, and the MP5K's VerticalGrip is welded (its only option, never empty).
+    {
+        id = "RAT_Att_GripAK",
+        name = "Vertical Grip (AK)",
+        icon = "UI/Icons/Upgrades/ak47_vertical_grip",
+        comps = {"AK47_VerticalGrip", "AK47_TacGrip", "AKSU_VerticalGrip", "RPK74_VerticalGrip"}
+    },
+    {
+        id = "RAT_Att_Grip",
+        name = "Vertical Grip",
+        icon = "UI/Icons/Upgrades/mp5_grip",
+        comps = {"VerticalGrip", "VerticalGrip_M14", "VerticalGrip_M16", "VerticalGrip_Commando", "AR10_grip_mountfront",
+                 "G11_Grip_CAWS_1"}
+    },
+    {
+        id = "RAT_Att_TacGrip",
+        name = "Tactical Grip",
+        icon = "UI/Icons/Upgrades/tactical_grip",
+        comps = {"TacGrip", "TacGrip_M14"}
+    },
+    ---- Compensators by calibre. model is what the gun wears, whatever its own Visuals say.
+    {
+        id = "RAT_Att_Compensator",
+        name = "Compensator (5.56 NATO)",
+        icon = "UI/Icons/Upgrades/m16_muzzle",
+        family = "compensator",
+        calibers = {"556", "5_7x28", "4_7x33"},
+        model = "WeaponAttA_Muzzle_01"
+    },
+    {
+        id = "RAT_Att_Compensator762",
+        name = "Compensator (7.62 NATO)",
+        icon = "UI/Icons/Upgrades/muzzle_fal_01",
+        family = "compensator",
+        calibers = {"762NATO", "308Win", "30-60"},
+        model = "WeaponAttA_MuzzleFNFal"
+    },
+    {
+        id = "RAT_Att_CompensatorAK",
+        name = "Compensator (7.62x39)",
+        icon = "UI/Icons/Upgrades/AK_compensator",
+        family = "compensator",
+        calibers = {"762WP"},
+        model = "WeaponAttA_CompensatorWP"
+    },
+    {
+        id = "RAT_Att_CompensatorAK74",
+        name = "Compensator (5.45x39)",
+        icon = "Mod/cfahRED/Images/545_comp.png",
+        family = "compensator",
+        calibers = {"5_45x39"},
+        model = "WeaponAttA_MuzzleAK74"
+    },
+    {
+        id = "RAT_Att_Compensator54R",
+        name = "Compensator (7.62x54R)",
+        icon = "Mod/cfahRED/Images/76254r_comp.png",
+        family = "compensator",
+        calibers = {"7_62x54R"},
+        model = "WeaponAttA_MuzzleDragunov_01"
+    },
+    {
+        id = "RAT_Att_CompensatorMauser",
+        name = "Compensator (7.92 Mauser)",
+        icon = "Mod/cfahRED/Images/76254r_comp.png",
+        family = "compensator",
+        calibers = {"7_92x57", "7_92x33"},
+        model = "WeaponAttA_MuzzleDragunov_01"
+    },
+    {
+        id = "RAT_Att_Compensator9mm",
+        name = "Compensator (9mm)",
+        icon = "UI/Icons/Upgrades/MP5_compensator",
+        family = "compensator",
+        calibers = {"9mm", "380ACP", "9x18", "9x39"},
+        model = "WeaponAttA_CompensatorMP5"
+    },
+    {
+        id = "RAT_Att_Compensator45",
+        name = "Compensator (.45 ACP)",
+--TODO: Proper Icon
+        icon = "UI/Icons/Upgrades/MP5_compensator",
+        family = "compensator",
+        calibers = {"45ACP"},
+        model = "WeaponAttA_CompensatorHKG36_02"
+    },
+    {
+        id = "RAT_Att_CompensatorShotgun",
+        name = "Compensator (12 gauge)",
+        icon = "UI/Icons/Upgrades/shotgun_compensator",
+        family = "compensator",
+        calibers = {"12gauge"},
+        model = "WeaponAttA_CompensatorM4"
+    },
+    ---- Compensators made for one platform. No model keeps the gun's own; one here overrides it.
+    {
+        id = "RAT_Att_CompensatorHiPower",
+        name = "Compensator (Hi-Power)",
+        icon = "Mod/cfahRED/Images/hipower_comp.png",
+        family = "compensator",
+        guns = {"HiPower"}
+    },
+    --{
+    --    id = "RAT_Att_CompensatorM1911",
+    --    name = "Compensator (M1911)",
+    --    icon = "UI/Icons/Upgrades/glock_compensator",
+    --    family = "compensator",
+    --    guns = {"M1911_1"},
+    --    model = "WeaponAttA_CompensatorBHP"
+    --},
+    --{
+    --    id = "RAT_Att_CompensatorP08",
+    --    name = "Compensator (P08)",
+    --    icon = "UI/Icons/Upgrades/glock_compensator",
+    --    family = "compensator",
+    --    guns = {"P08_1"},
+    --    model = "WeaponAttA_CompensatorBHP"
+    --},
+    {
+        id = "RAT_Att_AdvancedCompensator",
+        name = "Compensator (Glock)",
+        icon = "UI/Icons/Upgrades/glock_compensator",
+        family = "compensator",
+        guns = {"Glock17_1", "Glock18"}
+    },
+    {
+        id = "RAT_Att_CompensatorAUG",
+        name = "Compensator (AUG)",
+        icon = "UI/Icons/Upgrades/muzzle_steyr_01",
+        family = "compensator",
+        guns = {"AUG"}
+    },
+    {
+        id = "RAT_Att_CompensatorHK762",
+        name = "Flash Hider (HK G3)",
+        icon = "Mod/KKh3Yhf/Images/G3A3_muzzle_def.png",
+        family = "compensator",
+        guns = {"G3A3_1", "G3A3Green_1", "HK21"},
+        model = "G3A3_muzzle"
+    },
+    {
+        id = "RAT_Att_CompensatorHK556",
+        name = "Flash Hider (HK33)",
+        icon = "Mod/KKh3Yhf/Images/HK33_muzzle_def.png",
+        family = "compensator",
+        guns = {"HK33A2_1", "HK53_1", "HK23E_1", "HK23ECamo_1"}
+    },
+    ---- Retired: the M14 takes the 7.62 NATO item. Kept unbound so saves holding one still load.
+    {
+        id = "RAT_Att_CompensatorM14",
+        name = "Compensator (M14)",
+        icon = "UI/Icons/Upgrades/muzzle_fal_01",
+        family = "compensator"
+    },
+    {
+        id = "RAT_Att_CompensatorBarrett",
+        name = "Muzzle Brake (Barrett)",
+        icon = "UI/Icons/Upgrades/m16_muzzle",
+        family = "compensator",
+        guns = {"BarretM82"}
+    },
+    ---- Recoil boosters thread on like a compensator: NATO and AK patterns, and the M14's own.
+    {
+        id = "RAT_Att_RecoilBooster",
+        name = "Recoil Booster (NATO)",
+        icon = "UI/Icons/Upgrades/booster_NATO",
+        family = "booster",
+        calibers = {"556", "762NATO", "308Win", "45ACP", "9x18"},
+        model = "WeaponAttA_BoosterNATO"
+    },
+    {
+        id = "RAT_Att_RecoilBoosterAK",
+        name = "Recoil Booster (AK)",
+        icon = "UI/Icons/Upgrades/AK_muzzle_booster",
+        family = "booster",
+        calibers = {"762WP", "5_45x39"},
+        model = "WeaponAttA_BoosterWP"
+    },
+    {
+        id = "RAT_Att_RecoilBoosterM14",
+        name = "Recoil Booster (M14)",
+        icon = "UI/Icons/Upgrades/AR_muzzle_booster",
+        family = "booster",
+        guns = {"M14SAW", "M14SAW_AUTO"},
+        model = "WeaponAttA_BoosterM14"
+    },
+    {
+        id = "RAT_Att_DuckbillChoke",
+        name = "Duckbill Choke",
+        icon = "UI/Icons/Upgrades/duckbill_choke",
+        comps = {"DuckbillChoke"}
+    },
+    {
+        id = "RAT_Att_FullChoke",
+        name = "Full Choke",
+        icon = "UI/Icons/Upgrades/shotgun_full_choke",
+        comps = {"FullChoke"}
+    },
+    ---- Suppressors by bore. types splits a calibre where a pistol can and a long gun can differ.
+    {
+        id = "RAT_Att_SuppressorPistol",
+        name = "Suppressor (9mm Pistol)",
+        icon = "UI/Icons/Upgrades/beretta_silencer",
+        family = "suppressor",
+        calibers = {"9mm", "380ACP", "9x18"},
+        types = {"Handgun"},
+        model = "WeaponAttA_SilencerBeretta"
+    },
+    {
+        id = "RAT_Att_SuppressorSMG9mm",
+        name = "Suppressor (9mm SMG)",
+        icon = "UI/Icons/Upgrades/9mm_SMG_suppressor",
+        family = "suppressor",
+        calibers = {"9mm", "380ACP", "9x18"},
+        model = "WeaponAttA_SuppressorSMG9mm"
+    },
+    {
+--TODO: Change to only Desert Eagle
+        id = "RAT_Att_SuppressorDesertEagle",
+        name = "Suppressor (.44 Pistol)",
+        icon = "UI/Icons/Upgrades/deserteagle_suppressor",
+        family = "suppressor",
+        calibers = {"44CAL"},
+        types = {"Handgun"},
+        model = "WeaponAttA_SilencerDesertEagle"
+    },
+    {
+        id = "RAT_Att_Suppressor45SMG",
+        name = "Suppressor (.45 ACP)",
+        icon = "UI/Icons/Upgrades/9mm_SMG_suppressor",
+        family = "suppressor",
+        calibers = {"45ACP"},
+        types = {"SMG", "Handgun"},
+        model = "WeaponAttA_SuppressorSMG9mm"
+    },
+    {
+        id = "RAT_Att_Suppressor44Rifle",
+        name = "Suppressor (.44 Rifle)",
+        icon = "UI/Icons/Upgrades/762_suppressor",
+        family = "suppressor",
+        calibers = {"44CAL"},
+        model = "WeaponAttA_Suppressor762"
+    },
+    {
+        id = "RAT_Att_Suppressor556",
+        name = "Suppressor (5.56 NATO)",
+        icon = "UI/Icons/Upgrades/556_suppressor",
+        family = "suppressor",
+        calibers = {"556", "5_7x28", "4_7x33"},
+        model = "WeaponAttA_SuppressorNATO",
+        offsets = {SteyrScout_1 = point(-20, 0, 0)}
+    },
+    {
+        id = "RAT_Att_Suppressor762",
+        name = "Suppressor (7.62 NATO)",
+        icon = "UI/Icons/Upgrades/762_suppressor",
+        family = "suppressor",
+        calibers = {"762NATO", "308Win", "30-60"},
+        model = "WeaponAttA_Suppressor762"
+    },
+    {
+        id = "RAT_Att_SuppressorWP",
+        name = "Suppressor (7.62x39)",
+        icon = "UI/Icons/Upgrades/AK_suppressor",
+        family = "suppressor",
+        calibers = {"762WP"},
+        model = "WeaponAttA_SuppressorWP"
+    },
+    {
+        id = "RAT_Att_Suppressor545",
+        name = "Suppressor (5.45x39)",
+        icon = "UI/Icons/Upgrades/AK_suppressor",
+        family = "suppressor",
+        calibers = {"5_45x39"},
+        model = "WeaponAttA_SuppressorWP"
+    },
+    {
+        id = "RAT_Att_Suppressor54R",
+        name = "Suppressor (7.62x54R)",
+        icon = "UI/Icons/Upgrades/AK_suppressor",
+        family = "suppressor",
+        calibers = {"7_62x54R"},
+        model = "WeaponAttA_SuppressorWP"
+    },
+    {
+--TODO: Remove or find a model? 
+        id = "RAT_Att_SuppressorMauser",
+        name = "Suppressor (7.92 Mauser)",
+        icon = "UI/Icons/Upgrades/762_suppressor",
+        family = "suppressor",
+        calibers = {"7_92x57"},
+        model = "WeaponAttA_Suppressor762"
+    },
+    {
+        id = "RAT_Att_Suppressor9x39",
+        name = "Suppressor (9x39)",
+        icon = "UI/Icons/Upgrades/AK_suppressor",
+        family = "suppressor",
+        calibers = {"9x39"},
+        model = "WeaponAttA_SuppressorWP"
+    },
+    {
+        id = "RAT_Att_Suppressor50",
+        name = "Suppressor (.50 BMG)",
+        icon = "UI/Icons/Upgrades/M82_suppressor",
+        family = "suppressor",
+        calibers = {"50BMG"},
+        model = "WeaponAttA_SuppressorBarrettM82"
+    },
+    {
+        id = "RAT_Att_SuppressorShotgun",
+        name = "Suppressor (12 gauge)",
+        icon = "UI/Icons/Upgrades/shotgun_suppressor",
+        family = "suppressor",
+        calibers = {"12gauge"},
+        model = "WeaponAttA_SuppressorShotgun"
+    },
+    ---- the FN2000 and MP7 cans are components of their own, on guns not patched yet
+    {
+        id = "RAT_Att_SuppressorFN2000",
+        name = "Suppressor (FN2000)",
+        icon = "UI/Icons/Upgrades/556_suppressor",
+        reserved = true,
+        comps = {"FN2000_silencer_1"}
+    },
+    {
+        id = "RAT_Att_SuppressorMP7",
+        name = "Suppressor (MP7)",
+        icon = "UI/Icons/Upgrades/9mm_SMG_suppressor",
+        reserved = true,
+        comps = {"MP7_Supr_1"}
+    },
+    ---- Grenade launchers by pattern; each gun keeps its own launcher model.
+    {
+        id = "RAT_Att_GP25",
+        name = "GP-25 Grenade Launcher",
+        icon = "UI/Icons/Upgrades/grenade_launcher_WP",
+        family = "grenadelauncher",
+        guns = {"AK47", "AK74"}
+    },
+    {
+        id = "RAT_Att_M203",
+        name = "M203 Grenade Launcher",
+        icon = "UI/Icons/Upgrades/m16_grenade_launcher",
+        family = "grenadelauncher",
+        any = true
+    }
+}
 
 ---- Magazines: one item per size and calibre, like the suppressors. The mag a gun ships with is part
 ---- of the gun and never an item. Off under Revised Mags, whose magazines are items already.
 RAT_ATT_REVMAGS = "URkxyfE"
 RAT_ATT_MAG_PARTS = 1
 RAT_ATT_MAG_FAMILIES = {
-    mag_standard = {"MagNormal"},
-    mag_fine = {"MagNormalFine"},
-    mag_expanded = {"MagLarge", "MagLarge_1", "MagLarge_3", "MagLarge_4", "MagLarge_5", "MagLarge_7", "MagLarge_10",
-                    "A91_762_mag_ext_1", "G11_Mag_ext_1"},
-    mag_ergo = {"MagLargeFine", "MagLargeFine_1", "MagLargeFine_5", "MagLargeFine_10"},
-    mag_quick = {"MagQuick"},
-    mag_quickexpanded = {"R_MagQuickLarge"},
-    mag_drum = {"MagLarger", "MagLarge_2", "MagLarge_6", "MagLarge_8", "MagLarge_9", "MagLarge_12", "G11_Mag_ext2_1"}
+    mag_standard = {name = "Standard Magazine", key = "Standard", comps = {"MagNormal"}},
+    mag_fine = {name = "Fine-Tuned Magazine", key = "Fine", comps = {"MagNormalFine"}},
+    mag_expanded = {name = "Expanded Magazine", key = "Expanded",
+                    comps = {"MagLarge", "MagLarge_1", "MagLarge_3", "MagLarge_4", "MagLarge_5", "MagLarge_7",
+                             "MagLarge_10", "A91_762_mag_ext_1", "G11_Mag_ext_1"}},
+    mag_ergo = {name = "Ergonomic Expanded Magazine", key = "Ergo",
+                comps = {"MagLargeFine", "MagLargeFine_1", "MagLargeFine_5", "MagLargeFine_10"}},
+    mag_quick = {name = "Quick Magazine", key = "Quick", comps = {"MagQuick"}},
+    mag_quickexpanded = {name = "Quick Expanded Magazine", key = "QuickExpanded",
+                         comps = {"R_MagQuickLarge"}},
+    mag_drum = {name = "Drum Magazine", key = "Drum", page = "MGMags",
+                comps = {"MagLarger", "MagLarge_2", "MagLarge_6", "MagLarge_8", "MagLarge_9", "MagLarge_12",
+                         "G11_Mag_ext2_1"}}
 }
 
-for family, comps in pairs(RAT_ATT_MAG_FAMILIES) do
-    RAT_ATT_FAMILIES[family] = comps
+---- family, id suffix, calibre label, calibers, icon, types, shop page (default RifleMags). A typed row
+---- wins for its weapon type; the untyped one of the same calibre takes the rest.
+local UP = "UI/Icons/Upgrades/"
+local TOG = "Mod/KKh3Yhf/Images/"
+RAT_ATT_MAG_ROWS = {
+    {"mag_standard", "556", "5.56 NATO", {"556"}, UP .. "m16_magazine"},
+    {"mag_standard", "AK", "7.62x39", {"762WP"}, UP .. "AK47_magazine"},
+    {"mag_standard", "9x39", "9x39", {"9x39"}, TOG .. "VSS_Mag_def_icon.png"},
+
+    {"mag_fine", "556", "5.56 NATO", {"556"}, UP .. "ar15_mag_ergo_normal"},
+    {"mag_fine", "545", "5.45x39", {"5_45x39"}, UP .. "AK74_Bakelite_magazine"},
+    {"mag_fine", "762", "7.62 NATO", {"762NATO", "308Win"}, UP .. "m14_mag_ergo_normal"},
+    {"mag_fine", "9mmPistol", "9mm Pistol", {"9mm"}, UP .. "default_magazine", {"Handgun"}, "PistolMags"},
+    {"mag_fine", "9mm", "9mm SMG", {"9mm"}, UP .. "default_magazine", nil, "SMGMags"},
+
+    {"mag_expanded", "556", "5.56 NATO", {"556"}, UP .. "expanded_STANAG_magazine"},
+    {"mag_expanded", "545", "5.45x39", {"5_45x39"}, UP .. "expanded_AK74_bakelite_magazine"},
+    {"mag_expanded", "762", "7.62 NATO", {"762NATO", "308Win"}, UP .. "expanded_M14_magazine"},
+    {"mag_expanded", "AK", "7.62x39", {"762WP"}, UP .. "expanded_AK47_magazine"},
+    {"mag_expanded", "54R", "7.62x54R", {"7_62x54R"}, UP .. "dragunov_mag_normal"},
+    {"mag_expanded", "Mauser", "7.92 Mauser", {"7_92x57"}, TOG .. "G43_Mag_ext_icon.png"},
+    {"mag_expanded", "G11", "4.73 Caseless", {"4_7x33"}, TOG .. "G11_Mag_ext_icon.png"},
+    {"mag_expanded", "50", ".50 BMG", {"50BMG"}, UP .. "M14_magazine", nil, "OtherMags"},
+    {"mag_expanded", "12g", "12 gauge", {"12gauge"}, UP .. "aa12_mag_drum", nil, "OtherMags"},
+    {"mag_expanded", "9mmPistol", "9mm Pistol", {"9mm"}, UP .. "glock_mag_large", {"Handgun"}, "PistolMags"},
+    {"mag_expanded", "9mm", "9mm SMG", {"9mm"}, UP .. "mp5_mag_large", nil, "SMGMags"},
+    {"mag_expanded", "9x18", "9x18", {"9x18"}, TOG .. "PP91_mag_ext.png", nil, "SMGMags"},
+    {"mag_expanded", "9x39", "9x39", {"9x39"}, TOG .. "VSK94_mag_def.png"},
+    {"mag_expanded", "45", ".45 ACP", {"45ACP"}, UP .. "beretta_mag_large", nil, "PistolMags"},
+    {"mag_expanded", "44", ".44", {"44CAL"}, UP .. "desertEagle_mag_large", nil, "PistolMags"},
+
+    {"mag_ergo", "556", "5.56 NATO", {"556"}, UP .. "ar15_mag_ergo_large"},
+    {"mag_ergo", "545", "5.45x39", {"5_45x39"}, UP .. "expanded_AK74_bakelite_magazine"},
+    {"mag_ergo", "762", "7.62 NATO", {"762NATO", "308Win"}, UP .. "fnfal_mag_ergo_large"},
+    {"mag_ergo", "9mmPistol", "9mm Pistol", {"9mm"}, UP .. "BHP_mag_large", {"Handgun"}, "PistolMags"},
+    {"mag_ergo", "9mm", "9mm SMG", {"9mm"}, UP .. "uzi_mag_large", nil, "SMGMags"},
+
+    {"mag_quick", "556", "5.56 NATO", {"556"}, UP .. "quick_STANAG_magazine"},
+    {"mag_quick", "545", "5.45x39", {"5_45x39"}, UP .. "quick_AK74_bakelite_magazine"},
+    {"mag_quick", "762", "7.62 NATO", {"762NATO", "308Win"}, UP .. "quick_M14_magazine"},
+    {"mag_quick", "AK", "7.62x39", {"762WP"}, UP .. "quick_AK47_magazine"},
+    {"mag_quick", "9mm", "9mm", {"9mm"}, UP .. "mp5_mag_quick", nil, "SMGMags"},
+
+    {"mag_quickexpanded", "556", "5.56 NATO", {"556"}, UP .. "quick_STANAG_magazine"},
+
+    {"mag_drum", "556", "5.56 NATO", {"556"}, UP .. "expanded_drum_G36_magazine"},
+    {"mag_drum", "545", "5.45x39", {"5_45x39"}, UP .. "RPK74_drum_magazine"},
+    {"mag_drum", "762", "7.62 NATO", {"762NATO", "308Win"}, UP .. "hk21_mag_large"},
+    {"mag_drum", "12g", "12 gauge", {"12gauge"}, UP .. "aa12_mag_drum"},
+    {"mag_drum", "G11", "4.73 Caseless", {"4_7x33"}, TOG .. "G11_Mag_ext2_icon.png"}
+}
+
+for family, fam in pairs(RAT_ATT_MAG_FAMILIES) do
+    RAT_ATT_FAMILIES[family] = fam.comps
+end
+for _, row in ipairs(RAT_ATT_MAG_ROWS) do
+    local fam = RAT_ATT_MAG_FAMILIES[row[1]]
+    RAT_ATT_ITEMS[#RAT_ATT_ITEMS + 1] = {
+        id = "RAT_Att_Mag" .. fam.key .. row[2],
+        name = fam.name .. " (" .. row[3] .. ")",
+        icon = row[5],
+        family = row[1],
+        calibers = row[4],
+        types = row[6],
+        page = row[7] or fam.page or "RifleMags",
+        mag = true
+    }
+end
+
+---- Every item takes its balance row; a missing one leaves a small part that is never sold, so the
+---- class still exists for saves that hold it.
+local balanced = {}
+for _, def in ipairs(RAT_ATT_ITEMS) do
+    local row = RAT_ATT_BALANCE[def.id]
+    if not row then
+        print("Rat_Att: no balance row for " .. def.id)
+        row = {size = "small", cost = 0, tier = 3, weight = 0}
+    end
+    for k, v in pairs(row) do
+        def[k] = v
+    end
+    balanced[def.id] = true
+end
+for id in pairs(RAT_ATT_BALANCE) do
+    if not balanced[id] then
+        print("Rat_Att: balance row for unknown item " .. id)
+    end
 end
 
 ---- A live item that is switched off for this mod set: bound to nothing, never sold or registered.
