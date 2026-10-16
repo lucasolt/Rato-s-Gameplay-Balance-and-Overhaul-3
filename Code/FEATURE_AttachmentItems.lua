@@ -452,6 +452,27 @@ RAT_ATT_ITEMS = {
         comps = {"AN94_Bip_def_1", "Bipod", "Bipod_MG42", "Bipod_m82", "G11_Bipod_1", "ToG_Bipod_1", "U100_bipod_fld_1",
                  "Bipod_Under", "Bipod_Galil"}
     },
+    ---- Vertical and folding grips, each gun keeping its own model. Integral ones stay free: the AUG's
+    ---- TacGrip_aug is left out, and the MP5K's VerticalGrip is welded (its only option, never empty).
+    {
+        id = "RAT_Att_GripAK",
+        name = "Vertical Grip (AK)",
+        icon = "UI/Icons/Upgrades/ak47_vertical_grip",
+        size = "medium",
+        cost = 800,
+        tier = 1,
+        comps = {"AK47_VerticalGrip", "AK47_TacGrip", "AKSU_VerticalGrip", "RPK74_VerticalGrip"}
+    },
+    {
+        id = "RAT_Att_Grip",
+        name = "Vertical Grip",
+        icon = "UI/Icons/Upgrades/mp5_grip",
+        size = "small",
+        cost = 1000,
+        tier = 1,
+        comps = {"VerticalGrip", "VerticalGrip_M14", "VerticalGrip_M16", "VerticalGrip_Commando", "AR10_grip_mountfront",
+                 "TacGrip", "TacGrip_M14", "G11_Grip_CAWS_1"}
+    },
     ---- Compensators by calibre. model is what the gun wears, whatever its own Visuals say.
     {
         id = "RAT_Att_Compensator",
@@ -1267,7 +1288,10 @@ function Rat_AttCompatible()
             return
         end
         for _, slot in ipairs(cls.ComponentSlots or empty_table) do
-            for _, cid in ipairs(slot.AvailableComponents or empty_table) do
+            local comps = slot.AvailableComponents or empty_table
+            ---- a locked slot, or one welded to its only part, takes nothing
+            local fixed = not slot.Modifiable or (#comps == 1 and not slot.CanBeEmpty)
+            for _, cid in ipairs(fixed and empty_table or comps) do
                 local item = Rat_AttItemFor(cid, cls)
                 if item then
                     fits[item] = fits[item] or {}
