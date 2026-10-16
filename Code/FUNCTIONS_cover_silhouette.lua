@@ -521,12 +521,44 @@ function Rat_MuzzlePointBlank(attacker, attack_pos, aim_pos, args)
     return anchor + MulDivRound(along, len - gap, len)
 end
 
+---- Behind a wall the aim pose can put the engine muzzle past it (MD 2026-10-15: 400 units through a
+---- WallSlab), so the shot never saw its own cover. Pull the muzzle back to the near face of the wall.
+local WALL_CLIP_GAP = 20
+function Rat_MuzzleWallClip(attacker, attack_pos, args)
+    local tile = Rat_ValidZ((args and args.step_pos) or attacker:GetPos())
+    local anchor = tile:SetZ(attack_pos:z())
+    local len = anchor:Dist(attack_pos)
+    if len <= WALL_CLIP_GAP or
+        GetAngleCover(tile, CalcOrientation(anchor, attack_pos)) ~= const.CoverHigh then
+        return
+    end
+    local probe = table.copy(args or empty_table)
+    Rat_SimLoFOverrides(probe, anchor, RAY_SEED, nil)
+    probe.target_pos = attack_pos
+    probe.penetration_class = P().CoverPenetrationClass or 0
+    probe.can_hit_attacker = false
+    local l = Rat_SimLoF(GetLoFData(attacker, attack_pos, probe))
+    local near
+    for _, h in ipairs((l and l.hits) or empty_table) do
+        local d = h.pos and not IsKindOf(h.obj, "Unit") and anchor:Dist(Rat_ValidZ(h.pos))
+        if d and d < len and (not near or d < near) then
+            near = d
+        end
+    end
+    return near and anchor + SetLen(attack_pos - anchor, Max(0, near - WALL_CLIP_GAP))
+end
+
 function Rat_MuzzleStepOut(attacker, attack_pos, aim_pos, args, target)
     local a = P()
     if not attack_pos or not aim_pos or not IsValid(attacker) or not IsValid(target) then
         return attack_pos
     end
     attack_pos, aim_pos = Rat_ValidZ(attack_pos), Rat_ValidZ(aim_pos)
+    ---- a forward step could cross the wall again
+    local clipped = Rat_MuzzleWallClip(attacker, attack_pos, args)
+    if clipped then
+        return clipped
+    end
     attack_pos = Rat_MuzzlePointBlank(attacker, attack_pos, aim_pos, args)
     local step = a.MuzzleStepOut or 0
     if step <= 0 then
