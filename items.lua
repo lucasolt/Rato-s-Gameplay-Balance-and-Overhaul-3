@@ -1866,6 +1866,7 @@ return {
 			'name', "NoRevealMemory",
 			'DisplayName', "No revealed-enemy memory",
 			'Help', "Vanilla keeps an enemy you glimpsed visible through walls until your turn ends. Enable to show enemies only while one of your units actually sees them (applies to every side).",
+			'DefaultValue', true,
 		}),
 		PlaceObj('ModItemOptionToggle', {
 			'name', "ACTHTakeCoverGraze",

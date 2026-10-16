@@ -35,7 +35,7 @@ GBO_WIKI_PAGES = {
     {
         id = "HipfireSnapshot",
         title = T(735216048823, "GBO: Hipfire and Snapshot"),
-        text = T(735216048824, "Shots fired without aiming are less accurate:\n\n<em>Hipfire</em>: firing without Shooting Stance, with no aim at all. This has the largest penalty.\n\n<em>Snapshot</em>: firing with only the first aim level, including interrupt attacks such as Overwatch. The penalty is smaller.\n\nBoth penalties depend on the weapon. Big, heavy weapons and high-magnification scopes suffer the most. The merc's <em>Reflexes</em> reduce both."),
+        text = T(735216048824, "Shots fired without aiming are less accurate:\n\n<em>Hipfire</em>: firing without Shooting Stance, with no aim at all. This has the largest penalty.\n\n<em>Snapshot</em>: firing with only the first aim level, including interrupt attacks such as Overwatch and mobile attacks such as Run and Gun. The penalty is smaller.\n\nBoth penalties depend on the weapon. Big, heavy weapons and high-magnification scopes suffer the most. The merc's <em>Reflexes</em> reduce both."),
     },
     {
         id = "Scopes",
@@ -45,7 +45,7 @@ GBO_WIKI_PAGES = {
     {
         id = "Recoil",
         title = T(735216048827, "GBO: Recoil"),
-        text = T(735216048828, "<em>Strength</em> controls how hard a weapon kicks, and bigger calibers kick harder.\n\n<em>aCTH and aCTH Lite:</em> recoil is simulated. Each round kicks the weapon off target, and the following rounds of a burst start from where the muzzle ended up. <em>Dexterity</em> and <em>Marksmanship</em> help bring it back on target. Firing prone with a <em>bipod</em> strongly reduces the upward kick.\n\n<em>Old CTH:</em> each round after the first loses accuracy.\n\nIn every mode, recoil also carries over between attacks as an accuracy penalty. Aiming works it off, and a fully aimed attack clears it."),
+        text = T(735216048828, "<em>Strength</em> controls how hard a weapon kicks, and bigger calibers kick harder.\n\n<em>Within a burst</em>\n<em>aCTH and aCTH Lite:</em> recoil is simulated. Each round kicks the weapon off target, and the following rounds start from where the muzzle ended up. <em>Dexterity</em> and <em>Marksmanship</em> help bring it back on target. Firing prone with a <em>bipod</em> strongly reduces the upward kick.\n<em>Old CTH:</em> each round after the first loses accuracy.\n\n<em>Between attacks</em>\nEvery attack, even a single shot, leaves the merc with stacking <em>Recoil</em>. It lowers the accuracy of the next attacks and makes the first aim levels cost more AP.\n\nAfter a shot, aiming is less about precision and more about <em>waiting for the weapon to settle</em>: the extra aim cost is the time spent bringing it back on target. You can fire again right away, quickly but through the recoil, or pay to aim and let it settle. A fully aimed attack clears it.\n\nMoving, reloading, entering Overwatch or leaving Shooting Stance also clears it. Manually cycled weapons pay less, since cycling already gives the merc time to recover."),
     },
     {
         id = "Cover",
@@ -70,7 +70,7 @@ GBO_WIKI_PAGES = {
     {
         id = "MobileAttacks",
         title = T(735216048837, "GBO: Mobile Attacks"),
-        text = T(735216048838, "Mobile attacks, such as Run and Gun and Mobile Shot, fire while moving and suffer the hipfire penalty.\n\nThey can be planned <em>without a visible target</em>. If an enemy is revealed during the move, the merc shoots at them. If nobody shows up, the AP for the planned shots is not refunded.\n\nWhen the move ends, the merc stays in Shooting Stance, facing the last target."),
+        text = T(735216048838, "Mobile attacks, such as Run and Gun and Mobile Shot, fire while moving. Their shots are always <em>snapshots</em>.\n\nThey can be planned <em>without a visible target</em>. If an enemy is revealed during the move, the merc shoots at them. If nobody shows up, the AP for the planned shots is not refunded.\n\nWhen the move ends, the merc stays in Shooting Stance, facing the last target."),
     },
     {
         id = "Shotguns",
@@ -105,7 +105,7 @@ GBO_WIKI_PAGES = {
     {
         id = "Visibility",
         title = T(735216048849, "GBO: Visibility"),
-        text = T(735216048850, "By default, an enemy you spotted stays visible through walls until the end of the turn, like vanilla.\n\nWith the <em>No revealed-enemy memory</em> option, enemies are shown only while one of your units actually sees them, including while they move. The same rule applies to every side.\n\nNight sight and detection can be adjusted in the Mod Options."),
+        text = T(735216048850, "In vanilla, an enemy you spotted stays visible through walls until the end of the turn.\n\nIn this mod, enemies are shown only while one of your units actually sees them, including while they move. The same rule applies to every side. Turn off the <em>No revealed-enemy memory</em> option to restore the vanilla behavior.\n\nNight sight and detection can be adjusted in the Mod Options."),
     },
     {
         id = "WeaponInfo",
