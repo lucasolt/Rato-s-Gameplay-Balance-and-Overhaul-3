@@ -1725,6 +1725,10 @@ return {
 			'CodeFileName', "Code/_PATCH_GBO_weapons.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "PATCH_WeaponSlots",
+			'CodeFileName', "Code/PATCH_WeaponSlots.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "PATCH_old_ammo",
 			'CodeFileName', "Code/PATCH_old_ammo.lua",
 		}),

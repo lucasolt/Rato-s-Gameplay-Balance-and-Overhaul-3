@@ -164,6 +164,7 @@ return PlaceObj('ModDef', {
 		"Code/OnDataLoaded.lua",
 		"Code/PATCH_WeaponsPresetClass.lua",
 		"Code/_PATCH_GBO_weapons.lua",
+		"Code/PATCH_WeaponSlots.lua",
 		"Code/PATCH_old_ammo.lua",
 		"Code/PATCH_call.lua",
 		"Code/PATCH_CharacterEffectPresets.lua",

@@ -62,7 +62,6 @@ function RatoTOG_Patch()
 	PKM_1.LargeItem = 1
 	PKM_1.HandSlot = "TwoHanded"
 	PKM_1.AdditionalHint = T( 921786310095, [[<description_hints>]] )
-	PKM_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelNormal', 'BarrelNormalImproved', 'R_TOG_light_barrel', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = false, AvailableComponents = {'MagNormal', 'MagNormalFine', 'MagQuick', 'MagLarge', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'LROptics', 'ReflexSight', 'ScopeCOG', 'ThermalScope', 'LROpticsAdvanced', 'ScopeCOGQuick', 'ReflexSightAdvanced', 'WideScope', '_ReflexSIghtVigilance', }}, {DefaultComponent = 'RAT_TOG_compensator', CanBeEmpty = false, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'RAT_TOG_compensator' }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = false, AvailableComponents = {'StockNormal', }}, {CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'PKM_Bipod_Fold_1', Modifiable = true, AvailableComponents = {'PKM_Bipod_Fold_1', }}}
 	PKM_1.Valuable = 0
 	PKM_1.CanAppearInShop = true
 	PKM_1.CanAppearUsed = true
@@ -128,7 +127,6 @@ function RatoTOG_Patch()
 	HK23E_1.LargeItem = 1
 	HK23E_1.HandSlot = "TwoHanded"
 	HK23E_1.AdditionalHint = T( 390378831477, [[<description_hints>]] )
-	HK23E_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'hk23e_barrel_def_1', Modifiable = true, AvailableComponents = {'hk23e_barrel_shrt_1', 'hk23e_barrel_def_1', 'hk23e_barrel_ext_1', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'hk23e_muzzle_1', Modifiable = true, AvailableComponents = {'hk23e_muzzle_1', 'MuzzleBooster', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'RAT_TOG_Reflex', 'RAT_TOG_ACOG', 'RAT_TOG_compactRS', 'RAT_TOG_Prism', 'RAT_TOG_vigilanceRS', 'RAT_TOG_thermal', 'RAT_TOG_WideScope', 'RAT_TOG_LRoptics', 'RAT_TOG_PSGScope', 'RAT_TOG_LRoptics_advanced', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = false, AvailableComponents = {}}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'hk23e_stock_def_1', Modifiable = true, AvailableComponents = {'hk23e_stock_hvy_1', 'hk23e_stock_def_1', 'hk23e_stock_erg_1', }}, {CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'hk23e_bipod_fld_1', Modifiable = true, AvailableComponents = {'hk23e_bipod_fld_1', }}, {CanBeEmpty = true, SlotType = 'Under', Modifiable = false, AvailableComponents = {}}, {CanBeEmpty = false, SlotType = 'Mountside', DefaultComponent = 'hk23e_siderail_1', Modifiable = true, AvailableComponents = {'hk23e_siderail_1', }}, {CanBeEmpty = false, SlotType = 'Mountfront', DefaultComponent = 'hk23e_handle_fld_1', Modifiable = false, AvailableComponents = {'hk23e_handle_fld_1', 'hk23e_handle_unfld_1', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'hk23e_mag_1', Modifiable = true, AvailableComponents = {'hk23e_mag_1', }}}
 	HK23E_1.Valuable = 1
 	HK23E_1.CanAppearInShop = true
 	HK23E_1.CanAppearUsed = true
@@ -194,7 +192,6 @@ function RatoTOG_Patch()
 	HK23ECamo_1.LargeItem = 1
 	HK23ECamo_1.HandSlot = "TwoHanded"
 	HK23ECamo_1.AdditionalHint = T( 230948710696, [[<description_hints>]] )
-	HK23ECamo_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'hk23e_barrel_def_1', Modifiable = true, AvailableComponents = {'hk23e_barrel_shrt_1', 'hk23e_barrel_def_1', 'hk23e_barrel_ext_1', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'hk23e_muzzle_1', Modifiable = true, AvailableComponents = {'hk23e_muzzle_1', 'MuzzleBooster'}}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'RAT_TOG_Reflex', 'RAT_TOG_ACOG', 'RAT_TOG_compactRS', 'RAT_TOG_Prism', 'RAT_TOG_vigilanceRS', 'RAT_TOG_thermal', 'RAT_TOG_WideScope', 'RAT_TOG_LRoptics', 'RAT_TOG_PSGScope', 'RAT_TOG_LRoptics_advanced', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = false, AvailableComponents = {}}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'hk23e_stock_def_1', Modifiable = true, AvailableComponents = {'hk23e_stock_hvy_1', 'hk23e_stock_def_1', 'hk23e_stock_erg_1', }}, {CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'hk23e_bipod_fld_1', Modifiable = true, AvailableComponents = {'hk23e_bipod_fld_1', }}, {CanBeEmpty = true, SlotType = 'Under', Modifiable = false, AvailableComponents = {}}, {CanBeEmpty = false, SlotType = 'Mountside', DefaultComponent = 'hk23e_siderail_1', Modifiable = true, AvailableComponents = {'hk23e_siderail_1', }}, {CanBeEmpty = false, SlotType = 'Mountfront', DefaultComponent = 'hk23e_handle_fld_1', Modifiable = false, AvailableComponents = {'hk23e_handle_fld_1', 'hk23e_handle_unfld_1', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'hk23e_mag_1', Modifiable = true, AvailableComponents = {'hk23e_mag_1', }}}
 	HK23ECamo_1.Valuable = 1
 	HK23ECamo_1.CanAppearInShop = false
 	HK23ECamo_1.CanAppearUsed = true
@@ -260,7 +257,6 @@ function RatoTOG_Patch()
 	RPD_1.LargeItem = 1
 	RPD_1.HandSlot = "TwoHanded"
 	RPD_1.AdditionalHint = T( 862873342222, [[<description_hints>]] )
-	RPD_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'RPD_bipod_fld_1', Modifiable = true, AvailableComponents = {'RPD_bipod_fld_1', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'RPD_barrel_def_1', Modifiable = true, AvailableComponents = {'RPD_barrel_def_1', 'R_TOG_light_barrel', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'RPD_mag_def_1', Modifiable = true, AvailableComponents = {'RPD_mag_def_1', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'RPD_ironsight_1', Modifiable = true, AvailableComponents = {'LROptics', 'ReflexSight', 'ScopeCOG', 'LROpticsAdvanced', 'ScopeCOGQuick', 'ReflexSightAdvanced', 'RPD_ironsight_1', 'WideScope', '_ReflexSIghtVigilance', 'ThermalScope', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'ToG_VFX_Muzzle', Modifiable = true, AvailableComponents = {'ToG_VFX_Muzzle', 'RAT_TOG_compensator', 'RAT_TOG_suppressor', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'RPD_stock_def_1', Modifiable = false, AvailableComponents = {'RPD_stock_def_1', }}}
 	RPD_1.Valuable = 0
 	RPD_1.CanAppearInShop = true
 	RPD_1.CanAppearUsed = true
@@ -322,7 +318,6 @@ function RatoTOG_Patch()
 	G3A3_1.LargeItem = 1
 	G3A3_1.HandSlot = "TwoHanded"
 	G3A3_1.AdditionalHint = T( 540692805911, [[<description_hints>]] )
-	G3A3_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'G3A3_barrel_def_1', Modifiable = true, AvailableComponents = {'G3A3_barrel_shrt_1', 'G3A3_barrel_def_1', 'G3A3_barrel_ext_1', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'G3A3_muzzle_1', Modifiable = true, AvailableComponents = {'RAT_TOG_suppressor', 'ImprovisedSuppressor', 'G3A3_muzzle_1', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'G3A3_magazine_1', Modifiable = true, AvailableComponents = {'G3A3_magazine_1', }}, {CanBeEmpty = true, SlotType = 'Bipod', Modifiable = true, AvailableComponents = {'hk33_bipod_fld_1', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'G3A3_Stock_1', Modifiable = true, AvailableComponents = {'G3A3_Stock_1', 'G3A3_stock_hvy_1', 'HK53_stock_unfld_1', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'RAT_TOG_Reflex', 'RAT_TOG_ACOG', 'RAT_TOG_compactRS', 'RAT_TOG_Prism', 'RAT_TOG_vigilanceRS', 'RAT_TOG_thermal', 'RAT_TOG_WideScope', 'RAT_TOG_LRoptics', 'RAT_TOG_PSGScope', 'RAT_TOG_LRoptics_advanced', }}}
 	G3A3_1.Valuable = 0
 	G3A3_1.CanAppearInShop = false
 	G3A3_1.CanAppearUsed = true
@@ -385,7 +380,6 @@ function RatoTOG_Patch()
 	G3A3Green_1.LargeItem = 1
 	G3A3Green_1.HandSlot = "TwoHanded"
 	G3A3Green_1.AdditionalHint = T( 334688337888, [[<description_hints>]] )
-	G3A3Green_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'G3A3_barrel_def_1', Modifiable = true, AvailableComponents = {'G3A3_barrel_shrt_1', 'G3A3_barrel_def_1', 'G3A3_barrel_ext_1', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'G3A3_muzzle_1', Modifiable = true, AvailableComponents = {'RAT_TOG_suppressor', 'ImprovisedSuppressor', 'G3A3_muzzle_1', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'G3A3_magazine_1', Modifiable = true, AvailableComponents = {'G3A3_magazine_1', }}, {CanBeEmpty = true, SlotType = 'Bipod', Modifiable = true, AvailableComponents = {'hk33_bipod_fld_1', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'RAT_TOG_Reflex', 'RAT_TOG_ACOG', 'RAT_TOG_compactRS', 'RAT_TOG_Prism', 'RAT_TOG_vigilanceRS', 'RAT_TOG_thermal', 'RAT_TOG_WideScope', 'RAT_TOG_LRoptics', 'RAT_TOG_PSGScope', 'RAT_TOG_LRoptics_advanced', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'G3A3_Stock_1', Modifiable = true, AvailableComponents = {'G3A3_Stock_1', 'G3A3_stock_hvy_1', 'HK53_stock_unfld_1', }}}
 	G3A3Green_1.Valuable = 0
 	G3A3Green_1.CanAppearInShop = true
 	G3A3Green_1.CanAppearUsed = true
@@ -449,7 +443,6 @@ function RatoTOG_Patch()
 	M1Garand_2.LargeItem = 1
 	M1Garand_2.HandSlot = "TwoHanded"
 	M1Garand_2.AdditionalHint = T( 297407062004, [[<description_hints>]] )
-	M1Garand_2.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'ToG_VFX_Muzzle', Modifiable = true, AvailableComponents = {'Compensator', 'RAT_TOG_suppressor_762', 'ToG_VFX_Muzzle', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'ImprovedIronsight', Modifiable = true, AvailableComponents = {'ImprovedIronsight', }}}
 	M1Garand_2.Valuable = 0
 	M1Garand_2.CanAppearInShop = true
 	M1Garand_2.CanAppearUsed = true
@@ -514,7 +507,6 @@ function RatoTOG_Patch()
 	SteyrScout_1.AdditionalHint = T( 542907374091, [[<description_hints>
 <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Faster bolt-action mechanism
 ]] )
-	SteyrScout_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'SteyrS_Barrel_def_1', Modifiable = true, AvailableComponents = {'SteyrS_Barrel_def_1', 'SteyrS_Barrel_ext_1'}}, {CanBeEmpty = true, SlotType = 'Bipod', Modifiable = false, AvailableComponents = {'ToG_Bipod_1', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'SSG69_Mag_def_1', Modifiable = false, AvailableComponents = {'SSG69_Mag_def_1', 'SSG69_Mag_ext_1', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'SteyrS_Scope_1', Modifiable = true, AvailableComponents = {'SteyrS_Scope_1', 'ReflexSight', 'ScopeCOG', 'ThermalScope', 'ReflexSightAdvanced', 'ScopeCOGQuick', 'LROptics', 'LROpticsAdvanced', }}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'Bolt_action_scout', Modifiable = true, AvailableComponents = {'Bolt_action_scout', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'ToG_VFX_Muzzle', Modifiable = true, AvailableComponents = {'RAT_TOG_compensator', 'SteyrS_Muzzle_def_1', 'ToG_VFX_Muzzle', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockLight', Modifiable = true, AvailableComponents = {'StockLight', }}}
 	SteyrScout_1.Valuable = 0
 	SteyrScout_1.CanAppearInShop = true
 	SteyrScout_1.CanAppearUsed = true
@@ -574,7 +566,6 @@ function RatoTOG_Patch()
 	Mosin_1.LargeItem = 1
 	Mosin_1.HandSlot = "TwoHanded"
 	Mosin_1.AdditionalHint = T( 471813286018, [[<description_hints>]] )
-	Mosin_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'Mosin_Scope_iron_1', Modifiable = true, AvailableComponents = {'Mosin_Scope_iron_1', 'ReflexSightAdvanced', 'ReflexSight', '_ReflexSIghtVigilance', 'LROptics', 'ScopeCOGQuick', 'WideScope', 'LROpticsAdvanced', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'Mosin_Barrel_def_1', Modifiable = true, AvailableComponents = {'Mosin_Barrel_def_1', 'Mosin_Barrel_long_1', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'ToG_VFX_Muzzle', Modifiable = true, AvailableComponents = {'ToG_VFX_Muzzle', 'ImprovisedSuppressor', 'Suppressor', }}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'Bolt_action', Modifiable = true, AvailableComponents = {'Bolt_action', }}}
 	Mosin_1.Valuable = 0
 	Mosin_1.CanAppearInShop = true
 	Mosin_1.CanAppearUsed = true
@@ -637,7 +628,6 @@ function RatoTOG_Patch()
 	SSG69_1.LargeItem = 1
 	SSG69_1.HandSlot = "TwoHanded"
 	SSG69_1.AdditionalHint = T( 787968005557, [[<description_hints>]] )
-	SSG69_1.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'SSG69_Scope_1', 'ScopeCOGQuick', 'ScopeCOG', 'WideScope', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'SSG69_Barrel_def_1', Modifiable = true, AvailableComponents = {'SSG69_Barrel_def_1', 'SSG69_Barrel_ext_1', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'ToG_VFX_Muzzle', Modifiable = true, AvailableComponents = {'ToG_VFX_Muzzle', 'AUGCompensator_01', 'ImprovisedSuppressor', 'RAT_TOG_suppressor', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'SSG69_Mag_def_1', Modifiable = true, AvailableComponents = {'SSG69_Mag_def_1', 'SSG69_Mag_ext_1', }}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'Bolt_action', Modifiable = true, AvailableComponents = {'Bolt_action', }}}
 	SSG69_1.Valuable = 0
 	SSG69_1.CanAppearInShop = true
 	SSG69_1.CanAppearUsed = true
@@ -699,63 +689,6 @@ function RatoTOG_Patch()
 	M76_1.LargeItem = 1
 	M76_1.HandSlot = "TwoHanded"
 	M76_1.AdditionalHint = T( 542588930667, [[<description_hints>]] )
-	M76_1.ComponentSlots = {
-  {
-  SlotType = 'Stock',
-  DefaultComponent = 'm76_stock_def_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {'m76_stock_def_1'}
-  },
-  {
-  SlotType = 'Magazine',
-  DefaultComponent = 'm76_mag_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {'m76_mag_def_1'}
-  },
-  {
-  SlotType = 'Muzzle',
-  DefaultComponent = 'ToG_VFX_Muzzle',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'ImprovisedSuppressor',
-  'RAT_TOG_suppressor',
-  'RAT_TOG_compensator',
-  'ToG_VFX_Muzzle'
-  }
-  },
-  {
-  SlotType = 'Scope',
-  DefaultComponent = 'ImprovedIronsight',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'RAT_TOG_Reflex_rpk_mount',
-  'RAT_TOG_ACOG_rpk_mount',
-  'RAT_TOG_compactRS_rpk_mount',
-  'RAT_TOG_Prism_rpk_mount',
-  'RAT_TOG_vigilanceRS_rpk_mount',
-  'RAT_TOG_thermal_rpk_mount',
-  'RAT_TOG_WideScope_rpk_mount',
-  'RAT_TOG_LRoptics_rpk_mount',
-  'm76_scope_1',
-  'RAT_TOG_LRoptics_advanced_rpk_mount',
-  'ImprovedIronsight'
-  }
-  },
-  {
-  SlotType = 'Barrel',
-  DefaultComponent = 'm76_barrel_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'm76_barrel_def_1',
-  'm76_barrel_ext_1'
-  }
-  }
- }
 	M76_1.Valuable = 0
 	M76_1.CanAppearInShop = true
 	M76_1.CanAppearUsed = true
@@ -826,7 +759,6 @@ function RatoTOG_Patch()
 	AN94_1.HandSlot = "TwoHanded"
 	AN94_1.AdditionalHint = T( 418962743486, [[<description_hints>
 <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Unique 2 shot burst function at 1800 rounds per minute]] )
-	AN94_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'AN94_Stock_def_1', Modifiable = true, AvailableComponents = {'AN94_Stock_def_1', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'AN94_Mag_def_1', Modifiable = true, AvailableComponents = {'AN94_Mag_def_1', 'AN94_Mag_ext_1', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'ImprovedIronsight', Modifiable = true, AvailableComponents = {'LROptics_DragunovDefault', 'ImprovedIronsight', 'RAT_TOG_Reflex', 'RAT_TOG_compactRS', 'RAT_TOG_vigilanceRS', 'RAT_TOG_ACOG', 'RAT_TOG_Prism', 'RAT_TOG_LRoptics', 'RAT_TOG_WideScope', 'RAT_TOG_thermal', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'RAT_TOG_compensator', Modifiable = true, AvailableComponents = {'RAT_TOG_compensator', }}, {CanBeEmpty = true, SlotType = 'Bipod', Modifiable = true, AvailableComponents = {'AN94_Bip_def_1', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'AN94_Barrel_def_1', Modifiable = false, AvailableComponents = {'AN94_Barrel_def_1', }}}
 	AN94_1.Valuable = 1
 	AN94_1.CanAppearInShop = true
 	AN94_1.CanAppearUsed = true
@@ -888,7 +820,6 @@ function RatoTOG_Patch()
 	RK95_1.LargeItem = 1
 	RK95_1.HandSlot = "TwoHanded"
 	RK95_1.AdditionalHint = T( 266083134551, [[<description_hints>]] )
-	RK95_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'RK95_Stock_def_1', Modifiable = true, AvailableComponents = {'RK95_Stock_def_1', 'RK95_Stock_shrt_1' }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'RK95_Mag_def_1', Modifiable = true, AvailableComponents = {'RK95_Mag_def_1', 'RK95_Mag_ext_1', }}, {CanBeEmpty = false, SlotType = 'Handguard', DefaultComponent = 'RK95_Handguard_def_1', Modifiable = false, AvailableComponents = {'RK95_Handguard_shrt_1', 'RK95_Handguard_def_1', 'RK95_Handguard_ext_1', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'RK95_Irons_1', Modifiable = true, AvailableComponents = {'RAT_TOG_Reflex', 'RAT_TOG_ACOG', 'RAT_TOG_compactRS', 'RAT_TOG_Prism', 'RAT_TOG_vigilanceRS', 'RAT_TOG_thermal', 'RAT_TOG_WideScope', 'RAT_TOG_LRoptics', 'RAT_TOG_LRoptics_advanced', 'RK95_Irons_1', }}, {CanBeEmpty = true, SlotType = 'Muzzle', DefaultComponent = 'RK95_Muzzle_def_1', Modifiable = true, AvailableComponents = {'RK95_Muzzle_def_1', 'MuzzleBooster', 'RAT_TOG_suppressor', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'RK95_Barrel_def_1', Modifiable = true, AvailableComponents = {'RK95_Barrel_shrt_1', 'RK95_Barrel_def_1', 'RK95_Barrel_ext_1', }}}
 	RK95_1.Valuable = 0
 	RK95_1.CanAppearInShop = true
 	RK95_1.CanAppearUsed = true
@@ -949,88 +880,6 @@ function RatoTOG_Patch()
 	AR10std.LargeItem = 1
 	AR10std.HandSlot = "TwoHanded"
 	AR10std.AdditionalHint = T( 664367469884, [[<description_hints>]] )
-	AR10std.ComponentSlots = {
-  {
-  SlotType = 'Barrel',
-  DefaultComponent = 'AR10_barrel_def',
-  Modifiable = true,
-  AvailableComponents = {
-  'AR10_barrel_shrt',
-  'AR10_barrel_def',
-  'AR10_barrel_ext'
-  }
-  },
-  {
-  SlotType = 'Scope',
-  CanBeEmpty = true,
-  Modifiable = true,
-  AvailableComponents = {
-  'RAT_TOG_ACOG',
-  'RAT_TOG_LRoptics',
-  'RAT_TOG_Prism',
-  'RAT_TOG_Reflex',
-  'RAT_TOG_WideScope',
-  'RAT_TOG_compactRS',
-  'RAT_TOG_vigilanceRS'
-  }
-  },
-  {
-  SlotType = 'Muzzle',
-  DefaultComponent = 'AR10_muzzle_def',
-  Modifiable = true,
-  AvailableComponents = {
-  'RAT_TOG_compensator',
-  'RAT_TOG_suppressor_762',
-  'MuzzleBooster',
-  'ImprovisedSuppressor',
-  'AR10_muzzle_def'
-  }
-  },
-  {
-  SlotType = 'Bipod',
-  CanBeEmpty = true,
-  Modifiable = true,
-  AvailableComponents = {'U100_bipod_fld_1'}
-  },
-  {
-  SlotType = 'Magazine',
-  DefaultComponent = 'AR10_mag_def',
-  Modifiable = true,
-  AvailableComponents = {
-  'AR10_mag_def',
-  'AR10_mag_dual'
-  }
-  },
-  {
-  SlotType = 'Stock',
-  DefaultComponent = 'AR10_stock_def',
-  Modifiable = false,
-  AvailableComponents = {'AR10_stock_def'}
-  },
-  {
-  SlotType = 'Side2',
-  DefaultComponent = 'side_2_empty',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'side_2_empty',
-  'ToG_Flashlight_2',
-  'ToG_Red_Dot_2',
-  'ToG_UV_Dot_2'
-  }
-  },
-  {
-  SlotType = 'Mountfront',
-  DefaultComponent = 'mountfront_empty',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'mountfront_empty',
-  'AR10_grip_mountfront',
-  'ToG_NatoGL'
-  }
-  }
- }
 	AR10std.CanAppearInShop = true
 	AR10std.CanAppearUsed = true
 	AR10std.Tier = 2
@@ -1088,7 +937,6 @@ function RatoTOG_Patch()
 	HK33A2_1.LargeItem = 1
 	HK33A2_1.HandSlot = "TwoHanded"
 	HK33A2_1.AdditionalHint = T( 630164376246, [[<description_hints>]] )
-	HK33A2_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'hk33_barrel_def_1', Modifiable = true, AvailableComponents = {'hk33_barrel_shrt_1', 'hk33_barrel_def_1', 'hk33_barrel_ext_1', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'hk33_muzzle_1', Modifiable = true, AvailableComponents = {'RAT_TOG_suppressor', 'ImprovisedSuppressor', 'hk33_muzzle_1', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'hk33_magazine_31', Modifiable = true, AvailableComponents = {'hk33_magazine_11', 'hk33_magazine_31', 'hk33_drum_mag_1', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'hk33_Stock_1', Modifiable = true, AvailableComponents = {'hk33_Stock_1', 'G3A3_stock_hvy_1', 'HK53_stock_unfld_1', }}, {CanBeEmpty = true, SlotType = 'Bipod', DefaultComponent = 'hk33_bipod_fld_1', Modifiable = true, AvailableComponents = {'hk33_bipod_fld_1', }}, {CanBeEmpty = false, SlotType = 'Handguard', DefaultComponent = 'hk33_handguard_cl_1', Modifiable = true, AvailableComponents = {'hk33_handguard_cl_1', 'hk33_handguard_new_1', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'RAT_TOG_Reflex', 'RAT_TOG_ACOG', 'RAT_TOG_compactRS', 'RAT_TOG_Prism', 'RAT_TOG_vigilanceRS', 'RAT_TOG_thermal', 'RAT_TOG_WideScope', 'RAT_TOG_LRoptics', 'RAT_TOG_PSGScope', 'RAT_TOG_LRoptics_advanced', }}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'hk33_lower_modern_1', Modifiable = true, AvailableComponents = {'hk33_lower_classic_1', 'hk33_lower_modern_1', }}, {CanBeEmpty = false, SlotType = 'Side2', DefaultComponent = 'side_2_empty', Modifiable = true, AvailableComponents = {'ToG_Flashlight_2', 'ToG_Red_Dot_2', 'ToG_UV_Dot_2', 'side_2_empty', }}}
 	HK33A2_1.Valuable = 1
 	HK33A2_1.CanAppearInShop = true
 	HK33A2_1.CanAppearUsed = true
@@ -1154,101 +1002,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	Papovka2SKS_1.HandSlot = "TwoHanded"
 	Papovka2SKS_1.AdditionalHint = T( 682979088346, [[<description_hints>
 <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Grenade Launcher]] )
-	Papovka2SKS_1.ComponentSlots = {
-  {
-  SlotType = 'Bipod',
-  DefaultComponent = 'Papovka2_Bay_fld_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Papovka2_Bay_fld_1',
-  'Papovka2_Bay_unfld_1'
-  }
-  },
-  {
-  SlotType = 'Mountfront',
-  DefaultComponent = 'Papovka2_Grnd_fld_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Papovka2_Grnd_fld_1',
-  'Papovka2_Grnd_unfld_1'
-  }
-  },
-  {
-  SlotType = 'Scope',
-  CanBeEmpty = true,
-  Modifiable = true,
-  AvailableComponents = {
-  'RAT_TOG_ACOG',
-  'RAT_TOG_WideScope',
-  'RAT_TOG_LRoptics',
-  'RAT_TOG_Prism',
-  'RAT_TOG_Reflex',
-  'RAT_TOG_compactRS',
-  'RAT_TOG_laser_dot',
-  'RAT_TOG_uv_dot',
-  'RAT_TOG_vigilanceRS',
-  'RAT_TOG_thermal',
-  'LROptics_DragunovDefault'
-  }
-  },
-  {
-  SlotType = 'Mount',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {}
-  },
-  {
-  SlotType = 'General',
-  DefaultComponent = 'Papovka2_Bolt_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {'Papovka2_Bolt_1'}
-  },
-  {
-  SlotType = 'Muzzle',
-  DefaultComponent = 'ToG_VFX_Muzzle',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {'ToG_VFX_Muzzle'}
-  },
-  {
-  SlotType = 'Gassblock',
-  DefaultComponent = 'RAT_pap_compensator',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {'RAT_pap_compensator'}
-  },
-  {
-  SlotType = 'Barrel',
-  DefaultComponent = 'Papovka2_Barrel_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Papovka2_Barrel_def_1',
-  'Papovka2_Barrel_ext_1',
-  'Papovka2_Barrel_shrt_1'
-  }
-  },
-  {
-  SlotType = 'Stock',
-  DefaultComponent = 'Papovka2_Stock_def_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {'Papovka2_Stock_def_1'}
-  },
-  {
-  SlotType = 'Magazine',
-  DefaultComponent = 'Papovka2_Mag_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Papovka2_Mag_def_1',
-  'Papovka2_Mag_ext_1'
-  }
-  }
- }
 	Papovka2SKS_1.Valuable = 0
 	Papovka2SKS_1.CanAppearInShop = true
 	Papovka2SKS_1.CanAppearUsed = true
@@ -1312,101 +1065,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	PapovkaSKS_1.HandSlot = "TwoHanded"
 	PapovkaSKS_1.AdditionalHint = T( 610094615575, [[<description_hints>
 <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Grenade Launcher]] )
-	PapovkaSKS_1.ComponentSlots = {
-  {
-  SlotType = 'Bipod',
-  DefaultComponent = 'Papovka_Bay_fld_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Papovka_Bay_fld_1',
-  'Papovka_Bay_unfld_1'
-  }
-  },
-  {
-  SlotType = 'Mountfront',
-  DefaultComponent = 'Papovka_Grnd_fld_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Papovka_Grnd_fld_1',
-  'Papovka_Grnd_unfld_1'
-  }
-  },
-  {
-  SlotType = 'Scope',
-  CanBeEmpty = true,
-  Modifiable = true,
-  AvailableComponents = {
-  'RAT_TOG_ACOG',
-  'RAT_TOG_WideScope',
-  'RAT_TOG_LRoptics',
-  'RAT_TOG_Prism',
-  'RAT_TOG_Reflex',
-  'RAT_TOG_compactRS',
-  'RAT_TOG_laser_dot',
-  'RAT_TOG_uv_dot',
-  'RAT_TOG_vigilanceRS',
-  'RAT_TOG_thermal',
-  'LROptics_DragunovDefault'
-  }
-  },
-  {
-  SlotType = 'Mount',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {}
-  },
-  {
-  SlotType = 'Gassblock',
-  DefaultComponent = 'RAT_pap_compensator',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {'RAT_pap_compensator'}
-  },
-  {
-  SlotType = 'Muzzle',
-  DefaultComponent = 'ToG_VFX_Muzzle',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {'ToG_VFX_Muzzle'}
-  },
-  {
-  SlotType = 'Barrel',
-  DefaultComponent = 'Papovka_Barrel_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Papovka_Barrel_ext_1',
-  'Papovka_Barrel_shrt_1',
-  'Papovka_Barrel_def_1'
-  }
-  },
-  {
-  SlotType = 'Stock',
-  DefaultComponent = 'Papovka_Stock_def_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {'Papovka_Stock_def_1'}
-  },
-  {
-  SlotType = 'Magazine',
-  DefaultComponent = 'Papovka_Mag_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Papovka2_Mag_def_1',
-  'Papovka2_Mag_ext_1'
-  }
-  },
-  {
-  SlotType = 'General',
-  DefaultComponent = 'Papovka_Bolt_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {'Papovka_Bolt_1'}
-  }
- }
 	PapovkaSKS_1.Valuable = 0
 	PapovkaSKS_1.CanAppearInShop = true
 	PapovkaSKS_1.CanAppearUsed = true
@@ -1469,7 +1127,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	SKS_1.LargeItem = 1
 	SKS_1.HandSlot = "TwoHanded"
 	SKS_1.AdditionalHint = T( 990920247618, [[<description_hints>]] )
-	SKS_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'SKS_Bay_fld_1', Modifiable = true, AvailableComponents = {'SKS_Bay_fld_1', 'SKS_Bay_unfld_1', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'RAT_TOG_ACOG', 'RAT_TOG_WideScope', 'RAT_TOG_LRoptics', 'RAT_TOG_Prism', 'RAT_TOG_Reflex', 'RAT_TOG_compactRS', 'RAT_TOG_laser_dot', 'RAT_TOG_uv_dot', 'RAT_TOG_vigilanceRS', 'RAT_TOG_thermal', 'LROptics_DragunovDefault', }}, {CanBeEmpty = false, SlotType = 'Mount', Modifiable = false, AvailableComponents = {}}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'ToG_VFX_Muzzle', Modifiable = true, AvailableComponents = {'RAT_TOG_compensator', 'ToG_VFX_Muzzle', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'SKS_Barrel_def_1', Modifiable = true, AvailableComponents = {'SKS_Barrel_def_1', 'SKS_Barrel_ext_1', }}}
 	SKS_1.Valuable = 0
 	SKS_1.CanAppearInShop = true
 	SKS_1.CanAppearUsed = true
@@ -1532,7 +1189,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	M70_1.LargeItem = 1
 	M70_1.HandSlot = "TwoHanded"
 	M70_1.AdditionalHint = T( 943877456040, [[<description_hints>]] )
-	M70_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'M70_stock_unfld_1', Modifiable = true, AvailableComponents = {'M70_stock_unfld_1', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'M70_mag_def_1', Modifiable = true, AvailableComponents = {'M70_mag_def_1', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'RAT_TOG_ACOG', 'RAT_TOG_WideScope', 'RAT_TOG_LRoptics', 'RAT_TOG_Prism', 'RAT_TOG_Reflex', 'RAT_TOG_compactRS', 'RAT_TOG_vigilanceRS', 'RAT_TOG_thermal', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'RAT_TOG_CompensatorNoEntity', Modifiable = true, AvailableComponents = {'RAT_TOG_CompensatorNoEntity' }}, {CanBeEmpty = false, SlotType = 'Mountfront', DefaultComponent = 'M70_grndl_fld_1', Modifiable = true, AvailableComponents = {'M70_grndl_fld_1', 'M70_grndl_unfld_1', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'M70_barrel_def_1', Modifiable = true, AvailableComponents = {'M70_barrel_shrt_1', 'M70_barrel_def_1', 'M70_barrel_ext_1', }}}
 	M70_1.Valuable = 0
 	M70_1.CanAppearInShop = true
 	M70_1.CanAppearUsed = true
@@ -1596,45 +1252,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	STG44R_1.HandSlot = "TwoHanded"
 	STG44R_1.AdditionalHint = T( 587956002848, [[<description_hints>
 <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> A relic of war]] )
-	STG44R_1.ComponentSlots = {
-  {
-  SlotType = 'Muzzle',
-  DefaultComponent = 'ToG_VFX_Muzzle',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Compensator',
-  'ToG_VFX_Muzzle'
-  }
-  },
-  {
-  SlotType = 'Magazine',
-  DefaultComponent = 'STG44_Mag_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {'STG44_Mag_def_1'}
-  },
-  {
-  SlotType = 'Barrel',
-  DefaultComponent = 'STG44_Barrel_def_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {'STG44_Barrel_def_1'}
-  },
-  {
-  SlotType = 'Stock',
-  DefaultComponent = 'STG44_Stock_def_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {'STG44_Stock_def_1'}
-  },
-  {
-  SlotType = 'Scope',
-  CanBeEmpty = true,
-  Modifiable = true,
-  AvailableComponents = {'GW43_Scope_1'}
-  }
- }
 	STG44R_1.Valuable = 0
 	STG44R_1.CanAppearInShop = true
 	STG44R_1.CanAppearUsed = true
@@ -1696,76 +1313,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	RK62_1.LargeItem = 1
 	RK62_1.HandSlot = "TwoHanded"
 	RK62_1.AdditionalHint = T( 347255431158, [[<description_hints>]] )
-	RK62_1.ComponentSlots = {
-  {
-  SlotType = 'Stock',
-  DefaultComponent = 'RK62_Stock_def_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {'RK62_Stock_def_1'}
-  },
-  {
-  SlotType = 'Magazine',
-  DefaultComponent = 'RK62_Mag_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'RK62_Mag_def_1',
-  'RK62_Mag_ext_1'
-  }
-  },
-  {
-  SlotType = 'Handguard',
-  DefaultComponent = 'RK62_Handguard_def_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {
-  'RK62_Handguard_shrt_1',
-  'RK62_Handguard_def_1',
-  'RK62_Handguard_ext_1'
-  }
-  },
-  {
-  SlotType = 'Scope',
-  DefaultComponent = 'RK62_Irons_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'RAT_TOG_Reflex',
-  'RAT_TOG_ACOG',
-  'RAT_TOG_compactRS',
-  'RAT_TOG_Prism',
-  'RAT_TOG_vigilanceRS',
-  'RAT_TOG_thermal',
-  'RAT_TOG_WideScope',
-  'RAT_TOG_LRoptics',
-  'RAT_TOG_LRoptics_advanced',
-  'RK62_Irons_1'
-  }
-  },
-  {
-  SlotType = 'Muzzle',
-  DefaultComponent = 'RK62_Muzzle_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'RK62_Muzzle_def_1',
-  'MuzzleBooster',
-  'RAT_TOG_suppressor'
-  }
-  },
-  {
-  SlotType = 'Barrel',
-  DefaultComponent = 'RK62_Barrel_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'RK62_Barrel_shrt_1',
-  'RK62_Barrel_def_1',
-  'RK62_Barrel_ext_1'
-  }
-  }
- }
 	RK62_1.Valuable = 0
 	RK62_1.CanAppearInShop = true
 	RK62_1.CanAppearUsed = true
@@ -1827,7 +1374,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	Gewehr43_1.LargeItem = 1
 	Gewehr43_1.HandSlot = "TwoHanded"
 	Gewehr43_1.AdditionalHint = T( 538484376797, [[<description_hints>]] )
-	Gewehr43_1.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'GW43_Scope_1', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'G43_Barrel_def_1', Modifiable = false, AvailableComponents = {'G43_Barrel_def_1', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'ToG_VFX_Muzzle', Modifiable = true, AvailableComponents = {'ImprovisedSuppressor', 'ToG_VFX_Muzzle', 'RAT_TOG_compensator', 'RAT_TOG_suppressor', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'G43_Mag_def_1', Modifiable = true, AvailableComponents = {'G43_Mag_def_1', 'G43_Mag_ext_1', }}}
 	Gewehr43_1.Valuable = 0
 	Gewehr43_1.CanAppearInShop = true
 	Gewehr43_1.CanAppearUsed = true
@@ -1890,7 +1436,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	Delisle_1.LargeItem = 1
 	Delisle_1.HandSlot = "TwoHanded"
 	Delisle_1.AdditionalHint = T( 528620989138, [[<description_hints>]] )
-	Delisle_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'RAT_TOG_suppressor', Modifiable = false, AvailableComponents = {'RAT_TOG_suppressor', }}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'Bolt_action', Modifiable = true, AvailableComponents = {'Bolt_action', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'stealth_ironsight_confidante', Modifiable = true, AvailableComponents = {'stealth_ironsight_confidante', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'DeLisle_stock_def_1', Modifiable = true, AvailableComponents = {'DeLisle_stock_def_1', 'DeLisle_stock_erg_1', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'DeLisle_barrel_def_1', Modifiable = false, AvailableComponents = {'DeLisle_barrel_def_1', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'DeLisle_mag_def_1', Modifiable = false, AvailableComponents = {'DeLisle_mag_def_1', }}}
 	Delisle_1.Valuable = 0
 	Delisle_1.CanAppearInShop = true
 	Delisle_1.CanAppearUsed = true
@@ -1952,94 +1497,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	Type56A_1.LargeItem = 1
 	Type56A_1.HandSlot = "TwoHanded"
 	Type56A_1.AdditionalHint = T( 360259104299, [[<description_hints>]] )
-	Type56A_1.ComponentSlots = {
-  {
-  SlotType = 'Bipod',
-  DefaultComponent = 'Type56A_Bay_fld_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Type56A_Bay_fld_1',
-  'Type56A_Bay_unfld_1'
-  }
-  },
-  {
-  SlotType = 'Scope',
-  CanBeEmpty = true,
-  Modifiable = true,
-  AvailableComponents = {
-  'RAT_TOG_ACOG',
-  'RAT_TOG_WideScope',
-  'RAT_TOG_LRoptics',
-  'RAT_TOG_Prism',
-  'RAT_TOG_Reflex',
-  'RAT_TOG_compactRS',
-  'RAT_TOG_laser_dot',
-  'RAT_TOG_uv_dot',
-  'RAT_TOG_vigilanceRS',
-  'RAT_TOG_thermal',
-  'LROptics_DragunovDefault'
-  }
-  },
-  {
-  SlotType = 'General',
-  DefaultComponent = 'Type56A_Bolt_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {
-  'Papovka2_Bolt_1',
-  'Papovka_Bolt_1',
-  'Type56A_Bolt_1',
-  'Type56B_Bolt_1',
-  'Type56C_Bolt_1',
-  'Type56D_Bolt_1'
-  }
-  },
-  {
-  SlotType = 'Mount',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {}
-  },
-  {
-  SlotType = 'Muzzle',
-  DefaultComponent = 'ToG_VFX_Muzzle',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'RAT_TOG_compensator',
-  'ToG_VFX_Muzzle'
-  }
-  },
-  {
-  SlotType = 'Barrel',
-  DefaultComponent = 'Type56A_Barrel_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Type56A_Barrel_shrt_1',
-  'Type56A_Barrel_def_1',
-  'Type56A_Barrel_ext_1'
-  }
-  },
-  {
-  SlotType = 'Stock',
-  DefaultComponent = 'Type56A_stock_def_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {'Type56A_stock_def_1'}
-  },
-  {
-  SlotType = 'Magazine',
-  DefaultComponent = 'Type56A_Mag_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Papovka_Mag_ext_1',
-  'Type56A_Mag_def_1'
-  }
-  }
- }
 	Type56A_1.Valuable = 0
 	Type56A_1.CanAppearInShop = true
 	Type56A_1.CanAppearUsed = true
@@ -2099,94 +1556,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	Type56B_1.LargeItem = 1
 	Type56B_1.HandSlot = "TwoHanded"
 	Type56B_1.AdditionalHint = T( 975770966024, [[<description_hints>]] )
-	Type56B_1.ComponentSlots = {
-  {
-  SlotType = 'Bipod',
-  DefaultComponent = 'Type56B_Bay_fld_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Type56B_Bay_fld_1',
-  'Type56B_Bay_unfld_1'
-  }
-  },
-  {
-  SlotType = 'Scope',
-  CanBeEmpty = true,
-  Modifiable = true,
-  AvailableComponents = {
-  'RAT_TOG_ACOG',
-  'RAT_TOG_WideScope',
-  'RAT_TOG_LRoptics',
-  'RAT_TOG_Prism',
-  'RAT_TOG_Reflex',
-  'RAT_TOG_compactRS',
-  'RAT_TOG_laser_dot',
-  'RAT_TOG_uv_dot',
-  'RAT_TOG_vigilanceRS',
-  'RAT_TOG_thermal',
-  'LROptics_DragunovDefault'
-  }
-  },
-  {
-  SlotType = 'General',
-  DefaultComponent = 'Type56B_Bolt_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {
-  'Papovka2_Bolt_1',
-  'Papovka_Bolt_1',
-  'Type56A_Bolt_1',
-  'Type56B_Bolt_1',
-  'Type56C_Bolt_1',
-  'Type56D_Bolt_1'
-  }
-  },
-  {
-  SlotType = 'Mount',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {}
-  },
-  {
-  SlotType = 'Muzzle',
-  DefaultComponent = 'ToG_VFX_Muzzle',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'RAT_TOG_compensator',
-  'ToG_VFX_Muzzle'
-  }
-  },
-  {
-  SlotType = 'Barrel',
-  DefaultComponent = 'Type56B_Barrel_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Type56B_Barrel_shrt_1',
-  'Type56B_Barrel_def_1',
-  'Type56B_Barrel_ext_1'
-  }
-  },
-  {
-  SlotType = 'Stock',
-  DefaultComponent = 'Type56B_stock_def_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {'Type56B_stock_def_1'}
-  },
-  {
-  SlotType = 'Magazine',
-  DefaultComponent = 'Type56B_Mag_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Papovka_Mag_ext_1',
-  'Type56B_Mag_def_1'
-  }
-  }
- }
 	Type56B_1.Valuable = 0
 	Type56B_1.CanAppearInShop = true
 	Type56B_1.CanAppearUsed = true
@@ -2246,94 +1615,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	Type56C_1.LargeItem = 1
 	Type56C_1.HandSlot = "TwoHanded"
 	Type56C_1.AdditionalHint = T( 196297267299, [[<description_hints>]] )
-	Type56C_1.ComponentSlots = {
-  {
-  SlotType = 'Bipod',
-  DefaultComponent = 'Type56C_Bay_fld_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Type56C_Bay_fld_1',
-  'Type56C_Bay_unfld_1'
-  }
-  },
-  {
-  SlotType = 'General',
-  DefaultComponent = 'Type56C_Bolt_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {
-  'Papovka2_Bolt_1',
-  'Papovka_Bolt_1',
-  'Type56A_Bolt_1',
-  'Type56B_Bolt_1',
-  'Type56C_Bolt_1',
-  'Type56D_Bolt_1'
-  }
-  },
-  {
-  SlotType = 'Scope',
-  CanBeEmpty = true,
-  Modifiable = true,
-  AvailableComponents = {
-  'RAT_TOG_ACOG',
-  'RAT_TOG_WideScope',
-  'RAT_TOG_LRoptics',
-  'RAT_TOG_Prism',
-  'RAT_TOG_Reflex',
-  'RAT_TOG_compactRS',
-  'RAT_TOG_laser_dot',
-  'RAT_TOG_uv_dot',
-  'RAT_TOG_vigilanceRS',
-  'RAT_TOG_thermal',
-  'LROptics_DragunovDefault'
-  }
-  },
-  {
-  SlotType = 'Mount',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {}
-  },
-  {
-  SlotType = 'Muzzle',
-  DefaultComponent = 'ToG_VFX_Muzzle',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'RAT_TOG_compensator',
-  'ToG_VFX_Muzzle'
-  }
-  },
-  {
-  SlotType = 'Barrel',
-  DefaultComponent = 'Type56C_Barrel_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Type56C_Barrel_shrt_1',
-  'Type56C_Barrel_def_1',
-  'Type56C_Barrel_ext_1'
-  }
-  },
-  {
-  SlotType = 'Stock',
-  DefaultComponent = 'Type56C_stock_def_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {'Type56C_stock_def_1'}
-  },
-  {
-  SlotType = 'Magazine',
-  DefaultComponent = 'Type56C_Mag_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Papovka_Mag_ext_1',
-  'Type56C_Mag_def_1'
-  }
-  }
- }
 	Type56C_1.Valuable = 0
 	Type56C_1.CanAppearInShop = true
 	Type56C_1.CanAppearUsed = true
@@ -2393,95 +1674,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	Type56D_1.LargeItem = 1
 	Type56D_1.HandSlot = "TwoHanded"
 	Type56D_1.AdditionalHint = T( 363064227137, [[<description_hints>]] )
-	Type56D_1.ComponentSlots = {
-  {
-  SlotType = 'Bipod',
-  DefaultComponent = 'Type56D_Bay_fld_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Type56D_Bay_fld_1',
-  'Type56D_Bay_unfld_1'
-  }
-  },
-  {
-  SlotType = 'General',
-  DefaultComponent = 'Type56D_Bolt_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {
-  'Papovka2_Bolt_1',
-  'Papovka_Bolt_1',
-  'Type56A_Bolt_1',
-  'Type56B_Bolt_1',
-  'Type56C_Bolt_1',
-  'Type56D_Bolt_1'
-  }
-  },
-  {
-  SlotType = 'Scope',
-  CanBeEmpty = true,
-  Modifiable = true,
-  AvailableComponents = {
-  'RAT_TOG_ACOG',
-  'RAT_TOG_WideScope',
-  'RAT_TOG_LRoptics',
-  'RAT_TOG_Prism',
-  'RAT_TOG_Reflex',
-  'RAT_TOG_compactRS',
-  'RAT_TOG_laser_dot',
-  'RAT_TOG_uv_dot',
-  'RAT_TOG_vigilanceRS',
-  'RAT_TOG_thermal',
-  'LROptics_DragunovDefault'
-  }
-  },
-  {
-  SlotType = 'Mount',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {}
-  },
-  {
-  SlotType = 'Muzzle',
-  DefaultComponent = 'ToG_VFX_Muzzle',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'RAT_TOG_compensator',
-  'RAT_TOG_suppressor',
-  'ToG_VFX_Muzzle'
-  }
-  },
-  {
-  SlotType = 'Barrel',
-  DefaultComponent = 'Type56D_Barrel_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Type56D_Barrel_shrt_1',
-  'Type56D_Barrel_def_1',
-  'Type56D_Barrel_ext_1'
-  }
-  },
-  {
-  SlotType = 'Stock',
-  DefaultComponent = 'Type56D_stock_def_1',
-  CanBeEmpty = false,
-  Modifiable = false,
-  AvailableComponents = {'Type56D_stock_def_1'}
-  },
-  {
-  SlotType = 'Magazine',
-  DefaultComponent = 'Type56D_Mag_def_1',
-  CanBeEmpty = false,
-  Modifiable = true,
-  AvailableComponents = {
-  'Papovka_Mag_ext_1',
-  'Type56D_Mag_def_1'
-  }
-  }
- }
 	Type56D_1.Valuable = 0
 	Type56D_1.CanAppearInShop = false
 	Type56D_1.CanAppearUsed = true
@@ -2543,7 +1735,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	TAR21_1.LargeItem = 1
 	TAR21_1.HandSlot = "TwoHanded"
 	TAR21_1.AdditionalHint = T( 292214856686, [[<description_hints>]] )
-	TAR21_1.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Scope', DefaultComponent = 'ImprovedIronsight', Modifiable = true, AvailableComponents = {'ImprovedIronsight', 'TAR21_Scope_Rflx_1', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'TAR21_Mag_def_1', Modifiable = true, AvailableComponents = {'TAR21_Mag_def_1', 'TAR21_Mag_ext_1', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'TAR21_Muzzle_def_1', Modifiable = true, AvailableComponents = {'ImprovisedSuppressor', 'RAT_TOG_suppressor_762', 'MuzzleBooster', 'TAR21_Muzzle_def_1', }}, {CanBeEmpty = true, SlotType = 'General', DefaultComponent = 'bullup', Modifiable = false, AvailableComponents = {'bullup', }}}
 	TAR21_1.Valuable = 1
 	TAR21_1.CanAppearInShop = true
 	TAR21_1.CanAppearUsed = true
@@ -2600,7 +1791,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	A91_2.LargeItem = 1
 	A91_2.HandSlot = "TwoHanded"
 	A91_2.AdditionalHint = T(836660682051, [[<description_hints>]] )
-	A91_2.ComponentSlots = {{Modifiable = false, AvailableComponents = {'bullup'}, SlotType = 'General', DefaultComponent = 'bullup'}, {SlotType = 'Barrel', AvailableComponents = {'A91_762_barrel_def_1'}, DefaultComponent = 'A91_762_barrel_def_1', Modifiable = false}, {SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ReflexSightAdvanced', 'ReflexSight', 'ScopeCOGQuick', 'ScopeCOG', 'ThermalScope', 'RAT_TOG_vigilanceRS', 'RAT_TOG_WideScope', 'DefaultIronsight_AR15'}, DefaultComponent = 'DefaultIronsight_AR15'}, {Modifiable = false, SlotType = 'Muzzle', AvailableComponents = {'ToG_VFX_Muzzle'}, DefaultComponent = 'ToG_VFX_Muzzle'}, {Modifiable = true, AvailableComponents = {'RAT_TOG_CompensatorNoEntity'}, SlotType = 'Gassblock', DefaultComponent = 'RAT_TOG_CompensatorNoEntity'}, {SlotType = 'Magazine', AvailableComponents = {'A91_762_mag_def_1', 'A91_762_mag_ext_1'}, DefaultComponent = 'A91_762_mag_def_1', Modifiable = true}, {Modifiable = true, AvailableComponents = {'A91_GrenadeLauncher'}, SlotType = 'Under' ,CanBeEmpty = true}}
 	A91_2.CanAppearInShop = true
 	A91_2.CanAppearUsed = true
 	A91_2.Tier = 2
@@ -2664,7 +1854,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	G11_1.LargeItem = 1
 	G11_1.HandSlot = "TwoHanded"
 	G11_1.AdditionalHint = T( 840010918341, [[<description_hints><newline><image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Special 3-shot burst mode with improved rate of fire and greatly reduced recoil]])
-	G11_1.ComponentSlots = {{SlotType = 'Barrel', DefaultComponent = 'G11_Barrel_def_1', AvailableComponents = {'G11_Barrel_def_1'}, Modifiable = false}, {SlotType = 'Scope', DefaultComponent = 'G11_Scope_1', AvailableComponents = {'G11_Scope_1', 'G11_Rail_1'}, Modifiable = true}, {SlotType = 'Muzzle', DefaultComponent = 'CAWS_Muzzle_def_1', AvailableComponents = {'CAWS_Muzzle_def_1', 'RAT_TOG_compensator'}, Modifiable = true}, {SlotType = 'Magazine', DefaultComponent = 'G11_Mag_def_1', AvailableComponents = {'G11_Mag_def_1', 'G11_Mag_ext_1', 'G11_Mag_ext2_1'}, Modifiable = true}, {SlotType = 'Under', CanBeEmpty = true, AvailableComponents = {'G11_Grenadelauncher_1', 'G11_Grip_CAWS_1'}, Modifiable = true}, {SlotType = 'Bipod', CanBeEmpty = true, AvailableComponents = {'G11_Bipod_1'}, Modifiable = true},{CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'bullup', Modifiable = false, AvailableComponents = {'bullup', }}}
 	G11_1.Valuable = 1
 	G11_1.CanAppearInShop = true
 	G11_1.CanAppearUsed = true
@@ -2727,7 +1916,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	HK53_1.LargeItem = 1
 	HK53_1.HandSlot = "TwoHanded"
 	HK53_1.AdditionalHint = T( 123942705172, [[<description_hints>]] )
-	HK53_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'hk33_barrel_def_1', Modifiable = true, AvailableComponents = {'hk33_barrel_def_1', }}, {CanBeEmpty = false, SlotType = 'Side2', DefaultComponent = 'side_2_empty', Modifiable = true, AvailableComponents = {'ToG_Flashlight_2', 'ToG_Red_Dot_2', 'ToG_UV_Dot_2', 'side_2_empty', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'hk33_muzzle_1', Modifiable = true, AvailableComponents = {'RAT_TOG_suppressor', 'ImprovisedSuppressor', 'hk33_muzzle_1', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'hk33_magazine_11', Modifiable = true, AvailableComponents = {'hk33_magazine_11', 'hk33_magazine_31', 'hk33_drum_mag_1', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'HK53_stock_unfld_1', Modifiable = true, AvailableComponents = {'hk53_Stock_heavy', 'HK53_stock_unfld_1', }}, {CanBeEmpty = false, SlotType = 'Handguard', DefaultComponent = 'hk33_handguard_cl_1', Modifiable = true, AvailableComponents = {'hk33_handguard_cl_1', 'hk33_handguard_new_1', }}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'hk33_lower_modern_1', Modifiable = true, AvailableComponents = {'hk33_lower_classic_1', 'hk33_lower_modern_1', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'RAT_TOG_Reflex', 'RAT_TOG_ACOG', 'RAT_TOG_compactRS', 'RAT_TOG_Prism', 'RAT_TOG_vigilanceRS', 'RAT_TOG_thermal', 'RAT_TOG_WideScope', }}}
 	HK53_1.Valuable = 1
 	HK53_1.CanAppearInShop = true
 	HK53_1.CanAppearUsed = true
@@ -2796,7 +1984,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	VSS_1.HandSlot = "TwoHanded"
 	VSS_1.AdditionalHint = T( 413559350745, [[<description_hints>
 <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Silent Attacks]] )
-	VSS_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'VSS_Mag_def_1', Modifiable = true, AvailableComponents = {'VSS_Mag_def_1', 'VSS_Mag_ext_1', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'VSS_Ironsight_1', Modifiable = true, AvailableComponents = {'VSS_Ironsight_1', 'VSS_Scope_1', 'RAT_TOG_Reflex', 'RAT_TOG_ACOG', 'RAT_TOG_LRoptics', 'RAT_TOG_LRoptics_advanced', 'RAT_TOG_compactRS', 'RAT_TOG_Prism', 'RAT_TOG_vigilanceRS', 'RAT_TOG_thermal', }}, {CanBeEmpty = true, SlotType = 'Bipod', Modifiable = true, AvailableComponents = {'ToG_Bipod_1', }}, {CanBeEmpty = false, SlotType = 'Muzzle', Modifiable = false, AvailableComponents = {}}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'R_VSS_suppressor', Modifiable = true, AvailableComponents = {'R_VSS_suppressor', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'VSS_Stock_def_1', Modifiable = false, AvailableComponents = {'VSS_Stock_def_1', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'VSS_Barrel_def_1', Modifiable = false, AvailableComponents = {'VSS_Barrel_def_1', }}}
 	VSS_1.Valuable = 0
 	VSS_1.CanAppearInShop = false
 	VSS_1.CanAppearUsed = true
@@ -2863,7 +2050,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	VSK94_1.LargeItem = 1
 	VSK94_1.HandSlot = "TwoHanded"
 	VSK94_1.AdditionalHint = T( 500671780217, [[<description_hints>]] )
-	VSK94_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'VSK94_Stock_hvy_1', Modifiable = true, AvailableComponents = {'VSK94_Stock_hvy_1', 'VSK94_Pistolgrip_1', 'VSK94_stock_unfld_1', 'VSK94_stock_fld_1', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'VSK94_Mag_def_1', Modifiable = true, AvailableComponents = {'VSK94_Mag_def_1', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'LROptics_DragunovDefault', 'RAT_TOG_ACOG', 'RAT_TOG_WideScope', 'RAT_TOG_LRoptics', 'RAT_TOG_LRoptics_advanced', 'RAT_TOG_Prism', 'RAT_TOG_thermal', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'VSK94_barrel_def_1', Modifiable = false, AvailableComponents = {'VSK94_barrel_def_1', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'RAT_VSK_Suppressor', Modifiable = true, AvailableComponents = {'RAT_VSK_Suppressor', }}}
 	VSK94_1.Valuable = 0
 	VSK94_1.CanAppearInShop = true
 	VSK94_1.CanAppearUsed = true
@@ -2924,7 +2110,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	StenMK2_1.LargeItem = 1
 	StenMK2_1.HandSlot = "TwoHanded"
 	StenMK2_1.AdditionalHint = T( 615691579287, [[<description_hints>]] )
-	StenMK2_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'Sten_mag_def_1', Modifiable = false, AvailableComponents = {'Sten_mag_def_1', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockLight', Modifiable = true, AvailableComponents = {'StockLight', }}}
 	StenMK2_1.Valuable = 0
 	StenMK2_1.CanAppearInShop = true
 	StenMK2_1.CanAppearUsed = true
@@ -2987,7 +2172,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	VigM2_1.LargeItem = 1
 	VigM2_1.HandSlot = "TwoHanded"
 	VigM2_1.AdditionalHint = T( 595870360399, [[<description_hints>]] )
-	VigM2_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'VigM2_Barrel_def_1', Modifiable = false, AvailableComponents = {'VigM2_Barrel_def_1', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'VigM2_mag_def_1', Modifiable = true, AvailableComponents = {'VigM2_mag_def_1', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'VigM2_Stock_unfld_1', Modifiable = true, AvailableComponents = {'VigM2_Stock_unfld_1', }}}
 	VigM2_1.Valuable = 0
 	VigM2_1.CanAppearInShop = true
 	VigM2_1.CanAppearUsed = true
@@ -3049,7 +2233,6 @@ The HK33 series of rifles were adopted by the Brazilian Air Force (Força Aérea
 	UMP_1.LargeItem = 1
 	UMP_1.HandSlot = "TwoHanded"
 	UMP_1.AdditionalHint = T( 863330837058, [[<description_hints>]] )
-	UMP_1.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'RAT_TOG_suppressor_762', 'ImprovisedSuppressor', 'MuzzleBooster', 'RAT_TOG_compensator', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'FlashlightDot', 'LaserDot', 'UVDot', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ReflexSight', 'ReflexSightAdvanced', 'LROptics', '_ReflexSIghtVigilance', 'ScopeCOGQuick', 'ScopeCOG', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockLight', Modifiable = true, AvailableComponents = {'StockLight', }}}
 	UMP_1.Valuable = 0
 	UMP_1.CanAppearInShop = true
 	UMP_1.CanAppearUsed = true
@@ -3117,7 +2300,6 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	P90_2.LargeItem = 1
 	P90_2.HandSlot = "TwoHanded"
 	P90_2.AdditionalHint = T( 157356398627, [[<description_hints>]] )
-	P90_2.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ReflexSight', 'ReflexSightAdvanced', 'LROptics', 'ScopeCOGQuick', 'ScopeCOG', '_ReflexSIghtVigilance', 'WideScope', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelNormal', 'ToG_Comp_AR_Barrel_Long_1_SMG', 'ToG_Comp_AR_Barrel_Long_2_SMG', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'FlashlightDot', 'LaserDot', 'UVDot', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'ToG_VFX_Muzzle', Modifiable = false, AvailableComponents = {'ToG_VFX_Muzzle'}}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'bullup', Modifiable = false, AvailableComponents = {'bullup', }}}
 	P90_2.Valuable = 0
 	P90_2.CanAppearInShop = true
 	P90_2.CanAppearUsed = true
@@ -3181,7 +2363,6 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	PP91_1.LargeItem = 0
 	PP91_1.HandSlot = "OneHanded"
 	PP91_1.AdditionalHint = T( 183411732483, [[<description_hints>]] )
-	PP91_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'PP91_Barrel_def_1', Modifiable = false, AvailableComponents = {'PP91_Barrel_def_1', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'PP91_Mag_def_1', Modifiable = true, AvailableComponents = {'PP91_Mag_def_1', 'PP91_Mag_ext_1', }}, {CanBeEmpty = false, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'Compensator', 'MuzzleBooster', 'Suppressor', 'ImprovisedSuppressor', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'PP91_Stock_fld_1', Modifiable = true, AvailableComponents = {'PP91_Stock_fld_1', 'PP91_Stock_unfld_1', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'RAT_TOG_ACOG', 'RAT_TOG_WideScope', 'RAT_TOG_Reflex', 'RAT_TOG_compactRS', 'RAT_TOG_vigilanceRS', }}}
 	PP91_1.Valuable = 0
 	PP91_1.CanAppearInShop = true
 	PP91_1.CanAppearUsed = true
@@ -3244,7 +2425,6 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	MAC11_1.LargeItem = 0
 	MAC11_1.HandSlot = "OneHanded"
 	MAC11_1.AdditionalHint = T( 681827100466, [[<description_hints>]] )
-	MAC11_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'Mac11_Barrel_def_1', Modifiable = true, AvailableComponents = {'Mac11_Barrel_def_1', 'Mac11_Barrel_ext_1', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'Mac11_Mag_def_1', Modifiable = true, AvailableComponents = {'Mac11_Mag_def_1', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'RAT_TOG_vigilanceRS', 'RAT_TOG_compactRS', 'RAT_TOG_Reflex_pistol', 'RAT_TOG_uv_dot', 'RAT_TOG_laser_dot', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'ToG_VFX_Muzzle', Modifiable = true, AvailableComponents = {'RAT_TOG_compensator', 'RAT_TOG_suppressor', 'ToG_VFX_Muzzle', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'Mac11_Stock_fld_1', Modifiable = true, AvailableComponents = {'Mac11_Stock_fld_1', 'Mac11_Stock_unfld_1', }}}
 	MAC11_1.Valuable = 0
 	MAC11_1.CanAppearInShop = true
 	MAC11_1.CanAppearUsed = true
@@ -3308,7 +2488,6 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	MicroUZI_1.HandSlot = "OneHanded"
 	MicroUZI_1.AdditionalHint = T( 118830685302, [[<description_hints>
 <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Swapping to this weapon is free, as long it is not dual-wielded]] )
-	MicroUZI_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'MicroUZI_Barrel_def_1', Modifiable = true, AvailableComponents = {'MicroUZI_Barrel_def_1', 'MicroUZI_Barrel_ext_1', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MicroUZI_Mag_def_1', Modifiable = true, AvailableComponents = {'MicroUZI_Mag_def_1', 'MicroUZI_Mag_ext_1', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'MicroUZI_Scope_def_1', Modifiable = true, AvailableComponents = {'RAT_TOG_Reflex_pistol', 'RAT_TOG_compactRS', 'RAT_TOG_laser_dot', 'RAT_TOG_uv_dot', 'RAT_TOG_vigilanceRS', 'MicroUZI_Scope_def_1', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'ToG_VFX_Muzzle', Modifiable = true, AvailableComponents = {'RAT_TOG_compensator', 'RAT_TOG_suppressor', 'ToG_VFX_Muzzle', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNo', Modifiable = true, AvailableComponents = {'StockNo', }}}
 	MicroUZI_1.Valuable = 0
 	MicroUZI_1.CanAppearInShop = true
 	MicroUZI_1.CanAppearUsed = true
@@ -3369,7 +2548,6 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	M1911_1.LargeItem = 0
 	M1911_1.HandSlot = "OneHanded"
 	M1911_1.AdditionalHint = T( 566181481232, [[<description_hints>]] )
-	M1911_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'ToG_VFX_Muzzle', Modifiable = true, AvailableComponents = {'RAT_TOG_suppressor', 'Compensator', 'ToG_VFX_Muzzle', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'M1911_Mag_def_1', Modifiable = true, AvailableComponents = {'M1911_Mag_def_1', 'M1911_Mag_ext_1', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'M1911_Barrel_def_1', Modifiable = true, AvailableComponents = {'M1911_Barrel_def_1', 'M1911_Barrel_ext_1', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'RAT_TOG_compactRS', 'RAT_TOG_vigilanceRS', 'RAT_TOG_uv_dot', 'RAT_TOG_laser_dot', }}}
 	M1911_1.Valuable = 0
 	M1911_1.CanAppearInShop = true
 	M1911_1.CanAppearUsed = true
@@ -3433,7 +2611,6 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	P08_1.HandSlot = "OneHanded"
 	P08_1.AdditionalHint = T( 346431845219, [[<description_hints>
 <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Swapping to this weapon is free, as long it is not dual-wielded]] )
-	P08_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'P08_Mag_def_1', Modifiable = true, AvailableComponents = {'P08_Mag_def_1', 'P08_Mag_ext_1', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'P08_Barrel_def_1', Modifiable = true, AvailableComponents = {'P08_Barrel_def_1', 'P08_Barrel_Long_1', }}, {CanBeEmpty = true, SlotType = 'Muzzle', DefaultComponent = 'CAWS_Muzzle_def_1', Modifiable = true, AvailableComponents = {'ImprovisedSuppressor', 'Suppressor', 'Compensator', 'CAWS_Muzzle_def_1', }}}
 	P08_1.Valuable = 0
 	P08_1.CanAppearInShop = true
 	P08_1.CanAppearUsed = true
@@ -3496,7 +2673,6 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	VikingMP446_1.LargeItem = 0
 	VikingMP446_1.HandSlot = "OneHanded"
 	VikingMP446_1.AdditionalHint = T( 746490991929, [[<description_hints>]] )
-	VikingMP446_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'ToG_VFX_Muzzle', Modifiable = true, AvailableComponents = {'ImprovisedSuppressor', 'Suppressor', 'ToG_VFX_Muzzle', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'Viking_mag_def_1', Modifiable = true, AvailableComponents = {'Viking_mag_def_1', 'Viking_mag_ext_1', 'Viking_mag_extQ_1', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'Viking_Barrel_def_1', Modifiable = false, AvailableComponents = {'Viking_Barrel_def_1', }}}
 	VikingMP446_1.Valuable = 0
 	VikingMP446_1.CanAppearInShop = true
 	VikingMP446_1.CanAppearUsed = true
@@ -3564,7 +2740,6 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	B93RR_1.AdditionalHint = T( 599431805405, [[<description_hints>
 <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Swapping to this weapon is free, as long it is not dual-wielded
 <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Selective fire burst mode leads to less recoil]] )
-	B93RR_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'ToG_VFX_Muzzle', Modifiable = true, AvailableComponents = {'ToG_VFX_Muzzle', 'ImprovisedSuppressor', 'Suppressor', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'B93RR_mag_def_1', Modifiable = true, AvailableComponents = {'B93RR_mag_def_1', 'B93RR_mag_ext_1', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'B93RR_barrel_def_1', Modifiable = false, AvailableComponents = {'B93RR_barrel_def_1', }}, {CanBeEmpty = false, SlotType = 'Under', DefaultComponent = 'B93RR_grip_unfld_1', Modifiable = true, AvailableComponents = { 'B93RR_grip_unfld_1'}}}
 	B93RR_1.Valuable = 0
 	B93RR_1.CanAppearInShop = true
 	B93RR_1.CanAppearUsed = true
@@ -3628,7 +2803,6 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	USP_1.HandSlot = "OneHanded"
 	USP_1.AdditionalHint = T( 928500227524, [[<description_hints>
 <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Swapping to this weapon is free, as long it is not dual-wielded.]] )
-	USP_1.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'ImprovisedSuppressor', 'Suppressor', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'uspr_mag_def_1', Modifiable = true, AvailableComponents = {'uspr_mag_def_1', 'uspr_mag_ext_1', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelNormal', 'ToG_Comp_Pstl_Barrel_Long', 'ToG_Comp_Pstl_Barrel_Long_1', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'RAT_TOG_Reflex_pistol', 'RAT_TOG_compactRS', 'ImprovedIronsight', 'RAT_TOG_vigilanceRS', 'RAT_TOG_uv_dot', 'RAT_TOG_laser_dot', }}}
 	USP_1.Valuable = 0
 	USP_1.CanAppearInShop = true
 	USP_1.CanAppearUsed = true
@@ -3691,7 +2865,6 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	Glock17_1.HandSlot = "OneHanded"
 	Glock17_1.AdditionalHint = T( 246679208709, [[<description_hints>
 <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Swapping to this weapon is free, as long it is not dual-wielded]] )
-	Glock17_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'ToG_VFX_Muzzle', Modifiable = true, AvailableComponents = {'ImprovisedSuppressor', 'Suppressor', 'ToG_VFX_Muzzle', 'Compensator_Glock', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'ToG_Comp_Pstl_defmag_1', Modifiable = true, AvailableComponents = {'ToG_Comp_Pstl_defmag_1', 'ToG_Comp_Pstl_finemag_1', 'ToG_Comp_Pstl_expmag_1', 'ToG_Comp_Pstl_ergmag_1', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'RAT_TOG_Reflex_pistol', 'RAT_TOG_compactRS', 'ImprovedIronsight', 'RAT_TOG_vigilanceRS', 'RAT_TOG_uv_dot', 'RAT_TOG_laser_dot', }}}
 	Glock17_1.Valuable = 0
 	Glock17_1.CanAppearInShop = true
 	Glock17_1.CanAppearUsed = true
@@ -3724,7 +2897,6 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	M79SAW_1.AdditionalHint = T( 309537575554, [[<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Shoots 40mm Grenades
 <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Mishap chance increased with distance
 <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Slow rate of Fire]] )
-	M79SAW_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'ToG_VFX_Muzzle', Modifiable = false, AvailableComponents = {'ToG_VFX_Muzzle', }}}
 	M79SAW_1.Valuable = 0
 	M79SAW_1.CanAppearInShop = false
 	M79SAW_1.CanAppearUsed = true
@@ -3756,7 +2928,6 @@ The UMP has been adopted for use by various countries including Brazil, Canada, 
 	M79SAW2_1.AdditionalHint = T( 455509044395, [[<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Shoots 40mm Grenades
 <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Mishap chance increased with distance
 <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Slow rate of Fire]] )
-	M79SAW2_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'ToG_VFX_Muzzle', Modifiable = false, AvailableComponents = {'ToG_VFX_Muzzle', }}}
 	M79SAW2_1.Valuable = 0
 	M79SAW2_1.CanAppearInShop = true
 	M79SAW2_1.CanAppearUsed = true
@@ -3821,7 +2992,6 @@ function RatoTOG_LegacyPatch()
 	Groza_1.LargeItem = 1
 	Groza_1.HandSlot = "TwoHanded"
 	Groza_1.AdditionalHint = T( 727933339009, [[<description_hints>]] )
-	Groza_1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'ImprovisedSuppressor', 'RAT_TOG_compensator', 'RAT_TOG_suppressor', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelNormal', 'ToG_Comp_AR_Barrel_Long_1', 'ToG_Comp_AR_Barrel_Long_2', }}, {CanBeEmpty = false, SlotType = 'Under', DefaultComponent = 'VerticalGrip', Modifiable = true, AvailableComponents = {'VerticalGrip', }}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'bullup', Modifiable = false, AvailableComponents = {'bullup', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'ImprovedIronsight', Modifiable = true, AvailableComponents = {'ImprovedIronsight', }}}
 	Groza_1.Valuable = 0
 	Groza_1.CanAppearInShop = true
 	Groza_1.CanAppearUsed = true
@@ -3886,7 +3056,6 @@ function RatoGBO_WepPatch()
 	BarretM82.RepairCost = 80
 	BarretM82.Reliability = 67
 	BarretM82.AdditionalHint = T{614748331117,[[<description_hints>]]}
-	BarretM82.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'Bipod_m82', Modifiable = true, AvailableComponents = {'Bipod_m82', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge_5', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'LROptics', 'ScopeCOG', 'ScopeCOGQuick', 'ThermalScope', 'LROpticsAdvanced', 'ImprovedIronsight', 'PSG_DefaultScope', 'WideScope', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'Compensator', Modifiable = true, AvailableComponents = {'Compensator', 'Suppressor', }}}
 	BarretM82.Valuable = 1
 	BarretM82.CanAppearInShop = true
 	BarretM82.CanAppearUsed = false
@@ -3938,7 +3107,6 @@ function RatoGBO_WepPatch()
 	MG58.RepairCost = 80
 	MG58.Reliability = 84
 	MG58.AdditionalHint = T{240845249658,[[<description_hints>]]}
-	MG58.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'Bipod_MG42', Modifiable = false, AvailableComponents = {'Bipod_MG42', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'ImprovedIronsight', Modifiable = false, AvailableComponents = {'ImprovedIronsight', }}}
 	MG58.Valuable = 1
 	MG58.Tier = 1
 	MG58.PenetrationClass = 1
@@ -3985,7 +3153,6 @@ function RatoGBO_WepPatch()
 	MG42.RepairCost = 80
 	MG42.Reliability = 78
 	MG42.AdditionalHint = T{386845693893,[[<description_hints>]]}
-	MG42.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'Bipod_MG42', Modifiable = false, AvailableComponents = {'Bipod_MG42', }}}
 	MG42.CanAppearInShop = true
 	MG42.CanAppearUsed = true
 	MG42.Tier = 1
@@ -4033,7 +3200,6 @@ function RatoGBO_WepPatch()
 	PSG1.RepairCost = 80
 	PSG1.Reliability = 69
 	PSG1.AdditionalHint = T{998230614287,[[<description_hints>]]}
-	PSG1.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = true, AvailableComponents = {'StockNormal', 'StockHeavy', }}, {CanBeEmpty = false, SlotType = 'Bipod', Modifiable = true, AvailableComponents = {'Bipod', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'ImprovisedSuppressor', 'Suppressor', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagNormalFine', 'MagLarge_10', 'MagLargeFine_10', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'PSG_DefaultScope', Modifiable = true, AvailableComponents = {'PSG_DefaultScope', 'LROpticsAdvanced', 'ReflexSight', 'ReflexSightAdvanced', 'ScopeCOG', 'ScopeCOGQuick', 'ThermalScope', '_ReflexSIghtVigilance', 'WideScope', 'LROptics', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'FlashlightDot_PSG_M1', 'Flashlight_PSG_M1', 'LaserDot_PSG_M1', 'UVDot_PSG_M1', }}}
 	PSG1.Valuable = 1
 	PSG1.CanAppearInShop = true
 	PSG1.Tier = 3
@@ -4085,7 +3251,6 @@ function RatoGBO_WepPatch()
 	HK21.RepairCost = 80
 	HK21.Reliability = 75
 	HK21.AdditionalHint = T{671286970025,[[<description_hints>]]}
-	HK21.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong', 'BarrelLongImproved', 'BarrelNormal', 'BarrelNormalImproved', 'BarrelShort', 'BarrelShortImproved', 'long_barrel_light', 'BarrelShort_Light', 'BarrelLight', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'DefaultMuzzle_HK21', Modifiable = true, AvailableComponents = {'DefaultMuzzle_HK21', 'MuzzleBooster', 'Compensator', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ImprovedIronsight', 'LROptics', 'LROpticsAdvanced', 'ReflexSight', 'ReflexSightAdvanced', 'ScopeCOG', 'ScopeCOGQuick', 'ThermalScope', 'WideScope', '_ReflexSIghtVigilance', 'PSG_DefaultScope', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'LaserDot', 'FlashlightDot', 'UVDot', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = true, AvailableComponents = {'StockHeavy', 'StockNormal', 'StockLight', }}, {CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'Bipod', Modifiable = true, AvailableComponents = {'Bipod', }}, {CanBeEmpty = true, SlotType = 'Under', Modifiable = true, AvailableComponents = {'TacGrip', 'VerticalGrip', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge_8', }}}
 	HK21.Valuable = 1
 	HK21.CanAppearInShop = true
 	HK21.Tier = 3
@@ -4136,7 +3301,6 @@ function RatoGBO_WepPatch()
 	FNMinimi.RepairCost = 120
 	FNMinimi.Reliability = 78
 	FNMinimi.AdditionalHint = T{616169182043,[[<description_hints>]]}
-	FNMinimi.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong', 'BarrelLongImproved', 'BarrelNormal', 'BarrelNormalImproved', 'BarrelShort', 'BarrelShortImproved', 'long_barrel_light', 'BarrelLight', 'BarrelShort_Light', }}, {CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'Bipod', Modifiable = true, AvailableComponents = {'Bipod', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = true, AvailableComponents = {'StockHeavy', 'StockNormal', 'StockLight', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ImprovedIronsight', 'ReflexSight', 'ReflexSightAdvanced', 'LROptics', 'LROpticsAdvanced', 'ScopeCOG', 'ScopeCOGQuick', 'ThermalScope', 'WideScope', '_ReflexSIghtVigilance', 'PSG_DefaultScope', 'UVDot_Anaconda', 'LaserDot_Anaconda', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge_12', }}}
 	FNMinimi.CanAppearInShop = true
 	FNMinimi.Tier = 3
 	FNMinimi.MaxStock = 1
@@ -4186,7 +3350,6 @@ function RatoGBO_WepPatch()
 	RPK74.RepairCost = 80
 	RPK74.Reliability = 85
 	RPK74.AdditionalHint = T{553717282985,[[<description_hints>]]}
-	RPK74.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Bipod', DefaultComponent = 'Bipod', Modifiable = true, AvailableComponents = {'Bipod', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelNormal', 'BarrelNormalImproved', 'BarrelLight', 'rpk_to762wp', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagNormalFine', 'MagQuick', 'MagLarge_2', }}, {CanBeEmpty = false, SlotType = 'Handguard', DefaultComponent = 'RPK74_Hanguard_Basic', Modifiable = true, AvailableComponents = {'RPK74_Hanguard_Basic', 'RPK74_VerticalGrip', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'LROptics', 'ReflexSight', 'ScopeCOG', 'ThermalScope', 'LROpticsAdvanced', 'ScopeCOGQuick', 'ReflexSightAdvanced', '_ReflexSIghtVigilance', 'WideScope', 'LROptics_DragunovDefault', 'UVDot_Anaconda', 'LaserDot_Anaconda', 'ImprovedIronsight', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'Compensator', 'MuzzleBooster', 'Suppressor', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = true, AvailableComponents = {'StockNormal', 'StockLight', }}}
 	RPK74.CanAppearInShop = true
 	RPK74.Tier = 2
 	RPK74.MaxStock = 2
@@ -4232,7 +3395,6 @@ function RatoGBO_WepPatch()
 	Gewehr98.RepairCost = 80
 	Gewehr98.Reliability = 97
 	Gewehr98.AdditionalHint = T{973204362273,[[<description_hints>]]}
-	Gewehr98.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'GewehrDefaultSight', Modifiable = true, AvailableComponents = {'LROptics', 'ReflexSight', 'ScopeCOG', 'GewehrDefaultSight', 'ImprovedIronsight', 'ReflexSightAdvanced', 'ScopeCOGQuick', 'ThermalScope', '_ReflexSIghtVigilance', 'WideScope', 'LROpticsAdvanced', 'PSG_DefaultScope', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'ImprovisedSuppressor', 'Suppressor', }}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'Bolt_action', Modifiable = true, AvailableComponents = {'Bolt_action', }}}
 	Gewehr98.CanAppearInShop = true
 	Gewehr98.CanAppearUsed = true
 	Gewehr98.Tier = 1
@@ -4279,7 +3441,6 @@ function RatoGBO_WepPatch()
 	M24Sniper.RepairCost = 80
 	M24Sniper.Reliability = 95
 	M24Sniper.AdditionalHint = T{713886804400,[[<description_hints>]]}
-	M24Sniper.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = true, AvailableComponents = {'StockHeavy', 'StockLight', 'StockNormal', }}, {CanBeEmpty = true, SlotType = 'Bipod', Modifiable = true, AvailableComponents = {'Bipod', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'LROptics', Modifiable = true, AvailableComponents = {'LROptics', 'LROpticsAdvanced', 'ReflexSight', 'ScopeCOG', 'ThermalScope', 'PSG_DefaultScope', 'WideScope', '_ReflexSIghtVigilance', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'Suppressor', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'FlashlightDot', 'LaserDot', 'UVDot', }}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'Bolt_action', Modifiable = true, AvailableComponents = {'Bolt_action', }}}
 	M24Sniper.CanAppearInShop = true
 	M24Sniper.Tier = 2
 	M24Sniper.MaxStock = 2
@@ -4325,7 +3486,6 @@ function RatoGBO_WepPatch()
 	DragunovSVD.RepairCost = 80
 	DragunovSVD.Reliability = 78
 	DragunovSVD.AdditionalHint = T{715363343098,[[<description_hints>]]}
-	DragunovSVD.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = true, AvailableComponents = {'StockHeavy', 'StockLight', 'StockNormal', }}, {CanBeEmpty = true, SlotType = 'Bipod', Modifiable = true, AvailableComponents = {'Bipod', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'LROptics_DragunovDefault', Modifiable = true, AvailableComponents = {'LROptics_DragunovDefault', 'ReflexSight', 'ScopeCOG', 'ThermalScope', 'LROpticsAdvanced', 'ReflexSightAdvanced', 'ScopeCOGQuick', '_ReflexSIghtVigilance', 'WideScope', 'PSG_DefaultScope', 'LROptics', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'Compensator', Modifiable = true, AvailableComponents = {'Compensator', 'Suppressor', }}}
 	DragunovSVD.CanAppearInShop = true
 	DragunovSVD.CanAppearUsed = true
 	DragunovSVD.Tier = 2
@@ -4373,7 +3533,6 @@ function RatoGBO_WepPatch()
 	Galil.Reliability = 79
 	Galil.AdditionalHint = T{233977894097,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> In-built bottle opener]]}
-	Galil.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong', 'BarrelNormal', 'BarrelShort', 'long_barrel_light', 'BarrelLight', 'BarrelShort_Light', 'BarrelHeavyLong', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = true, AvailableComponents = {'StockHeavy', 'StockLight', 'StockNormal', 'StockNo', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'Galil_Brake_Default', Modifiable = true, AvailableComponents = {'Galil_Brake_Default', 'Compensator', 'Suppressor', 'ImprovisedSuppressor', 'MuzzleBooster', }}, {CanBeEmpty = false, SlotType = 'Under', DefaultComponent = 'Galil_Handguard_Default', Modifiable = true, AvailableComponents = {'GrenadeLauncher_Galil', 'Galil_Handguard_Default', 'Bipod_Galil', 'VerticalGrip', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'LROptics', 'ReflexSight', 'ThermalScope', 'ScopeCOG', '_ReflexSIghtVigilance', 'WideScope', 'ReflexSightAdvanced', 'ScopeCOGQuick', 'ImprovedIronsight', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagLarge', 'MagNormal', 'MagQuick', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'FlashlightDot', 'LaserDot', 'UVDot', }}}
 	Galil.Valuable = 1
 	Galil.CanAppearInShop = true
 	Galil.CanAppearUsed = true
@@ -4421,7 +3580,6 @@ function RatoGBO_WepPatch()
 	FNFAL.RepairCost = 80
 	FNFAL.Reliability = 72
 	FNFAL.AdditionalHint = T{634047228362,[[<description_hints>]]}
-	FNFAL.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Handguard', DefaultComponent = 'FNFAL_Handguard', Modifiable = false, AvailableComponents = {'FNFAL_Handguard', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'FlashlightDot', 'LaserDot', 'UVDot', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ScopeCOG', 'ScopeCOGQuick', 'LROptics', 'ThermalScope', 'ReflexSight', 'ReflexSightAdvanced', 'WideScope', '_ReflexSIghtVigilance', 'ImprovedIronsight', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'Compensator', 'Suppressor', 'ImprovisedSuppressor', 'MuzzleBooster', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagNormalFine', 'MagLarge', 'MagLargeFine', }}, {CanBeEmpty = true, SlotType = 'Bipod', Modifiable = true, AvailableComponents = {'Bipod', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelNormal', 'BarrelNormalImproved', 'BarrelHeavy', 'BarrelLong', 'BarrelLongImproved', 'BarrelShort', 'BarrelShortImproved', 'long_barrel_light', 'BarrelShort_Light', 'BarrelLight', 'BarrelHeavyLong', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagLarge', 'MagLargeFine', 'MagNormal', 'MagNormalFine', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = true, AvailableComponents = {'StockNormal', 'StockHeavy', 'StockLight', 'StockNo', }}, {CanBeEmpty = true, SlotType = 'Under', Modifiable = true, AvailableComponents = {'GrenadeLauncher', 'TacGrip', 'VerticalGrip', }}}
 	FNFAL.Valuable = 1
 	FNFAL.CanAppearInShop = true
 	FNFAL.Tier = 2
@@ -4470,7 +3628,6 @@ function RatoGBO_WepPatch()
 	M14SAW.Reliability = 71
 	M14SAW.AdditionalHint = T{517364861436,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Civilian issued, most commonly found variant. Only fires in semi-auto]]}
-	M14SAW.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong', 'BarrelLongImproved', 'BarrelNormal', 'BarrelNormalImproved', 'BarrelShort', 'BarrelShortImproved', 'BarrelHeavyLong', 'BarrelLight', 'long_barrel_light', 'BarrelShort_Light', 'BarrelHeavy', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = true, AvailableComponents = {'StockNormal', 'StockLight', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagLarge_5', 'MagLargeFine_5', 'MagNormal', 'MagNormalFine', 'MagQuick', }}, {CanBeEmpty = true, SlotType = 'Under', Modifiable = true, AvailableComponents = {'GrenadeLauncher_M14', 'TacGrip_M14', 'Bipod_Under', 'VerticalGrip_M14', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'M14_Default_Muzzle', Modifiable = true, AvailableComponents = {'M14_Default_Muzzle', 'Compensator', 'Suppressor', 'ImprovisedSuppressor', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'LaserDot', 'FlashlightDot', 'UVDot', 'Flashlight', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ImprovedIronsight', 'LROptics', 'LROpticsAdvanced', 'ReflexSight', 'ReflexSightAdvanced', 'ScopeCOG', 'ScopeCOGQuick', 'ThermalScope', 'WideScope', '_ReflexSIghtVigilance', }}}
 	M14SAW.CanAppearInShop = true
 	M14SAW.CanAppearUsed = true
 	M14SAW.Tier = 1
@@ -4524,7 +3681,6 @@ function RatoGBO_WepPatch()
 	M14SAW_AUTO.AdditionalHint = T{419078734073,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Military variant with burst fire and auto fire modes
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Has a big recoil penalty]]}
-	M14SAW_AUTO.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong', 'BarrelLongImproved', 'BarrelNormal', 'BarrelShort', 'BarrelShortImproved', 'BarrelHeavyLong', 'BarrelLight', 'long_barrel_light', 'BarrelShort_Light', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockHeavy', Modifiable = true, AvailableComponents = {'StockHeavy', 'StockLight', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagLarge_5', 'MagLargeFine_5', 'MagNormal', 'MagNormalFine', 'MagQuick', }}, {CanBeEmpty = true, SlotType = 'Under', Modifiable = true, AvailableComponents = {'GrenadeLauncher_M14', 'TacGrip_M14', 'VerticalGrip_M14', 'Bipod_Under', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'M14_Default_Muzzle', Modifiable = true, AvailableComponents = {'M14_Default_Muzzle', 'Compensator', 'Suppressor', 'ImprovisedSuppressor', 'MuzzleBooster', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'LaserDot', 'FlashlightDot', 'UVDot', 'Flashlight', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ImprovedIronsight', 'LROptics', 'LROpticsAdvanced', 'ReflexSight', 'ReflexSightAdvanced', 'ScopeCOG', 'ScopeCOGQuick', 'ThermalScope', 'WideScope', '_ReflexSIghtVigilance', }}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'm14_component_recoil', Modifiable = false, AvailableComponents = {'m14_component_recoil', }}}
 	M14SAW_AUTO.CanAppearInShop = true
 	M14SAW_AUTO.Tier = 2
 	M14SAW_AUTO.MaxStock = 2
@@ -4567,7 +3723,6 @@ function RatoGBO_WepPatch()
 	GoldenGun.RepairCost = 80
 	GoldenGun.Reliability = 71
 	GoldenGun.AdditionalHint = T{864686045799,[[<description_hints>]]}
-	GoldenGun.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Bipod', DefaultComponent = 'Bipod', Modifiable = false, AvailableComponents = {'Bipod', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'LROptics', Modifiable = false, AvailableComponents = {'LROptics', }}}
 	GoldenGun.Valuable = 1
 	GoldenGun.CategoryPair = "AssaultRifles"
 	GoldenGun.PenetrationClass = 1
@@ -4608,7 +3763,6 @@ function RatoGBO_WepPatch()
 	Galil_FlagHill.RepairCost = 50
 	Galil_FlagHill.Reliability = 79
 	Galil_FlagHill.AdditionalHint = T{811371938636,[[<description_hints>]]}
-	Galil_FlagHill.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'long_barrel_light', Modifiable = false, AvailableComponents = {'long_barrel_light', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = false, AvailableComponents = {'StockNormal', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'Galil_Brake_Default', Modifiable = false, AvailableComponents = {'Galil_Brake_Default', }}, {CanBeEmpty = false, SlotType = 'Under', DefaultComponent = 'Bipod_Galil', Modifiable = false, AvailableComponents = {'Bipod_Galil', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'WideScope', Modifiable = false, AvailableComponents = {'WideScope', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = false, AvailableComponents = {'MagNormal', }}}
 	Galil_FlagHill.PenetrationClass = 1
 
 
@@ -4650,7 +3804,6 @@ function RatoGBO_WepPatch()
 	AR15.Reliability = 73
 	AR15.AdditionalHint = T{145852997392,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Only semi-auto with standard stocks]]}
-	AR15.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'DefaultIronsight_AR15', Modifiable = true, AvailableComponents = {'ScopeCOG', 'LROptics', 'LROpticsAdvanced', 'ThermalScope', 'ReflexSight', 'DefaultIronsight_AR15', 'ImprovedIronsight_AR15', 'WideScope', '_ReflexSIghtVigilance', 'ReflexSightAdvanced', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagNormalFine', 'MagLarge', 'MagLargeFine', 'MagQuick', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelNormal', 'BarrelNormalImproved', 'BarrelShort', 'BarrelShortImproved', 'BarrelLongImproved', 'BarrelLight', 'long_barrel_light', 'BarrelShort_Light', 'BarrelHeavyLong', 'BarrelLong', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockHeavy_AR_BurstOnly', Modifiable = true, AvailableComponents = {'StockHeavy_AR_BurstOnly', 'StockLight_AR_BurstOnly', 'StockBump', }}, {CanBeEmpty = true, SlotType = 'Under', Modifiable = true, AvailableComponents = {'GrenadeLauncher', 'VerticalGrip', 'TacGrip', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'FlashlightDot', 'LaserDot', 'UVDot', }}, {CanBeEmpty = true, SlotType = 'Muzzle', DefaultComponent = 'Compensator', Modifiable = true, AvailableComponents = {'Compensator', 'ImprovisedSuppressor', 'Suppressor', 'MuzzleBooster', }}}
 	AR15.CanAppearInShop = true
 	AR15.CanAppearUsed = true
 	AR15.Tier = 2
@@ -4703,7 +3856,6 @@ function RatoGBO_WepPatch()
 	G36.Reliability = 75
 	G36.AdditionalHint = T{507516354956,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Special 2-shot burst mode with improved critical chance and reduced recoil]]}
-	G36.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelNormal', 'long_barrel_light', 'BarrelLong', 'BarrelHeavyLong', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'G36_SCOPE', Modifiable = true, AvailableComponents = {'G36_SCOPE', 'ThermalScope', 'ReflexSightAdvanced', 'SCOPE_G36_2', 'PSG_DefaultScope', '_ReflexSIghtVigilance', 'WideScope', 'ScopeCOG', 'ScopeCOGQuick', 'LROptics', 'ImprovedIronsight', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'Compensator', Modifiable = true, AvailableComponents = {'Compensator', 'Suppressor', 'ImprovisedSuppressor', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge_9', 'MagQuick', }}, {CanBeEmpty = true, SlotType = 'Under', Modifiable = true, AvailableComponents = {'TacGrip', 'VerticalGrip', 'GrenadeLauncher', 'Bipod_Under', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'FlashlightDot', 'LaserDot', 'UVDot', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'foldable_StockNormal', Modifiable = true, AvailableComponents = {'StockHeavy', 'StockLight', 'foldable_StockNormal', 'StockFolded', }}}
 	G36.Valuable = 1
 	G36.CanAppearInShop = true
 	G36.Tier = 3
@@ -4750,7 +3902,6 @@ function RatoGBO_WepPatch()
 	AK74.RepairCost = 20
 	AK74.Reliability = 86
 	AK74.AdditionalHint = T{470765972773,[[<description_hints>]]}
-	AK74.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockHeavy', Modifiable = true, AvailableComponents = {'StockHeavy', 'StockLight', 'StockNo', 'StockNormal', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormalFine', Modifiable = true, AvailableComponents = {'MagNormalFine', 'MagLarge', 'MagLargeFine', 'MagQuick', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'LROptics', 'LROpticsAdvanced', 'ReflexSight', 'ReflexSightAdvanced', 'ScopeCOG', 'ScopeCOGQuick', 'ThermalScope', 'WideScope', '_ReflexSIghtVigilance', 'LROptics_DragunovDefault', 'ImprovedIronsight', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'Compensator', 'MuzzleBooster', 'ImprovisedSuppressor', 'Suppressor', }}, {CanBeEmpty = true, SlotType = 'Under', Modifiable = true, AvailableComponents = {'GrenadeLauncher', 'Bipod_Under', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'FlashlightDot', 'LaserDot', 'UVDot', }}, {CanBeEmpty = true, SlotType = 'Barrel', Modifiable = true, AvailableComponents = {'BarrelHeavy', 'BarrelLight', }}}
 	AK74.Valuable = 1
 	AK74.CanAppearInShop = true
 	AK74.CanAppearUsed = true
@@ -4802,7 +3953,6 @@ function RatoGBO_WepPatch()
 	M16A2.Reliability = 71
 	M16A2.AdditionalHint = T{550693603298,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> No Auto firing mode]]}
-	M16A2.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Handguard', Modifiable = false, AvailableComponents = { }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ScopeCOG', 'ScopeCOGQuick', 'LROptics', 'ThermalScope', 'ReflexSight', 'WideScope', '_ReflexSIghtVigilance', 'ImprovedIronsight', }}, {CanBeEmpty = true, SlotType = 'Muzzle', DefaultComponent = 'Compensator', Modifiable = true, AvailableComponents = {'Compensator', 'Suppressor', 'ImprovisedSuppressor', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelNormal', 'BarrelLight', 'BarrelHeavy', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagLarge', 'MagNormal', 'R_MagQuickLarge', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = true, AvailableComponents = {'StockNormal', 'StockLight', 'StockNo', }}, {CanBeEmpty = false, SlotType = 'Under', DefaultComponent = 'M16_Handguard', Modifiable = true, AvailableComponents = {'GrenadeLauncher_M16A1', 'VerticalGrip_M16', 'M16_Handguard', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'FlashlightDot', 'LaserDot', 'UVDot', }}}
 	M16A2.CanAppearInShop = true
 	M16A2.Tier = 2
 	M16A2.MaxStock = 3
@@ -4847,7 +3997,6 @@ function RatoGBO_WepPatch()
 	AK47.RepairCost = 20
 	AK47.Reliability = 86
 	AK47.AdditionalHint = T{720411688179,[[<description_hints>]]}
-	AK47.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Bipod', Modifiable = true, AvailableComponents = {'Bipod', }}, {CanBeEmpty = true, SlotType = 'Grenadelauncher', Modifiable = true, AvailableComponents = {'AK47_Launcher', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = true, AvailableComponents = {'StockNormal', 'StockLight', 'StockNo', 'StockHeavy', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge', 'MagQuick', }}, {CanBeEmpty = false, SlotType = 'Handguard', DefaultComponent = 'AK47_Handguard_basic', Modifiable = true, AvailableComponents = {'AK47_VerticalGrip', 'AK47_Handguard_basic', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'LROptics', 'ReflexSight', 'ScopeCOG', 'ThermalScope', 'LROptics_DragunovDefault', 'WideScope', 'ScopeCOGQuick', 'ReflexSightAdvanced', '_ReflexSIghtVigilance', 'ImprovedIronsight', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'Compensator', 'MuzzleBooster', 'Suppressor', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'FlashlightDot', 'LaserDot', 'UVDot', }}, {CanBeEmpty = true, SlotType = 'Barrel', Modifiable = true, AvailableComponents = {'BarrelLight', 'BarrelHeavy', }}}
 	AK47.CanAppearInShop = true
 	AK47.CanAppearUsed = true
 	AK47.Tier = 1
@@ -4898,7 +4047,6 @@ function RatoGBO_WepPatch()
 	AA12.Reliability = 77
 	AA12.AdditionalHint = T{141818519778,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Special firing mode: Buckshot Burst]]}
-	AA12.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelNormal', 'BarrelLongShotgun', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge_6', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ReflexSightAdvanced', 'ReflexSight', 'ScopeCOGQuick', '_ReflexSIghtVigilance', 'ImprovedIronsight', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight_aa12', 'LaserDot_aa12', 'FlashlightDot_aa12', 'UVDot_aa12', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'Suppressor', 'Compensator', }}}
 	AA12.Valuable = 1
 	AA12.CanAppearInShop = true
 	AA12.CanAppearUsed = true
@@ -4947,7 +4095,6 @@ function RatoGBO_WepPatch()
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Backstabby and Silent
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Lever action
  ]]}
-	Winchester_Quest.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'barrel_confidante', Modifiable = false, AvailableComponents = {'barrel_confidante', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'stealth_ironsight_confidante', Modifiable = false, AvailableComponents = {'stealth_ironsight_confidante', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'Suppressor', Modifiable = false, AvailableComponents = {'Suppressor', }}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'lever_action', Modifiable = false, AvailableComponents = {'lever_action', }}}
 	Winchester_Quest.PenetrationClass = 1
 
 
@@ -4990,7 +4137,6 @@ function RatoGBO_WepPatch()
 	Winchester1894.AdditionalHint = T{709693708737,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Lever action
  ]]}
-	Winchester1894.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong_handgun', 'BarrelNormal', 'BarrelShort_Winchester', 'BarrelLight', 'long_barrel_light_handgun', 'winni_to54r', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'Suppressor', 'ImprovisedSuppressor', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ImprovedIronsight', 'LROptics', 'LROpticsAdvanced', 'ReflexSight', 'ReflexSightAdvanced', 'ScopeCOG', 'ScopeCOGQuick', 'ThermalScope', '_ReflexSIghtVigilance', 'WideScope', }}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'lever_action', Modifiable = false, AvailableComponents = {'lever_action', }}}
 	Winchester1894.CanAppearInShop = true
 	Winchester1894.CanAppearUsed = true
 	Winchester1894.Tier = 1
@@ -5038,7 +4184,6 @@ function RatoGBO_WepPatch()
 	M41Shotgun.RepairCost = 50
 	M41Shotgun.Reliability = 75
 	M41Shotgun.AdditionalHint = T{374576456352,[[<description_hints>]]}
-	M41Shotgun.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelNormal', 'BarrelShortShotgun_Benelli', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ReflexSight', 'ReflexSightAdvanced', 'ImprovedIronsight', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'FlashlightDot', 'LaserDot', 'UVDot', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'Compensator', }}}
 	M41Shotgun.CanAppearInShop = true
 	M41Shotgun.CanAppearUsed = true
 	M41Shotgun.Tier = 2
@@ -5087,7 +4232,6 @@ function RatoGBO_WepPatch()
 	AUG.RepairCost = 80
 	AUG.Reliability = 78
 	AUG.AdditionalHint = T{780533559812,[[<description_hints>]]}
-	AUG.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelNormal', 'BarrelShort_AUG', 'BarrelShortImproved_AUG', 'BarrelLong_AUG', 'BarrelLongImproved_AUG', 'BarrelLight', 'long_barrel_AUG_light', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'AUGCompensator_01', Modifiable = true, AvailableComponents = {'AUGCompensator_01', 'AUGCompensator_03', 'Suppressor', }}, {CanBeEmpty = true, SlotType = 'Under', DefaultComponent = 'TacGrip_aug', Modifiable = true, AvailableComponents = {'TacGrip_aug', }}, {CanBeEmpty = true, SlotType = 'Grenadelauncher', Modifiable = true, AvailableComponents = {'GrenadeLauncher_AUG', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagLarge_7', 'MagNormal', 'MagQuick', }}, {CanBeEmpty = true, SlotType = 'Mount', Modifiable = false, AvailableComponents = {'AUGMount', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'AUGScope_Default', Modifiable = true, AvailableComponents = {'LROptics', 'LROpticsAdvanced', 'ThermalScope', 'ReflexSight', 'ScopeCOG', 'AUGScope_Default', '_ReflexSIghtVigilance', 'WideScope', 'ReflexSightAdvanced', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'FlashlightDot', 'LaserDot', 'UVDot', }}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'bullup', Modifiable = false, AvailableComponents = {'bullup', }}}
 	AUG.Valuable = 1
 	AUG.CanAppearInShop = true
 	AUG.Tier = 2
@@ -5137,7 +4281,6 @@ function RatoGBO_WepPatch()
 	FAMAS.Reliability = 69
 	FAMAS.AdditionalHint = T{423566125417,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Increased Reload cost]]}
-	FAMAS.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Under', Modifiable = true, AvailableComponents = {'VerticalGrip', }}, {CanBeEmpty = true, SlotType = 'Bipod', Modifiable = true, AvailableComponents = {'Bipod', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'LaserDot', 'FlashlightDot', 'UVDot', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = { 'ReflexSight', 'ScopeCOGQuick', 'ScopeCOG', '_ReflexSIghtVigilance', 'ReflexSightAdvanced', 'WideScope', 'ImprovedIronsight', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'Compensator', Modifiable = true, AvailableComponents = {'Compensator', 'Suppressor', 'ImprovisedSuppressor', }}, {CanBeEmpty = true, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = false, AvailableComponents = {'MagNormal', }}, {CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'bullup', Modifiable = false, AvailableComponents = {'bullup', }}}
 	FAMAS.CanAppearInShop = true
 	FAMAS.CanAppearUsed = true
 	FAMAS.Tier = 1
@@ -5185,7 +4328,6 @@ function RatoGBO_WepPatch()
 	Auto5.RepairCost = 50
 	Auto5.Reliability = 73
 	Auto5.AdditionalHint = T{413545464036,[[<description_hints>]]}
-	Auto5.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'DuckbillChoke', 'FullChoke', 'Compensator', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'Auto5_Basic_NMag', Modifiable = true, AvailableComponents = {'Auto5_Basic_LMag', 'Auto5_Basic_NMag', 'Auto5_Long_LMag', 'Auto5_Long_NMag', 'Auto5_Short_NMag', }}}
 	Auto5.CanAppearInShop = true
 	Auto5.CanAppearUsed = true
 	Auto5.Tier = 1
@@ -5233,7 +4375,6 @@ function RatoGBO_WepPatch()
 	DoubleBarrelShotgun.Reliability = 99
 	DoubleBarrelShotgun.AdditionalHint = T{150578847961,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Special firing mode: Double Barrel]]}
-	DoubleBarrelShotgun.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLongShotgun', 'BarrelNormal', 'BarrelShortShotgun', }}}
 	DoubleBarrelShotgun.CanAppearInShop = true
 	DoubleBarrelShotgun.CanAppearUsed = true
 	DoubleBarrelShotgun.Tier = 1
@@ -5280,7 +4421,6 @@ function RatoGBO_WepPatch()
 	M4Commando.RepairCost = 80
 	M4Commando.Reliability = 67
 	M4Commando.AdditionalHint = T{502423132983,[[<description_hints>]]}
-	M4Commando.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Under', DefaultComponent = 'Handguard_Commando', Modifiable = true, AvailableComponents = {'Handguard_Commando', 'VerticalGrip_Commando', 'GrenadeLauncher_Commando', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagNormalFine', 'MagLarge', 'MagLargeFine', 'R_MagQuickLarge', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNormal', Modifiable = true, AvailableComponents = {'StockNormal', 'StockLight', 'StockNo', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'LaserDot', 'FlashlightDot', 'UVDot', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'LROptics', 'ReflexSight', 'ScopeCOG', 'ThermalScope', 'ReflexSightAdvanced', 'ScopeCOGQuick', '_ReflexSIghtVigilance', 'WideScope', 'ImprovedIronsight', }}, {CanBeEmpty = true, SlotType = 'Muzzle', DefaultComponent = 'Compensator', Modifiable = true, AvailableComponents = {'Compensator', 'MuzzleBooster', 'Suppressor', 'ImprovisedSuppressor', }}}
 	M4Commando.Valuable = 1
 	M4Commando.CanAppearInShop = true
 	M4Commando.CanAppearUsed = false
@@ -5329,7 +4469,6 @@ function RatoGBO_WepPatch()
 	MP40.RepairCost = 80
 	MP40.Reliability = 68
 	MP40.AdditionalHint = T{749284137120,[[<description_hints>]]}
-	MP40.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockLight', Modifiable = true, AvailableComponents = {'StockLight', }}, {CanBeEmpty = true, SlotType = 'Scope' , Modifiable = false, AvailableComponents = {}}}
 	MP40.CanAppearInShop = true
 	MP40.CanAppearUsed = true
 	MP40.Tier = 1
@@ -5376,7 +4515,6 @@ function RatoGBO_WepPatch()
 	AKSU.RepairCost = 50
 	AKSU.Reliability = 82
 	AKSU.AdditionalHint = T{326130558343,[[<description_hints>]]}
-	AKSU.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = false, AvailableComponents = {'BarrelNormal', }}, {CanBeEmpty = false, SlotType = 'Handguard', DefaultComponent = 'AKSU_Hanguard_Basic', Modifiable = true, AvailableComponents = {'AKSU_Hanguard_Basic', 'AKSU_VerticalGrip', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagNormalFine', 'MagLarge', 'MagQuick', 'MagLargeFine', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'LaserDot', 'FlashlightDot', 'UVDot', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'LROptics', 'ReflexSight', 'ReflexSightAdvanced', 'ScopeCOG', 'ScopeCOGQuick', 'ThermalScope', 'WideScope', '_ReflexSIghtVigilance', 'LROptics_DragunovDefault', 'ImprovedIronsight', }}, {CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'MuzzleBooster', Modifiable = true, AvailableComponents = {'Compensator_ReducedReliability', 'MuzzleBooster', 'Suppressor', 'ImprovisedSuppressor', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockLight', Modifiable = true, AvailableComponents = {'StockLight', }}}
 	AKSU.Valuable = 1
 	AKSU.CanAppearInShop = true
 	AKSU.CanAppearUsed = true
@@ -5426,7 +4564,6 @@ function RatoGBO_WepPatch()
 	MP5K.LargeItem = 0
 	MP5K.HandSlot = "OneHanded"
 	MP5K.AdditionalHint = T{793746590177,[[<description_hints>]]}
-	MP5K.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Under', DefaultComponent = 'VerticalGrip', Modifiable = true, AvailableComponents = {'VerticalGrip', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelShort_handgun', Modifiable = true, AvailableComponents = {'BarrelShort_handgun', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge_5', 'MagQuick', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNo', Modifiable = true, AvailableComponents = {'StockLight', 'StockHeavy', 'StockNo', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'LaserDot', 'FlashlightDot', 'UVDot', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ReflexSight', 'ReflexSightAdvanced', 'ScopeCOG', 'ScopeCOGQuick', '_ReflexSIghtVigilance', 'WideScope', 'ImprovedIronsight', }}, {CanBeEmpty = false, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'Suppressor', 'Compensator', 'ImprovisedSuppressor', }}}
 	MP5K.CanAppearInShop = true
 	MP5K.CanAppearUsed = true
 	MP5K.Tier = 2
@@ -5474,7 +4611,6 @@ function RatoGBO_WepPatch()
 	MP5.RepairCost = 80
 	MP5.Reliability = 78
 	MP5.AdditionalHint = T{150064858793,[[<description_hints>]]}
-	MP5.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Under', DefaultComponent = 'MP5_Handguard', Modifiable = false, AvailableComponents = {'MP5_Handguard', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelNormal', 'BarrelLong_handgun', 'long_barrel_light_handgun', 'BarrelLight_handgun', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge_5', 'MagQuick', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockLight', Modifiable = true, AvailableComponents = {'StockLight', 'StockHeavy', 'StockNo', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'LaserDot', 'FlashlightDot', 'UVDot', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge_5', 'MagQuick', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'LROptics', 'ReflexSight', 'ReflexSightAdvanced', 'ScopeCOG', 'ScopeCOGQuick', 'ThermalScope', '_ReflexSIghtVigilance', 'WideScope', 'ImprovedIronsight', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'Compensator', 'Suppressor', 'ImprovisedSuppressor', }}}
 	MP5.CanAppearInShop = true
 	MP5.CanAppearUsed = true
 	MP5.Tier = 2
@@ -5521,7 +4657,6 @@ function RatoGBO_WepPatch()
 	UZI.RepairCost = 80
 	UZI.Reliability = 78
 	UZI.AdditionalHint = T{862681616280,[[<description_hints>]]}
-	UZI.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelNormal', 'BarrelNormalImproved', 'BarrelLong_handgun', 'BarrelLongImproved_handgun', 'long_barrel_light_handgun', 'BarrelLight_handgun', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge_4', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'LaserDot', 'FlashlightDot', 'UVDot', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge', 'MagLargeFine', 'MagNormalFine', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'LROptics', 'ReflexSight', 'ReflexSightAdvanced', '_ReflexSIghtVigilance', 'ImprovedIronsight', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'Compensator', 'Suppressor', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNo', Modifiable = true, AvailableComponents = {'StockNo', 'StockHeavy', 'StockLight', }}}
 	UZI.CanAppearInShop = true
 	UZI.CanAppearUsed = true
 	UZI.Tier = 1
@@ -5569,7 +4704,6 @@ function RatoGBO_WepPatch()
 	Auto5_quest.Reliability = 73
 	Auto5_quest.AdditionalHint = T{732527392585,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Rapid Invalidation]]}
-	Auto5_quest.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'Auto5_Basic_NMag', Modifiable = false, AvailableComponents = {'Auto5_Basic_LMag', }}}
 	Auto5_quest.PenetrationClass = 1
 
 
@@ -5611,7 +4745,6 @@ function RatoGBO_WepPatch()
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> OUR weapon
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Burst fire has 4 shots
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Limited ammo capacity]]}
-	LionRoar.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Muzzle', DefaultComponent = 'LionRoar_compensator', Modifiable = false, AvailableComponents = {'LionRoar_compensator', }}, {CanBeEmpty = false, SlotType = 'Internal', DefaultComponent = 'Internal_plus_burstshot', Modifiable = false, AvailableComponents = {'Internal_plus_burstshot', }}, {CanBeEmpty = false, SlotType = 'Stock', DefaultComponent = 'StockNo', Modifiable = false, AvailableComponents = {'StockNo', }}}
 	LionRoar.PenetrationClass = 1
 
 
@@ -5652,7 +4785,6 @@ function RatoGBO_WepPatch()
 	DesertEagle.Reliability = 64
 	DesertEagle.AdditionalHint = T{467653092333,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Swapping to this weapon is free, as long it is not dual-wielded]]}
-	DesertEagle.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ReflexSight', 'ReflexSightAdvanced', 'ImprovedIronsight', '_ReflexSIghtVigilance', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagNormal', 'MagLarge', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong_handgun', 'BarrelNormal', 'Barrel50BMG_DesertEagle', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'Suppressor', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'FlashlightDot', 'Flashlight', 'LaserDot', 'UVDot', }}}
 	DesertEagle.Valuable = 1
 	DesertEagle.CanAppearInShop = true
 	DesertEagle.CanAppearUsed = false
@@ -5701,7 +4833,6 @@ function RatoGBO_WepPatch()
 	ColtAnaconda.AdditionalHint = T{879153829726,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Double action
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Swapping to this weapon is free, as long it is not dual-wielded]]}
-	ColtAnaconda.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong_handgun', 'BarrelNormal', 'BarrelShort_handgun', 'BarrelLight', 'long_barrel_light_handgun', 'BarrelShort_Light_handgun', }}, {CanBeEmpty = false, SlotType = 'Scope', DefaultComponent = 'BaseIronsight_Anaconda', Modifiable = true, AvailableComponents = {'BaseIronsight_Anaconda', 'ImprovedIronsight', 'ReflexSight', 'ReflexSightAdvanced', 'ScopeCOG', 'ScopeCOGQuick', 'LaserDot_Anaconda', 'FlashlightDot_Anaconda', 'UVDot_Anaconda', '_ReflexSIghtVigilance', 'WideScope', }}, {CanBeEmpty = false, SlotType = 'Trigger', DefaultComponent = 'SADA_action', Modifiable = false, AvailableComponents = {'SADA_action', }}}
 	ColtAnaconda.Valuable = 1
 	ColtAnaconda.CanAppearInShop = true
 	ColtAnaconda.CanAppearUsed = false
@@ -5750,7 +4881,6 @@ function RatoGBO_WepPatch()
 	TexRevolver.AdditionalHint = T{596143246468,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Tex has reduced penalty when using Dual Shot with his revolvers
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Single action]]}
-	TexRevolver.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Trigger', DefaultComponent = 'single_action_tex', Modifiable = false, AvailableComponents = {'single_action_tex', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong_handgun', 'BarrelNormal', 'BarrelShort_handgun', 'BarrelLight', 'long_barrel_light_handgun', 'BarrelShort_Light_handgun', }}}
 	TexRevolver.Tier = 1
 	TexRevolver.MaxStock = 3
 	TexRevolver.CategoryPair = "Handguns"
@@ -5795,7 +4925,6 @@ function RatoGBO_WepPatch()
 	ColtPeacemaker.AdditionalHint = T{626602087367,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Single action
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Swapping to this weapon is free, as long it is not dual-wielded]]}
-	ColtPeacemaker.ComponentSlots = {{CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong_handgun', 'BarrelNormal', 'BarrelShort_handgun', 'BarrelLight', 'long_barrel_light_handgun', 'BarrelShort_Light_handgun', }}, {CanBeEmpty = false, SlotType = 'Trigger', DefaultComponent = 'single_action', Modifiable = false, AvailableComponents = {'single_action', }}}
 	ColtPeacemaker.CanAppearInShop = true
 	ColtPeacemaker.CanAppearUsed = true
 	ColtPeacemaker.Tier = 1
@@ -5842,7 +4971,6 @@ function RatoGBO_WepPatch()
 	Bereta92.Reliability = 74
 	Bereta92.AdditionalHint = T{612920982302,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Swapping to this weapon is free, as long it is not dual-wielded]]}
-	Bereta92.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ReflexSight', '_ReflexSIghtVigilance', 'ReflexSightAdvanced_Glock', 'ImprovedIronsight', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'ImprovisedSuppressor', 'Suppressor', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagLarge', 'MagNormal', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelLong_handgun', 'BarrelNormal', 'long_barrel_light_handgun', 'BarrelLight', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'LaserDot', 'FlashlightDot', 'UVDot', }}}
 	Bereta92.CanAppearInShop = true
 	Bereta92.CanAppearUsed = true
 	Bereta92.Tier = 1
@@ -5889,7 +5017,6 @@ function RatoGBO_WepPatch()
 	HiPower.Reliability = 78
 	HiPower.AdditionalHint = T{345858616651,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Swapping to this weapon is free, as long it is not dual-wielded]]}
-	HiPower.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'ImprovisedSuppressor', 'Suppressor', 'Compensator', }}, {CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ReflexSight', '_ReflexSIghtVigilance', 'ReflexSightAdvanced_Glock', 'ImprovedIronsight', }}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagLarge_1', 'MagNormal', 'MagLargeFine_1', 'MagNormalFine', }}, {CanBeEmpty = false, SlotType = 'Barrel', DefaultComponent = 'BarrelNormal', Modifiable = true, AvailableComponents = {'BarrelNormal', 'BarrelNormalImproved', 'BarrelShort_handgun', 'BarrelShortImproved_handgun', 'BarrelLong_handgun', 'BarrelLongImproved_handgun', 'BarrelLight', 'long_barrel_light_handgun', 'BarrelShort_Light_handgun', }}}
 	HiPower.CanAppearInShop = true
 	HiPower.CanAppearUsed = true
 	HiPower.Tier = 1
@@ -5944,7 +5071,6 @@ function RatoGBO_WepPatch()
 	Glock18.AdditionalHint = T{850719596587,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Swapping to this weapon is free, as long it is not dual-wielded
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Automatic firing modes]]}
-	Glock18.ComponentSlots = {{CanBeEmpty = true, SlotType = 'Scope', Modifiable = true, AvailableComponents = {'ReflexSight', 'ReflexSightAdvanced_Glock', 'ImprovedIronsight', '_ReflexSIghtVigilance', }}, {CanBeEmpty = true, SlotType = 'Muzzle', Modifiable = true, AvailableComponents = {'ImprovisedSuppressor', 'Suppressor', 'Compensator_Glock', }}, {CanBeEmpty = false, SlotType = 'Handguard', Modifiable = false, AvailableComponents = {}}, {CanBeEmpty = false, SlotType = 'Magazine', DefaultComponent = 'MagNormal', Modifiable = true, AvailableComponents = {'MagLarge_3', 'MagNormal', }}, {CanBeEmpty = true, SlotType = 'Side', Modifiable = true, AvailableComponents = {'Flashlight', 'LaserDot', 'FlashlightDot', 'UVDot', }}}
 	Glock18.CanAppearInShop = true
 	Glock18.CanAppearUsed = true
 	Glock18.Tier = 2
@@ -5992,7 +5118,6 @@ function RatoGBO_WepPatch()
 	BrowningM2HMG.AdditionalHint = T{891996501927,[[<description_hints>
  <image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Stationary weapon
  ]]}
-	BrowningM2HMG.ComponentSlots = {{CanBeEmpty = false, SlotType = 'General', DefaultComponent = 'browning_bipod', Modifiable = false, AvailableComponents = {'browning_bipod', }}}
 	BrowningM2HMG.Tier = 1
 	BrowningM2HMG.MaxStock = 3
 	BrowningM2HMG.PenetrationClass = 1

@@ -36,6 +36,7 @@ end
 
 function OnMsg.ClassesGenerate()
     RatoGBO_WepPatch()
+    GBO_ApplyWeaponSlots(GBO_WeaponSlots)
 end
 
 function OnMsg.ModsReloaded()
