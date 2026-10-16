@@ -25,7 +25,7 @@ GBO_WIKI_PAGES = {
     {
         id = "Handling",
         title = T(735216048819, "GBO: Handling"),
-        text = T(735216048820, "<em>Handling</em> is a weapon stat that sets the base precision of every attack, aimed or not. It replaces the vanilla Point Blank bonus.\n\nSmall, light weapons such as pistols and SMGs handle well and are accurate quickly, but gain less from aiming. Large weapons handle poorly and need aiming to perform.\n\nHeavy weapons (machine guns and heavy rifles) handle much worse when the shooter is <em>not prone</em>. High Strength removes part of this penalty.\n\nThe merc's Hand-Eye Coordination scales how well a weapon's handling is used."),
+        text = T(735216048820, "<em>Handling</em> is a weapon stat that sets the base precision of every attack, aimed or not. It replaces the old cth Point Blank bonus.\n\nSmall, light weapons such as pistols and SMGs handle well and are accurate quickly, but gain less from aiming. Large weapons handle poorly and need aiming to perform.\n\nHeavy weapons (machine guns and heavy rifles) handle much worse when the shooter is <em>not prone</em>. High Strength removes part of this penalty.\n\nThe merc's Hand-Eye Coordination scales how well a weapon's handling is used."),
     },
     {
         id = "ShootingStance",
@@ -50,7 +50,7 @@ GBO_WIKI_PAGES = {
     {
         id = "Cover",
         title = T(735216048829, "GBO: Cover, Stance and Smoke"),
-        text = T(735216048830, "With aCTH, cover is physical. There is no fixed cover bonus: a bullet that would pass through a wall, crate or lamppost is stopped by it. Shooting from an angle or from higher ground exposes more of the target.\n\nA target's stance changes its silhouette. Crouching makes a target shorter, and prone makes it much smaller.\n\n<em>Take Cover</em> no longer turns hits into grazes, because the cover itself already stops bullets. A mod option restores the vanilla grazes.\n\nFiring through <em>smoke</em> lowers accuracy instead of causing grazing hits. A <em>gas mask</em> also lowers the wearer's accuracy."),
+        text = T(735216048830, "With aCTH, cover is physical. There is no fixed cover bonus: a bullet that would pass through a wall, crate or lamppost is stopped by it. Shooting from an angle or from higher ground exposes more of the target.\n\nA target's stance changes its silhouette. Crouching makes a target shorter, and prone makes it much smaller.\n\n<em>Take Cover</em> no longer turns hits into grazes, because the cover itself already stops bullets. A mod option restores the vanilla grazes.\n\nFiring through <em>smoke</em> lowers accuracy instead of causing grazing hits."),
     },
     {
         id = "Crits",
@@ -106,6 +106,21 @@ GBO_WIKI_PAGES = {
         id = "WeaponInfo",
         title = T(735216048851, "GBO: Weapon Info and Charts"),
         text = T(735216048852, "Weapon stats show the <em>effective value for the merc</em>, with the weapon's base value in grey after it. The bar shows how much the merc's stats help (green) or hurt (red).\n\n<em>More Info</em> on a weapon shows a <em>hit chance chart</em> by distance for the merc's current stance, and a <em>recoil chart</em> for bursts. Holding <em>Shift</em> to compare two weapons draws both on the same chart.\n\nThe weapon modification screen has the same charts and previews how a part would change them before you attach it."),
+    },
+    {
+        id = "HandEye",
+        title = T(735216048853, "GBO: Hand-Eye Coordination"),
+        text = T(735216048854, "<em>Hand-Eye Coordination</em> is a combined attribute, made mostly of <em>Dexterity</em> (65%) and partly of <em>Marksmanship</em> (35%).\n\nIt decides how much each aim level tightens the cone. A merc with low Hand-Eye Coordination gains less from aiming, so their aimed shots stay wider.\n\nIt also scales the weapon's <em>Handling</em>: good handling helps less and bad handling hurts more when it is low.\n\nThe weapon's <em>Critical Chance per Aim</em> is scaled by it as well.\n\nBeing <em>Out of Breath</em> lowers it while aiming."),
+    },
+    {
+        id = "Reflexes",
+        title = T(735216048855, "GBO: Reflexes"),
+        text = T(735216048856, "<em>Reflexes</em> is a combined attribute, made equally of <em>Dexterity</em> and <em>Agility</em> (50% each).\n\nIt reduces the <em>Hipfire</em> and <em>Snapshot</em> penalties, so it decides how accurate quick, unaimed shots are.\n\nThis includes interrupt attacks such as <em>Overwatch</em>, which are always snapshots.\n\nFor hipfired bursts from automatic weapons and shotguns, <em>Strength</em> takes the place of Reflexes, since holding the weapon steady matters more than speed."),
+    },
+    {
+        id = "Composure",
+        title = T(735216048857, "GBO: Composure"),
+        text = T(735216048858, "<em>Composure</em> is a combined attribute, made mostly of <em>Marksmanship</em> (60%) and partly of <em>Wisdom</em> (40%). It measures how calm a merc stays behind the trigger.\n\nIn <em>Autofire</em>, low Composure makes a merc more likely to fire more rounds than intended.\n\nA merc in <em>Shooting Stance</em> who takes a heavy hit must pass a Composure check, or they lose the stance.\n\nIt also lowers the extra penalty for aiming at a specific body part."),
     },
 }
 
