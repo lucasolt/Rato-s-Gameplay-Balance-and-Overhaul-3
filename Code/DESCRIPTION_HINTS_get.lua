@@ -1425,6 +1425,8 @@ function Rat_PatchWeaponRollover()
             local list = popup and rawget(popup, "idList")
             if list then
                 list:SetLayoutMethod("HWrap")
+                ---- centered HWrap rows skip the spacing when centering and push the last part off the popup
+                list:SetHAlign("left")
                 list:SetLayoutVSpacing(10)
                 list:SetMaxWidth(560)
             end
