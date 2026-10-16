@@ -5706,6 +5706,7 @@ GBO_TOGWeaponSlots = {
 function GBO_ApplyWeaponSlots(slots_by_class)
 	for class_name, slots in pairs(slots_by_class) do
 		---- copy: later patches (RevMags default mags) mutate the class slots in place
-		g_Classes[class_name].ComponentSlots = table.copy(slots, "deep")
+		---- classdef global, not g_Classes: ClassesGenerate runs before the classes are built
+		_G[class_name].ComponentSlots = table.copy(slots, "deep")
 	end
 end
