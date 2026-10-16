@@ -91,6 +91,7 @@ local HintChartRefLabel = ratT(file_str, 731590264422, "Dashed: <name>")
 local HintChartMainLabel = ratT(file_str, 731590264423, "Solid: <name>")
 local HintChartModdedName = ratT(file_str, 731590264428, "With changes")
 local HintChartCurrentName = ratT(file_str, 731590264429, "Current")
+local HintChartXUnit = ratT(file_str, 731590264445, "tiles")
 local HintRecoilTitle = ratT(file_str, 731590264437, "Recoil")
 local HintRecoilSubtitle = ratT(file_str, 731590264439, "<mode>: hit chance if the 1st round always hits")
 local HintRecoilRoundLabel = ratT(file_str, 731590264436, "Rd <num>")
@@ -266,7 +267,7 @@ local function HintChartDraw(win)
             text(str, left - 4 - UIL.MeasureText(str, font), y - fh / 2, label)
         end
     end
-    ---- x is tiles from 0, or shots from 1 on the recoil chart
+    ---- x is tiles from 0 on every chart
     local span, step, base = Max(1, #curves[1] - 1), win.rat_x_step or 10, win.rat_x_base or 0
     for d = 0, span, step do
         local x = left + MulDivRound(w, d, span)
@@ -274,6 +275,11 @@ local function HintChartDraw(win)
         local str = tostring(d + base)
         text(str, x - UIL.MeasureText(str, font) / 2, bottom + 2, label)
     end
+    ---- axis unit, right-aligned just before the last tick label
+    local last = tostring(span - span % step + base)
+    local unit = _InternalTranslate(HintChartXUnit)
+    local ux = left + MulDivRound(w, span - span % step, span) - UIL.MeasureText(last, font) / 2 - 6
+    text(unit, ux - UIL.MeasureText(unit, small), bottom + 2 + (fh - sh) / 2, label, small)
 
     if ref then
         HintChartLines(ref, left, bottom, w, h, px, true)
