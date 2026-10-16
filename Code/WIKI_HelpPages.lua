@@ -5,27 +5,27 @@ GBO_WIKI_PAGES = {
     {
         id = "About",
         title = T(735216048811, "GBO: About the Mod"),
-        text = T(735216048812, "<em>Rato's Gameplay Balance and Overhaul</em> reworks how firearms, aiming and combat pacing work. Fights are meant to be longer firefights, where positioning, cover and suppression matter more than simply shooting first.\n\nThese pages explain the new mechanics. Most of them can be tuned in the <em>Mod Options</em>.\n\nAbilities, perks and items that have their own description in the game are not repeated here; read their rollover text instead."),
+        text = T(735216048812, "<em>Rato's Gameplay Balance and Overhaul</em> reworks how firearms, aiming and combat pacing work. Fights are meant to be longer firefights, where positioning, cover and suppression matter more than simply shooting first.\n\nThese pages explain the new mechanics. Most of them can be tuned in the <em>Mod Options</em>. Pages and sections marked <em>aCTH</em>, <em>aCTH Lite</em> or <em>old CTH</em> only apply in that CTH mode; the rest apply in every mode.\n\nAbilities, perks and items that have their own description in the game are not repeated here; read their rollover text instead."),
     },
     {
         id = "CTHModes",
         title = T(735216048813, "GBO: Chance to Hit Modes"),
-        text = T(735216048814, "The <em>CTH Mode</em> mod option selects how shots are resolved:\n\n<em>aCTH</em> (default): every shot is simulated. Your accuracy becomes a cone around the aim point, the bullet flies to a random point inside it, and whatever it touches first is hit. These pages describe this mode.\n\n<em>aCTH Lite</em>: uses the same cone to calculate the hit chance, but the hit is decided by a dice roll, like vanilla. Bullets cannot stray into other body parts or into cover.\n\n<em>old CTH</em>: the classic system of accuracy bonuses and penalties added together. Most weapon and stat changes still apply, but the cone does not exist."),
+        text = T(735216048814, "The <em>CTH Mode</em> mod option selects how shots are resolved:\n\n<em>aCTH</em> (default): every shot is simulated. Your accuracy becomes a cone around the aim point, the bullet flies to a random point inside it, and whatever it touches first is hit.\n\n<em>aCTH Lite</em>: uses the same cone to calculate the hit chance, but the hit is decided by a dice roll, like vanilla. Bullets cannot stray into other body parts or into cover.\n\n<em>old CTH</em>: the classic system of accuracy bonuses and penalties added together. Most weapon and stat changes still apply, but the cone does not exist."),
     },
     {
         id = "Cone",
         title = T(735216048815, "GBO: The Aim Cone"),
-        text = T(735216048816, "In aCTH, the ring drawn around the target shows where your shot can land. Everything that makes you more or less accurate makes the ring smaller or larger: weapon, aim level, stance, recoil, the merc's stats and the distance.\n\nThe hit chance is the share of the ring that covers the part of the target you can actually see. A target behind cover, crouched or prone, or far away fills less of the ring.\n\nA shot can hit a <em>different body part</em> than the one aimed at. Such hits deal slightly less damage and have a lower chance to crit or inflict status effects.\n\nA miss is a real bullet. It can hit cover, objects or other units along its path."),
+        text = T(735216048816, "Applies to: <em>aCTH</em> and <em>aCTH Lite</em>.\n\nThe ring drawn around the target shows where your shot can land. Everything that makes you more or less accurate makes the ring smaller or larger: weapon, aim level, stance, recoil, the merc's stats and the distance.\n\nThe hit chance is the share of the ring that covers the part of the target you can actually see. A target behind cover, crouched or prone, or far away fills less of the ring.\n\n<em>aCTH only:</em> a shot can hit a <em>different body part</em> than the one aimed at. Such hits deal slightly less damage and have a lower chance to crit or inflict status effects. A miss is a real bullet, and it can hit cover, objects or other units along its path."),
     },
     {
         id = "Aiming",
         title = T(735216048817, "GBO: Aiming"),
-        text = T(735216048818, "Each aim level tightens the cone. How much it tightens depends on the weapon's <em>Aim Accuracy</em> and on the merc's <em>Hand-Eye Coordination</em> (Marksmanship and Dexterity).\n\nThe weapon's <em>Range</em> works as a limit on how tight the cone can get. Short-range weapons reach that limit quickly, so extra aiming does little for them. Long-range weapons keep improving with every aim level, which is why they benefit the most from scopes.\n\nAt long distances, aiming matters far more than the merc's raw accuracy."),
+        text = T(735216048818, "<em>aCTH and aCTH Lite:</em> each aim level tightens the cone. How much it tightens depends on the weapon's <em>Aim Accuracy</em> and on the merc's <em>Hand-Eye Coordination</em>.\n\nThe weapon's <em>Range</em> works as a limit on how tight the cone can get. Short-range weapons reach that limit quickly, so extra aiming does little for them. Long-range weapons keep improving with every aim level, which is why they benefit the most from scopes.\n\n<em>Old CTH:</em> each aim level adds an accuracy bonus, scaled by the merc's Hand-Eye Coordination.\n\nIn every mode, being <em>Out of Breath</em> makes aiming less effective."),
     },
     {
         id = "Handling",
         title = T(735216048819, "GBO: Handling"),
-        text = T(735216048820, "<em>Handling</em> is a weapon stat that sets the base precision of every attack, aimed or not. It replaces the old cth Point Blank bonus.\n\nSmall, light weapons such as pistols and SMGs handle well and are accurate quickly, but gain less from aiming. Large weapons handle poorly and need aiming to perform.\n\nHeavy weapons (machine guns and heavy rifles) handle much worse when the shooter is <em>not prone</em>. High Strength removes part of this penalty.\n\nThe merc's Hand-Eye Coordination scales how well a weapon's handling is used."),
+        text = T(735216048820, "Applies to: <em>aCTH</em> and <em>aCTH Lite</em>. Old CTH uses the Point Blank bonus instead.\n\n<em>Handling</em> is a weapon stat that sets the base precision of every attack, aimed or not.\n\nSmall, light weapons such as pistols and SMGs handle well and are accurate quickly, but gain less from aiming. Large weapons handle poorly and need aiming to perform.\n\nHeavy weapons (machine guns and heavy rifles) handle much worse when the shooter is <em>not prone</em>. High Strength removes part of this penalty.\n\nThe merc's Hand-Eye Coordination scales how well a weapon's handling is used."),
     },
     {
         id = "ShootingStance",
@@ -35,22 +35,22 @@ GBO_WIKI_PAGES = {
     {
         id = "HipfireSnapshot",
         title = T(735216048823, "GBO: Hipfire and Snapshot"),
-        text = T(735216048824, "Shots fired without aiming are less accurate:\n\n<em>Hipfire</em>: firing without Shooting Stance, with no aim at all. This has the largest penalty.\n\n<em>Snapshot</em>: firing with only the first aim level, including interrupt attacks such as Overwatch. The penalty is smaller.\n\nBoth penalties depend on the weapon. Big, heavy weapons and high-magnification scopes suffer the most. The merc's <em>Reflexes</em> (Dexterity and Agility) reduce both."),
+        text = T(735216048824, "Shots fired without aiming are less accurate:\n\n<em>Hipfire</em>: firing without Shooting Stance, with no aim at all. This has the largest penalty.\n\n<em>Snapshot</em>: firing with only the first aim level, including interrupt attacks such as Overwatch. The penalty is smaller.\n\nBoth penalties depend on the weapon. Big, heavy weapons and high-magnification scopes suffer the most. The merc's <em>Reflexes</em> reduce both."),
     },
     {
         id = "Scopes",
         title = T(735216048825, "GBO: Scopes and Sights"),
-        text = T(735216048826, "<em>Scopes</em> mostly add extra aim levels, letting long-range weapons tighten their cone further. The more magnification, the worse the snapshot penalty, so powerful scopes are poor for quick shots and pair best with accurate long-range weapons.\n\n<em>Reflex and red dot sights</em> give a flat accuracy bonus that helps every weapon equally. They do not add range.\n\nSome optics have special traits, such as making the last aim level free or improving critical hits. Read the attachment's description."),
+        text = T(735216048826, "Applies to: <em>aCTH</em> and <em>aCTH Lite</em>.\n\n<em>Scopes</em> mostly add extra aim levels, letting long-range weapons tighten their cone further. The more magnification, the worse the snapshot penalty, so powerful scopes are poor for quick shots and pair best with accurate long-range weapons.\n\n<em>Reflex and red dot sights</em> give a flat accuracy bonus that helps every weapon equally. They do not add range.\n\nSome optics have special traits, such as making the last aim level free or improving critical hits. Read the attachment's description."),
     },
     {
         id = "Recoil",
         title = T(735216048827, "GBO: Recoil"),
-        text = T(735216048828, "Recoil is simulated. Each round kicks the weapon off target, and the following rounds of a burst start from where the muzzle ended up.\n\n<em>Strength</em> controls how hard the weapon kicks. <em>Dexterity</em> and <em>Marksmanship</em> help bring it back on target. Bigger calibers kick harder.\n\nRecoil also carries over between attacks as an accuracy penalty. Aiming works it off, and a fully aimed attack clears it.\n\nFiring prone with a <em>bipod</em> strongly reduces the upward kick."),
+        text = T(735216048828, "<em>Strength</em> controls how hard a weapon kicks, and bigger calibers kick harder.\n\n<em>aCTH and aCTH Lite:</em> recoil is simulated. Each round kicks the weapon off target, and the following rounds of a burst start from where the muzzle ended up. <em>Dexterity</em> and <em>Marksmanship</em> help bring it back on target. Firing prone with a <em>bipod</em> strongly reduces the upward kick.\n\n<em>Old CTH:</em> each round after the first loses accuracy.\n\nIn every mode, recoil also carries over between attacks as an accuracy penalty. Aiming works it off, and a fully aimed attack clears it."),
     },
     {
         id = "Cover",
         title = T(735216048829, "GBO: Cover, Stance and Smoke"),
-        text = T(735216048830, "With aCTH, cover is physical. There is no fixed cover bonus: a bullet that would pass through a wall, crate or lamppost is stopped by it. Shooting from an angle or from higher ground exposes more of the target.\n\nA target's stance changes its silhouette. Crouching makes a target shorter, and prone makes it much smaller.\n\n<em>Take Cover</em> no longer turns hits into grazes, because the cover itself already stops bullets. A mod option restores the vanilla grazes.\n\nFiring through <em>smoke</em> lowers accuracy instead of causing grazing hits."),
+        text = T(735216048830, "Applies to: <em>aCTH</em> and <em>aCTH Lite</em>.\n\nThere is no fixed cover bonus: the hit chance counts only the part of the target that is actually exposed. Shooting from an angle or from higher ground exposes more of the target.\n\nA target's stance changes its silhouette. Crouching makes a target shorter, and prone makes it much smaller.\n\n<em>aCTH only:</em> cover is physical, so a bullet that would pass through a wall, crate or lamppost is stopped by it. Because of this, <em>Take Cover</em> no longer turns hits into grazes; a mod option restores the vanilla grazes. Firing through <em>smoke</em> lowers accuracy instead of causing grazing hits."),
     },
     {
         id = "Crits",
@@ -60,12 +60,12 @@ GBO_WIKI_PAGES = {
     {
         id = "Autofire",
         title = T(735216048833, "GBO: Autofire"),
-        text = T(735216048834, "<em>Autofire</em> lets you choose how many rounds to fire. Use the <em>mouse wheel</em> on the crosshair to change the length of the burst. Each extra round costs AP based on the weapon's rate of fire (<em>RPM</em>): fast-firing weapons spend less AP per round.\n\nA merc can lose control and fire <em>more rounds than intended</em>. The extra rounds cost AP. This is more likely with low <em>Composure</em> (Marksmanship and Wisdom) and fast-firing weapons, and when trying to fire a single round from a full-auto weapon.\n\nThe fixed-length <em>Burst Fire</em> action remains only on weapons with a selective burst mode. Some weapons can only fire automatically."),
+        text = T(735216048834, "<em>Autofire</em> lets you choose how many rounds to fire. Use the <em>mouse wheel</em> on the crosshair to change the length of the burst. Each extra round costs AP based on the weapon's rate of fire (<em>RPM</em>): fast-firing weapons spend less AP per round.\n\nA merc can lose control and fire <em>more rounds than intended</em>. The extra rounds cost AP. This is more likely with low <em>Composure</em> and fast-firing weapons, and when trying to fire a single round from a full-auto weapon.\n\nThe fixed-length <em>Burst Fire</em> action remains only on weapons with a selective burst mode. Some weapons can only fire automatically."),
     },
     {
         id = "MachineGuns",
         title = T(735216048835, "GBO: Machine Guns and Bipods"),
-        text = T(735216048836, "Machine guns are built to fire from the ground. Fired while standing or crouched, they suffer worse handling and recoil and cost more AP to fire.\n\n<em>MG Setup</em> is a form of Overwatch. The gunner goes prone, covers a cone, and fires interrupt attacks with a reduced snapshot penalty. While set up, a machine gun can use all its fire modes, but only against targets inside the cone. Setting up costs more AP if the gunner is not already prone.\n\nA <em>bipod</em> only works when prone, where it tightens the cone and reduces recoil. Off the ground, the bipod makes the weapon slower to bring up and narrows its Shooting Angle."),
+        text = T(735216048836, "Machine guns are built to fire from the ground. Fired while standing or crouched, they are less accurate, kick harder and cost more AP to fire.\n\n<em>MG Setup</em> is a form of Overwatch. The gunner goes prone, covers a cone, and fires interrupt attacks with a reduced snapshot penalty. While set up, a machine gun can use all its fire modes, but only against targets inside the cone. Setting up costs more AP if the gunner is not already prone.\n\nA <em>bipod</em> only works when prone, where it improves accuracy and reduces recoil. Off the ground, the bipod makes the weapon slower to bring up and narrows its Shooting Angle."),
     },
     {
         id = "MobileAttacks",
@@ -75,7 +75,7 @@ GBO_WIKI_PAGES = {
     {
         id = "Shotguns",
         title = T(735216048839, "GBO: Shotguns"),
-        text = T(735216048840, "Every pellet of a shotgun blast is simulated. The spread grows with distance: up close most pellets land on the target, while at range only a few do, and stray pellets can hit other units or objects.\n\nDamage is dealt per pellet that hits. Pellets that strike other body parts are penalized less than stray rifle bullets.\n\n<em>Slugs</em> fire a single projectile and behave like a rifle bullet."),
+        text = T(735216048840, "Applies to: <em>aCTH</em>.\n\nEvery pellet of a shotgun blast is simulated. The spread grows with distance: up close most pellets land on the target, while at range only a few do, and stray pellets can hit other units or objects.\n\nDamage is dealt per pellet that hits. Pellets that strike other body parts are penalized less than stray rifle bullets.\n\n<em>Slugs</em> fire a single projectile and behave like a rifle bullet."),
     },
     {
         id = "Attachments",
@@ -95,7 +95,12 @@ GBO_WIKI_PAGES = {
     {
         id = "ActionPoints",
         title = T(735216048847, "GBO: Action Points"),
-        text = T(735216048848, "AP are shown on a finer scale: <em>1 vanilla AP is 10 AP</em>. Costs did not grow, they are just measured more precisely, so small differences between weapons and attachments can show.\n\nBolt-action and pump weapons must be <em>cycled</em> by hand after firing. Higher Dexterity makes this cheaper. If the merc has the AP at the end of the turn, the weapon is cycled automatically."),
+        text = T(735216048848, "AP are shown on a finer scale: <em>1 vanilla AP is 10 AP</em>. Costs did not grow, they are just measured more precisely, so small differences between weapons and attachments can show."),
+    },
+    {
+        id = "Cycling",
+        title = T(735216048859, "GBO: Manual Cycling"),
+        text = T(735216048860, "Bolt-action and lever-action rifles and single-action revolvers must be <em>cycled</em> by hand after each shot. Until then the weapon is shown as <em>UNBOLTED</em>, <em>UNCYCLED</em> or <em>UNCOCKED</em>.\n\nClick the weapon's <em>reload button</em> to cycle it, or just attack: the cycling cost is added to the attack. Higher <em>Dexterity</em> makes cycling cheaper.\n\n<em>Double-action</em> revolvers can also fire without being cocked, for an extra attack cost.\n\nIf the merc still has the AP at the end of the turn, the weapon is cycled automatically. Weapons are also cycled when combat ends.\n\nThe time spent cycling lets the merc recover from recoil, so these weapons pay less extra aim cost from carried-over recoil."),
     },
     {
         id = "Visibility",
@@ -105,22 +110,22 @@ GBO_WIKI_PAGES = {
     {
         id = "WeaponInfo",
         title = T(735216048851, "GBO: Weapon Info and Charts"),
-        text = T(735216048852, "Weapon stats show the <em>effective value for the merc</em>, with the weapon's base value in grey after it. The bar shows how much the merc's stats help (green) or hurt (red).\n\n<em>More Info</em> on a weapon shows a <em>hit chance chart</em> by distance for the merc's current stance, and a <em>recoil chart</em> for bursts. Holding <em>Shift</em> to compare two weapons draws both on the same chart.\n\nThe weapon modification screen has the same charts and previews how a part would change them before you attach it."),
+        text = T(735216048852, "Weapon stats show the <em>effective value for the merc</em>, with the weapon's base value in grey after it. The bar shows how much the merc's stats help (green) or hurt (red).\n\n<em>aCTH and aCTH Lite:</em> <em>More Info</em> on a weapon shows a <em>hit chance chart</em> by distance for the merc's current stance, and a <em>recoil chart</em> for bursts. Holding <em>Shift</em> to compare two weapons draws both on the same chart. The weapon modification screen has the same charts and previews how a part would change them before you attach it."),
     },
     {
         id = "HandEye",
         title = T(735216048853, "GBO: Hand-Eye Coordination"),
-        text = T(735216048854, "<em>Hand-Eye Coordination</em> is a combined attribute, made mostly of <em>Dexterity</em> (65%) and partly of <em>Marksmanship</em> (35%).\n\nIt decides how much each aim level tightens the cone. A merc with low Hand-Eye Coordination gains less from aiming, so their aimed shots stay wider.\n\nIt also scales the weapon's <em>Handling</em>: good handling helps less and bad handling hurts more when it is low.\n\nThe weapon's <em>Critical Chance per Aim</em> is scaled by it as well.\n\nBeing <em>Out of Breath</em> lowers it while aiming."),
+        text = T(735216048854, "<em>Hand-Eye Coordination</em> is a combined attribute, made mostly of <em>Dexterity</em> and partly of <em>Marksmanship</em>.\n\nIt scales the weapon's <em>Critical Chance per Aim</em> in every mode.\n\n<em>aCTH and aCTH Lite:</em> it decides how much each aim level tightens the cone; a merc with low Hand-Eye Coordination gains less from aiming. It also scales the weapon's <em>Handling</em>: good handling helps less and bad handling hurts more when it is low.\n\n<em>Old CTH:</em> it scales the aim bonus and the weapon's Point Blank bonus."),
     },
     {
         id = "Reflexes",
         title = T(735216048855, "GBO: Reflexes"),
-        text = T(735216048856, "<em>Reflexes</em> is a combined attribute, made equally of <em>Dexterity</em> and <em>Agility</em> (50% each).\n\nIt reduces the <em>Hipfire</em> and <em>Snapshot</em> penalties, so it decides how accurate quick, unaimed shots are.\n\nThis includes interrupt attacks such as <em>Overwatch</em>, which are always snapshots.\n\nFor hipfired bursts from automatic weapons and shotguns, <em>Strength</em> takes the place of Reflexes, since holding the weapon steady matters more than speed."),
+        text = T(735216048856, "<em>Reflexes</em> is a combined attribute, made equally of <em>Dexterity</em> and <em>Agility</em>.\n\nIt reduces the <em>Hipfire</em> and <em>Snapshot</em> penalties, so it decides how accurate quick, unaimed shots are.\n\nThis includes interrupt attacks such as <em>Overwatch</em>, which are always snapshots.\n\nFor hipfired bursts from automatic weapons and shotguns, <em>Strength</em> takes the place of Reflexes, since holding the weapon steady matters more than speed."),
     },
     {
         id = "Composure",
         title = T(735216048857, "GBO: Composure"),
-        text = T(735216048858, "<em>Composure</em> is a combined attribute, made mostly of <em>Marksmanship</em> (60%) and partly of <em>Wisdom</em> (40%). It measures how calm a merc stays behind the trigger.\n\nIn <em>Autofire</em>, low Composure makes a merc more likely to fire more rounds than intended.\n\nA merc in <em>Shooting Stance</em> who takes a heavy hit must pass a Composure check, or they lose the stance.\n\nIt also lowers the extra penalty for aiming at a specific body part."),
+        text = T(735216048858, "<em>Composure</em> is a combined attribute, made mostly of <em>Marksmanship</em> and partly of <em>Wisdom</em>. It measures how calm a merc stays behind the trigger.\n\nIn <em>Autofire</em>, low Composure makes a merc more likely to fire more rounds than intended.\n\nA merc in <em>Shooting Stance</em> who takes a heavy hit must pass a Composure check, or they lose the stance.\n\n<em>Old CTH:</em> it also lowers the extra penalty for aiming at a specific body part."),
     },
 }
 
