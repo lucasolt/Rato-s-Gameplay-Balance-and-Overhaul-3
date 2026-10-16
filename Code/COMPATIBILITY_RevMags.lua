@@ -126,7 +126,9 @@ local function Rat_RevMag_lockMagazineSlot()
     local orig = element.OnContextUpdate
     element.OnContextUpdate = function(self, context, ...)
         orig(self, context, ...)
-        if context.slot and context.slot.SlotType == "Magazine" then
+        ---- rat_sks_internal (ToG patch): the SKS converts between its internal mag and AK mags here
+        local weapon = ResolvePropObj(context)
+        if context.slot and context.slot.SlotType == "Magazine" and not (weapon and weapon.rat_sks_internal) then
             self:SetEnabled(false)
         end
     end
