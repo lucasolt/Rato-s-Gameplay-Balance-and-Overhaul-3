@@ -1357,6 +1357,34 @@ function Rat_AttHookIcon()
     RAT_ATT_WRAPS[GetWeaponComponentIcon] = orig
 end
 
+---- Lenses and chips only paid for optics and devices, which the items now replace; they become loot
+---- to cash in. Bobby Ray stops stocking them, since buying one back would be a straight loss.
+RAT_ATT_CASHIN = {Microchip = true, OpticalLens = true}
+RAT_ATT_CASHIN_HINT = "<bullet_point> No longer used to build weapon components. Can be cashed in."
+
+function Rat_AttEnsureCashIn()
+    for id in pairs(RAT_ATT_CASHIN) do
+        for _, target in ipairs({g_Classes[id] or false, (InventoryItemDefs or empty_table)[id] or false}) do
+            if target then
+                target.CanAppearInShop = false
+                target.AdditionalHint = Untranslated(RAT_ATT_CASHIN_HINT)
+            end
+        end
+    end
+end
+
+---- The CASH IN entry is gated on Valuables alone; CashInItem itself takes any item and pays its Cost.
+---- ValuablesStack is left alone: lenses and chips are single items, and that entry is the stack action.
+local orig_filter = Rat_AttOriginal(InvContextMenuFilter)
+function InvContextMenuFilter(context, className)
+    if RAT_ATT_ENABLED and className == "Valuables" and context and context.item and
+        RAT_ATT_CASHIN[context.item.class] then
+        return orig_filter(context, false)
+    end
+    return orig_filter(context, className)
+end
+RAT_ATT_WRAPS[InvContextMenuFilter] = orig_filter
+
 function Rat_AttSetup()
     if not RAT_ATT_ENABLED then
         return
@@ -1365,6 +1393,7 @@ function Rat_AttSetup()
     Rat_AttBind()
     Rat_AttEnsureDefs()
     Rat_AttEnsureHints()
+    Rat_AttEnsureCashIn()
     Rat_AttEnsureResources()
     Rat_AttHookVisuals()
 end
