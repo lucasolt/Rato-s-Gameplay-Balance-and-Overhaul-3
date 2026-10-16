@@ -471,7 +471,16 @@ RAT_ATT_ITEMS = {
         cost = 1000,
         tier = 1,
         comps = {"VerticalGrip", "VerticalGrip_M14", "VerticalGrip_M16", "VerticalGrip_Commando", "AR10_grip_mountfront",
-                 "TacGrip", "TacGrip_M14", "G11_Grip_CAWS_1"}
+                 "G11_Grip_CAWS_1"}
+    },
+    {
+        id = "RAT_Att_TacGrip",
+        name = "Tactical Grip",
+        icon = "UI/Icons/Upgrades/tactical_grip",
+        size = "small",
+        cost = 1200,
+        tier = 1,
+        comps = {"TacGrip", "TacGrip_M14"}
     },
     ---- Compensators by calibre. model is what the gun wears, whatever its own Visuals say.
     {
