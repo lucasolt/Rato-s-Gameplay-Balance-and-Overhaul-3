@@ -605,7 +605,6 @@ GBO_WeaponSlots = {
 			Modifiable = true,
 			AvailableComponents = {
 				"ReflexSight",
-				"_ReflexSIghtVigilance",
 				"ReflexSightAdvanced_Glock",
 				"ImprovedIronsight",
 			},
@@ -694,7 +693,6 @@ GBO_WeaponSlots = {
 				"LaserDot_Anaconda",
 				"FlashlightDot_Anaconda",
 				"UVDot_Anaconda",
-				"_ReflexSIghtVigilance",
 				"WideScope",
 			},
 		},
@@ -742,7 +740,6 @@ GBO_WeaponSlots = {
 				"ReflexSight",
 				"ReflexSightAdvanced",
 				"ImprovedIronsight",
-				"_ReflexSIghtVigilance",
 			},
 		},
 		{
@@ -1408,7 +1405,6 @@ GBO_WeaponSlots = {
 				"ReflexSight",
 				"ReflexSightAdvanced_Glock",
 				"ImprovedIronsight",
-				"_ReflexSIghtVigilance",
 			},
 		},
 		{
@@ -1487,7 +1483,6 @@ GBO_WeaponSlots = {
 			Modifiable = true,
 			AvailableComponents = {
 				"ReflexSight",
-				"_ReflexSIghtVigilance",
 				"ReflexSightAdvanced_Glock",
 				"ImprovedIronsight",
 			},
@@ -3302,7 +3297,6 @@ GBO_TOGWeaponSlots = {
 				"RAT_TOG_Reflex_pistol",
 				"RAT_TOG_compactRS",
 				"ImprovedIronsight",
-				"RAT_TOG_vigilanceRS",
 				"RAT_TOG_uv_dot",
 				"RAT_TOG_laser_dot",
 			},
@@ -3793,7 +3787,6 @@ GBO_TOGWeaponSlots = {
 			Modifiable = true,
 			AvailableComponents = {
 				"RAT_TOG_compactRS",
-				"RAT_TOG_vigilanceRS",
 				"RAT_TOG_uv_dot",
 				"RAT_TOG_laser_dot",
 			},
@@ -4519,7 +4512,6 @@ GBO_TOGWeaponSlots = {
 			Modifiable = true,
 			AvailableComponents = {
 				"Compensator",
-				"MuzzleBooster",
 				"Suppressor",
 				"ImprovisedSuppressor",
 			},
@@ -5506,7 +5498,6 @@ GBO_TOGWeaponSlots = {
 				"RAT_TOG_Reflex_pistol",
 				"RAT_TOG_compactRS",
 				"ImprovedIronsight",
-				"RAT_TOG_vigilanceRS",
 				"RAT_TOG_uv_dot",
 				"RAT_TOG_laser_dot",
 			},
