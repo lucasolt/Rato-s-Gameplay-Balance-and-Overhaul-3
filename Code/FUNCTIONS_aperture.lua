@@ -673,8 +673,12 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     ---- inteira para o overlay enumerar nivel a nivel (ver Rat_ConeFactors).
     local ladder = {}
 	local aimMetaText
+    local mobile_close = action and (a.MobileActions or empty_table)[action.id] and a.MobileAimClosePct
     for i = 1, aim do
         ladder[i], aimMetaText = Rat_ApertureAimDecay(weapon, attacker, i, comps)
+        if mobile_close then
+            ladder[i] = 100 - MulDivRound(100 - ladder[i], mobile_close, 100)
+        end
     end
     ---- um numero so, para quem nao quer a escada: o do ULTIMO nivel aplicado
     local decay = ladder[aim]

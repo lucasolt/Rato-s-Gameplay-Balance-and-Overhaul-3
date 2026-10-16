@@ -11,6 +11,10 @@ function place_hipfire_cth()
             ---- (const.Combat.Aperture.AimStep), escalado pelo mesmo produto de
             ---- GetWeaponHipfireOrSnapshotMul que esta funcao ja usa hoje.
             if IsACHTActive(weapon1, action, attacker) then
+                ---- the cone owns the step; Mobile Shot's flat penalty stays, as a residual
+                if action.id == "MobileShot" then
+                    return true, const.Combat.MobileShotPenalty, T(604918273551, "Mobile Shot")
+                end
                 return false, 0
             end
 
@@ -185,7 +189,7 @@ function place_hipfire_cth()
             local mobile_shot_penal = 0
 
             if action and action.id == "MobileShot" then
-                mobile_shot_penal = -8
+                mobile_shot_penal = const.Combat.MobileShotPenalty
             end
 
             local name = T(588769789298, "Hipfire")
@@ -288,7 +292,8 @@ local t_id_table = {
     [645785968721] = "Low Reflexes",
     [433649794796] = "High Reflexes",
     [253999664478] = "Reflexes",
-    [519274638150] = "Prepared Machine Gun"
+    [519274638150] = "Prepared Machine Gun",
+    [604918273551] = "Mobile Shot"
 }
 
 ratG_T_table['CTH_shooting_stance_hipfire.lua'] = t_id_table

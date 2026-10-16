@@ -36,6 +36,7 @@ const.Combat.RunAndGunMoveAPMin = 6
 const.Combat.MobileShotNumShotsBase = 3
 const.Combat.MobileShotMoveAPBase = 9
 const.Combat.MobileShotMoveAPMin = 6
+const.Combat.MobileShotPenalty = -8
 
 -- Sprint
 --const.Combat.SprintMoveAPBase = 8 -- Set in the editor
