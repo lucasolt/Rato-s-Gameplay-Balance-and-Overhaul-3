@@ -65,7 +65,12 @@ GBO_WIKI_PAGES = {
     {
         id = "MachineGuns",
         title = T(735216048835, "GBO: Machine Guns and Bipods"),
-        text = T(735216048836, "Machine guns are built to fire from the ground. Fired while standing or crouched, they are less accurate, kick harder and cost more AP to fire.\n\n<em>MG Setup</em> is a form of Overwatch. The gunner goes prone, covers a cone, and fires interrupt attacks with a reduced snapshot penalty. While set up, a machine gun can use all its fire modes, but only against targets inside the cone. Setting up costs more AP if the gunner is not already prone.\n\nA <em>bipod</em> only works when prone, where it improves accuracy and reduces recoil. Off the ground, the bipod makes the weapon slower to bring up and narrows its Shooting Angle."),
+        text = T(735216048836, "Machine guns perform best when <em>braced</em>: fired prone, resting on the bipod. Machine gun attacks also cost more AP than rifle attacks.\n\n<em>aCTH and aCTH Lite:</em> in vanilla, MG Setup was what removed a machine gun's penalties. Here, being <em>prone</em> is enough, set up or not. Fired while standing or crouched, a machine gun handles poorly and kicks harder; high Strength removes part of the handling penalty.\n<em>Old CTH:</em> MG Autofire from a machine gun that is not set up suffers extra recoil, reduced by high Strength. MG Setup reduces recoil.\n\n<em>MG Setup</em> is a form of Overwatch. The gunner goes prone, covers a cone, and fires interrupt attacks with a reduced snapshot penalty. While set up, a machine gun can use all its fire modes, but only against targets inside the cone. Setting up costs more AP if the gunner is not already prone.\n\nA <em>bipod</em> only works when prone, where it improves accuracy and reduces recoil. Off the ground, the bipod makes the weapon slower to bring up and narrows its Shooting Angle."),
+    },
+    {
+        id = "Overwatch",
+        title = T(735216048861, "GBO: Overwatch and Interrupts"),
+        text = T(735216048862, "Interrupt attacks, such as <em>Overwatch</em> shots, are fired at a moving target with no time to aim. They are always <em>snapshots</em>: they get the single aim level of a raised weapon, and the snapshot penalty applies. Some perks grant interrupt attacks more aim levels.\n\nOn top of that, interrupt attacks gain or lose accuracy depending on the merc's <em>Reflexes</em>: a slow merc loses accuracy, a quick one gains it. Some sights and attachments add an extra interrupt bonus, which also grows with Reflexes.\n\nThe <em>OW Bonus Multiplier</em> option scales that attachment bonus.\n\nA set-up machine gun suffers a smaller snapshot penalty on its interrupt attacks, even at long range."),
     },
     {
         id = "MobileAttacks",
