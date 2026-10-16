@@ -179,7 +179,7 @@ end
 
 local function HintChartDraw(win)
     local curves, ref = win.rat_curves, win.rat_ref_curves
-    if not curves then
+    if not curves and not win.rat_text_only then
         return
     end
     local font = TextStyles.PDABrowserTitleSmall:GetFontIdHeightBaseline(win.scale:y())
@@ -218,6 +218,10 @@ local function HintChartDraw(win)
         end
     else
         text(_InternalTranslate(win.rat_title or HintChartTitle), x0, y0, label)
+    end
+    ---- the effects tab: only the tabs, the text is a child window
+    if win.rat_text_only then
+        return
     end
     text(_InternalTranslate(win.rat_subtitle or HintChartSubtitle), x0, y0 + fh, label, small)
     if not win.rat_hide_stance then
@@ -308,6 +312,7 @@ DefineClass.RatHintChart = {
     rat_stance_menu = false, rat_stance_box = false, rat_stance_hover = false, rat_hide_stance = false,
     rat_tabs = false, rat_tab = false, rat_tab_boxes = false, rat_tab_hover = false,
     rat_controls = false, rat_control_boxes = false, rat_control_hover = false, rat_recoil_shots = false,
+    rat_effects = false, rat_text_only = false,
 }
 DefineClass.RatHintContextChart = {__parents = {"XContextWindow", "RatHintChart"}}
 
@@ -523,6 +528,11 @@ end
 local HintModChartStance
 ---- modify dialog recoil tab, kept across openings: 1 recoil alone, 2 aimed burst
 local HintModRecoilTab = 1
+---- modify dialog top tab, kept across openings: 1 hit chance, 2 the vanilla combined effects text
+local HintModAccTab = 1
+local HintModEffectsTitle = ratT(file_str, 731590264446, "Effects")
+---- the vanilla "extra stat stuff" template node, spawned inside the chart on the effects tab
+local HintModEffectsNode
 
 local function HintBoxHas(b, pos)
     return b and pos:x() >= b:minx() and pos:x() <= b:maxx() and pos:y() >= b:miny() and pos:y() <= b:maxy()
@@ -617,7 +627,11 @@ local function HintModifyChart(id, recoil, height)
                 end
                 for i, b in ipairs(self.rat_tabs and self.rat_tab_boxes or empty_table) do
                     if i ~= self.rat_tab and HintBoxHas(b, pos) then
-                        HintModRecoilTab = i
+                        if recoil then
+                            HintModRecoilTab = i
+                        else
+                            HintModAccTab = i
+                        end
                         self:UpdateValue()
                         return "break"
                     end
@@ -660,6 +674,13 @@ local function HintModifyChart(id, recoil, height)
         PlaceObj("XTemplateFunc", {
             "name", "Open(self)",
             "func", function(self)
+                if not recoil and HintModEffectsNode then
+                    ---- EvalElement skips the node's __condition, which hides it from the vanilla spot
+                    local text = HintModEffectsNode:EvalElement(self, self.context)
+                    self.rat_effects = text
+                    text:SetMargins(box(0, 34, 0, 0))
+                    text:SetFoldWhenHidden(true)
+                end
                 XWindow.Open(self)
                 ---- idWeaponProps respawns after the dialog's own UpdateWeaponProps call
                 self:UpdateValue()
@@ -687,9 +708,24 @@ local function HintModifyChart(id, recoil, height)
                     ---- one stance control for both charts, on the top one
                     self.rat_hide_stance = true
                 else
-                    self.rat_curves = HintChartCurves(clone, owner, stance)
-                    self.rat_ref_curves = differ and HintChartCurves(real, owner, stance) or nil
-                    self.rat_stance_menu = true
+                    local effects = self.rat_effects
+                    self.rat_tabs = effects and {HintChartTitle, HintModEffectsTitle}
+                    self.rat_tab = HintModAccTab
+                    self.rat_text_only = effects and HintModAccTab == 2
+                    if effects then
+                        effects:SetVisible(self.rat_text_only)
+                        ---- the text grows the panel; the plot keeps its fixed height
+                        self:SetMaxHeight(self.rat_text_only and 1000000 or height)
+                        if self.rat_text_only then
+                            effects:UpdateValue(anyModified or effects:HasValueChanged())
+                        end
+                    end
+                    self.rat_hide_stance = self.rat_text_only
+                    if not self.rat_text_only then
+                        self.rat_curves = HintChartCurves(clone, owner, stance)
+                        self.rat_ref_curves = differ and HintChartCurves(real, owner, stance) or nil
+                    end
+                    self.rat_stance_menu = not self.rat_text_only
                 end
                 ---- the Solid/Dashed row keeps its space so hovering a part never resizes the plot
                 self.rat_reserve_ref = true
@@ -1365,6 +1401,7 @@ function Rat_PatchWeaponRollover()
         local at = table.find(list, path[1])
         table.insert(list, at, HintModifyChart("idRatModRecoil", true, 245))
         table.insert(list, at, HintModifyChart("idRatModChart", false, 245))
+        HintModEffectsNode = path[1]
         path[1].__condition = function() return false end
     end
     ---- the left column's stat bars bound the part popup (see GetSafeAreaBox below)
