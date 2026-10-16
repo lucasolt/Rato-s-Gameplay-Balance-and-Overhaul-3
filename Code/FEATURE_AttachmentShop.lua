@@ -145,7 +145,7 @@ function Rat_AttShopEnsureItems()
     for _, def in ipairs(RAT_ATT_ITEMS) do
         local hidden = def.reserved or not fits[def.id] or (stock[def.id] and not def.weight)
         local tier = RAT_ATT_SHOP_TIERS[def.tier]
-        local page = ((def.family == "grenadelauncher" or RAT_ATT_SHOP_SUPPORT[def.id]) and "RatSupport") or
+        local page = def.page or ((def.family == "grenadelauncher" or RAT_ATT_SHOP_SUPPORT[def.id]) and "RatSupport") or
             ((def.family or RAT_ATT_SHOP_MUZZLE[def.id]) and "RatMuzzle") or
             (RAT_ATT_SHOP_SIGHTS[def.id] and "RatSights") or "RatOptics"
         local weight = def.weight or
@@ -377,7 +377,7 @@ function BobbyRayStoreGetStats_Other(item)
     local id = item.class or item.id
     for _, def in ipairs(RAT_ATT_ENABLED and RAT_ATT_ITEMS or empty_table) do
         if def.id == id then
-            local cal = RAT_ATT_SHOP_CAL_FAMILIES[def.family] and def.calibers and
+            local cal = (RAT_ATT_SHOP_CAL_FAMILIES[def.family] or def.mag) and def.calibers and
                             FindPreset("Caliber", def.calibers[1])
             if cal then
                 return {{T(196962828215, "Cal"), cal.Name}}

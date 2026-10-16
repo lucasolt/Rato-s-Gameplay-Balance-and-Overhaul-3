@@ -934,6 +934,103 @@ RAT_ATT_ITEMS = {
     }
 }
 
+---- Magazines: one item per size and calibre, like the suppressors. The mag a gun ships with is part
+---- of the gun and never an item. Off under Revised Mags, whose magazines are items already.
+RAT_ATT_REVMAGS = "URkxyfE"
+RAT_ATT_MAG_PARTS = 1
+RAT_ATT_MAG_FAMILIES = {
+    mag_standard = {name = "Standard Magazine", key = "Standard", cost = 400, tier = 1, comps = {"MagNormal"}},
+    mag_fine = {name = "Fine-Tuned Magazine", key = "Fine", cost = 600, tier = 2, comps = {"MagNormalFine"}},
+    mag_expanded = {name = "Expanded Magazine", key = "Expanded", cost = 600, tier = 1,
+                    comps = {"MagLarge", "MagLarge_1", "MagLarge_3", "MagLarge_4", "MagLarge_5", "MagLarge_7",
+                             "MagLarge_10", "A91_762_mag_ext_1", "G11_Mag_ext_1"}},
+    mag_ergo = {name = "Ergonomic Expanded Magazine", key = "Ergo", cost = 900, tier = 2,
+                comps = {"MagLargeFine", "MagLargeFine_1", "MagLargeFine_5", "MagLargeFine_10"}},
+    mag_quick = {name = "Quick Magazine", key = "Quick", cost = 800, tier = 2, comps = {"MagQuick"}},
+    mag_quickexpanded = {name = "Quick Expanded Magazine", key = "QuickExpanded", cost = 1000, tier = 3,
+                         comps = {"R_MagQuickLarge"}},
+    mag_drum = {name = "Drum Magazine", key = "Drum", cost = 1500, tier = 2, size = "medium", page = "MGMags",
+                comps = {"MagLarger", "MagLarge_2", "MagLarge_6", "MagLarge_8", "MagLarge_9", "MagLarge_12",
+                         "G11_Mag_ext2_1"}}
+}
+
+---- family, id suffix, calibre label, calibers, icon, types, shop page (default RifleMags). A typed row
+---- wins for its weapon type; the untyped one of the same calibre takes the rest.
+local UP = "UI/Icons/Upgrades/"
+local TOG = "Mod/KKh3Yhf/Images/"
+RAT_ATT_MAG_ROWS = {
+    {"mag_standard", "556", "5.56 NATO", {"556"}, UP .. "m16_magazine"},
+    {"mag_standard", "AK", "7.62x39", {"762WP"}, UP .. "AK47_magazine"},
+    {"mag_standard", "9x39", "9x39", {"9x39"}, TOG .. "VSS_Mag_def_icon.png"},
+
+    {"mag_fine", "556", "5.56 NATO", {"556"}, UP .. "ar15_mag_ergo_normal"},
+    {"mag_fine", "545", "5.45x39", {"5_45x39"}, UP .. "AK74_Bakelite_magazine"},
+    {"mag_fine", "762", "7.62 NATO", {"762NATO", "308Win"}, UP .. "m14_mag_ergo_normal"},
+    {"mag_fine", "9mmPistol", "9mm Pistol", {"9mm"}, UP .. "default_magazine", {"Handgun"}, "PistolMags"},
+    {"mag_fine", "9mm", "9mm SMG", {"9mm"}, UP .. "default_magazine", nil, "SMGMags"},
+
+    {"mag_expanded", "556", "5.56 NATO", {"556"}, UP .. "expanded_STANAG_magazine"},
+    {"mag_expanded", "545", "5.45x39", {"5_45x39"}, UP .. "expanded_AK74_bakelite_magazine"},
+    {"mag_expanded", "762", "7.62 NATO", {"762NATO", "308Win"}, UP .. "expanded_M14_magazine"},
+    {"mag_expanded", "AK", "7.62x39", {"762WP"}, UP .. "expanded_AK47_magazine"},
+    {"mag_expanded", "54R", "7.62x54R", {"7_62x54R"}, UP .. "dragunov_mag_normal"},
+    {"mag_expanded", "Mauser", "7.92 Mauser", {"7_92x57"}, TOG .. "G43_Mag_ext_icon.png"},
+    {"mag_expanded", "G11", "4.73 Caseless", {"4_7x33"}, TOG .. "G11_Mag_ext_icon.png"},
+    {"mag_expanded", "50", ".50 BMG", {"50BMG"}, UP .. "M14_magazine", nil, "OtherMags"},
+    {"mag_expanded", "12g", "12 gauge", {"12gauge"}, UP .. "aa12_mag_drum", nil, "OtherMags"},
+    {"mag_expanded", "9mmPistol", "9mm Pistol", {"9mm"}, UP .. "glock_mag_large", {"Handgun"}, "PistolMags"},
+    {"mag_expanded", "9mm", "9mm SMG", {"9mm"}, UP .. "mp5_mag_large", nil, "SMGMags"},
+    {"mag_expanded", "9x18", "9x18", {"9x18"}, TOG .. "PP91_mag_ext.png", nil, "SMGMags"},
+    {"mag_expanded", "9x39", "9x39", {"9x39"}, TOG .. "VSK94_mag_def.png"},
+    {"mag_expanded", "45", ".45 ACP", {"45ACP"}, UP .. "beretta_mag_large", nil, "PistolMags"},
+    {"mag_expanded", "44", ".44", {"44CAL"}, UP .. "desertEagle_mag_large", nil, "PistolMags"},
+
+    {"mag_ergo", "556", "5.56 NATO", {"556"}, UP .. "ar15_mag_ergo_large"},
+    {"mag_ergo", "545", "5.45x39", {"5_45x39"}, UP .. "expanded_AK74_bakelite_magazine"},
+    {"mag_ergo", "762", "7.62 NATO", {"762NATO", "308Win"}, UP .. "fnfal_mag_ergo_large"},
+    {"mag_ergo", "9mmPistol", "9mm Pistol", {"9mm"}, UP .. "BHP_mag_large", {"Handgun"}, "PistolMags"},
+    {"mag_ergo", "9mm", "9mm SMG", {"9mm"}, UP .. "uzi_mag_large", nil, "SMGMags"},
+
+    {"mag_quick", "556", "5.56 NATO", {"556"}, UP .. "quick_STANAG_magazine"},
+    {"mag_quick", "545", "5.45x39", {"5_45x39"}, UP .. "quick_AK74_bakelite_magazine"},
+    {"mag_quick", "762", "7.62 NATO", {"762NATO", "308Win"}, UP .. "quick_M14_magazine"},
+    {"mag_quick", "AK", "7.62x39", {"762WP"}, UP .. "quick_AK47_magazine"},
+    {"mag_quick", "9mm", "9mm", {"9mm"}, UP .. "mp5_mag_quick", nil, "SMGMags"},
+
+    {"mag_quickexpanded", "556", "5.56 NATO", {"556"}, UP .. "quick_STANAG_magazine"},
+
+    {"mag_drum", "556", "5.56 NATO", {"556"}, UP .. "expanded_drum_G36_magazine"},
+    {"mag_drum", "545", "5.45x39", {"5_45x39"}, UP .. "RPK74_drum_magazine"},
+    {"mag_drum", "762", "7.62 NATO", {"762NATO", "308Win"}, UP .. "hk21_mag_large"},
+    {"mag_drum", "12g", "12 gauge", {"12gauge"}, UP .. "aa12_mag_drum"},
+    {"mag_drum", "G11", "4.73 Caseless", {"4_7x33"}, TOG .. "G11_Mag_ext2_icon.png"}
+}
+
+for family, fam in pairs(RAT_ATT_MAG_FAMILIES) do
+    RAT_ATT_FAMILIES[family] = fam.comps
+end
+for _, row in ipairs(RAT_ATT_MAG_ROWS) do
+    local fam = RAT_ATT_MAG_FAMILIES[row[1]]
+    RAT_ATT_ITEMS[#RAT_ATT_ITEMS + 1] = {
+        id = "RAT_Att_Mag" .. fam.key .. row[2],
+        name = fam.name .. " (" .. row[3] .. ")",
+        icon = row[5],
+        size = fam.size or "small",
+        cost = fam.cost,
+        tier = fam.tier,
+        family = row[1],
+        calibers = row[4],
+        types = row[6],
+        page = row[7] or fam.page or "RifleMags",
+        mag = true
+    }
+end
+
+---- A live item that is switched off for this mod set: bound to nothing, never sold or registered.
+function Rat_AttOff(def)
+    return def.mag and IsMod_loaded(RAT_ATT_REVMAGS)
+end
+
 for i, att in ipairs(RAT_ATT_ITEMS) do
 	att.cost = MulDivRound(att.cost, priceMul, 100)
 end
@@ -1040,6 +1137,12 @@ function Rat_AttItemFor(cid, weapon)
     if not family then
         return RAT_ATT_ITEM_OF[cid]
     end
+    if weapon and RAT_ATT_MAG_FAMILIES[family] then
+        local slot = table.find_value(weapon.ComponentSlots or empty_table, "SlotType", "Magazine")
+        if not slot or slot.DefaultComponent == cid then
+            return
+        end
+    end
     local def = weapon and Rat_AttFamilyDef(family, weapon)
     return def and def.id
 end
@@ -1136,7 +1239,8 @@ function Rat_AttBind()
     for family, comps in pairs(RAT_ATT_FAMILIES) do
         RAT_ATT_FAM_GUN[family] = {}
         RAT_ATT_FAM_CAL[family] = {}
-        for _, cid in ipairs(comps) do
+        local off = RAT_ATT_MAG_FAMILIES[family] and IsMod_loaded(RAT_ATT_REVMAGS)
+        for _, cid in ipairs(off and empty_table or comps) do
             if (WeaponComponents or empty_table)[cid] then
                 RAT_ATT_FAMILY_OF[cid] = family
             end
@@ -1151,7 +1255,7 @@ function Rat_AttBind()
         end
     end
     for _, def in ipairs(RAT_ATT_ITEMS) do
-        if def.reserved then
+        if def.reserved or Rat_AttOff(def) then
             goto continue
         end
         if def.family then
@@ -1223,7 +1327,7 @@ function Rat_AttEnsureResources()
         return
     end
     for _, def in ipairs(RAT_ATT_ITEMS) do
-        if not list[def.id] and not def.reserved then
+        if not list[def.id] and not def.reserved and not Rat_AttOff(def) then
             local id = def.id
             local entry = {
                 id = id,
@@ -1469,7 +1573,8 @@ function ModifyWeaponDlg:GetChangesCost(slotFilter, placedComponentOverride)
                 end
                 ---- and the parts bill drops to the flat fitting fee, whatever the optic costs
                 if costs.Parts then
-                    costs.Parts = costs.Parts - (preset and preset.Cost or 0) + RAT_ATT_PARTS
+                    local fee = RAT_ATT_MAG_FAMILIES[RAT_ATT_FAMILY_OF[placed]] and RAT_ATT_MAG_PARTS or RAT_ATT_PARTS
+                    costs.Parts = costs.Parts - (preset and preset.Cost or 0) + fee
                     if costs.Parts <= 0 then
                         costs.Parts = nil
                     end
@@ -1625,7 +1730,7 @@ local function rat_att_reach()
                 if item and not seen[item] then
                     seen[item] = true
                     by_item[item] = (by_item[item] or 0) + 1
-                elseif not item and RAT_ATT_FAMILY_OF[cid] and slot.Modifiable then
+                elseif not item and RAT_ATT_FAMILY_OF[cid] and slot.Modifiable and cid ~= slot.DefaultComponent then
                     free[#free + 1] = p.id .. ":" .. cid
                 end
             end
@@ -1648,7 +1753,7 @@ function Rat_AttAudit()
         end
         if def.reserved and n > 0 then
             open[#open + 1] = def.id .. " (" .. n .. " guns)"
-        elseif not def.reserved and n == 0 then
+        elseif not def.reserved and not Rat_AttOff(def) and n == 0 then
             shut[#shut + 1] = def.id
         end
     end
@@ -1662,7 +1767,7 @@ function Rat_AttAudit()
         print("Rat_Att: every reserved flag matches the live weapon data")
     end
     if #free > 0 then
-        print("Rat_Att: muzzle devices with no item for that gun (free): " .. table.concat(free, ", "))
+        print("Rat_Att: family parts with no item for that gun (free): " .. table.concat(free, ", "))
     end
 end
 
@@ -1714,7 +1819,7 @@ function Rat_AttGiveAll(unit)
         return
     end
     for _, def in ipairs(RAT_ATT_ITEMS) do
-        if not def.reserved then
+        if not def.reserved and not Rat_AttOff(def) then
             RestoreSectorOperationResource(merc, def.id, 1)
         end
     end
