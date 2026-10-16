@@ -1797,6 +1797,10 @@ return {
 			'name', "FEATURE_StepOutGate",
 			'CodeFileName', "Code/FEATURE_StepOutGate.lua",
 		}),
+		PlaceObj('ModItemCode', {
+			'name', "WIKI_HelpPages",
+			'CodeFileName', "Code/WIKI_HelpPages.lua",
+		}),
 		PlaceObj('ModItemOptionChoice', {
 			'name', "guns_hurt",
 			'DisplayName', "<color 64 128 196>Guns Freaking Hurt (%)</color>",
