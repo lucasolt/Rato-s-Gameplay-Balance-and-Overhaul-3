@@ -678,7 +678,11 @@ local function HintModifyChart(id, recoil, height)
                     ---- EvalElement skips the node's __condition, which hides it from the vanilla spot
                     local text = HintModEffectsNode:EvalElement(self, self.context)
                     self.rat_effects = text
-                    text:SetMargins(box(0, 34, 0, 0))
+                    ---- 80% of the vanilla 20px style, which has no smaller twin; margins and widths scale too
+                    text:SetScaleModifier(point(800, 800))
+                    text:SetMargins(box(0, 42, 0, 0))
+                    text:SetMinWidth(580)
+                    text:SetMaxWidth(580)
                     text:SetFoldWhenHidden(true)
                 end
                 XWindow.Open(self)
