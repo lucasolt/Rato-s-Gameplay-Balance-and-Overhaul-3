@@ -193,7 +193,7 @@ return PlaceObj('ModDef', {
 		NightDetect = "-40 (Rato's Default)",
 		NightSight = "-40 (Rato's Default)",
 		NoRevealMemory = false,
-		PartsGainPct = 100,
+		PartsGainPct = 70,
 		UnawareSight = "18 (rato's GBO default)",
 		VanillaFreeMoveBonus = 0,
 		ai_penal_setting = "0 (default for Rato's GBO)",

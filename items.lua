@@ -1879,8 +1879,8 @@ return {
 		PlaceObj('ModItemOptionNumber', {
 			'name', "PartsGainPct",
 			'DisplayName', "Parts Gain %",
-			'Help', "Multiplies the Parts gained from scrapping items, loot and salvage spots. Attachments are bought instead of crafted, so Parts have fewer uses. Default is 100.",
-			'DefaultValue', 100,
+			'Help', "Multiplies the Parts gained from scrapping items, loot and salvage spots. Attachments are bought instead of crafted, so Parts have fewer uses. Default is 70.",
+			'DefaultValue', 70,
 			'MaxValue', 201,
 			'StepSize', 10,
 		}),

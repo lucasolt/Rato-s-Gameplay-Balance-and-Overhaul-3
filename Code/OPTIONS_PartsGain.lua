@@ -2,7 +2,7 @@
 ---- Trap disarms (1-2 parts) and refunds of sector operation costs are left alone.
 
 function Rat_ScaleParts(n)
-    return MulDivRound(n, CurrentModOptions.PartsGainPct or 100, 100)
+    return MulDivRound(n, CurrentModOptions.PartsGainPct or 70, 100)
 end
 
 ---- Scaled per item, so the scrap entry in the context menu shows what will be paid.
