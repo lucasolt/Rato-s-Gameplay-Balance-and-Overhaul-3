@@ -1359,13 +1359,15 @@ end
 
 ---- Lenses and chips only paid for optics and devices, which the items now replace; they become loot
 ---- to cash in. Bobby Ray stops stocking them, since buying one back would be a straight loss.
-RAT_ATT_CASHIN = {Microchip = true, OpticalLens = true}
+---- id -> Cost, which is what CashInItem pays and the menu shows.
+RAT_ATT_CASHIN = {Microchip = 800, OpticalLens = 500}
 RAT_ATT_CASHIN_HINT = "<bullet_point> No longer used to build weapon components. Can be cashed in."
 
 function Rat_AttEnsureCashIn()
-    for id in pairs(RAT_ATT_CASHIN) do
+    for id, cost in pairs(RAT_ATT_CASHIN) do
         for _, target in ipairs({g_Classes[id] or false, (InventoryItemDefs or empty_table)[id] or false}) do
             if target then
+                target.Cost = cost
                 target.CanAppearInShop = false
                 target.AdditionalHint = Untranslated(RAT_ATT_CASHIN_HINT)
             end
