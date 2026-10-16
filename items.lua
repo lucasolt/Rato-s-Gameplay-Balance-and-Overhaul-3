@@ -1770,6 +1770,10 @@ return {
 			'CodeFileName', "Code/OPTIONS_MuteIMP.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "OPTIONS_PartsGain",
+			'CodeFileName', "Code/OPTIONS_PartsGain.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "FEATURE_AttachmentItems",
 			'CodeFileName', "Code/FEATURE_AttachmentItems.lua",
 		}),
@@ -1869,6 +1873,14 @@ return {
 			'DisplayName', "Firearm Noise* %",
 			'Help', "This option will multiply the calibers noise by the selected value. If set to 0, calibers wont have different Noise ranges, and the values will be close to vanilla. GBO's Default is 150.  Restart after applying. *RELOAD WEAPONS for it to take effect",
 			'DefaultValue', 150,
+			'MaxValue', 201,
+			'StepSize', 10,
+		}),
+		PlaceObj('ModItemOptionNumber', {
+			'name', "PartsGainPct",
+			'DisplayName', "Parts Gain %",
+			'Help', "Multiplies the Parts gained from scrapping items, loot and salvage spots. Attachments are bought instead of crafted, so Parts have fewer uses. Default is 100.",
+			'DefaultValue', 100,
 			'MaxValue', 201,
 			'StepSize', 10,
 		}),
