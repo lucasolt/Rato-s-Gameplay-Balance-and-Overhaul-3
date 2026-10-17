@@ -1,9 +1,22 @@
 -- Run by tools/capture_part_icon.py through dap_eval (-c), with the Modify Weapon screen already open.
--- Spawns JOB's gun with the component, shows it at the cabinet's CURRENT orientation, hides the gun's other
+-- Spawns JOB's gun with the component, shows it at POSE or the cabinet's current orientation, hides the gun's other
 -- attaches, and shoots full / body without the part / nothing over a dark and a bright backdrop. Restores everything.
 -- A hidden body hides its attaches and a detached part stops rendering, hence the three-way difference.
 local JOB = {"Name", "Class", "Stock", "Component"}
+local POSE = false
 local OUT = "AppData/rat_part_icons/"
+
+-- POSE {yaw, roll, spin} in degrees: roll about the barrel (X), then yaw (Z, toward the camera), then spin (Y, in
+-- the picture). POSE {axis = point, angle = minutes} is an exact earlier orientation. false keeps the current one.
+local function pose_axis_angle(axis, angle)
+	if not POSE then
+		return axis, angle
+	elseif POSE.axis then
+		return POSE.axis, POSE.angle
+	end
+	local ax, an = ComposeRotation(axis_x, POSE[2] * 60, axis_z, POSE[1] * 60)
+	return ComposeRotation(ax, an, axis_y, POSE[3] * 60)
+end
 local PROG = {}
 local function step(s) PROG[#PROG + 1] = s AsyncStringToFile(OUT .. "progress.txt", table.concat(PROG, string.char(10))) end
 
@@ -19,6 +32,7 @@ CreateRealTimeThread(function()
 	local pf, plane = rawget(cab, "prefab"), rawget(cab, "background")
 	local orig_idx, orig_count = d.selectedWeapon, #d.allWeapons
 	local axis, angle = g_Cabinet:GetAxis(), g_Cabinet:GetAngle()
+	local shot_axis, shot_angle = pose_axis_angle(axis, angle)
 	local plane_cm = plane:GetColorModifier()
 	local lights = {}
 	for _, o in ipairs(pf.objs) do
@@ -69,7 +83,7 @@ CreateRealTimeThread(function()
 			Sleep(50)
 		end
 		Sleep(400)
-		g_Cabinet:SetAxisAngle(axis, angle, 0)
+		g_Cabinet:SetAxisAngle(shot_axis, shot_angle, 0)
 		WaitNextFrame(3)
 		local m = d.weaponModel
 		local part = m.parts and m.parts[slot]
@@ -98,7 +112,8 @@ CreateRealTimeThread(function()
 		for _, o in ipairs(others) do
 			if IsValid(o) then o:SetEnumFlags(const.efVisible) end
 		end
-		log[#log + 1] = name .. " " .. part:GetEntity() .. " axis=" .. tostring(axis) .. " angle=" .. angle
+		log[#log + 1] = name .. " " .. part:GetEntity() .. " --axis-angle " ..
+			table.concat({shot_axis:xyz()}, " ") .. " " .. shot_angle
 	end)
 	log[#log + 1] = "ok=" .. tostring(ok) .. " err=" .. tostring(err)
 
@@ -127,7 +142,8 @@ CreateRealTimeThread(function()
 	for _, w in ipairs(spawned) do
 		DoneObject(w)
 	end
-	g_Cabinet:SetAxisAngle(axis, angle, 0)
+	-- a posed capture stays posed, so the screen shows what was shot
+	g_Cabinet:SetAxisAngle(shot_axis, shot_angle, 0)
 	AsyncStringToFile(OUT .. "done.txt", table.concat(log, string.char(10)))
 end)
 return "started"

@@ -6,8 +6,12 @@ Open the Modify Weapon screen in any loaded map (an empty one is safest), turn t
     python tools/capture_part_icon.py MinimiHeavy FNMinimi StockHeavy --tilt -15 0 10
     python tools/capture_part_icon.py MinimiHeavy --no-capture --tilt 5               # re-tilt the last shots
     python tools/capture_part_icon.py MinimiHeavy --no-capture --tilt 0 --install stock_minimi_heavy.png
+    python tools/capture_part_icon.py --pose 20 15 0 --set-only                      # just turn the gun to look
+    python tools/capture_part_icon.py MinimiHeavy FNMinimi StockHeavy --pose 20 15 0
 
-The capture uses the cabinet's current orientation and leaves the screen as it was. Outputs go to
+Orientation: the cabinet's current one (drag it in game), or --pose YAW ROLL SPIN in degrees from side-on
+(yaw turns it toward the camera, roll shows the top/bottom, spin turns it in the picture), or --axis-angle X Y Z A
+as printed by an earlier capture to repeat it exactly. A posed capture leaves the gun posed. Outputs go to
 tools/part_icons/out/: <Name>_<tilt>.png per tilt and <Name>_preview.png (each tilt over grey and dark).
 --install copies the first tilt to Images/<file>; point the item's icon at Mod/cfahRED/Images/<file>.
 Don't touch the game while it captures (~20 s).
@@ -31,18 +35,45 @@ SHOTS = os.path.join(os.environ["APPDATA"], "Jagged Alliance 3", "rat_part_icons
 KINDS = ("full_dark", "full_bright", "body_dark", "body_bright", "none_dark", "none_bright")
 
 
-def capture(name, cls, slot, comp):
-    os.makedirs(SHOTS, exist_ok=True)
-    for f in os.listdir(SHOTS):
-        os.remove(os.path.join(SHOTS, f))
+def lua_pose(args):
+    if args.axis_angle:
+        x, y, z, a = args.axis_angle
+        return "{axis = point(%d, %d, %d), angle = %d}" % (x, y, z, a)
+    if args.pose:
+        return "{%d, %d, %d}" % tuple(args.pose)
+    return "false"
+
+
+def template():
     with open(os.path.join(HERE, "part_icons", "capture.lua"), encoding="utf-8") as fh:
-        lua = fh.read()
-    lua = re.sub(r"^local JOB\b.*$", 'local JOB = {"%s", "%s", "%s", "%s"}' % (name, cls, slot, comp), lua,
-                 count=1, flags=re.M)
+        return fh.read()
+
+
+def run_lua(lua):
+    os.makedirs(SHOTS, exist_ok=True)
     script = os.path.join(SHOTS, "_capture.lua")
     with open(script, "w", encoding="utf-8") as fh:
         fh.write(lua)
     subprocess.run([sys.executable, os.path.join(HERE, "dap_eval.py"), "--quiet", "-c", "-f", script], check=True)
+
+
+def set_only(pose):
+    fn = re.search(r"^local function pose_axis_angle.*?^end$", template(), flags=re.M | re.S).group(0)
+    run_lua("\n".join(["local POSE = " + pose, fn,
+                       "local ax, an = pose_axis_angle(g_Cabinet:GetAxis(), g_Cabinet:GetAngle())",
+                       "g_Cabinet:SetAxisAngle(ax, an, 0)",
+                       "return '--axis-angle ' .. table.concat({ax:xyz()}, ' ') .. ' ' .. an"]))
+
+
+def capture(name, cls, slot, comp, pose):
+    os.makedirs(SHOTS, exist_ok=True)
+    for f in os.listdir(SHOTS):
+        os.remove(os.path.join(SHOTS, f))
+    # whole lines, so a formatter mangling a placeholder cannot leave it unset
+    lua = re.sub(r"^local JOB\b.*$", 'local JOB = {"%s", "%s", "%s", "%s"}' % (name, cls, slot, comp), template(),
+                 count=1, flags=re.M)
+    lua = re.sub(r"^local POSE\b.*$", "local POSE = " + pose, lua, count=1, flags=re.M)
+    run_lua(lua)
     done = os.path.join(SHOTS, "done.txt")
     deadline = time.time() + 60
     while not os.path.exists(done):
@@ -95,7 +126,7 @@ def build(cut, tilt, mirror, gamma):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("name", help="file stem for shots and outputs, e.g. MinimiHeavy")
+    ap.add_argument("name", nargs="?", help="file stem for shots and outputs, e.g. MinimiHeavy")
     ap.add_argument("cls", nargs="?", help="weapon class, e.g. FNMinimi")
     ap.add_argument("comp", nargs="?", help="component id, e.g. StockHeavy")
     ap.add_argument("--slot", default="Stock")
@@ -104,11 +135,19 @@ def main():
     ap.add_argument("--gamma", type=float, default=0.6, help="midtone lift; lower = brighter")
     ap.add_argument("--no-capture", action="store_true", help="rebuild from the last shots")
     ap.add_argument("--install", metavar="FILE", help="copy the first tilt to Images/FILE")
+    ap.add_argument("--pose", type=int, nargs=3, metavar=("YAW", "ROLL", "SPIN"), help="degrees from side-on")
+    ap.add_argument("--axis-angle", type=int, nargs=4, metavar=("X", "Y", "Z", "A"), help="exact cabinet orientation")
+    ap.add_argument("--set-only", action="store_true", help="only turn the gun in the open Modify screen")
     args = ap.parse_args()
+    if args.set_only:
+        set_only(lua_pose(args))
+        return
+    if not args.name:
+        ap.error("name is needed")
     if not args.no_capture:
         if not (args.cls and args.comp):
             ap.error("cls and comp are needed to capture")
-        capture(args.name, args.cls, args.slot, args.comp)
+        capture(args.name, args.cls, args.slot, args.comp, lua_pose(args))
     cut = matte(args.name)
     os.makedirs(OUT, exist_ok=True)
     icons = []
