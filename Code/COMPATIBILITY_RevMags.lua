@@ -4,6 +4,9 @@ function OnMsg.RevisedMagPropsAddedToFirearms()
     REV_SetupWeapon(AK74, "AK545", "AK74Magazine", "MagNormalFine",
                     {"MagLargeFine", "MagLarger", "MagNormalFine"})
     REV_SetupWeapon(M14SAW_AUTO, "M14", "M14Magazine", "MagNormal", {"MagLarge", "MagNormal"})
+    ---- AK545 mags insert the Fine components; AKSU kept the plain ones, so no mag matched its slot
+    REV_SetupWeapon(AKSU, "AK545", "AK74Magazine", "MagNormalFine",
+                    {"MagLargeFine", "MagLarger", "MagNormalFine"})
 
 end
 
