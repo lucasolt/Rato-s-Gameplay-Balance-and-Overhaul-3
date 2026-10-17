@@ -39,6 +39,7 @@ RAT_ATT_BALANCE = {
     RAT_Att_GripAK = {size = "medium", cost = 800, tier = 1},
     RAT_Att_Grip = {size = "small", cost = 1000, tier = 1},
     RAT_Att_TacGrip = {size = "small", cost = 1200, tier = 1},
+    RAT_Att_HKCustomTrigger = {size = "small", cost = 1500, tier = 2},
     RAT_Att_Compensator = {size = "small", cost = 1500, tier = 2},
     RAT_Att_Compensator762 = {size = "small", cost = 2000, tier = 2},
     RAT_Att_CompensatorAK = {size = "small", cost = 1500, tier = 1},

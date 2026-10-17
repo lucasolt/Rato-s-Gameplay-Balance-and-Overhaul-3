@@ -396,6 +396,14 @@ RAT_ATT_ITEMS = {
         icon = "UI/Icons/Upgrades/tactical_grip",
         comps = {"TacGrip", "TacGrip_M14"}
     },
+    ---- Burst-only lower for the HK33/HK53; the factory Modern Receiver stays free.
+    {
+        id = "RAT_Att_HKCustomTrigger",
+        name = "HK Custom Trigger Group",
+        icon = "Mod/KKh3Yhf/Images/HK33_grip_classic.png",
+        page = "RatSupport",
+        comps = {"hk33_lower_classic_1"}
+    },
     ---- Compensators by calibre. model is what the gun wears, whatever its own Visuals say.
     {
         id = "RAT_Att_Compensator",
