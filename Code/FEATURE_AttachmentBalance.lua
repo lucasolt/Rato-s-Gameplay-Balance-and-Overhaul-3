@@ -140,5 +140,6 @@ RAT_ATT_BALANCE = {
     RAT_Att_StockMinimiLight = {size = "large", cost = 1500, tier = 2},
     RAT_Att_StockMinimiHeavy = {size = "large", cost = 1800, tier = 2},
     RAT_Att_StockDragunovLight = {size = "large", cost = 1500, tier = 2},
-    RAT_Att_StockDragunovHeavy = {size = "large", cost = 1800, tier = 2}
+    RAT_Att_StockDragunovHeavy = {size = "large", cost = 1800, tier = 2},
+    RAT_Att_StockVSKMarksman = {size = "large", cost = 1800, tier = 2}
 }

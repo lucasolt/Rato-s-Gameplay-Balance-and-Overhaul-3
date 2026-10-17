@@ -5567,14 +5567,14 @@ GBO_TOGWeaponSlots = {
 	VSK94_1 = {
 		{
 			SlotType = "Stock",
-			DefaultComponent = "VSK94_Stock_hvy_1",
+			DefaultComponent = "VSK94_stock_unfld_1",
 			CanBeEmpty = false,
 			Modifiable = true,
 			AvailableComponents = {
-				"VSK94_Stock_hvy_1",
-				"VSK94_Pistolgrip_1",
 				"VSK94_stock_unfld_1",
 				"VSK94_stock_fld_1",
+				"VSK94_Stock_hvy_1",
+				"VSK94_Pistolgrip_1",
 			},
 		},
 		{

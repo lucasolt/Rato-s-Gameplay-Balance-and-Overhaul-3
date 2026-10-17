@@ -123,7 +123,7 @@ RAT_ATT_FAMILIES = {
     ---- like. Guns without an item keep the stock free.
     stock_light = {"StockLight", "StockLight_AR_BurstOnly", "HK53_stock_unfld_1", "HK53_stock_fld_1"},
     stock_normal = {"StockNormal", "hk33_Stock_1"},
-    stock_heavy = {"StockHeavy"},
+    stock_heavy = {"StockHeavy", "VSK94_Stock_hvy_1"},
     stock_bump = {"StockBump"}
 }
 
@@ -916,6 +916,14 @@ RAT_ATT_ITEMS = {
         family = "stock_heavy",
         page = "RatStocks",
         guns = {"DragunovSVD"}
+    },
+    {
+        id = "RAT_Att_StockVSKMarksman",
+        name = "VSK Marksman Stock",
+        icon = "Mod/KKh3Yhf/Images/VSK94_stock_hvy.png",
+        family = "stock_heavy",
+        page = "RatStocks",
+        guns = {"VSK94_1"}
     }
 }
 
