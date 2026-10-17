@@ -11343,6 +11343,57 @@ return {
 		param_bindings = {},
 	}),
 	PlaceObj('ModItemWeaponComponent', {
+		Cost = 60,
+		DisplayName = T(526799550467, --[[ModItemWeaponComponent Bipod_Galil DisplayName]] "Bipod"),
+		GBO_ComponentAncestor = "Bipod",
+		Icon = "UI/Icons/Upgrades/ak47_bipod",
+		ModificationDifficulty = 20,
+		ModificationEffects = {
+			"AccuracyBonusProne",
+			"bipod_penalty",
+			"rotate_ap_bipod",
+			"RecoilControlWhenProne",
+		},
+		Parameters = {
+			PlaceObj('PresetParamNumber', {
+				'Name', "bonus_cth",
+				'Value', 10,
+				'Tag', "<bonus_cth>",
+			}),
+		},
+		Slot = "Under",
+		Tags = set( "Precision", "Strategic" ),
+		Visuals = {
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "Galil",
+				Entity = "WeaponAttA_BipodGalil",
+				Slot = "Bipod",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "Galil_FlagHill",
+				Entity = "WeaponAttA_BipodGalil",
+				Slot = "Bipod",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "Galil",
+				Entity = "WeaponAttA_HandguardGalil_01",
+				Slot = "Handguard",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "Galil_FlagHill",
+				Entity = "WeaponAttA_HandguardGalil_01",
+				Slot = "Handguard",
+				param_bindings = false,
+			}),
+		},
+		group = "Galil Specific",
+		id = "Bipod_Galil",
+		param_bindings = {},
+	}),
+	PlaceObj('ModItemWeaponComponent', {
 		Cost = 15,
 		DisplayName = T(344774505594, --[[ModItemWeaponComponent stock_uzi DisplayName]] "Wooden Stock"),
 		Icon = "UI/Icons/Upgrades/default_stock",
