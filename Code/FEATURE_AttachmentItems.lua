@@ -775,6 +775,14 @@ RAT_ATT_ITEMS = {
         family = "stock_light",
         page = "RatStocks",
         guns = {"M16A2", "M4Commando", "AR15", "AR10std", "M14SAW", "M14SAW_AUTO"}
+    },
+    {
+        id = "RAT_Att_StockG36Heavy",
+        name = "G36 Heavy Stock",
+        icon = "UI/Icons/Upgrades/g36_stock_heavy",
+        family = "stock_heavy",
+        page = "RatStocks",
+        guns = {"G36"}
     }
 }
 
