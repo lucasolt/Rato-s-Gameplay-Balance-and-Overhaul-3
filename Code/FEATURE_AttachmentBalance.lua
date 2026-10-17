@@ -130,5 +130,15 @@ RAT_ATT_BALANCE = {
     RAT_Att_StockAKUnderfolder = {size = "large", cost = 1200, tier = 1},
     RAT_Att_StockAK74Folding = {size = "large", cost = 1200, tier = 1},
     RAT_Att_StockHKFixed = {size = "large", cost = 1500, tier = 2},
-    RAT_Att_StockBump = {size = "large", cost = 2500, tier = 2}
+    RAT_Att_StockBump = {size = "large", cost = 2500, tier = 2},
+    RAT_Att_StockGalilLight = {size = "large", cost = 1500, tier = 2},
+    RAT_Att_StockGalilHeavy = {size = "large", cost = 1800, tier = 2},
+    RAT_Att_StockFNFALLight = {size = "large", cost = 1500, tier = 2},
+    RAT_Att_StockFNFALHeavy = {size = "large", cost = 1800, tier = 2},
+    RAT_Att_StockM24Light = {size = "large", cost = 1500, tier = 2},
+    RAT_Att_StockM24Heavy = {size = "large", cost = 1800, tier = 2},
+    RAT_Att_StockMinimiLight = {size = "large", cost = 1500, tier = 2},
+    RAT_Att_StockMinimiHeavy = {size = "large", cost = 1800, tier = 2},
+    RAT_Att_StockDragunovLight = {size = "large", cost = 1500, tier = 2},
+    RAT_Att_StockDragunovHeavy = {size = "large", cost = 1800, tier = 2}
 }

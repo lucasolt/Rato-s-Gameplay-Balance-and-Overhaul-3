@@ -836,6 +836,86 @@ RAT_ATT_ITEMS = {
         family = "stock_bump",
         page = "RatStocks",
         guns = {"AR15"}
+    },
+    {
+        id = "RAT_Att_StockGalilLight",
+        name = "Galil Light Stock",
+        icon = "UI/Icons/Upgrades/galil_stock_heavy",
+        family = "stock_light",
+        page = "RatStocks",
+        guns = {"Galil"}
+    },
+    {
+        id = "RAT_Att_StockGalilHeavy",
+        name = "Galil Heavy Stock",
+        icon = "UI/Icons/Upgrades/galil_stock_light",
+        family = "stock_heavy",
+        page = "RatStocks",
+        guns = {"Galil"}
+    },
+    {
+        id = "RAT_Att_StockFNFALLight",
+        name = "FN FAL Light Stock",
+        icon = "UI/Icons/Upgrades/fnfal_stock_light",
+        family = "stock_light",
+        page = "RatStocks",
+        guns = {"FNFAL"}
+    },
+    {
+        id = "RAT_Att_StockFNFALHeavy",
+        name = "FN FAL Heavy Stock",
+        icon = "UI/Icons/Upgrades/fnfal_stock_heavy",
+        family = "stock_heavy",
+        page = "RatStocks",
+        guns = {"FNFAL"}
+    },
+    {
+        id = "RAT_Att_StockM24Light",
+        name = "M24 Light Stock",
+        icon = "UI/Icons/Upgrades/m24_stock_light",
+        family = "stock_light",
+        page = "RatStocks",
+        guns = {"M24Sniper"}
+    },
+    {
+        id = "RAT_Att_StockM24Heavy",
+        name = "M24 Heavy Stock",
+        icon = "UI/Icons/Upgrades/m24_stock_heavy",
+        family = "stock_heavy",
+        page = "RatStocks",
+        guns = {"M24Sniper"}
+    },
+    {
+        id = "RAT_Att_StockMinimiLight",
+        name = "Minimi Light Stock",
+        icon = "UI/Icons/Upgrades/fnminimi_stock_light",
+        family = "stock_light",
+        page = "RatStocks",
+        guns = {"FNMinimi"}
+    },
+    {
+        id = "RAT_Att_StockMinimiHeavy",
+        name = "Minimi Heavy Stock",
+        icon = "UI/Icons/Upgrades/fnfal_stock_heavy",
+        family = "stock_heavy",
+        page = "RatStocks",
+        guns = {"FNMinimi"}
+    },
+    {
+        id = "RAT_Att_StockDragunovLight",
+        name = "Dragunov Light Stock",
+        icon = "UI/Icons/Upgrades/dragunov_stock_light",
+        family = "stock_light",
+        page = "RatStocks",
+        guns = {"DragunovSVD"}
+    },
+    {
+        id = "RAT_Att_StockDragunovHeavy",
+        name = "Dragunov Heavy Stock",
+        icon = "UI/Icons/Upgrades/dragunov_stock_heavy",
+        family = "stock_heavy",
+        page = "RatStocks",
+        guns = {"DragunovSVD"}
     }
 }
 
