@@ -1076,7 +1076,7 @@ return {
 			id = "AimAccBonusWhenProne",
 		}),
 		PlaceObj('ModItemWeaponComponentEffect', {
-			Description = T(217610785080, --[[ModItemWeaponComponentEffect ScopeAimThresholdBonus Description]] "Increases <em>Aim Accuracy</em> granted by level <aim_level_threshold> by +<threshold_bonus_aim_acc>"),
+			Description = T(217610785080, --[[ModItemWeaponComponentEffect ScopeAimThresholdBonus Description]] "Increases <em>Aim Accuracy</em> granted by <ThresholdBonusText()>"),
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "aim_level_threshold",

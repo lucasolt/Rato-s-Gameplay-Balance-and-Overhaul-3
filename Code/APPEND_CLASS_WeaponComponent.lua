@@ -155,3 +155,17 @@ function OnMsg.ClassesBuilt()
         end
     end
 end
+
+---- ScopeAimThresholdBonus text; mirrors the split in GetApertureAimComponentEffects
+function WeaponComponent:ThresholdBonusText()
+    local from = self:ResolveValue("aim_level_threshold") or 4
+    local last = Max(from, self:ResolveValue("aim_level_threshold_last") or from)
+    local total = self:ResolveValue("threshold_bonus_aim_acc") or 0
+    if last == from then
+        return Untranslated("level " .. from .. " by +" .. total)
+    end
+    local share = total / (last - from + 1)
+    local rest = total - share * (last - from)
+    local each = rest == share and ("+" .. share .. " each") or ("+" .. share .. " (+" .. rest .. " on " .. last .. ")")
+    return Untranslated("levels " .. from .. "-" .. last .. " by " .. each)
+end
