@@ -29,7 +29,19 @@ local traces = {} --- os objetos na tela agora
 local marks = {} --- os aneis de impacto na tela agora
 local labels = {} --- damage numbers on screen now
 
+---- Part icons are UI windows, not map objects: found by flag so a mod reload leaves no orphans.
+local function close_part_icons()
+    local igi = GetInGameInterface()
+    for i = #(igi or empty_table), 1, -1 do
+        local win = igi[i]
+        if win.rat_shot_icon and win.window_state ~= "destroying" then
+            win:Close()
+        end
+    end
+end
+
 function Rat_SweepShotTraces()
+    close_part_icons()
     local n = 0
     MapForEach("map", "RatShotTrace", "RatShotTraceLine", "RatShotMark", "RatShotLabel", function(o)
         n = n + 1
@@ -207,7 +219,36 @@ local function impact_color(imp)
     return imp.crit and (c.crit or RGB(255, 190, 40)) or c.unit or RGB(225, 55, 40)
 end
 
+---- The crosshair's own body part button: circle + part icon (2 columns, normal/rollover).
+local function show_part_icon(imp, pct)
+    local part = imp.part and Presets.TargetBodyPart.Default[imp.part]
+    local igi = part and part.Icon and GetInGameInterface()
+    if not igi or not imp.pos:IsValidZ() then
+        return
+    end
+    local w, h = UIL.MeasureImage("UI/Hud/target_icon_circle")
+    ---- attached_ui puts the box origin on the point; the negative margin centers it
+    local win = XWindow:new({
+        HAlign = "left", VAlign = "top", Margins = box(-w / 2, -h / 2, 0, 0),
+        HandleMouse = false, UseClipBox = false, rat_shot_icon = true,
+        Transparency = MulDivRound(255, 100 - pct, 100)
+    }, igi)
+    XImage:new({
+        Image = "UI/Hud/target_icon_circle", HAlign = "center", VAlign = "center",
+        UseClipBox = false, ImageColor = impact_color(imp)
+    }, win)
+    XImage:new({
+        Image = part.Icon, Columns = 2, HAlign = "center", VAlign = "center", UseClipBox = false
+    }, win)
+    win:AddDynamicPosModifier({id = "attached_ui", target = imp.pos})
+    win:Open()
+    return true
+end
+
 local function show_impact(key, imp, pct)
+    if imp.unit and P().ShotPartIcons ~= false and show_part_icon(imp, pct) then
+        return
+    end
     local radius = P().ShotImpactRadius or 70
     if not imp.unit or imp.graze then
         radius = MulDivRound(radius, 70, 100)
@@ -279,6 +320,7 @@ function Rat_HideShotTraces()
             DoneObject(obj)
         end
     end
+    close_part_icons()
     traces = {}
     marks = {}
     labels = {}

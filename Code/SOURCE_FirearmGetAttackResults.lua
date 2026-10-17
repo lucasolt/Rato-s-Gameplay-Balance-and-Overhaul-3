@@ -888,6 +888,7 @@ function Firearm:GetAttackResults(action, attack_args)
                     impacts[#impacts + 1] = {
                         pos = hit.pos, damage = hit.damage, obj = hit.obj,
                         unit = IsKindOf(hit.obj, "Unit"), crit = hit.critical and true or false,
+                        part = hit.spot_group,
                         graze = hit.grazing and true or false
                     }
                 end
