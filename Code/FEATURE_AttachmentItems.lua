@@ -202,13 +202,13 @@ RAT_ATT_ITEMS = {
     },
     {
         id = "RAT_Att_DigitalScope2x",
-        name = "Digital Scope 2x",
+        name = "Optic 1.5x",
         icon = "UI/Icons/Upgrades/g36_scope_01", -- the component's own icon is the generic one; the G36 art is on its visual
         comps = {"G36_SCOPE"}
     },
     {
         id = "RAT_Att_DigitalScope4x2x",
-        name = "Digital Scope 4x/2x",
+        name = "Dual Optic 3x + Red Dot",
         icon = "UI/Icons/Upgrades/g36_scope_02", -- the component's own icon is the generic one; the G36 art is on its visual
         comps = {"SCOPE_G36_2"}
     },

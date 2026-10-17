@@ -155,6 +155,38 @@ A.ScopeTraits = {
             }
         }
     },
+    ---- G36 dual optic (3x ZF + 1x red dot on top): 2x-to-4x floor with the 4x's aim levels, threshold
+    ---- spread over aim 4-5; the red dot takes the snapshot and close-range role, so no scope penalty.
+    ---- Outside modes = the 2x's, so oldCTH is unchanged.
+    ["Scope._3xDual"] = {
+        overwrite = true,
+        effects = {"IncreaseAimAccuracy", "IncreaseRange", "ScopePenalty1"},
+        params = {AimAccuracyIncrease = 2},
+        modes = {
+            aCTH = {
+                params = {
+                    floor_reduc = 11,
+                    MaxAimActionsIncrease = 2,
+                    snap_mul_reduc = 85,
+                    aim_level_threshold = 4,
+                    aim_level_threshold_last = 5,
+                    threshold_bonus_aim_acc = scale_aim(4)
+                },
+                effects = {
+                    ScopeFloorReduction = true,
+                    ScopeAimThresholdBonus = true,
+                    IncreaseMaxAimActions = true,
+                    DecreaseSnapshotMul = true,
+                    IncreaseSnapshotMul = false,
+                    ScopePenalty1 = false,
+                    ScopePenalty2 = false,
+                    ScopePenalty3 = false,
+                    IncreaseRange = false,
+                    IncreaseAimAccuracy = false
+                }
+            }
+        }
+    },
     ---- Quick 2x (Quick Prism): no snapshot penalty like the other scopes, but no reduction either -- that
     ---- belongs to the reflexes. Full aim one AP cheaper instead of the 2x's threshold bonus.
     ["Scope._2xQuick"] = {
@@ -341,8 +373,8 @@ A.ScopeTraitOf = {
     _ReflexSIghtVigilance = "Scope.ReflexVigilance",
     ImprovedIronsight = "Scope.Ironsight",
     ImprovedIronsight_AR15 = "Scope.Ironsight", -- AR15
-    G36_SCOPE = "Scope._2x",
-    SCOPE_G36_2 = "Scope._2x",
+    G36_SCOPE = "Scope._1dot5x", -- export G36E/KE optic
+    SCOPE_G36_2 = "Scope._3xDual",
     AUGScope_Default = "Scope._1dot5x",
     ScopeCOG = "Scope._2x",
     ---- ACOG e WideScope sao as 2x de aquisicao rapida: ja autoram scope_snapshot POSITIVO

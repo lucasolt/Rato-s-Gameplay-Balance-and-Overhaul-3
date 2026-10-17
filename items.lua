@@ -4281,37 +4281,11 @@ return {
 				}),
 			},
 			Cost = 50,
-			DisplayName = T(690585339463, --[[ModItemWeaponComponent SCOPE_G36_2 DisplayName]] "Digital Scope 4x/2x"),
-			GBO_ComponentTraits = "Scope._2x",
+			DisplayName = T(690585339463, --[[ModItemWeaponComponent SCOPE_G36_2 DisplayName]] "Dual Optic 3x + Red Dot"),
+			GBO_ComponentTraits = "Scope._3xDual",
 			GBO_OverrideEffects = {
 				"CritBonusWhenFullyAimed",
 				"IgnoreInTheDarkWhenFullyAimed",
-			},
-			GBO_OverrideModes = {
-				PlaceObj('GBO_ComponentModeOverride', {
-					'Params', {
-						PlaceObj('PresetParamNumber', {
-							'Name', "MaxAimActionsIncrease",
-							'Value', 2,
-							'Tag', "<MaxAimActionsIncrease>",
-						}),
-						PlaceObj('PresetParamNumber', {
-							'Name', "aim_level_threshold_last",
-							'Value', 5,
-							'Tag', "<aim_level_threshold_last>",
-						}),
-						PlaceObj('PresetParamNumber', {
-							'Name', "floor_reduc",
-							'Value', 16,
-							'Tag', "<floor_reduc>",
-						}),
-						PlaceObj('PresetParamNumber', {
-							'Name', "threshold_bonus_aim_acc",
-							'Value', 25,
-							'Tag', "<threshold_bonus_aim_acc>",
-						}),
-					},
-				}),
 			},
 			GBO_OverrideParams = {
 				PlaceObj('PresetParamNumber', {
@@ -4335,11 +4309,10 @@ return {
 			ModificationEffects = {
 				"CritBonusWhenFullyAimed",
 				"IgnoreInTheDarkWhenFullyAimed",
+				"DecreaseSnapshotMul",
 				"IncreaseMaxAimActions",
-				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
 				"ScopeFloorReduction",
-				"ScopePenalty1",
 				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
@@ -4380,17 +4353,17 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "floor_reduc",
-					'Value', 16,
+					'Value', 11,
 					'Tag', "<floor_reduc>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "snap_mul_inc",
-					'Value', 125,
-					'Tag', "<snap_mul_inc>",
+					'Name', "snap_mul_reduc",
+					'Value', 85,
+					'Tag', "<snap_mul_reduc>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "threshold_bonus_aim_acc",
-					'Value', 25,
+					'Value', 20,
 					'Tag', "<threshold_bonus_aim_acc>",
 				}),
 			},
@@ -4425,11 +4398,32 @@ return {
 				}),
 			},
 			Cost = 30,
-			DisplayName = T(869263221220, --[[ModItemWeaponComponent G36_SCOPE DisplayName]] "Digital Scope 2x"),
-			GBO_ComponentTraits = "Scope._2x",
+			DisplayName = T(869263221220, --[[ModItemWeaponComponent G36_SCOPE DisplayName]] "Optic 1.5x"),
+			GBO_ComponentTraits = "Scope._1dot5x",
 			GBO_OverrideEffects = {
 				"CritBonusWhenFullyAimed",
 				"IgnoreInTheDarkWhenFullyAimed",
+			},
+			GBO_OverrideModes = {
+				PlaceObj('GBO_ComponentModeOverride', {
+					'Mode', "oldCTH",
+					'Effects', {
+						"IncreaseAimAccuracy",
+						"ScopePenalty1",
+					},
+					'Params', {
+						PlaceObj('PresetParamNumber', {
+							'Name', "AimAccuracyIncrease",
+							'Value', 2,
+							'Tag', "<AimAccuracyIncrease>",
+						}),
+						PlaceObj('PresetParamNumber', {
+							'Name', "RangeIncrease",
+							'Value', 6,
+							'Tag', "<RangeIncrease>",
+						}),
+					},
+				}),
 			},
 			GBO_OverrideParams = {
 				PlaceObj('PresetParamNumber', {
@@ -4454,18 +4448,11 @@ return {
 				"CritBonusWhenFullyAimed",
 				"IgnoreInTheDarkWhenFullyAimed",
 				"IncreaseMaxAimActions",
-				"IncreaseSnapshotMul",
 				"ScopeAimThresholdBonus",
 				"ScopeFloorReduction",
-				"ScopePenalty1",
 				"DecreaseOverwatchAngle",
 			},
 			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "AimAccuracyIncrease",
-					'Value', 2,
-					'Tag', "<AimAccuracyIncrease>",
-				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "MaxAimActionsIncrease",
 					'Value', 1,
@@ -4478,7 +4465,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeIncrease",
-					'Value', 6,
+					'Value', 4,
 					'Tag', "<RangeIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -4493,17 +4480,12 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "floor_reduc",
-					'Value', 6,
+					'Value', 2,
 					'Tag', "<floor_reduc>",
 				}),
 				PlaceObj('PresetParamNumber', {
-					'Name', "snap_mul_inc",
-					'Value', 125,
-					'Tag', "<snap_mul_inc>",
-				}),
-				PlaceObj('PresetParamNumber', {
 					'Name', "threshold_bonus_aim_acc",
-					'Value', 20,
+					'Value', 10,
 					'Tag', "<threshold_bonus_aim_acc>",
 				}),
 			},
