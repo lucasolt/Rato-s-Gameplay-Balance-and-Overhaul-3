@@ -992,7 +992,7 @@ function Rat_AttFamilyDef(family, weapon)
 end
 
 ---- Guns whose factory stock is still the item: stripping one yields a kit for the other guns.
-RAT_ATT_FACTORY_ITEMS = {MP5 = true}
+RAT_ATT_FACTORY_ITEMS = {MP5 = true, HK53_1 = true}
 
 ---- The item a component costs on this weapon. Only the families need the weapon; for everything
 ---- else the component alone decides, which is the cheap path and the common one.
