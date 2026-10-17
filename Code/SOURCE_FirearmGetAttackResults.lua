@@ -876,6 +876,25 @@ function Firearm:GetAttackResults(action, attack_args)
         target_hit = target_hit or shot_target_hit
         out_of_range = out_of_range and attack_data.outside_attack_area
 
+        ---- every damaging hit along the bullet, for the shot history; after the loop so stealth kills count
+        if dbg_rec then
+            local impacts = {}
+            for _, hit in ipairs(hit_data.hits or empty_table) do
+                local last = impacts[#impacts]
+                ---- entry and exit of one wall: one mark
+                if last and last.obj == hit.obj and hit.pos and last.pos:Dist(hit.pos) < 100 then
+                    last.damage = last.damage + (hit.damage or 0)
+                elseif hit.pos and (hit.damage or 0) > 0 then
+                    impacts[#impacts + 1] = {
+                        pos = hit.pos, damage = hit.damage, obj = hit.obj,
+                        unit = IsKindOf(hit.obj, "Unit"), crit = hit.critical and true or false,
+                        graze = hit.grazing and true or false
+                    }
+                end
+            end
+            dbg_rec.impacts = impacts
+        end
+
         --------
         local shot = {
             miss = shot_miss,

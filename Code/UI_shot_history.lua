@@ -23,18 +23,21 @@ DefineClass.RatShotTrace = {__parents = {"Mesh"}}
 DefineClass.RatShotTraceLine = {__parents = {"Polyline"}, rat_shader = false, rat_depth = false}
 ---- Anel de impacto: sempre Polyline, encara a camera. Ver show_mark.
 DefineClass.RatShotMark = {__parents = {"Polyline"}, rat_shader = false, rat_depth = false}
+DefineClass.RatShotLabel = {__parents = {"Text"}}
 
 local traces = {} --- os objetos na tela agora
 local marks = {} --- os aneis de impacto na tela agora
+local labels = {} --- damage numbers on screen now
 
 function Rat_SweepShotTraces()
     local n = 0
-    MapForEach("map", "RatShotTrace", "RatShotTraceLine", "RatShotMark", function(o)
+    MapForEach("map", "RatShotTrace", "RatShotTraceLine", "RatShotMark", "RatShotLabel", function(o)
         n = n + 1
         DoneObject(o)
     end)
     traces = {}
     marks = {}
+    labels = {}
     return n
 end
 
@@ -167,26 +170,97 @@ end
 
 ---- Anel no ponto de impacto, no plano que encara a camera (dir = olho -> ponto), para ler como
 ---- anel de qualquer angulo. Sempre Polyline: e pequeno e por cima de tudo, como o anel de mira.
-local function show_mark(key, at, kind, pct)
+local function show_disc(key, at, style_id, radius, color, pct)
     local obj = marks[key]
     if not IsValid(obj) then
         obj = PlaceObject("RatShotMark")
         marks[key] = obj
     end
-    local dir = camera.GetEye() - at
-    local radius = P().ShotTraceMarkRadius or 120
-    if kind == "miss" then
-        radius = MulDivRound(radius, 60, 100)
-    end
-    local pts = Rat_RingPoints(at, radius, dir, P().CrosshairRingSegments or 32)
+    local pts = Rat_RingPoints(at, radius, camera.GetEye() - at, P().CrosshairRingSegments or 32)
     if not pts then
         return
     end
-    local color = kind == "miss" and const.clrRed or const.clrGreen
-    local st = aged_style(obj, "shot_mark", pct)
-    obj:SetMesh(Rat_StrokeMesh("shot_mark", pts, (st and st.color) or color, st))
-    obj:SetPos(pts[1])
+    local st = aged_style(obj, style_id, pct)
+    obj:SetMesh(Rat_StrokeMesh(style_id, pts, (st and st.color) or color, st))
+    obj:SetPos(at)
     obj:SetVisible(true)
+end
+
+---- Where the bullet stopped without damaging anything (or a record from before impacts existed).
+local function show_mark(key, at, kind, pct)
+    local radius = P().ShotTraceMarkRadius or 120
+    if kind ~= "hit" then
+        radius = MulDivRound(radius, 60, 100)
+    end
+    local color = kind == "miss" and const.clrRed or const.clrGreen
+    if kind == "stop" then
+        color = (P().ShotImpactColors or empty_table).stop or RGB(170, 170, 160)
+    end
+    show_disc(key, at, "shot_mark", radius, color, pct)
+end
+
+local function impact_color(imp)
+    local c = P().ShotImpactColors or empty_table
+    if not imp.unit then
+        return c.object or RGB(200, 195, 180)
+    end
+    return imp.crit and (c.crit or RGB(255, 190, 40)) or c.unit or RGB(225, 55, 40)
+end
+
+local function show_impact(key, imp, pct)
+    local radius = P().ShotImpactRadius or 70
+    if not imp.unit or imp.graze then
+        radius = MulDivRound(radius, 70, 100)
+    end
+    show_disc(key, imp.pos, imp.graze and "shot_mark" or "shot_impact", radius, impact_color(imp), pct)
+end
+
+local function show_label(key, at, text, color, pct)
+    local obj = labels[key]
+    if not IsValid(obj) then
+        obj = PlaceObject("RatShotLabel")
+        obj:SetTextStyle(P().ShotLabelStyle or "FloatingTextDamage")
+        obj:SetCenter(true)
+        obj:SetDepthTest(false)
+        ---- the style's shadow reads as a blurred second copy in the world
+        obj:SetShadowOffset(P().ShotLabelShadow or 1)
+        labels[key] = obj
+    end
+    obj:SetText(text)
+    obj:SetColor(color)
+    obj:SetOpacityInterpolation(pct)
+    obj:SetPos(at)
+end
+
+---- One number per object per attack: a burst on one unit would stack its labels on the same spot.
+local function attack_labels(a, rec, pct, stacked)
+    local sums, order = {}, {}
+    for _, sh in ipairs(rec.shots or empty_table) do
+        for _, imp in ipairs(sh.impacts or empty_table) do
+            local o = imp.obj or imp.pos
+            local s = sums[o]
+            if not s then
+                s = {damage = 0, top = imp.pos, unit = imp.unit, crit = false}
+                sums[o] = s
+                order[#order + 1] = o
+            end
+            s.damage = s.damage + imp.damage
+            s.crit = s.crit or imp.crit
+            if Rat_RingValidZ(imp.pos):z() > Rat_RingValidZ(s.top):z() then
+                s.top = imp.pos
+            end
+        end
+    end
+    local lift = P().ShotLabelLift or 350
+    for i, o in ipairs(order) do
+        local s = sums[o]
+        if s.unit or P().ShotLabelObjects then
+            local n = stacked[o] or 0
+            stacked[o] = n + 1
+            local at = Rat_RingValidZ(s.top) + point(0, 0, lift + n * (P().ShotLabelStack or 250))
+            show_label(string.format("%d_%d", a, i), at, tostring(s.damage), impact_color(s), pct)
+        end
+    end
 end
 
 function Rat_HideShotTraces()
@@ -200,8 +274,14 @@ function Rat_HideShotTraces()
             DoneObject(obj)
         end
     end
+    for _, obj in pairs(labels) do
+        if IsValid(obj) then
+            DoneObject(obj)
+        end
+    end
     traces = {}
     marks = {}
+    labels = {}
 end
 
 ---- Redesenha do zero. Nao ha estado incremental: a fila muda inteira a cada ataque e a
@@ -235,13 +315,26 @@ function Rat_DrawShotTraces(unit)
             if from and to and from:Dist(to) > 0 then
                 local key, kind = string.format("%d_%d", a, i), sh.miss and "miss" or "hit"
                 show_trace(key, from, to, kind, pct)
+                local stop_marked = false
+                for j, imp in ipairs(sh.impacts or empty_table) do
+                    show_impact(key .. "_" .. j, imp, pct)
+                    stop_marked = stop_marked or imp.pos:Dist(to) < (P().ShotImpactMergeDist or 300)
+                end
                 ---- marca o impacto: so acertos por padrao (P().ShotTraceHitMarks pode incluir erros)
-                if P().ShotTraceHitMarks ~= false and (kind == "hit" or P().ShotTraceHitMarks == "all") then
-                    show_mark(key, to, kind, pct)
+                if not stop_marked and P().ShotTraceHitMarks ~= false and
+                    (kind == "hit" or P().ShotTraceHitMarks == "all") then
+                    show_mark(key, to, sh.impacts and "stop" or kind, pct)
                 end
                 n = n + 1
             end
         end
+    end
+    ---- newest first, so its number sits lowest on a unit hit by several attacks
+    local stacked = {}
+    for a = #q, 1, -1 do
+        local pct = (attacks > 1) and
+                        (oldest + MulDivRound(100 - oldest, ord[a] - 1, attacks - 1)) or 100
+        attack_labels(a, q[a], pct, stacked)
     end
     return n
 end

@@ -356,15 +356,44 @@ A.ShotTraceHitMarks = "all"
 ---- Raio do anel de impacto, em unidades de mundo (guim = 1000 ~ 1 m). Erro usa 60% disto.
 A.ShotTraceMarkRadius = 120
 
+---- Soft filled dot with a thin rim, not a debug ring.
 A.MeshStyle.shot_mark = {
     shader = "default_polyline",
     depth = true,
     color = false,
-    width = 10,--8,
-    halo = 6,
-    coreAlpha = 235,
-    haloAlpha = 45
+    fill = true,
+    fillAlpha = 70,
+    width = 4,
+    coreAlpha = 190
 }
+
+---- Damage dealt by a bullet, on a unit or object. No depth: half the disc sits inside the body.
+A.MeshStyle.shot_impact = {
+    shader = "default_polyline",
+    depth = false,
+    color = false,
+    fill = true,
+    fillAlpha = 150,
+    width = 5,
+    coreAlpha = 235
+}
+
+---- Radius of the damage disc in world units; objects and grazes use 70%.
+A.ShotImpactRadius = 90
+---- An impact this close to where the bullet stopped replaces the stop dot.
+A.ShotImpactMergeDist = 300
+A.ShotImpactColors = {
+    unit = RGB(225, 55, 40),
+    crit = RGB(255, 190, 40),
+    object = RGB(235, 150, 55),
+    stop = RGB(170, 170, 160),
+}
+---- Damage number per object per attack: text style, height above the top impact, spacing when stacked.
+A.ShotLabelStyle = "FloatingTextDamage"
+A.ShotLabelLift = 350
+A.ShotLabelStack = 250
+---- Also number damage dealt to objects (cover, props), not only to units.
+A.ShotLabelObjects = false
 
 ---- Fita gorda: em cruz ao redor do eixo do tiro em vez de um plano so, para nao afinar de
 ---- perfil. false volta ao Rat_StrokeMesh (plano unico encarando a camera).
