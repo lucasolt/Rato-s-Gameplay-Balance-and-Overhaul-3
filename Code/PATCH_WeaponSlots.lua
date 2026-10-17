@@ -3403,9 +3403,9 @@ GBO_TOGWeaponSlots = {
 			CanBeEmpty = false,
 			Modifiable = true,
 			AvailableComponents = {
-				"hk23e_stock_hvy_1",
+				"StockHeavy",
 				"hk23e_stock_def_1",
-				"hk23e_stock_erg_1",
+				"StockLight",
 			},
 		},
 		{
@@ -3505,9 +3505,9 @@ GBO_TOGWeaponSlots = {
 			CanBeEmpty = false,
 			Modifiable = true,
 			AvailableComponents = {
-				"hk23e_stock_hvy_1",
+				"StockHeavy",
 				"hk23e_stock_def_1",
-				"hk23e_stock_erg_1",
+				"StockLight",
 			},
 		},
 		{

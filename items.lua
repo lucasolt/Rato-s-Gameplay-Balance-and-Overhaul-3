@@ -10653,6 +10653,18 @@ return {
 				Slot = "Stock",
 				param_bindings = false,
 			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "HK23E_1",
+				Entity = "WeaponAttA_StockHK21_02",
+				Slot = "Stock",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "HK23ECamo_1",
+				Entity = "WeaponAttA_StockHK21_02",
+				Slot = "Stock",
+				param_bindings = false,
+			}),
 		},
 		comment = "----------- STOCK",
 		group = "Stock",
@@ -17390,6 +17402,18 @@ return {
 			PlaceObj('WeaponComponentVisual', {
 				ApplyTo = "AKSU",
 				Entity = "WeaponAttA_StockAK74_02",
+				Slot = "Stock",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "HK23E_1",
+				Entity = "WeaponAttA_StockHK21_03",
+				Slot = "Stock",
+				param_bindings = false,
+			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "HK23ECamo_1",
+				Entity = "WeaponAttA_StockHK21_03",
 				Slot = "Stock",
 				param_bindings = false,
 			}),
