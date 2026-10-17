@@ -124,5 +124,9 @@ RAT_ATT_BALANCE = {
     RAT_Att_StockHKHeavy = {size = "large", cost = 1800, tier = 2},
     RAT_Att_StockPSGWooden = {size = "large", cost = 3000, tier = 2},
     RAT_Att_StockARLight = {size = "large", cost = 1500, tier = 1},
-    RAT_Att_StockG36Heavy = {size = "large", cost = 1800, tier = 2}
+    RAT_Att_StockG36Heavy = {size = "large", cost = 1800, tier = 2},
+    RAT_Att_StockAK47Wooden = {size = "large", cost = 800, tier = 1},
+    RAT_Att_StockAK74 = {size = "large", cost = 1000, tier = 1},
+    RAT_Att_StockAKUnderfolder = {size = "large", cost = 1200, tier = 1},
+    RAT_Att_StockAK74Folding = {size = "large", cost = 1200, tier = 1}
 }
