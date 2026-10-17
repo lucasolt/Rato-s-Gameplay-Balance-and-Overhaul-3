@@ -832,7 +832,7 @@ RAT_ATT_ITEMS = {
     {
         id = "RAT_Att_StockHKFixed",
         name = "HK Fixed Stock",
-        icon = "Mod/KKh3Yhf/Images/HK33_stock_def.png",
+        icon = "Mod/cfahRED/Images/stock_hk_fixed.png",
         family = "stock_normal",
         page = "RatStocks",
         guns = {"HK33A2_1", "HK53_1"}

@@ -1,4 +1,25 @@
 {
+  "stock_hk_fixed.png": {
+    "name": "HKFixed",
+    "cls": "HK33A2_1",
+    "slot": "Stock",
+    "comp": "hk33_Stock_1",
+    "axis_angle": [
+      2697,
+      -1249,
+      2817,
+      3156
+    ],
+    "captured": "2026-10-17 18:41",
+    "centered": true,
+    "tilt": [
+      0
+    ],
+    "mirror": false,
+    "gamma": 0.6,
+    "reshoot": "python tools/capture_part_icon.py HKFixed HK33A2_1 hk33_Stock_1 --slot Stock --axis-angle 2697 -1249 2817 3156 --tilt 0 --gamma 0.6",
+    "show_in_game": "python tools/capture_part_icon.py --axis-angle 2697 -1249 2817 3156 --set-only"
+  },
   "stock_hk_folding.png": {
     "name": "HKFolding",
     "cls": "HK21",
