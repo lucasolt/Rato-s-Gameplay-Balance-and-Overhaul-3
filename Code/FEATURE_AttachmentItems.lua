@@ -353,9 +353,11 @@ RAT_ATT_ITEMS = {
         id = "RAT_Att_Bipod",
         name = "Bipod",
         icon = "UI/Icons/Upgrades/ak47_bipod",
-        ---- Bipod_Under and Bipod_Galil sit in the Under slot, which name binding does not scan
+        ---- Bipod_Under and Bipod_Galil sit in the Under slot, which name binding does not scan.
+        ---- The ToG fold/unfold pairs are one bipod in two poses (RAT_ATT_BIPOD_POSE); listed by id
+        ---- because their "Fold Bipod" names are denied. Welded MG bipods stay unlisted.
         comps = {"AN94_Bip_def_1", "Bipod", "Bipod_MG42", "Bipod_m82", "G11_Bipod_1", "ToG_Bipod_1", "U100_bipod_fld_1",
-                 "Bipod_Under", "Bipod_Galil"}
+                 "U100_bipod_unfld_1", "hk33_bipod_fld_1", "hk33_bipod_unfld_1", "Bipod_Under", "Bipod_Galil"}
     },
     ---- Vertical and folding grips, each gun keeping its own model. Integral ones stay free: the AUG's
     ---- TacGrip_aug is left out, and the MP5K's VerticalGrip is welded (its only option, never empty).
@@ -984,6 +986,60 @@ function Rat_AttApplyBody(weapon, vis)
     end
 end
 
+---- ToG ships each bipod as a fold and an unfold component. The gun keeps whichever it has and only
+---- the model follows the holder: deployed when prone in hand, folded otherwise, like vanilla's states.
+RAT_ATT_BIPOD_POSE = {}
+for _, pose in ipairs({
+    {"hk33_bipod_fld_1", "hk33_bipod_unfld_1"},
+    {"hk23e_bipod_fld_1", "hk23e_bipod_unfld_1"},
+    {"RPD_bipod_fld_1", "RPD_bipod_unfld_1"},
+    {"PKM_Bipod_Fold_1", "PKM_Bipod_Unfold_1"},
+    {"U100_bipod_fld_1", "U100_bipod_unfld_1"}
+}) do
+    RAT_ATT_BIPOD_POSE[pose[1]] = pose
+    RAT_ATT_BIPOD_POSE[pose[2]] = pose
+end
+
+local function rat_att_entity_for(cid, class, slot)
+    local best
+    for _, descr in ipairs(WeaponComponents[cid] and WeaponComponents[cid].Visuals or empty_table) do
+        if descr.Slot == slot and descr:Match(class) and (not best or (best:IsGeneric() and not descr:IsGeneric())) then
+            best = descr
+        end
+    end
+    return best and best.Entity
+end
+
+function Rat_AttApplyBipodPose(weapon, vis)
+    local pose = RAT_ATT_BIPOD_POSE[weapon.components and weapon.components.Bipod or ""]
+    local part = pose and vis.parts and vis.parts.Bipod
+    if not IsValid(part) then
+        return
+    end
+    local unit = vis:GetParent()
+    local deployed = IsKindOf(unit, "Unit") and unit.stance == "Prone" and (vis.equip_index == 1 or vis.equip_index == 2)
+    local entity = rat_att_entity_for(deployed and pose[2] or pose[1], weapon.class, "Bipod")
+    if not IsValidEntity(entity) or part:GetEntity() == entity then
+        return
+    end
+    ---- rat_native lets the next UpdateVisualObj find the component's own model and remove it
+    local native = part.rat_native or part:GetEntity()
+    part.rat_native = native ~= entity and native or nil
+    part:ChangeEntity(entity)
+    weapon:UpdateColorMod(vis)
+end
+
+local function rat_att_bipod_poses(unit)
+    for _, vis in ipairs(unit:GetAttaches(WeaponVisualClasses) or empty_table) do
+        if IsKindOf(vis.weapon, "Firearm") then
+            Rat_AttApplyBipodPose(vis.weapon, vis)
+        end
+    end
+end
+
+OnMsg.UnitStanceChanged = rat_att_bipod_poses
+OnMsg.UnitSwappedWeapon = rat_att_bipod_poses
+
 ---- Our wrapper -> what it wrapped. ReloadLua re-runs vanilla, so a hook usually finds a fresh
 ---- function; when it finds one of ours instead (hot load, repeated setup) it wraps what is under it.
 ---- Mod code has no `debug` library, so this table is the only way to tell a wrapper of ours.
@@ -1016,6 +1072,7 @@ function Rat_AttUpdateVisualObj(self, vis, orig)
     end
     if own then
         Rat_AttApplyBody(self, vis)
+        Rat_AttApplyBipodPose(self, vis)
         ApplyWeaponComponentOffset(self, vis) -- CommonLib's own wrapper is overwritten by ToG/Zulib
         ---- on top of the component's own offset, which the pass above just reset
         for _, part in pairs(vis.parts or empty_table) do
