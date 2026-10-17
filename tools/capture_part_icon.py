@@ -15,10 +15,13 @@ Orientation: the cabinet's current one (drag it in game), or --pose YAW ROLL SPI
 on top of the current orientation (roll about the gun's own barrel), or --axis-angle X Y Z A
 as printed by an earlier capture to repeat it exactly. A posed capture leaves the gun posed. Outputs go to
 tools/part_icons/out/: <Name>_<tilt>.png per tilt and <Name>_preview.png (each tilt over grey and dark).
---install copies the first tilt to Images/<file>; point the item's icon at Mod/cfahRED/Images/<file>.
+<Name>.json beside them keeps the exact orientation, part and settings, with a command that reshoots the same picture.
+--install copies the first tilt to Images/<file> and records how it was made in tools/part_icons/installed.json;
+point the item's icon at Mod/cfahRED/Images/<file>.
 Don't touch the game while it captures (~20 s).
 """
 import argparse
+import json
 import os
 import re
 import shutil
@@ -34,6 +37,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 MOD = os.path.dirname(HERE)
 OUT = os.path.join(HERE, "part_icons", "out")
 SHOTS = os.path.join(os.environ["APPDATA"], "Jagged Alliance 3", "rat_part_icons")
+INSTALLED = os.path.join(HERE, "part_icons", "installed.json")
 KINDS = ("full_dark", "full_bright", "body_dark", "body_bright", "none_dark", "none_bright")
 
 
@@ -90,6 +94,23 @@ def capture(name, cls, slot, comp, pose):
     print(report)
     if "ok=true" not in report:
         sys.exit(1)
+    return [int(v) for v in re.search(r"--axis-angle (-?\d+) (-?\d+) (-?\d+) (-?\d+)", report).groups()]
+
+
+def commands(rec):
+    look = " ".join(str(v) for v in rec["axis_angle"])
+    opts = " --tilt %s --gamma %s%s" % (" ".join(str(t) for t in rec["tilt"]), rec["gamma"],
+                                       " --mirror" if rec["mirror"] else "")
+    rec["reshoot"] = "python tools/capture_part_icon.py %s %s %s --slot %s --axis-angle %s%s" % (
+        rec["name"], rec["cls"], rec["comp"], rec["slot"], look, opts)
+    rec["show_in_game"] = "python tools/capture_part_icon.py --axis-angle %s --set-only" % look
+    return rec
+
+
+def write_json(path, data):
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(data, fh, indent=2)
+        fh.write("\n")
 
 
 def matte(name):
@@ -150,12 +171,22 @@ def main():
         return
     if not args.name:
         ap.error("name is needed")
+    os.makedirs(OUT, exist_ok=True)
+    record_path = os.path.join(OUT, f"{args.name}.json")
     if not args.no_capture:
         if not (args.cls and args.comp):
             ap.error("cls and comp are needed to capture")
-        capture(args.name, args.cls, args.slot, args.comp, lua_pose(args))
+        look = capture(args.name, args.cls, args.slot, args.comp, lua_pose(args))
+        rec = {"name": args.name, "cls": args.cls, "slot": args.slot, "comp": args.comp, "axis_angle": look,
+               "captured": time.strftime("%Y-%m-%d %H:%M")}
+    elif os.path.exists(record_path):
+        with open(record_path, encoding="utf-8") as fh:
+            rec = json.load(fh)
+    else:
+        sys.exit("no %s; capture first" % record_path)
+    rec.update(tilt=args.tilt, mirror=args.mirror, gamma=args.gamma)
+    write_json(record_path, commands(rec))
     cut = matte(args.name)
-    os.makedirs(OUT, exist_ok=True)
     icons = []
     for t in args.tilt:
         icon = build(cut, t, args.mirror, args.gamma)
@@ -178,6 +209,12 @@ def main():
     if args.install:
         dest = os.path.join(MOD, "Images", args.install)
         shutil.copyfile(os.path.join(OUT, f"{args.name}_{args.tilt[0]}.png"), dest)
+        installed = {}
+        if os.path.exists(INSTALLED):
+            with open(INSTALLED, encoding="utf-8") as fh:
+                installed = json.load(fh)
+        installed[args.install] = commands(dict(rec, tilt=[args.tilt[0]]))
+        write_json(INSTALLED, dict(sorted(installed.items())))
         print("installed", os.path.normpath(dest), "-> icon = \"Mod/cfahRED/Images/%s\"" % args.install)
 
 

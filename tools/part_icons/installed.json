@@ -1,0 +1,82 @@
+{
+  "stock_hk_folding.png": {
+    "name": "HKFolding",
+    "cls": "HK21",
+    "slot": "Stock",
+    "comp": "StockLight",
+    "axis_angle": [
+      308,
+      -146,
+      4081,
+      3871
+    ],
+    "captured": "2026-10-17",
+    "tilt": [
+      -15
+    ],
+    "mirror": false,
+    "gamma": 0.6,
+    "reshoot": "python tools/capture_part_icon.py HKFolding HK21 StockLight --slot Stock --axis-angle 308 -146 4081 3871 --tilt -15 --gamma 0.6",
+    "show_in_game": "python tools/capture_part_icon.py --axis-angle 308 -146 4081 3871 --set-only"
+  },
+  "stock_hk_retractable.png": {
+    "name": "HKRetractable",
+    "cls": "HK53_1",
+    "slot": "Stock",
+    "comp": "HK53_stock_unfld_1",
+    "axis_angle": [
+      308,
+      -146,
+      4081,
+      3871
+    ],
+    "captured": "2026-10-17",
+    "tilt": [
+      -15
+    ],
+    "mirror": false,
+    "gamma": 0.6,
+    "reshoot": "python tools/capture_part_icon.py HKRetractable HK53_1 HK53_stock_unfld_1 --slot Stock --axis-angle 308 -146 4081 3871 --tilt -15 --gamma 0.6",
+    "show_in_game": "python tools/capture_part_icon.py --axis-angle 308 -146 4081 3871 --set-only"
+  },
+  "stock_minimi_heavy.png": {
+    "name": "MinimiHeavy",
+    "cls": "FNMinimi",
+    "slot": "Stock",
+    "comp": "StockHeavy",
+    "axis_angle": [
+      308,
+      -146,
+      4081,
+      3871
+    ],
+    "captured": "2026-10-17",
+    "tilt": [
+      -15
+    ],
+    "mirror": false,
+    "gamma": 0.6,
+    "reshoot": "python tools/capture_part_icon.py MinimiHeavy FNMinimi StockHeavy --slot Stock --axis-angle 308 -146 4081 3871 --tilt -15 --gamma 0.6",
+    "show_in_game": "python tools/capture_part_icon.py --axis-angle 308 -146 4081 3871 --set-only"
+  },
+  "stock_psg_wooden.png": {
+    "name": "PSGWooden",
+    "cls": "PSG1",
+    "slot": "Stock",
+    "comp": "StockHeavy",
+    "axis_angle": [
+      308,
+      -146,
+      4081,
+      3871
+    ],
+    "captured": "2026-10-17",
+    "tilt": [
+      -15
+    ],
+    "mirror": false,
+    "gamma": 0.6,
+    "reshoot": "python tools/capture_part_icon.py PSGWooden PSG1 StockHeavy --slot Stock --axis-angle 308 -146 4081 3871 --tilt -15 --gamma 0.6",
+    "show_in_game": "python tools/capture_part_icon.py --axis-angle 308 -146 4081 3871 --set-only"
+  }
+}
