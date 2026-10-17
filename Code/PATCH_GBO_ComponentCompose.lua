@@ -1451,8 +1451,9 @@ function GBO_ApplyComponentCompose()
     for id, comp in sorted_pairs(WeaponComponents or empty_table) do
         local list = traits_of(id, comp)
         if not list then
-            ---- sem tracos o compositor nem toca no componente, entao o override seria um no-op
-            if has_override(override_of(id, comp)) then
+            ---- sem tracos o compositor nem toca no componente; com ancestral, a copia aplica o override
+            local anc = comp.GBO_ComponentAncestor
+            if not (anc and anc ~= "") and has_override(override_of(id, comp)) then
                 print("GBO compose: override ignorado, componente sem tracos --", id)
             end
         else
@@ -1469,6 +1470,31 @@ function GBO_ApplyComponentCompose()
     end
     print("GBO compose: " .. n .. " componentes compostos")
     return n
+end
+
+---- Applies the component's GBO_Override* onto the tables it already has (the ancestor copy).
+function GBO_ApplyOverrideToCurrent(id, comp)
+    local layers = GBO_ComposeModeLayers()
+    local ov = override_of(id, comp, layers)
+    if not has_override(ov) then
+        return false
+    end
+    local effects, seen, params, pct = {}, {}, {}, {}
+    for _, eid in ipairs(comp.ModificationEffects or empty_table) do
+        if not seen[eid] then
+            seen[eid] = true
+            effects[#effects + 1] = eid
+        end
+    end
+    for _, param in ipairs(comp.Parameters or empty_table) do
+        params[param.Name] = param.Value
+        pct[param.Name] = param.class == "PresetParamPercent" or nil
+    end
+    effects = apply_overlay(effects, seen, params, pct, ov.flat)
+    effects = apply_overlay(effects, seen, params, pct, ov.mode)
+    warn_stat_collisions(id, effects)
+    GBO_WriteComponent(comp, effects, params, pct)
+    return true
 end
 
 ---- O componente entra no compositor? GBO_ApplyComponentAncestorEffect usa isto para NAO
