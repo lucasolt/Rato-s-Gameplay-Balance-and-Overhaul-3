@@ -739,7 +739,7 @@ RAT_ATT_ITEMS = {
     {
         id = "RAT_Att_StockHKRetractable",
         name = "HK Retractable Stock",
-        icon = "Mod/KKh3Yhf/Images/HK53_stock_unfld.png",
+        icon = "Mod/cfahRED/Images/stock_hk_retractable.png",
         family = "stock_light",
         page = "RatStocks",
         guns = {"HK33A2_1", "HK53_1", "G3A3_1", "G3A3Green_1"}
@@ -747,7 +747,7 @@ RAT_ATT_ITEMS = {
     {
         id = "RAT_Att_StockHKFolding",
         name = "HK Folding Stock",
-        icon = "UI/Icons/Upgrades/ak74_stock_foldable", -- no HK21 side-folder icon exists yet
+        icon = "Mod/cfahRED/Images/stock_hk_folding.png",
         family = "stock_light",
         page = "RatStocks",
         guns = {"HK21", "HK23E_1", "HK23ECamo_1"}
@@ -763,7 +763,7 @@ RAT_ATT_ITEMS = {
     {
         id = "RAT_Att_StockPSGWooden",
         name = "PSG1 Wooden Stock",
-        icon = "UI/Icons/Upgrades/ak74_stock_wooden", -- the icon the PSG1's own wooden stock uses
+        icon = "Mod/cfahRED/Images/stock_psg_wooden.png",
         family = "stock_heavy",
         page = "RatStocks",
         guns = {"PSG1", "G3A3_1", "G3A3Green_1"}
