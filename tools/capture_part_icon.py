@@ -9,6 +9,7 @@ Open the Modify Weapon screen in any loaded map (an empty one is safest), turn t
     python tools/capture_part_icon.py --pose 20 15 0 --set-only                      # just turn the gun to look
     python tools/capture_part_icon.py --turn 0 10 0 --set-only                       # roll the current view 10 deg
     python tools/capture_part_icon.py --pivot Stock --set-only                       # drag/turn about the stock
+    python tools/capture_part_icon.py MinimiHeavy FNMinimi StockHeavy --angle stock  # the shared stock angle
     python tools/capture_part_icon.py MinimiHeavy FNMinimi StockHeavy --pose 20 15 0
 
 Orientation: the cabinet's current one (drag it in game), or --pose YAW ROLL SPIN in degrees from side-on
@@ -39,10 +40,14 @@ MOD = os.path.dirname(HERE)
 OUT = os.path.join(HERE, "part_icons", "out")
 SHOTS = os.path.join(os.environ["APPDATA"], "Jagged Alliance 3", "rat_part_icons")
 INSTALLED = os.path.join(HERE, "part_icons", "installed.json")
+ANGLES = os.path.join(HERE, "part_icons", "angles.json")
 KINDS = ("full_dark", "full_bright", "body_dark", "body_bright", "none_dark", "none_bright")
 
 
 def lua_pose(args):
+    if args.angle:
+        with open(ANGLES, encoding="utf-8") as fh:
+            args.axis_angle = json.load(fh)[args.angle]["axis_angle"]
     if args.axis_angle:
         x, y, z, a = args.axis_angle
         return "{axis = point(%d, %d, %d), angle = %d}" % (x, y, z, a)
@@ -185,6 +190,7 @@ def main():
     ap.add_argument("--turn", type=int, nargs=3, metavar=("YAW", "ROLL", "SPIN"),
                     help="degrees on top of the current orientation (roll is about the gun's barrel)")
     ap.add_argument("--axis-angle", type=int, nargs=4, metavar=("X", "Y", "Z", "A"), help="exact cabinet orientation")
+    ap.add_argument("--angle", metavar="NAME", help="a named orientation from tools/part_icons/angles.json")
     ap.add_argument("--set-only", action="store_true", help="only turn the gun in the open Modify screen")
     ap.add_argument("--pivot", metavar="SLOT", help="with --set-only: rotate about this part (e.g. Stock), "
                                                      "or 'weapon' for the gun's own center")
