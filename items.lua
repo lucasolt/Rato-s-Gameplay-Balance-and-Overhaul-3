@@ -10646,6 +10646,13 @@ return {
 				Slot = "Stock",
 				param_bindings = false,
 			}),
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "AR10std",
+				Entity = "WeaponAttA_StockM16_02",
+				Icon = "UI/Icons/Upgrades/ar15_stock_light",
+				Slot = "Stock",
+				param_bindings = false,
+			}),
 		},
 		comment = "----------- STOCK",
 		group = "Stock",

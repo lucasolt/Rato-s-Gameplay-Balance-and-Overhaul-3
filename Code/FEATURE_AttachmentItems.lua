@@ -36,6 +36,13 @@ RAT_ATT_DIFFICULTY = -10 -- Easy, per const.WeaponModDifficultyPresets
 RAT_ATT_PARTS = 5
 RAT_ATT_OLD = {} -- component id -> {cost, difficulty} the preset still declares
 
+---- Stock jobs that need real gunsmithing, added on top of whatever the stock change already costs.
+RAT_ATT_STOCK_FIT = {
+    AR10std = {difficulty = 10}, -- a carbine buffer tube adapted to the 1950s lower
+    M14SAW = {parts = 10, difficulty = 10}, -- the action is bedded into the stock
+    M14SAW_AUTO = {parts = 10, difficulty = 10}
+}
+
 ---- Revised Gear reads Weight and <Slot>_amount off the item; both default to nothing useful for a
 ---- new class (amount 0 means "fits no pocket"), so every item declares a size.
 RAT_ATT_SIZES = {
@@ -1369,6 +1376,11 @@ function ModifyWeaponDlg:GetChangesCost(slotFilter, placedComponentOverride)
                 costs[item] = (costs[item] or 0) + 1
                 touched = true
             end
+            local fit = slot == "Stock" and RAT_ATT_STOCK_FIT[weapon.class]
+            if fit and fit.parts then
+                costs.Parts = (costs.Parts or 0) + fit.parts
+                touched = true
+            end
             ---- a swap between two bipod barrels moves the same bipod across
             local extra = RAT_ATT_EXTRA[placed]
             if extra and RAT_ATT_EXTRA[itemId] ~= extra then
@@ -1396,10 +1408,16 @@ function ModifyWeaponDlg:GetModificationDifficultyParams(componentToChangePreset
     if not RAT_ATT_ENABLED or not skill or not componentToChangePreset then
         return skill, mostSkilled, difficulty, allowed
     end
-    if not Rat_AttItemFor(componentToChangePreset.id, self.context.weapon) then
+    local weapon = self.context.weapon
+    local item = Rat_AttItemFor(componentToChangePreset.id, weapon)
+    local fit = weapon and componentToChangePreset.Slot == "Stock" and RAT_ATT_STOCK_FIT[weapon.class]
+    if not item and not fit then
         return skill, mostSkilled, difficulty, allowed
     end
-    difficulty = RAT_ATT_DIFFICULTY
+    if item then
+        difficulty = RAT_ATT_DIFFICULTY
+    end
+    difficulty = difficulty + (fit and fit.difficulty or 0)
     return skill, mostSkilled, difficulty, (skill - difficulty > 10)
 end
 RAT_ATT_WRAPS[ModifyWeaponDlg.GetModificationDifficultyParams] = orig

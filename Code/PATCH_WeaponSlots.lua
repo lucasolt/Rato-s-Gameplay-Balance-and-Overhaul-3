@@ -2081,7 +2081,6 @@ GBO_WeaponSlots = {
 			AvailableComponents = {
 				"StockNormal",
 				"StockLight",
-				"StockNo",
 			},
 		},
 		{
@@ -2894,9 +2893,10 @@ GBO_TOGWeaponSlots = {
 		{
 			SlotType = "Stock",
 			DefaultComponent = "AR10_stock_def",
-			Modifiable = false,
+			Modifiable = true,
 			AvailableComponents = {
 				"AR10_stock_def",
+				"StockLight",
 			},
 		},
 		{
