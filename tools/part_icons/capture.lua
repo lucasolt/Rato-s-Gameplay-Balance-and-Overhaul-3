@@ -4,6 +4,7 @@
 -- A hidden body hides its attaches and a detached part stops rendering, hence the three-way difference.
 local JOB = {"Name", "Class", "Stock", "Component"}
 local POSE = false
+local CENTER = true
 local OUT = "AppData/rat_part_icons/"
 
 -- POSE {yaw, roll, spin} in degrees: roll about the barrel (X), then yaw (Z, toward the camera), then spin (Y, in
@@ -95,6 +96,12 @@ CreateRealTimeThread(function()
 		local m = d.weaponModel
 		local part = m.parts and m.parts[slot]
 		if not IsValid(part) then error("no " .. slot .. " part on " .. class) end
+		if CENTER then
+			-- the camera has perspective: the part must sit on the pivot (screen centre), as when posed with --pivot
+			local off = part:GetObjectBBox():Center() - g_Cabinet:GetVisualPos()
+			m:SetAttachOffset(m:GetAttachOffset() - RotateAxis(off, shot_axis, -shot_angle))
+			WaitNextFrame(3)
+		end
 		local others = {}
 		m:ForEachAttach(function(o)
 			if o ~= part then

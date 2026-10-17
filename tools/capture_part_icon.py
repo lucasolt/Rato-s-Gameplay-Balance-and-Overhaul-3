@@ -99,7 +99,7 @@ def set_only(pose, pivot):
     run_lua("\n".join(lines))
 
 
-def capture(name, cls, slot, comp, pose):
+def capture(name, cls, slot, comp, pose, center):
     os.makedirs(SHOTS, exist_ok=True)
     for f in os.listdir(SHOTS):
         os.remove(os.path.join(SHOTS, f))
@@ -107,6 +107,7 @@ def capture(name, cls, slot, comp, pose):
     lua = re.sub(r"^local JOB\b.*$", 'local JOB = {"%s", "%s", "%s", "%s"}' % (name, cls, slot, comp), template(),
                  count=1, flags=re.M)
     lua = re.sub(r"^local POSE\b.*$", "local POSE = " + pose, lua, count=1, flags=re.M)
+    lua = re.sub(r"^local CENTER\b.*$", "local CENTER = " + ("true" if center else "false"), lua, count=1, flags=re.M)
     run_lua(lua)
     done = os.path.join(SHOTS, "done.txt")
     deadline = time.time() + 60
@@ -125,8 +126,9 @@ def capture(name, cls, slot, comp, pose):
 
 def commands(rec):
     look = " ".join(str(v) for v in rec["axis_angle"])
-    opts = " --tilt %s --gamma %s%s" % (" ".join(str(t) for t in rec["tilt"]), rec["gamma"],
-                                       " --mirror" if rec["mirror"] else "")
+    opts = " --tilt %s --gamma %s%s%s" % (" ".join(str(t) for t in rec["tilt"]), rec["gamma"],
+                                         " --mirror" if rec["mirror"] else "",
+                                         "" if rec.get("centered", True) else " --no-center")
     rec["reshoot"] = "python tools/capture_part_icon.py %s %s %s --slot %s --axis-angle %s%s" % (
         rec["name"], rec["cls"], rec["comp"], rec["slot"], look, opts)
     rec["show_in_game"] = "python tools/capture_part_icon.py --axis-angle %s --set-only" % look
@@ -191,6 +193,8 @@ def main():
                     help="degrees on top of the current orientation (roll is about the gun's barrel)")
     ap.add_argument("--axis-angle", type=int, nargs=4, metavar=("X", "Y", "Z", "A"), help="exact cabinet orientation")
     ap.add_argument("--angle", metavar="NAME", help="a named orientation from tools/part_icons/angles.json")
+    ap.add_argument("--no-center", action="store_true",
+                    help="leave the part where the gun puts it instead of on the pivot (screen centre)")
     ap.add_argument("--set-only", action="store_true", help="only turn the gun in the open Modify screen")
     ap.add_argument("--pivot", metavar="SLOT", help="with --set-only: rotate about this part (e.g. Stock), "
                                                      "or 'weapon' for the gun's own center")
@@ -205,9 +209,9 @@ def main():
     if not args.no_capture:
         if not (args.cls and args.comp):
             ap.error("cls and comp are needed to capture")
-        look = capture(args.name, args.cls, args.slot, args.comp, lua_pose(args))
+        look = capture(args.name, args.cls, args.slot, args.comp, lua_pose(args), not args.no_center)
         rec = {"name": args.name, "cls": args.cls, "slot": args.slot, "comp": args.comp, "axis_angle": look,
-               "captured": time.strftime("%Y-%m-%d %H:%M")}
+               "captured": time.strftime("%Y-%m-%d %H:%M"), "centered": not args.no_center}
     elif os.path.exists(record_path):
         with open(record_path, encoding="utf-8") as fh:
             rec = json.load(fh)
