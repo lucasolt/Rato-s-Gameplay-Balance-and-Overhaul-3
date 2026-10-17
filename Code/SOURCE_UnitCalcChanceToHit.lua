@@ -174,7 +174,7 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 			return
 		end
 		
-		if Rat_SeesFromStep(mod.id, self, target, attacker_pos) then
+		if Rat_SeesFromStep(mod.id, self, target, attacker_pos, args) then
 			return
 		end
 		local lof = false -- Currently unused by any modifier

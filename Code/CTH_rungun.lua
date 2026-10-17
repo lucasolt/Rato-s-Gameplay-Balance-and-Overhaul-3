@@ -50,8 +50,15 @@ end
 ---- after our DataLoaded and would undo a preset override.
 local SightModifiers = {NoLineOfSight = true, SeenBySpotter = true}
 
-function Rat_SeesFromStep(mod_id, attacker, target, attacker_pos)
-    if not SightModifiers[mod_id] or not attacker_pos or not IsValid(target) or
+function Rat_SeesFromStep(mod_id, attacker, target, attacker_pos, args)
+    if not SightModifiers[mod_id] then
+        return false
+    end
+    ---- OW fires inside the mover's action (visibility frozen) and only with LOF already proven
+    if args and args.opportunity_attack_type == "Overwatch" then
+        return true
+    end
+    if not attacker_pos or not IsValid(target) or
         HasVisibilityTo(attacker, target) then
         return false
     end
