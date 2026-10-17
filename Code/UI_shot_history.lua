@@ -23,13 +23,12 @@ DefineClass.RatShotTrace = {__parents = {"Mesh"}}
 DefineClass.RatShotTraceLine = {__parents = {"Polyline"}, rat_shader = false, rat_depth = false}
 ---- Anel de impacto: sempre Polyline, encara a camera. Ver show_mark.
 DefineClass.RatShotMark = {__parents = {"Polyline"}, rat_shader = false, rat_depth = false}
-DefineClass.RatShotLabel = {__parents = {"Text"}}
 
 local traces = {} --- os objetos na tela agora
 local marks = {} --- os aneis de impacto na tela agora
-local labels = {} --- damage numbers on screen now
+local watcher = false --- clears the history when a unit in it moves
 
----- Part icons are UI windows, not map objects: found by flag so a mod reload leaves no orphans.
+---- Part icons and numbers are UI windows, not map objects: found by flag so a mod reload leaves no orphans.
 local function close_part_icons()
     local igi = GetInGameInterface()
     for i = #(igi or empty_table), 1, -1 do
@@ -43,13 +42,12 @@ end
 function Rat_SweepShotTraces()
     close_part_icons()
     local n = 0
-    MapForEach("map", "RatShotTrace", "RatShotTraceLine", "RatShotMark", "RatShotLabel", function(o)
+    MapForEach("map", "RatShotTrace", "RatShotTraceLine", "RatShotMark", function(o)
         n = n + 1
         DoneObject(o)
     end)
     traces = {}
     marks = {}
-    labels = {}
     return n
 end
 
@@ -261,22 +259,27 @@ local function show_impact(key, imp, pct)
     show_disc(key, imp.pos, imp.graze and "shot_mark" or "shot_impact", radius, impact_color(imp), pct)
 end
 
-local function show_label(key, at, text, color, pct)
-    local obj = labels[key]
-    if not IsValid(obj) then
-        obj = PlaceObject("RatShotLabel")
-        obj:SetTextStyle(P().ShotLabelStyle or "FloatingTextDamage")
-        obj:SetCenter(true)
-        obj:SetDepthTest(false)
-        ---- the style's shadow reads as a blurred second copy in the world
-        obj:SetShadowOffset(P().ShotLabelShadow or 1)
-        labels[key] = obj
+---- Screen-space, right of the part icon: a world label grows and shrinks with zoom and hid behind it.
+local function show_label(at, row, text, color, pct)
+    local igi = GetInGameInterface()
+    at = Rat_RingValidZ(at)
+    if not igi or not at then
+        return
     end
-    obj:SetText(text)
-    obj:SetColor(color)
-    obj:SetOpacityInterpolation(pct)
-    obj:SetScaleInterpolation(P().ShotLabelScale or 60)
-    obj:SetPos(at)
+    local w, h = UIL.MeasureImage("UI/Hud/target_icon_circle")
+    local win = XWindow:new({
+        HAlign = "left", VAlign = "top", MinHeight = h, MaxHeight = h,
+        Margins = box(w / 2 + (P().ShotLabelGap or 3), -h / 2 + row * h, 0, 0),
+        HandleMouse = false, UseClipBox = false, rat_shot_icon = true,
+        Transparency = MulDivRound(255, 100 - pct, 100)
+    }, igi)
+    ---- setters, not constructor props: XText only measures what SetText/SetTextStyle hand it
+    local label = XText:new({Translate = false, VAlign = "center", UseClipBox = false, Clip = false}, win)
+    label:SetTextStyle(P().ShotLabelStyle or "CrosshairBadgeName")
+    label:SetTextColor(color)
+    label:SetText(text)
+    win:AddDynamicPosModifier({id = "attached_ui", target = at})
+    win:Open()
 end
 
 ---- One number per object per attack: a burst on one unit would stack its labels on the same spot.
@@ -298,14 +301,12 @@ local function attack_labels(a, rec, pct, stacked)
             end
         end
     end
-    local lift = P().ShotLabelLift or 350
-    for i, o in ipairs(order) do
+    for _, o in ipairs(order) do
         local s = sums[o]
         if s.unit or P().ShotLabelObjects then
             local n = stacked[o] or 0
             stacked[o] = n + 1
-            local at = Rat_RingValidZ(s.top) + point(0, 0, lift + n * (P().ShotLabelStack or 250))
-            show_label(string.format("%d_%d", a, i), at, tostring(s.damage), impact_color(s), pct)
+            show_label(s.top, n, tostring(s.damage), impact_color(s), pct)
         end
     end
 end
@@ -321,15 +322,39 @@ function Rat_HideShotTraces()
             DoneObject(obj)
         end
     end
-    for _, obj in pairs(labels) do
-        if IsValid(obj) then
-            DoneObject(obj)
-        end
-    end
     close_part_icons()
     traces = {}
     marks = {}
-    labels = {}
+    if watcher and watcher ~= CurrentThread() then
+        DeleteThread(watcher)
+    end
+    watcher = false
+end
+
+---- Positions of the shooter and every unit hit, as drawn. A stale trace points at empty floor.
+local function watch_moves(unit, q)
+    local units = {[unit] = unit:GetPos()}
+    for _, rec in ipairs(q) do
+        for _, sh in ipairs(rec.shots or empty_table) do
+            for _, imp in ipairs(sh.impacts or empty_table) do
+                if imp.unit and IsValid(imp.obj) then
+                    units[imp.obj] = imp.obj:GetPos()
+                end
+            end
+        end
+    end
+    watcher = CreateRealTimeThread(function()
+        while true do
+            Sleep(200)
+            for u, pos in pairs(units) do
+                if not IsValid(u) or u:GetPos():Dist(pos) > const.SlabSizeX / 2 then
+                    g_RatShotHistory[unit] = nil
+                    Rat_HideShotTraces()
+                    return
+                end
+            end
+        end
+    end)
 end
 
 ---- Redesenha do zero. Nao ha estado incremental: a fila muda inteira a cada ataque e a
@@ -384,6 +409,7 @@ function Rat_DrawShotTraces(unit)
                         (oldest + MulDivRound(100 - oldest, ord[a] - 1, attacks - 1)) or 100
         attack_labels(a, q[a], pct, stacked)
     end
+    watch_moves(unit, q)
     return n
 end
 

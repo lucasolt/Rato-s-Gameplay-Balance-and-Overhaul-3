@@ -388,12 +388,9 @@ A.ShotImpactColors = {
     object = RGB(235, 150, 55),
     stop = RGB(170, 170, 160),
 }
----- Damage number per object per attack: text style, height above the top impact, spacing when stacked.
-A.ShotLabelStyle = "FloatingTextDamage"
-A.ShotLabelLift = 350
-A.ShotLabelStack = 250
----- Damage number size, % of the text style.
-A.ShotLabelScale = 60
+---- Damage number per object per attack, beside the part icon: text style and pixel gap.
+A.ShotLabelStyle = "CrosshairBadgeName"
+A.ShotLabelGap = 3
 ---- Also number damage dealt to objects (cover, props), not only to units.
 A.ShotLabelObjects = false
 
