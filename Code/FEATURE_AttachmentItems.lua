@@ -1289,6 +1289,10 @@ end
 
 function OnMsg.ModsReloaded()
     Rat_AttSetup()
+    ---- later mods' ModsReloaded (the ToG patch) still change gun calibers, which the Fits line reads
+    if RAT_ATT_ENABLED then
+        CreateRealTimeThread(Rat_AttEnsureHints)
+    end
 end
 
 function OnMsg.DataLoaded()

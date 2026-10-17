@@ -10,22 +10,8 @@
 RAT_ATT_SHOP_ENABLED = true
 RAT_ATT_SHOP_CATEGORY = "Attachments"
 
----- The devices that do not magnify. Everything else is an optic.
-RAT_ATT_SHOP_SIGHTS = {
-    RAT_Att_RedDot = true,
-    RAT_Att_UVDot = true,
-    RAT_Att_Flashlight = true,
-    RAT_Att_TacticalDevice = true,
-    RAT_Att_CompactReflexSight1x = true,
-    RAT_Att_AssaltoReflexSight1x = true,
-    RAT_Att_AssaltoReflexSight1xPistol = true,
-    RAT_Att_VigilanteReflexSight1x = true,
-    RAT_Att_ReflexSight = true,
-    RAT_Att_ITLMARS1x = true
-}
-
 ---- Muzzle devices and the underbarrel gear (bipod, grenade launchers) get their own pages; everything
----- else is an optic or a sight. Family items are muzzle devices unless underbarrel, so only the chokes need naming.
+---- else, sights and side devices included, shares the optics page. Family items are muzzle devices unless underbarrel, so only the chokes need naming.
 RAT_ATT_SHOP_MUZZLE = {
     RAT_Att_DuckbillChoke = true,
     RAT_Att_FullChoke = true
@@ -43,9 +29,8 @@ RAT_ATT_SHOP_TIERS = {
 ---- now, so a page with many variants does not crowd out the rest. Within a group the base weights
 ---- (tier, or the sheet's weight) keep their ratio. Exact once every tier is unlocked.
 RAT_ATT_SHOP_BUDGET = {
-    RatOptics = 30,
+    RatOptics = 45,
     RatMuzzle = 25,
-    RatSights = 15,
     RatSupport = 10,
     Mags = 20
 }
@@ -106,8 +91,7 @@ function Rat_AttShopEnsureCategories()
         c.GetSubCategories = rat_shop_subcats
     end)
 
-    rat_shop_subcat("RatSights", "Sights", 10)
-    rat_shop_subcat("RatOptics", "Optics", 20)
+    rat_shop_subcat("RatOptics", "Sights & Optics", 20)
     rat_shop_subcat("RatMuzzle", "Muzzle", 30)
     rat_shop_subcat("RatSupport", "Support", 40)
     for _, mag in ipairs(RAT_ATT_SHOP_MAGS) do
@@ -149,8 +133,7 @@ function Rat_AttShopEnsureItems()
         local hidden = def.reserved or not fits[def.id] or (stock[def.id] and not def.weight)
         local tier = RAT_ATT_SHOP_TIERS[def.tier]
         local page = def.page or ((def.family == "grenadelauncher" or RAT_ATT_SHOP_SUPPORT[def.id]) and "RatSupport") or
-            ((def.family or RAT_ATT_SHOP_MUZZLE[def.id]) and "RatMuzzle") or
-            (RAT_ATT_SHOP_SIGHTS[def.id] and "RatSights") or "RatOptics"
+            ((def.family or RAT_ATT_SHOP_MUZZLE[def.id]) and "RatMuzzle") or "RatOptics"
         local weight = def.weight or tier.RestockWeight
         local props = {
             CanAppearInShop = not hidden,
