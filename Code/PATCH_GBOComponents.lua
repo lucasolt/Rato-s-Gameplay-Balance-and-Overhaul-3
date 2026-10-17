@@ -23,9 +23,9 @@ function RatoGBOComponents()
 	WeaponComponents["MagNormal"].Visuals = table.copy(WeaponComponents["_Master_MagNormal"].Visuals)
 	WeaponComponents["MagNormal"].GBO_ComponentAncestor = "_Master_MagNormal"
 	WeaponComponents["MagNormal"]:PostLoad()
-	WeaponComponents["foldable_StockNormal"].ModificationEffects = table.copy(WeaponComponents["StockNormal"].ModificationEffects)
-	WeaponComponents["foldable_StockNormal"].Parameters = table.copy(WeaponComponents["StockNormal"].Parameters)
-	WeaponComponents["foldable_StockNormal"].GBO_ComponentAncestor = "StockNormal"
+	WeaponComponents["foldable_StockNormal"].ModificationEffects = table.copy(WeaponComponents["StockLight"].ModificationEffects)
+	WeaponComponents["foldable_StockNormal"].Parameters = table.copy(WeaponComponents["StockLight"].Parameters)
+	WeaponComponents["foldable_StockNormal"].GBO_ComponentAncestor = "StockLight"
 	WeaponComponents["foldable_StockNormal"]:PostLoad()
 	WeaponComponents["StockFolded"].ModificationEffects = table.copy(WeaponComponents["StockNo"].ModificationEffects)
 	WeaponComponents["StockFolded"].Parameters = table.copy(WeaponComponents["StockNo"].Parameters)

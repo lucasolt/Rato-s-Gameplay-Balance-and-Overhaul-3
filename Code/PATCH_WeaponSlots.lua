@@ -1202,7 +1202,6 @@ GBO_WeaponSlots = {
 			Modifiable = true,
 			AvailableComponents = {
 				"StockHeavy",
-				"StockLight",
 				"foldable_StockNormal",
 				"StockFolded",
 			},
