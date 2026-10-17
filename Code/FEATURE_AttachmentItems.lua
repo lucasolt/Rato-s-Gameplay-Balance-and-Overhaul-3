@@ -326,7 +326,7 @@ RAT_ATT_ITEMS = {
     },
     {
         id = "RAT_Att_ZF4Scopex15",
-        name = "ZF-4 Scope x1.5",
+        name = "ZF-4 Scope x4",
         icon = "Mod/KKh3Yhf/Images/G43_Scope_icon.png",
         comps = {"GW43_Scope_1", "_Master_GW43_Scope_TOG"}
     },
