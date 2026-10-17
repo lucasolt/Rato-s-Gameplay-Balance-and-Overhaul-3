@@ -10810,44 +10810,19 @@ return {
 		param_bindings = {},
 	}),
 	PlaceObj('ModItemWeaponComponent', {
-		Cost = 30,
-		DisplayName = T(815372656693, --[[ModItemWeaponComponent StockHeavy_AR_BurstOnly DisplayName]] "Heavy Stock"),
-		GBO_ComponentTraits = "Base.StockHeavy",
+		Cost = 5,
+		DisplayName = T(405972343392, --[[ModItemWeaponComponent StockNormal DisplayName]] "Default Stock"),
+		GBO_ComponentTraits = "Base.StockNormal",
 		GBO_OverrideEffects = {
 			"NoFullAuto",
 		},
-		Icon = "UI/Icons/Upgrades/MP5_stock_heavy",
-		ModificationDifficulty = 20,
+		Icon = "UI/Icons/Upgrades/default_stock",
+		ModificationDifficulty = 0,
 		ModificationEffects = {
-			"BonusAccuracyWhenFullyAimed",
-			"stance_ap_inc_STR",
-			"stockheavy_effect_recoil",
 			"NoFullAuto",
 		},
-		Parameters = {
-			PlaceObj('PresetParamNumber', {
-				'Name', "STR_threshold",
-				'Value', 85,
-				'Tag', "<STR_threshold>",
-			}),
-			PlaceObj('PresetParamNumber', {
-				'Name', "StanceIncreaseSTR",
-				'Value', 10,
-				'Tag', "<StanceIncreaseSTR>",
-			}),
-			PlaceObj('PresetParamPercent', {
-				'Name', "bonus_cth",
-				'Value', 10,
-				'Tag', "<bonus_cth>%",
-			}),
-			PlaceObj('PresetParamNumber', {
-				'Name', "range",
-				'Value', 10,
-				'Tag', "<range>",
-			}),
-		},
 		Slot = "Stock",
-		Tags = set( "Precision", "Strategic", "Tactical" ),
+		Tags = set( "CloseQuarters", "Intimate", "Precision", "Strategic", "Tactical" ),
 		Visuals = {
 			PlaceObj('WeaponComponentVisual', {
 				ApplyTo = "AR15",
