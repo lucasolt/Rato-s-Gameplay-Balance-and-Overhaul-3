@@ -77,8 +77,12 @@ function Rat_ShotHistoryPush(rec)
         q = {}
         g_RatShotHistory[unit] = q
     end
+    ---- every stop of a mobile attack runs in the same RunAndGun command thread: one attack
+    if not rec.group and unit.command == "RunAndGun" then
+        rec.group = CurrentThread()
+    end
     q[#q + 1] = rec
-    local keep = P().ShotHistoryAttacks or 4
+    local keep = P().ShotHistoryAttacks or 1
     local ord, n = attack_ordinals(q)
     ---- descarta o ataque mais velho inteiro, nao um burst dele
     local drop = 0
@@ -88,8 +92,9 @@ function Rat_ShotHistoryPush(rec)
     for _ = 1, drop do
         table.remove(q, 1)
     end
-    if g_RatShotTracesOn then
-        Rat_DrawShotTraces()
+    ---- shots are not resolved yet (no end_pos/miss); CombatActionEnd draws them
+    if g_RatShotTracesOn and unit == SelectedObj then
+        Rat_HideShotTraces()
     end
 end
 
@@ -270,6 +275,7 @@ local function show_label(key, at, text, color, pct)
     obj:SetText(text)
     obj:SetColor(color)
     obj:SetOpacityInterpolation(pct)
+    obj:SetScaleInterpolation(P().ShotLabelScale or 60)
     obj:SetPos(at)
 end
 
@@ -352,7 +358,7 @@ function Rat_DrawShotTraces(unit)
         ---- Z invalido degrada a aritmetica de vetor para 2D e a linha sai deitada no chao
         local from = rec.attack_pos and Rat_RingValidZ(rec.attack_pos)
         for i, sh in ipairs(rec.shots or empty_table) do
-            local to = sh.end_pos or sh.target_pos
+            local to = sh.end_pos
             to = to and Rat_RingValidZ(to)
             if from and to and from:Dist(to) > 0 then
                 local key, kind = string.format("%d_%d", a, i), sh.miss and "miss" or "hit"

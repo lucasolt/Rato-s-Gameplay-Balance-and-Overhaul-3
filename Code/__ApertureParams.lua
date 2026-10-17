@@ -392,6 +392,8 @@ A.ShotImpactColors = {
 A.ShotLabelStyle = "FloatingTextDamage"
 A.ShotLabelLift = 350
 A.ShotLabelStack = 250
+---- Damage number size, % of the text style.
+A.ShotLabelScale = 60
 ---- Also number damage dealt to objects (cover, props), not only to units.
 A.ShotLabelObjects = false
 
@@ -403,8 +405,8 @@ A.ShotTraceFatTube = true
 ---- no plano perpendicular ao tiro. O erro continua anel oco, com 60% de A.ShotTraceMarkRadius.
 A.ShotTraceBallRadius = 45
 
----- Quantos ataques por unidade o rastro guarda. Cada ataque sao varios tiros.
-A.ShotHistoryAttacks = 4
+---- Attacks kept per unit; all stops of a mobile attack count as one.
+A.ShotHistoryAttacks = 1
 
 ---- Alpha do ataque mais VELHO em % do mais novo; os do meio interpolam.
 A.ShotHistoryOldPct = 35
