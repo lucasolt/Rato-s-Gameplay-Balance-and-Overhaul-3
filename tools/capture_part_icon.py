@@ -8,6 +8,7 @@ Open the Modify Weapon screen in any loaded map (an empty one is safest), turn t
     python tools/capture_part_icon.py MinimiHeavy --no-capture --tilt 0 --install stock_minimi_heavy.png
     python tools/capture_part_icon.py --pose 20 15 0 --set-only                      # just turn the gun to look
     python tools/capture_part_icon.py --turn 0 10 0 --set-only                       # roll the current view 10 deg
+    python tools/capture_part_icon.py --pivot Stock --set-only                       # drag/turn about the stock
     python tools/capture_part_icon.py MinimiHeavy FNMinimi StockHeavy --pose 20 15 0
 
 Orientation: the cabinet's current one (drag it in game), or --pose YAW ROLL SPIN in degrees from side-on
@@ -65,12 +66,32 @@ def run_lua(lua):
     subprocess.run([sys.executable, os.path.join(HERE, "dap_eval.py"), "--quiet", "-c", "-f", script], check=True)
 
 
-def set_only(pose):
+PIVOT_LUA = """
+local m = rawget(GetDialog("ModifyWeaponDlg"), "idModifyDialog").weaponModel
+local target
+if PIVOT == "weapon" then
+    target = m:GetSpotPos(m:GetSpotBeginIndex("Center"))
+else
+    local part = m.parts and m.parts[PIVOT]
+    if not IsValid(part) then return "no " .. PIVOT .. " part on the gun in the Modify screen" end
+    target = part:GetObjectBBox():Center()
+end
+-- the gun's attach offset is in the turntable's frame: move the target onto the pivot
+local local_target = RotateAxis(target - g_Cabinet:GetVisualPos(), g_Cabinet:GetAxis(), -g_Cabinet:GetAngle())
+m:SetAttachOffset(m:GetAttachOffset() - local_target)
+"""
+
+
+def set_only(pose, pivot):
     fn = re.search(r"^local function pose_axis_angle.*?^end$", template(), flags=re.M | re.S).group(0)
-    run_lua("\n".join(["local POSE = " + pose, fn,
-                       "local ax, an = pose_axis_angle(g_Cabinet:GetAxis(), g_Cabinet:GetAngle())",
-                       "g_Cabinet:SetAxisAngle(ax, an, 0)",
-                       "return '--axis-angle ' .. table.concat({ax:xyz()}, ' ') .. ' ' .. an"]))
+    lines = ["local POSE = " + pose, fn]
+    if pivot:
+        lines += ['local PIVOT = "%s"' % pivot, "local pivot_err = (function() %s end)()" % PIVOT_LUA,
+                  "if pivot_err then return pivot_err end"]
+    lines += ["local ax, an = pose_axis_angle(g_Cabinet:GetAxis(), g_Cabinet:GetAngle())",
+              "g_Cabinet:SetAxisAngle(ax, an, 0)",
+              "return '--axis-angle ' .. table.concat({ax:xyz()}, ' ') .. ' ' .. an"]
+    run_lua("\n".join(lines))
 
 
 def capture(name, cls, slot, comp, pose):
@@ -165,9 +186,11 @@ def main():
                     help="degrees on top of the current orientation (roll is about the gun's barrel)")
     ap.add_argument("--axis-angle", type=int, nargs=4, metavar=("X", "Y", "Z", "A"), help="exact cabinet orientation")
     ap.add_argument("--set-only", action="store_true", help="only turn the gun in the open Modify screen")
+    ap.add_argument("--pivot", metavar="SLOT", help="with --set-only: rotate about this part (e.g. Stock), "
+                                                     "or 'weapon' for the gun's own center")
     args = ap.parse_args()
     if args.set_only:
-        set_only(lua_pose(args))
+        set_only(lua_pose(args), args.pivot)
         return
     if not args.name:
         ap.error("name is needed")
