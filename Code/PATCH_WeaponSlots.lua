@@ -1382,7 +1382,6 @@ GBO_WeaponSlots = {
 			Modifiable = true,
 			AvailableComponents = {
 				"ImprovisedSuppressor",
-				"Suppressor",
 			},
 		},
 		{
