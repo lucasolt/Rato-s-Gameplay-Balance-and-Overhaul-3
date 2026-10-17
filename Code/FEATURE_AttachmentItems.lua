@@ -920,7 +920,7 @@ RAT_ATT_ITEMS = {
     {
         id = "RAT_Att_StockVSKMarksman",
         name = "VSK Marksman Stock",
-        icon = "Mod/KKh3Yhf/Images/VSK94_stock_hvy.png",
+        icon = "Mod/cfahRED/Images/stock_vsk_marksman.png",
         family = "stock_heavy",
         page = "RatStocks",
         guns = {"VSK94_1"}
