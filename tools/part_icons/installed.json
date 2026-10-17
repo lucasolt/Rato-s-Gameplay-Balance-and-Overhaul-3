@@ -25,19 +25,20 @@
     "slot": "Stock",
     "comp": "HK53_stock_unfld_1",
     "axis_angle": [
-      308,
-      -146,
-      4081,
-      3871
+      2697,
+      -1249,
+      2817,
+      3156
     ],
-    "captured": "2026-10-17",
+    "captured": "2026-10-17 15:51",
+    "centered": true,
     "tilt": [
-      -15
+      0
     ],
     "mirror": false,
     "gamma": 0.6,
-    "reshoot": "python tools/capture_part_icon.py HKRetractable HK53_1 HK53_stock_unfld_1 --slot Stock --axis-angle 308 -146 4081 3871 --tilt -15 --gamma 0.6",
-    "show_in_game": "python tools/capture_part_icon.py --axis-angle 308 -146 4081 3871 --set-only"
+    "reshoot": "python tools/capture_part_icon.py HKRetractable HK53_1 HK53_stock_unfld_1 --slot Stock --axis-angle 2697 -1249 2817 3156 --tilt 0 --gamma 0.6",
+    "show_in_game": "python tools/capture_part_icon.py --axis-angle 2697 -1249 2817 3156 --set-only"
   },
   "stock_minimi_heavy.png": {
     "name": "MinimiHeavy",
