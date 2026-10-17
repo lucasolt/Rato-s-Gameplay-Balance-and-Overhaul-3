@@ -6887,7 +6887,7 @@ return {
 			Cost = 20,
 			DisplayName = T(833214164936, --[[ModItemWeaponComponent BarrelHeavy DisplayName]] "Heavy Barrel"),
 			GBO_ComponentTraits = "Barrel.Heavy",
-			Icon = "UI/Icons/Upgrades/galil_barrel_long",
+			Icon = "UI/Icons/Upgrades/default_barrel",
 			ModificationDifficulty = 0,
 			ModificationEffects = {
 				"heavy_barrel_effect",
@@ -6970,7 +6970,7 @@ return {
 			Cost = 30,
 			DisplayName = T(395766657440, --[[ModItemWeaponComponent BarrelLight_handgun DisplayName]] "Light Barrel"),
 			GBO_ComponentTraits = "Barrel.Light",
-			Icon = "UI/Icons/Upgrades/galil_barrel_short",
+			Icon = "UI/Icons/Upgrades/default_barrel",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
 				"hipfire_light_barrel",
@@ -7146,7 +7146,7 @@ return {
 			Cost = 30,
 			DisplayName = T(183239361184, --[[ModItemWeaponComponent BarrelLight DisplayName]] "Light Barrel"),
 			GBO_ComponentTraits = "Barrel.Light",
-			Icon = "UI/Icons/Upgrades/galil_barrel_short",
+			Icon = "UI/Icons/Upgrades/default_barrel",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
 				"hipfire_light_barrel",
