@@ -8,13 +8,20 @@ local OUT = "AppData/rat_part_icons/"
 
 -- POSE {yaw, roll, spin} in degrees: roll about the barrel (X), then yaw (Z, toward the camera), then spin (Y, in
 -- the picture). POSE {axis = point, angle = minutes} is an exact earlier orientation. false keeps the current one.
+-- POSE.turn applies the same three on top of the current orientation, rolling about the gun's own barrel.
 local function pose_axis_angle(axis, angle)
 	if not POSE then
 		return axis, angle
 	elseif POSE.axis then
 		return POSE.axis, POSE.angle
 	end
-	local ax, an = ComposeRotation(axis_x, POSE[2] * 60, axis_z, POSE[1] * 60)
+	local ax, an
+	if POSE.turn then
+		ax, an = ComposeRotation(axis_x, POSE[2] * 60, axis, angle)
+		ax, an = ComposeRotation(ax, an, axis_z, POSE[1] * 60)
+	else
+		ax, an = ComposeRotation(axis_x, POSE[2] * 60, axis_z, POSE[1] * 60)
+	end
 	return ComposeRotation(ax, an, axis_y, POSE[3] * 60)
 end
 local PROG = {}

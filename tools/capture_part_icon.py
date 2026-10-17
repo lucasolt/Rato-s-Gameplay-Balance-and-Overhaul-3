@@ -7,10 +7,12 @@ Open the Modify Weapon screen in any loaded map (an empty one is safest), turn t
     python tools/capture_part_icon.py MinimiHeavy --no-capture --tilt 5               # re-tilt the last shots
     python tools/capture_part_icon.py MinimiHeavy --no-capture --tilt 0 --install stock_minimi_heavy.png
     python tools/capture_part_icon.py --pose 20 15 0 --set-only                      # just turn the gun to look
+    python tools/capture_part_icon.py --turn 0 10 0 --set-only                       # roll the current view 10 deg
     python tools/capture_part_icon.py MinimiHeavy FNMinimi StockHeavy --pose 20 15 0
 
 Orientation: the cabinet's current one (drag it in game), or --pose YAW ROLL SPIN in degrees from side-on
-(yaw turns it toward the camera, roll shows the top/bottom, spin turns it in the picture), or --axis-angle X Y Z A
+(yaw turns it toward the camera, roll shows the top/bottom, spin turns it in the picture), or --turn YAW ROLL SPIN
+on top of the current orientation (roll about the gun's own barrel), or --axis-angle X Y Z A
 as printed by an earlier capture to repeat it exactly. A posed capture leaves the gun posed. Outputs go to
 tools/part_icons/out/: <Name>_<tilt>.png per tilt and <Name>_preview.png (each tilt over grey and dark).
 --install copies the first tilt to Images/<file>; point the item's icon at Mod/cfahRED/Images/<file>.
@@ -41,6 +43,8 @@ def lua_pose(args):
         return "{axis = point(%d, %d, %d), angle = %d}" % (x, y, z, a)
     if args.pose:
         return "{%d, %d, %d}" % tuple(args.pose)
+    if args.turn:
+        return "{%d, %d, %d, turn = true}" % tuple(args.turn)
     return "false"
 
 
@@ -136,6 +140,8 @@ def main():
     ap.add_argument("--no-capture", action="store_true", help="rebuild from the last shots")
     ap.add_argument("--install", metavar="FILE", help="copy the first tilt to Images/FILE")
     ap.add_argument("--pose", type=int, nargs=3, metavar=("YAW", "ROLL", "SPIN"), help="degrees from side-on")
+    ap.add_argument("--turn", type=int, nargs=3, metavar=("YAW", "ROLL", "SPIN"),
+                    help="degrees on top of the current orientation (roll is about the gun's barrel)")
     ap.add_argument("--axis-angle", type=int, nargs=4, metavar=("X", "Y", "Z", "A"), help="exact cabinet orientation")
     ap.add_argument("--set-only", action="store_true", help="only turn the gun in the open Modify screen")
     args = ap.parse_args()
