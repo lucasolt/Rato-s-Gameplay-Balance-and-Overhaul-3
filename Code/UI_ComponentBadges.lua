@@ -7,6 +7,18 @@ RAT_COMPONENT_BADGES = {
 }
 RAT_COMPONENT_BADGE_SIZE = 28
 
+---- Normal-length variants show the normal barrel and let the badge tell them apart; these have no items.lua copy.
+RAT_BADGED_BASE_ICONS = {BarrelNormalImproved = "UI/Icons/Upgrades/default_barrel"}
+
+function OnMsg.DataLoaded()
+    for id, icon in pairs(RAT_BADGED_BASE_ICONS) do
+        local comp = WeaponComponents[id]
+        if comp then
+            comp.Icon = icon
+        end
+    end
+end
+
 function Rat_ComponentBadges(comp)
     if not comp or comp.Slot ~= "Barrel" then
         return empty_table
