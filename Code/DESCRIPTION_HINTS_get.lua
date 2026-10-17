@@ -1357,7 +1357,7 @@ function Rat_PatchWeaponRollover()
     end
     ---- More Info starts open; Insert hides it
     g_RolloverShowMoreInfo = true
-    ---- More Info on a gun: titled with the gun, not its class, and without the class flavor text
+    ---- More Info on a charted gun: titled with the gun, not its class, and without the class flavor text
     path = FindXtByProp(XTemplates.InventoryRolloverInfo, "Id", "idContentInfo")
     if path then
         local node = path[1]
@@ -1366,7 +1366,7 @@ function Rat_PatchWeaponRollover()
         node.OnContextUpdate = function(self, context, ...)
             vanilla(self, context, ...)
             local weapon = ResolvePropObj(context)
-            if IsKindOf(weapon, "Firearm") then
+            if HintChartable(weapon) then
                 self.idType:SetText(weapon.DisplayName)
             end
         end
@@ -1378,9 +1378,9 @@ function Rat_PatchWeaponRollover()
         node.rat_vanilla_update = node.rat_vanilla_update or node.OnContextUpdate
         local vanilla = node.rat_vanilla_update
         node.OnContextUpdate = function(self, context, ...)
-            local firearm = IsKindOf(ResolvePropObj(context), "Firearm")
-            self:SetVisible(not firearm)
-            if not firearm then
+            local charted = HintChartable(ResolvePropObj(context))
+            self:SetVisible(not charted)
+            if not charted then
                 vanilla(self, context, ...)
             end
         end
