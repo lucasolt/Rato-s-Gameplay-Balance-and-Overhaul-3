@@ -1782,6 +1782,10 @@ return {
 			'CodeFileName', "Code/FEATURE_AttachmentItems.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "UI_ComponentBadges",
+			'CodeFileName', "Code/UI_ComponentBadges.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "FEATURE_AttachmentShop",
 			'CodeFileName', "Code/FEATURE_AttachmentShop.lua",
 		}),

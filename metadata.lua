@@ -177,6 +177,7 @@ return PlaceObj('ModDef', {
 		"Code/OPTIONS_PartsGain.lua",
 		"Code/FEATURE_AttachmentBalance.lua",
 		"Code/FEATURE_AttachmentItems.lua",
+		"Code/UI_ComponentBadges.lua",
 		"Code/FEATURE_AttachmentShop.lua",
 		"Code/FEATURE_GatherHerbs.lua",
 		"Code/FEATURE_NoRevealMemory.lua",
