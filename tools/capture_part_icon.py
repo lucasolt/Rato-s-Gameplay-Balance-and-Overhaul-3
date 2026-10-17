@@ -101,8 +101,10 @@ def set_only(pose, pivot):
 
 def capture(name, cls, slot, comp, pose, center):
     os.makedirs(SHOTS, exist_ok=True)
+    # only this name's shots, so --no-capture keeps working for earlier names
     for f in os.listdir(SHOTS):
-        os.remove(os.path.join(SHOTS, f))
+        if f.startswith(name + "_") or f in ("done.txt", "progress.txt"):
+            os.remove(os.path.join(SHOTS, f))
     # whole lines, so a formatter mangling a placeholder cannot leave it unset
     lua = re.sub(r"^local JOB\b.*$", 'local JOB = {"%s", "%s", "%s", "%s"}' % (name, cls, slot, comp), template(),
                  count=1, flags=re.M)
