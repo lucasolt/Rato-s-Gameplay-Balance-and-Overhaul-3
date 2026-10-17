@@ -343,12 +343,12 @@ function FirearmBase:SetWeaponComponent(...)
     Rat_RebuildBallistics(self)
 end
 
----- vanilla body; the warning now names the caller and flags component ids passed as effects
+---- vanilla body; the warning now names the caller (GetStack: GetCallLine is blocked for mods) and flags component ids passed as effects
 function FirearmBase:HasComponent(id)
     if not WeaponComponentEffects[id] then
         print("Unknown weapon component effect", id,
             WeaponComponents[id] and "(this is a component id, not an effect)" or "",
-            "| called from", GetCallLine(2), "<-", GetCallLine(3))
+            "| called from", (GetStack(2, false, "") or ""):match("^[^\n]*\n?[^\n]*"))
     end
     for slot_id, component_id in pairs(self.components) do
         local def = WeaponComponents[component_id]
