@@ -39,14 +39,17 @@ RAT_ATT_SHOP_TIERS = {
     {MaxStock = 1, RestockWeight = 40}
 }
 
----- Percent applied to the tier weight, per page. Weights compete across the whole Attachments
----- category (magazines included), so this shifts the mix without changing how many items restock.
-RAT_ATT_SHOP_PAGE_WEIGHT = {
-    RatSights = 100,
-    RatOptics = 100,
-    RatMuzzle = 100,
-    RatSupport = 100
+---- Share of the Attachments restock weight per page group, spread over the items each one sells
+---- now, so a page with many variants does not crowd out the rest. Within a group the base weights
+---- (tier, or the sheet's weight) keep their ratio. Exact once every tier is unlocked.
+RAT_ATT_SHOP_BUDGET = {
+    RatOptics = 30,
+    RatMuzzle = 25,
+    RatSights = 15,
+    RatSupport = 10,
+    Mags = 20
 }
+RAT_ATT_SHOP_BUDGET_SCALE = 100 -- weight per budget point
 
 ---- Revised Mags files these under Ammo. A magazine is something you bolt onto a gun, so they move
 ---- here; the ids and sort order are theirs.
@@ -148,8 +151,7 @@ function Rat_AttShopEnsureItems()
         local page = def.page or ((def.family == "grenadelauncher" or RAT_ATT_SHOP_SUPPORT[def.id]) and "RatSupport") or
             ((def.family or RAT_ATT_SHOP_MUZZLE[def.id]) and "RatMuzzle") or
             (RAT_ATT_SHOP_SIGHTS[def.id] and "RatSights") or "RatOptics"
-        local weight = def.weight or
-            MulDivRound(tier.RestockWeight, RAT_ATT_SHOP_PAGE_WEIGHT[page] or 100, 100)
+        local weight = def.weight or tier.RestockWeight
         local props = {
             CanAppearInShop = not hidden,
             Tier = def.tier,
@@ -166,6 +168,32 @@ function Rat_AttShopEnsureItems()
                 end
             end
         end
+    end
+end
+
+---- Base weights stay on the presets and the budgeted ones go on the classes the restock reads, so
+---- every pass starts from the base. Covers any item on these pages, Revised Mags' included.
+function Rat_AttShopBalancePages()
+    local group_of = {}
+    for page in pairs(RAT_ATT_SHOP_BUDGET) do
+        group_of[page] = page
+    end
+    for _, mag in ipairs(RAT_ATT_SHOP_MAGS) do
+        group_of[mag.id] = "Mags"
+    end
+    local members, total = {}, {}
+    ForEachPreset("InventoryItemCompositeDef", function(p)
+        local class = g_Classes[p.id]
+        local group = class and class.CanAppearInShop and group_of[class.CategoryPair]
+        local base = group and (p.RestockWeight or (g_Classes[p.object_class] or empty_table).RestockWeight) or 0
+        if base > 0 then
+            members[#members + 1] = {class, group, base}
+            total[group] = (total[group] or 0) + base
+        end
+    end)
+    for _, m in ipairs(members) do
+        local budget = RAT_ATT_SHOP_BUDGET[m[2]] * RAT_ATT_SHOP_BUDGET_SCALE
+        m[1].RestockWeight = Max(1, MulDivRound(m[3], budget, total[m[2]]))
     end
 end
 
@@ -290,8 +318,11 @@ local function rat_used_part(cid, weapon, tier)
         return
     end
     local price = MulDivRound(class.Cost, RAT_ATT_USED_VALUE, Max(1, weapon.Cost))
+    ---- base weight, not the page budget: it competes with RAT_ATT_USED_FREE_WEIGHT inside one slot
+    local preset = InventoryItemDefs[id]
+    local weight = preset and preset.RestockWeight or class.RestockWeight
     ---- a bipod barrel is still a barrel: vanilla share for the barrel, item share for the bipod
-    return class.RestockWeight, item and price or price + flat
+    return weight, item and price or price + flat
 end
 
 ---- Used guns: vanilla's slot chance and blocking, but each part must have its tier unlocked, rolls
@@ -484,6 +515,7 @@ function Rat_AttShopSetup()
     end
     Rat_AttShopEnsureCategories()
     Rat_AttShopEnsureItems()
+    Rat_AttShopBalancePages()
     Rat_AttShopRepairOrphans()
     Rat_AttShopEnsureButton()
     ---- stock from before the flag: new guns only, a used gun's price already includes its parts
