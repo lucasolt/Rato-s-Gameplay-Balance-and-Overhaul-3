@@ -116,5 +116,12 @@ RAT_ATT_BALANCE = {
     RAT_Att_MagDrum545 = {size = "medium", cost = 1500, tier = 2},
     RAT_Att_MagDrum762 = {size = "medium", cost = 1500, tier = 2},
     RAT_Att_MagDrum12g = {size = "medium", cost = 1500, tier = 2},
-    RAT_Att_MagDrumG11 = {size = "medium", cost = 1500, tier = 2}
+    RAT_Att_MagDrumG11 = {size = "medium", cost = 1500, tier = 2},
+    RAT_Att_StockMP5Retractable = {size = "large", cost = 1500, tier = 1},
+    RAT_Att_StockMP5Fixed = {size = "large", cost = 1200, tier = 1},
+    RAT_Att_StockHKRetractable = {size = "large", cost = 2000, tier = 2},
+    RAT_Att_StockHKFolding = {size = "large", cost = 2000, tier = 2},
+    RAT_Att_StockHKHeavy = {size = "large", cost = 1800, tier = 2},
+    RAT_Att_StockPSGWooden = {size = "large", cost = 3000, tier = 2},
+    RAT_Att_StockARLight = {size = "large", cost = 1500, tier = 1}
 }

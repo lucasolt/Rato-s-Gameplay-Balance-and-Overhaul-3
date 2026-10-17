@@ -32,6 +32,7 @@ RAT_ATT_SHOP_BUDGET = {
     RatOptics = 45,
     RatMuzzle = 25,
     RatSupport = 10,
+    RatStocks = 10,
     Mags = 20
 }
 RAT_ATT_SHOP_BUDGET_SCALE = 100 -- weight per budget point
@@ -94,6 +95,7 @@ function Rat_AttShopEnsureCategories()
     rat_shop_subcat("RatOptics", "Sights & Optics", 20)
     rat_shop_subcat("RatMuzzle", "Muzzle", 30)
     rat_shop_subcat("RatSupport", "Support", 40)
+    rat_shop_subcat("RatStocks", "Stocks", 45)
     for _, mag in ipairs(RAT_ATT_SHOP_MAGS) do
         rat_shop_subcat(mag.id, mag.name, mag.sort)
     end

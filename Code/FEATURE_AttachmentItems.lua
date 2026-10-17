@@ -118,11 +118,22 @@ RAT_ATT_FAMILIES = {
     ---- toggles (BM59, M70, PAP) stay free, like bayonets.
     grenadelauncher = {"AK47_Launcher", "GrenadeLauncher", "GrenadeLauncher_AUG", "GrenadeLauncher_Commando",
                        "GrenadeLauncher_Galil", "GrenadeLauncher_M14", "GrenadeLauncher_M16A1",
-                       "G11_Grenadelauncher_1", "ToG_NatoGL"}
+                       "G11_Grenadelauncher_1", "ToG_NatoGL"},
+    ---- Stocks bind by tier: the gun's own item says what it is, the component's visual what it looks
+    ---- like. Guns without an item keep the stock free.
+    stock_light = {"StockLight", "StockLight_AR_BurstOnly", "HK53_stock_unfld_1", "HK53_stock_fld_1"},
+    stock_heavy = {"StockHeavy"}
 }
 
 ---- Families whose `any` item only reaches vanilla and is_tog_patched guns; elsewhere the part stays free.
 RAT_ATT_FAM_PATCHED_ONLY = {grenadelauncher = true}
+
+---- A stock is gunsmithing, not clipping on a part: its fitting bill replaces the flat one, heavier
+---- for the heavy tier. RAT_ATT_STOCK_FIT surcharges stack on top. The factory stock is never an item.
+RAT_ATT_STOCK_FEES = {
+    stock_light = {parts = 8, difficulty = 0},
+    stock_heavy = {parts = 12, difficulty = 10}
+}
 
 ---- Components that keep their own bill and also consume an item: the AUG's long barrels carry a bipod.
 RAT_ATT_EXTRA = {
@@ -706,6 +717,64 @@ RAT_ATT_ITEMS = {
         icon = "UI/Icons/Upgrades/m16_grenade_launcher",
         family = "grenadelauncher",
         any = true
+    },
+    ---- Stocks by platform. Each gun wears its own visual for the tier, so one item can look different
+    ---- per gun (the G3 shows the MP5 retractable under the HK Retractable Stock).
+    {
+        id = "RAT_Att_StockMP5Retractable",
+        name = "MP5 Retractable Stock",
+        icon = "UI/Icons/Upgrades/MP5_stock_light",
+        family = "stock_light",
+        page = "RatStocks",
+        guns = {"MP5", "MP5K"}
+    },
+    {
+        id = "RAT_Att_StockMP5Fixed",
+        name = "MP5 Fixed Stock",
+        icon = "UI/Icons/Upgrades/MP5_stock_heavy",
+        family = "stock_heavy",
+        page = "RatStocks",
+        guns = {"MP5", "MP5K"}
+    },
+    {
+        id = "RAT_Att_StockHKRetractable",
+        name = "HK Retractable Stock",
+        icon = "Mod/KKh3Yhf/Images/HK53_stock_unfld.png",
+        family = "stock_light",
+        page = "RatStocks",
+        guns = {"HK33A2_1", "HK53_1", "G3A3_1", "G3A3Green_1"}
+    },
+    {
+        id = "RAT_Att_StockHKFolding",
+        name = "HK Folding Stock",
+        icon = "UI/Icons/Upgrades/ak74_stock_foldable", -- no HK21 side-folder icon exists yet
+        family = "stock_light",
+        page = "RatStocks",
+        guns = {"HK21", "HK23E_1", "HK23ECamo_1"}
+    },
+    {
+        id = "RAT_Att_StockHKHeavy",
+        name = "HK Heavy Stock",
+        icon = "UI/Icons/Upgrades/HK21_stock_heavy",
+        family = "stock_heavy",
+        page = "RatStocks",
+        guns = {"HK21", "HK23E_1", "HK23ECamo_1"}
+    },
+    {
+        id = "RAT_Att_StockPSGWooden",
+        name = "PSG1 Wooden Stock",
+        icon = "UI/Icons/Upgrades/ak74_stock_wooden", -- the icon the PSG1's own wooden stock uses
+        family = "stock_heavy",
+        page = "RatStocks",
+        guns = {"PSG1", "G3A3_1", "G3A3Green_1"}
+    },
+    {
+        id = "RAT_Att_StockARLight",
+        name = "AR Light Stock",
+        icon = "UI/Icons/Upgrades/ar15_stock_light",
+        family = "stock_light",
+        page = "RatStocks",
+        guns = {"M16A2", "M4Commando", "AR15", "AR10std", "M14SAW", "M14SAW_AUTO"}
     }
 }
 
@@ -929,9 +998,12 @@ function Rat_AttItemFor(cid, weapon)
     if not family then
         return RAT_ATT_ITEM_OF[cid]
     end
-    if weapon and RAT_ATT_MAG_FAMILIES[family] then
-        local slot = table.find_value(weapon.ComponentSlots or empty_table, "SlotType", "Magazine")
-        if not slot or slot.DefaultComponent == cid then
+    local factory_slot = RAT_ATT_MAG_FAMILIES[family] and "Magazine" or RAT_ATT_STOCK_FEES[family] and "Stock"
+    if weapon and factory_slot then
+        local slot = table.find_value(weapon.ComponentSlots or empty_table, "SlotType", factory_slot)
+        ---- the folded half of a factory stock's ToG fold pair is the same factory stock
+        local pair = WeaponComponents[cid] and WeaponComponents[cid].zzFoldingPair
+        if not slot or slot.DefaultComponent == cid or table.find(pair or empty_table, slot.DefaultComponent) then
             return
         end
     end
@@ -1445,9 +1517,14 @@ function ModifyWeaponDlg:GetChangesCost(slotFilter, placedComponentOverride)
                     end
                 end
                 ---- and the parts bill drops to the flat fitting fee, whatever the optic costs
-                if costs.Parts then
-                    local fee = RAT_ATT_MAG_FAMILIES[RAT_ATT_FAMILY_OF[placed]] and RAT_ATT_MAG_PARTS or RAT_ATT_PARTS
-                    costs.Parts = costs.Parts - (preset and preset.Cost or 0) + fee
+                local family = RAT_ATT_FAMILY_OF[placed]
+                local stock_fee = RAT_ATT_STOCK_FEES[family]
+                ---- a stock fee applies even where the component itself costs nothing (ToG's 0-cost stocks)
+                if costs.Parts or stock_fee then
+                    local fee = RAT_ATT_MAG_FAMILIES[family] and RAT_ATT_MAG_PARTS or stock_fee and stock_fee.parts or
+                                    RAT_ATT_PARTS
+                    local base = costs.Parts and costs.Parts - (preset and preset.Cost or 0) or 0
+                    costs.Parts = base + fee
                     if costs.Parts <= 0 then
                         costs.Parts = nil
                     end
@@ -1494,7 +1571,8 @@ function ModifyWeaponDlg:GetModificationDifficultyParams(componentToChangePreset
         return skill, mostSkilled, difficulty, allowed
     end
     if item then
-        difficulty = RAT_ATT_DIFFICULTY
+        local fee = RAT_ATT_STOCK_FEES[RAT_ATT_FAMILY_OF[componentToChangePreset.id]]
+        difficulty = fee and fee.difficulty or RAT_ATT_DIFFICULTY
     end
     difficulty = difficulty + (fit and fit.difficulty or 0)
     return skill, mostSkilled, difficulty, (skill - difficulty > 10)
