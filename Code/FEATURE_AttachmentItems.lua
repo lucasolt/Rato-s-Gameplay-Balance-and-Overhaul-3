@@ -1382,14 +1382,22 @@ function Rat_AttEnsureHints()
     end
 end
 
+---- Items whose frozen components show the item's icon rather than their own per-gun art.
+RAT_ATT_ITEM_ICONS = {RAT_Att_Bipod = true}
+
 ---- Where the item replaces the model, the bench shows the item's icon: one component id serves
----- many calibres, so its own icon is right for one of them at best.
+---- many calibres, so its own icon is right for one of them at best. Stocks always do (one id, many kits).
 function Rat_AttComponentIcon(comp, weapon, orig)
     local family = RAT_ATT_ENABLED and weapon and comp and RAT_ATT_FAMILY_OF[comp.id]
+    local stock = family and RAT_ATT_STOCK_FEES[family]
     local slot = family and table.find_value(weapon.ComponentSlots or empty_table, "SlotType", comp.Slot)
-    local def = slot and comp.id ~= slot.DefaultComponent and Rat_AttFamilyDef(family, weapon)
-    if def and def.model and IsValidEntity(def.model) then
+    local def = slot and (stock or comp.id ~= slot.DefaultComponent) and Rat_AttFamilyDef(family, weapon)
+    if def and (stock or def.model and IsValidEntity(def.model)) then
         return def.icon
+    end
+    local item = RAT_ATT_ENABLED and comp and RAT_ATT_ITEM_OF[comp.id]
+    if item and RAT_ATT_ITEM_ICONS[item] and g_Classes[item] then
+        return g_Classes[item].Icon
     end
     return orig(comp, weapon)
 end
