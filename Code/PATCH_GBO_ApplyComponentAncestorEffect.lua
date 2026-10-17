@@ -16,6 +16,7 @@ function GBO_ApplyComponentAncestorEffect()
 				comp.ModificationEffects = table.copy(src.ModificationEffects)
 				comp.Parameters = table.copy(src.Parameters)
 				comp:PostLoad()
+				GBO_ApplyOverrideToCurrent(id, comp)
 				n = n + 1
 			end
 		end
