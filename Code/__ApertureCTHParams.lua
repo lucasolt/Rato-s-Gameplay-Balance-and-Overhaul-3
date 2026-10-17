@@ -65,8 +65,9 @@ A.aCTHAimAccuracyScaleMul = 500
 ---- unico nivel com optica de limiar fecha quase todo o gap e vira degrau, nao curva.
 A.DecayMinPct = 30--30 --20
 
----- Snipe (PinDown): flat AimAccuracy on every aim level. Range comes from const.Combat.PindownRangeMul.
+---- Snipe (PinDown): flat AimAccuracy on every aim level, and WeaponRange mul (old CTH uses const.Combat.PindownRangeMul).
 A.PindownAimAcc = 10
+A.PindownRangeMul = 200
 
 ---- Multiplicadores do DECAY da mira. Uma entrada por modificador, tudo declarado AQUI -- nenhum
 ---- deles tem bloco de codigo proprio em Rat_ApertureAimDecay. mul 100 = desligado, > 100 piora.

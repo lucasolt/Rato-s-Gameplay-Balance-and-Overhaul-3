@@ -577,9 +577,9 @@ end
 function Rat_ApertureFloor(weapon, action, attacker)
     local a = P()
     local range = (weapon and weapon.WeaponRange) or 20
-    ---- Snipe: same PindownRangeMul the old CTH fed GetRangeAccuracy, here on the asymptote
+    ---- Snipe: range mul on the asymptote
     if action and action.id == "PinDown" then
-        range = MulDivRound(range, const.Combat.PindownRangeMul, 100)
+        range = MulDivRound(range, a.PindownRangeMul, 100)
     end
     local floor_dist = range * const.SlabSizeX
     local theta = Rat_ThetaTarget(floor_dist, a.Silhouette.Standing)
