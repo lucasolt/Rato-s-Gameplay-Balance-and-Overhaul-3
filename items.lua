@@ -4287,6 +4287,32 @@ return {
 				"CritBonusWhenFullyAimed",
 				"IgnoreInTheDarkWhenFullyAimed",
 			},
+			GBO_OverrideModes = {
+				PlaceObj('GBO_ComponentModeOverride', {
+					'Params', {
+						PlaceObj('PresetParamNumber', {
+							'Name', "MaxAimActionsIncrease",
+							'Value', 2,
+							'Tag', "<MaxAimActionsIncrease>",
+						}),
+						PlaceObj('PresetParamNumber', {
+							'Name', "aim_level_threshold_last",
+							'Value', 5,
+							'Tag', "<aim_level_threshold_last>",
+						}),
+						PlaceObj('PresetParamNumber', {
+							'Name', "floor_reduc",
+							'Value', 16,
+							'Tag', "<floor_reduc>",
+						}),
+						PlaceObj('PresetParamNumber', {
+							'Name', "threshold_bonus_aim_acc",
+							'Value', 25,
+							'Tag', "<threshold_bonus_aim_acc>",
+						}),
+					},
+				}),
+			},
 			GBO_OverrideParams = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngle",
@@ -4324,7 +4350,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "MaxAimActionsIncrease",
-					'Value', 1,
+					'Value', 2,
 					'Tag', "<MaxAimActionsIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -4342,6 +4368,11 @@ return {
 					'Value', 4,
 					'Tag', "<aim_level_threshold>",
 				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "aim_level_threshold_last",
+					'Value', 5,
+					'Tag', "<aim_level_threshold_last>",
+				}),
 				PlaceObj('PresetParamPercent', {
 					'Name', "crit",
 					'Value', 15,
@@ -4349,7 +4380,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "floor_reduc",
-					'Value', 6,
+					'Value', 16,
 					'Tag', "<floor_reduc>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -4359,7 +4390,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "threshold_bonus_aim_acc",
-					'Value', 20,
+					'Value', 25,
 					'Tag', "<threshold_bonus_aim_acc>",
 				}),
 			},

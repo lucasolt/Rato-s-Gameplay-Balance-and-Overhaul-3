@@ -244,9 +244,15 @@ function GetApertureAimComponentEffects(weapon, attacker, action)
 --TODO: MsgReaction so i could use component reaction instead of coding it here
 	local modifyVal, comp = GetComponentEffectValue(weapon, "ScopeAimThresholdBonus", "threshold_bonus_aim_acc")
 	if modifyVal then
-		local from = GetComponentEffectValue(weapon, "ScopeAimThresholdBonus", "aim_level_threshold") 
+		local from = GetComponentEffectValue(weapon, "ScopeAimThresholdBonus", "aim_level_threshold") or 4
+		local last = Max(from, GetComponentEffectValue(weapon, "ScopeAimThresholdBonus", "aim_level_threshold_last") or from)
+		---- split evenly across from..last; the remainder lands on the last level
+		local share = modifyVal / (last - from + 1)
 		list = list or {}
-		list[#list + 1] = {id = "ScopeAimThresholdBonus", from = from or 4, to = from, acc = modifyVal}
+		for level = from, last do
+			local acc = level == last and modifyVal - share * (last - from) or share
+			list[#list + 1] = {id = "ScopeAimThresholdBonus", from = level, to = level, acc = acc}
+		end
 		meta = meta or {}
 		meta[#meta +1] = comp.DisplayName or ""
 	end
