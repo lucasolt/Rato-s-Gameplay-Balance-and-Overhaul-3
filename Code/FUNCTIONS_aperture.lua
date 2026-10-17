@@ -1480,6 +1480,9 @@ function Rat_SimPlanShots(ctx)
     local corr = (num_shots > 1) and Rat_HyperburstCorr(ctx.weapon, ctx.action) or 0
     local shared = (corr > 0) and Rat_ShotScatterDraw(ctx.attacker) or nil
 
+    ---- cheat: every bullet lands on the aim point, to tell aiming bugs from real misses
+    local zero = CheatEnabled("RatZeroDispersion")
+
     local shots = {}
     for i = 1, num_shots do
         local lat, mu = 0, 0
@@ -1488,7 +1491,7 @@ function Rat_SimPlanShots(ctx)
         end
         ---- a mira do tiro i sai de onde o recuo ja deixou o cano; a dispersao continua sendo o
         ---- cone da arma, do mesmo tamanho em todos os tiros -- recuo desloca, nao espalha.
-        local aim_pos = axis and
+        local aim_pos = (axis and not zero) and
                             Rat_RecoilWalkPoint(ctx.attack_pos, ctx.aim_pos, axis, mu, lat_axis, lat) or
                             ctx.aim_pos
         shots[i] = {
@@ -1498,11 +1501,12 @@ function Rat_SimPlanShots(ctx)
             cth = cth[i],
             mu = mu,
             lat = lat,
-            target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, sigma,
-                                              sigma_y, sigma_y_dn, fan, shared and
-                                                  Rat_ShotScatterMix(shared,
-                                                                     Rat_ShotScatterDraw(ctx.attacker),
-                                                                     corr))
+            target_pos = zero and aim_pos or
+                             Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, sigma,
+                                                  sigma_y, sigma_y_dn, fan, shared and
+                                                      Rat_ShotScatterMix(shared,
+                                                                         Rat_ShotScatterDraw(ctx.attacker),
+                                                                         corr))
         }
         if st then
             Rat_RecoilStep(prof, st, rnd)

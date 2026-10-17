@@ -113,6 +113,7 @@ return PlaceObj('ModDef', {
 		"Code/FUNCTIONS_aCTH_ChangeTexts.lua",
 		"Code/DEBUG_aperture_style.lua",
 		"Code/DEBUG_aperture_draw.lua",
+		"Code/DEBUG_cheats.lua",
 		"Code/XTEMP_recoil.lua",
 		"Code/UI_aperture_ring.lua",
 		"Code/UI_aperture_breakdown.lua",
