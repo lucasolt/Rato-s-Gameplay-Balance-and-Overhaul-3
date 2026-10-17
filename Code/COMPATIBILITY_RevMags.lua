@@ -97,17 +97,20 @@ function Rat_RevMag_fixNormalMagRPK74()
     end
 end
 
----- the G36 drum takes over the vanilla MagLarge fold block
-function Rat_RevMag_blockFoldWithDrumG36()
-    if not WeaponComponentBlockPairs.G36StockAndDrumMag then
-        PlaceObj('WeaponComponentBlockPair', {
-            ComponentBlockOne = "StockFolded",
-            ComponentBlockTwo = "MagLarger",
-            Weapon = "G36",
-            group = "Z_Blockings",
-            id = "G36StockAndDrumMag"
-        })
+---- the G36 drum (MagLarger with RevMags, MagLarge_9 without) gets the vanilla MagLarge fold block
+function Rat_BlockFoldWithDrumG36(drum)
+    local pair = WeaponComponentBlockPairs.G36StockAndDrumMag
+    if pair then
+        pair.ComponentBlockTwo = drum
+        return
     end
+    PlaceObj('WeaponComponentBlockPair', {
+        ComponentBlockOne = "StockFolded",
+        ComponentBlockTwo = drum,
+        Weapon = "G36",
+        group = "Z_Blockings",
+        id = "G36StockAndDrumMag"
+    })
 end
 
 ---- only reached by saved G36s still holding MagLarge from before the MagNormal switch
@@ -131,7 +134,9 @@ function GBO_ApplyRevMagCompatibility()
         Rat_RevMag_changeDrumMagRPK74()
         Rat_RevMag_fixNormalMagRPK74()
         Rat_RevMag_fixDefaultlMagG36()
-        Rat_RevMag_blockFoldWithDrumG36()
+        Rat_BlockFoldWithDrumG36("MagLarger")
+    else
+        Rat_BlockFoldWithDrumG36("MagLarge_9")
     end
 end
 
