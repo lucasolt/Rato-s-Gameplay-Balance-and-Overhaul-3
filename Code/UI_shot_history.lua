@@ -26,7 +26,7 @@ DefineClass.RatShotMark = {__parents = {"Polyline"}, rat_shader = false, rat_dep
 
 local traces = {} --- os objetos na tela agora
 local marks = {} --- os aneis de impacto na tela agora
-local watcher = false --- clears the history when a unit in it moves
+local shown = {} --- shooter and units hit in the drawn history; any of them moving clears it
 
 ---- Part icons and numbers are UI windows, not map objects: found by flag so a mod reload leaves no orphans.
 local function close_part_icons()
@@ -325,36 +325,29 @@ function Rat_HideShotTraces()
     close_part_icons()
     traces = {}
     marks = {}
-    if watcher and watcher ~= CurrentThread() then
-        DeleteThread(watcher)
-    end
-    watcher = false
+    shown = {}
 end
 
----- Positions of the shooter and every unit hit, as drawn. A stale trace points at empty floor.
+---- Set only after drawing: a mobile attack's own moves happen before, with the traces hidden.
 local function watch_moves(unit, q)
-    local units = {[unit] = unit:GetPos()}
+    shown = {[unit] = unit}
     for _, rec in ipairs(q) do
         for _, sh in ipairs(rec.shots or empty_table) do
             for _, imp in ipairs(sh.impacts or empty_table) do
                 if imp.unit and IsValid(imp.obj) then
-                    units[imp.obj] = imp.obj:GetPos()
+                    shown[imp.obj] = unit
                 end
             end
         end
     end
-    watcher = CreateRealTimeThread(function()
-        while true do
-            Sleep(200)
-            for u, pos in pairs(units) do
-                if not IsValid(u) or u:GetPos():Dist(pos) > const.SlabSizeX / 2 then
-                    g_RatShotHistory[unit] = nil
-                    Rat_HideShotTraces()
-                    return
-                end
-            end
-        end
-    end)
+end
+
+function OnMsg.UnitAnyMovementStart(unit)
+    local owner = shown[unit]
+    if owner then
+        g_RatShotHistory[owner] = nil
+        Rat_HideShotTraces()
+    end
 end
 
 ---- Redesenha do zero. Nao ha estado incremental: a fila muda inteira a cada ataque e a
