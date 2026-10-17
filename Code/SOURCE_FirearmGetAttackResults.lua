@@ -775,10 +775,10 @@ function Firearm:GetAttackResults(action, attack_args)
                 end
                 ---- read back in GetBulletDamage, where damage and effects are still open
                 hit.rat_offpart = (hit.obj == shot_tgt) and shot_off_part or nil
-                ---- part damage_mod and applied_effect (Groin -> Suppressed) read hit.spot_group
-                if hit.obj == shot_tgt and shot_hit_spot then
-                    hit.spot_group = shot_hit_spot
-                end
+            end
+            ---- BulletCalcDamage rewrites hit.spot_group from this, and armor, damage_mod and the part effect read it
+            if not shot_miss and shot_hit_spot then
+                hit_data.target_spot_group = shot_hit_spot
             end
         end
 
