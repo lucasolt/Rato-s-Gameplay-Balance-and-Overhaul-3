@@ -122,8 +122,9 @@ RAT_ATT_FAMILIES = {
     ---- Stocks bind by tier: the gun's own item says what it is, the component's visual what it looks
     ---- like. Guns without an item keep the stock free.
     stock_light = {"StockLight", "StockLight_AR_BurstOnly", "HK53_stock_unfld_1", "HK53_stock_fld_1"},
-    stock_normal = {"StockNormal"},
-    stock_heavy = {"StockHeavy"}
+    stock_normal = {"StockNormal", "hk33_Stock_1"},
+    stock_heavy = {"StockHeavy"},
+    stock_bump = {"StockBump"}
 }
 
 ---- Families whose `any` item only reaches vanilla and is_tog_patched guns; elsewhere the part stays free.
@@ -135,7 +136,8 @@ RAT_ATT_FAM_PATCHED_ONLY = {grenadelauncher = true}
 RAT_ATT_STOCK_FEES = {
     stock_light = {parts = 8, difficulty = 0},
     stock_normal = {parts = 10, difficulty = 5},
-    stock_heavy = {parts = 12, difficulty = 10}
+    stock_heavy = {parts = 12, difficulty = 10},
+    stock_bump = {parts = 10, difficulty = 20}
 }
 
 ---- Components that keep their own bill and also consume an item: the AUG's long barrels carry a bipod.
@@ -818,6 +820,22 @@ RAT_ATT_ITEMS = {
         family = "stock_light",
         page = "RatStocks",
         guns = {"AK74"}
+    },
+    {
+        id = "RAT_Att_StockHKFixed",
+        name = "HK Fixed Stock",
+        icon = "Mod/KKh3Yhf/Images/HK33_stock_def.png",
+        family = "stock_normal",
+        page = "RatStocks",
+        guns = {"HK33A2_1", "HK53_1"}
+    },
+    {
+        id = "RAT_Att_StockBump",
+        name = "Bump Stock",
+        icon = "UI/Icons/Upgrades/bump_stock",
+        family = "stock_bump",
+        page = "RatStocks",
+        guns = {"AR15"}
     }
 }
 
@@ -1035,7 +1053,7 @@ function Rat_AttFamilyDef(family, weapon)
 end
 
 ---- Guns whose factory stock is still the item: stripping one yields a kit for the other guns.
-RAT_ATT_FACTORY_ITEMS = {MP5 = true, HK53_1 = true, AK47 = true, AK74 = true}
+RAT_ATT_FACTORY_ITEMS = {MP5 = true, HK53_1 = true, HK33A2_1 = true, AK47 = true, AK74 = true}
 
 ---- The item a component costs on this weapon. Only the families need the weapon; for everything
 ---- else the component alone decides, which is the cheap path and the common one.
