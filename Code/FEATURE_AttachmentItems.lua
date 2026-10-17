@@ -963,6 +963,27 @@ function Rat_AttApplyModels(weapon, vis)
     end
 end
 
+---- Body meshes that carry furniture the gun's own parts cannot: class -> slot -> component -> body.
+---- Same geometry with another texture, so every spot and attached part stays where it was.
+RAT_ATT_BODY_SWAP = {
+    G3A3Green_1 = {Stock = {StockHeavy = "G3A3"}} -- the PSG wooden stock wants the wooden handguard
+}
+
+function Rat_AttApplyBody(weapon, vis)
+    local swap = RAT_ATT_BODY_SWAP[weapon.class]
+    if not swap then
+        return
+    end
+    local body = weapon.Entity
+    for slot, by_comp in pairs(swap) do
+        body = by_comp[weapon.components[slot]] or body
+    end
+    if IsValidEntity(body) and vis:GetEntity() ~= body then
+        vis:ChangeEntity(body)
+        weapon:UpdateColorMod(vis)
+    end
+end
+
 ---- Our wrapper -> what it wrapped. ReloadLua re-runs vanilla, so a hook usually finds a fresh
 ---- function; when it finds one of ours instead (hot load, repeated setup) it wraps what is under it.
 ---- Mod code has no `debug` library, so this table is the only way to tell a wrapper of ours.
@@ -994,6 +1015,7 @@ function Rat_AttUpdateVisualObj(self, vis, orig)
         Rat_AttApplyModels(self, vis)
     end
     if own then
+        Rat_AttApplyBody(self, vis)
         ApplyWeaponComponentOffset(self, vis) -- CommonLib's own wrapper is overwritten by ToG/Zulib
         ---- on top of the component's own offset, which the pass above just reset
         for _, part in pairs(vis.parts or empty_table) do
