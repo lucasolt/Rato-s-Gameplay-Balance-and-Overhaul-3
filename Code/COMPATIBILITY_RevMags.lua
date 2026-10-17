@@ -7,6 +7,8 @@ function OnMsg.RevisedMagPropsAddedToFirearms()
     ---- AK545 mags insert the Fine components; AKSU kept the plain ones, so no mag matched its slot
     REV_SetupWeapon(AKSU, "AK545", "AK74Magazine", "MagNormalFine",
                     {"MagLargeFine", "MagLarger", "MagNormalFine"})
+    ---- RevMags puts the 30-round mag on MagLarge, which vanilla pairs against StockFolded (meant for the drum)
+    REV_SetupWeapon(G36, "G36", "G36MagazineLarge", "MagNormal", {"MagLarger", "MagNormal", "MagQuick"})
 
 end
 
@@ -46,6 +48,8 @@ function GBO_RevMag_ChangeMagazinesClasses()
 
             Rat_RevMag_changeInventoryItem(mag_id, mag, caliber, desc, platform)
         end
+
+        G36MagazineLarge.Modification = "MagNormal"
     end
 end
 
@@ -93,6 +97,20 @@ function Rat_RevMag_fixNormalMagRPK74()
     end
 end
 
+---- the G36 drum takes over the vanilla MagLarge fold block
+function Rat_RevMag_blockFoldWithDrumG36()
+    if not WeaponComponentBlockPairs.G36StockAndDrumMag then
+        PlaceObj('WeaponComponentBlockPair', {
+            ComponentBlockOne = "StockFolded",
+            ComponentBlockTwo = "MagLarger",
+            Weapon = "G36",
+            group = "Z_Blockings",
+            id = "G36StockAndDrumMag"
+        })
+    end
+end
+
+---- only reached by saved G36s still holding MagLarge from before the MagNormal switch
 function Rat_RevMag_fixDefaultlMagG36()
     local mag = WeaponComponents["MagLarge"]
     if not mag then
@@ -113,6 +131,7 @@ function GBO_ApplyRevMagCompatibility()
         Rat_RevMag_changeDrumMagRPK74()
         Rat_RevMag_fixNormalMagRPK74()
         Rat_RevMag_fixDefaultlMagG36()
+        Rat_RevMag_blockFoldWithDrumG36()
     end
 end
 
