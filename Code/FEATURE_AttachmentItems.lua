@@ -991,6 +991,9 @@ function Rat_AttFamilyDef(family, weapon)
     return fallback or RAT_ATT_FAM_ANY[family]
 end
 
+---- Guns whose factory stock is still the item: stripping one yields a kit for the other guns.
+RAT_ATT_FACTORY_ITEMS = {MP5 = true}
+
 ---- The item a component costs on this weapon. Only the families need the weapon; for everything
 ---- else the component alone decides, which is the cheap path and the common one.
 function Rat_AttItemFor(cid, weapon)
@@ -1003,7 +1006,8 @@ function Rat_AttItemFor(cid, weapon)
         local slot = table.find_value(weapon.ComponentSlots or empty_table, "SlotType", factory_slot)
         ---- the folded half of a factory stock's ToG fold pair is the same factory stock
         local pair = WeaponComponents[cid] and WeaponComponents[cid].zzFoldingPair
-        if not slot or slot.DefaultComponent == cid or table.find(pair or empty_table, slot.DefaultComponent) then
+        local factory = slot and (slot.DefaultComponent == cid or table.find(pair or empty_table, slot.DefaultComponent))
+        if not slot or factory and not (factory_slot == "Stock" and RAT_ATT_FACTORY_ITEMS[weapon.class]) then
             return
         end
     end
