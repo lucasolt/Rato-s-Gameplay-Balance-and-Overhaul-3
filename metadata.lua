@@ -127,6 +127,7 @@ return PlaceObj('ModDef', {
 		"Code/SOURCE_UnitRunAndGun.lua",
 		"Code/SOURCE_UnitCalcChanceToHit.lua",
 		"Code/SOURCE_Unit_EnterCombat.lua",
+		"Code/SOURCE_UnitActions_WaitAttack.lua",
 		"Code/SOURCE_UnitCanAttack.lua",
 		"Code/SOURCE_UnitSetTargetDummyFromPos.lua",
 		"Code/SOURCE_UnitPropertiesGetMaxAP.lua",

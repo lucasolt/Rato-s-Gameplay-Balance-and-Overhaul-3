@@ -1562,6 +1562,10 @@ return {
 		'CodeFileName', "Code/SOURCE_Unit_EnterCombat.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "SOURCE_UnitActions_WaitAttack",
+		'CodeFileName', "Code/SOURCE_UnitActions_WaitAttack.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "SOURCE_UnitCanAttack",
 		'CodeFileName', "Code/SOURCE_UnitCanAttack.lua",
 	}),
