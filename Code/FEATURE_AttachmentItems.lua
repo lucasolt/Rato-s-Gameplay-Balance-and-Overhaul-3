@@ -896,7 +896,7 @@ RAT_ATT_ITEMS = {
     {
         id = "RAT_Att_StockMinimiHeavy",
         name = "Minimi Heavy Stock",
-        icon = "UI/Icons/Upgrades/fnfal_stock_heavy",
+        icon = "Mod/cfahRED/Images/stock_minimi_heavy.png",
         family = "stock_heavy",
         page = "RatStocks",
         guns = {"FNMinimi"}
