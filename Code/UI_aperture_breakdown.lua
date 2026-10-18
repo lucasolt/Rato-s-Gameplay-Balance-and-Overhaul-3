@@ -239,6 +239,19 @@ local function minutes(c)
     return string.format("%d.%d'", c // 100, (c % 100) // 10)
 end
 
+---- "|" on purpose: the monospace UI font measures every glyph the same, so a missing one can't be detected
+local function rgb_text(text, quality)
+    local r, g, b = Rat_QualityColor(quality)
+    return string.format("<color %d %d %d>%s</color>", r, g, b, text)
+end
+
+local function bar(pct, quality)
+    local n = const.Combat.Aperture.RecoilBarSegments or 10
+    local filled = Clamp(MulDivRound(pct, n, 100), pct > 0 and 1 or 0, n)
+    return Untranslated(rgb_text(string.rep("|", filled), quality) ..
+                            "<color 70 72 82>" .. string.rep("|", n - filled) .. "</color>")
+end
+
 function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
     local modifiers = attackResults and attackResults.chance_to_hit_modifiers
     local entry = modifiers and table.find_value(modifiers, "id", "RatAngularCTH")
@@ -266,10 +279,26 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
         end
     end
 
+    local a = const.Combat.Aperture
+    local bars = a.RecoilWindowBars
     ---- bipod already folded into kick_y: show the kick the step actually applies
     local kick = Rat_ISqrt(prof.kick_x * prof.kick_x + prof.kick_y * prof.kick_y)
-    ---- the caliber gate: below the kick, the climb can never be stopped
-    local hold = visible and Rat_ScaleTag(minutes(prof.cf_max), prof.cf_max < kick and 0 or 100)
+    local kick_v, hold_v, corr_v
+    if not visible then
+        kick_v, hold_v, corr_v = false, false, false
+    elseif bars then
+        local kick_pct = MulDivRound(kick, 1, a.RecoilBarKickMax or 400)
+        kick_v = bar(kick_pct, 100 - kick_pct)
+        ---- the caliber gate: below the kick, the climb can never be stopped
+        hold_v = bar(MulDivRound(prof.cf_max, 10000, Max(1, kick * (a.RecoilBarHoldMaxPct or 150))),
+                     prof.cf_max < kick and 0 or 100)
+        local corr_pct = MulDivRound(prof.max_inc, 100, Max(1, kick))
+        corr_v = bar(corr_pct, Clamp(corr_pct, 0, 100))
+    else
+        kick_v = minutes(kick)
+        hold_v = Rat_ScaleTag(minutes(prof.cf_max), prof.cf_max < kick and 0 or 100)
+        corr_v = minutes(prof.max_inc)
+    end
 
     local out = {}
     local function lever(name, value, sub)
@@ -278,9 +307,9 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
             out[#out + 1] = l
         end
     end
-    lever(T(681730492265, "Kick"), visible and minutes(kick), kick_meta)
-    lever(T(240917368852, "Hold"), hold, hold_meta)
-    lever(T(915274036418, "Correction"), visible and minutes(prof.max_inc), corr_meta)
+    lever(T(681730492265, "Kick"), kick_v, kick_meta)
+    lever(T(240917368852, "Hold"), hold_v, hold_meta)
+    lever(T(915274036418, "Correction"), corr_v, corr_meta)
 
     if visible then
         ---- offset vs target radius: past it the muzzle center has left the target
@@ -288,10 +317,9 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
         local drift = {}
         for i = 1, num_shots do
             local r = est.offset[i] or 0
-            drift[i] = r .. "'"
+            drift[i] = bars and "||" or (r .. "'")
             if theta > 0 then
-                local cr, cg, cb = Rat_QualityColor(100 - Clamp(MulDivRound(r, 100, theta), 0, 100))
-                drift[i] = string.format("<color %d %d %d>%s</color>", cr, cg, cb, drift[i])
+                drift[i] = rgb_text(drift[i], 100 - Clamp(MulDivRound(r, 100, theta), 0, 100))
             end
         end
         out[#out + 1] = line(T(386402917753, "Drift"), Untranslated(table.concat(drift, " ")))
