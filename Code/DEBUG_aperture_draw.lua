@@ -1699,7 +1699,7 @@ end
 ----   noise = true      roll the correction error (seeded, never the synced rng); off = no error at all
 ----   seed = n          another roll of the same burst
 ----   Strength / Dexterity / Marksmanship   used for the profile only, restored right after
-----   shot = n          round n only, as bullet paths: red = no push-back at all, green = the best
+----   shot = n          round n only, as bullet paths: white = the original aim point, red = no push-back, green = the best
 ----                     push-back Hold allows (no Correction limit), blue = the merc's push-back
 ----                     without error, yellow = with the error (where it really goes)
 ---------------------------------------------------------------------------------------------------
@@ -1810,9 +1810,10 @@ function Rat_DbgRecoilVectors(o)
             local n = o.shot
             focus = {
                 ---- drawn in order, so blue covers green and yellow covers blue when they coincide
-                pts = {{x2, y2, clrKick}, {x2 + gx, y2 + gy, clrHit}, {x2 + bx, y2 + by, clrPush},
+                pts = {{0, 0, clrAxis}, {x2, y2, clrKick}, {x2 + gx, y2 + gy, clrHit}, {x2 + bx, y2 + by, clrPush},
                        (st.px ~= x2 + bx or st.py ~= y2 + by) and {st.px, st.py, clrCone} or nil},
                 string.format("ROUND %d: how far it lands from the aim point", n),
+                "white   the original aim point",
                 string.format("red     no push-back      %d'   (kick %d' + speed carried %d')",
                               cm(vlen_c(x2, y2)), cm(kick), cm(vlen_c(vx0, vy0))),
                 tr.slow and string.format("green   best possible     %d'   (push-back %d', limited only by Hold %d')",
