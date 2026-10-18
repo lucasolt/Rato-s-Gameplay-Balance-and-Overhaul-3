@@ -375,11 +375,12 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
     if not visible then
         kick_v, hold_v, corr_v = false, false, false
     elseif bars then
-        kick_v = bar(MulDivRound(kick, 1, a.RecoilBarKickMax or 400))
+        ---- centiminutes over a scale in minutes = % of the full bar
+        local scale = Max(1, a.RecoilBarScaleMax or 500)
+        kick_v = bar(MulDivRound(kick, 1, scale))
         ---- the caliber gate: below the kick, the climb can never be stopped
-        hold_v = bar(MulDivRound(prof.cf_max, 10000, Max(1, kick * (a.RecoilBarHoldMaxPct or 150))),
-                     prof.cf_max < kick and "w" or "b")
-        corr_v = bar(MulDivRound(prof.max_inc, 100, Max(1, kick)))
+        hold_v = bar(MulDivRound(prof.cf_max, 1, scale), prof.cf_max < kick and "w" or "b")
+        corr_v = bar(MulDivRound(prof.max_inc, 1, scale))
     else
         kick_v = minutes(kick)
         hold_v = Rat_ScaleTag(minutes(prof.cf_max), prof.cf_max < kick and 0 or 100)
@@ -394,8 +395,8 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
         end
     end
     lever(T(681730492265, "Kick"), kick_v, kick_meta)
-    lever(T(240917368852, "Hold"), hold_v, hold_meta)
-    lever(T(915274036418, "Correction"), corr_v, corr_meta)
+    lever(T(240917368852, "Max Correction"), hold_v, hold_meta)
+    lever(T(915274036418, "Correction per Shot"), corr_v, corr_meta)
 
     if visible then
         ---- same colors as the simple view: % of walks still on target, cone left out
@@ -421,8 +422,8 @@ local t_id_table = {
     [615093827461] = "APERTURE MODIFIERS",
     [573019284716] = "RECOIL",
     [681730492265] = "Kick",
-    [240917368852] = "Hold",
-    [915274036418] = "Correction",
+    [240917368852] = "Max Correction",
+    [915274036418] = "Correction per Shot",
     [386402917753] = "Drift",
     [902615374830] = "Control",
     [902615374831] = "Rounds"

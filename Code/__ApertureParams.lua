@@ -147,16 +147,15 @@ A.CrosshairRecoilSamples = 24
 A.CrosshairRecoilTintPct = 0
 
 ---- RECOIL window for the player: one control bar + a square per round, no numbers (true), or the
----- Kick / Hold / Correction breakdown below (false)
-A.RecoilWindowSimple = true
+---- Kick / Max Correction / Correction per Shot breakdown below (false)
+A.RecoilWindowSimple = false
 ---- walks behind the RECOIL window's round colors; at 24 a color flipped on a few rolls
 A.RecoilWindowSamples = 64
 ---- RECOIL window: hint-style image bars (true) or the exact minutes (false)
 A.RecoilWindowBars = true
----- full Kick bar, in minutes (live set, Str 96: HK23E 91', rifles 150-240', revolvers ~410')
-A.RecoilBarKickMax = 400
----- full Hold bar, in % of the kick; below 100 the gun can never be steadied
-A.RecoilBarHoldMaxPct = 150
+---- full bar, in minutes, shared by all three so they compare at a glance (live set, Str 96: kick
+---- 91' HK23E to ~410' revolvers, max correction ~1.3x the kick, per shot 65-150')
+A.RecoilBarScaleMax = 500
 
 ---- O que a ALTURA da regua mede: a DISTANCIA media ao alvo (true) ou a posicao media do cano
 ---- (false). A regua e reta e simetrica nos dois casos -- a deriva lateral do passeio nao entra no
