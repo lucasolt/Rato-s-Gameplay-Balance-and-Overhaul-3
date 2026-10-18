@@ -1605,6 +1605,27 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker, over)
     return table.concat(lines, "\n"), true
 end
 
+---- Vector mode hotkeys: [ / ] (US key positions) or numpad - / + step `shot` through the burst. Above XDesktop (-1) so the game UI
+---- never sees them; every other key passes through.
+DefineClass.RatDbgRecoilKeys = {
+    __parents = {"TerminalTarget"},
+    terminal_target_priority = 1000,
+    opts = false,
+}
+
+function RatDbgRecoilKeys:OnKbdKeyDown(vk)
+    local o = self.opts
+    local step = ((vk == const.vkClosesq or vk == const.vkAdd) and 1) or
+                     ((vk == const.vkOpensq or vk == const.vkSubtract) and -1)
+    if not o or not step then
+        return "continue"
+    end
+    o.shot = Clamp((o.shot or 1) + step, 1, Max(2, o.burst or 3))
+    return "break"
+end
+
+local recoil_keys = false
+
 ---- Liga/desliga o modo que segue o mouse. Aceita tabela unica -- Rat_DbgRecoilMouse{shots = true,
 ---- chance = 0}. Posicional: Rat_DbgRecoilMouse(burst, aim, action_id, shots, scatter, over):
 ---- sem `shots` desenha o modelo deterministico, previsao pura (um raycast de LoF por quadro, o mesmo
@@ -1614,6 +1635,10 @@ function Rat_DbgRecoilMouse(burst, aim, action_id, shots, scatter, over)
     if IsValidThread(g_RatDbgRecoilThread) then
         DeleteThread(g_RatDbgRecoilThread)
         g_RatDbgRecoilThread = false
+        if recoil_keys then
+            terminal.RemoveTarget(recoil_keys)
+            recoil_keys = false
+        end
         Rat_DbgClear()
         return "recuo sob o cursor: DESLIGADO"
     end
@@ -1626,6 +1651,10 @@ function Rat_DbgRecoilMouse(burst, aim, action_id, shots, scatter, over)
         burst, aim, action_id, shots, scatter, over = o.burst, o.aim, o.action_id, o.shots,
                                                       o.scatter, o
         vectors = o.vectors and o
+    end
+    if vectors then
+        recoil_keys = RatDbgRecoilKeys:new{opts = vectors}
+        terminal.AddTarget(recoil_keys)
     end
 
     g_RatDbgRecoilThread = CreateRealTimeThread(function()
@@ -1653,6 +1682,9 @@ function Rat_DbgRecoilMouse(burst, aim, action_id, shots, scatter, over)
             Sleep(100)
         end
     end)
+    if vectors then
+        return "recoil vectors: ON -- [ / ] or numpad - / + change the round. Call again to turn off."
+    end
     return shots and
                "rajada sob o cursor: LIGADA -- re-sorteia quando o cursor anda. Chame de novo para desligar." or
                "recuo sob o cursor: LIGADO -- aponte o mouse. Chame de novo para desligar."
