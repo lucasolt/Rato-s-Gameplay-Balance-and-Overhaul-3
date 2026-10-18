@@ -1699,8 +1699,9 @@ end
 ----   noise = true      roll the correction error (seeded, never the synced rng); off = no error at all
 ----   seed = n          another roll of the same burst
 ----   Strength / Dexterity / Marksmanship   used for the profile only, restored right after
-----   shot = n          round n only, as three bullet paths: red = no push-back at all, blue = the
-----                     merc's push-back without error, yellow = with the error (where it really goes)
+----   shot = n          round n only, as bullet paths: red = no push-back at all, green = the best
+----                     push-back Hold allows (no Correction limit), blue = the merc's push-back
+----                     without error, yellow = with the error (where it really goes)
 ---------------------------------------------------------------------------------------------------
 
 local clrCarry, clrKick, clrPush = RGB(150, 150, 150), RGB(235, 70, 60), RGB(80, 150, 255)
@@ -1795,20 +1796,29 @@ function Rat_DbgRecoilVectors(o)
             arrow(x2, y2, x2 + st.cx, y2 + st.cy, clrPush)
             arrow(x0, y0, st.px, st.py, clrCone)
         elseif i == o.shot - 1 then
-            ---- push-back the merc applied this step, before the error, under the Hold ceiling
-            local bx, by = cx0 + tr.corr_x, cy0 + tr.corr_y
-            local blen = vlen_c(bx, by)
-            if blen > prof.cf_max then
-                bx, by = MulDivRound(bx, prof.cf_max, blen), MulDivRound(by, prof.cf_max, blen)
+            local function cap_hold(x, y)
+                local len = vlen_c(x, y)
+                if len > prof.cf_max then
+                    return MulDivRound(x, prof.cf_max, len), MulDivRound(y, prof.cf_max, len)
+                end
+                return x, y
             end
+            ---- blue: what the merc applied this step, before the error, under the Hold ceiling
+            local bx, by = cap_hold(cx0 + tr.corr_x, cy0 + tr.corr_y)
+            ---- green: the change he wanted, with no Correction limit -- only Hold stops it
+            local gx, gy = cap_hold(cx0 + tr.want_x, cy0 + tr.want_y)
             local n = o.shot
             focus = {
-                ---- yellow last; dropped when it is blue exactly (noise off), or it would hide it
-                pts = {{x2, y2, clrKick}, {x2 + bx, y2 + by, clrPush},
+                ---- drawn in order, so blue covers green and yellow covers blue when they coincide
+                pts = {{x2, y2, clrKick}, {x2 + gx, y2 + gy, clrHit}, {x2 + bx, y2 + by, clrPush},
                        (st.px ~= x2 + bx or st.py ~= y2 + by) and {st.px, st.py, clrCone} or nil},
                 string.format("ROUND %d: how far it lands from the aim point", n),
                 string.format("red     no push-back      %d'   (kick %d' + speed carried %d')",
                               cm(vlen_c(x2, y2)), cm(kick), cm(vlen_c(vx0, vy0))),
+                tr.slow and string.format("green   best possible     %d'   (push-back %d', limited only by Hold %d')",
+                                          cm(vlen_c(x2 + gx, y2 + gy)), cm(vlen_c(gx, gy)),
+                                          cm(prof.cf_max)) or
+                    "green   = blue: Correction is not what limits this round",
                 string.format("blue    with push-back    %d'   (push-back %d' of Hold %d', +%d' this round%s)",
                               cm(vlen_c(x2 + bx, y2 + by)), cm(vlen_c(bx, by)), cm(prof.cf_max),
                               cm(vlen_c(tr.corr_x, tr.corr_y)),
