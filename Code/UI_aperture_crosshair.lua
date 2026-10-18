@@ -399,7 +399,7 @@ function Rat_UpdateConeRing(crosshair)
         fan_sat = rfan_sat
     })
 
-    if not a.CrosshairRecoilLadder then
+    if CurrentModOptions.RecoilVReticle == false then
         Rat_ShowConeRing(center, radius, dir, color, nil, ry, ry_dn, rfan, rfan_sat)
         return true
     end

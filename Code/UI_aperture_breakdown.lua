@@ -365,10 +365,11 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
     end
 
     local a = const.Combat.Aperture
-    if a.RecoilWindowSimple then
+    local view = CurrentModOptions.RecoilWindowView or "Bars"
+    if view == "Simple" then
         return Rat_ACTHRecoilSimple(win, entry, prof, num_shots, {kick_meta, hold_meta, corr_meta})
     end
-    local bars = a.RecoilWindowBars
+    local bars = view ~= "Values"
     ---- bipod already folded into kick_y: show the kick the step actually applies
     local kick = Rat_ISqrt(prof.kick_x * prof.kick_x + prof.kick_y * prof.kick_y)
     local kick_v, hold_v, corr_v

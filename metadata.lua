@@ -210,6 +210,8 @@ return PlaceObj('ModDef', {
 		PartsGainPct = 70,
 		PersistentRecoilPct = 100,
 		RecoilPct = 100,
+		RecoilVReticle = true,
+		RecoilWindowView = "Bars",
 		UnawareSightRange = 14,
 		VanillaFreeMoveBonus = 0,
 		noise_setting_num = 150,

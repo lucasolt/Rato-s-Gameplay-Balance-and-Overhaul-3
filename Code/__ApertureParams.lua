@@ -135,8 +135,7 @@ A.CrosshairRingSegments = 32
 ---- tiro, e duas diagonais abrindo com a largura do grupo em cada tiro. O anel em si passa a ficar
 ---- ONDE O CANO ESTA -- deslocado pelo recuo herdado -- em vez de sempre em cima do alvo: e de la
 ---- que a bala sai, e um anel centrado no alvo desenharia um cone que a arma nao tem.
----- false volta ao anel sozinho, sempre no alvo.
-A.CrosshairRecoilLadder = true
+---- Liga/desliga: mod option RecoilVReticle.
 
 ---- Amostras do estimador para DESENHAR. O numero exibido nao sai daqui (isso e Rat_ConeCTH), so
 ---- a forma do traco, e ela e estavel bem antes das 128 amostras que o balanceamento pede.
@@ -146,13 +145,9 @@ A.CrosshairRecoilSamples = 24
 ---- porque e o mesmo tiro -- so mais clara, para nao sumir contra o terreno.
 A.CrosshairRecoilTintPct = 0
 
----- RECOIL window for the player: one control bar + a square per round, no numbers (true), or the
----- Kick per Shot / Max Correction / Correction per Shot breakdown below (false)
-A.RecoilWindowSimple = false
 ---- walks behind the RECOIL window's round colors; at 24 a color flipped on a few rolls
 A.RecoilWindowSamples = 64
----- RECOIL window: hint-style image bars (true) or the exact minutes (false)
-A.RecoilWindowBars = true
+---- RECOIL window view (Simple / Bars / Values) is the RecoilWindowView mod option
 ---- full bar, in minutes, shared by all three so they compare at a glance (live set, Str 96: kick
 ---- 91' HK23E to ~410' revolvers, max correction ~1.3x the kick, per shot 65-150')
 A.RecoilBarScaleMax = 500

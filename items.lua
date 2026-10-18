@@ -1928,6 +1928,25 @@ return {
 			'MaxValue', 200,
 			'StepSize', 10,
 		}),
+		PlaceObj('ModItemOptionChoice', {
+			'name', "RecoilWindowView",
+			'NameColor', RGBA(164, 0, 0, 255),
+			'DisplayName', "<color DescriptionTextRed>[aCTH] Recoil Window</color>",
+			'Help', "How the RECOIL window on the crosshair shows a burst.\n\nBars (default): Kick per Shot, Max Correction and Correction per Shot as bars on one scale, plus a colored square per round.\n\nValues: the same breakdown in minutes of angle.\n\nSimple: one Control bar and the round squares, no breakdown.\n\nSee the F1 wiki page Recoil Window.\n\nAffects: aCTH and aCTH Lite.",
+			'DefaultValue', "Bars",
+			'ChoiceList', {
+				"Bars",
+				"Values",
+				"Simple",
+			},
+		}),
+		PlaceObj('ModItemOptionToggle', {
+			'name', "RecoilVReticle",
+			'NameColor', RGBA(164, 0, 0, 255),
+			'DisplayName', "<color DescriptionTextRed>[aCTH] Recoil V Reticle</color>",
+			'Help', "Draws the expected muzzle climb of a burst on the aim ring: a line with a tick per round, between two diagonals that open as the group widens. Disable to show the ring alone.\n\nAffects: aCTH and aCTH Lite.",
+			'DefaultValue', true,
+		}),
 		PlaceObj('ModItemOptionNumber', {
 			'name', "GunDamagePct",
 			'DisplayName', "Guns Freaking Hurt (%)",
