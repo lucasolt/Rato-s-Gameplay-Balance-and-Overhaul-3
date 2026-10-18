@@ -1128,6 +1128,10 @@ function BobbyRayStoreGetStats_Firearm(item)
         elseif TGetID(stat[1]) == 921500948697 then
             stat[1] = ratT(file_str, 921500948698, "CRIT/AIM")
             stat[2] = Untranslated(HintHundredths(HintCritPerAim(item)) .. "%")
+        elseif TGetID(stat[1]) == 788999452116 then
+            local acth = IsACHTActive()
+            stat[1] = ratT(file_str, 921500948699, "AIM")
+            stat[2] = Untranslated(HintAimText(HintAim(item, nil, acth), acth))
         end
     end
     return stats
