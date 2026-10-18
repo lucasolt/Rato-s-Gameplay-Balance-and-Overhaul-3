@@ -1823,8 +1823,8 @@ return {
 		}),
 		PlaceObj('ModItemOptionChoice', {
 			'name', "ApertureCTH",
-			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "<color DescriptionTextRed>CTH Mode</color>",
+			'NameColor', RGBA(255, 234, 0, 255),
+			'DisplayName', "<color PDABrowserColaTextNormal>CTH Mode</color>",
 			'Help', "How shots are resolved.\n\naCTH (default): every shot has a cone of possible directions, drawn as a ring on the target. The bullet is simulated inside that cone and hits whatever it reaches: cover, another body part, another unit. Aiming, skill, stance and the weapon shrink the cone. Inspired by NCTH from JA2 1.13.\n\naCTH Lite: same cone and same hit chance, but the shot is a dice roll instead of a simulation.\n\nOld CTH: the classic additive hit chance.\n\nOptions marked [aCTH] only work in aCTH and aCTH Lite.",
 			'OnApply', function (self, value)
 				GBO_ApplyApertureCTHMode(value)
@@ -1838,8 +1838,8 @@ return {
 		}),
 		PlaceObj('ModItemOptionNumber', {
 			'name', "ACTHBaseSpreadPct",
-			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "<color DescriptionTextRed>[aCTH] Base Spread %</color>",
+			'NameColor', RGBA(170, 90, 0, 255),
+			'DisplayName', "<color AmmoHPColor>[aCTH] Base Spread %</color>",
 			'Help', "Size of the cone before any aiming, for every gun and shooter. Higher makes unaimed and quick shots miss more. 100 is the tuned value.\n\nAffects: aCTH and aCTH Lite. No effect in Old CTH.",
 			'DefaultValue', 100,
 			'MinValue', 50,
@@ -1848,8 +1848,8 @@ return {
 		}),
 		PlaceObj('ModItemOptionNumber', {
 			'name', "ACTHAimEffectPct",
-			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "<color DescriptionTextRed>[aCTH] Aiming Effect %</color>",
+			'NameColor', RGBA(170, 90, 0, 255),
+			'DisplayName', "<color AmmoHPColor>[aCTH] Aiming Effect %</color>",
 			'Help', "How much each aim level closes the cone. Higher makes aiming pay off more; lower brings quick and aimed shots closer together. 100 is the tuned value.\n\nAffects: aCTH and aCTH Lite. No effect in Old CTH.",
 			'DefaultValue', 100,
 			'MinValue', 50,
@@ -1858,8 +1858,8 @@ return {
 		}),
 		PlaceObj('ModItemOptionNumber', {
 			'name', "ACTHHipSnapPct",
-			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "<color DescriptionTextRed>[aCTH] Hipfire / Snapshot Penalty %</color>",
+			'NameColor', RGBA(170, 90, 0, 255),
+			'DisplayName', "<color AmmoHPColor>[aCTH] Hipfire / Snapshot Penalty %</color>",
 			'Help', "Extra cone for shooting before the gun is shouldered: hipfire at aim 0, snapshot at aim 1 and 2. 0 removes the penalty, 200 doubles it.\n\nAffects: aCTH and aCTH Lite. No effect in Old CTH.",
 			'DefaultValue', 100,
 			'MaxValue', 200,
@@ -1867,8 +1867,8 @@ return {
 		}),
 		PlaceObj('ModItemOptionNumber', {
 			'name', "ACTHRangeFloorPct",
-			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "<color DescriptionTextRed>[aCTH] Precision Floor %</color>",
+			'NameColor', RGBA(170, 90, 0, 255),
+			'DisplayName', "<color AmmoHPColor>[aCTH] Precision Floor %</color>",
 			'Help', "The tightest the cone can get with full aim; it comes from each weapon's range. Higher keeps long fully aimed shots harder; lower makes them more precise.\n\nAffects: aCTH and aCTH Lite. No effect in Old CTH.",
 			'DefaultValue', 100,
 			'MinValue', 50,
@@ -1877,14 +1877,14 @@ return {
 		}),
 		PlaceObj('ModItemOptionToggle', {
 			'name', "ACTHTakeCoverGraze",
-			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "<color DescriptionTextRed>[aCTH] Take Cover Grazes</color>",
+			'NameColor', RGBA(170, 90, 0, 255),
+			'DisplayName', "<color AmmoHPColor>[aCTH] Take Cover Grazes</color>",
 			'Help', "With simulated aCTH, cover already stops bullets, so Take Cover no longer turns hits into grazes. Enable to add the vanilla graze chance on top.\n\nAffects: aCTH only (not Lite, not Old CTH).",
 		}),
 		PlaceObj('ModItemOptionNumber', {
 			'name', "MarksEffectPct",
-			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "<color DescriptionTextRed>Marksmanship Effect %</color>",
+			'NameColor', RGBA(170, 90, 0, 255),
+			'DisplayName', "<color AmmoHPColor>Marksmanship Effect %</color>",
 			'Help', "How much Marksmanship matters for firearms. Below 100 the gap between green and veteran shooters shrinks; above 100 it grows. In aCTH a merc with 100 Marksmanship is unchanged and lower skill moves toward them; in Old CTH the stat's points are scaled.\n\nAffects: aCTH, aCTH Lite and Old CTH.",
 			'DefaultValue', 100,
 			'MinValue', 10,
@@ -1893,8 +1893,8 @@ return {
 		}),
 		PlaceObj('ModItemOptionNumber', {
 			'name', "OWBonusPct",
-			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "<color DescriptionTextRed>Overwatch Accuracy %</color>",
+			'NameColor', RGBA(170, 90, 0, 255),
+			'DisplayName', "<color AmmoHPColor>Overwatch Accuracy %</color>",
 			'Help', "Scales the accuracy bonus or penalty of overwatch and other interrupt attacks (Reflexes, scopes and the like).\n\nAffects: aCTH, aCTH Lite and Old CTH.",
 			'DefaultValue', 100,
 			'MaxValue', 200,
@@ -1902,8 +1902,8 @@ return {
 		}),
 		PlaceObj('ModItemOptionNumber', {
 			'name', "MeleeStatPct",
-			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "<color DescriptionTextRed>Melee Stat Effect %</color>",
+			'NameColor', RGBA(170, 90, 0, 255),
+			'DisplayName', "<color AmmoHPColor>Melee Stat Effect %</color>",
 			'Help', "How much Dexterity (or Strength) matters for melee hit chance. Melee does not use aCTH, so this works the same in every mode.",
 			'DefaultValue', 100,
 			'MinValue', 10,
@@ -1912,8 +1912,8 @@ return {
 		}),
 		PlaceObj('ModItemOptionNumber', {
 			'name', "RecoilPct",
-			'NameColor', RGBA(170, 90, 0, 255),
-			'DisplayName', "<color AmmoHPColor>Recoil %</color>",
+			'NameColor', RGBA(164, 0, 0, 255),
+			'DisplayName', "<color DescriptionTextRed>Recoil %</color>",
 			'Help', "Scales recoil inside bursts and autofire. In aCTH it scales the muzzle kick per shot; in Old CTH the hit chance lost per shot. 0 disables burst recoil.\n\nAffects: aCTH, aCTH Lite and Old CTH.",
 			'DefaultValue', 100,
 			'MaxValue', 200,
@@ -1921,8 +1921,8 @@ return {
 		}),
 		PlaceObj('ModItemOptionNumber', {
 			'name', "PersistentRecoilPct",
-			'NameColor', RGBA(170, 90, 0, 255),
-			'DisplayName', "<color AmmoHPColor>Persistent Recoil %</color>",
+			'NameColor', RGBA(164, 0, 0, 255),
+			'DisplayName', "<color DescriptionTextRed>Persistent Recoil %</color>",
 			'Help', "Recoil that carries over to your next attack and makes aiming it cost more AP, until you take a well-aimed shot. 0 disables the mechanic.\n\nAffects: aCTH, aCTH Lite and Old CTH.",
 			'DefaultValue', 100,
 			'MaxValue', 200,
