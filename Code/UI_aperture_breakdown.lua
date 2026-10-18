@@ -147,7 +147,8 @@ function PopulateCrosshairUICth(win, attacker, action, attackResults)
     ---- ACCURACY window: the comparison that IS the CTH (plus flat CTH mods); APERTURE window: what sized the cone
     local top, cone, total, cone_meta = {}, {}, nil, nil
     for _, mod in ipairs(modifiers) do
-        if not mod.uiHidden then
+        ---- no name: the per-shot "No Line of Fire" log entry, double-wrapped by vanilla (Weapon.lua:2353)
+        if not mod.uiHidden and mod.name then
             if mod.id == "RatAngularCTH" then
                 ---- rat_entry.value seria "rat_cth - skill", delta sem sentido sozinho
                 table.insert(top, 1, line(mod.name, visible and
