@@ -147,7 +147,7 @@ A.CrosshairRecoilSamples = 24
 A.CrosshairRecoilTintPct = 0
 
 ---- RECOIL window for the player: one control bar + a square per round, no numbers (true), or the
----- Kick / Max Correction / Correction per Shot breakdown below (false)
+---- Kick per Shot / Max Correction / Correction per Shot breakdown below (false)
 A.RecoilWindowSimple = false
 ---- walks behind the RECOIL window's round colors; at 24 a color flipped on a few rolls
 A.RecoilWindowSamples = 64

@@ -394,7 +394,7 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
             out[#out + 1] = l
         end
     end
-    lever(T(681730492265, "Kick"), kick_v, kick_meta)
+    lever(T(681730492265, "Kick per Shot"), kick_v, kick_meta)
     lever(T(240917368852, "Max Correction"), hold_v, hold_meta)
     lever(T(915274036418, "Correction per Shot"), corr_v, corr_meta)
 
@@ -421,7 +421,7 @@ end
 local t_id_table = {
     [615093827461] = "APERTURE MODIFIERS",
     [573019284716] = "RECOIL",
-    [681730492265] = "Kick",
+    [681730492265] = "Kick per Shot",
     [240917368852] = "Max Correction",
     [915274036418] = "Correction per Shot",
     [386402917753] = "Drift",
