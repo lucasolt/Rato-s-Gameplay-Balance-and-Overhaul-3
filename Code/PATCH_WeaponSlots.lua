@@ -738,7 +738,7 @@ GBO_WeaponSlots = {
 			Modifiable = true,
 			AvailableComponents = {
 				"ReflexSight",
-				"ReflexSightAdvanced",
+				"ReflexSightAdvanced_Glock",
 				"ImprovedIronsight",
 			},
 		},
