@@ -392,7 +392,7 @@ const.CaliberDamage = {
     ["7_62x54R"] = {base = 36, barrel = 600, per_100mm = 6, min = -2, max = 1},
     ["30-60"] = {base = 37, barrel = 610, per_100mm = 6, min = -2, max = 1},
     ["7_92x57"] = {base = 37, barrel = 600, per_100mm = 6, min = -2, max = 1},
-    ---- hand cannon: Desert Eagle through its .50 barrel
+    ---- hand cannon: the Desert Eagle
     ["50AE"] = {base = 30, barrel = 150, per_100mm = 20, min = -1, max = 3},
     ["50BMG"] = {base = 72, barrel = 730, per_100mm = 10, min = -5, max = 2}
 }

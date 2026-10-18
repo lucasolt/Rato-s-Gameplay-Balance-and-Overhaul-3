@@ -113,7 +113,11 @@ GBO_RetiredComponents = {
 
 	B93RR_1 = {
 		Under = {B93RR_grip_fld_1 = "B93RR_grip_unfld_1"}
-	}
+	},
+    ---- ships in .50 AE now; the conversion barrel was a long barrel
+    DesertEagle = {
+        Barrel = {Barrel50BMG_DesertEagle = "BarrelLong_handgun"}
+    }
 }
 
 function GBO_ReplaceRetiredComponents(weapon)

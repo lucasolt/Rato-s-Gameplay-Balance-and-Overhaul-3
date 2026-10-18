@@ -552,11 +552,6 @@ return PlaceObj('ModDef', {
 		}),
 		PlaceObj('ModResourcePreset', {
 			'Class', "WeaponComponent",
-			'Id', "Barrel50BMG_DesertEagle",
-			'ClassDisplayName', "Weapon component",
-		}),
-		PlaceObj('ModResourcePreset', {
-			'Class', "WeaponComponent",
 			'Id', "Auto5_Long_NMag",
 			'ClassDisplayName', "Weapon component",
 		}),

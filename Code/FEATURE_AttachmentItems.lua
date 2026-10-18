@@ -601,12 +601,11 @@ RAT_ATT_ITEMS = {
         model = "WeaponAttA_SuppressorSMG9mm"
     },
     {
---TODO: Change to only Desert Eagle
         id = "RAT_Att_SuppressorDesertEagle",
-        name = "Suppressor (.44 Pistol)",
+        name = "Suppressor (.50 AE)",
         icon = "UI/Icons/Upgrades/deserteagle_suppressor",
         family = "suppressor",
-        calibers = {"44CAL"},
+        calibers = {"50AE"},
         types = {"Handgun"},
         model = "WeaponAttA_SilencerDesertEagle"
     },
@@ -984,7 +983,8 @@ RAT_ATT_MAG_ROWS = {
     {"mag_expanded", "9x18", "9x18", {"9x18"}, TOG .. "PP91_mag_ext.png", nil, "SMGMags"},
     {"mag_expanded", "9x39", "9x39", {"9x39"}, TOG .. "VSK94_mag_def.png"},
     {"mag_expanded", "45", ".45 ACP", {"45ACP"}, UP .. "beretta_mag_large", nil, "PistolMags"},
-    {"mag_expanded", "44", ".44", {"44CAL"}, UP .. "desertEagle_mag_large", nil, "PistolMags"},
+    ---- key stays "44" so saved items keep their class
+    {"mag_expanded", "44", ".50 AE", {"50AE"}, UP .. "desertEagle_mag_large", nil, "PistolMags"},
 
     {"mag_ergo", "556", "5.56 NATO", {"556"}, UP .. "ar15_mag_ergo_large"},
     {"mag_ergo", "545", "5.45x39", {"5_45x39"}, UP .. "expanded_AK74_bakelite_magazine"},

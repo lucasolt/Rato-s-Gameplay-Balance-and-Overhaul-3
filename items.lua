@@ -6858,64 +6858,6 @@ return {
 					'Type', "FineSteelPipe",
 				}),
 			},
-			BlockSlots = {
-				"Muzzle",
-			},
-			Cost = 40,
-			DisplayName = T(682294285321, --[[ModItemWeaponComponent Barrel50BMG_DesertEagle DisplayName]] ".50 AE Barrel"),
-			GBO_ComponentTraits = "Barrel.LongHandgun,Barrel.to50AE",
-			Icon = "UI/Icons/Upgrades/default_barrel",
-			ModificationDifficulty = 20,
-			ModificationEffects = {
-				"IncreaseRange",
-				"IncreaseAimAccuracy",
-				"longbarrel",
-				"DecreaseOverwatchAngle",
-				"StanceAPincrease",
-				"ChangeCaliberToBMG",
-			},
-			Parameters = {
-				PlaceObj('PresetParamNumber', {
-					'Name', "APincrease",
-					'Value', 5,
-					'Tag', "<APincrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "AimAccuracyIncrease",
-					'Value', 3,
-					'Tag', "<AimAccuracyIncrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "OverwatchAngleDecrease",
-					'Value', 92,
-					'Tag', "<OverwatchAngleDecrease>",
-				}),
-				PlaceObj('PresetParamNumber', {
-					'Name', "RangeIncrease",
-					'Value', 2,
-					'Tag', "<RangeIncrease>",
-				}),
-			},
-			Slot = "Barrel",
-			Tags = set( "Precision", "Strategic", "Tactical" ),
-			Visuals = {
-				PlaceObj('WeaponComponentVisual', {
-					ApplyTo = "DesertEagle",
-					Entity = "WeaponAttA_BarrelDesertEagle_02",
-					Slot = "Barrel",
-					param_bindings = false,
-				}),
-			},
-			group = "Barrel",
-			id = "Barrel50BMG_DesertEagle",
-		}),
-		PlaceObj('ModItemWeaponComponent', {
-			AdditionalCosts = {
-				PlaceObj('WeaponComponentCost', {
-					'Amount', 1,
-					'Type', "FineSteelPipe",
-				}),
-			},
 			Cost = 25,
 			DisplayName = T(632191304483, --[[ModItemWeaponComponent Auto5_Long_NMag DisplayName]] "Long Barrel"),
 			GBO_ComponentTraits = "Barrel.LongShotgun, Shotgun.NarrowBuckshot",

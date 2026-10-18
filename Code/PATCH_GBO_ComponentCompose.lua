@@ -274,17 +274,6 @@ GBO_COMP_TRAITS = {
 --			},
 --		},
 --	},
-	["Barrel.to50AE"]={
-		effects = {			
-			"ChangeCaliberToBMG",
-			--"ReduceReliability",
-			"StanceAPincrease" -- as it is a handgun, normally long barrel do not extend
-		},
-		params = {
-			--ReliabilityDecrease = 10,
-			APincrease = 2,
-		}
-	},
 	["Barrel.to762_54R"]={
 		effects = {			
 			"ChangeCaliberTo762_54r",

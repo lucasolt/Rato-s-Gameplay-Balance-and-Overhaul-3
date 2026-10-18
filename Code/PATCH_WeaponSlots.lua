@@ -760,7 +760,6 @@ GBO_WeaponSlots = {
 			AvailableComponents = {
 				"BarrelLong_handgun",
 				"BarrelNormal",
-				"Barrel50BMG_DesertEagle",
 			},
 		},
 		{

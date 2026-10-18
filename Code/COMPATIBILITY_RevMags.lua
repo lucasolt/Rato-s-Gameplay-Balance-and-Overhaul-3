@@ -33,10 +33,10 @@ function GBO_RevMag_ChangeMagazinesClasses()
 
             {"AK74Magazine", AK74Magazine, "5_45x39", "5.45mm", "AK545"},
             {"AK74MagazineLarge", AK74MagazineLarge, "5_45x39", "5.45mm", "AK545"},
-            {"AK47MagazineMagLarger", AK47MagazineMagLarger, "762WP", "7.62x39mm", "AK762"}
+            {"AK47MagazineMagLarger", AK47MagazineMagLarger, "762WP", "7.62x39mm", "AK762"},
 
-            -- {"DesertEagleMagazine", DesertEagleMagazine, "44MAG", ".44 Magnum"},
-            -- {"DesertEagleMagazineLarge", DesertEagleMagazineLarge, "44MAG", ".44 Magnum"}
+            {"DesertEagleMagazine", DesertEagleMagazine, "50AE", ".50 AE"},
+            {"DesertEagleMagazineLarge", DesertEagleMagazineLarge, "50AE", ".50 AE"}
         }
 
         for _, change in ipairs(change_map) do
