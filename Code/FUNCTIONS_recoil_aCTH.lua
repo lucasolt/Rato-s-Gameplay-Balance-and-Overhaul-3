@@ -450,12 +450,14 @@ end
 ---- form per-shot hit probability and needs none -- nobody displays this number, it exists to
 ---- balance against. Seeded, so the same profile always gives the same ladder: it does not flicker
 ---- between calls, it cannot desync co-op, and a specific bad volley can be replayed exactly.
+---- One seed PER WALK: on a shared stream, a longer burst shifted every later walk's draws, so the
+---- early rounds' ladder changed with burst length.
 ---------------------------------------------------------------------------------------------------
 function Rat_EstimateBurst(prof, theta, sigma, num_shots, samples, seed, p0x, p0y)
     local a = P()
     num_shots = Max(1, num_shots or 1)
     samples = Max(1, samples or a.RecoilEstimateSamples or 128)
-    local rnd = BraidRandomCreate(seed or a.RecoilEstimateSeed or 1)
+    seed = seed or a.RecoilEstimateSeed or 1
 
     local cth, sx, sy, s2, off, spd = {}, {}, {}, {}, {}, {}
     for i = 1, num_shots do
@@ -467,7 +469,8 @@ function Rat_EstimateBurst(prof, theta, sigma, num_shots, samples, seed, p0x, p0
     local measure = theta and theta >= 1 and sigma and sigma >= 1
 
     local st = Rat_RecoilState()
-    for _ = 1, samples do
+    for k = 1, samples do
+        local rnd = BraidRandomCreate(seed + k)
         st.px, st.py = p0x or 0, p0y or 0
         st.vx, st.vy, st.cx, st.cy = 0, 0, 0, 0
         for i = 1, num_shots do

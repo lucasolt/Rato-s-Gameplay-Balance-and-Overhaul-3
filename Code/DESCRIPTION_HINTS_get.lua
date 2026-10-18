@@ -398,13 +398,14 @@ local function HintRecoilCurves(weapon, owner, stance, aimed)
     if not prof then
         return
     end
-    ---- same seeded walk as Rat_EstimateBurst; per round, the muzzle offset of every string
-    local rnd = BraidRandomCreate(a.RecoilEstimateSeed or 1)
+    ---- same seeded walks as Rat_EstimateBurst (one seed per string); per round, every string's offset
+    local seed = a.RecoilEstimateSeed or 1
     local st, offs = Rat_RecoilState(), {}
     for i = 1, shots do
         offs[i] = {}
     end
-    for _ = 1, HintRecoilSamples do
+    for k = 1, HintRecoilSamples do
+        local rnd = BraidRandomCreate(seed + k)
         st.px, st.py, st.vx, st.vy, st.cx, st.cy = 0, 0, 0, 0, 0, 0
         for i = 1, shots do
             local _, _, r = Rat_RecoilPoint(st)
