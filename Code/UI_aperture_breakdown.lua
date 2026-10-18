@@ -259,20 +259,23 @@ local function bar(pct, kind)
     return Untranslated(s)
 end
 
----- Per-round muzzle offsets of a seeded walk, one list per round. Cached by profile identity:
----- Rat_CrosshairRecoilEstimate hands back the same table until the attack changes.
+---- Per-round muzzle offsets of seeded walks, one list per round. Cached by profile identity:
+---- Rat_CrosshairRecoilEstimate hands back the same table until the attack changes. One seed PER
+---- WALK: with a shared stream, a longer burst shifted every later walk's draws and round 2 changed
+---- color with burst length.
 local walk_prof, walk_n, walk_offs
 local function recoil_walk(prof, n)
     if walk_prof == prof and walk_n == n then
         return walk_offs
     end
     local a = const.Combat.Aperture
-    local rnd = BraidRandomCreate(a.RecoilEstimateSeed or 1)
+    local seed = a.RecoilEstimateSeed or 1
     local st, offs = Rat_RecoilState(), {}
     for i = 1, n do
         offs[i] = {}
     end
-    for _ = 1, Max(1, a.CrosshairRecoilSamples or 24) do
+    for k = 1, Max(1, a.RecoilWindowSamples or 64) do
+        local rnd = BraidRandomCreate(seed + k)
         st.px, st.py, st.vx, st.vy, st.cx, st.cy = 0, 0, 0, 0, 0, 0
         for i = 1, n do
             local _, _, r = Rat_RecoilPoint(st)
