@@ -1,12 +1,12 @@
 function OnMsg.RevisedMagPropsAddedToFirearms()
     ---- no drum: the 75-round drum is an RPK (7.62x39) mag
     REV_SetupWeapon(RPK74, "AK545", "AK74MagazineLarge", "MagLargeFine", {"MagLargeFine", "MagNormalFine"})
-    REV_SetupWeapon(AK74, "AK545", "AK74Magazine", "MagNormalFine",
-                    {"MagLargeFine", "MagLarger", "MagNormalFine"})
+    REV_SetupWeapon(AK74, "AK545", "AK74Magazine", "MagNormalFine", {"MagLargeFine", "MagNormalFine"})
     REV_SetupWeapon(M14SAW_AUTO, "M14", "M14Magazine", "MagNormal", {"MagLarge", "MagNormal"})
     ---- AK545 mags insert the Fine components; AKSU kept the plain ones, so no mag matched its slot
-    REV_SetupWeapon(AKSU, "AK545", "AK74Magazine", "MagNormalFine",
-                    {"MagLargeFine", "MagLarger", "MagNormalFine"})
+    REV_SetupWeapon(AKSU, "AK545", "AK74Magazine", "MagNormalFine", {"MagLargeFine", "MagNormalFine"})
+    ---- the RPK drum (MagLarger) is a 7.62x39 mag; Revised Mags already has its AK47 visual
+    REV_SetupWeapon(AK47, "AK762", "AK47Magazine", "MagNormal", {"MagLarge", "MagLarger", "MagNormal"})
     ---- RevMags puts the 30-round mag on MagLarge, which vanilla pairs against StockFolded (meant for the drum)
     REV_SetupWeapon(G36, "G36", "G36MagazineLarge", "MagNormal", {"MagLarger", "MagNormal", "MagQuick"})
 
@@ -33,7 +33,7 @@ function GBO_RevMag_ChangeMagazinesClasses()
 
             {"AK74Magazine", AK74Magazine, "5_45x39", "5.45mm", "AK545"},
             {"AK74MagazineLarge", AK74MagazineLarge, "5_45x39", "5.45mm", "AK545"},
-            {"AK47MagazineMagLarger", AK47MagazineMagLarger, "5_45x39", "5.45mm", "AK545"}
+            {"AK47MagazineMagLarger", AK47MagazineMagLarger, "762WP", "7.62x39mm", "AK762"}
 
             -- {"DesertEagleMagazine", DesertEagleMagazine, "44MAG", ".44 Magnum"},
             -- {"DesertEagleMagazineLarge", DesertEagleMagazineLarge, "44MAG", ".44 Magnum"}
@@ -50,36 +50,13 @@ function GBO_RevMag_ChangeMagazinesClasses()
         end
 
         G36MagazineLarge.Modification = "MagNormal"
+        ---- the real RPK drum; Revised Mags ships it at 100
+        AK47MagazineMagLarger.MagazineSize = 75
     end
 end
 
 function OnMsg.ClassesGenerate(classdefs)
     GBO_RevMag_ChangeMagazinesClasses()
-end
-
-function Rat_RevMag_changeDrumMagRPK74()
-    local mag_larger = WeaponComponents["MagLarger"]
-    if not mag_larger then
-        return
-    end
-
-    for i, v in pairs(mag_larger.Visuals) do
-        if v.ApplyTo == "AK47" then
-            v.ApplyTo = "AK74"
-            break
-        end
-    end
-
-    local aksu_visu = PlaceObj('WeaponComponentVisual', {
-        ApplyTo = "AKSU",
-        Entity = "WeaponAttA_MagazineRPK74_03",
-        Icon = "UI/Icons/Upgrades/RPK74_drum_magazine",
-        Slot = "Magazine",
-        param_bindings = false
-    })
-
-    table.insert_unique(mag_larger.Visuals, aksu_visu)
-
 end
 
 function Rat_RevMag_fixNormalMagRPK74()
@@ -131,7 +108,6 @@ end
 
 function GBO_ApplyRevMagCompatibility()
     if IsMod_loaded("URkxyfE") then
-        Rat_RevMag_changeDrumMagRPK74()
         Rat_RevMag_fixNormalMagRPK74()
         Rat_RevMag_fixDefaultlMagG36()
         Rat_BlockFoldWithDrumG36("MagLarger")
