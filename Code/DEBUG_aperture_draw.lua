@@ -1258,6 +1258,16 @@ end
 
 ---- Console: as funcoes aceitam posicional OU uma tabela unica -- Rat_DbgRecoilShots{burst = 10,
 ---- chance = 0}. Um ponto do engine nao e tabela Lua, entao a deteccao nao confunde com `pos`.
+---- Legend two tiles to the side of the target, in WORLD units: an angular offset vanishes at range
+---- and the text lands on the drawing. `dir` is the shot direction; the side is its horizontal normal.
+local function side_legend(lines, aim_pos, dir)
+    local side = aim_pos + SetLen(point(-dir:y(), dir:x(), 0), 2 * const.SlabSizeX)
+    local top = aim_pos:z() + 2 * const.SlabSizeZ
+    for i, l in ipairs(lines) do
+        DbgAddText(l, side:SetZ(top - (i - 1) * 300), clrAxis)
+    end
+end
+
 local function is_opts(v)
     return type(v) == "table" and not IsPoint(v)
 end
@@ -1458,9 +1468,7 @@ function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker, over)
     lines[#lines + 1] =
         "amarelo->vermelho = tiro 1..N no ponto medio do cano | disco = largura do grupo ali"
 
-    for i, s in ipairs(lines) do
-        DbgAddText(s, aim_pos:SetZ(aim_pos:z() + (#lines - i + 2) * 300), clrAxis)
-    end
+    side_legend(lines, aim_pos, dir)
 
     return table.concat(lines, "\n"), true
 end
@@ -1591,9 +1599,7 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker, over)
     end
     lines[#lines + 1] = over_line(over)
 
-    for i, s in ipairs(lines) do
-        DbgAddText(s, aim_pos:SetZ(aim_pos:z() + (#lines - i + 2) * 300), clrAxis)
-    end
+    side_legend(lines, aim_pos, dir)
 
     a.Enabled = was
     return table.concat(lines, "\n"), true
@@ -1848,12 +1854,7 @@ function Rat_DbgRecoilVectors(o)
         end
     end
 
-    ---- legend two tiles to the side in WORLD units: an angular offset vanishes at range
-    local side = aim_pos + SetLen(lat_ax, 2 * const.SlabSizeX)
-    side = side:SetZ(aim_pos:z() + 2 * const.SlabSizeZ)
-    for i, l in ipairs(lines) do
-        DbgAddText(l, side:SetZ(side:z() - (i - 1) * 300), clrAxis)
-    end
+    side_legend(lines, aim_pos, dir)
     return table.concat(lines, "\n"), true
 end
 
@@ -2063,9 +2064,7 @@ function Rat_DbgPersist(attacker, target, action_id)
                             "cano NAO fica parado fora do alvo. `jogo` deveria ser igual a `CTH`."
 
     if sc then
-        for i, s in ipairs(lines) do
-            DbgAddText(s, sc.aim_pos:SetZ(sc.aim_pos:z() + (#lines - i + 2) * 300), clrAxis)
-        end
+        side_legend(lines, sc.aim_pos, sc.dir)
     end
     return table.concat(lines, "\n")
 end
@@ -2156,9 +2155,7 @@ function Rat_DbgPersistChain(attacks, aim, attacker, target, action_id)
     lines[#lines + 1] = "`comeca em` ja desconta a recuperacao por AP; `termina em` e depois do teto."
     if sc then
         lines[#lines + 1] = "ciano = alvo | amarelo->vermelho = elipse do cone no ataque 1..N"
-        for i, s in ipairs(lines) do
-            DbgAddText(s, sc.aim_pos:SetZ(sc.aim_pos:z() + (#lines - i + 2) * 300), clrAxis)
-        end
+        side_legend(lines, sc.aim_pos, sc.dir)
     end
     return table.concat(lines, "\n")
 end
