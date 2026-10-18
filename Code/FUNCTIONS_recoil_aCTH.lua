@@ -108,6 +108,7 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
     ---- WEIGHT. Unsupported, a heavy gun is not harder to fire, it is harder to FIGHT: the kick is
     ---- the cartridge, and mass already helped there. Grizzly is the perk that waives this.
     local stance_mul = (a.RecoilHeldStanceMul and a.RecoilHeldStanceMul[attacker.stance]) or 100
+    local held_pen = 0
     if aid ~= "GrizzlyPerk" and stance_mul > 0 then
         local excess = Max(0, (weapon.weigth_held_mul or 100) - (a.RecoilHeldPivot or 100))
         local str = attacker.Strength or 0
@@ -116,6 +117,7 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
                                                            Min(str, 100) - 50, 50), 100)
         end
         local pen = MulDivRound(MulDivRound(excess, a.RecoilHeldSlope or 0, 100), stance_mul, 100)
+        held_pen = pen
         if pen > 0 then
             ---- one application each: these are three separate outputs, and `control` is a lever of
             ---- its own here -- it is NOT re-derived from the other two
@@ -191,6 +193,7 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
         cf_min = cf_max,
         inc_min = max_inc,
         control = control,
+        held_pen = held_pen,
         str_control = str_control,
         other_control = other_control
     }

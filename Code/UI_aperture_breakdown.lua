@@ -366,6 +366,14 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
 
     local a = const.Combat.Aperture
     local view = CurrentModOptions.RecoilWindowView or "Bars"
+    ---- weight carried off the ground: cuts both levers, so the detailed view lists it under each
+    if (prof.held_pen or 0) >= (a.RecoilHeldShowPct or 5) then
+        local _, l = recoil_meta_line({902615374832, "(-) Heavy Weapon Not Prone"})
+        hold_meta[#hold_meta + 1] = l
+        if view ~= "Simple" then
+            corr_meta[#corr_meta + 1] = l
+        end
+    end
     if view == "Simple" then
         return Rat_ACTHRecoilSimple(win, entry, prof, num_shots, {kick_meta, hold_meta, corr_meta})
     end
@@ -427,7 +435,8 @@ local t_id_table = {
     [915274036418] = "Correction per Shot",
     [386402917753] = "Drift",
     [902615374830] = "Control",
-    [902615374831] = "Rounds"
+    [902615374831] = "Rounds",
+    [902615374832] = "(-) Heavy Weapon Not Prone"
 }
 
 ratG_T_table['UI_aperture_breakdown.lua'] = t_id_table

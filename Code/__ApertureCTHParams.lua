@@ -255,6 +255,8 @@ A.RecoilHeldStrRelief = 50
 A.RecoilHeldLatPct = 100
 ---- how much of that penalty each stance still pays: prone rests the gun, standing carries it
 A.RecoilHeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
+---- RECOIL window names the penalty from this % up: MG42 16-31 standing, HK21/Minimi 8-16, RPK74 3-6, AK47 1
+A.RecoilHeldShowPct = 5
 
 ---------------------------------------------------------------------------------------------------
 
