@@ -14,6 +14,7 @@ Masks, mask overlays (magenta = removed) and a 3x preview go to tools/weapon_ico
     python tools/gen_weapon_icons.py                  # all guns
     python tools/gen_weapon_icons.py UMP P90          # some guns
     python tools/gen_weapon_icons.py --measure-tilt   # suggest `tilt` values, writes nothing
+    python tools/gen_weapon_icons.py --out "../Rato-s-ToG-Compatibility-Patch---Rebalance/Images" RPD
 
 Canvas 216x110 fits LargeItem guns, 108x110 the small ones; vanilla gun bodies span x ~6..209 / ~5..101.
 """
@@ -65,6 +66,78 @@ JOBS = {
                      pct=[16, 44, 62, 100, 196], ratio=None, tilt=0),
     "G43":      dict(cls="Gewehr43_1", src="G43.png",      canvas=(216, 110), box=(206, 70),
                      pct=[16, 44, 62, 100, 196], ratio=None, tilt=0),
+    "A91":        dict(cls="A91_2", src="A91.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "AR10std":    dict(cls="AR10std", src="AR10std.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "B93RR":      dict(cls="B93RR_1", src="B93RR.png", canvas=(108, 110), box=(98, 72),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "Delisle":    dict(cls="Delisle_1", src="Delisle.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "G3A3Green":  dict(cls="G3A3Green_1", src="G3A3Green.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "G3A3":       dict(cls="G3A3_1", src="G3A3.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "HK23ECamo":  dict(cls="HK23ECamo_1", src="HK23ECamo.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "HK23E":      dict(cls="HK23E_1", src="HK23E.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "HK33A2":     dict(cls="HK33A2_1", src="HK33A2.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "M1911":      dict(cls="M1911_1", src="M1911.png", canvas=(108, 110), box=(98, 72),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "M70":        dict(cls="M70_1", src="M70.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "M76":        dict(cls="M76_1", src="M76.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "M79SAW2":    dict(cls="M79SAW2_1", src="M79SAW2.png", canvas=(108, 110), box=(98, 72),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "M79SAW":     dict(cls="M79SAW_1", src="M79SAW.png", canvas=(108, 110), box=(98, 72),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "MAC11":      dict(cls="MAC11_1", src="MAC11.png", canvas=(108, 110), box=(98, 72),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "MicroUZI":   dict(cls="MicroUZI_1", src="MicroUZI.png", canvas=(108, 110), box=(98, 72),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "Mosin":      dict(cls="Mosin_1", src="Mosin.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "P08":        dict(cls="P08_1", src="P08.png", canvas=(108, 110), box=(98, 72),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "PKM":        dict(cls="PKM_1", src="PKM.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "PP91":       dict(cls="PP91_1", src="PP91.png", canvas=(108, 110), box=(98, 72),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "Papovka2SKS":dict(cls="Papovka2SKS_1", src="Papovka2SKS.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "PapovkaSKS": dict(cls="PapovkaSKS_1", src="PapovkaSKS.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "RK62":       dict(cls="RK62_1", src="RK62.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "RK95":       dict(cls="RK95_1", src="RK95.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "RPD":        dict(cls="RPD_1", src="RPD.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "SSG69":      dict(cls="SSG69_1", src="SSG69.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "StenMK2":    dict(cls="StenMK2_1", src="StenMK2.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "SteyrScout": dict(cls="SteyrScout_1", src="SteyrScout.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "Type56A":    dict(cls="Type56A_1", src="Type56A.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "Type56B":    dict(cls="Type56B_1", src="Type56B.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "Type56C":    dict(cls="Type56C_1", src="Type56C.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "Type56D":    dict(cls="Type56D_1", src="Type56D.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "VSK94":      dict(cls="VSK94_1", src="VSK94.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "VSS":        dict(cls="VSS_1", src="VSS.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "VigM2":      dict(cls="VigM2_1", src="VigM2.png", canvas=(216, 110), box=(206, 80),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "VikingMP446":dict(cls="VikingMP446_1", src="VikingMP446.png", canvas=(108, 110), box=(98, 72),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
 }
 
 
@@ -123,7 +196,7 @@ def measure_tilt(name, job, fg):
     print(f"{name}: tilt {scores[0][1]:+.1f} (current {job['tilt']:+.1f}; other peaks {alts})")
 
 
-def build(name, job, m):
+def build(name, job, m, out):
     rgb, src_alpha = load_source(job)
 
     if job["ratio"]:
@@ -188,7 +261,7 @@ def build(name, job, m):
     out_rgb = (g[..., :3] * ga[..., None] + np.array(GLOW_RGB) * (glow * (1 - ga))[..., None]) \
         / np.maximum(out_a[..., None], 1e-6)
     res = Image.fromarray(np.dstack([np.clip(out_rgb, 0, 255), out_a * 255]).astype(np.uint8), "RGBA")
-    path = os.path.join(OUT, name + "_icon.png")
+    path = os.path.join(out, name + "_icon.png")
     res.save(path)
     print("wrote", os.path.normpath(path))
     return res
@@ -210,6 +283,7 @@ def preview(icons):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("names", nargs="*", help=f"subset of {', '.join(JOBS)}")
+    ap.add_argument("--out", default=OUT, help="output folder (default: this mod's Images)")
     ap.add_argument("--measure-tilt", action="store_true", help="print suggested tilt values only")
     args = ap.parse_args()
     names = args.names or list(JOBS)
@@ -220,7 +294,7 @@ def main():
         if args.measure_tilt:
             measure_tilt(name, JOBS[name], fg)
         else:
-            icons.append(build(name, JOBS[name], fg))
+            icons.append(build(name, JOBS[name], fg, args.out))
     if icons:
         preview(icons)
 

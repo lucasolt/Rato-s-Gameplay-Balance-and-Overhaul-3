@@ -41,7 +41,7 @@ def capture(names):
         fh.write(re.sub(r"^local CLASSES\b.*$","local CLASSES = { %s }" % classes, lua, count=1, flags=re.M))
     subprocess.run([sys.executable, os.path.join(HERE, "dap_eval.py"), "--quiet", "-c", "-f", script], check=True)
     done = os.path.join(SHOTS, "done.txt")
-    deadline = time.time() + 30 + 15 * len(names)
+    deadline = time.time() + 120 + 45 * len(names)
     while not os.path.exists(done):
         if time.time() > deadline:
             sys.exit("capture timed out; check the game")
