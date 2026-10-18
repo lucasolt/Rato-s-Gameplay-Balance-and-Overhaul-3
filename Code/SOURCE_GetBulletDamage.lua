@@ -83,8 +83,8 @@ function Firearm:BulletCalcDamage(hit_data, ricochet_idx)
 			own_ignore_cover = rawget(self, "IgnoreCoverReduction")
 			self.IgnoreCoverReduction = 100
 		end
-		---- off-part hit (flagged in GetAttackResults): scaled here, before armor, like the vanilla stray
-		self:PrecalcDamageAndStatusEffects(attacker, obj, hit_data.step_pos, Rat_OffPartDamage(hit.damage, hit.rat_offpart), hit, hit_data.applied_status, hit_data, breakdown, action, prediction)
+		---- off-part hit (flagged in GetAttackResults): Head/Groin bonus shrunk here, before armor
+		self:PrecalcDamageAndStatusEffects(attacker, obj, hit_data.step_pos, Rat_OffPartDamage(hit.damage, hit.rat_offpart, hit.spot_group), hit, hit_data.applied_status, hit_data, breakdown, action, prediction)
 		if skip_cover_graze then
 			self.IgnoreCoverReduction = own_ignore_cover
 		end

@@ -491,7 +491,7 @@ A.RecoilPersistAimReset = 3
 ---- -- often not the one aimed at. Vanilla only calls a hit "stray" when it lands on ANOTHER unit
 ---- (-50% dmg, no crit, no effects); hitting the wrong part of the intended target was impossible.
 ---- Here the wrong part is a soft stray: crit chance and the body part status effect are scaled,
----- damage is a separate knob. Untargeted shots aim Torso (g_DefaultShotBodyPart), so they pay too.
+---- and the part's damage bonus shrinks. Untargeted shots aim Torso (g_DefaultShotBodyPart), so they pay too.
 ---------------------------------------------------------------------------------------------------
 A.OffPartStray = true
 
@@ -502,14 +502,14 @@ A.OffPartCritPct = 33
 ---- off-part hit. Ammo effects are untouched. 100 disables.
 A.OffPartEffectPct = 33
 
----- Damage multiplier for an off-part hit, applied before armor like the vanilla stray -50%.
----- 100 = no reduction (default); 50 reproduces vanilla stray damage.
-A.OffPartDamagePct = 90--100
+---- Share (%) of the body part damage bonus (Head +80, Groin +25) kept on an off-part hit. Parts
+---- without a bonus are untouched. 100 disables; 0 = an off-part head hit deals torso damage.
+A.OffPartBonusPct = 50
 
 ---- Shotgun pellets (main pellet included): same rule, lighter. A spread is expected to land wide.
 A.PelletOffPartCritPct = 60
 A.PelletOffPartEffectPct = 60
-A.PelletOffPartDamagePct = 100
+A.PelletOffPartBonusPct = 100
 
 ---------------------------------------------------------------------------------------------------
 

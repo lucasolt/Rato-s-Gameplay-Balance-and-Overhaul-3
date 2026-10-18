@@ -1687,14 +1687,21 @@ function Rat_OffPartCritChance(chance, off_part)
     return MulDivRound(chance, pct or 100, 100)
 end
 
----- Damage of an off-part hit, BEFORE armor -- same point where vanilla charges the stray -50%.
-function Rat_OffPartDamage(damage, off_part)
+---- Off-part hit on a bonus part (Head/Groin) keeps only part of the part's damage_mod. The engine
+---- applies damage_mod later, so the damage is pre-scaled by (100 + kept) / (100 + bonus).
+function Rat_OffPartDamage(damage, off_part, spot_group)
     local a = P()
     if not off_part or not a.OffPartStray then
         return damage
     end
-    local pct = off_part == "pellet" and a.PelletOffPartDamagePct or a.OffPartDamagePct
-    return MulDivRound(damage, pct or 100, 100)
+    local part = spot_group and Presets.TargetBodyPart.Default[spot_group]
+    local bonus = part and part.damage_mod or 0
+    if bonus <= 0 then
+        return damage
+    end
+    local pct = off_part == "pellet" and a.PelletOffPartBonusPct or a.OffPartBonusPct
+    local kept = MulDivRound(bonus, pct or 100, 100)
+    return MulDivRound(damage, 100 + kept, 100 + bonus)
 end
 
 ---- Secondary pellet: crossing the target is a hit even if the main pellet missed. Part and crit are
