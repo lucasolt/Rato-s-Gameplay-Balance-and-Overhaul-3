@@ -207,7 +207,8 @@ end
 ---- One shot of dynamics; `st` advances in place. The bullet leaves from `st` BEFORE this runs.
 ---- `rnd(n)` returns 0..n-1 -- the real shot passes the synced rng and the estimator a seeded one,
 ---- so there is exactly one implementation of the recoil and prediction cannot drift from it.
-function Rat_RecoilStep(prof, st, rnd)
+---- `trace` (optional table) receives this shot's internals for Rat_DbgRecoilVectors.
+function Rat_RecoilStep(prof, st, rnd, trace)
     ---- where the shooter wants the velocity to go. `p` is measured from the ORIGINAL aim point
     ---- and never reset, so the shooter is always trying to get back to the target -- not merely
     ---- to undo the last kick. Kp is what does that; Kd only stops the muzzle. Keep SettleShots
@@ -218,17 +219,27 @@ function Rat_RecoilStep(prof, st, rnd)
 
     ---- the counter-force also has to cancel the incoming kick, and the grip cannot change
     ---- instantly, so only max_inc of the shortfall is attempted this shot
-    local dx, dy = vclamp(ax - prof.kick_x - st.cx, ay - prof.kick_y - st.cy, prof.max_inc)
+    local wx, wy = ax - prof.kick_x - st.cx, ay - prof.kick_y - st.cy
+    local dx, dy = vclamp(wx, wy, prof.max_inc)
+    if trace then
+        trace.want_x, trace.want_y, trace.slow = wx, wy, dx ~= wx or dy ~= wy
+    end
 
     ---- error on the CHANGE, proportional to the size of the correction attempted: hauling a big
     ---- caliber back generates more of it than nudging a small one, so caliber difficulty falls
     ---- out of the mechanism instead of being tuned in per weapon
     local mag = Max(prof.min_err, MulDivRound(MulDivRound(vlen(dx, dy), prof.err_ratio, 100),
                                               100 - prof.accuracy, 100))
-    dx = dx + err_term(rnd, prof.min_err, mag)
-    dy = dy + err_term(rnd, prof.min_err, mag)
+    ---- two statements: the synced rng must draw x then y, as before
+    local ex = err_term(rnd, prof.min_err, mag)
+    local ey = err_term(rnd, prof.min_err, mag)
+    dx, dy = dx + ex, dy + ey
 
-    st.cx, st.cy = vclamp(st.cx + dx, st.cy + dy, prof.cf_max)
+    local ux, uy = st.cx + dx, st.cy + dy
+    st.cx, st.cy = vclamp(ux, uy, prof.cf_max)
+    if trace then
+        trace.err_x, trace.err_y, trace.capped = ex, ey, st.cx ~= ux or st.cy ~= uy
+    end
 
     st.vx, st.vy = st.vx + prof.kick_x + st.cx, st.vy + prof.kick_y + st.cy
 

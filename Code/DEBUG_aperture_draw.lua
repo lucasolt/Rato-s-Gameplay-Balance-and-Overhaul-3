@@ -1614,10 +1614,12 @@ function Rat_DbgRecoilMouse(burst, aim, action_id, shots, scatter, over)
     if burst == false then
         return "recuo sob o cursor: ja estava desligado"
     end
+    local vectors
     if is_opts(burst) then
         local o = burst
         burst, aim, action_id, shots, scatter, over = o.burst, o.aim, o.action_id, o.shots,
                                                       o.scatter, o
+        vectors = o.vectors and o
     end
 
     g_RatDbgRecoilThread = CreateRealTimeThread(function()
@@ -1626,9 +1628,12 @@ function Rat_DbgRecoilMouse(burst, aim, action_id, shots, scatter, over)
         local last
         while true do
             local pos = Rat_ValidZ(GetCursorPos())
-            if not shots or not last or not pos or pos:Dist(last) > const.SlabSizeX / 2 then
+            if not shots or vectors or not last or not pos or pos:Dist(last) > const.SlabSizeX / 2 then
                 local txt, ok
-                if shots then
+                if vectors then
+                    vectors.pos = pos
+                    txt, ok = Rat_DbgRecoilVectors(vectors)
+                elseif shots then
                     txt, ok = Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, nil, over)
                 else
                     txt, ok = Rat_DbgRecoilAt(pos, burst, aim, action_id, nil, over)
@@ -1645,6 +1650,148 @@ function Rat_DbgRecoilMouse(burst, aim, action_id, shots, scatter, over)
     return shots and
                "rajada sob o cursor: LIGADA -- re-sorteia quando o cursor anda. Chame de novo para desligar." or
                "recuo sob o cursor: LIGADO -- aponte o mouse. Chame de novo para desligar."
+end
+
+---------------------------------------------------------------------------------------------------
+---- RECOIL VECTORS -- the step's own vectors, shot by shot. From each muzzle point a tip-to-tail
+---- chain: carried speed (grey) + kick (red) + push-back (blue) lands on the next muzzle point;
+---- the yellow arrow is the move that actually happened (lateral impulse and climb cap included).
+---- Rat_DbgRecoilVectors{...} draws once at the cursor; Rat_DbgRecoilMouse{vectors = true, ...}
+---- follows it. Options, besides burst / aim / action_id and the OVERRIDES above:
+----   noise = true      roll the correction error (seeded, never the synced rng); off = no error at all
+----   seed = n          another roll of the same burst
+----   Strength / Dexterity / Marksmanship   used for the profile only, restored right after
+---------------------------------------------------------------------------------------------------
+
+local clrCarry, clrKick, clrPush = RGB(150, 150, 150), RGB(235, 70, 60), RGB(80, 150, 255)
+local vec_stats = {"Strength", "Dexterity", "Marksmanship"}
+
+local function vlen_c(x, y)
+    return Rat_ISqrt(x * x + y * y)
+end
+
+---- centiminutes -> whole minutes, for the table
+local function cm(v)
+    return MulDivRound(v, 1, 100)
+end
+
+---- the profile through the whole tuned chain, with the given stats swapped in for the call only
+local function vec_profile(attacker, action, weapon, burst, o)
+    local saved = {}
+    for _, id in ipairs(vec_stats) do
+        if o[id] then
+            saved[id] = attacker[id]
+            attacker[id] = o[id]
+        end
+    end
+    local ok, prof = pcall(Rat_RecoilProfile, attacker, action, weapon, burst, true)
+    for id, v in pairs(saved) do
+        attacker[id] = v
+    end
+    return ok and prof or nil
+end
+
+function Rat_DbgRecoilVectors(o)
+    o = is_opts(o) and o or {}
+    local sc, err = recoil_scene(o.pos, o.burst, o.aim, o.action_id, o.attacker)
+    if not sc then
+        return err
+    end
+    local attacker, weapon, action, target = sc.attacker, sc.weapon, sc.action, sc.target
+    local attack_pos, aim_pos, dist, dir = sc.attack_pos, sc.aim_pos, sc.dist, sc.dir
+    local burst, aim = sc.burst, sc.aim
+
+    local sigma, theta
+    if target then
+        sigma, theta = Rat_AttackCone(attacker, target, action, sc.spot, aim, false,
+                                      attacker:GetPos(), target:GetPos())
+    end
+    local prof = vec_profile(attacker, action, weapon, burst, o)
+    ---- apply_over recomposes the kick without the bipod: only when something is overridden
+    if prof and over_line(o) then
+        prof, sigma, theta = apply_over(prof, sigma, theta, o)
+    end
+    if not prof then
+        return "sem perfil de recuo para esta arma"
+    end
+    prof = table.copy(prof)
+    if not o.noise then
+        prof.min_err, prof.err_ratio, prof.lat = 0, 0, 0
+    end
+
+    local axis = Rat_RecoilWalkAxis(attacker, attack_pos, aim_pos)
+    local lat_ax = Rat_RecoilLateralAxis(axis, dir)
+    local function at(x, y)
+        return Rat_RecoilWalkPoint(attack_pos, aim_pos, axis, cm(y), lat_ax, cm(x))
+    end
+    local function arrow(x0, y0, x1, y1, c)
+        local a, b = at(x0, y0), at(x1, y1)
+        if a ~= b then
+            DbgAddVector(a, b - a, c)
+        end
+    end
+
+    DbgClearVectors()
+    DbgClearTexts()
+    if theta and theta >= 1 then
+        draw_disc(aim_pos, cone_radius(dist, theta), dir, clrSilh, 32)
+    end
+
+    local kick = vlen_c(prof.kick_x, prof.kick_y)
+    local rnd = BraidRandomCreate(o.seed or 1)
+    local st = Rat_RecoilState()
+    local rows = {}
+    for i = 1, burst do
+        local x0, y0, vx0, vy0, cx0, cy0 = st.px, st.py, st.vx, st.vy, st.cx, st.cy
+        local tr = {}
+        Rat_RecoilStep(prof, st, rnd, tr)
+
+        local x1, y1 = x0 + vx0, y0 + vy0
+        local x2, y2 = x1 + prof.kick_x, y1 + prof.kick_y
+        arrow(x0, y0, x1, y1, clrCarry)
+        arrow(x1, y1, x2, y2, clrKick)
+        arrow(x2, y2, x2 + st.cx, y2 + st.cy, clrPush)
+        arrow(x0, y0, st.px, st.py, clrCone)
+        DbgAddText(tostring(i), at(x0, y0), recoil_ring_color(i, burst))
+
+        local off = vlen_c(x0, y0)
+        local limit = (tr.capped and "HOLD") or (tr.slow and "CORRECTION") or "-"
+        rows[#rows + 1] = string.format("   %2d | %5d | %5d | %5d | %5d | %5d | %5d / %-5d | %-10s | %s",
+            i, cm(off), cm(vlen_c(vx0, vy0)), cm(vlen_c(tr.want_x, tr.want_y)),
+            cm(vlen_c(st.cx - cx0, st.cy - cy0)), cm(vlen_c(tr.err_x, tr.err_y)),
+            cm(vlen_c(st.cx, st.cy)), cm(prof.cf_max), limit,
+            (theta and sigma) and (Rat_RiceCTH(theta, sigma, cm(off)) .. "%") or "-")
+    end
+
+    local stats = {}
+    for _, id in ipairs(vec_stats) do
+        stats[#stats + 1] = id:sub(1, 3) .. " " .. tostring(o[id] or attacker[id]) ..
+                                (o[id] and "*" or "")
+    end
+    local t10 = MulDivRound(dist, 10, const.SlabSizeX)
+    local lines = {
+        string.format("%s (%s) -- %s, aim %d, %d rounds, %d.%d tiles   %s",
+                      tostring(attacker.session_id), tostring(weapon.class), tostring(action.id),
+                      aim, burst, t10 / 10, t10 % 10, table.concat(stats, " ")),
+        string.format("Kick %d'   Hold %d'   Correction %d'/shot   precision %d   error floor %d' x%d%%",
+                      cm(kick), cm(prof.cf_max), cm(prof.max_inc), prof.accuracy, cm(prof.min_err),
+                      prof.err_ratio),
+        o.noise and string.format("noise ON (seed %d)", o.seed or 1) or
+            "noise OFF: no correction error (noise = true to roll it)",
+        "  shot | drift | speed |  want | moved | error | push / Hold   | limit      | CTH",
+        table.concat(rows, "\n"),
+        "want = push-back change the shooter asked for; moved = what changed; limit = what stopped it",
+        "grey carried speed + red kick + blue push-back = next point; yellow = actual move"
+    }
+    if target then
+        lines[#lines + 1] = string.format("target %s   theta %d'   cone %d'",
+                                          tostring(target.session_id), theta or -1, sigma or -1)
+    end
+    lines[#lines + 1] = over_line(o)
+    for i, l in ipairs(lines) do
+        DbgAddText(l, aim_pos:SetZ(aim_pos:z() + (#lines - i + 2) * 300), clrAxis)
+    end
+    return table.concat(lines, "\n"), true
 end
 
 ---------------------------------------------------------------------------------------------------
