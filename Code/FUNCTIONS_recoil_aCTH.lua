@@ -223,6 +223,7 @@ function Rat_RecoilStep(prof, st, rnd, trace)
     local dx, dy = vclamp(wx, wy, prof.max_inc)
     if trace then
         trace.want_x, trace.want_y, trace.slow = wx, wy, dx ~= wx or dy ~= wy
+        trace.corr_x, trace.corr_y = dx, dy
     end
 
     ---- error on the CHANGE, proportional to the size of the correction attempted: hauling a big

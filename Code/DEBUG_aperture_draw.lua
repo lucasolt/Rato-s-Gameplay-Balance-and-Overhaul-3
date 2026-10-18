@@ -1661,9 +1661,13 @@ end
 ----   noise = true      roll the correction error (seeded, never the synced rng); off = no error at all
 ----   seed = n          another roll of the same burst
 ----   Strength / Dexterity / Marksmanship   used for the profile only, restored right after
+----   shot = n          only the step after round n, labelled: drift (white), carried speed (grey),
+----                     kick (red), push-back as applied (blue), error (magenta); the rest of the
+----                     burst is just its yellow moves
 ---------------------------------------------------------------------------------------------------
 
 local clrCarry, clrKick, clrPush = RGB(150, 150, 150), RGB(235, 70, 60), RGB(80, 150, 255)
+local clrErr = RGB(230, 90, 230)
 local vec_stats = {"Strength", "Dexterity", "Marksmanship"}
 
 local function vlen_c(x, y)
@@ -1724,10 +1728,13 @@ function Rat_DbgRecoilVectors(o)
     local function at(x, y)
         return Rat_RecoilWalkPoint(attack_pos, aim_pos, axis, cm(y), lat_ax, cm(x))
     end
-    local function arrow(x0, y0, x1, y1, c)
+    local function arrow(x0, y0, x1, y1, c, label)
         local a, b = at(x0, y0), at(x1, y1)
         if a ~= b then
             DbgAddVector(a, b - a, c)
+        end
+        if label then
+            DbgAddText(label, at((x0 + x1) / 2, (y0 + y1) / 2), c)
         end
     end
 
@@ -1740,7 +1747,7 @@ function Rat_DbgRecoilVectors(o)
     local kick = vlen_c(prof.kick_x, prof.kick_y)
     local rnd = BraidRandomCreate(o.seed or 1)
     local st = Rat_RecoilState()
-    local rows = {}
+    local rows, focus = {}, nil
     for i = 1, burst do
         local x0, y0, vx0, vy0, cx0, cy0 = st.px, st.py, st.vx, st.vy, st.cx, st.cy
         local tr = {}
@@ -1748,10 +1755,37 @@ function Rat_DbgRecoilVectors(o)
 
         local x1, y1 = x0 + vx0, y0 + vy0
         local x2, y2 = x1 + prof.kick_x, y1 + prof.kick_y
-        arrow(x0, y0, x1, y1, clrCarry)
-        arrow(x1, y1, x2, y2, clrKick)
-        arrow(x2, y2, x2 + st.cx, y2 + st.cy, clrPush)
-        arrow(x0, y0, st.px, st.py, clrCone)
+        if not o.shot then
+            arrow(x1, y1, x2, y2, clrKick)
+            arrow(x0, y0, x1, y1, clrCarry)
+            arrow(x2, y2, x2 + st.cx, y2 + st.cy, clrPush)
+            arrow(x0, y0, st.px, st.py, clrCone)
+        elseif i == o.shot then
+            ---- push-back without this round's error, then the error on its tip
+            local px, py = cx0 + tr.corr_x, cy0 + tr.corr_y
+            local x3, y3 = x2 + px, y2 + py
+            arrow(0, 0, x0, y0, clrAxis, string.format("drift %d'", cm(vlen_c(x0, y0))))
+            arrow(x0, y0, x1, y1, clrCarry, string.format("speed %d'", cm(vlen_c(vx0, vy0))))
+            arrow(x1, y1, x2, y2, clrKick, string.format("kick %d'", cm(kick)))
+            arrow(x2, y2, x3, y3, clrPush, string.format("push-back %d'", cm(vlen_c(px, py))))
+            arrow(x3, y3, x3 + tr.err_x, y3 + tr.err_y, clrErr,
+                  string.format("error %d'", cm(vlen_c(tr.err_x, tr.err_y))))
+            arrow(x0, y0, st.px, st.py, clrCone)
+            focus = {
+                string.format("ROUND %d -> %d   drift %d'   carried speed %d'   kick %d'", i, i + 1,
+                              cm(vlen_c(x0, y0)), cm(vlen_c(vx0, vy0)), cm(kick)),
+                string.format("push-back was %d', wanted change %d', applied %d'%s",
+                              cm(vlen_c(cx0, cy0)), cm(vlen_c(tr.want_x, tr.want_y)),
+                              cm(vlen_c(tr.corr_x, tr.corr_y)),
+                              tr.slow and " (CORRECTION limit)" or ""),
+                string.format("error %d'   push-back now %d' of Hold %d'%s   round %d leaves at %d'",
+                              cm(vlen_c(tr.err_x, tr.err_y)), cm(vlen_c(st.cx, st.cy)),
+                              cm(prof.cf_max), tr.capped and " (HOLD limit)" or "", i + 1,
+                              cm(vlen_c(st.px, st.py)))
+            }
+        else
+            arrow(x0, y0, st.px, st.py, clrCone)
+        end
         DbgAddText(tostring(i), at(x0, y0), recoil_ring_color(i, burst))
 
         local off = vlen_c(x0, y0)
@@ -1769,7 +1803,7 @@ function Rat_DbgRecoilVectors(o)
                                 (o[id] and "*" or "")
     end
     local t10 = MulDivRound(dist, 10, const.SlabSizeX)
-    local lines = {
+    local lines = focus or {
         string.format("%s (%s) -- %s, aim %d, %d rounds, %d.%d tiles   %s",
                       tostring(attacker.session_id), tostring(weapon.class), tostring(action.id),
                       aim, burst, t10 / 10, t10 % 10, table.concat(stats, " ")),
@@ -1783,6 +1817,12 @@ function Rat_DbgRecoilVectors(o)
         "want = push-back change the shooter asked for; moved = what changed; limit = what stopped it",
         "grey carried speed + red kick + blue push-back = next point; yellow = actual move"
     }
+    if focus then
+        table.insert(lines, 1, string.format("%s (%s) -- %s, %d rounds   %s   noise %s",
+                                             tostring(attacker.session_id), tostring(weapon.class),
+                                             tostring(action.id), burst, table.concat(stats, " "),
+                                             o.noise and "ON" or "OFF"))
+    end
     if target then
         lines[#lines + 1] = string.format("target %s   theta %d'   cone %d'",
                                           tostring(target.session_id), theta or -1, sigma or -1)
