@@ -1,5 +1,5 @@
 function OnMsg.RevisedMagPropsAddedToFirearms()
-    REV_SetupWeapon(RPK74, "AK545", "AK74Magazine", "MagNormalFine",
+    REV_SetupWeapon(RPK74, "AK545", "AK74MagazineLarge", "MagLargeFine",
                     {"MagLargeFine", "MagLarger", "MagNormalFine"})
     REV_SetupWeapon(AK74, "AK545", "AK74Magazine", "MagNormalFine",
                     {"MagLargeFine", "MagLarger", "MagNormalFine"})
