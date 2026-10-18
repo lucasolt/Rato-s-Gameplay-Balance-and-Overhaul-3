@@ -146,9 +146,8 @@ A.CrosshairRecoilSamples = 24
 ---- porque e o mesmo tiro -- so mais clara, para nao sumir contra o terreno.
 A.CrosshairRecoilTintPct = 0
 
----- RECOIL window: segmented bars (true) or the exact minutes (false)
+---- RECOIL window: hint-style image bars (true) or the exact minutes (false)
 A.RecoilWindowBars = true
-A.RecoilBarSegments = 10
 ---- full Kick bar, in minutes (live set, Str 96: HK23E 91', rifles 150-240', revolvers ~410')
 A.RecoilBarKickMax = 400
 ---- full Hold bar, in % of the kick; below 100 the gun can never be steadied

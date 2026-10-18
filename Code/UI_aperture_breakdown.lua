@@ -239,17 +239,30 @@ local function minutes(c)
     return string.format("%d.%d'", c // 100, (c % 100) // 10)
 end
 
----- "|" on purpose: the monospace UI font measures every glyph the same, so a missing one can't be detected
 local function rgb_text(text, quality)
     local r, g, b = Rat_QualityColor(quality)
     return string.format("<color %d %d %d>%s</color>", r, g, b, text)
 end
 
-local function bar(pct, quality)
-    local n = const.Combat.Aperture.RecoilBarSegments or 10
-    local filled = Clamp(MulDivRound(pct, n, 100), pct > 0 and 1 or 0, n)
-    return Untranslated(rgb_text(string.rep("|", filled), quality) ..
-                            "<color 70 72 82>" .. string.rep("|", n - filled) .. "</color>")
+---- the weapon hint bar's segment images (DESCRIPTION_HINTS_get.lua, HintBar): 4 segments x 10 units.
+---- kind nil = beige fill, "b" / "w" = solid green / red
+local bar_img = "Mod/cfahRED/Images/HintBar/"
+local function bar(pct, kind)
+    local units = Clamp(MulDivRound(pct, 40, 100), pct > 0 and 1 or 0, 40)
+    local s = ""
+    for i = 0, 3 do
+        local f = Clamp(units - i * 10, 0, 10)
+        local file = (f == 0 or not kind) and ("b" .. f .. "_0") or ("b0_" .. f .. "_" .. kind .. "s")
+        s = s .. (i > 0 and "<image " .. bar_img .. "div.png 1000>" or "") ..
+                "<image " .. bar_img .. file .. ".png 1000>"
+    end
+    return Untranslated(s)
+end
+
+---- one pip per round (tools/gen_recoil_pips.py): green on target, amber near the edge, red past it
+local function drift_pip(r, theta)
+    local file = (theta <= 0 and "a") or (r * 2 < theta and "g") or (r < theta and "a") or "r"
+    return "<image Mod/cfahRED/Images/RecoilPip/" .. file .. ".png 1000>"
 end
 
 function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
@@ -287,13 +300,11 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
     if not visible then
         kick_v, hold_v, corr_v = false, false, false
     elseif bars then
-        local kick_pct = MulDivRound(kick, 1, a.RecoilBarKickMax or 400)
-        kick_v = bar(kick_pct, 100 - kick_pct)
+        kick_v = bar(MulDivRound(kick, 1, a.RecoilBarKickMax or 400))
         ---- the caliber gate: below the kick, the climb can never be stopped
         hold_v = bar(MulDivRound(prof.cf_max, 10000, Max(1, kick * (a.RecoilBarHoldMaxPct or 150))),
-                     prof.cf_max < kick and 0 or 100)
-        local corr_pct = MulDivRound(prof.max_inc, 100, Max(1, kick))
-        corr_v = bar(corr_pct, Clamp(corr_pct, 0, 100))
+                     prof.cf_max < kick and "w" or "b")
+        corr_v = bar(MulDivRound(prof.max_inc, 100, Max(1, kick)))
     else
         kick_v = minutes(kick)
         hold_v = Rat_ScaleTag(minutes(prof.cf_max), prof.cf_max < kick and 0 or 100)
@@ -317,12 +328,16 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
         local drift = {}
         for i = 1, num_shots do
             local r = est.offset[i] or 0
-            drift[i] = bars and "||" or (r .. "'")
-            if theta > 0 then
-                drift[i] = rgb_text(drift[i], 100 - Clamp(MulDivRound(r, 100, theta), 0, 100))
+            if bars then
+                drift[i] = drift_pip(r, theta)
+            else
+                drift[i] = r .. "'"
+                if theta > 0 then
+                    drift[i] = rgb_text(drift[i], 100 - Clamp(MulDivRound(r, 100, theta), 0, 100))
+                end
             end
         end
-        out[#out + 1] = line(T(386402917753, "Drift"), Untranslated(table.concat(drift, " ")))
+        out[#out + 1] = line(T(386402917753, "Drift"), Untranslated(table.concat(drift, bars and "" or " ")))
     end
 
     win.idModifiers:SetVisible(true)
