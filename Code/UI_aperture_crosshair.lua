@@ -20,19 +20,28 @@ local debug = Platform.developer and Platform.rat
 ---- Memo do estimador: o crosshair atualiza a cada hover de body part e a cada nivel de mira, e
 ---- Monte Carlo por frame nao se paga para desenhar um traco. A FORMA nao depende do alvo -- ela
 ---- sai so do perfil e do offset -- entao a chave nao precisa de theta nem de sigma.
-local e_att, e_wep, e_act, e_aim, e_n, e_est, e_prof
+local e_sig, e_est, e_prof
 
----- also read by the RECOIL window, so ring and numbers come from one estimate
+---- everything the step reads; a stat, perk or stance change alters it, while merc/weapon/aim did not
+local function prof_sig(p, n)
+    return table.concat({n, p.kick_x, p.kick_y, p.cf_max, p.max_inc, p.min_err, p.err_ratio, p.accuracy,
+                         p.lat, p.kp, p.kd, p.climb_cap or 0}, "|")
+end
+
+---- also read by the RECOIL window, so ring and numbers come from one estimate. The profile is
+---- rebuilt every call (cheap); only the Monte Carlo is reused while the profile is unchanged.
 function Rat_CrosshairRecoilEstimate(attacker, action, weapon, aim, num_shots)
-    if e_att == attacker and e_wep == weapon and e_act == action and e_aim == aim and
-        e_n == num_shots then
+    local prof = Rat_RecoilProfile(attacker, action, weapon, num_shots)
+    if not prof then
+        return nil
+    end
+    local sig = prof_sig(prof, num_shots)
+    if sig == e_sig then
         return e_est, e_prof
     end
-    local prof = Rat_RecoilProfile(attacker, action, weapon, num_shots)
     ---- sem theta/sigma o estimador pula o Rice por tiro: aqui so a geometria do passeio interessa
-    e_est = prof and Rat_EstimateBurst(prof, nil, nil, num_shots,
-                                       const.Combat.Aperture.CrosshairRecoilSamples)
-    e_att, e_wep, e_act, e_aim, e_n, e_prof = attacker, weapon, action, aim, num_shots, prof
+    e_est = Rat_EstimateBurst(prof, nil, nil, num_shots, const.Combat.Aperture.CrosshairRecoilSamples)
+    e_sig, e_prof = sig, prof
     return e_est, e_prof
 end
 
