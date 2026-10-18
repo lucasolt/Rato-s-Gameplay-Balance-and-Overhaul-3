@@ -1661,9 +1661,8 @@ end
 ----   noise = true      roll the correction error (seeded, never the synced rng); off = no error at all
 ----   seed = n          another roll of the same burst
 ----   Strength / Dexterity / Marksmanship   used for the profile only, restored right after
-----   shot = n          only the step after round n: drift (white), carried speed (grey), kick (red),
-----                     push-back as applied (blue), error (magenta); rounds n and n+1 get bright
-----                     bullet paths, the rest of the burst stays dim
+----   shot = n          round n only, as three bullet paths: red = no push-back at all, blue = the
+----                     merc's push-back without error, yellow = with the error (where it really goes)
 ---------------------------------------------------------------------------------------------------
 
 local clrCarry, clrKick, clrPush = RGB(150, 150, 150), RGB(235, 70, 60), RGB(80, 150, 255)
@@ -1734,11 +1733,6 @@ function Rat_DbgRecoilVectors(o)
             DbgAddVector(a, b - a, c)
         end
     end
-    ---- extent of what is drawn, in centiminutes: the legend goes beside it, never on it
-    local max_x, max_y = 0, 0
-    local function extent(x, y)
-        max_x, max_y = Max(max_x, abs(x)), Max(max_y, y)
-    end
 
     DbgClearVectors()
     DbgClearTexts()
@@ -1762,38 +1756,32 @@ function Rat_DbgRecoilVectors(o)
             arrow(x0, y0, x1, y1, clrCarry)
             arrow(x2, y2, x2 + st.cx, y2 + st.cy, clrPush)
             arrow(x0, y0, st.px, st.py, clrCone)
-        elseif i == o.shot then
-            ---- push-back without this round's error, then the error on its tip
-            local px, py = cx0 + tr.corr_x, cy0 + tr.corr_y
-            local x3, y3 = x2 + px, y2 + py
-            arrow(0, 0, x0, y0, clrAxis)
-            arrow(x0, y0, x1, y1, clrCarry)
-            arrow(x1, y1, x2, y2, clrKick)
-            arrow(x2, y2, x3, y3, clrPush)
-            arrow(x3, y3, x3 + tr.err_x, y3 + tr.err_y, clrErr)
-            arrow(x0, y0, st.px, st.py, clrCone)
-            extent(x1, y1)
-            extent(x2, y2)
+        elseif i == o.shot - 1 then
+            ---- push-back the merc applied this step, before the error, under the Hold ceiling
+            local bx, by = cx0 + tr.corr_x, cy0 + tr.corr_y
+            local blen = vlen_c(bx, by)
+            if blen > prof.cf_max then
+                bx, by = MulDivRound(bx, prof.cf_max, blen), MulDivRound(by, prof.cf_max, blen)
+            end
+            local n = o.shot
             focus = {
-                string.format("ROUND %d -> %d", i, i + 1),
-                string.format("white   drift       %d'", cm(vlen_c(x0, y0))),
-                string.format("grey    speed       %d'", cm(vlen_c(vx0, vy0))),
-                string.format("red     kick        %d'", cm(kick)),
-                string.format("blue    push-back   %d'  (was %d', +%d' this round%s)",
-                              cm(vlen_c(px, py)), cm(vlen_c(cx0, cy0)),
+                pts = {{x2, y2, clrKick}, {x2 + bx, y2 + by, clrPush}, {st.px, st.py, clrCone}},
+                string.format("ROUND %d: how far it lands from the aim point", n),
+                string.format("red     no push-back      %d'   (kick %d' + speed carried %d')",
+                              cm(vlen_c(x2, y2)), cm(kick), cm(vlen_c(vx0, vy0))),
+                string.format("blue    with push-back    %d'   (push-back %d' of Hold %d', +%d' this round%s)",
+                              cm(vlen_c(x2 + bx, y2 + by)), cm(vlen_c(bx, by)), cm(prof.cf_max),
                               cm(vlen_c(tr.corr_x, tr.corr_y)),
-                              tr.slow and ", CORRECTION limit" or ""),
-                string.format("magenta error       %d'", cm(vlen_c(tr.err_x, tr.err_y))),
-                string.format("yellow  -> round %d at %d'   push-back %d' of Hold %d'%s", i + 1,
-                              cm(vlen_c(st.px, st.py)), cm(vlen_c(st.cx, st.cy)), cm(prof.cf_max),
-                              tr.capped and " (HOLD limit)" or "")
+                              tr.slow and ", Correction limit" or ""),
+                string.format("yellow  with error        %d'   (correction error %d'%s)",
+                              cm(vlen_c(st.px, st.py)), cm(vlen_c(tr.err_x, tr.err_y)),
+                              prof.lat > 0 and " + random sideways shove" or "")
             }
-        else
-            arrow(x0, y0, st.px, st.py, clrCone)
         end
-        DbgAddText(tostring(i), at(x0, y0), recoil_ring_color(i, burst))
+        if not o.shot then
+            DbgAddText(tostring(i), at(x0, y0), recoil_ring_color(i, burst))
+        end
         pts[i] = {x0, y0}
-        extent(x0, y0)
 
         local off = vlen_c(x0, y0)
         local limit = (tr.capped and "HOLD") or (tr.slow and "CORRECTION") or "-"
@@ -1810,6 +1798,12 @@ function Rat_DbgRecoilVectors(o)
                                 (o[id] and "*" or "")
     end
     local t10 = MulDivRound(dist, 10, const.SlabSizeX)
+    if o.shot and not focus then
+        focus = {pts = {{0, 0, clrCone}},
+                 string.format("ROUND %d: %s", o.shot, o.shot <= 1 and
+                     "the first round leaves on the aim point, no recoil yet" or
+                     "past the end of the burst")}
+    end
     local lines = focus or {
         string.format("%s (%s) -- %s, aim %d, %d rounds, %d.%d tiles   %s",
                       tostring(attacker.session_id), tostring(weapon.class), tostring(action.id),
@@ -1836,18 +1830,24 @@ function Rat_DbgRecoilVectors(o)
     end
     lines[#lines + 1] = over_line(o)
 
-    ---- bullet paths: muzzle through each round's aim point, a little past it
-    for i, pt in ipairs(pts) do
-        local v = at(pt[1], pt[2]) - attack_pos
-        local c = recoil_ring_color(i, burst)
-        if o.shot then
-            c = (i == o.shot and clrAxis) or (i == o.shot + 1 and clrCone) or RGB(80, 80, 80)
-        end
+    ---- bullet paths: muzzle through each aim point, a little past it
+    local function path(x, y, c)
+        local v = at(x, y) - attack_pos
         DbgAddVector(attack_pos, SetLen(v, MulDivRound(v:Len(), 110, 100)), c)
     end
+    if focus then
+        for _, pt in ipairs(focus.pts) do
+            path(pt[1], pt[2], pt[3])
+        end
+    else
+        for i, pt in ipairs(pts) do
+            path(pt[1], pt[2], recoil_ring_color(i, burst))
+        end
+    end
 
-    ---- legend beside the drawing, top line level with its highest point
-    local side = at(max_x + kick, max_y)
+    ---- legend two tiles to the side in WORLD units: an angular offset vanishes at range
+    local side = aim_pos + SetLen(lat_ax, 2 * const.SlabSizeX)
+    side = side:SetZ(aim_pos:z() + 2 * const.SlabSizeZ)
     for i, l in ipairs(lines) do
         DbgAddText(l, side:SetZ(side:z() - (i - 1) * 300), clrAxis)
     end
