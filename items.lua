@@ -1824,7 +1824,7 @@ return {
 		PlaceObj('ModItemOptionChoice', {
 			'name', "ApertureCTH",
 			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "CTH Mode",
+			'DisplayName', "<color DescriptionTextRed>CTH Mode</color>",
 			'Help', "How shots are resolved.\n\naCTH (default): every shot has a cone of possible directions, drawn as a ring on the target. The bullet is simulated inside that cone and hits whatever it reaches: cover, another body part, another unit. Aiming, skill, stance and the weapon shrink the cone. Inspired by NCTH from JA2 1.13.\n\naCTH Lite: same cone and same hit chance, but the shot is a dice roll instead of a simulation.\n\nOld CTH: the classic additive hit chance.\n\nOptions marked [aCTH] only work in aCTH and aCTH Lite.",
 			'OnApply', function (self, value)
 				GBO_ApplyApertureCTHMode(value)
@@ -1839,7 +1839,7 @@ return {
 		PlaceObj('ModItemOptionNumber', {
 			'name', "ACTHBaseSpreadPct",
 			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "[aCTH] Base Spread %",
+			'DisplayName', "<color DescriptionTextRed>[aCTH] Base Spread %</color>",
 			'Help', "Size of the cone before any aiming, for every gun and shooter. Higher makes unaimed and quick shots miss more. 100 is the tuned value.\n\nAffects: aCTH and aCTH Lite. No effect in Old CTH.",
 			'DefaultValue', 100,
 			'MinValue', 50,
@@ -1849,7 +1849,7 @@ return {
 		PlaceObj('ModItemOptionNumber', {
 			'name', "ACTHAimEffectPct",
 			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "[aCTH] Aiming Effect %",
+			'DisplayName', "<color DescriptionTextRed>[aCTH] Aiming Effect %</color>",
 			'Help', "How much each aim level closes the cone. Higher makes aiming pay off more; lower brings quick and aimed shots closer together. 100 is the tuned value.\n\nAffects: aCTH and aCTH Lite. No effect in Old CTH.",
 			'DefaultValue', 100,
 			'MinValue', 50,
@@ -1859,7 +1859,7 @@ return {
 		PlaceObj('ModItemOptionNumber', {
 			'name', "ACTHHipSnapPct",
 			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "[aCTH] Hipfire / Snapshot Penalty %",
+			'DisplayName', "<color DescriptionTextRed>[aCTH] Hipfire / Snapshot Penalty %</color>",
 			'Help', "Extra cone for shooting before the gun is shouldered: hipfire at aim 0, snapshot at aim 1 and 2. 0 removes the penalty, 200 doubles it.\n\nAffects: aCTH and aCTH Lite. No effect in Old CTH.",
 			'DefaultValue', 100,
 			'MaxValue', 200,
@@ -1868,7 +1868,7 @@ return {
 		PlaceObj('ModItemOptionNumber', {
 			'name', "ACTHRangeFloorPct",
 			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "[aCTH] Precision Floor %",
+			'DisplayName', "<color DescriptionTextRed>[aCTH] Precision Floor %</color>",
 			'Help', "The tightest the cone can get with full aim; it comes from each weapon's range. Higher keeps long fully aimed shots harder; lower makes them more precise.\n\nAffects: aCTH and aCTH Lite. No effect in Old CTH.",
 			'DefaultValue', 100,
 			'MinValue', 50,
@@ -1878,13 +1878,13 @@ return {
 		PlaceObj('ModItemOptionToggle', {
 			'name', "ACTHTakeCoverGraze",
 			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "[aCTH] Take Cover Grazes",
+			'DisplayName', "<color DescriptionTextRed>[aCTH] Take Cover Grazes</color>",
 			'Help', "With simulated aCTH, cover already stops bullets, so Take Cover no longer turns hits into grazes. Enable to add the vanilla graze chance on top.\n\nAffects: aCTH only (not Lite, not Old CTH).",
 		}),
 		PlaceObj('ModItemOptionNumber', {
 			'name', "MarksEffectPct",
 			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "Marksmanship Effect %",
+			'DisplayName', "<color DescriptionTextRed>Marksmanship Effect %</color>",
 			'Help', "How much Marksmanship matters for firearms. Below 100 the gap between green and veteran shooters shrinks; above 100 it grows. In aCTH a merc with 100 Marksmanship is unchanged and lower skill moves toward them; in Old CTH the stat's points are scaled.\n\nAffects: aCTH, aCTH Lite and Old CTH.",
 			'DefaultValue', 100,
 			'MinValue', 10,
@@ -1894,7 +1894,7 @@ return {
 		PlaceObj('ModItemOptionNumber', {
 			'name', "OWBonusPct",
 			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "Overwatch Accuracy %",
+			'DisplayName', "<color DescriptionTextRed>Overwatch Accuracy %</color>",
 			'Help', "Scales the accuracy bonus or penalty of overwatch and other interrupt attacks (Reflexes, scopes and the like).\n\nAffects: aCTH, aCTH Lite and Old CTH.",
 			'DefaultValue', 100,
 			'MaxValue', 200,
@@ -1903,7 +1903,7 @@ return {
 		PlaceObj('ModItemOptionNumber', {
 			'name', "MeleeStatPct",
 			'NameColor', RGBA(164, 0, 0, 255),
-			'DisplayName', "Melee Stat Effect %",
+			'DisplayName', "<color DescriptionTextRed>Melee Stat Effect %</color>",
 			'Help', "How much Dexterity (or Strength) matters for melee hit chance. Melee does not use aCTH, so this works the same in every mode.",
 			'DefaultValue', 100,
 			'MinValue', 10,
@@ -1913,7 +1913,7 @@ return {
 		PlaceObj('ModItemOptionNumber', {
 			'name', "RecoilPct",
 			'NameColor', RGBA(170, 90, 0, 255),
-			'DisplayName', "Recoil %",
+			'DisplayName', "<color AmmoHPColor>Recoil %</color>",
 			'Help', "Scales recoil inside bursts and autofire. In aCTH it scales the muzzle kick per shot; in Old CTH the hit chance lost per shot. 0 disables burst recoil.\n\nAffects: aCTH, aCTH Lite and Old CTH.",
 			'DefaultValue', 100,
 			'MaxValue', 200,
@@ -1922,7 +1922,7 @@ return {
 		PlaceObj('ModItemOptionNumber', {
 			'name', "PersistentRecoilPct",
 			'NameColor', RGBA(170, 90, 0, 255),
-			'DisplayName', "Persistent Recoil %",
+			'DisplayName', "<color AmmoHPColor>Persistent Recoil %</color>",
 			'Help', "Recoil that carries over to your next attack and makes aiming it cost more AP, until you take a well-aimed shot. 0 disables the mechanic.\n\nAffects: aCTH, aCTH Lite and Old CTH.",
 			'DefaultValue', 100,
 			'MaxValue', 200,
@@ -1930,8 +1930,8 @@ return {
 		}),
 		PlaceObj('ModItemOptionNumber', {
 			'name', "GunDamagePct",
-			'DisplayName', "Gun Damage %",
-			'Help', "Multiplies firearm damage. Try 110 if you want gunfights deadlier.",
+			'DisplayName', "Guns Freaking Hurt (%)",
+			'Help', "Multiplies firearm damage, so guns can freaking hurt (or not). Try 110 for deadlier gunfights.",
 			'DefaultValue', 100,
 			'MinValue', 50,
 			'MaxValue', 200,
@@ -1947,7 +1947,7 @@ return {
 		PlaceObj('ModItemOptionNumber', {
 			'name', "AwareSightRange",
 			'NameColor', RGBA(20, 110, 40, 255),
-			'DisplayName', "Aware Sight Range",
+			'DisplayName', "<color AmmoMatchColor>Aware Sight Range</color>",
 			'Help', "Sight range, in tiles, of units that are alert. Matters for long-range shots. GBO default 56.",
 			'DefaultValue', 56,
 			'MinValue', 4,
@@ -1957,7 +1957,7 @@ return {
 		PlaceObj('ModItemOptionNumber', {
 			'name', "UnawareSightRange",
 			'NameColor', RGBA(20, 110, 40, 255),
-			'DisplayName', "Unaware Sight Range",
+			'DisplayName', "<color AmmoMatchColor>Unaware Sight Range</color>",
 			'Help', "Sight range, in tiles, of units that have not noticed you. Higher makes sneaking harder. Vanilla 12, GBO default 14.",
 			'DefaultValue', 14,
 			'MinValue', 4,
@@ -1966,7 +1966,7 @@ return {
 		PlaceObj('ModItemOptionNumber', {
 			'name', "NightSightReduction",
 			'NameColor', RGBA(20, 110, 40, 255),
-			'DisplayName', "Night Sight Reduction %",
+			'DisplayName', "<color AmmoMatchColor>Night Sight Reduction %</color>",
 			'Help', "How much darkness cuts sight range, for aware and unaware units. GBO default 40. A night ops mod may overwrite it.",
 			'DefaultValue', 40,
 			'MaxValue', 90,
@@ -1975,7 +1975,7 @@ return {
 		PlaceObj('ModItemOptionNumber', {
 			'name', "NightDetectReduction",
 			'NameColor', RGBA(20, 110, 40, 255),
-			'DisplayName', "Night Detection Reduction %",
+			'DisplayName', "<color AmmoMatchColor>Night Detection Reduction %</color>",
 			'Help', "How much slower units notice you in darkness. GBO default 40. A night ops mod may overwrite it.",
 			'DefaultValue', 40,
 			'MaxValue', 90,
@@ -1984,14 +1984,14 @@ return {
 		PlaceObj('ModItemOptionToggle', {
 			'name', "NoRevealMemory",
 			'NameColor', RGBA(20, 110, 40, 255),
-			'DisplayName', "No Revealed-Enemy Memory",
+			'DisplayName', "<color AmmoMatchColor>No Revealed-Enemy Memory</color>",
 			'Help', "Vanilla keeps an enemy you glimpsed visible through walls until your turn ends. Enable to show enemies only while one of your units actually sees them (applies to every side).",
 			'DefaultValue', true,
 		}),
 		PlaceObj('ModItemOptionNumber', {
 			'name', "noise_setting_num",
 			'NameColor', RGBA(20, 110, 40, 255),
-			'DisplayName', "Firearm Noise %",
+			'DisplayName', "<color AmmoMatchColor>Firearm Noise %</color>",
 			'Help', "Multiplies each caliber's noise range. 0 makes all calibers close to vanilla noise. GBO default 150. Restart, then reload your weapons, for it to take effect.",
 			'DefaultValue', 150,
 			'MaxValue', 201,
@@ -2008,7 +2008,7 @@ return {
 		PlaceObj('ModItemOptionNumber', {
 			'name', "VanillaFreeMoveBonus",
 			'NameColor', RGBA(7, 35, 108, 255),
-			'DisplayName', "AI Free Move Bonus %",
+			'DisplayName', "<color AmmoBasicColor>AI Free Move Bonus %</color>",
 			'Help', "Vanilla difficulties give enemies a large free move bonus. This scales that bonus: 0 gives enemies the same free move as the player, 100 is vanilla. Restart after changing.",
 			'MaxValue', 101,
 			'StepSize', 25,
@@ -2016,7 +2016,7 @@ return {
 		PlaceObj('ModItemOptionNumber', {
 			'name', "AIWeaponStanceMul",
 			'NameColor', RGBA(7, 35, 108, 255),
-			'DisplayName', "AI Shooting Stance AP %",
+			'DisplayName', "<color AmmoBasicColor>AI Shooting Stance AP %</color>",
 			'Help', "How much AP the AI pays to enter shooting stance. 100 is the same as the player. Lower it to 50 if you don't use Rato's AI Overhaul.",
 			'DefaultValue', 100,
 			'MaxValue', 101,
