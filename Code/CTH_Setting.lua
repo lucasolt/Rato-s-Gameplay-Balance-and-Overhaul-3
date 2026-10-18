@@ -10,6 +10,10 @@ PlaceObj('ChanceToHitModifier', {
         local penalty
 
         if weapon1.UnitStat == "Marksmanship" then
+            ---- aCTH scales the skill term of the cone instead (Rat_ApertureSkillMul)
+            if IsACHTActive(weapon1, action, attacker) then
+                return false, 0
+            end
             local marks = attacker.Marksmanship
 
             local setting = const.Combat.R_MarksMul - 100.0

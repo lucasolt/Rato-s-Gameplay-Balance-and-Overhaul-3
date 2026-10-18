@@ -1,14 +1,16 @@
+---------------------------------------------------------------------------------------------------
+---- SHARED recoil chain: old CTH burst penalty, aCTH kick profile, persistent recoil aim cost.
+---- Burst-only old CTH values live in __OldCTHParams.lua.
+---------------------------------------------------------------------------------------------------
 const.Combat.Recoil = {Components = {}, Perks = {}, Other = {}}
 
 const.Combat.Recoil.MarksmanshipMaxReduction = 0.85 -- 0.77
 const.Combat.Recoil.MarksmanshipMinStat = 50
 
+---- also the persistent recoil base -> aim AP cost in every mode
 const.Combat.Recoil.BasePenalty = -5 ----- -5
 const.Combat.Recoil.MaxPenalty = -90 --- -50
-const.Combat.Recoil.MaxDistforPenalty = 36 -- 26 ----- -18
 const.Combat.Recoil.StacksMultiplier = 0.35 ---- * -- for Persistant Recoil
-const.Combat.Recoil.MGSetupMul = 0.8--0.60 ---- * -- MG Setup recoil reduction
-const.Combat.Recoil.RunAndGunExtraPenalty = -5
 const.Combat.Recoil.ROFRefRPM = 600 -- weapon.RPM with no rate-of-fire recoil
 const.Combat.Recoil.ROFGain = 20 -- % added per ROFRefRPM above the ref (1200 RPM -> 120)
 

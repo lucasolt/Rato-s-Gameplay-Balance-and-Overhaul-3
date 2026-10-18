@@ -358,7 +358,7 @@ function Rat_ConeFactors(data)
         ---- ancora = A.Base (cone neutro, skill neutro): Marksmanship e um fator visivel que puxa
         ---- dali pra baixo. Assim Total = produto de todas as linhas e Total * Base = cone da bala.
         total = {name = T(604815927340, "Total"),
-                 tag = Rat_ConeMulTag(MulDivRound(data.rat_sigma, 100, Max(1, a.Base)))}
+                 tag = Rat_ConeMulTag(MulDivRound(data.rat_sigma, 100, Max(1, Rat_ApertureBase())))}
     end
 
     return out, meta, total

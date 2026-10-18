@@ -1,6 +1,5 @@
 function Rat_GunsHurtMul()
-    local str = CurrentModOptions['guns_hurt']
-    return str and tonumber(string.match(str, "[+-]?%d+")) or 100
+    return tonumber(CurrentModOptions['GunDamagePct']) or 100
 end
 
 function gunshurt()

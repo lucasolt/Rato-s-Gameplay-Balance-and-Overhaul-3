@@ -1,26 +1,11 @@
+---------------------------------------------------------------------------------------------------
+---- SHARED hipfire/snapshot multipliers (GetWeaponHipfireOrSnapshotMul): old CTH scales its points,
+---- aCTH scales the A.AimStep excess. The point penalties live in __OldCTHParams.lua.
+---------------------------------------------------------------------------------------------------
 const.Combat.SnapshotHipfire = {}
 const.Combat.Hipfire = {}
 const.Combat.Snapshot = {}
 
----------------
---- Hipfire
-const.Combat.Hipfire.BasePenalty = -10 --- - 18
-const.Combat.Hipfire.MaxPenalty = -123 ---- -75
-const.Combat.Hipfire.MaxDistforPenalty = 28 -- 26
--- Snapshot
-const.Combat.Snapshot.BasePenalty = -6 ---- -10
-const.Combat.Snapshot.MaxPenalty = -61
-const.Combat.Snapshot.MaxDistforPenalty = 40 --- tiles
-
----- MachineGun em ataque de oportunidade: usa estes dois no lugar dos valores normais,
----- para que a distancia pese menos sem baratear o tiro. No turno normal a MG segue com
----- MaxDistforPenalty 40 e BasePenalty -6, como todas as outras classes.
-const.Combat.Snapshot.MGInterruptBasePenalty = -16
-const.Combat.Snapshot.MGInterruptMaxDist = 90 --- tiles
-
-const.Combat.Snapshot.MGSetupInterruptMul = 80 -- MulDivRound
-const.Combat.Snapshot.InterruptMul = 110 --- MulDivRound
----------------
 
 -- TODO: Make a patch that set the constants as param, minding the Aperture change patch
 const.Combat.SnapshotHipfire.Components = {

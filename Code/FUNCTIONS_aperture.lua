@@ -218,7 +218,14 @@ function Rat_ApertureSkillMul(attacker, weapon)
     local skill_name = (weapon and weapon.base_skill) or "Marksmanship"
     local skill = (attacker and attacker[skill_name]) or 50
     skill = Clamp(skill, 0, 100)
-    return a.SkillMax - MulDivRound(a.SkillMax - a.SkillMin, skill, 100)
+    ---- Marksmanship Effect option: scales the gap to a Marks 100 shooter, who stays the anchor
+    local gap = MulDivRound(a.SkillMax - a.SkillMin, 100 - skill, 100)
+    return a.SkillMin + MulDivRound(gap, const.Combat.R_MarksMul or 100, 100)
+end
+
+---- Reference aperture after the Base Spread option
+function Rat_ApertureBase()
+    return MulDivRound(P().Base, GBO_Opt("ACTHBaseSpreadPct", 100), 100)
 end
 
 ---- Opticas com limiar presentes NESTA arma (A.ComponentEffectsAimBonus). Resolvido uma vez por chamada:
@@ -417,6 +424,7 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics)
     end
     --- decay_efetivo = 100 - (100 - decay) * he/100
     decay = 100 - MulDivRound(100 - decay, he, 100)
+    decay = 100 - MulDivRound(100 - decay, GBO_Opt("ACTHAimEffectPct", 100), 100)
 
 	local final_decay = Clamp(decay, a.DecayMinPct, 99)
 	--print("---- APERTURE AIM DECAY -- Base Aim: ", weapon.AimAccuracy, "Total Aim: ", acc, "Level: ", level, "Decay unclamped: ", decay, "Effective decay: ",final_decay)
@@ -583,7 +591,7 @@ function Rat_ApertureFloor(weapon, action, attacker)
     end
     local floor_dist = range * const.SlabSizeX
     local theta = Rat_ThetaTarget(floor_dist, a.Silhouette.Standing)
-    local floor = MulDivRound(theta, a.FloorPct, 100)
+    local floor = MulDivRound(theta, MulDivRound(a.FloorPct, GBO_Opt("ACTHRangeFloorPct", 100), 100), 100)
     floor = MulDivRound(floor, Rat_ScopeFloorMul(weapon), 100)
     if attacker and attacker.stance == "Prone" and IsKindOf(weapon, "Firearm") and weapon:HasComponent("AccuracyBonusProne") then
         floor = MulDivRound(floor, a.BipodProneFloorMul or 100, 100)
@@ -637,7 +645,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     aim = aim or 0
 
     local meta = {}
-    local s = a.Base
+    local s = Rat_ApertureBase()
 
     --- 1. manejo da arma (o antigo Point Blank Accuracy). Multiplica sigma_0, entao o efeito
     ---    decai a cada nivel de mira em vez de ser um desconto fixo no cone final.
@@ -719,7 +727,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
             hipsnap = Clamp(cRound((m or 1.0) * 100), 25, 400)
         end
 
-        local excess = (a.AimStep[aim] or 100) - 100
+        local excess = MulDivRound((a.AimStep[aim] or 100) - 100, GBO_Opt("ACTHHipSnapPct", 100), 100)
         if excess > 0 then
             ---- `hipsnap` ja traz wep_base_hip_mul / wep_base_snapshot_mul da arma; nao ha
             ---- segundo multiplicador de manejo aqui de proposito.
@@ -789,7 +797,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
 	end
 
     return Max(1, s), meta, {
-        base = a.Base,
+        base = Rat_ApertureBase(),
         base_mul = MulDivRound(base_mul, 1, 100),
         ---- Rat_ConeFactors reads this to explain the Handling row (sub); Rat_ConeMetaText never
         ---- reaches parts at all for its OWN flat list, so this is ALSO kept in top-level `meta`

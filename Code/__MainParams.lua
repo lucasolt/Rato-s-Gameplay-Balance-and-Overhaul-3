@@ -1,38 +1,31 @@
+---------------------------------------------------------------------------------------------------
+---- SHARED: every CTH mode. Old-CTH-only constants live in __OldCTHParams.lua, aCTH in __Aperture*.
+---- Sight ranges and darkness come from the mod options (GBO_ApplyOptions).
+---------------------------------------------------------------------------------------------------
+
 ----- Crit
 const.Combat.AutoFireCritMul = 30 -- % of crit kept by autofire; BurstFire uses the weapon's BurstCritMul
+const.Combat.Critical = {}
+const.Combat.Critical.PSOScopeCritOnAimed = 10
+const.Combat.Critical.FirstAimCrit = 6
 
------ CTH
+----- Target modifiers (aCTH absorbs them into the cone)
 const.Combat.SprintingCTH = -10 --- to hit sprinting target
--- Aim
-const.Combat.CrouchAimMul = 105.0 -- float
-const.Combat.ProneAimMul = 110.0 -- float
-const.Combat.ProneGripAimMul = 90.0 -- float
--- const.Combat.MobileAttackAimMul = 
-const.EnvEffects.HeavyRainAimingCTHMul = 80
 
--- Recoil
+----- Multishot / graze
 const.Combat.MultishotGrazeThreshold = 18 -- 12
 const.Combat.SingleShotGrazeThreshold = 10
 const.Combat.PelletShotGrazeThreshold = 22
 const.Combat.MultishotMinCTH = 4
----- Teto do desconto de CTH por tiro do pipeline VANILLA. O modelo angular nao usa: la o cano
----- se assenta sozinho pelo contra-esforco, sem plato tabelado.
-const.Combat.MaxShotIndexForRecoilCTHLoss = 6
 
----- Unidade so re-encara o inimigo mais proximo no PROPRIO turno. Ver
----- SOURCE_UnitSetTargetDummyFromPos: sem isto a silhueta exposta muda sozinha a cada
----- VisibilityUpdate, e com ela o CTH e a parte do corpo atingida.
-const.Combat.FreezeIdleFacing = true
--------------------- Add for MG calcs here
-
--- RunAndGun
+----- RunAndGun
 const.Combat.RunAndGunMaxPenalty = -10
 const.Combat.RunAndGun_MaxDistforPenalty = 14
 const.Combat.RunAndGunNumShotsBase = 3
 const.Combat.RunAndGunMoveAPBase = 9
 const.Combat.RunAndGunMoveAPMin = 6
 
--- MobileShot
+----- MobileShot
 const.Combat.MobileShotNumShotsBase = 3
 const.Combat.MobileShotMoveAPBase = 9
 const.Combat.MobileShotMoveAPMin = 6
@@ -42,19 +35,15 @@ const.Combat.MobileShotPenalty = -8
 --const.Combat.SprintMoveAPBase = 8 -- Set in the editor
 --const.Combat.SprintMoveAPMin = 7
 
--- OW
+----- Overwatch / interrupts
 const.Combat.MGSetupBonusInterruptAccuracy = 0
 const.Combat.MGSetupConeMul = 110 --- MulDivRound
 const.Combat.MGSetupConeFlat = 180 --- addition (minutes)
 const.Combat.OWMinDelta = 20
 const.Combat.OWMaxDelta = -10
-
------- old
-const.Combat.R_MinTargetedScaling = 10
-const.Combat.R_MaxTargetedScaling = 100
+---- Reflexes scaling of the OW modifier (old CTH also uses it for Aim and Point Blank)
 const.Combat.R_MinAimScaling = 10
 const.Combat.R_MaxAimScaling = 100
-
 
 ----- AP
 const.Combat.CumbersomeStanceAP_StrThreshold = 80
@@ -74,8 +63,7 @@ const.Combat.ShotgunBuckshotExtraAP = 10
 ------ Pindown (Sniping)
 const.Combat.PindownCritPerAimLevel = 400 -- hundredths of %, added to CritPerAim
 const.Combat.PindownAimLevelsForAPCost = 2
-const.Combat.PindownRangeMul = 150 --- MulDivRound
-
+const.Combat.PindownRangeMul = 150 --- MulDivRound; aCTH uses A.PindownRangeMul
 
 ------ Perks
 const.Combat.Perks = {}
@@ -87,38 +75,32 @@ const.Combat.Perks.SaviorAdrenalineRushBonusAP = R_VanillaAPToDisplay(2)
 const.Combat.Perks.OpportunisticKillerBonusAttacks = 1
 const.Combat.Perks.KillzoneAimByTarget = {3, 2, 1} -- aim per distinct target this turn; last entry repeats
 
------ Critical
-const.Combat.Critical = {}
-const.Combat.Critical.PSOScopeCritOnAimed = 10
-const.Combat.Critical.FirstAimCrit = 6
--------------
-const.Combat.AwareSightRange = 56
-const.Combat.UnawareSightRange = 18
------ Vanilla
+----- Vanilla overrides
 const.Combat.GrazingHitDamage = 30 --- %
 const.Combat.MGFreeInterruptAttacks = 1
 const.Weapons.PointBlankRange = 6 --- tiles
-const.EnvEffects.RainAimingMultiplier = 0 --- %
 const.Weapons.CriticalDamage = 50
 const.Weapons.DoubleBarrelDamageBonus = 0 -- 50
 const.Weapons.DoubleBarrelSlugSpacing = 3 --- cm between parallel slugs
+
+----- Condition
+const.Weapons.ItemConditionUsed	= 70
+const.Weapons.ItemConditionNeedsRepair= 40
+const.Combat.ConditionPenaltyNeedsRepair = 5
+const.Combat.ConditionPenaltyPoor = 20
+
+----- Environment
+const.EnvEffects.RainAimingMultiplier = 0 --- %
 const.EnvEffects.RainConditionLossMod = 75
 const.EnvEffects.FogSightMod = -30
 const.EnvEffects.FogGrazeChance = 0-- 25
 const.EnvEffects.FireStormSightMod = -10
 const.EnvEffects.DustStormSightMod = -10
 const.EnvEffects.DustStormGrazeChance = 0
-const.EnvEffects.DarknessSightMod = -40 -- default da opcao NightSight; sobrescrito por ela
-const.EnvEffects.DarknessDetectionRate = -40 -- -30
 const.EnvEffects.DarknessCTHPenalty = -30 -- -20
 
---
--- simulated aCTH only; replaces the gas graze
-const.EnvEffects.SmokeCTHPenaltyPerVoxel = -10 -- -8 
+---------------------------------------------------------------------------------------------------
+---- aCTH ONLY (simulated); replaces the gas graze
+---------------------------------------------------------------------------------------------------
+const.EnvEffects.SmokeCTHPenaltyPerVoxel = -10 -- -8
 const.EnvEffects.SmokeCTHPenaltyMax = -60 -- -40
-
-
-const.Weapons.ItemConditionUsed	= 70	
-const.Weapons.ItemConditionNeedsRepair= 40	
-const.Combat.ConditionPenaltyNeedsRepair = 5	
-const.Combat.ConditionPenaltyPoor = 20

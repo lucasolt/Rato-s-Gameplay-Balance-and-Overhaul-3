@@ -10,20 +10,7 @@ function ApplyAmmoParams(class_id, class, ...)
     end
 
     local function GBO_GetNoiseValue(caliber)
-        local function extractNumberWithSignFromString(str)
-            if not str then
-                return false
-            end
-            local num = tonumber(string.match(str, "[+-]?%d+"))
-            if num then
-                return num
-            else
-                return false
-            end
-        end
-
-        local noise_setting =
-            extractNumberWithSignFromString(CurrentModOptions['noise_setting_num']) or 100
+        local noise_setting = tonumber(CurrentModOptions['noise_setting_num']) or 100
         local caliber_noise = const.Calibers.Noise[caliber]
         return caliber_noise and Max(0, MulDivRound(caliber_noise, noise_setting, 100))
     end

@@ -36,11 +36,10 @@ function Rat_GetRecoilAimCost(attacker, action, weapon, stacks)
         return 0, 0
     end
 
-    local option_mul = tonumber(CurrentModOptions["recoil_persistent_aim_effect"]) or 100
     local recoil_value = get_recoilP_value(attacker, action, weapon, false, stacks, false)
     local aim_mul = GetAimMul_Recoil_byCaliber(weapon)
 
-    local aim_cost = ((-recoil_value * 0.7 * aim_mul / 30.00) * (option_mul or 100)) / 100.0
+    local aim_cost = -recoil_value * 0.7 * aim_mul / 30.00
     local bolt_cost_adj = 0
 	--if not const.Combat.Aperture.RecoilPersistOffset then
     	if rat_canBolt(weapon) then
