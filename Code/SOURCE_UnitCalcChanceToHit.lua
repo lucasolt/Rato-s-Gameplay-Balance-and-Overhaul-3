@@ -306,6 +306,7 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 				Rat_ConeFactors(mod_data)
 			---- target radius for the RECOIL window's drift colors
 			rat_entry.rat_theta = mod_data.rat_theta_geo
+			rat_entry.rat_sigma = mod_data.rat_sigma
 		end
 		---- UM cone so: crosshair, simulacao e visualizadores leem daqui em vez de reinverter CTH
 		if type(args) == "table" then

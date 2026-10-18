@@ -265,6 +265,50 @@ local function drift_pip(r, theta)
     return "<image Mod/cfahRED/Images/RecoilPip/" .. file .. ".png 1000>"
 end
 
+---- Share of round 1's hit chance that round i keeps, from the cached mean drift. Rough on purpose:
+---- the window shows no number. Below 10% CTH the whole-% Rice steps too coarsely; there the small-
+---- target limit e^(-(drift/sigma)^2 / 2) holds, and that is 100 - Rayleigh(drift, sigma).
+local function round_share(theta, sigma, base, off)
+    if off <= 0 then
+        return 100
+    end
+    if base >= 10 then
+        return Clamp(MulDivRound(Rat_RiceCTH(theta, sigma, off), 100, base), 0, 100)
+    end
+    return 100 - Rat_RayleighCTH(off, sigma)
+end
+
+function Rat_ACTHRecoilSimple(win, entry, est, num_shots, meta_groups)
+    local theta, sigma = entry.rat_theta or 0, entry.rat_sigma or 0
+    local base = (theta > 0 and sigma > 0) and Rat_RiceCTH(theta, sigma, 0) or 0
+    local pips, sum = {}, 0
+    for i = 1, num_shots do
+        local share = 100
+        if sigma > 0 then
+            share = round_share(theta, sigma, base, est.offset[i] or 0)
+        end
+        sum = sum + share
+        pips[i] = "<image Mod/cfahRED/Images/RecoilPip/" ..
+                      (share >= 67 and "g" or share >= 34 and "a" or "r") .. ".png 1000>"
+    end
+    local mean = sum // num_shots
+
+    local out = {}
+    if CthVisible() then
+        out[#out + 1] = line(T(902615374830, "Control"),
+                             bar(mean, (mean >= 67 and "b") or (mean < 34 and "w") or nil))
+        out[#out + 1] = line(T(902615374831, "Rounds"), Untranslated(table.concat(pips)))
+    end
+    for _, group in ipairs(meta_groups) do
+        for _, l in ipairs(group) do
+            out[#out + 1] = l
+        end
+    end
+    win.idModifiers:SetVisible(true)
+    win.idModifiers:SetText(Untranslated(table.concat(out, "\n<left>")))
+    return true
+end
+
 function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
     local modifiers = attackResults and attackResults.chance_to_hit_modifiers
     local entry = modifiers and table.find_value(modifiers, "id", "RatAngularCTH")
@@ -293,6 +337,9 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
     end
 
     local a = const.Combat.Aperture
+    if a.RecoilWindowSimple then
+        return Rat_ACTHRecoilSimple(win, entry, est, num_shots, {kick_meta, hold_meta, corr_meta})
+    end
     local bars = a.RecoilWindowBars
     ---- bipod already folded into kick_y: show the kick the step actually applies
     local kick = Rat_ISqrt(prof.kick_x * prof.kick_x + prof.kick_y * prof.kick_y)
@@ -351,7 +398,9 @@ local t_id_table = {
     [681730492265] = "Kick",
     [240917368852] = "Hold",
     [915274036418] = "Correction",
-    [386402917753] = "Drift"
+    [386402917753] = "Drift",
+    [902615374830] = "Control",
+    [902615374831] = "Rounds"
 }
 
 ratG_T_table['UI_aperture_breakdown.lua'] = t_id_table

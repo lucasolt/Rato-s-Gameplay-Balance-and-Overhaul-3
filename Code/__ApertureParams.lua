@@ -146,6 +146,9 @@ A.CrosshairRecoilSamples = 24
 ---- porque e o mesmo tiro -- so mais clara, para nao sumir contra o terreno.
 A.CrosshairRecoilTintPct = 0
 
+---- RECOIL window for the player: one control bar + a square per round, no numbers (true), or the
+---- Kick / Hold / Correction breakdown below (false)
+A.RecoilWindowSimple = true
 ---- RECOIL window: hint-style image bars (true) or the exact minutes (false)
 A.RecoilWindowBars = true
 ---- full Kick bar, in minutes (live set, Str 96: HK23E 91', rifles 150-240', revolvers ~410')
