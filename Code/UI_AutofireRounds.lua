@@ -175,8 +175,9 @@ function Rat_UpdateCrosshairRounds(crosshair, attacker, action, args)
     local overrun = Platform.rat and const.Combat.Autofire.ShowOverrunChance and args.num_shots and
                         Rat_IsVariableAuto(action)
     if overrun then
-        win.idRatOverrunText:SetText(Untranslated(string.format("overrun %d%%, +1 more %d%%",
-            Rat_AutoOverrunChance(attacker, weapon, shots), Rat_AutoOverrunContinue(weapon))))
+        ---- plain string: the element is Translate = false, and Untranslated() is a T value
+        win.idRatOverrunText:SetText(string.format("overrun %d%%, +1 more %d%%",
+            Rat_AutoOverrunChance(attacker, weapon, shots), Rat_AutoOverrunContinue(weapon)))
     end
     win.idRatOverrunText:SetVisible(overrun and true or false)
     win:SetVisible(true)
