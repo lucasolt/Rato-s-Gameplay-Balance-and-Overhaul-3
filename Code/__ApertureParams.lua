@@ -200,6 +200,8 @@ A.CrosshairShadowSectors = 16
 A.CrosshairShadowBands = 3
 ---- a stop closer than this to the target plane is the target's own ground, not an obstacle
 A.CrosshairShadowPlaneTol = 30
+---- soft edge around the 50% contour, in per mille of the cell field (0 = hard edge)
+A.CrosshairShadowFeather = 80
 
 ---- ESTILO por traco, para poder mexer no visual sem recompilar nada. A chave e o id do traco:
 ---- "ring" (o anel), "wedge" (a cunha do recuo herdado), "climb" (a regua da rajada), "fanl" e

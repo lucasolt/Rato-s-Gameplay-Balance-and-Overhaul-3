@@ -292,24 +292,57 @@ function Rat_ConeShadowTris(attacker, target, action, part, aim, override_pos, r
                 end
                 return sum / n
             end
-            ---- each cell fans from its centre (own weight) to its corners (shared), so edges fade across cells
+            ---- each cell fans from its centre (own weight) to its corners (shared); the field is cut at
+            ---- 50%, so the edge stays sharp but runs as a straight contour instead of the cell staircase
             tris = {alpha = {}}
             local alpha = tris.alpha
-            local function tri(p1, w1, p2, w2, p3, w3)
-                if w1 + w2 + w3 > 0 then
-                    local n = #tris
-                    tris[n + 1], tris[n + 2], tris[n + 3] = p1, p2, p3
-                    alpha[n + 1], alpha[n + 2], alpha[n + 3] = w1, w2, w3
+            local feather = Clamp(a.CrosshairShadowFeather or 0, 0, 499)
+            local lo, hi = 500 - feather, 500 + feather
+            local function clip(ps, ws, level, above)
+                local op, ow = {}, {}
+                for k = 1, #ps do
+                    local k2 = k % #ps + 1
+                    local wa, wb = ws[k], ws[k2]
+                    local ina, inb = (wa >= level) == above, (wb >= level) == above
+                    if ina then
+                        op[#op + 1], ow[#ow + 1] = ps[k], wa
+                    end
+                    if ina ~= inb then
+                        op[#op + 1] = ps[k] + MulDivRound(ps[k2] - ps[k], level - wa, wb - wa)
+                        ow[#ow + 1] = level
+                    end
                 end
+                return op, ow
+            end
+            local function emit(ps, ws, ramp)
+                for k = 3, #ps do
+                    local n = #tris
+                    tris[n + 1], tris[n + 2], tris[n + 3] = ps[1], ps[k - 1], ps[k]
+                    for d, kk in ipairs{1, k - 1, k} do
+                        alpha[n + d] = ramp and Clamp(MulDivRound(ws[kk] - lo, 1000, hi - lo), 0, 1000) or 1000
+                    end
+                end
+            end
+            local function tri(p1, w1, p2, w2, p3, w3)
+                if Max(w1, Max(w2, w3)) < lo then
+                    return
+                end
+                local ps, ws = clip({p1, p2, p3}, {w1, w2, w3}, lo, true)
+                if hi > lo then
+                    local fp, fw = clip(ps, ws, hi, false)
+                    emit(fp, fw, true)
+                end
+                emit(clip(ps, ws, hi, true))
             end
             for j, m in ipairs(samples) do
                 local cl = cells[j]
                 local b, i = (j - 1) / nS + 1, (j - 1) % nS + 1
-                local wm = blocked[j]
                 local i0, j0 = at(cl[1], cl[3]), at(cl[2], cl[3])
                 local i1, j1 = at(cl[1], cl[4]), at(cl[2], cl[4])
                 local wi0, wj0 = weight(b - 1, i), weight(b - 1, i + 1)
                 local wi1, wj1 = weight(b, i), weight(b, i + 1)
+                ---- centre half own, half corners: flattens the per-cell teeth, a lone cell still crosses 50%
+                local wm = (2 * blocked[j] + wi0 + wj0 + wi1 + wj1) / 4
                 ---- the inner band is a wedge: its inner edge is the center point
                 if cl[3] > 0 then
                     tri(m, wm, i0, wi0, j0, wj0)
