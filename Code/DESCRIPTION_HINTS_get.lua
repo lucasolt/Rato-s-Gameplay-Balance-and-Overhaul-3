@@ -789,8 +789,8 @@ end
 
 local HintMechanismLabel =ratT(file_str, 285374032193, "Operation")
 local HintCyclingLabel = ratT(file_str, 608246246045, "Action")
-local HintBurstCritLabel = ratT(file_str, 318826540120, "Selective Burst Critical Chance")
-local HintAutoCritLabel = ratT(file_str, 318826540121, "Autofire Critical Chance")
+local HintBurstCritLabel = ratT(file_str, 318826540130, "Selective Burst Critical Chance")
+local HintAutoCritLabel = ratT(file_str, 318826540131, "Autofire Critical Chance")
 local HintBurstRecoilLabel = ratT(file_str, 318826540123, "Selective Burst Recoil Penalty")
 local HintAutoRecoilLabel = ratT(file_str, 318826540122, "Autofire Recoil Penalty")
 local HintLongRecoilLabel = ratT(file_str, 318826540124, "Long Burst Recoil Penalty")
