@@ -34,7 +34,7 @@ OUT = os.path.join(HERE, "..", "Images")
 GLOW_SPREAD, GLOW_SIGMA, GLOW_OP, GLOW_RGB = 1, 3.2, 0.9, (3, 3, 3)
 SRC_PCT = [2, 25, 50, 75, 98]
 
-# cls: game class, for capture_weapon_icons.py; src: RGBA capture (alpha used as is) or an opaque screenshot
+# cls: game class, for capture_weapon_icons.py; comps: {slot: component id, "" empties} fitted before capture; src: RGBA capture (alpha used as is) or an opaque screenshot
 # (then rect: GrabCut box (x0, y0, x1, y1), wood: skip reddish pixels in the white-balance reference);
 # box: max gun size in the icon; pct: target luma at SRC_PCT (vanilla black guns ~[10,40,65,95,170]), None keeps
 # the capture's tone (light-coloured guns: remapping them to black-gun targets would crush them);
@@ -137,6 +137,8 @@ JOBS = {
     "VigM2":      dict(cls="VigM2_1", src="VigM2.png", canvas=(216, 110), box=(206, 80),
                   pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
     "VikingMP446":dict(cls="VikingMP446_1", src="VikingMP446.png", canvas=(108, 110), box=(98, 72),
+                  pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
+    "RPK74":      dict(cls="RPK74", src="RPK74.png", canvas=(216, 110), box=(206, 80), comps={"Bipod": ""},
                   pct=[8, 38, 62, 90, 165], ratio=None, tilt=0),
 }
 

@@ -3355,6 +3355,7 @@ function RatoGBO_WepPatch()
 	RPK74.MaxStock = 2
 	RPK74.RestockWeight = 30
 	RPK74.CategoryPair = "MachineGuns"
+	RPK74.Icon = "Mod/cfahRED/Images/RPK74_icon.png"
 	RPK74.PenetrationClass = 1
 
 

@@ -66,6 +66,9 @@ CreateRealTimeThread(function()
 		for _, entry in ipairs(CLASSES) do
 			local name, class = entry[1], entry[2]
 			local w = PlaceInventoryItem(class)
+			for slot, comp in pairs(entry[3] or empty_table) do
+				w:SetWeaponComponent(slot, comp)
+			end
 			d.allWeapons[#d.allWeapons + 1] = { weapon = w, slot = d.allWeapons[orig_idx].slot }
 			d:SetWeapon(#d.allWeapons)
 			Sleep(100)

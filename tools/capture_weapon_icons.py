@@ -34,7 +34,9 @@ def capture(names):
         os.remove(os.path.join(SHOTS, f))
     with open(os.path.join(HERE, "weapon_icons", "capture.lua"), encoding="utf-8") as fh:
         lua = fh.read()
-    classes = ", ".join('{"%s", "%s"}' % (n, JOBS[n]["cls"]) for n in names)
+    def comps(n):
+        return ", ".join('["%s"] = "%s"' % kv for kv in JOBS[n].get("comps", {}).items())
+    classes = ", ".join('{"%s", "%s", {%s}}' % (n, JOBS[n]["cls"], comps(n)) for n in names)
     script = os.path.join(SHOTS, "_capture.lua")
     with open(script, "w", encoding="utf-8") as fh:
         # whole line, so a formatter mangling the placeholder cannot leave CLASSES nil
