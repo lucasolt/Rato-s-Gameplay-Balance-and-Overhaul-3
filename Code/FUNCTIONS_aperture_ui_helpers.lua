@@ -22,6 +22,11 @@ function Rat_ScaleTag(text, quality_pct)
     return Untranslated(string.format("<color %d %d %d>%s</color>", r, g, b, text))
 end
 
+---- Cone factor as a multiplier ("x0.85"): a "%" reads like a hit probability to the player.
+function Rat_MulText(v)
+    return string.format("x%d.%02d", v // 100, v % 100)
+end
+
 ---- Fator do cone com 100 NEUTRO: acima abre o cone (ruim), abaixo fecha (bom). Para fatores
 ---- que nao tem 100 no meio da faixa, use Rat_ScaleTag com a qualidade calculada na mao.
 function Rat_PctTag(v)
@@ -29,9 +34,9 @@ function Rat_PctTag(v)
         return Untranslated("")
     end
     if v == 100 then
-        return Untranslated("100%")
+        return Untranslated(Rat_MulText(100))
     end
-    return Rat_ScaleTag(v .. "%", v > 100 and 0 or 100)
+    return Rat_ScaleTag(Rat_MulText(v), v > 100 and 0 or 100)
 end
 
 ---- Fator que NUNCA fica melhor que neutro (Marksmanship: vive em [100, SkillMax]). Verde so
@@ -43,11 +48,11 @@ function Rat_PctTagPenaltyOnly(v, worst)
     end
     if v <= 100 then
         ---- 100 e o MELHOR caso possivel aqui, entao ganha verde -- nao e neutro como no Rat_PctTag
-        return Rat_ScaleTag(v .. "%", 100)
+        return Rat_ScaleTag(Rat_MulText(v), 100)
     end
     local span = Max(1, (worst or 200) - 100)
     local quality = 50 - Clamp(MulDivRound(v - 100, 50, span), 0, 50)
-    return Rat_ScaleTag(v .. "%", quality)
+    return Rat_ScaleTag(Rat_MulText(v), quality)
 end
 
 ---- Espelho do anterior, para fator que NUNCA fica pior que neutro (decay da mira: vive em
@@ -58,11 +63,11 @@ function Rat_PctTagBonusOnly(v, best)
         return Untranslated("")
     end
     if v >= 100 then
-        return Rat_ScaleTag(v .. "%", 50)
+        return Rat_ScaleTag(Rat_MulText(v), 50)
     end
     local span = Max(1, 100 - (best or 0))
     local quality = 50 + Clamp(MulDivRound(100 - v, 50, span), 0, 50)
-    return Rat_ScaleTag(v .. "%", quality)
+    return Rat_ScaleTag(Rat_MulText(v), quality)
 end
 
 ---- Fator de cone, gradiente CONTINUO dos dois lados -- a MESMA escala do snapshot, agora com
@@ -74,7 +79,7 @@ function Rat_ConeMulTag(v, best, worst)
         return Untranslated("")
     end
     if v == 100 then
-        return Untranslated("100%")
+        return Untranslated(Rat_MulText(100))
     end
     local a = const.Combat.Aperture
     best = best or a.MetaScaleBest or 50
@@ -87,5 +92,5 @@ function Rat_ConeMulTag(v, best, worst)
         local span = Max(1, worst - 100)
         quality = 50 - Clamp(MulDivRound(v - 100, 50, span), 0, 50)
     end
-    return Rat_ScaleTag(v .. "%", quality)
+    return Rat_ScaleTag(Rat_MulText(v), quality)
 end

@@ -310,8 +310,7 @@ function Rat_ConeFactors(data)
         for i = 1, aim do
             local d = ladder[i] or 100
             prod = MulDivRound(prod, d, 100)
-            sub[#sub + 1] = T {603847265139, "Aim x<n> (<pct> per level)", n = i,
-                               pct = Rat_ConeMulTag(d)}
+            sub[#sub + 1] = T {528193740615, "Level <n> <pct>", n = i, pct = Rat_ConeMulTag(d)}
         end
         local cone = a.ApertureAsymptotic and (flr + MulDivRound(gap0, prod, 100))
                         or MulDivRound(pre, prod, 100)
@@ -413,7 +412,7 @@ function Rat_ConeMetaText(data)
         if aim > 0 and parts.decay then
             ---- decay vive em [DecayMinPct, 100] e nunca passa de 100: mirar so ajuda, mais ou
             ---- menos. Verde = fecha o maximo que a arma permite; ambar = nao rende.
-            meta[#meta + 1] = T {603847265139, "Aim x<n> (<pct> per level)", n = aim,
+            meta[#meta + 1] = T {603847265139, "Aim <n>: <pct> per level", n = aim,
                                  pct = Rat_ConeMulTag(parts.decay)}
             for _, t in ipairs(parts.aim_meta or empty_table) do
                 meta[#meta + 1] = t
@@ -442,7 +441,7 @@ function Rat_ConeMetaText(data)
     ---- Exibe o GRUPO (2.5 sigma, ~96% dos tiros -- A.CrosshairSigmaMul), nao o sigma cru: e o
     ---- mesmo raio que o anel desenha, e so contra ele "cone ~= alvo" quer dizer "acerto quase certo".
     local group = MulDivRound(sigma, a.CrosshairSigmaMul or 250, 100)
-    return T {193746285017, "Aperture <cone> vs <tgt>", cone = Rat_ScaleTag(group .. "'", cth),
+    return T {193746285017, "Aperture <cone> vs target <tgt>", cone = Rat_ScaleTag(group .. "'", cth),
               tgt = Rat_ScaleTag(theta .. "'", cth)}, meta
 end
 
@@ -485,7 +484,7 @@ end
 
 local t_id_table = {
     [724418639250] = "Aperture",
-    [193746285017] = "Aperture <cone> vs <tgt>",
+    [193746285017] = "Aperture <cone> vs target <tgt>",
     [481920573641] = "Handling <pct>",
     [592038174652] = "Marksmanship <pct>",
     [517294836150] = "Sight <pct>",
@@ -496,7 +495,8 @@ local t_id_table = {
     [592038471265] = "Hipfire",
     [837465019283] = "Snapshot",
     [604815927340] = "Total",
-    [603847265139] = "Aim x<n> (<pct> per level)",
+    [603847265139] = "Aim <n>: <pct> per level",
+    [528193740615] = "Level <n> <pct>",
     [431907726583] = "Minimum spread <f>'",
     [714038265194] = "Modifiers <pct>",
     [402715896331] = "No exposed silhouette",

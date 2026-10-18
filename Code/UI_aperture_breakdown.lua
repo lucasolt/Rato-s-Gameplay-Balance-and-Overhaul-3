@@ -71,48 +71,65 @@ function PopulateCrosshairUICth(win, attacker, action, attackResults)
         win.idChanceToHit.parent:SetZOrder(0)
     end
 
-    local out, total = {}, nil
+    ---- top: the comparison that IS the CTH (plus flat CTH mods); below it, what sized the cone
+    local top, cone, total, cone_meta = {}, {}, nil, nil
     for _, mod in ipairs(modifiers) do
         if not mod.uiHidden then
             if mod.id == "RatAngularCTH" then
-                ---- o numero e o CTH FINAL (== topo): a linha Aperture E a conta, as de baixo
-                ---- so explicam. rat_entry.value seria "rat_cth - skill", delta sem sentido sozinho.
-                out[#out + 1] = line(mod.name, visible and
-                                         T {257328164584, "<percent(value)>", value = chanceToHit})
+                ---- rat_entry.value seria "rat_cth - skill", delta sem sentido sozinho
+                table.insert(top, 1, line(mod.name, visible and
+                                 T {257328164584, "<percent(value)>", value = chanceToHit}))
                 if mod.rat_factors and #mod.rat_factors > 0 then
+                    table.insert(top, 2, T {399490205680, "<left> <metaText>",
+                                            metaText = T(846201937154, "Group size vs target size sets the accuracy")})
                     for _, f in ipairs(mod.rat_factors) do
-                        out[#out + 1] = line(f.name, visible and f.tag)
-                        ---- fatores que so mexem neste (stance, grip, handgun): indentados sob ele
+                        cone[#cone + 1] = line(f.name, visible and f.tag)
                         if f.sub then
-                            push_meta(out, f.sub)
+                            push_meta(cone, f.sub)
                         end
                     end
-                    ---- o que nao e multiplicador (piso do alcance) fica indentado
-                    push_meta(out, mod.rat_meta)
                     total = mod.rat_total --- impresso no fim: ele ja conta os residuais
+                    cone_meta = mod.rat_meta
                 else
-                    push_meta(out, mod.metaText)
+                    push_meta(top, mod.metaText)
                 end
             elseif mod.rat_mul then
                 ---- residual: so quem mexeu no cone. Sem metaText -- ele fala em pontos.
                 if mod.rat_mul ~= 100 then
-                    out[#out + 1] = line(mod.name, visible and Rat_ConeMulTag(mod.rat_mul) or
-                                             cone_sign(mod.rat_mul))
+                    cone[#cone + 1] = line(mod.name, visible and Rat_ConeMulTag(mod.rat_mul) or
+                                               cone_sign(mod.rat_mul))
                 end
             elseif mod.value and not mod.id then
                 ---- base de Marksmanship: ja esta no CTH da linha Aperture, sem linha propria
             else
                 ---- o que nao passou pelo cone e nao e base (cheats, Out of Range, outros mods)
-                out[#out + 1] = line(mod.name, visible and mod.value and
+                top[#top + 1] = line(mod.name, visible and mod.value and
                                          T {257328164584, "<percent(value)>", value = mod.value})
             end
         end
     end
 
-    if total then
-        out[#out + 1] = line(total.name, visible and total.tag)
+    local out = top
+    if #cone > 0 or total then
+        out[#out + 1] = ""
+        out[#out + 1] = T(615093827461, "<style PDABrowserTextLightBold>Aperture modifiers</style> (lower = tighter)")
+        for _, l in ipairs(cone) do
+            out[#out + 1] = l
+        end
+        if total then
+            out[#out + 1] = line(total.name, visible and total.tag)
+        end
+        ---- piso e camuflagem nao sao multiplicadores: notas sob o Total
+        push_meta(out, cone_meta)
     end
 
     win.idModifiers:SetVisible(true)
     win.idModifiers:SetText(Untranslated(table.concat(out, "\n<left>")))
 end
+
+local t_id_table = {
+    [846201937154] = "Group size vs target size sets the accuracy",
+    [615093827461] = "<style PDABrowserTextLightBold>Aperture modifiers</style> (lower = tighter)"
+}
+
+ratG_T_table['UI_aperture_breakdown.lua'] = t_id_table
