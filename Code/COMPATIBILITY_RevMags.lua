@@ -1,6 +1,6 @@
 function OnMsg.RevisedMagPropsAddedToFirearms()
-    REV_SetupWeapon(RPK74, "AK545", "AK74MagazineLarge", "MagLargeFine",
-                    {"MagLargeFine", "MagLarger", "MagNormalFine"})
+    ---- no drum: the 75-round drum is an RPK (7.62x39) mag
+    REV_SetupWeapon(RPK74, "AK545", "AK74MagazineLarge", "MagLargeFine", {"MagLargeFine", "MagNormalFine"})
     REV_SetupWeapon(AK74, "AK545", "AK74Magazine", "MagNormalFine",
                     {"MagLargeFine", "MagLarger", "MagNormalFine"})
     REV_SetupWeapon(M14SAW_AUTO, "M14", "M14Magazine", "MagNormal", {"MagLarge", "MagNormal"})

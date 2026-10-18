@@ -13,8 +13,8 @@ function rat_changeMag_component(unit)
             "HiPower", "MagLarge_1",
             "MagLargeFine_1"
         }, {
-            "RPK74", "MagLarge_2",
-            "MagLargeFine_2"
+            "RPK74", "MagNormal",
+            "MagNormalFine"
         }, {
             "Glock18", "MagLarge_3",
             "MagLargeFine_3"

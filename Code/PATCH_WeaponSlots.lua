@@ -2451,7 +2451,6 @@ GBO_WeaponSlots = {
 				"MagNormal",
 				"MagNormalFine",
 				"MagQuick",
-				"MagLarge_2",
 			},
 		},
 		{

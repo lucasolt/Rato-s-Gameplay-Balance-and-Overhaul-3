@@ -955,7 +955,7 @@ RAT_ATT_MAG_FAMILIES = {
                          "G11_Mag_ext2_1"}}
 }
 
----- family, id suffix, calibre label, calibers, icon, types, shop page (default RifleMags). A typed row
+---- family, id suffix, calibre label, calibers, icon, types, shop page (default RifleMags), reserved. A typed row
 ---- wins for its weapon type; the untyped one of the same calibre takes the rest.
 local UP = "UI/Icons/Upgrades/"
 local TOG = "Mod/KKh3Yhf/Images/"
@@ -1001,7 +1001,8 @@ RAT_ATT_MAG_ROWS = {
     {"mag_quickexpanded", "556", "5.56 NATO", {"556"}, UP .. "quick_STANAG_magazine"},
 
     {"mag_drum", "556", "5.56 NATO", {"556"}, UP .. "expanded_drum_G36_magazine"},
-    {"mag_drum", "545", "5.45x39", {"5_45x39"}, UP .. "RPK74_drum_magazine"},
+    ---- the RPK74 lost its drum, so no 5.45 gun takes it; kept as a class for saves
+    {"mag_drum", "545", "5.45x39", {"5_45x39"}, UP .. "RPK74_drum_magazine", nil, nil, true},
     {"mag_drum", "762", "7.62 NATO", {"762NATO", "308Win"}, UP .. "hk21_mag_large"},
     {"mag_drum", "12g", "12 gauge", {"12gauge"}, UP .. "aa12_mag_drum"},
     {"mag_drum", "G11", "4.73 Caseless", {"4_7x33"}, TOG .. "G11_Mag_ext2_icon.png"}
@@ -1020,6 +1021,7 @@ for _, row in ipairs(RAT_ATT_MAG_ROWS) do
         calibers = row[4],
         types = row[6],
         page = row[7] or fam.page or "RifleMags",
+        reserved = row[8],
         mag = true
     }
 end
@@ -1351,7 +1353,7 @@ function Rat_AttBind()
     for _, def in ipairs(RAT_ATT_ITEMS) do
         if def.reserved then
             held_back[def.name] = true
-            for _, cid in ipairs(def.comps) do
+            for _, cid in ipairs(def.comps or empty_table) do
                 held_back[cid] = true
             end
         end
