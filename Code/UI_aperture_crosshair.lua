@@ -20,19 +20,24 @@ local debug = Platform.developer and Platform.rat
 ---- Memo do estimador: o crosshair atualiza a cada hover de body part e a cada nivel de mira, e
 ---- Monte Carlo por frame nao se paga para desenhar um traco. A FORMA nao depende do alvo -- ela
 ---- sai so do perfil e do offset -- entao a chave nao precisa de theta nem de sigma.
-local e_att, e_wep, e_act, e_aim, e_n, e_est
+local e_att, e_wep, e_act, e_aim, e_n, e_est, e_prof
 
-local function ladder_estimate(attacker, action, weapon, aim, num_shots)
+---- also read by the RECOIL window, so ring and numbers come from one estimate
+function Rat_CrosshairRecoilEstimate(attacker, action, weapon, aim, num_shots)
     if e_att == attacker and e_wep == weapon and e_act == action and e_aim == aim and
         e_n == num_shots then
-        return e_est
+        return e_est, e_prof
     end
     local prof = Rat_RecoilProfile(attacker, action, weapon, num_shots)
     ---- sem theta/sigma o estimador pula o Rice por tiro: aqui so a geometria do passeio interessa
     e_est = prof and Rat_EstimateBurst(prof, nil, nil, num_shots,
                                        const.Combat.Aperture.CrosshairRecoilSamples)
-    e_att, e_wep, e_act, e_aim, e_n = attacker, weapon, action, aim, num_shots
-    return e_est
+    e_att, e_wep, e_act, e_aim, e_n, e_prof = attacker, weapon, action, aim, num_shots, prof
+    return e_est, e_prof
+end
+
+local function ladder_estimate(...)
+    return (Rat_CrosshairRecoilEstimate(...))
 end
 
 ---- Cor da escada: a MESMA do anel, so clareada. Um segundo tom diria "outra coisa" e a escada e o

@@ -173,6 +173,7 @@ function Rat_recoil_PopulateCrosshair(win, attacker, action, attackResults, targ
 	local dontShow = action.AlwaysHits
 	win:SetVisible(not dontShow)
 	if dontShow or not attackResults then return end
+	if Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon) then return end
 
 
 	local num_shots = attackResults[1].shot_idx

@@ -304,6 +304,8 @@ function Unit:CalcChanceToHit(target, action, args, chance_only)
 			---- ele usa #modifiers para achar as linhas que as reacoes inseriram.
 			rat_entry.rat_factors, rat_entry.rat_meta, rat_entry.rat_total =
 				Rat_ConeFactors(mod_data)
+			---- target radius for the RECOIL window's drift colors
+			rat_entry.rat_theta = mod_data.rat_theta_geo
 		end
 		---- UM cone so: crosshair, simulacao e visualizadores leem daqui em vez de reinverter CTH
 		if type(args) == "table" then

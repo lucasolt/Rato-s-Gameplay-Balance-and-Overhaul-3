@@ -196,8 +196,118 @@ function PopulateCrosshairUICth(win, attacker, action, attackResults)
     end
 end
 
+---------------------------------------------------------------------------------------------------
+---- RECOIL window under aCTH: the muzzle model's three levers in minutes (Rat_RecoilProfile), the
+---- recoil chain's named modifiers under the lever each one feeds, and the mean drift per shot.
+---------------------------------------------------------------------------------------------------
+
+---- Strength vs caliber -> cf_max
+local hold_ids = {[285153762692] = true, [988872717528] = true}
+---- stance, Marksmanship, perks -> max_inc. Everything else (gun, ammo, bipod, burst) is kick.
+local correction_ids = {
+    [294661659116] = true, [663793494488] = true, [869135768177] = true, [495676736357] = true,
+    [889423438892] = true, [946448112577] = true, [712682745289] = true, [764956297274] = true
+}
+
+local function recoil_meta_line(m)
+    local id, text = false, m
+    if type(m) == "table" then
+        id, text = m[1], m[2]
+        if type(id) == "table" then
+            id, text = id[1], id[2]
+        end
+    end
+    text = (id and TranslationTable[id]) or text
+    if type(text) ~= "string" then
+        return id, nil
+    end
+    local neg = text:sub(1, 4) == "(-) "
+    if neg then
+        text = text:sub(5)
+    end
+    return id, T {399490205680, "<left> <metaText>", metaText = Untranslated(text .. " " ..
+                 (neg and "<color DescriptionTextRed>-</color>" or "<color PDASectorInfo_Green>+</color>"))}
+end
+
+---- centiminutes -> "4.5'" / "173'": a decimal only where it is still a real share of the value
+local function minutes(c)
+    c = Max(0, c)
+    if c >= 1000 then
+        return MulDivRound(c, 1, 100) .. "'"
+    end
+    return string.format("%d.%d'", c // 100, (c % 100) // 10)
+end
+
+function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
+    local modifiers = attackResults and attackResults.chance_to_hit_modifiers
+    local entry = modifiers and table.find_value(modifiers, "id", "RatAngularCTH")
+    local num_shots = #(attackResults and attackResults.shots or empty_table)
+    if not entry or num_shots < 2 then
+        return false
+    end
+    local est, prof = Rat_CrosshairRecoilEstimate(attacker, action, weapon, attackResults.aim or 0,
+                                                  num_shots)
+    if not est or not prof then
+        return false
+    end
+
+    local visible = CthVisible()
+    win.idChanceToHit:SetText(T(573019284716, "RECOIL"))
+    win.idChanceToHit.parent:SetZOrder(1)
+
+    local kick_meta, hold_meta, corr_meta = {}, {}, {}
+    local _, meta = Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
+    for _, m in ipairs(meta or empty_table) do
+        local id, l = recoil_meta_line(m)
+        if l then
+            local bucket = hold_ids[id] and hold_meta or correction_ids[id] and corr_meta or kick_meta
+            bucket[#bucket + 1] = l
+        end
+    end
+
+    ---- bipod already folded into kick_y: show the kick the step actually applies
+    local kick = Rat_ISqrt(prof.kick_x * prof.kick_x + prof.kick_y * prof.kick_y)
+    ---- the caliber gate: below the kick, the climb can never be stopped
+    local hold = visible and Rat_ScaleTag(minutes(prof.cf_max), prof.cf_max < kick and 0 or 100)
+
+    local out = {}
+    local function lever(name, value, sub)
+        out[#out + 1] = line(name, value)
+        for _, l in ipairs(sub) do
+            out[#out + 1] = l
+        end
+    end
+    lever(T(681730492265, "Kick"), visible and minutes(kick), kick_meta)
+    lever(T(240917368852, "Hold"), hold, hold_meta)
+    lever(T(915274036418, "Correction"), visible and minutes(prof.max_inc), corr_meta)
+
+    if visible then
+        ---- offset vs target radius: past it the muzzle center has left the target
+        local theta = entry.rat_theta or 0
+        local drift = {}
+        for i = 1, num_shots do
+            local r = est.offset[i] or 0
+            drift[i] = r .. "'"
+            if theta > 0 then
+                local cr, cg, cb = Rat_QualityColor(100 - Clamp(MulDivRound(r, 100, theta), 0, 100))
+                drift[i] = string.format("<color %d %d %d>%s</color>", cr, cg, cb, drift[i])
+            end
+        end
+        out[#out + 1] = line(T(386402917753, "Drift"), Untranslated(table.concat(drift, " ")))
+    end
+
+    win.idModifiers:SetVisible(true)
+    win.idModifiers:SetText(Untranslated(table.concat(out, "\n<left>")))
+    return true
+end
+
 local t_id_table = {
-    [615093827461] = "APERTURE MODIFIERS"
+    [615093827461] = "APERTURE MODIFIERS",
+    [573019284716] = "RECOIL",
+    [681730492265] = "Kick",
+    [240917368852] = "Hold",
+    [915274036418] = "Correction",
+    [386402917753] = "Drift"
 }
 
 ratG_T_table['UI_aperture_breakdown.lua'] = t_id_table
