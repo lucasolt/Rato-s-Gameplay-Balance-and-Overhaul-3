@@ -1765,7 +1765,9 @@ function Rat_DbgRecoilVectors(o)
             end
             local n = o.shot
             focus = {
-                pts = {{x2, y2, clrKick}, {x2 + bx, y2 + by, clrPush}, {st.px, st.py, clrCone}},
+                ---- yellow last; dropped when it is blue exactly (noise off), or it would hide it
+                pts = {{x2, y2, clrKick}, {x2 + bx, y2 + by, clrPush},
+                       (st.px ~= x2 + bx or st.py ~= y2 + by) and {st.px, st.py, clrCone} or nil},
                 string.format("ROUND %d: how far it lands from the aim point", n),
                 string.format("red     no push-back      %d'   (kick %d' + speed carried %d')",
                               cm(vlen_c(x2, y2)), cm(kick), cm(vlen_c(vx0, vy0))),
@@ -1773,9 +1775,10 @@ function Rat_DbgRecoilVectors(o)
                               cm(vlen_c(x2 + bx, y2 + by)), cm(vlen_c(bx, by)), cm(prof.cf_max),
                               cm(vlen_c(tr.corr_x, tr.corr_y)),
                               tr.slow and ", Correction limit" or ""),
-                string.format("yellow  with error        %d'   (correction error %d'%s)",
+                o.noise and string.format("yellow  with error        %d'   (correction error %d'%s)",
                               cm(vlen_c(st.px, st.py)), cm(vlen_c(tr.err_x, tr.err_y)),
-                              prof.lat > 0 and " + random sideways shove" or "")
+                              prof.lat > 0 and " + random sideways shove" or "") or
+                    "yellow  = blue: noise is off (noise = true to roll the error)"
             }
         end
         if not o.shot then
