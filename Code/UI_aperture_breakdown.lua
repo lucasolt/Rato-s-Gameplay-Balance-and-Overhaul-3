@@ -259,39 +259,64 @@ local function bar(pct, kind)
     return Untranslated(s)
 end
 
----- one pip per round (tools/gen_recoil_pips.py): green on target, amber near the edge, red past it
-local function drift_pip(r, theta)
-    local file = (theta <= 0 and "a") or (r * 2 < theta and "g") or (r < theta and "a") or "r"
-    return "<image Mod/cfahRED/Images/RecoilPip/" .. file .. ".png 1000>"
+---- Per-round muzzle offsets of a seeded walk, one list per round. Cached by profile identity:
+---- Rat_CrosshairRecoilEstimate hands back the same table until the attack changes.
+local walk_prof, walk_n, walk_offs
+local function recoil_walk(prof, n)
+    if walk_prof == prof and walk_n == n then
+        return walk_offs
+    end
+    local a = const.Combat.Aperture
+    local rnd = BraidRandomCreate(a.RecoilEstimateSeed or 1)
+    local st, offs = Rat_RecoilState(), {}
+    for i = 1, n do
+        offs[i] = {}
+    end
+    for _ = 1, Max(1, a.CrosshairRecoilSamples or 24) do
+        st.px, st.py, st.vx, st.vy, st.cx, st.cy = 0, 0, 0, 0, 0, 0
+        for i = 1, n do
+            local _, _, r = Rat_RecoilPoint(st)
+            offs[i][#offs[i] + 1] = r
+            Rat_RecoilStep(prof, st, rnd)
+        end
+    end
+    walk_prof, walk_n, walk_offs = prof, n, offs
+    return offs
 end
 
----- Share of round 1's hit chance that round i keeps, from the cached mean drift. Rough on purpose:
----- the window shows no number. Below 10% CTH the whole-% Rice steps too coarsely; there the small-
----- target limit e^(-(drift/sigma)^2 / 2) holds, and that is 100 - Rayleigh(drift, sigma).
-local function round_share(theta, sigma, base, off)
-    if off <= 0 then
+---- % of walks whose round still points inside the target. Recoil only: round 1 is a perfect hit and
+---- the cone is left out, as in the weapon hint's recoil chart -- a weak round 1 can't hide the climb.
+local function on_target(offs, theta)
+    if theta <= 0 then
         return 100
     end
-    if base >= 10 then
-        return Clamp(MulDivRound(Rat_RiceCTH(theta, sigma, off), 100, base), 0, 100)
+    local on = 0
+    for _, r in ipairs(offs) do
+        if r <= theta then
+            on = on + 1
+        end
     end
-    return 100 - Rat_RayleighCTH(off, sigma)
+    return MulDivRound(on, 100, #offs)
 end
 
-function Rat_ACTHRecoilSimple(win, entry, est, num_shots, meta_groups)
-    local theta, sigma = entry.rat_theta or 0, entry.rat_sigma or 0
-    local base = (theta > 0 and sigma > 0) and Rat_RiceCTH(theta, sigma, 0) or 0
+---- one pip per round (tools/gen_recoil_pips.py)
+local function share_pip(share)
+    return "<image Mod/cfahRED/Images/RecoilPip/" .. (share >= 67 and "g" or share >= 34 and "a" or "r") ..
+               ".png 1000>"
+end
+
+function Rat_ACTHRecoilSimple(win, entry, prof, num_shots, meta_groups)
+    local offs, theta = recoil_walk(prof, num_shots), entry.rat_theta or 0
     local pips, sum = {}, 0
     for i = 1, num_shots do
-        local share = 100
-        if sigma > 0 then
-            share = round_share(theta, sigma, base, est.offset[i] or 0)
+        local share = on_target(offs[i], theta)
+        ---- the bar is the rounds recoil can touch; round 1 would pad every burst with a free 100
+        if i > 1 then
+            sum = sum + share
         end
-        sum = sum + share
-        pips[i] = "<image Mod/cfahRED/Images/RecoilPip/" ..
-                      (share >= 67 and "g" or share >= 34 and "a" or "r") .. ".png 1000>"
+        pips[i] = share_pip(share)
     end
-    local mean = sum // num_shots
+    local mean = sum // (num_shots - 1)
 
     local out = {}
     if CthVisible() then
@@ -338,7 +363,7 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
 
     local a = const.Combat.Aperture
     if a.RecoilWindowSimple then
-        return Rat_ACTHRecoilSimple(win, entry, est, num_shots, {kick_meta, hold_meta, corr_meta})
+        return Rat_ACTHRecoilSimple(win, entry, prof, num_shots, {kick_meta, hold_meta, corr_meta})
     end
     local bars = a.RecoilWindowBars
     ---- bipod already folded into kick_y: show the kick the step actually applies
@@ -370,18 +395,15 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
     lever(T(915274036418, "Correction"), corr_v, corr_meta)
 
     if visible then
-        ---- offset vs target radius: past it the muzzle center has left the target
-        local theta = entry.rat_theta or 0
+        ---- same colors as the simple view: % of walks still on target, cone left out
+        local offs, theta = recoil_walk(prof, num_shots), entry.rat_theta or 0
         local drift = {}
         for i = 1, num_shots do
-            local r = est.offset[i] or 0
+            local share = on_target(offs[i], theta)
             if bars then
-                drift[i] = drift_pip(r, theta)
+                drift[i] = share_pip(share)
             else
-                drift[i] = r .. "'"
-                if theta > 0 then
-                    drift[i] = rgb_text(drift[i], 100 - Clamp(MulDivRound(r, 100, theta), 0, 100))
-                end
+                drift[i] = rgb_text((est.offset[i] or 0) .. "'", share)
             end
         end
         out[#out + 1] = line(T(386402917753, "Drift"), Untranslated(table.concat(drift, bars and "" or " ")))
