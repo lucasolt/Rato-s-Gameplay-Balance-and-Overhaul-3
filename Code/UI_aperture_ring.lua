@@ -299,9 +299,9 @@ function Rat_StrokeMesh(id, pts, color, st)
     local tf, bf = (st and st.tipFade) or 0, (st and st.baseFade) or 0
     if st and st.tris then
         local r, g, bl = GetRGB(color)
-        local c = RGBA(r, g, bl, st.fillAlpha or 60)
+        local fa, al = st.fillAlpha or 60, pts.alpha
         for i = 1, #pts do
-            AppendVertex(vpstr, pts[i], c)
+            AppendVertex(vpstr, pts[i], RGBA(r, g, bl, al and MulDivRound(fa, al[i], 1000) or fa))
         end
     elseif st and st.fill then
         fan(vpstr, pts, color, st.fillAlpha or 60, bf)

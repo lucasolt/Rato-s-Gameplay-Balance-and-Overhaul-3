@@ -269,17 +269,54 @@ function Rat_ConeShadowTris(attacker, target, action, part, aim, override_pos, r
         local data = GetLoFData(attacker, samples, probe)
 
         local tol = a.CrosshairShadowPlaneTol or 0
+        local blocked, any = {}, false
         for j, p in ipairs(samples) do
-            if stops_short(Rat_SimLoF(data and data[j]), ap, p, target, tol) then
-                tris = tris or {}
+            blocked[j] = stops_short(Rat_SimLoF(data and data[j]), ap, p, target, tol) and 1000 or 0
+            any = any or blocked[j] > 0
+        end
+        if any then
+            local function cell(b, i)
+                return blocked[(b - 1) * nS + (i - 1) % nS + 1]
+            end
+            ---- grid vertex weight = mean of the cells around it; the centre touches every inner cell
+            local function weight(b, i)
+                local sum, n = 0, 0
+                if b == 0 then
+                    for k = 1, nS do
+                        sum = sum + cell(1, k)
+                    end
+                    return sum / nS
+                end
+                for bb = b, Min(b + 1, nB) do
+                    sum, n = sum + cell(bb, i - 1) + cell(bb, i), n + 2
+                end
+                return sum / n
+            end
+            ---- each cell fans from its centre (own weight) to its corners (shared), so edges fade across cells
+            tris = {alpha = {}}
+            local alpha = tris.alpha
+            local function tri(p1, w1, p2, w2, p3, w3)
+                if w1 + w2 + w3 > 0 then
+                    local n = #tris
+                    tris[n + 1], tris[n + 2], tris[n + 3] = p1, p2, p3
+                    alpha[n + 1], alpha[n + 2], alpha[n + 3] = w1, w2, w3
+                end
+            end
+            for j, m in ipairs(samples) do
                 local cl = cells[j]
+                local b, i = (j - 1) / nS + 1, (j - 1) % nS + 1
+                local wm = blocked[j]
                 local i0, j0 = at(cl[1], cl[3]), at(cl[2], cl[3])
                 local i1, j1 = at(cl[1], cl[4]), at(cl[2], cl[4])
-                tris[#tris + 1], tris[#tris + 2], tris[#tris + 3] = i1, j1, j0
+                local wi0, wj0 = weight(b - 1, i), weight(b - 1, i + 1)
+                local wi1, wj1 = weight(b, i), weight(b, i + 1)
                 ---- the inner band is a wedge: its inner edge is the center point
                 if cl[3] > 0 then
-                    tris[#tris + 1], tris[#tris + 2], tris[#tris + 3] = i1, j0, i0
+                    tri(m, wm, i0, wi0, j0, wj0)
                 end
+                tri(m, wm, j0, wj0, j1, wj1)
+                tri(m, wm, j1, wj1, i1, wi1)
+                tri(m, wm, i1, wi1, i0, wi0)
             end
         end
     end
