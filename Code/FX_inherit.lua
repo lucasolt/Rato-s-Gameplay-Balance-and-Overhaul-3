@@ -31,6 +31,7 @@ function rat_apply_inherit(rules)
             "RAT_TOG_CompensatorNoEntity"
         },
 		MuzzleBooster = {"MuzzleBooster_Reliability"},
+        Basic = {"DefaultMuzzle_RPK74"},
 
     }
 

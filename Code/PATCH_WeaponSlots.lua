@@ -2486,9 +2486,11 @@ GBO_WeaponSlots = {
 		},
 		{
 			SlotType = "Muzzle",
-			CanBeEmpty = true,
+			DefaultComponent = "DefaultMuzzle_RPK74",
+			CanBeEmpty = false,
 			Modifiable = true,
 			AvailableComponents = {
+				"DefaultMuzzle_RPK74",
 				"Compensator",
 				"MuzzleBooster",
 				"Suppressor",

@@ -2755,6 +2755,22 @@ return {
 		param_bindings = {},
 	}),
 	PlaceObj('ModItemWeaponComponent', {
+		DisplayName = T(242669573662, --[[ModItemWeaponComponent DefaultMuzzle_RPK74 DisplayName]] "Default Flash Hider"),
+		Icon = "UI/Icons/Upgrades/m16_muzzle",
+		ModificationDifficulty = -25,
+		Slot = "Muzzle",
+		Visuals = {
+			PlaceObj('WeaponComponentVisual', {
+				ApplyTo = "RPK74",
+				Entity = "WeaponAttA_MuzzleHK21",
+				Slot = "Muzzle",
+				param_bindings = false,
+			}),
+		},
+		id = "DefaultMuzzle_RPK74",
+		param_bindings = {},
+	}),
+	PlaceObj('ModItemWeaponComponent', {
 		ModificationEffects = {
 			"ExtraBurstShots",
 		},
