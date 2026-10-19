@@ -82,7 +82,7 @@ GBO_COMPOSE_PCT = {
 
 local short_barrel_aim_reduction = 4
 local short_barrel_handgun_aim_reduction = 2
-local long_barrel_aim_bonus = 8
+local long_barrel_aim_bonus = 6
 local long_barrel_handgun_aim_bonus = 4
 local light_stock_aim_reduction = 4
 local lightstock_aim_mul = 90

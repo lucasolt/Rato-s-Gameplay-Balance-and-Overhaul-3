@@ -186,11 +186,11 @@ A.HandlingMax = 160
 
 ---- Barrel points by class, first match; guns with default_long_barrel ignore barrel parts (classic PB rule).
 A.HandlingBarrelPoints = {
-	{class = "Shotgun", shortbarrel = 10, longbarrel = -5},
-	{class = "SubmachineGun", shortbarrel = 8, longbarrel = -5},
-	{class = "Pistol", shortbarrel = 6, longbarrel = -4},
-	{class = "Revolver", shortbarrel = 7, longbarrel = -4},
-	{shortbarrel = 7, longbarrel = -7},
+	{class = "Shotgun", shortbarrel = 10, longbarrel = -4},
+	{class = "SubmachineGun", shortbarrel = 8, longbarrel = -4},
+	{class = "Pistol", shortbarrel = 6, longbarrel = -3},
+	{class = "Revolver", shortbarrel = 7, longbarrel = -3},
+	{shortbarrel = 7, longbarrel = -5},
 }
 ---- keyed by component EFFECT id, which is what HasComponent matches
 A.HandlingComponentPoints = {
