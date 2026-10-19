@@ -137,10 +137,39 @@ function GBO_ReplaceRetiredComponents(weapon)
     end
 end
 
+---- by class: REV_GetMagazineClassByPlatformAndModification misses mags outside the Default preset group
+local function findRevMag(platform, modification)
+    for _, class_name in ipairs(ClassDescendantsList("Mag")) do
+        local mag = g_Classes[class_name]
+        if mag.Platform == platform and mag.Modification == modification then
+            return class_name
+        end
+    end
+end
+
+---- Revised Mags: a gun built while its platform had no mag never got the MagazineSize modifier (0/0)
+function GBO_RepairRevMagsCapacity(weapon)
+    local mag_class = g_Classes[weapon.class].Magazine
+    if not mag_class or weapon.MagazineSize > 0 then
+        return
+    end
+    local slot = table.find_value(weapon.ComponentSlots, "SlotType", "Magazine")
+    local comp = weapon.components.Magazine or slot and slot.DefaultComponent or "MagNormal"
+    weapon.magazine = weapon.magazine or PlaceInventoryItem(findRevMag(weapon.Platform, comp) or mag_class)
+    weapon.magazine.ammo = weapon.magazine.ammo or weapon.ammo
+    weapon:SetMagazineComponents(comp)
+    print("GBO Update - restored Revised Mags capacity of", weapon.class, "to", weapon.MagazineSize)
+    ObjModified(weapon)
+end
+
 function OnMsg.ZuluGameLoaded()
+    local rev_mags = IsMod_loaded("URkxyfE")
     for _, item in pairs(g_ItemIdToItem or empty_table) do
         if IsKindOf(item, "Firearm") and not rawget(item, "is_clone") then
             GBO_ReplaceRetiredComponents(item)
+            if rev_mags then
+                GBO_RepairRevMagsCapacity(item)
+            end
         end
     end
     GBO_RefreshCTHModeItems()
