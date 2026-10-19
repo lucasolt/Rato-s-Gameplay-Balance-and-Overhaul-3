@@ -404,15 +404,15 @@ A.RecoilNoiseSkillSlope = 3
 A.RecoilMovingCtlPct = 25
 A.RecoilMovingLatPct = 50
 
----- Prone on a bipod: the legs stop the climb, not the yaw, so the gun sweeps sideways.
+---- Prone on a bipod: the legs stop the climb. A bipod is never a penalty -- MG lateral identity belongs to the MG, not here.
 ---- Any prone gun with a RecoilControlWhenProne component (MG and rifle bipods, AUG heavy barrels), plus the M2 always.
 ---- Measured with the other one at 60 / 200. Pair 70 / 300: MG 49% -> 37% (x 168' -> 320', y unchanged 58').
 ---- UP = the bipod removes less climb; that also raises cf, which raises lateral. MG 40 -> 53%, 60 -> 49%,
 ---- 75 -> 45%, 90 -> 40%, 100 -> 37% (x 135' -> 290')
 A.RecoilBipodKickYMul = 70--60
----- UP = more sideways sweep on a bipod. The MG-focused lateral knob. MG 100 -> 58% x103',
----- 200 -> 49% x168', 300 -> 39% x259', 400 -> 33% x380'
-A.RecoilBipodLatMul = 300--200
+---- UP = more sideways sweep on a bipod; keep at 100 (lateral already shrinks with the smaller cf). MG 100 -> 58% x103',
+---- 200 -> 49% x168', 300 -> 39% x259', 400 -> 33% x380'. RPK prone, Grizzly, 6 rds: 300 -> 234, 100 -> 324, no bipod 297.
+A.RecoilBipodLatMul = 100
 
 ---- Max muzzle climb in kicks of this gun (0 = none); stabilisable guns peak 270-534' < 4 kicks, held MG42 hit 5046' in 12
 A.RecoilClimbCapKicks = 4
