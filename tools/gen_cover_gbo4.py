@@ -1,4 +1,4 @@
-import math, random, sys
+import base64, math, random, sys
 
 out = sys.argv[1]
 W = H = 1024
@@ -97,7 +97,6 @@ a(f'<line x1="64" y1="122" x2="380" y2="122" stroke="{BONE}" stroke-width="1" op
 note(840, 150, "σ 2.4°", 0.65); leader(836, 148, 850, 228)
 note(870, 360, "d50 14m", 0.65); leader(866, 355, 822, 320)
 note(560, 220, "RECOIL +0.8°/RD", 0.65, "end"); leader(565, 212, 700, 182)
-note(680, 610, "BLOCKED", 0.65); leader(676, 604, 590, 548)
 note(176, 900, "MUZZLE", 0.5)
 
 # Title block.
@@ -109,6 +108,8 @@ a(f'<text x="960" y="948" {title} font-size="236" letter-spacing="-4" text-ancho
 note(960, 980, "JAGGED ALLIANCE 3 · RATO", 0.4, "end")
 
 a(f'<rect width="{W}" height="{H}" fill="url(#vig)"/>')
+logo = base64.b64encode(open("Images/rat_logo_bone.png", "rb").read()).decode()
+a(f'<image x="826" y="58" width="134" height="44" opacity="0.9" href="data:image/png;base64,{logo}"/>')
 a('</svg>')
 
 open(out, "w", encoding="utf-8").write("\n".join(p))
