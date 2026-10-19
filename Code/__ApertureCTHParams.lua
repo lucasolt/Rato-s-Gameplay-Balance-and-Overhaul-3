@@ -399,6 +399,11 @@ A.RecoilNoiseSkillRef = 90
 ---- UP = mercs below Ref are noisier. % extra noise per Marksmanship point short of Ref
 A.RecoilNoiseSkillSlope = 3
 
+---- MG IDENTITY: the gun's mass damps the shooter's own noise (RecoilMinErrorPct and lateral), standing or prone.
+---- Recoil cannot buy this: on a bipod the climb is gone and the noise floor is what rifles and MGs share.
+---- Grizzly, 6 rds, class recoil 65, prone bipod: RPK 0 -> 334, 25 -> 385; HK21 305 -> 359; MG42 268 -> 323.
+A.RecoilMGSteadyPct = 12
+
 ---- firing on the move: no brace at all, and the stride throws the muzzle sideways
 ---- UP = worse grip / wider sway while running (RunAndGun, RecklessAssault). Not measured.
 A.RecoilMovingCtlPct = 25

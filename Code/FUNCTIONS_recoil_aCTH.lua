@@ -150,9 +150,12 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
         end
     end
 
-    ---- noise only grows below the reference, so no one gets steadier than the base tuning
+    ---- skill only adds noise below the reference; the MG's mass is the one thing that removes it
     local noise = 100 + Max(0, (a.RecoilNoiseSkillRef or 0) - (attacker.Marksmanship or 0)) *
                             (a.RecoilNoiseSkillSlope or 0)
+    if IsKindOf(weapon, "MachineGun") then
+        noise = MulDivRound(noise, 100 - (a.RecoilMGSteadyPct or 0), 100)
+    end
 
     local T = Max(1, a.RecoilSettleShots or 3)
     local ang = Clamp(a.RecoilKickAngle or 0, -90, 90) * 60
