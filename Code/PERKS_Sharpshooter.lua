@@ -67,12 +67,13 @@ local function SettledBeginTurn(self, unit)
     end
 end
 
----- anchor at combat start, so a merc that waited in position is Settled on its first turn
+---- one below max at combat start: a merc that waited in position starts its first turn fully Settled
 function OnMsg.CombatStart()
     gv_Rat_Settled = {}
+    local stacks = Max(0, const.Combat.Perks.SharpshooterMaxStacks - 1)
     for _, unit in ipairs(g_Units) do
         if unit.session_id and HasPerk(unit, "Instagib") then
-            gv_Rat_Settled[unit.session_id] = {pos = unit:GetPos(), stacks = 0}
+            gv_Rat_Settled[unit.session_id] = {pos = unit:GetPos(), stacks = stacks}
         end
     end
 end
@@ -83,9 +84,9 @@ end
 
 function Rat_SharpshooterDescription()
     local p = const.Combat.Perks
-    local text = "Start your turn on the tile where you started the previous one to become <em>Settled</em> (up to <max> stacks). Moving loses all stacks.\n\nEach stack gives <em>every aim level</em> of your <em>first attack</em> each turn <em>+<acc> Aim Accuracy</em>, <em>+<crit>% Crit Chance</em> and <em>+<critdmg>% Crit Damage</em>.\n\nDoes not apply to <GameTerm('Interrupt')> attacks."
-    ratT(file_str, 483920175333, text)
-    return T {483920175333, text, max = p.SharpshooterMaxStacks, acc = p.SharpshooterAccPerStack,
+    local text = "Start your turn on the tile where you started the previous one to become <em>Settled</em> (up to <max> stacks). Begin combat fully Settled if you have not moved. Moving loses all stacks.\n\nEach stack gives <em>every aim level</em> of your <em>first attack</em> each turn <em>+<acc> Aim Accuracy</em>, <em>+<crit>% Crit Chance</em> and <em>+<critdmg>% Crit Damage</em>.\n\nDoes not apply to <GameTerm('Interrupt')> attacks."
+    ratT(file_str, 483920175334, text)
+    return T {483920175334, text, max = p.SharpshooterMaxStacks, acc = p.SharpshooterAccPerStack,
               crit = p.SharpshooterCritPerAimPerStack, critdmg = p.SharpshooterCritDmgPerAimPerStack}
 end
 
