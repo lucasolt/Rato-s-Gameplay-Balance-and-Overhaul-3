@@ -384,11 +384,11 @@ function Rat_ApertureDecayMeta(e, compDef)
     return compDef.DisplayName
 end
 
-function Rat_ApertureAimDecay(weapon, attacker, level, optics)
+function Rat_ApertureAimDecay(weapon, attacker, level, optics, extra_acc)
     local a = P()
 
 	local meta = {}
-    local acc = Rat_ApertureAimAcc(weapon, attacker, level, optics)
+    local acc = Rat_ApertureAimAcc(weapon, attacker, level, optics) + (extra_acc or 0)
 
     local decay = 100 - (a.DecayBase + a.DecayScale * acc)
 
@@ -640,7 +640,7 @@ end
 
 ---- Retorna sigma e a lista de contribuicoes (para a UI mostrar em minutos de cone,
 ---- no lugar da lista aditiva de pontos percentuais que o modelo antigo exibia).
-function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
+function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, attacker_pos)
     local a = P()
     aim = aim or 0
 
@@ -688,8 +688,10 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
     local ladder = {}
 	local aimMetaText
     local mobile_close = action and (a.MobileActions or empty_table)[action.id] and a.MobileAimClosePct
+    local settled_acc = aim > 0 and IsKindOf(weapon, "Firearm") and
+                            Rat_SettledAimAcc(attacker, opportunity_attack, attacker_pos) or 0
     for i = 1, aim do
-        ladder[i], aimMetaText = Rat_ApertureAimDecay(weapon, attacker, i, comps)
+        ladder[i], aimMetaText = Rat_ApertureAimDecay(weapon, attacker, i, comps, settled_acc)
         if mobile_close then
             ladder[i] = 100 - MulDivRound(100 - ladder[i], mobile_close, 100)
         end
@@ -792,6 +794,9 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
 		end
 		for _, v in ipairs(aimMetaText or empty_table) do
 			if v and v ~= "" then aim_meta[#aim_meta + 1] = v end
+		end
+		if settled_acc > 0 then
+			aim_meta[#aim_meta + 1] = CharacterEffectDefs.Instagib.DisplayName
 		end
 		if #aim_meta == 0 then aim_meta = nil end
 	end
@@ -1023,7 +1028,7 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
 
     local dist = attacker_pos:Dist(target_pos)
 
-    local sigma, meta, parts = Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack)
+    local sigma, meta, parts = Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, attacker_pos)
 
     ---- Cobertura = silhueta menor, nao penalidade. Fracao exposta via raycast (FUNCTIONS_cover_silhouette.lua).
     if exposed_pct == nil and a.CoverRaycast then

@@ -1762,6 +1762,10 @@ return {
 			'CodeFileName', "Code/PERKS_Interrupt.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "PERKS_Sharpshooter",
+			'CodeFileName', "Code/PERKS_Sharpshooter.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "APPEND_CLASS_WeaponComponent",
 			'CodeFileName', "Code/APPEND_CLASS_WeaponComponent.lua",
 		}),

@@ -74,6 +74,10 @@ const.Combat.Perks.SaviorAdrenalineRushFreeMoveBonus = R_VanillaAPToDisplay(4)
 const.Combat.Perks.SaviorAdrenalineRushBonusAP = R_VanillaAPToDisplay(2)
 const.Combat.Perks.OpportunisticKillerBonusAttacks = 1
 const.Combat.Perks.KillzoneAimByTarget = {3, 2, 1} -- aim per distinct target this turn; last entry repeats
+const.Combat.Perks.SharpshooterMaxStacks = 2
+const.Combat.Perks.SharpshooterAccPerStack = 5 -- AimAccuracy added to every aim level
+const.Combat.Perks.SharpshooterCritPerAimPerStack = 1 -- % crit chance
+const.Combat.Perks.SharpshooterCritDmgPerAimPerStack = 3 -- % crit damage
 
 ----- Vanilla overrides
 const.Combat.GrazingHitDamage = 30 --- %

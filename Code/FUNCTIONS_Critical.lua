@@ -58,6 +58,12 @@ function OnMsg.GatherCritChanceModifications(attacker, target, action_id, weapon
     crit_chance_breakdown["per_aim"] = crit_per_aim
     data.crit_chance = data.crit_chance + crit_per_aim
 
+    local settled = Rat_SettledCritChance(attacker, aim, data.opportunity_attack)
+    if settled > 0 then
+        crit_chance_breakdown["settled"] = settled
+        data.crit_chance = data.crit_chance + settled
+    end
+
     ----------- Components
     if weapon:HasComponent("pso_dragunov_scope_critical") and aim > 1 then
         local pso_bonus = const.Combat.Critical.PSOScopeCritOnAimed
@@ -115,4 +121,6 @@ function OnMsg.GatherDamageModifications(attacker, target, action_id, self, mod_
     if extra_damage then
         data.critical_damage = data.critical_damage + extra_damage
     end
+    data.critical_damage = data.critical_damage +
+                               Rat_SettledCritDamage(attacker, mod_attack_args.aim, mod_attack_args.opportunity_attack)
 end
