@@ -1,0 +1,147 @@
+[h1]Rato's Gameplay Balance and Overhaul 4[/h1]
+
+[h2]4.0 at a glance[/h2]
+[list]
+[*] [b]aCTH:[/b] every shot is simulated inside an aim cone. Bullets hit whatever they reach first - target, cover, another body part.
+[*] [b]Simulated recoil:[/b] each round kicks the muzzle. Strength soaks it, Marksmanship brings it back.
+[*] [b]Variable autofire:[/b] choose how many rounds to fire. Weapon RPM sets the AP cost.
+[*] [b]Attachments as items:[/b] buy scopes, sights, muzzle devices, bipods and stocks from Bobby Ray, then attach and detach them freely.
+[*] [b]New weapon stats:[/b] Handling, Aim Accuracy, Crit per Aim and RPM, shown as effective values for your merc.
+[*] [b]Also:[/b] 10x AP scale, reliability governs jams, no revealed-enemy memory, reworked interrupt perks.
+[/list]
+Details for each are below and in the in-game [b]F1 wiki[/b].
+
+Big thanks to playtesters for giving valuable feedback:
+[list]
+[*] mousetrapreplica[TSC] - who has been playtesting this mod since almost the beginning
+[*] Starbuck
+[*] Caladan
+[*] Player One
+[*] infiniteMotion
+[*] redparadize
+[*] KreNich
+[*] c2crtw
+[*] and many others
+[/list]
+
+Also Toni and MantisClaw, gun experts from Discord.
+
+If you want to buy me a coffee you can do so here: https://www.buymeacoffee.com/rato_modder
+
+This mod aims to provide a balanced but very challenging experience, improving depth of gameplay, increasing lethality and incorporating realistic mechanics. Fights are meant to be [b]prolonged firefights[/b], where positioning, cover and suppression matter more than shooting first.
+
+[b]Press F1 in game[/b] to open the help menu: the [b]GBO pages[/b] are an in-game wiki that explains every mechanic of the mod.
+
+Please use a [b]fresh savegame[/b] with this mod to avoid bugs.
+
+It is also very important to [b]exit the game completely[/b] after selecting all desired mods, and opening it again.
+
+Most mechanics can be tuned in the [b]Mod Options[/b].
+
+[h1]NEW IN 4.0[/h1]
+
+[h2]aCTH - aperture Chance to Hit[/h2]
+A new way of resolving shots, heavily inspired by [b]NCTH from JA2 1.13[/b].
+
+Accuracy becomes an [b]aim cone[/b], drawn as a ring on the target. When you fire, the bullet flies to a random point inside that cone and [b]hits whatever it reaches first[/b]: the target, another body part, cover etc. 
+[list]
+[*] [b]The hit chance is the share of the ring that covers the visible target.[/b] A target behind cover, crouched, prone or far away fills less of it. The ring takes the target's shape: against a prone target it becomes a flat ellipse.
+[*] [b]No scripted cover.[/b] Cover is physical: a thin lamppost can save you (or your enemy). 
+[*] [b]Off-part hits.[/b] A shot aimed at the head can land on the torso, and vice versa. Hits on a part you did not aim at have a third of the usual chance to crit or to inflict the body part's status effect, and only half of the head/groin damage bonus.
+[*] [b]Shot history.[/b] Press Ctrl-Alt-H to see the path of every bullet of the last attack and where it hit.
+[/list]
+Expect dynamic (chaotic) results - that is the fun part! You can revert to old CTH in mod options.
+
+
+[h2]Ballistically simulated autofire (in aCTH)[/h2]
+ [b]Each round kicks the muzzle off target[/b]
+[list]
+[*] [b]Strength[/b] decides how much of each kick the merc can soak up. Every caliber has a Strength requirement, below it, the burst climbs off the target however skilled the merc is.
+[*] [b]Marksmanship[/b] decides how fast the merc drags the muzzle back to the aim point, and how steady that correction is.
+[*] Crouching and especially prone help. A [b]bipod while prone[/b] cuts the upward kick.
+[*] Mod options let you customize the UI for recoil display.
+[/list]
+
+[b]Persistent recoil:[/b] every attack, even a single shot, leaves the merc with stacking Recoil, that affects accuracy and aim cost.
+
+[h2]Weapon new stats[/h2]
+[list]
+[*] [b]Handling (aCTH)[/b]: base precision of every attack. Pistols and SMGs are accurate quickly but gain less from aiming; big rifles need aiming to perform. Heavy weapons handle badly when not prone.
+[*] [b]Aim Accuracy[/b]: how much each aim level tightens the cone. [b]Range[/b] works as the limit on how tight it can get, so long-range weapons keep improving with every aim level.
+[*] [b]Critical Chance per Aim[/b]: replaces the old crit scaling by merc level. Snipers have the most.
+[*] [b]Rate of Fire (RPM)[/b]: how much each extra autofire round costs.
+[*] [b]Recoil[/b], [b]Hipfire[/b] and [b]Snapshot[/b] penalties, [b]Shooting Angle[/b].
+[/list]
+The weapon stats show the [b]effective value for your merc[/b], with the base value in grey. 
+
+Press [b]F1[/b] for the details of each stat in the GBO wiki pages.
+
+[h2]Autofire with variable length[/h2]
+[list]
+[*] [b]Choose how many rounds to fire[/b] with the mouse wheel. Each extra round costs AP based on the weapon's RPM.
+[*] [b]Overrun:[/b] a merc can lose control and fire more rounds than intended (and pay the AP).
+[*] [b]Selective Burst[/b]: the fixed-length burst stays only on weapons that really have a burst mode. It has better crit scaling than autofire, but less than single shot.
+[*] Some weapons can only fire auto. Some MGs now have Selective Burst and Single Shot.
+[*] Full bullet damage in all forms of automatic fire.
+[/list]
+
+[h2]Attachments[/h2]
+Scopes, sights, side devices, grips, muzzle devices, bipods, stocks and grenade launchers are now [b]inventory items[/b]. Attaching one uses up the item, removing it gives it back. Chips and lenses can be cashed in for money.
+[list]
+[*] [b]Bobby Ray sells attachments[/b] on their own pages. 
+[*] [b]Scopes[/b] mostly add aim levels. The more magnification, the worse the snapshot penalty.
+[*] [b]Reflex and red dot sights[/b] give a flat accuracy bonus that helps every weapon equally.
+[*] [b]Stocks[/b] trade Stance AP against recoil and accuracy 
+[/list]
+
+[h2]Other new changes (4.0) [/h2]
+[list]
+[*] [b]AP scale:[/b] 1 vanilla AP is now 10 AP. 
+[*] [b]Reliability[/b] now governs the chance to jam, instead of condition loss.
+[*] [b]Visibility:[/b] enemies are shown only while one of your units sees them (no revealed-enemy memory). Can be disabled.
+[*] [b]Machine guns[/b] have no penalty when prone, even if you are not using MG Setup (aCTH only).
+[/list]
+
+
+[h1]Gun overhaul overview[/h1]
+[list]
+[*] [b]Aiming Rework:[/b] mercs with low Hand-Eye Coordination get less benefit from aiming.
+[*] [b]Shooting Stance:[/b] you need to spend AP to shoulder your weapon to aim. This creates an angle where you can shoot more accurately. If you aim outside the angle, you must spend AP to rotate. Unaimed shots have Hipfire penalty, 1 aim level shots have Snapshot penalty. Component weight or barrel length can reduce the shooting angle. Inspired by Wax's mod.
+[*] Correct magazine and expanded magazine sizes.
+[*] Weapon calibers are realistic, so two weapons with the same caliber will have very similar damage and penetration. Barrel length adds or removes damage.
+[*] Weapon classes dominate a specific range and have a specific function.
+[*] [b]Manual cycling[/b] for bolt-action, lever-action and single-action weapons.
+[/list]
+
+[h2]Ammo Overhaul[/h2]
+[list]
+[*] 5.45 rounds have tumbling effect, which increases critical chance
+[*] 5.56 rounds have fragmentation effect, which increases critical damage
+[*] and more
+[/list]
+
+[h2]Actions[/h2]
+[list]
+[*] [b]Snipe[/b] (replaces Pin Down): an attack with maximum aim levels, extra critical chance, reduced penalty to hit body parts, and that bypasses low cover. Synergic with scoped weapons that have increased max aim levels.
+[*] [b]Run and Gun[/b]: lethal at close range, big accuracy penalty at distance. The move range depends on agility and bulk of the weapon.
+[*] [b]Shotgun pellets:[/b] shotguns fire individual pellets, each ballistically simulated. Slug shots added as well.
+[*] [b]Dual Fire[/b]: lower AP cost, Dexterity reduces the penalty, higher penalty at distance. Gets no benefit from scopes or sights.
+[/list]
+
+[h2]Stealth overhaul[/h2]
+[list]
+[*] Suppressors no longer completely silence your gun, they cut the noise radius by half. To effectively sneak, you need [b]subsonic ammo[/b].
+[*] It's harder to do a stealth kill on aware opponents.
+[*] Enemy detection range is increased.
+[/list]
+
+[h2]Optional Addons (Recommended) - check the collection[/h2]
+[list]
+[*] TOG Patch
+[*] Rato's Explosives Overhaul 2.0
+[*] Rato's AI Overhaul 2.0
+[*] Pinned Down - THIS IS BASICALLY A NECESSITY!
+[*] Compatible with Revised Mags II
+[*] If you have ToG and ToC loaded, this mod will use some custom visuals for the added scopes and muzzle devices.
+[/list]
+
