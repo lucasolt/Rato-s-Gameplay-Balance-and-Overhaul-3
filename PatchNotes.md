@@ -1,4 +1,4 @@
-[h1]Patch Notes — 4.00[/h1]
+[h1]Patch Notes 4.00[/h1]
 
 [hr][/hr]
 
