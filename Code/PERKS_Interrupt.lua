@@ -81,7 +81,9 @@ function OnMsg.ClassesGenerate(classdefs)
             PlaceObj('UnitReaction', {
                 Event = "OnCalcCritChance",
                 Handler = function(self, target, attacker, attack_target, action, weapon, data)
-                    if target == attacker and not IsMGSetUp(attacker) then
+                    ---- Overwatch only: Pin Down crits on its own (GetAttackResults), Retaliation never
+                    if target == attacker and data.opportunity_attack_type == "Overwatch" and
+                        not IsMGSetUp(attacker) then
                         data.opportunity_attack = false
                     end
                 end
