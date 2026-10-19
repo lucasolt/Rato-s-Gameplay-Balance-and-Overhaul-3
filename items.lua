@@ -11091,7 +11091,7 @@ return {
 			}),
 			PlaceObj('WeaponComponentVisual', {
 				ApplyTo = "RPK74",
-				Entity = "WeaponAttA_MagazineAK74_01",
+				Entity = "WeaponAttA_MagazineAK74_02",
 				Icon = "UI/Icons/Upgrades/AK74_Bakelite_magazine",
 				Slot = "Magazine",
 				param_bindings = false,
