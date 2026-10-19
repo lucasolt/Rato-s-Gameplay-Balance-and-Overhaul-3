@@ -9671,7 +9671,7 @@ return {
 			},
 			Cost = 25,
 			DisplayName = T(499785632845, --[[ModItemWeaponComponent BarrelShortShotgun DisplayName]] "Shortened Barrel"),
-			GBO_ComponentTraits = "Barrel.ShortShotgun",
+			GBO_ComponentTraits = "Barrel.ShortShotgun, Shotgun.WideBuckshot",
 			Icon = "UI/Icons/Upgrades/galil_barrel_short",
 			ModificationDifficulty = 10,
 			ModificationEffects = {
@@ -9679,6 +9679,7 @@ return {
 				"ReduceRange",
 				"StanceAPdecrease",
 				"DecreaseAimAccuracy",
+				"IncreaseBuckshotAngle",
 				"IncreaseOverwatchAngle",
 			},
 			Parameters = {
@@ -9691,6 +9692,11 @@ return {
 					'Name', "AimAccuracyDecrease",
 					'Value', 4,
 					'Tag', "<AimAccuracyDecrease>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "BuckshotAngleIncrease",
+					'Value', 122,
+					'Tag', "<BuckshotAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "OverwatchAngleIncrease",
