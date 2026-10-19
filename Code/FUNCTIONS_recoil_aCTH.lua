@@ -185,10 +185,9 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
         err_ratio = a.RecoilErrorRatio or 0,
         lat = MulDivRound(lat, noise, 100),
         noise = noise,
-        ---- Dexterity is the hands; `other_control` is stance and training steadying them. Without
-        ---- the second term skill buys a bigger correction AND a proportionally bigger error, and
-        ---- cancels itself. Never removes the floor, only the error above it.
-        accuracy = Clamp(MulDivRound(attacker.Dexterity or 0, 100, Max(30, other_control)), 0, 100),
+        ---- Marksmanship aims the correction (technique); Strength sizes it (cf_max). Dex stays out of
+        ---- recoil: it is precision only. Never removes the floor, only the error above it.
+        accuracy = Clamp(MulDivRound(attacker.Marksmanship or 0, 100, Max(30, other_control)), 0, 100),
         ---- centiminutes; 0 = no ceiling
         climb_cap = kick * 100 * (a.RecoilClimbCapKicks or 0),
         ---- minutes, for reading and for the gate: kick_min > cf_min means unstabilisable

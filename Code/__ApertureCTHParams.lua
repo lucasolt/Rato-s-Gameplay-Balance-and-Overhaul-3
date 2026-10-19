@@ -360,14 +360,14 @@ A.RecoilDamping = 80--100
 ---- como no 1.13: puxar um calibre grande de volta erra mais que ajeitar um pequeno, entao a
 ---- dificuldade do calibre sai do mecanismo em vez de ser tunada arma a arma. Abaixo de ~100 a
 ---- Destreza some: o portao do calibre e deterministico e domina o ruido. Em 140 os dois convivem.
----- UP = low-Dex mercs err more. DEAD from ~Dex 80 up (accuracy clamps at 100): AK merc 80 is
----- identical 0..140, 280 -> 24% x269'; merc 95 and the MG are flat at every value.
+---- UP = low-Marks mercs err more. DEAD from ~Marks 80 up (accuracy clamps at 100). Measured when Dex fed accuracy:
+---- AK merc 80 identical 0..140, 280 -> 24% x269'; merc 95 and the MG flat at every value.
 A.RecoilErrorRatio = 140
 
 ---- Piso do erro, em % de RecoilMaxIncBase. NUNCA reduzido pela pericia: e por aqui que
 ---- "mercs muito bons nao podem ficar PERFEITOS" fica dito, e um piso no erro e mais limpo que um
----- teto artificial no atributo. accuracy vem da Destreza crua (o unico atributo que a cadeia
----- tunada ainda nao gasta, entao nada e contado duas vezes).
+---- teto artificial no atributo. accuracy vem da Marksmanship (tecnica: onde a forca aponta); Forca
+---- e o portao (segurar o calibre), Destreza fica so na precisao (mira, crit).
 ---- MEDIDO: em 10 o merc completo trava e fica imune ao recuo, que e exatamente o que nao pode.
 ---- O piso sai de RecoilMaxIncBase (o valor NEUTRO) e nunca do `max_inc` deste merc: `max_inc` e
 ---- dirigido por pericia, entao escalar o piso nele faria a pericia levantar o proprio erro.
@@ -397,8 +397,10 @@ A.RecoilLateralPct = 40
 ----   Slope 4: 50 -> 15/21%, 65 -> 19/23%, 80 -> 29/25%
 ---- AK hit rate barely moves: its climb dominates and Marksmanship already spreads it via max_inc.
 A.RecoilNoiseSkillRef = 90
----- UP = mercs below Ref are noisier. % extra noise per Marksmanship point short of Ref
-A.RecoilNoiseSkillSlope = 3
+---- UP = mercs below Ref are noisier. % extra noise per Marksmanship point short of Ref.
+---- 3 -> 1 when Marks took over `accuracy` from Dex: Marks moves within recoil instead of doubling.
+---- 10 rds AK74 standing: brute STR90/MRK60 tail 1-2% -> 4-6% per round (spray and pray).
+A.RecoilNoiseSkillSlope = 1
 
 ---- MG IDENTITY: the gun's mass damps the shooter's own noise (RecoilMinErrorPct and lateral), standing or prone.
 ---- Recoil cannot buy this: on a bipod the climb is gone and the noise floor is what rifles and MGs share.
