@@ -478,7 +478,7 @@ GBO_WeaponSlots = {
 		{
 			SlotType = "Scope",
 			DefaultComponent = "AUGScope_Default",
-			CanBeEmpty = false,
+			CanBeEmpty = true,
 			Modifiable = true,
 			AvailableComponents = {
 				"LROptics",
@@ -825,7 +825,7 @@ GBO_WeaponSlots = {
 		{
 			SlotType = "Scope",
 			DefaultComponent = "LROptics_DragunovDefault",
-			CanBeEmpty = false,
+			CanBeEmpty = true,
 			Modifiable = true,
 			AvailableComponents = {
 				"LROptics_DragunovDefault",
@@ -1957,7 +1957,7 @@ GBO_WeaponSlots = {
 		{
 			SlotType = "Scope",
 			DefaultComponent = "LROptics",
-			CanBeEmpty = false,
+			CanBeEmpty = true,
 			Modifiable = true,
 			AvailableComponents = {
 				"LROptics",
@@ -2387,7 +2387,7 @@ GBO_WeaponSlots = {
 		{
 			SlotType = "Scope",
 			DefaultComponent = "PSG_DefaultScope",
-			CanBeEmpty = false,
+			CanBeEmpty = true,
 			Modifiable = true,
 			AvailableComponents = {
 				"PSG_DefaultScope",
@@ -4909,7 +4909,7 @@ GBO_TOGWeaponSlots = {
 		{
 			SlotType = "Scope",
 			DefaultComponent = "SteyrS_Scope_1",
-			CanBeEmpty = false,
+			CanBeEmpty = true,
 			Modifiable = true,
 			AvailableComponents = {
 				"SteyrS_Scope_1",
