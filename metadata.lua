@@ -5,7 +5,7 @@ return PlaceObj('ModDef', {
 	'external_links', {
 		"https://www.buymeacoffee.com/rato_modder",
 	},
-	'last_changes', "4,0\n\nPatch notes are too big, check sticky discussion post",
+	'last_changes', "4.2\n\nadded a safety mechanism to fix guns with no magazine under Revised Mags mod\nscopes can be removed from all weapons",
 	'SpellCheck', true,
 	'ignore_files', {
 		"*.git/*",
@@ -35,7 +35,8 @@ return PlaceObj('ModDef', {
 	'id', "cfahRED",
 	'author', "rato",
 	'version_major', 4,
-	'version', 13509,
+	'version_minor', 2,
+	'version', 13512,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -230,8 +231,8 @@ return PlaceObj('ModDef', {
 		noise_setting_num = 150,
 	},
 	'has_data', true,
-	'saved', 1792374298,
-	'code_hash', -312007471132282523,
+	'saved', 1792441387,
+	'code_hash', 4842782360463056972,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",
