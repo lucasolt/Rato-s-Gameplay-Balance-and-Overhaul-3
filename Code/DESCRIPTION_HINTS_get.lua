@@ -525,6 +525,29 @@ local function HintCompareChart(dlg)
     panel:Open()
 end
 
+local function HintWrapOpenCompare()
+    local path = FindXtByProp(XTemplates.Inventory, "name", "OpenCompare(self, item_wnd, item)")
+    if not path then
+        return
+    end
+    local node = path[1]
+    ---- kept on the node so a Lua reload doesn't wrap the wrapper
+    node.rat_vanilla_func = node.rat_vanilla_func or node.func
+    local vanilla = node.rat_vanilla_func
+    node.func = function(self, item_wnd, item)
+        local ok = vanilla(self, item_wnd, item)
+        if ok then
+            HintCompareChart(self)
+        end
+        return ok
+    end
+end
+
+---- Revised Tactical Gear II rebuilds the Inventory template in its own DataLoaded, after ours
+function OnMsg.ModsReloaded()
+    HintWrapOpenCompare()
+end
+
 ---- modify dialog stance, kept across openings; nil follows the owner
 local HintModChartStance
 ---- modify dialog recoil tab, kept across openings: 1 recoil alone, 2 aimed burst
@@ -1346,20 +1369,7 @@ function Rat_PatchWeaponRollover()
             return HintRecoilSetup(self, weapon, owner)
         end))
     end
-    path = FindXtByProp(XTemplates.Inventory, "name", "OpenCompare(self, item_wnd, item)")
-    if path then
-        local node = path[1]
-        ---- kept on the node so a Lua reload doesn't wrap the wrapper
-        node.rat_vanilla_func = node.rat_vanilla_func or node.func
-        local vanilla = node.rat_vanilla_func
-        node.func = function(self, item_wnd, item)
-            local ok = vanilla(self, item_wnd, item)
-            if ok then
-                HintCompareChart(self)
-            end
-            return ok
-        end
-    end
+    HintWrapOpenCompare()
     ---- More Info starts open; Insert hides it
     g_RolloverShowMoreInfo = true
     ---- More Info on a charted gun: titled with the gun, not its class, and without the class flavor text
