@@ -259,15 +259,13 @@ GBO_WeaponSlots = {
 		},
 		{
 			SlotType = "Magazine",
-			DefaultComponent = "MagNormal",
+			DefaultComponent = "MagNormalFine",
 			CanBeEmpty = false,
 			Modifiable = true,
 			AvailableComponents = {
-				"MagNormal",
 				"MagNormalFine",
-				"MagLarge",
-				"MagQuick",
 				"MagLargeFine",
+				"MagQuick",
 			},
 		},
 		{
