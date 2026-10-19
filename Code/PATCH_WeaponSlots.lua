@@ -173,7 +173,6 @@ GBO_WeaponSlots = {
 			Modifiable = true,
 			AvailableComponents = {
 				"MagNormalFine",
-				"MagLarge",
 				"MagLargeFine",
 				"MagQuick",
 			},
@@ -1033,7 +1032,6 @@ GBO_WeaponSlots = {
 				"StockNormal",
 				"StockHeavy",
 				"StockLight",
-				"StockNo",
 			},
 		},
 		{
@@ -1901,7 +1899,6 @@ GBO_WeaponSlots = {
 			AvailableComponents = {
 				"StockNormal",
 				"StockLight",
-				"StockNo",
 			},
 		},
 		{
@@ -2441,11 +2438,10 @@ GBO_WeaponSlots = {
 		},
 		{
 			SlotType = "Magazine",
-			DefaultComponent = "MagNormal",
+			DefaultComponent = "MagNormalFine",
 			CanBeEmpty = false,
 			Modifiable = true,
 			AvailableComponents = {
-				"MagNormal",
 				"MagNormalFine",
 				"MagQuick",
 			},
@@ -3909,7 +3905,7 @@ GBO_TOGWeaponSlots = {
 		},
 		{
 			SlotType = "Scope",
-			DefaultComponent = "ImprovedIronsight",
+			DefaultComponent = "m76_scope_1",
 			CanBeEmpty = false,
 			Modifiable = true,
 			AvailableComponents = {
@@ -4810,6 +4806,7 @@ GBO_TOGWeaponSlots = {
 		{
 			SlotType = "Scope",
 			CanBeEmpty = true,
+			DefaultComponent = "SSG69_Scope_1",
 			Modifiable = true,
 			AvailableComponents = {
 				"SSG69_Scope_1",

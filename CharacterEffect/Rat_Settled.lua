@@ -15,3 +15,4 @@ DefineClass.Rat_Settled = {
 	RemoveOnCampaignTimeAdvance = true,
 	Shown = true,
 }
+

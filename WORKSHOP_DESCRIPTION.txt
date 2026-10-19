@@ -1,16 +1,5 @@
 [h1]Rato's Gameplay Balance and Overhaul 4[/h1]
 
-[h2]4.0 at a glance[/h2]
-[list]
-[*] [b]aCTH:[/b] every shot is simulated inside an aim cone. Bullets hit whatever they reach first - target, cover, another body part.
-[*] [b]Simulated recoil:[/b] each round kicks the muzzle. Strength soaks it, Marksmanship brings it back.
-[*] [b]Variable autofire:[/b] choose how many rounds to fire. Weapon RPM sets the AP cost.
-[*] [b]Attachments as items:[/b] buy scopes, sights, muzzle devices, bipods and stocks from Bobby Ray, then attach and detach them freely.
-[*] [b]New weapon stats:[/b] Handling, Aim Accuracy, Crit per Aim and RPM, shown as effective values for your merc.
-[*] [b]Also:[/b] 10x AP scale, reliability governs jams, no revealed-enemy memory, reworked interrupt perks.
-[/list]
-Details for each are below and in the in-game [b]F1 wiki[/b].
-
 Big thanks to playtesters for giving valuable feedback:
 [list]
 [*] mousetrapreplica[TSC] - who has been playtesting this mod since almost the beginning
@@ -143,5 +132,6 @@ Scopes, sights, side devices, grips, muzzle devices, bipods, stocks and grenade 
 [*] Pinned Down - THIS IS BASICALLY A NECESSITY!
 [*] Compatible with Revised Mags II
 [*] If you have ToG and ToC loaded, this mod will use some custom visuals for the added scopes and muzzle devices.
+[*] CUAE - for loot distribution
 [/list]
 

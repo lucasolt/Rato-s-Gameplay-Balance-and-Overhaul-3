@@ -62,7 +62,7 @@ function OnMsg.GatherDamageModifications(attacker, target, action_id, self, mod_
         data.base_damage = MulDivRound(data.base_damage, 100 + damageBonus, 100)
     end
     if target:HasStatusEffect("Flanked") and IsKindOf(weapon, "SubmachineGun") then
-        local damageBonus = 15
+        local damageBonus = 10
         data.base_damage = MulDivRound(data.base_damage, 100 + damageBonus, 100)
     end
 end

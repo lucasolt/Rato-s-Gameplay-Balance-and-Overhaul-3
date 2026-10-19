@@ -1237,12 +1237,12 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "mobile_move_ap",
-					'Value', 80,
+					'Value', 100,
 					'Tag', "<mobile_move_ap>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "mobile_move_ap_min",
-					'Value', 70,
+					'Value', 90,
 					'Tag', "<mobile_move_ap_min>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -1804,8 +1804,8 @@ return {
 			'CodeFileName', "Code/OPTIONS_PartsGain.lua",
 		}),
 		PlaceObj('ModItemCode', {
-			'name', "FEATURE_AttachmentBalance",
-			'CodeFileName', "Code/FEATURE_AttachmentBalance.lua",
+			'name', "_FEATURE_AttachmentBalance",
+			'CodeFileName', "Code/_FEATURE_AttachmentBalance.lua",
 		}),
 		PlaceObj('ModItemCode', {
 			'name', "FEATURE_AttachmentItems",
@@ -2004,7 +2004,7 @@ return {
 			'name', "NightSightReduction",
 			'NameColor', RGBA(20, 110, 40, 255),
 			'DisplayName', "<color AmmoMatchColor>Night Sight Reduction %</color>",
-			'Help', "How much darkness cuts sight range, for aware and unaware units. GBO default 40. A night ops mod may overwrite it.",
+			'Help', "How much darkness cuts sight range, for aware and unaware units. GBO default 40.",
 			'DefaultValue', 40,
 			'MaxValue', 90,
 			'StepSize', 5,
@@ -2013,7 +2013,7 @@ return {
 			'name', "NightDetectReduction",
 			'NameColor', RGBA(20, 110, 40, 255),
 			'DisplayName', "<color AmmoMatchColor>Night Detection Reduction %</color>",
-			'Help', "How much slower units notice you in darkness. GBO default 40. A night ops mod may overwrite it.",
+			'Help', "How much slower units notice you in darkness. GBO default 40.",
 			'DefaultValue', 40,
 			'MaxValue', 90,
 			'StepSize', 5,
@@ -7077,7 +7077,7 @@ return {
 					'Type', "FineSteelPipe",
 				}),
 			},
-			Cost = 20,
+			Cost = 30,
 			DisplayName = T(838180928045, --[[ModItemWeaponComponent long_barrel_light_handgun DisplayName]] "Extended Light Barrel"),
 			GBO_ComponentTraits = "Barrel.LongHandgun, Barrel.Light",
 			Icon = "UI/Icons/Upgrades/galil_barrel_long",
@@ -10023,7 +10023,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "AimAccuracyMul",
-				'Value', 92,
+				'Value', 90,
 				'Tag', "<AimAccuracyMul>",
 			}),
 		},
@@ -10334,7 +10334,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "AimAccuracyMul",
-				'Value', 92,
+				'Value', 90,
 				'Tag', "<AimAccuracyMul>",
 			}),
 		},
@@ -10355,7 +10355,7 @@ return {
 	}),
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 5,
-		DisplayName = T(405972343392, --[[ModItemWeaponComponent StockNormal DisplayName]] "Default Stock"),
+		DisplayName = T(405972343392, --[[ModItemWeaponComponent StockHeavy_AR_BurstOnly DisplayName]] "Default Stock"),
 		GBO_ComponentTraits = "Base.StockNormal",
 		GBO_OverrideEffects = {
 			"NoFullAuto",
@@ -10366,7 +10366,7 @@ return {
 			"NoFullAuto",
 		},
 		Slot = "Stock",
-		Tags = set( "CloseQuarters", "Intimate", "Precision", "Strategic", "Tactical" ),
+		Tags = set( "Precision", "Strategic", "Tactical" ),
 		Visuals = {
 			PlaceObj('WeaponComponentVisual', {
 				ApplyTo = "AR15",
@@ -11053,7 +11053,7 @@ return {
 		GBO_OverrideParams = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "ReliabilityIncrease",
-				'Value', 10,
+				'Value', 4,
 				'Tag', "<ReliabilityIncrease>",
 			}),
 		},
@@ -11065,7 +11065,7 @@ return {
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "ReliabilityIncrease",
-				'Value', 10,
+				'Value', 4,
 				'Tag', "<ReliabilityIncrease>",
 			}),
 		},
@@ -11086,6 +11086,7 @@ return {
 			PlaceObj('WeaponComponentVisual', {
 				ApplyTo = "AKSU",
 				Entity = "WeaponAttA_MagazineAKS74U_01",
+				Icon = "UI/Icons/Upgrades/AK74_Bakelite_magazine",
 				Slot = "Magazine",
 				param_bindings = false,
 			}),
@@ -11436,7 +11437,7 @@ return {
 			}),
 			PlaceObj('WeaponComponentVisual', {
 				ApplyTo = "RPK74",
-				Entity = "WeaponAttA_MagazineAK47_02",
+				Entity = "WeaponAttA_MagazineAK74_02",
 				Slot = "Magazine",
 				param_bindings = false,
 			}),
@@ -13794,7 +13795,7 @@ return {
 			}),
 			PlaceObj('WeaponComponentVisual', {
 				ApplyTo = "AK74",
-				Entity = "WeaponAttA_MagazineAK47_02",
+				Entity = "WeaponAttA_MagazineAK74_02",
 				Icon = "UI/Icons/Upgrades/expanded_AK47_magazine",
 				Slot = "Magazine",
 				param_bindings = false,
@@ -17148,11 +17149,27 @@ return {
 	PlaceObj('ModItemWeaponComponent', {
 		Cost = 5,
 		DisplayName = T(802752529448, --[[ModItemWeaponComponent foldable_StockNormal DisplayName]] "Default Stock"),
-		GBO_ComponentAncestor = "_Master_StockNormalUnfolded_TOG",
+		GBO_ComponentAncestor = "_Master_StockLightUnfolded_TOG",
 		Icon = "UI/Icons/Upgrades/default_stock",
 		ModificationDifficulty = 0,
 		ModificationEffects = {
+			"StanceAPdecrease",
+			"hipfire_light_stock",
+			"stocklight_effect_recoil",
+			"MultiplyAimAccuracy",
 			"zzStockEquipped",
+		},
+		Parameters = {
+			PlaceObj('PresetParamNumber', {
+				'Name', "APdecrease",
+				'Value', 5,
+				'Tag', "<APdecrease>",
+			}),
+			PlaceObj('PresetParamNumber', {
+				'Name', "AimAccuracyMul",
+				'Value', 90,
+				'Tag', "<AimAccuracyMul>",
+			}),
 		},
 		Slot = "Stock",
 		Tags = set( "CloseQuarters", "Intimate", "Precision", "Strategic", "Tactical" ),

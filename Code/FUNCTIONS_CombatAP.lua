@@ -62,7 +62,7 @@ function rat_getMobileshot_moveAP(action, unit, weapon)
     local is_sprint = (action and action.id == "Sprint")
     local base_ap = action:ResolveValue("mobile_move_ap") or 9 --is_sprint and 8 or 9
     local min_ap = action:ResolveValue("mobile_move_ap_min") or 6 --is_sprint and 7 or 6
-    local weapon_multiplier = is_sprint and 0.5 or 1.5
+    local weapon_multiplier = is_sprint and 0.4 or 1.5
 
     local stanceap = 0
     if weapon and IsKindOf(weapon, "Firearm") then
