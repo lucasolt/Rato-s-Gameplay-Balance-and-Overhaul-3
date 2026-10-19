@@ -105,11 +105,11 @@ note(960, 728, "GAMEPLAY BALANCE &amp; OVERHAUL", 0.6, "end")
 title = 'font-family="Barlow Condensed,Bahnschrift,Arial Narrow,sans-serif" font-weight="700" font-stretch="condensed"'
 a(f'<text x="960" y="948" {title} font-size="236" letter-spacing="-4" text-anchor="end">'
   f'<tspan fill="{BONE}">GBO</tspan><tspan dx="18" fill="{AMBER}">4</tspan></text>')
-note(960, 980, "JAGGED ALLIANCE 3 · RATO", 0.4, "end")
+note(884, 980, "JAGGED ALLIANCE 3 · RATO", 0.4, "end")
 
 a(f'<rect width="{W}" height="{H}" fill="url(#vig)"/>')
 logo = base64.b64encode(open("Images/rat_logo_bone.png", "rb").read()).decode()
-a(f'<image x="826" y="58" width="134" height="44" opacity="0.9" href="data:image/png;base64,{logo}"/>')
+a(f'<image x="892" y="961" width="68" height="22" opacity="0.75" href="data:image/png;base64,{logo}"/>')
 a('</svg>')
 
 open(out, "w", encoding="utf-8").write("\n".join(p))
