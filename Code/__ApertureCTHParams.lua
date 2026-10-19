@@ -398,14 +398,16 @@ A.RecoilLateralPct = 40
 ---- AK hit rate barely moves: its climb dominates and Marksmanship already spreads it via max_inc.
 A.RecoilNoiseSkillRef = 90
 ---- UP = mercs below Ref are noisier. % extra noise per Marksmanship point short of Ref.
----- 3 -> 1 when Marks took over `accuracy` from Dex: Marks moves within recoil instead of doubling.
----- 10 rds AK74 standing: brute STR90/MRK60 tail 1-2% -> 4-6% per round (spray and pray).
-A.RecoilNoiseSkillSlope = 1
+---- 3 -> 2 when Marks took over `accuracy` from Dex: Marks moves within recoil instead of doubling.
+---- 1 eased recoil too much (AK74 bipod, STR55/MRK60: 207 -> 306; at 2: 259).
+A.RecoilNoiseSkillSlope = 2
 
 ---- MG IDENTITY: the gun's mass damps the shooter's own noise (RecoilMinErrorPct and lateral), standing or prone.
 ---- Recoil cannot buy this: on a bipod the climb is gone and the noise floor is what rifles and MGs share.
 ---- Grizzly, 6 rds, class recoil 65, prone bipod: RPK 0 -> 334, 25 -> 385; HK21 305 -> 359; MG42 268 -> 323.
-A.RecoilMGSteadyPct = 12
+---- 12 -> 20 with Marks in `accuracy` + noise slope 2: rifles gained more from the lower noise.
+---- 6 rds prone bipod, Grizzly / STR70 MRK75: RPK +14/+16% over AK74 heavy stock, Minimi +12/+15% over HK33.
+A.RecoilMGSteadyPct = 20
 
 ---- firing on the move: no brace at all, and the stride throws the muzzle sideways
 ---- UP = worse grip / wider sway while running (RunAndGun, RecklessAssault). Not measured.
