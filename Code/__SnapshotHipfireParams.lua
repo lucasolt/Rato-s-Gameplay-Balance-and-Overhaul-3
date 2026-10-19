@@ -58,5 +58,5 @@ function OnMsg.ClassesGenerate()
     Shotgun.class_base_snapshot_mul = 115
     SniperRifle.class_base_snapshot_mul = 135
     AssaultRifle.class_base_snapshot_mul = 125
-    MachineGun.class_base_snapshot_mul = 135
+    MachineGun.class_base_snapshot_mul = 165 -- long and heavy: slow off-target; set-up OW compensated by MGSetupInterruptStepMul
 end

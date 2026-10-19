@@ -130,7 +130,8 @@ A.AimStepMaxLevel = 2 --- acima disso a arma esta encostada: alargamento 100
 A.CQCStepReduc = 30
 ---- Set-up MG / emplacement interrupt (and the MGSetup / MGRotate preview): % of the snapshot excess
 ---- kept. Classic gave these 49-60% of a regular interrupt's penalty over 10-34 tiles.
-A.MGSetupInterruptStepMul = 55
+---- 45 = 55 x 135/165: holds set-up OW where it was when the MG class snapshot rose 135 -> 165.
+A.MGSetupInterruptStepMul = 45
 ---- Mobile attacks (A.MobileActions): % of each aim level's closing kept. Classic halves their Aim bonus.
 A.MobileActions = {MobileShot = true, RunAndGun = true, RecklessAssault = true}
 A.MobileAimClosePct = 50
