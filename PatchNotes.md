@@ -147,5 +147,6 @@ Weapons now have a stat called [b]Critical Chance per Aim[/b], which scales with
 [*]Fixed bugs related to shotguns.
 [*]Fixed missing property burst_recoil_delta.
 [*]Changed the logic that made mercs step out of cover to shoot.
+[*]Revamped mod options
 [*]Other balance tweaks that I forgot.
 [/list]
