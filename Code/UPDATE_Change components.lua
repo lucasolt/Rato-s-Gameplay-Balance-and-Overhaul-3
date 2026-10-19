@@ -102,9 +102,9 @@ end
 
 ---- parts a gun no longer offers, swapped for their replacement in old saves; false removes the part
 GBO_RetiredComponents = {
-    ---- the Winchester (.44) takes the handgun barrel family
+    ---- the Winchester takes the rifle barrel family; the handgun one paid rifle penalties for a pistol bonus
     Winchester1894 = {
-        Barrel = {BarrelLong = "BarrelLong_handgun", long_barrel_light = "long_barrel_light_handgun"}
+        Barrel = {BarrelLong_handgun = "BarrelLong", long_barrel_light_handgun = "long_barrel_light"}
     },
     ---- its +5 autofire rounds became a higher RPM
     LionRoar = {

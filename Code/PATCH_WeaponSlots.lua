@@ -2612,11 +2612,11 @@ GBO_WeaponSlots = {
 			CanBeEmpty = false,
 			Modifiable = true,
 			AvailableComponents = {
-				"BarrelLong_handgun",
+				"BarrelLong",
 				"BarrelNormal",
 				"BarrelShort_Winchester",
 				"BarrelLight",
-				"long_barrel_light_handgun",
+				"long_barrel_light",
 				"winni_to54r",
 			},
 		},
