@@ -33,7 +33,7 @@ function FirearmBase:GetJamChance(attacker, condition)
     local chance = MulDivRound(base, deficit_rel, Max(1, const.Weapons.JamRelRef))
 
     if (GameState.RainHeavy or GameState.RainLight) and not attacker.indoors then
-        chance = MulDivRound(chance, 100 + const.EnvEffects.RainJamChanceMod, 100)
+        chance = MulDivRound(chance, 100 + const.Weapons.RainJamPct, 100)
     end
 
     return Min(chance, const.Weapons.JamChanceMax)

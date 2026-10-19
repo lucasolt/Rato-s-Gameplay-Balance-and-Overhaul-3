@@ -44,6 +44,9 @@ const.Weapons.JamRelRef = 20
 ---- calibrado exploda em campo.
 const.Weapons.JamChanceMax = 30
 
+---- Rain bonus to jam chance, in %. Own const so vanilla's RainJamChanceMod (100) stays untouched.
+const.Weapons.RainJamPct = 50
+
 ---- Piso de Condition abaixo do qual o sorteio de jam acontece. 70 e o valor do vanilla
 ---- (`ItemConditionUsed`), replicado aqui como constante PROPRIA de proposito: `ItemConditionUsed`
 ---- tambem controla o rotulo "Used" do item na UI, e mudar um nao deveria mexer no outro.
