@@ -63,8 +63,10 @@ end
 function FirearmBase:ReliabilityCheck(attacker, num_shots)
     local item = self.parent_weapon or self
     local loss = item:GetBaseDegradePerShot()
+    -- rain scales the roll, not the loss: 1 * 150% rounds back to 2
+    local degrade_chance = const.Weapons.DegradeChancePct
     if (GameState.RainHeavy or GameState.RainLight) and not attacker.indoors then
-        loss = MulDivRound(loss, 100 + const.EnvEffects.RainConditionLossMod, 100)
+        degrade_chance = MulDivRound(degrade_chance, 100 + const.Weapons.RainWearPct, 100)
     end
     local condition = item.Condition
 
@@ -90,7 +92,7 @@ function FirearmBase:ReliabilityCheck(attacker, num_shots)
             local rolls = 1 + MulDivRound(extra, const.Weapons.ExtraShotDegradePct, 100)
             for i = 1, rolls do
                 local condition_roll = 1 + attacker:Random(100)
-                if condition_roll <= const.Weapons.DegradeChancePct then
+                if condition_roll <= degrade_chance then
                     condition = Max(0, condition - loss)
                 end
             end

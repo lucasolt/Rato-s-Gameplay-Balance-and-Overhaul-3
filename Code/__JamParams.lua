@@ -76,6 +76,9 @@ const.Weapons.DegradeChancePct = 25
 ----    100 -> comportamento linear do vanilla
 const.Weapons.ExtraShotDegradePct = 40
 
+---- Rain bonus to the wear roll chance, in %. Replaces vanilla's RainConditionLossMod (100, on the loss).
+const.Weapons.RainWearPct = 50
+
 ---------------------------------------------------------------------------------------------------
 ---- PORTAO DA IA
 ----
