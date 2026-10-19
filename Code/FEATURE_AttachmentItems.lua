@@ -931,6 +931,22 @@ RAT_ATT_ITEMS = {
         family = "stock_heavy",
         page = "RatStocks",
         guns = {"VSK94_1"}
+    },
+    {
+        id = "RAT_Att_StockUZIWooden",
+        name = "UZI Wooden Stock",
+        icon = "UI/Icons/Upgrades/ak74_stock_wooden",
+        family = "stock_heavy",
+        page = "RatStocks",
+        guns = {"UZI"}
+    },
+    {
+        id = "RAT_Att_StockUZIFolding",
+        name = "UZI Folding Stock",
+        icon = "UI/Icons/Upgrades/ak74_stock_foldable", -- ToG's Mac11 art when loaded, see RAT_ATT_TOG_ICONS
+        family = "stock_light",
+        page = "RatStocks",
+        guns = {"UZI"}
     }
 }
 
@@ -1082,6 +1098,22 @@ function Rat_AttUseToCModels()
 end
 
 Rat_AttUseToCModels()
+
+---- Icons that live in ToG's folder; without ToG the def keeps its vanilla icon.
+RAT_ATT_TOG_ICONS = {
+    RAT_Att_StockUZIFolding = "Mod/KKh3Yhf/Images/Mac11_Stock_unfld.png" -- the visual TOC_ChangeEntity swaps in
+}
+
+function Rat_AttUseToGIcons()
+    if not IsMod_loaded("KKh3Yhf") then
+        return
+    end
+    for _, def in ipairs(RAT_ATT_ITEMS) do
+        def.icon = RAT_ATT_TOG_ICONS[def.id] or def.icon
+    end
+end
+
+Rat_AttUseToGIcons()
 
 RAT_ATT_ITEM_OF = {} -- component id -> item class
 RAT_ATT_FAMILY_OF = {} -- component id -> family name
