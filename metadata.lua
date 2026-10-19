@@ -38,6 +38,7 @@ return PlaceObj('ModDef', {
 		"CharacterEffect/Sprinting.lua",
 		"CharacterEffect/grunty_bonus.lua",
 		"CharacterEffect/AdrenalineRush_Savior.lua",
+		"CharacterEffect/Rat_Settled.lua",
 		"Code/_______init_globals.lua",
 		"Code/__APScaleParams.lua",
 		"Code/__MainParams.lua",

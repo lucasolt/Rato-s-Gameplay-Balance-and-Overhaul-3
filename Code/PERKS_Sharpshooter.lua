@@ -1,10 +1,16 @@
 ---- Sharpshooter (Instagib): Settled stacks from starting turns on the same tile boost every aim level
 ---- of the first attack each turn (aim accuracy, crit chance, crit damage). Never on interrupts.
+---- Stacks live in the Rat_Settled status effect; gv_Rat_Settled keeps each unit's anchor tile.
 
 GameVar("gv_Rat_Settled", function() return {} end)
 
 local function SameTile(a, b)
     return a and b and a:Dist(b) < const.SlabSizeX / 2
+end
+
+local function SettledEffectStacks(unit)
+    local effect = unit:GetStatusEffect("Rat_Settled")
+    return effect and effect.stacks or 0
 end
 
 ---- attacker_pos: where the shot is evaluated from (AI/preview at another tile gets nothing)
@@ -20,14 +26,11 @@ function Rat_SettledStacks(unit, opportunity_attack, attacker_pos)
     if not perk or not perk:ResolveValue("available") then
         return 0
     end
-    local s = gv_Rat_Settled[unit.session_id]
-    if not s or s.stacks <= 0 or not SameTile(s.pos, unit:GetPos()) then
+    local anchor = gv_Rat_Settled[unit.session_id]
+    if not SameTile(anchor, unit:GetPos()) or (attacker_pos and not SameTile(anchor, attacker_pos)) then
         return 0
     end
-    if attacker_pos and not SameTile(s.pos, attacker_pos) then
-        return 0
-    end
-    return s.stacks
+    return SettledEffectStacks(unit)
 end
 
 function Rat_SettledAimAcc(unit, opportunity_attack, attacker_pos)
@@ -53,27 +56,38 @@ local file_str = "PERKS_Sharpshooter.lua"
 local function SettledBeginTurn(self, unit)
     self:SetParameter("available", true)
     local pos = unit:GetPos()
-    local s = gv_Rat_Settled[unit.session_id]
-    if s and SameTile(s.pos, pos) then
-        local stacks = Min(s.stacks + 1, const.Combat.Perks.SharpshooterMaxStacks)
-        if stacks > s.stacks then
-            s.stacks = stacks
+    if SameTile(gv_Rat_Settled[unit.session_id], pos) then
+        local before = SettledEffectStacks(unit)
+        unit:AddStatusEffect("Rat_Settled")
+        local stacks = SettledEffectStacks(unit)
+        if stacks > before then
             local text = "Settled <stacks>"
             ratT(file_str, 483920175331, text)
             CreateFloatingText(unit, T {483920175331, text, stacks = stacks})
         end
     else
-        gv_Rat_Settled[unit.session_id] = {pos = pos, stacks = 0}
+        gv_Rat_Settled[unit.session_id] = pos
+        unit:RemoveStatusEffect("Rat_Settled", "all")
+    end
+end
+
+function OnMsg.UnitMovementDone(unit)
+    if IsKindOf(unit, "Unit") and unit:HasStatusEffect("Rat_Settled") and
+        not SameTile(gv_Rat_Settled[unit.session_id], unit:GetPos()) then
+        unit:RemoveStatusEffect("Rat_Settled", "all")
     end
 end
 
 ---- one below max at combat start: a merc that waited in position starts its first turn fully Settled
 function OnMsg.CombatStart()
     gv_Rat_Settled = {}
-    local stacks = Max(0, const.Combat.Perks.SharpshooterMaxStacks - 1)
+    local stacks = const.Combat.Perks.SharpshooterMaxStacks - 1
     for _, unit in ipairs(g_Units) do
         if unit.session_id and HasPerk(unit, "Instagib") then
-            gv_Rat_Settled[unit.session_id] = {pos = unit:GetPos(), stacks = stacks}
+            gv_Rat_Settled[unit.session_id] = unit:GetPos()
+            if stacks > 0 then
+                unit:AddStatusEffect("Rat_Settled", stacks)
+            end
         end
     end
 end
