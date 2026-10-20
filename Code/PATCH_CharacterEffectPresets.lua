@@ -70,7 +70,7 @@ function presets_char_effect()
         end
 
         if p.id == "Killzone" then
-            p.Description = ratT(file_str, 483920175319, "<GameTerm('Overwatch')> attacks against the <em>first</em> enemy each turn have <em>3 aim levels</em>, against the <em>second</em> <em>2 aim levels</em>.\n\nEnables <GameTerm('Crits')> with <GameTerm('Overwatch')> attacks, except from a <em>Machine Gun Setup</em>.")
+            p.Description = ratT(file_str, 483920175319, "<GameTerm('Overwatch')> attacks against the <em>first</em> enemy each turn have <em>3 aim levels</em>, against the <em>second</em> <em>2 aim levels</em>.\n\nEnables <GameTerm('Crits')> with <GameTerm('Overwatch')> attacks.\n\nDoes not apply to <em>Machine Gun Setup</em>.")
         end
 
         if p.id == "CollateralDamage" then
