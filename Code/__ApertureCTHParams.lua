@@ -219,18 +219,23 @@ A.HandlingLegacyBaseMul = {
 	PSG1 = 113, SSG69_1 = 110,
 }
 
----- Standing widens the cone for a heavy gun, same weigth_held_mul ladder as the recoil weight
----- penalty (RecoilHeldPivot). LIGHT by default -- LOWER slope than recoil on purpose, this is
----- aim, not muzzle control -- and it only bites past the pivot, so most guns pay nothing.
-A.HandlingHeldPivot = 100--130
-A.HandlingHeldSlope = 100--30 -- Mul the excess penalty
-
-
-A.HandlingHeldStrRelief = 50 -- How many excess points a STR 100 merc removes. 
-A.HandlingHeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
+---- HELD WEIGHT: one stat (weigth_held_mul) and one Strength curve feed both the not-prone cone
+---- (Rat_HandlingNotPronePen) and the held recoil. HandlingNotProneMul is no longer read.
+---- weigth_held_mul: AK47 131, M14SAW/M24 137, RPK74 140, PSG1 150, RPD 153, Minimi 156, HK21/PKM 157,
+---- HK23E 162, MG42/MG58 182, Barrett 200. Pivot 137 keeps every rifle out.
+A.HeldPivot = 137
+---- Strength: the full malus at HeldStrZero and below, none from HeldStrFull up, linear between.
+---- 75/95 puts the light-MG standing crossover at STR 80 (Marks 75, 6 rds, full aim): Minimi = HK33,
+---- HK23E = HK33, RPK (at weigth_held_mul 150) = AK74 heavy stock. Grizzly (95) pays nothing.
+A.HeldStrZero = 75
+A.HeldStrFull = 95
+---- how much of the malus each stance pays: prone rests the gun, standing carries it
+A.HeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
+---- % cone widening per excess point (aim, not muzzle control)
+A.HandlingHeldSlope = 300
 
 ---- Rotulo da penalidade de peso, POR POSTURA -- antes era sempre "(-) Standing", inclusive
----- agachado, onde HandlingHeldStanceMul ainda cobra 60%. Sem entrada, a postura nao rotula.
+---- agachado, onde HeldStanceMul ainda cobra 60%. Sem entrada, a postura nao rotula.
 A.HandlingHeldStanceMeta = {
 	Standing = T {195731482566, "(-) Not prone"},
 	Crouch = T {195731482566, "(-) Not prone"},
@@ -238,24 +243,12 @@ A.HandlingHeldStanceMeta = {
     --Crouch = T {274905618332, "(-) Crouching"}
 }
 A.HandlingHeldLowStrMeta = T {599531270289, "(-) Low Strength"}
-A.HandlingHeldMinStr = 70
 
----- HELD RECOIL
----- Weight above the pivot is paid in grip and force, never in kick. weigth_held_mul is
----- already authored on every weapon, so the ladder needs no per-gun data.
----- MEASURED 2026-09-23: MG42 standing, 6 rds, merc 95; same scale as the SECOND ORDER block below.
----- weigth_held_mul: AK47 131, M14SAW 137, RPK74 140, Minimi 156, HK21 157, MG42 182.
----- ~18% is the floor: only the first round lands.
----- UP = fewer guns pay. 100 -> 18%, 130 -> 19%, 160 -> 21%, 200 -> 28% (MG42 unpenalised)
-A.RecoilHeldPivot = 130
----- UP = heavier penalty past the pivot. 0 -> 28%, 30 -> 20%, 60 -> 19%, 100 -> 18%
-A.RecoilHeldSlope = 60 ---- RecoilOtherGain re-amplifies this by 2.5x into max_inc
----- UP = Strength above 50 waives more of it. 0 -> 18%, 50 -> 19%, 100 -> 23%
-A.RecoilHeldStrRelief = 50
+---- HELD RECOIL: same excess and Strength curve as above, paid in grip and force, never in kick.
+---- % per excess point; RecoilOtherGain re-amplifies it by 2.5x into max_inc
+A.RecoilHeldSlope = 70
 ---- UP = the penalty also widens lateral sway. Barely measurable: 0 -> 200 moves lateral 352' -> 376'
 A.RecoilHeldLatPct = 100
----- how much of that penalty each stance still pays: prone rests the gun, standing carries it
-A.RecoilHeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
 ---- RECOIL window names the penalty from this % up: MG42 16-31 standing, HK21/Minimi 8-16, RPK74 3-6, AK47 1
 A.RecoilHeldShowPct = 5
 

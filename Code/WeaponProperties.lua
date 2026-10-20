@@ -62,7 +62,7 @@ function OnMsg.ClassesGenerate()
 				category = "GBO_aCTH",
                 id = "HandlingNotProneMul",
                 name = "HandlingNotProneMul",
-                help = "Penalty to handling for unwieldy weapons while not prone. It is partially mitigated by high strenght",
+                help = "UNUSED: the not-prone malus now comes from weigth_held_mul (Rat_HeldWeightPen). Kept so the sheet output still loads",
                 editor = "number",
                 default = 100,
                 template = true,

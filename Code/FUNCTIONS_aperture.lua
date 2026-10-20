@@ -517,25 +517,29 @@ function Rat_HandlingBaseMul(weapon, attacker)
     return 10000 - MulDivRound(pts, a.HandlingPointPct, a.HandlingPointsPerAim), meta
 end
 
----- Not-prone malus in % for `stance` (same weigth_held_mul ladder as RecoilHeldPivot). Without an
+---- Held-weight malus in % for `stance`: weigth_held_mul past HeldPivot x `slope`, Strength fading it
+---- from HeldStrZero to HeldStrFull. Shared by the not-prone cone and the held recoil. Without an
 ---- attacker there is no Strength relief: the raw penalty of the gun.
-function Rat_HandlingNotPronePen(weapon, attacker, stance)
+function Rat_HeldWeightPen(weapon, attacker, stance, slope)
     local a = P()
-    local stance_mul = (a.HandlingHeldStanceMul and a.HandlingHeldStanceMul[stance]) or 100
+    local stance_mul = (a.HeldStanceMul and a.HeldStanceMul[stance]) or 100
     if stance_mul <= 0 or not IsKindOf(weapon, "FirearmProperties") then
         return 0
     end
-    local excess = Max(0, (weapon.HandlingNotProneMul or 100) - (a.HandlingHeldPivot or 100))
+    local excess = Max(0, (weapon.weigth_held_mul or 100) - (a.HeldPivot or 100))
     local low_str
     if attacker then
         local str = attacker.Strength or 0
-        local min_str = a.HandlingHeldMinStr or 50
-        low_str = str <= min_str
-        if str > min_str then
-            excess = Max(0, excess - MulDivRound(a.HandlingHeldStrRelief or 0, Min(str, 100) - min_str, 100 - min_str))
-        end
+        local zero, full = a.HeldStrZero or 60, a.HeldStrFull or 90
+        low_str = str <= zero
+        excess = MulDivRound(excess, Clamp(full - str, 0, full - zero), Max(1, full - zero))
     end
-    return MulDivRound(MulDivRound(excess, a.HandlingHeldSlope or 0, 100), stance_mul, 100), low_str
+    return MulDivRound(MulDivRound(excess, slope or 0, 100), stance_mul, 100), low_str
+end
+
+---- Not-prone cone malus in %.
+function Rat_HandlingNotPronePen(weapon, attacker, stance)
+    return Rat_HeldWeightPen(weapon, attacker, stance, P().HandlingHeldSlope)
 end
 
 ---- `attacker` e opcional -- sem merc nao ha postura nem stat. Devolve o multiplicador e o metaText.
