@@ -1803,6 +1803,10 @@ return {
 			'CodeFileName', "Code/PERKS_Sharpshooter.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "PERKS_InsideDope",
+			'CodeFileName', "Code/PERKS_InsideDope.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "APPEND_CLASS_WeaponComponent",
 			'CodeFileName', "Code/APPEND_CLASS_WeaponComponent.lua",
 		}),

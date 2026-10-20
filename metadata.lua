@@ -189,6 +189,7 @@ return PlaceObj('ModDef', {
 		"Code/PATCH_OnClassesGenerate.lua",
 		"Code/PERKS_Interrupt.lua",
 		"Code/PERKS_Sharpshooter.lua",
+		"Code/PERKS_InsideDope.lua",
 		"Code/APPEND_CLASS_WeaponComponent.lua",
 		"Code/CONSTANTS_mod_options.lua",
 		"Code/OPTIONS_GunsHurt.lua",
