@@ -229,9 +229,9 @@ end
 local file_str = "FUNCTIONS_hipfire.lua"
 
 function Rat_FlankerDescription()
-    local text = "Deal <em><percent(damageBonus)></em> more <em>Damage</em> against <GameTerm('Flanked')> enemies.\n\nReduced <em>Hipfire</em> penalty with <em>Mobile attacks</em> (Run and Gun, Mobile Shot)."
-    ratT(file_str, 418290573316, text)
-    return T {418290573316, text}
+    local text = "Deal <em><percent(damageBonus)></em> more <em>Damage</em> against <GameTerm('Flanked')> enemies.\n\nReduced <em>Hipfire</em> and <em>Snapshot</em> penalties with <em>Mobile attacks</em> (Run and Gun, Mobile Shot)."
+    ratT(file_str, 418290573317, text)
+    return T {418290573317, text}
 end
 
 function OnMsg.ClassesGenerate(classdefs)

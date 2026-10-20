@@ -17,7 +17,7 @@ const.Combat.SnapshotHipfire.Components = {
 
 const.Combat.SnapshotHipfire.RunAndGunMul = 1.20
 const.Combat.SnapshotHipfire.MobileShotMul = 1.20
-const.Combat.SnapshotHipfire.FlankerMobileMul = 0.85 -- Flanker perk on mobile attacks; 1.20 x 0.85 ~ a standing hipfire
+const.Combat.SnapshotHipfire.FlankerMobileMul = 0.85 -- Flanker perk on mobile attacks; 1.20 x 0.85 ~ no mobile malus
 const.Combat.SnapshotHipfire.MeleeWeaponMul = 0.85
 
 const.Combat.Hipfire.Components = {
