@@ -3,7 +3,7 @@
 ---- Combat refreshes at the start of the player's turn; exploration every IntelPingPeriod.
 local file_str = "PERKS_InsideDope.lua"
 
-local IntelPingClusterTiles = 6
+local IntelPingClusterTiles = 9
 local IntelPingOffsetTiles = 4
 local IntelPingPadTiles = 1
 local IntelPingPeriod = 10000
@@ -52,31 +52,49 @@ local function IntelEpoch()
     return -1 - GameTime() / IntelPingPeriod
 end
 
-local function GatherClusters(team)
-    local clusters = {}
-    local radius = IntelPingClusterTiles * const.SlabSizeX
-    for _, unit in ipairs(g_Units) do
-        if IsUnseenEnemy(team, unit) then
-            local pos = unit:GetPos()
-            local cluster
-            for _, c in ipairs(clusters) do
-                if IsCloser2D(c.anchor, pos, radius + 1) then
-                    cluster = c
-                    break
-                end
-            end
-            if cluster then
-                table.insert(cluster.units, unit)
-            else
-                clusters[#clusters + 1] = {anchor = pos, units = {unit}}
-            end
-        end
-    end
-    return clusters
-end
-
 local function ValidZ(pos)
     return pos:IsValidZ() and pos or pos:SetTerrainZ()
+end
+
+local function UpdateCentroid(cluster)
+    local x, y, z = 0, 0, 0
+    for _, unit in ipairs(cluster.units) do
+        local px, py, pz = ValidZ(unit:GetPos()):xyz()
+        x, y, z = x + px, y + py, z + pz
+    end
+    local n = #cluster.units
+    cluster.centroid = point(x / n, y / n, z / n)
+end
+
+---- Merges the two clusters with the closest centroids until none are within the radius,
+---- so grouping doesn't depend on g_Units order.
+local function GatherClusters(team)
+    local clusters = {}
+    for _, unit in ipairs(g_Units) do
+        if IsUnseenEnemy(team, unit) then
+            local cluster = {units = {unit}}
+            UpdateCentroid(cluster)
+            clusters[#clusters + 1] = cluster
+        end
+    end
+    local radius = IntelPingClusterTiles * const.SlabSizeX
+    while true do
+        local best, bi, bj = radius + 1
+        for i = 1, #clusters - 1 do
+            for j = i + 1, #clusters do
+                local d = clusters[i].centroid:Dist2D(clusters[j].centroid)
+                if d < best then
+                    best, bi, bj = d, i, j
+                end
+            end
+        end
+        if not bi then
+            return clusters
+        end
+        table.iappend(clusters[bi].units, clusters[bj].units)
+        UpdateCentroid(clusters[bi])
+        table.remove(clusters, bj)
+    end
 end
 
 local function RingMesh(center, radius)
@@ -105,14 +123,8 @@ local function RingMesh(center, radius)
 end
 
 local function PlaceIntelPing(cluster, epoch)
-    local units = cluster.units
-    local x, y, z = 0, 0, 0
-    for _, unit in ipairs(units) do
-        local px, py, pz = ValidZ(unit:GetPos()):xyz()
-        x, y, z = x + px, y + py, z + pz
-    end
+    local units, centroid = cluster.units, cluster.centroid
     local n = #units
-    local centroid = point(x / n, y / n, z / n)
     local spread = 0
     for _, unit in ipairs(units) do
         spread = Max(spread, unit:GetDist2D(centroid))
