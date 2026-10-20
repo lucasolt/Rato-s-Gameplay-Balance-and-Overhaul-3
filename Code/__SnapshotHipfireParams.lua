@@ -17,7 +17,7 @@ const.Combat.SnapshotHipfire.Components = {
 
 const.Combat.SnapshotHipfire.RunAndGunMul = 1.20
 const.Combat.SnapshotHipfire.MobileShotMul = 1.20
-const.Combat.SnapshotHipfire.FlankerMobileMul = 0.85 -- Flanker perk on mobile attacks; 1.20 x 0.85 ~ no mobile malus
+const.Combat.SnapshotHipfire.FlankerMobileMul = 0.70 -- Flanker perk on mobile attacks (snapshots, aim 1); 0.85 bought only +2 CTH at 10 tiles
 const.Combat.SnapshotHipfire.MeleeWeaponMul = 0.85
 
 const.Combat.Hipfire.Components = {
