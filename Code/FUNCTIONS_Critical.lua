@@ -1,10 +1,18 @@
----- merc level no longer scales crit; per-aim crit lives in CritPerAim
+---- merc level no longer scales firearm crit (CritPerAim does); melee crit lives only in CritChanceScaled
 function UnitProperties:GetBaseCrit(weapon)
-    return weapon.CritChance
+    if IsKindOf(weapon, "Firearm") then
+        return weapon.CritChance
+    end
+    local level = self and self:GetLevel() or 10
+    return weapon.CritChance + MulDivRound(weapon.CritChanceScaled, level, 10)
 end
 
 function UnitProperties:Getbase_BaseCrit(weapon)
-    return weapon.base_CritChance
+    if IsKindOf(weapon, "Firearm") then
+        return weapon.base_CritChance
+    end
+    local level = self and self:GetLevel() or 10
+    return weapon.base_CritChance + MulDivRound(weapon.base_CritChanceScaled, level, 10)
 end
 
 ---- hundredths of % per aim level at Hand-Eye 100; components and ammo modify CritPerAim itself
