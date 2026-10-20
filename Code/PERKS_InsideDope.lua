@@ -12,6 +12,7 @@ local IntelPingPeriod = 10000
 local IntelPingMaterial = "ExplodingBarrelRange_Tiles"
 local IntelPingColor = RGB(220, 40, 40)
 local IntelPingOpacity = 60
+local IntelPingZOffset = 40 * guic
 local IntelPingTextStyle = "FloatingTextError"
 local IntelPingTextColor = RGBA(255, 40, 40, 200)
 
@@ -145,6 +146,10 @@ local function PlaceIntelPing(cluster, epoch)
     -- Same tile mesh as the exploding barrel range, without LOS shading: it is not cast from the center.
     local steps, step_objs = GetStepPositionsInArea(center, radius, 0, -1, nil, false)
     local mesh = CreateAOETilesCircle(steps, step_objs, nil, center, radius, empty_table, IntelPingMaterial)
+    -- Vanilla lifts the tiles only 10 cm, so grass covers them; rebuild the vertices higher.
+    local vertices = pstr("", 1024)
+    AppendVerticesAOETilesMesh(vertices, steps, step_objs, empty_table, const.clrWhite, IntelPingZOffset)
+    mesh:SetMesh(vertices)
     mesh:SetColorModifier(IntelPingColor)
     mesh:SetOpacity(IntelPingOpacity)
 
