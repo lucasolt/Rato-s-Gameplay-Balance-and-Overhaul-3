@@ -1,9 +1,10 @@
 ---- Inside Dope (InnerInfo, Livewire): sector Intel no longer reveals every enemy. Unseen enemies are
 ---- grouped into clusters, each shown as a red ring around their centroid, offset at random, with a rough count.
----- Combat refreshes at the start of the player's turn; exploration every IntelPingPeriod.
+---- Positions are re-read at the player's turn start (exploration: every IntelPingPeriod); every visibility
+---- update regroups the still-unseen enemies from their last known positions.
 local file_str = "PERKS_InsideDope.lua"
 
-local IntelPingClusterTiles = 9
+local IntelPingClusterTiles = 12--9
 local IntelPingOffsetTiles = 4
 local IntelPingPadTiles = 1
 local IntelPingMaxRadiusTiles = 8
@@ -11,13 +12,15 @@ local IntelPingPeriod = 10000
 local IntelPingSegments = 32
 local IntelPingColor = RGB(220, 40, 40)
 local IntelPingFillAlpha = 20
-local IntelPingRingAlpha = 130
+local IntelPingRingAlpha = 60--80--130
 local IntelPingTextStyle = "FloatingTextError"
 local IntelPingTextColor = RGBA(255, 40, 40, 200)
 
 local AppendVertex = pstr().AppendVertex
 local intel_pings = false
 local intel_epoch = false
+local intel_key = false
+local intel_known = {}
 local intel_hidden = false
 
 local function IntelPingTeam()
@@ -57,10 +60,28 @@ local function ValidZ(pos)
     return pos:IsValidZ() and pos or pos:SetTerrainZ()
 end
 
+local function KnownPos(unit)
+    return intel_known[unit] or unit:GetPos()
+end
+
+---- Seen enemies update their known position; unseen ones keep the one from the last reset or sighting,
+---- so regrouping during the enemy turn never tracks where they are walking.
+local function UpdateKnownPositions(team, reset)
+    if reset then
+        intel_known = {}
+    end
+    for _, unit in ipairs(g_Units) do
+        if unit:IsValidPos() and not unit:IsDead() and team:IsEnemySide(unit.team)
+            and (reset or not intel_known[unit] or HasVisibilityTo(team, unit)) then
+            intel_known[unit] = unit:GetPos()
+        end
+    end
+end
+
 local function UpdateCentroid(cluster)
     local x, y, z = 0, 0, 0
     for _, unit in ipairs(cluster.units) do
-        local px, py, pz = ValidZ(unit:GetPos()):xyz()
+        local px, py, pz = ValidZ(KnownPos(unit)):xyz()
         x, y, z = x + px, y + py, z + pz
     end
     local n = #cluster.units
@@ -128,10 +149,14 @@ local function PlaceIntelPing(cluster, epoch)
     local n = #units
     local spread = 0
     for _, unit in ipairs(units) do
-        spread = Max(spread, unit:GetDist2D(centroid))
+        spread = Max(spread, KnownPos(unit):Dist2D(centroid))
+    end
+    local handle = units[1].handle
+    for _, unit in ipairs(units) do
+        handle = Min(handle, unit.handle)
     end
     -- Seeded by turn so the ping holds still within a turn and can't be averaged by watching it.
-    local seed = xxhash(units[1].handle, epoch)
+    local seed = xxhash(handle, epoch)
     local angle, dist, jitter
     angle, seed = BraidRandom(seed, 360 * 60)
     local max_offset = IntelPingOffsetTiles * const.SlabSizeX
@@ -182,72 +207,73 @@ function OnMsg.Shortcuts(host)
     }, host)
 end
 
-function Rat_RefreshIntelPings()
-    ClearIntelPings()
-    local team = IntelPingTeam()
-    if not team then
-        return
+local function ClustersKey(clusters, epoch)
+    local parts = {}
+    for i, cluster in ipairs(clusters) do
+        parts[i] = tostring(cluster.centroid) .. "#" .. #cluster.units
     end
-    intel_epoch = IntelEpoch()
-    intel_pings = {}
-    for _, cluster in ipairs(GatherClusters(team)) do
-        intel_pings[#intel_pings + 1] = PlaceIntelPing(cluster, intel_epoch)
-    end
-    return #intel_pings > 0
+    table.sort(parts)
+    return tostring(epoch) .. "|" .. table.concat(parts, "|")
 end
 
----- Drops a ping once every enemy in it is seen or dead; the rest stay put until the next refresh.
-local function PruneIntelPings()
-    local team = GetPoVTeam()
-    if not intel_pings or not team then
+---- reset re-reads every enemy's position (turn start, exploration period); otherwise the clusters
+---- are regrouped from known positions and the meshes rebuilt only if a cluster changed.
+function Rat_RefreshIntelPings(reset)
+    local team = IntelPingTeam()
+    if not team then
+        ClearIntelPings()
+        intel_key = false
         return
     end
-    for i = #intel_pings, 1, -1 do
-        local ping = intel_pings[i]
-        local any = false
-        for _, unit in ipairs(ping.units) do
-            any = any or IsValid(unit) and IsUnseenEnemy(team, unit)
-        end
-        if not any then
-            DoneObject(ping.mesh)
-            DoneObject(ping.text)
-            table.remove(intel_pings, i)
+    if reset or not intel_epoch then
+        intel_epoch = IntelEpoch()
+        reset = true
+    end
+    UpdateKnownPositions(team, reset)
+    local clusters = GatherClusters(team)
+    local key = ClustersKey(clusters, intel_epoch)
+    if key ~= intel_key or not intel_pings then
+        intel_key = key
+        ClearIntelPings()
+        intel_pings = {}
+        for _, cluster in ipairs(clusters) do
+            intel_pings[#intel_pings + 1] = PlaceIntelPing(cluster, intel_epoch)
         end
     end
+    return #intel_pings > 0
 end
 
 function OnMsg.TurnStart(team_idx)
     local team = g_Teams[team_idx]
     if team and team == GetPoVTeam() then
-        Rat_RefreshIntelPings()
+        Rat_RefreshIntelPings(true)
     end
 end
 
 function OnMsg.ExplorationTick()
-    if intel_epoch ~= IntelEpoch() or not intel_pings then
-        Rat_RefreshIntelPings()
+    if intel_epoch ~= IntelEpoch() then
+        Rat_RefreshIntelPings(true)
     end
 end
 
 function OnMsg.VisibilityUpdate()
-    -- After a load mid-combat nothing is built until the next player turn.
-    if g_Combat and intel_pings == false then
-        Rat_RefreshIntelPings()
-    end
-    PruneIntelPings()
+    Rat_RefreshIntelPings()
 end
 
 function OnMsg.CombatEnd()
     ClearIntelPings()
+    intel_key = false
 end
 
 function OnMsg.DoneMap()
     intel_pings = false
     intel_epoch = false
+    intel_key = false
+    intel_known = {}
 end
 
 function Rat_InsideDopeDescription()
-    local text = "If you have <em>Intel</em> for the Sector, unseen <em>Enemies</em> show up as red <em>areas</em> on the map with a rough count of how many are around. In combat they update at the start of your turn.\n\nPress <em><ShortcutName('RatInsideDopeToggle')></em> to show or hide the areas."
+    local text = "If you have <em>Intel</em> for the Sector, unseen <em>Enemies</em> show up as red <em>areas</em> on the map with a rough count of how many are around. In combat their intel is from the start of your turn, and the areas regroup as your mercs spot enemies.\n\nPress <em><ShortcutName('RatInsideDopeToggle')></em> to show or hide the areas."
     return ratT(file_str, 739104628517, text)
 end
 
