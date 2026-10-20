@@ -771,6 +771,10 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
             if cqc then
                 meta[#meta + 1] = cqc.DisplayName
             end
+            ---- the cut itself rides in `hipsnap` (GetWeaponHipfireOrSnapshotMul); only the label goes here
+            if Rat_FlankerMobile(attacker, action) then
+                meta[#meta + 1] = CharacterEffectDefs.Flanker.DisplayName
+            end
             if mg_setup then
                 meta[#meta + 1] = CombatActions.MGSetup.DisplayName
             end

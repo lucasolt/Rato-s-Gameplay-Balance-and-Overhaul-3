@@ -206,6 +206,10 @@ function GetWeaponHipfireOrSnapshotMul(weapon, attacker, action, display, aim)
     if action and action.id == "MobileShot" then
         penalty = penalty * const.Combat.SnapshotHipfire.MobileShotMul
     end
+    if Rat_FlankerMobile(attacker, action) then
+        penalty = penalty * const.Combat.SnapshotHipfire.FlankerMobileMul
+        metaText[#metaText + 1] = CharacterEffectDefs.Flanker.DisplayName
+    end
 
     if display == true then
         return penalty
@@ -213,6 +217,35 @@ function GetWeaponHipfireOrSnapshotMul(weapon, attacker, action, display, aim)
         return penalty, metaText
     end
 
+end
+
+local FlankerMobileActions = {MobileShot = true, RunAndGun = true, RecklessAssault = true}
+
+function Rat_FlankerMobile(attacker, action)
+    return attacker and not attacker.placeholder and action and FlankerMobileActions[action.id] and
+               HasPerk(attacker, "Flanker") or false
+end
+
+local file_str = "FUNCTIONS_hipfire.lua"
+
+function Rat_FlankerDescription()
+    local text = "Deal <em><percent(damageBonus)></em> more <em>Damage</em> against <GameTerm('Flanked')> enemies.\n\nReduced <em>Hipfire</em> penalty with <em>Mobile attacks</em> (Run and Gun, Mobile Shot)."
+    ratT(file_str, 418290573316, text)
+    return T {418290573316, text}
+end
+
+function OnMsg.ClassesGenerate(classdefs)
+    if classdefs.Flanker then
+        classdefs.Flanker.Description = Rat_FlankerDescription()
+    end
+end
+
+---- the perk screen reads the preset, not the class
+function OnMsg.DataLoaded()
+    local perk = CharacterEffectDefs.Flanker
+    if perk then
+        perk.Description = Rat_FlankerDescription()
+    end
 end
 
 ---------------------------------------------------------------------------------------------------------

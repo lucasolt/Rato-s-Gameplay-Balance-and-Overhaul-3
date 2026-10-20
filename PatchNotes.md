@@ -119,6 +119,7 @@ Crit from aim levels is reduced for selective bursts and even more for autofire.
 [*][b]Killzone[/b]: no longer grants a bonus attack on interrupts. Overwatch attacks against the first enemy each turn have 3 aim levels, the second 2, the rest 1. Enables crits on interrupt attacks.
 [*]New Strength perk [b]Beaten Zone[/b]: MG Setup and emplacement interrupt attacks get +10 Accuracy, and the same aim levels as Killzone (no crits). [b]Collateral Damage[/b] is back to vanilla.
 [*][b]Anatomical Precision[/b]: also grants +10% base crit chance against Flanked enemies, which works with bursts and autofire.
+[*][b]Flanker[/b]: also reduces the Hipfire penalty of Mobile attacks (Run and Gun, Mobile Shot) by 15%.
 [*][b]Heavy Weapons[/b] now reduces Shooting Stance AP instead of Setup AP (indirectly it still reduces Setup AP).
 [*]Grizzly's new starting perk is Recoil Control instead of Killing Spree.
 [/list]
