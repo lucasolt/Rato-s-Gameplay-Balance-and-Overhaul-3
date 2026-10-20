@@ -224,11 +224,15 @@ A.HandlingLegacyBaseMul = {
 ---- weigth_held_mul: AK47 131, M14SAW/M24 137, RPK74 140, PSG1 150, RPD 153, Minimi 156, HK21/PKM 157,
 ---- HK23E 162, MG42/MG58 182, Barrett 200. Pivot 137 keeps every rifle out.
 A.HeldPivot = 137
----- Strength: the full malus at HeldStrZero and below, none from HeldStrFull up, linear between.
+---- Strength carries weight points, ramping linearly from HeldStrZero (none) to HeldStrFull (all of HeldStrRelief).
 ---- 75/95 puts the light-MG standing crossover at STR 80 (Marks 75, 6 rds, full aim): Minimi = HK33,
----- HK23E = HK33, RPK (at weigth_held_mul 150) = AK74 heavy stock. Grizzly (95) pays nothing.
+---- HK23E = HK33, RPK (at weigth_held_mul 150) = AK74 heavy stock.
 A.HeldStrZero = 75
 A.HeldStrFull = 95
+---- Fixed points, not a %: excess 13-20 (light MGs) hits the cap below, MG42 (45) keeps 33 points.
+A.HeldStrRelief = 12
+---- Strength never removes more than this % of a gun's excess: a heavy gun carried standing always weighs something.
+A.HeldStrMaxReliefPct = 60
 ---- how much of the malus each stance pays: prone rests the gun, standing carries it
 A.HeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
 ---- % cone widening per excess point (aim, not muzzle control)

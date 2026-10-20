@@ -517,9 +517,10 @@ function Rat_HandlingBaseMul(weapon, attacker)
     return 10000 - MulDivRound(pts, a.HandlingPointPct, a.HandlingPointsPerAim), meta
 end
 
----- Held-weight malus in % for `stance`: weigth_held_mul past HeldPivot x `slope`, Strength fading it
----- from HeldStrZero to HeldStrFull. Shared by the not-prone cone and the held recoil. Without an
----- attacker there is no Strength relief: the raw penalty of the gun.
+---- Held-weight malus in % for `stance`: weigth_held_mul past HeldPivot x `slope`. Strength carries a
+---- FIXED number of weight points (HeldStrRelief, ramping HeldStrZero -> HeldStrFull), capped at
+---- HeldStrMaxReliefPct of the excess: light guns keep a trace, heavy ones stay heavy. Shared by the
+---- not-prone cone and the held recoil. Without an attacker there is no Strength relief.
 function Rat_HeldWeightPen(weapon, attacker, stance, slope)
     local a = P()
     local stance_mul = (a.HeldStanceMul and a.HeldStanceMul[stance]) or 100
@@ -532,7 +533,8 @@ function Rat_HeldWeightPen(weapon, attacker, stance, slope)
         local str = attacker.Strength or 0
         local zero, full = a.HeldStrZero or 60, a.HeldStrFull or 90
         low_str = str <= zero
-        excess = MulDivRound(excess, Clamp(full - str, 0, full - zero), Max(1, full - zero))
+        local relief = MulDivRound(a.HeldStrRelief or 0, Clamp(str - zero, 0, full - zero), Max(1, full - zero))
+        excess = excess - Min(relief, MulDivRound(excess, a.HeldStrMaxReliefPct or 100, 100))
     end
     return MulDivRound(MulDivRound(excess, slope or 0, 100), stance_mul, 100), low_str
 end
