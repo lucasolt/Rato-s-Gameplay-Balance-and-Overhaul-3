@@ -252,7 +252,7 @@ function OnMsg.DoneMap()
 end
 
 function Rat_InsideDopeDescription()
-    local text = "If you have <em>Intel</em> for the Sector, unseen <em>Enemies</em> show up as red <em>areas</em> on the map with a rough count of how many are around. In combat their intel is from the start of your turn, and the areas regroup as your mercs spot enemies.\n\nPress <em><ShortcutName('RatInsideDopeToggle')></em> to show or hide the areas."
+    local text = "If you have <em>Intel</em> for the Sector, unseen <em>Enemies</em> show up as red <em>areas</em> on the map. In combat their intel is from the start of your turn, and the areas regroup as your mercs spot enemies.\n\nPress <em><ShortcutName('RatInsideDopeToggle')></em> to show or hide the areas."
     return ratT(file_str, 739104628517, text)
 end
 
