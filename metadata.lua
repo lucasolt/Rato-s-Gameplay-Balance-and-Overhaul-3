@@ -51,6 +51,7 @@ return PlaceObj('ModDef', {
 		"CharacterEffect/grunty_bonus.lua",
 		"CharacterEffect/AdrenalineRush_Savior.lua",
 		"CharacterEffect/Rat_Settled.lua",
+		"CharacterEffect/BeatenZone.lua",
 		"Code/_______init_globals.lua",
 		"Code/__APScaleParams.lua",
 		"Code/__MainParams.lua",
@@ -308,6 +309,11 @@ return PlaceObj('ModDef', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "CharacterEffectCompositeDef",
 			'Id', "Rat_Settled",
+			'ClassDisplayName', "Character effect",
+		}),
+		PlaceObj('ModResourcePreset', {
+			'Class', "CharacterEffectCompositeDef",
+			'Id', "BeatenZone",
 			'ClassDisplayName', "Character effect",
 		}),
 		PlaceObj('ModResourcePreset', {

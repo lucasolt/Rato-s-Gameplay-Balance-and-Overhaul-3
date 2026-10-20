@@ -902,6 +902,25 @@ return {
 		'RemoveOnCampaignTimeAdvance', true,
 		'Shown', true,
 	}),
+	PlaceObj('ModItemCharacterEffectCompositeDef', {
+		'Group', "Strength",
+		'Id', "BeatenZone",
+		'SortKey', 8,
+		'Parameters', {
+			PlaceObj('PresetParamNumber', {
+				'Name', "owAccuracy",
+				'Value', 10,
+				'Tag', "<owAccuracy>",
+			}),
+		},
+		'object_class', "Perk",
+		'DisplayName', T(483920175320, --[[ModItemCharacterEffectCompositeDef BeatenZone DisplayName]] "Beaten Zone"),
+		'Description', T(483920175342, --[[ModItemCharacterEffectCompositeDef BeatenZone Description]] "<em>Machine Gun</em> <GameTerm('Interrupt')> attacks from a <em>Setup</em> or an <em>Emplacement</em> have <em>+<owAccuracy> Accuracy</em>.\n\nAgainst the <em>first</em> enemy each turn they have <em>3 aim levels</em>, against the <em>second</em> <em>2 aim levels</em>."),
+		'Icon', "Mod/cfahRED/Images/perk_BeatenZone.png",
+		'Tier', "Gold",
+		'Stat', "Strength",
+		'StatValue', 90,
+	}),
 	PlaceObj('ModItemCode', {
 		'name', "_______init_globals",
 		'CodeFileName', "Code/_______init_globals.lua",

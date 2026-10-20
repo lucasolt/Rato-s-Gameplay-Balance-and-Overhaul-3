@@ -1,5 +1,5 @@
 ---- Opportunistic Killer: +Overwatch attacks and the vanilla auto-reload, no interrupt crits.
----- Killzone (Overwatch) / Beaten Zone (ex Collateral Damage, MG setup): interrupt aim ladders by distinct target per turn; Killzone enables crits, Beaten Zone keeps object damage.
+---- Killzone (Overwatch) / Beaten Zone (MG setup): interrupt aim ladders by distinct target per turn; Killzone enables crits, Beaten Zone adds accuracy.
 
 GameVar("gv_Rat_KillzoneTargets", function() return {} end)
 
@@ -8,7 +8,7 @@ local function IsMGSetUp(unit)
 end
 
 local function KillzonePerk(unit)
-    return IsMGSetUp(unit) and "CollateralDamage" or "Killzone"
+    return IsMGSetUp(unit) and "BeatenZone" or "Killzone"
 end
 
 local function KillzoneTargetRank(attacker, target)
@@ -49,14 +49,6 @@ local function KillzoneResetReaction()
     })
 end
 
-RAT_BEATEN_ZONE_ICON = "Mod/cfahRED/Images/perk_BeatenZone.png"
-
-function Rat_BeatenZoneTexts()
-    local file_str = "PERKS_Interrupt.lua"
-    return ratT(file_str, 483920175320, "Beaten Zone"),
-           ratT(file_str, 483920175321, "<em>Machine Gun</em> <GameTerm('Interrupt')> attacks in <em>Setup</em> against the <em>first</em> enemy each turn have <em>3 aim levels</em>, against the <em>second</em> <em>2 aim levels</em>.\n\nDeal <em><percent(objectDamageMod)> Damage</em> to objects with <em>Heavy Weapons</em> and <em>Machine Guns</em>.")
-end
-
 function OnMsg.ClassesGenerate(classdefs)
     local ok = classdefs.OpportunisticKiller
     if ok then
@@ -91,25 +83,24 @@ function OnMsg.ClassesGenerate(classdefs)
         }
     end
 
-    local bz = classdefs.CollateralDamage
+    local bz = classdefs.BeatenZone
     if bz then
-        bz.unit_reactions = {KillzoneResetReaction()}
-        ---- vanilla object branch; Weapon.lua:296 adds objectDamageMod on its own path too
-        bz.unit_reactions[#bz.unit_reactions + 1] = PlaceObj('UnitReaction', {
-            Event = "OnCalcDamageAndEffects",
-            Handler = function(self, target, attacker, attack_target, action, weapon, attack_args, hit, data)
-                if attacker ~= target or IsKindOf(attack_target, "Unit") or
-                    not IsKindOf(attack_target, "CombatObject") or
-                    not IsKindOfClasses(weapon, "HeavyWeapon", "MachineGun") then
-                    return
+        bz.unit_reactions = {
+            KillzoneResetReaction(),
+            PlaceObj('UnitReaction', {
+                Event = "OnCalcChanceToHit",
+                Handler = function(self, target, attacker, action, attack_target, weapon1, weapon2, data)
+                    if target ~= attacker or not Rat_IsMGSetupInterrupt(attacker, action, data.opportunity_attack) then
+                        return
+                    end
+                    local bonus = self:ResolveValue("owAccuracy")
+                    data.mod_add = data.mod_add + bonus
+                    if data.modifiers then
+                        data.modifiers[#data.modifiers + 1] = {id = "BeatenZone", name = self.DisplayName, value = bonus}
+                    end
                 end
-                local bonus = self:ResolveValue("objectDamageMod")
-                data.base_damage = MulDivRound(data.base_damage, 100 + bonus, 100)
-                data.breakdown[#data.breakdown + 1] = {name = self.DisplayName, value = bonus}
-            end
-        })
-        bz.DisplayName, bz.Description = Rat_BeatenZoneTexts()
-        bz.Icon = RAT_BEATEN_ZONE_ICON
+            })
+        }
     end
 end
 

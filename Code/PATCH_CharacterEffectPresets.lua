@@ -73,11 +73,6 @@ function presets_char_effect()
             p.Description = ratT(file_str, 483920175319, "<GameTerm('Overwatch')> attacks against the <em>first</em> enemy each turn have <em>3 aim levels</em>, against the <em>second</em> <em>2 aim levels</em>.\n\nEnables <GameTerm('Crits')> with <GameTerm('Overwatch')> attacks.\n\nDoes not apply to <em>Machine Gun Setup</em>.")
         end
 
-        if p.id == "CollateralDamage" then
-            p.DisplayName, p.Description = Rat_BeatenZoneTexts()
-            p.Icon = RAT_BEATEN_ZONE_ICON
-        end
-
         --------------------------------------------------------------------------------------------
         if p.id == "Psycho" then
             p.Description = ratT(file_str, 483920175317, "Can decide to use a more vicious attack than the one selected: a <em>Single Shot</em> becomes a burst, and <em>Auto Fire</em> fires up to twice as many rounds at no extra <em>AP</em>.\n\nMore likely to <em>overrun the trigger</em> in <em>Auto Fire</em>.\n\nAdditional <em>conversation options</em>.")

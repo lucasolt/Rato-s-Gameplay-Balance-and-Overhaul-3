@@ -115,7 +115,7 @@ Weapons now have a stat called [b]Critical Chance per Aim[/b], which scales with
 [/list]
 [*][b]Opportunistic Killer[/b]: no longer enables crits on interrupt attacks. Instead, grants 1 extra Overwatch attack. Still reloads automatically after Overwatch.
 [*][b]Killzone[/b]: no longer grants a bonus attack on interrupts. Overwatch attacks against the first enemy each turn have 3 aim levels, the second 2, the rest 1. Enables crits on interrupt attacks.
-[*][b]Collateral Damage[/b] renamed to [b]Beaten Zone[/b]: same aim levels as Killzone, but for MG Setup interrupt attacks (no crits). No longer has bonus damage against enemies in cover. The bonus damage against objects was kept.
+[*]New Strength perk [b]Beaten Zone[/b]: MG Setup and emplacement interrupt attacks get +10 Accuracy, and the same aim levels as Killzone (no crits). [b]Collateral Damage[/b] is back to vanilla.
 [*][b]Heavy Weapons[/b] now reduces Shooting Stance AP instead of Setup AP (indirectly it still reduces Setup AP).
 [*]Grizzly's new starting perk is Recoil Control instead of Killing Spree.
 [/list]
