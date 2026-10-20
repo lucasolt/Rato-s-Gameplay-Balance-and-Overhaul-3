@@ -225,9 +225,10 @@ function Rat_ConeShadowTris(attacker, target, action, part, aim, override_pos, r
     local nS = Max(3, a.CrosshairShadowSectors or 16)
     local nB = Max(1, a.CrosshairShadowBands or 3)
     local spot = part or g_DefaultShotBodyPart
+    local weapon = action:GetAttackWeapons(attacker)
     local key = xxhash(attacker:GetPos(), override_pos or point20, attacker.stance, target.handle,
                        ring.center, spot, action.id, aim, ring.radius, ring.ry or 0, ring.ry_dn or 0,
-                       ring.fan or 0, nS, nB)
+                       ring.fan or 0, nS, nB, weapon and weapon.id or 0)
     local hit = shadow_cache[key]
     if hit ~= nil then
         return hit

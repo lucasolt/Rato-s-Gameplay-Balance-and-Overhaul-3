@@ -71,7 +71,21 @@ end
 function OnMsg.CombatObjectDied()
     Rat_InvalidateExposureCache()
 end
-function OnMsg.ObjModified()
+---- not ObjModified: the crosshair sends 5 per UpdateAim, which kept every aiming update cold (~100 ms)
+function OnMsg.CombatActionEnd()
+    Rat_InvalidateExposureCache()
+end
+---- other units are blockers, and the key does not hold their positions or poses
+function OnMsg.UnitMovementDone()
+    Rat_InvalidateExposureCache()
+end
+function OnMsg.UnitStanceChanged()
+    Rat_InvalidateExposureCache()
+end
+function OnMsg.DoorStateChanged()
+    Rat_InvalidateExposureCache()
+end
+function OnMsg.DestructionPassDone()
     Rat_InvalidateExposureCache()
 end
 
@@ -121,8 +135,10 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
     local side = attacker.team and attacker.team.side or ''
     ---- players always take the full probe, so forcing it must not split their cache entry
     local full = force_full or side == 'player1' or side == 'player2' or not P().CoverAIFallback
+    weapon = weapon or attacker:GetActiveWeapons()
+    ---- weapon sets the muzzle and the anchor penetration; a swap used to ride on ObjModified
     local key = xxhash(attacker_pos, target.handle, target_pos, stance, head and 1 or 0, cache_gen,
-                       att_stance, full and 1 or 0)
+                       att_stance, full and 1 or 0, weapon and weapon.id or 0)
     if not dbg_table then
         local hit = exposure_cache[key]
         if hit then
@@ -158,8 +174,6 @@ function Rat_MeasureExposure(attacker, target, attacker_pos, target_pos, body_pa
         end
         return p
     end
-
-    weapon = weapon or attacker:GetActiveWeapons()
 
     ---------------------------------------------------------------------------------------
     ---- 1) Ancoras: uma consulta normal ao engine, com a UNIDADE como alvo. Devolve
@@ -631,15 +645,15 @@ function Rat_MuzzleClearance(attacker, target, attacker_pos, target_pos, weapon,
     part = part or g_DefaultShotBodyPart
     ---- a parte MIRADA entra na chave: a IK gira a arma para o spot, entao o cano -- e portanto
     ---- a resposta inteira desta funcao -- muda com ela.
-    local key = xxhash(attacker_pos, target.handle, target_pos, att_stance, cache_gen, part)
+    weapon = weapon or attacker:GetActiveWeapons()
+    local key = xxhash(attacker_pos, target.handle, target_pos, att_stance, cache_gen, part,
+                       weapon and weapon.id or 0)
     if not dbg_table then
         local hit = clearance_cache[key]
         if hit then
             return hit
         end
     end
-
-    weapon = weapon or attacker:GetActiveWeapons()
 
     ---- `target_spot_group` NAO e decoracao: a IK aponta a arma para o spot, e sem ele o engine
     ---- devolve a boca do cano de um tiro para outro lugar -- medido 98 a 136 unidades fora, mais
