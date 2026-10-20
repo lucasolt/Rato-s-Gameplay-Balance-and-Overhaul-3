@@ -352,28 +352,19 @@ local function control_mean(offs, theta, num_shots)
     return sum // (num_shots - 1)
 end
 
----- hidden numbers: Descriptive CTH names the share of rounds recoil keeps on target
-local function control_label(attacker, offs, theta, num_shots)
-    local label = dcth_label(attacker, control_mean(offs, theta, num_shots))
-    return label and line(T(902615374830, "Control"), label)
-end
-
-function Rat_ACTHRecoilSimple(win, entry, prof, num_shots, meta_groups, attacker)
+---- bars and pips carry no number, so they stay up even with the CTH numbers hidden
+function Rat_ACTHRecoilSimple(win, entry, prof, num_shots, meta_groups)
     local offs, theta = recoil_walk(prof, num_shots), entry.rat_theta or 0
+    local pips = {}
+    for i = 1, num_shots do
+        pips[i] = share_pip(on_target(offs[i], theta))
+    end
+    local mean = control_mean(offs, theta, num_shots)
 
     local out = {}
-    if CthVisible() then
-        local pips = {}
-        for i = 1, num_shots do
-            pips[i] = share_pip(on_target(offs[i], theta))
-        end
-        local mean = control_mean(offs, theta, num_shots)
-        out[#out + 1] = line(T(902615374830, "Control"),
-                             bar(mean, (mean >= 67 and "b") or (mean < 34 and "w") or nil))
-        out[#out + 1] = line(T(902615374831, "Rounds"), Untranslated(table.concat(pips)))
-    else
-        out[#out + 1] = control_label(attacker, offs, theta, num_shots)
-    end
+    out[#out + 1] = line(T(902615374830, "Control"),
+                         bar(mean, (mean >= 67 and "b") or (mean < 34 and "w") or nil))
+    out[#out + 1] = line(T(902615374831, "Rounds"), Untranslated(table.concat(pips)))
     for _, group in ipairs(meta_groups) do
         for _, l in ipairs(group) do
             out[#out + 1] = l
@@ -397,7 +388,6 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
         return false
     end
 
-    local visible = CthVisible()
     win.idChanceToHit:SetText(T(573019284716, "RECOIL"))
     win.idChanceToHit.parent:SetZOrder(1)
 
@@ -422,16 +412,14 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
         end
     end
     if view == "Simple" then
-        return Rat_ACTHRecoilSimple(win, entry, prof, num_shots, {kick_meta, hold_meta, corr_meta},
-                                    attacker)
+        return Rat_ACTHRecoilSimple(win, entry, prof, num_shots, {kick_meta, hold_meta, corr_meta})
     end
-    local bars = view ~= "Values"
+    ---- the Values view prints minutes: with the CTH numbers hidden it falls back to bars
+    local bars = view ~= "Values" or not CthVisible()
     ---- bipod already folded into kick_y: show the kick the step actually applies
     local kick = Rat_ISqrt(prof.kick_x * prof.kick_x + prof.kick_y * prof.kick_y)
     local kick_v, hold_v, corr_v
-    if not visible then
-        kick_v, hold_v, corr_v = false, false, false
-    elseif bars then
+    if bars then
         ---- centiminutes over a scale in minutes = % of the full bar
         local scale = Max(1, a.RecoilBarScaleMax or 500)
         kick_v = bar(MulDivRound(kick, 1, scale))
@@ -455,23 +443,18 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
     lever(T(240917368852, "Max Correction"), hold_v, hold_meta)
     lever(T(915274036418, "Correction per Shot"), corr_v, corr_meta)
 
-    if visible then
-        ---- same colors as the simple view: % of walks still on target, cone left out
-        local offs, theta = recoil_walk(prof, num_shots), entry.rat_theta or 0
-        local drift = {}
-        for i = 1, num_shots do
-            local share = on_target(offs[i], theta)
-            if bars then
-                drift[i] = share_pip(share)
-            else
-                drift[i] = rgb_text((est.offset[i] or 0) .. "'", share)
-            end
+    ---- same colors as the simple view: % of walks still on target, cone left out
+    local offs, theta = recoil_walk(prof, num_shots), entry.rat_theta or 0
+    local drift = {}
+    for i = 1, num_shots do
+        local share = on_target(offs[i], theta)
+        if bars then
+            drift[i] = share_pip(share)
+        else
+            drift[i] = rgb_text((est.offset[i] or 0) .. "'", share)
         end
-        out[#out + 1] = line(T(386402917753, "Drift"), Untranslated(table.concat(drift, bars and "" or " ")))
-    else
-        out[#out + 1] = control_label(attacker, recoil_walk(prof, num_shots), entry.rat_theta or 0,
-                                      num_shots)
     end
+    out[#out + 1] = line(T(386402917753, "Drift"), Untranslated(table.concat(drift, bars and "" or " ")))
 
     win.idModifiers:SetVisible(true)
     win.idModifiers:SetText(Untranslated(table.concat(out, "\n<left>")))
