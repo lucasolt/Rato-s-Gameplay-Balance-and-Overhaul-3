@@ -1,11 +1,12 @@
 ---- Inside Dope (InnerInfo, Livewire): sector Intel no longer reveals every enemy. Unseen enemies are
----- grouped into clusters, each shown as a red ring that contains them, offset at random, with a rough count.
+---- grouped into clusters, each shown as a red ring around their centroid, offset at random, with a rough count.
 ---- Combat refreshes at the start of the player's turn; exploration every IntelPingPeriod.
 local file_str = "PERKS_InsideDope.lua"
 
 local IntelPingClusterTiles = 9
 local IntelPingOffsetTiles = 4
 local IntelPingPadTiles = 1
+local IntelPingMaxRadiusTiles = 8
 local IntelPingPeriod = 10000
 local IntelPingSegments = 32
 local IntelPingColor = RGB(220, 40, 40)
@@ -139,7 +140,9 @@ local function PlaceIntelPing(cluster, epoch)
     dist = sqrt(dist)
     jitter, seed = BraidRandom(seed, 3)
     local center = centroid + Rotate(point(dist, 0, 0), angle) + point(0, 0, const.SlabSizeZ / 10)
-    local radius = (IntelPingOffsetTiles + IntelPingPadTiles) * const.SlabSizeX + spread
+    -- Guarantees only the centroid inside; edge enemies of a wide group may fall outside.
+    local radius = Min((IntelPingOffsetTiles + IntelPingPadTiles) * const.SlabSizeX + spread / 2,
+                       IntelPingMaxRadiusTiles * const.SlabSizeX)
 
     local mesh = PlaceObject("Mesh")
     mesh:SetMeshFlags(const.mfWorldSpace)
@@ -244,7 +247,7 @@ function OnMsg.DoneMap()
 end
 
 function Rat_InsideDopeDescription()
-    local text = "If you have <em>Intel</em> for the Sector, unseen <em>Enemies</em> show up as red <em>areas</em> on the map with a rough count of who is inside. In combat they update at the start of your turn.\n\nPress <em><ShortcutName('RatInsideDopeToggle')></em> to show or hide the areas."
+    local text = "If you have <em>Intel</em> for the Sector, unseen <em>Enemies</em> show up as red <em>areas</em> on the map with a rough count of how many are around. In combat they update at the start of your turn.\n\nPress <em><ShortcutName('RatInsideDopeToggle')></em> to show or hide the areas."
     return ratT(file_str, 739104628517, text)
 end
 
