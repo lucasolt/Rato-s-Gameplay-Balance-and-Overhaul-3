@@ -9,14 +9,15 @@ local IntelPingPadTiles = 1
 local IntelPingPeriod = 10000
 local IntelPingSegments = 32
 local IntelPingColor = RGB(220, 40, 40)
-local IntelPingFillAlpha = 35
-local IntelPingRingAlpha = 190
+local IntelPingFillAlpha = 20
+local IntelPingRingAlpha = 130
 local IntelPingTextStyle = "FloatingTextError"
-local IntelPingTextColor = RGB(255, 40, 40)
+local IntelPingTextColor = RGBA(255, 40, 40, 200)
 
 local AppendVertex = pstr().AppendVertex
 local intel_pings = false
 local intel_epoch = false
+local intel_hidden = false
 
 local function IntelPingTeam()
     local sector = gv_CurrentSectorId and gv_Sectors[gv_CurrentSectorId]
@@ -140,7 +141,30 @@ local function PlaceIntelPing(cluster, epoch)
     text:SetColor(IntelPingTextColor)
     text:SetShadowOffset(1)
     text:SetCenter(true)
+    mesh:SetVisible(not intel_hidden)
+    text:SetVisible(not intel_hidden)
     return {mesh = mesh, text = text, units = units}
+end
+
+function Rat_ToggleIntelPings()
+    intel_hidden = not intel_hidden
+    for _, ping in ipairs(intel_pings or empty_table) do
+        ping.mesh:SetVisible(not intel_hidden)
+        ping.text:SetVisible(not intel_hidden)
+    end
+end
+
+function OnMsg.Shortcuts(host)
+    XAction:new({
+        ActionId = "RatInsideDopeToggle",
+        ActionName = ratT(file_str, 739104628518, "Toggle Inside Dope areas"),
+        ActionShortcut = "Alt-I",
+        ActionBindable = true,
+        IgnoreRepeated = true,
+        OnAction = function()
+            Rat_ToggleIntelPings()
+        end,
+    }, host)
 end
 
 function Rat_RefreshIntelPings()
@@ -208,7 +232,7 @@ function OnMsg.DoneMap()
 end
 
 function Rat_InsideDopeDescription()
-    local text = "If you have <em>Intel</em> for the Sector, unseen <em>Enemies</em> show up as red <em>areas</em> on the map with a rough count of who is inside. In combat they update at the start of your turn."
+    local text = "If you have <em>Intel</em> for the Sector, unseen <em>Enemies</em> show up as red <em>areas</em> on the map with a rough count of who is inside. In combat they update at the start of your turn.\n\nPress <em><ShortcutName('RatInsideDopeToggle')></em> to show or hide the areas."
     return ratT(file_str, 739104628517, text)
 end
 
