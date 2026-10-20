@@ -513,8 +513,8 @@ function fireprop()
         1] = {
         category = "Caliber",
         id = "weigth_held_mul",
-        name = "Penalty Multiplier for Held MG fire",
-        help = "Penalty Multiplier for Held MG fire",
+        name = "Held weight (not prone)",
+        help = "Past HeldPivot (137) each point widens the cone (HandlingHeldSlope) and worsens held recoil (RecoilHeldSlope) when not prone; crouched pays 60%. Strength carries up to HeldStrRelief (12) points, never more than 60% of the excess. Leave empty (100) on light guns. Old CTH reads it for held MG bursts",
         editor = "number",
         default = 100,
         template = true,
