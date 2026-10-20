@@ -78,6 +78,7 @@ const.Combat.Perks.SharpshooterMaxStacks = 2 -- keep equal to Rat_Settled max_st
 const.Combat.Perks.SharpshooterAccPerStack = 5 -- AimAccuracy added to every aim level
 const.Combat.Perks.SharpshooterCritPerAimPerStack = 1 -- % crit chance
 const.Combat.Perks.SharpshooterCritDmgPerAimPerStack = 3 -- % crit damage
+const.Combat.Perks.AnatomicalPrecisionFlankedCrit = 10 -- % crit chance vs Flanked, exempt from the fire-mode mul
 
 ----- Vanilla overrides
 const.Combat.GrazingHitDamage = 30 --- %

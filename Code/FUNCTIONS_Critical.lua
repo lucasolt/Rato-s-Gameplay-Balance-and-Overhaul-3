@@ -114,7 +114,36 @@ function OnMsg.GatherCritChanceModifications(attacker, target, action_id, weapon
         crit_chance_breakdown["fire_mode_mul"] = mode_mul
     end
 
+    ---- after the fire-mode mul on purpose: the flanker's crit survives burst and autofire
+    if HasPerk(attacker, "ColdHeart") and IsKindOf(target, "Unit") and target:HasStatusEffect("Flanked") then
+        local flanked = const.Combat.Perks.AnatomicalPrecisionFlankedCrit
+        data.crit_chance = data.crit_chance + flanked
+        crit_chance_breakdown["anatomical_flanked"] = flanked
+    end
+
     data.crit_chance_breakdown = crit_chance_breakdown
+end
+
+local file_str = "FUNCTIONS_Critical.lua"
+
+function Rat_AnatomicalPrecisionDescription()
+    local text = "Deal <em><percent(crit_bonus)></em> more <GameTerm('Crit')> <em>Damage</em>.\n\nGain <em>+<flanked>%</em> <GameTerm('Crit')> chance against <GameTerm('Flanked')> enemies. Not reduced by Burst or Auto fire."
+    ratT(file_str, 771035824613, text)
+    return T {771035824613, text, flanked = const.Combat.Perks.AnatomicalPrecisionFlankedCrit}
+end
+
+function OnMsg.ClassesGenerate(classdefs)
+    if classdefs.ColdHeart then
+        classdefs.ColdHeart.Description = Rat_AnatomicalPrecisionDescription()
+    end
+end
+
+---- the perk screen reads the preset, not the class
+function OnMsg.DataLoaded()
+    local perk = CharacterEffectDefs.ColdHeart
+    if perk then
+        perk.Description = Rat_AnatomicalPrecisionDescription()
+    end
 end
 
 function OnMsg.GatherDamageModifications(attacker, target, action_id, self, mod_attack_args,
