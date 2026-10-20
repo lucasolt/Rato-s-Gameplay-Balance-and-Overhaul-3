@@ -23,7 +23,7 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have the s
 
 [h3](aCTH) Recoil[/h3]
 [list]
-[*]Recoil deviation is simulated. Strength controls how much recoil you control, Dexterity/Marksmanship help you get back on target.
+[*]Recoil deviation is simulated. Strength decides whether you can hold the weapon at all, Marksmanship brings it back on target. Dexterity plays no part in recoil.
 [*]MGs have a recoil penalty (and the aforementioned handling penalty) when firing while not prone. There are no penalties for firing without setup: the benefits have all been transferred to being prone or having a bipod. MG Setup is now a way to Overwatch (with one bonus attack per turn).
 [*]Being prone with a bipod reduces the vertical component of recoil.
 [/list]
