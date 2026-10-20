@@ -45,6 +45,7 @@ function rat_apply_changes()
     Rat_PatchCrosshairRounds()
     Rat_PatchCrosshairAPBreakdown()
     Rat_PatchCrosshairApertureSection()
+    Rat_ReclaimPopulateCth()
 
     GBO_SwapACTHTexts() -- after every preset text above is set
 

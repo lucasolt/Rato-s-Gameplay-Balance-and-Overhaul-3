@@ -283,19 +283,19 @@ function Rat_ConeFactors(data)
 
     if parts.base_mul and parts.base_mul ~= 100 then
         out[#out + 1] = {name = T(268301947512, "Handling"), tag = Rat_ConeMulTag(parts.base_mul),
-                         sub = parts.handling_meta}
+                         mul = parts.base_mul, sub = parts.handling_meta}
     end
 
     ---- skill_mul vive em [SkillMin, SkillMax]: pode fechar (Marks alto, SkillMin<100) ou abrir
     if parts.skill then
         out[#out + 1] = {name = T(419573028641, "Marksmanship"),
-                         tag = Rat_ConeMulTag(parts.skill)}
+                         tag = Rat_ConeMulTag(parts.skill), mul = parts.skill}
     end
 
     ---- quadro de visada: uma linha POR COMPONENTE em A.ConeMulEffects, com o nome que o proprio
     ---- componente declara -- nunca um rotulo fixo tipo "Sight" escondendo qual optica agiu.
     for _, eff in ipairs(parts.cone_mul_effects or empty_table) do
-        out[#out + 1] = {name = eff.name, tag = Rat_ConeMulTag(eff.mul)}
+        out[#out + 1] = {name = eff.name, tag = Rat_ConeMulTag(eff.mul), mul = eff.mul}
     end
 
     ---- UMA linha de mira: o % e o efeito de TODOS os niveis juntos sobre o cone inteiro, nao o
@@ -317,21 +317,21 @@ function Rat_ConeFactors(data)
         local eff = (pre > 0) and MulDivRound(cone, 100, pre) or 100
         for _, m in ipairs(parts.aim_meta or empty_table) do sub[#sub + 1] = m end
         out[#out + 1] = {name = T {158426093774, "Aim <n>", n = aim},
-                         tag = Rat_ConeMulTag(eff), sub = sub}
+                         tag = Rat_ConeMulTag(eff), mul = eff, sub = sub}
     end
 
     if parts.step and parts.step ~= 100 then
         out[#out + 1] = {name = (aim == 0) and T(592038471265, "Hipfire") or
                              T(837465019283, "Snapshot"),
-                         tag = Rat_ConeMulTag(parts.step), sub = parts.step_meta}
+                         tag = Rat_ConeMulTag(parts.step), mul = parts.step, sub = parts.step_meta}
     end
 
     ---- o cano herdado nao alarga o cone, desloca o centro -- mas a coluna aqui e toda em % de
     ---- cone, entao entra traduzido pela MESMA porta dos residuais (Rat_ConeMulForPoints): o cone
     ---- que, centrado no alvo, custaria estes mesmos pontos. A sub-nota diz o que ele e de verdade.
     if data.rat_recoil_pts and data.rat_recoil_pts ~= 0 then
-        out[#out + 1] = {name = T(574718433471, "Recoil"),
-                         tag = Rat_ConeMulTag(Rat_ConeMulForPoints(data.rat_recoil_pts)),
+        local mul = Rat_ConeMulForPoints(data.rat_recoil_pts)
+        out[#out + 1] = {name = T(574718433471, "Recoil"), tag = Rat_ConeMulTag(mul), mul = mul,
                          sub = {T {306184275930, "<v>' of vertical wander",
                                    v = data.rat_vsigma or 0}}}
     end
@@ -356,8 +356,8 @@ function Rat_ConeFactors(data)
     if data.rat_sigma then
         ---- ancora = A.Base (cone neutro, skill neutro): Marksmanship e um fator visivel que puxa
         ---- dali pra baixo. Assim Total = produto de todas as linhas e Total * Base = cone da bala.
-        total = {name = T(604815927340, "Total"),
-                 tag = Rat_ConeMulTag(MulDivRound(data.rat_sigma, 100, Max(1, Rat_ApertureBase())))}
+        local mul = MulDivRound(data.rat_sigma, 100, Max(1, Rat_ApertureBase()))
+        total = {name = T(604815927340, "Total"), tag = Rat_ConeMulTag(mul), mul = mul}
     end
 
     return out, meta, total

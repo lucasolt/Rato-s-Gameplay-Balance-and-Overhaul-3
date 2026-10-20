@@ -16,15 +16,33 @@
 local vanilla_populate = _G.Rat_VanillaPopulateCth or PopulateCrosshairUICth
 Rat_VanillaPopulateCth = vanilla_populate
 
----- Sinal quando os numeros de CTH estao escondidos (opcao do jogo). Invertido em relacao ao de
----- pontos: fechar o cone e o ganho, abrir e a perda.
-local function cone_sign(mul)
-    if mul < 100 then
-        return "<color PDASectorInfo_Green>+</color>"
-    elseif mul > 100 then
-        return "<color DescriptionTextRed>-</color>"
+---- Descriptive CTH (N6rmtjQ): with the numbers hidden it scales the sign count by size and names
+---- the probability. It loads after us and replaces PopulateCrosshairUICth.
+local function dcth()
+    return IsMod_loaded("N6rmtjQ")
+end
+
+local function dcth_label(attacker, pct)
+    if dcth() and DCth_ShowLabels() then
+        return DCth_calculateCthLabel(pct, DCth_chooseLabelStat(attacker))
     end
-    return ""
+end
+
+---- Sign for a point modifier when the CTH numbers are hidden
+local function point_sign(v)
+    if dcth() then
+        return DCth_calculateModString(v)
+    end
+    return v > 0 and "<color PDASectorInfo_Green>+</color>" or
+               v < 0 and "<color DescriptionTextRed>-</color>" or ""
+end
+
+---- Cone multiplier as points, inverted: halving the cone weighs the same as doubling it
+local function cone_sign(mul)
+    if not mul or mul == 100 then
+        return ""
+    end
+    return point_sign(mul < 100 and 100 - mul or MulDivRound(100, 100, mul) - 100)
 end
 
 ---- "<nome> <direita> <valor>", o mesmo formato do vanilla
@@ -115,7 +133,7 @@ function Rat_PatchCrosshairApertureSection()
     hit_info[#hit_info + 1] = aperture_section
 end
 
-function PopulateCrosshairUICth(win, attacker, action, attackResults)
+function Rat_ACTHPopulateCth(win, attacker, action, attackResults)
     local section = rawget(win, "idRatApertureSection")
     if section then
         section:SetVisible(false)
@@ -135,10 +153,15 @@ function PopulateCrosshairUICth(win, attacker, action, attackResults)
 
     local chanceToHit = attackResults.chance_to_hit
     local visible = CthVisible()
+    local label = not visible and dcth_label(attacker, chanceToHit)
     if visible then
         win.idChanceToHit:SetText(T {757275361770, "ACCURACY: <right><percent(chanceToHit)>",
                                      chanceToHit = chanceToHit})
         win.idChanceToHit.parent:SetZOrder(1)
+    elseif label then
+        ---- same header Descriptive CTH writes
+        win.idChanceToHit:SetText(T(382064037500, "HIT CHANCE") .. ": <right>" .. label)
+        win.idChanceToHit.parent:SetZOrder(0)
     else
         win.idChanceToHit:SetText(T {906758075439, "ACCURACY", chanceToHit = chanceToHit})
         win.idChanceToHit.parent:SetZOrder(0)
@@ -155,7 +178,7 @@ function PopulateCrosshairUICth(win, attacker, action, attackResults)
                                  T {257328164584, "<percent(value)>", value = chanceToHit}))
                 if mod.rat_factors and #mod.rat_factors > 0 then
                     for _, f in ipairs(mod.rat_factors) do
-                        cone[#cone + 1] = line(f.name, visible and f.tag)
+                        cone[#cone + 1] = line(f.name, visible and f.tag or cone_sign(f.mul))
                         if f.sub then
                             push_meta(cone, f.sub)
                         end
@@ -175,14 +198,15 @@ function PopulateCrosshairUICth(win, attacker, action, attackResults)
                 ---- base de Marksmanship: ja esta no CTH da linha Aperture, sem linha propria
             else
                 ---- o que nao passou pelo cone e nao e base (cheats, Out of Range, outros mods)
-                top[#top + 1] = line(mod.name, visible and mod.value and
-                                         T {257328164584, "<percent(value)>", value = mod.value})
+                local v = mod.value
+                top[#top + 1] = line(mod.name, v and (visible and
+                                         T {257328164584, "<percent(value)>", value = v} or point_sign(v)))
             end
         end
     end
 
     if total then
-        cone[#cone + 1] = line(total.name, visible and total.tag)
+        cone[#cone + 1] = line(total.name, visible and total.tag or cone_sign(total.mul))
     end
     ---- piso e camuflagem nao sao multiplicadores: notas sob o Total
     push_meta(cone, cone_meta)
@@ -194,6 +218,17 @@ function PopulateCrosshairUICth(win, attacker, action, attackResults)
         section:SetVisible(true)
         win.idRatApertureHeader:SetText(T(615093827461, "APERTURE MODIFIERS"))
         win.idRatApertureMods:SetText(Untranslated(table.concat(cone, "\n<left>")))
+    end
+end
+
+PopulateCrosshairUICth = Rat_ACTHPopulateCth
+
+---- A mod loaded after us (Descriptive CTH) replaced the global: its version becomes the fallback
+function Rat_ReclaimPopulateCth()
+    if PopulateCrosshairUICth ~= Rat_ACTHPopulateCth then
+        vanilla_populate = PopulateCrosshairUICth
+        Rat_VanillaPopulateCth = vanilla_populate
+        PopulateCrosshairUICth = Rat_ACTHPopulateCth
     end
 end
 
@@ -308,24 +343,36 @@ local function share_pip(share)
                ".png 1000>"
 end
 
-function Rat_ACTHRecoilSimple(win, entry, prof, num_shots, meta_groups)
-    local offs, theta = recoil_walk(prof, num_shots), entry.rat_theta or 0
-    local pips, sum = {}, 0
-    for i = 1, num_shots do
-        local share = on_target(offs[i], theta)
-        ---- the bar is the rounds recoil can touch; round 1 would pad every burst with a free 100
-        if i > 1 then
-            sum = sum + share
-        end
-        pips[i] = share_pip(share)
+---- the bar is the rounds recoil can touch; round 1 would pad every burst with a free 100
+local function control_mean(offs, theta, num_shots)
+    local sum = 0
+    for i = 2, num_shots do
+        sum = sum + on_target(offs[i], theta)
     end
-    local mean = sum // (num_shots - 1)
+    return sum // (num_shots - 1)
+end
+
+---- hidden numbers: Descriptive CTH names the share of rounds recoil keeps on target
+local function control_label(attacker, offs, theta, num_shots)
+    local label = dcth_label(attacker, control_mean(offs, theta, num_shots))
+    return label and line(T(902615374830, "Control"), label)
+end
+
+function Rat_ACTHRecoilSimple(win, entry, prof, num_shots, meta_groups, attacker)
+    local offs, theta = recoil_walk(prof, num_shots), entry.rat_theta or 0
 
     local out = {}
     if CthVisible() then
+        local pips = {}
+        for i = 1, num_shots do
+            pips[i] = share_pip(on_target(offs[i], theta))
+        end
+        local mean = control_mean(offs, theta, num_shots)
         out[#out + 1] = line(T(902615374830, "Control"),
                              bar(mean, (mean >= 67 and "b") or (mean < 34 and "w") or nil))
         out[#out + 1] = line(T(902615374831, "Rounds"), Untranslated(table.concat(pips)))
+    else
+        out[#out + 1] = control_label(attacker, offs, theta, num_shots)
     end
     for _, group in ipairs(meta_groups) do
         for _, l in ipairs(group) do
@@ -375,7 +422,8 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
         end
     end
     if view == "Simple" then
-        return Rat_ACTHRecoilSimple(win, entry, prof, num_shots, {kick_meta, hold_meta, corr_meta})
+        return Rat_ACTHRecoilSimple(win, entry, prof, num_shots, {kick_meta, hold_meta, corr_meta},
+                                    attacker)
     end
     local bars = view ~= "Values"
     ---- bipod already folded into kick_y: show the kick the step actually applies
@@ -420,6 +468,9 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
             end
         end
         out[#out + 1] = line(T(386402917753, "Drift"), Untranslated(table.concat(drift, bars and "" or " ")))
+    else
+        out[#out + 1] = control_label(attacker, recoil_walk(prof, num_shots), entry.rat_theta or 0,
+                                      num_shots)
     end
 
     win.idModifiers:SetVisible(true)
