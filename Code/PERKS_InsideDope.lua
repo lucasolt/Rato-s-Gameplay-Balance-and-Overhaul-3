@@ -151,6 +151,8 @@ local function PlaceIntelPing(cluster, epoch)
     local text = PlaceText("~" .. Max(1, n + jitter - 1), center + point(0, 0, const.SlabSizeZ))
     text:SetTextStyle(IntelPingTextStyle)
     text:SetColor(IntelPingTextColor)
+    -- SetColor resets the shadow to opaque black; give it the label's alpha.
+    text:SetColor2(RGBA(0, 0, 0, select(4, GetRGBA(IntelPingTextColor))))
     text:SetShadowOffset(1)
     text:SetCenter(true)
     mesh:SetVisible(not intel_hidden)
