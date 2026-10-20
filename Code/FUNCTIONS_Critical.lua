@@ -127,7 +127,7 @@ end
 local file_str = "FUNCTIONS_Critical.lua"
 
 function Rat_AnatomicalPrecisionDescription()
-    local text = "Deal <em><percent(crit_bonus)></em> more <GameTerm('Crit')> <em>Damage</em>.\n\nGain <em>+<flanked>%</em> <GameTerm('Crit')> chance against <GameTerm('Flanked')> enemies. Not reduced by Burst or Auto fire."
+    local text = "Deal <em><percent(crit_bonus)></em> more <GameTerm('Crit')> <em>Damage</em>.\n\nGain <em>+<flanked>%</em> base <GameTerm('Crit')> chance against <GameTerm('Flanked')> enemies."
     ratT(file_str, 771035824613, text)
     return T {771035824613, text, flanked = const.Combat.Perks.AnatomicalPrecisionFlankedCrit}
 end

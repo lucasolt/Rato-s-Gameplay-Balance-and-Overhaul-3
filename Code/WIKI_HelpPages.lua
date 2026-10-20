@@ -65,7 +65,7 @@ GBO_WIKI_PAGES = {
     {
         id = "Crits",
         title = T(735216048831, "GBO: Critical Hits"),
-        text = T(735216048832, "Each weapon has a <em>Critical Chance per Aim</em> stat. Every aim level adds that much critical chance, scaled by the merc's Hand-Eye Coordination. Merc level no longer raises critical chance.\n\nSniper rifles have the highest value. Some ammo adds a flat critical chance on top.\n\nThe firing mode also matters. Single shots keep the full bonus, selective bursts keep less, and autofire keeps the least."),
+        text = T(735216048832, "Each weapon has a <em>Critical Chance per Aim</em> stat. Every aim level adds that much critical chance, scaled by the merc's Hand-Eye Coordination. Merc level no longer raises critical chance.\n\nSniper rifles have the highest value.\n\nThe firing mode also matters. Single shots keep the full bonus, selective bursts keep less, and autofire keeps the least.\n\nSome ammo and perks add <em>base critical chance</em> instead. Base critical chance does not depend on aim and is the same for every firing mode."),
     },
     {
         id = "Autofire",

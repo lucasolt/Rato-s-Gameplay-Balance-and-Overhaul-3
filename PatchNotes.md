@@ -95,6 +95,8 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have the s
 [h2]New weapon stat: Critical Chance per Aim[/h2]
 Weapons now have a stat called [b]Critical Chance per Aim[/b], which scales with the merc's Hand-Eye Coordination (Marksmanship + Dexterity) and is applied to each aim level. The mechanic already existed, but it now completely overrides the old crit scaling based on merc level. Weapons have different values; snipers have the most.
 
+Crit from aim levels is reduced for selective bursts and even more for autofire. [b]Base critical chance[/b] (from some ammo, like 5.45, and perks) does not depend on aim and is the same for every firing mode.
+
 [h2]Caliber damage reworked[/h2]
 [list]
 [*]Big calibers (7.62 and the like) have increased damage (and recoil).
@@ -116,6 +118,7 @@ Weapons now have a stat called [b]Critical Chance per Aim[/b], which scales with
 [*][b]Opportunistic Killer[/b]: no longer enables crits on interrupt attacks. Instead, grants 1 extra Overwatch attack. Still reloads automatically after Overwatch.
 [*][b]Killzone[/b]: no longer grants a bonus attack on interrupts. Overwatch attacks against the first enemy each turn have 3 aim levels, the second 2, the rest 1. Enables crits on interrupt attacks.
 [*]New Strength perk [b]Beaten Zone[/b]: MG Setup and emplacement interrupt attacks get +10 Accuracy, and the same aim levels as Killzone (no crits). [b]Collateral Damage[/b] is back to vanilla.
+[*][b]Anatomical Precision[/b]: also grants +10% base crit chance against Flanked enemies, which works with bursts and autofire.
 [*][b]Heavy Weapons[/b] now reduces Shooting Stance AP instead of Setup AP (indirectly it still reduces Setup AP).
 [*]Grizzly's new starting perk is Recoil Control instead of Killing Spree.
 [/list]
