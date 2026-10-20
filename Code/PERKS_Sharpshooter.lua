@@ -126,3 +126,11 @@ function OnMsg.ClassesGenerate(classdefs)
     }
     perk.Description = Rat_SharpshooterDescription()
 end
+
+---- the perk screen reads the preset, not the class
+function OnMsg.DataLoaded()
+    local perk = CharacterEffectDefs.Instagib
+    if perk then
+        perk.Description = Rat_SharpshooterDescription()
+    end
+end
