@@ -1,16 +1,14 @@
-local already_placed = false
-
-function OnMsg.EnterSector()
-	-- if already_placed then
-		-- print("already placed - Descriptive CTH compatibility")
-	-- end
-	if IsMod_loaded("N6rmtjQ") and not already_placed then
-		redefine_crosshairUI_function()
-		---- a Lua reload reruns its code (template + populate) without firing DataLoaded
-		Rat_ReclaimPopulateCth()
-		Rat_PatchCrosshairApertureSection()
-
-		already_placed = true
-		print("GBO - enabling Descriptive CTH compatibility")
+---- Descriptive CTH (N6rmtjQ) loads after us and replaces UpdateAim, PopulateCrosshairUICth and the
+---- CrosshairAttackRollover template. A mod save reruns its code (ReloadLua) firing only AutorunEnd.
+local function reclaim_crosshair()
+	if not IsMod_loaded("N6rmtjQ") then
+		return
 	end
+	redefine_crosshairUI_function()
+	Rat_ReclaimPopulateCth()
+	recoil_template()
+	Rat_PatchCrosshairApertureSection()
 end
+
+OnMsg.AutorunEnd = reclaim_crosshair
+OnMsg.EnterSector = reclaim_crosshair
