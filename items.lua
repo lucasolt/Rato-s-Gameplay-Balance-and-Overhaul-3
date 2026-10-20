@@ -1839,6 +1839,10 @@ return {
 			'CodeFileName', "Code/UI_ComponentBadges.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "UI_PerkGridFit",
+			'CodeFileName', "Code/UI_PerkGridFit.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "FEATURE_AttachmentShop",
 			'CodeFileName', "Code/FEATURE_AttachmentShop.lua",
 		}),

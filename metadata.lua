@@ -197,6 +197,7 @@ return PlaceObj('ModDef', {
 		"Code/_FEATURE_AttachmentBalance.lua",
 		"Code/FEATURE_AttachmentItems.lua",
 		"Code/UI_ComponentBadges.lua",
+		"Code/UI_PerkGridFit.lua",
 		"Code/FEATURE_AttachmentShop.lua",
 		"Code/FEATURE_GatherHerbs.lua",
 		"Code/FEATURE_NoRevealMemory.lua",
