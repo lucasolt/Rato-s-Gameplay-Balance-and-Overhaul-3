@@ -1,0 +1,9 @@
+WeaponId,DisplayName,WeaponType,StockOptions,StockComponent
+AKSU,AK-SU,SMG,Light Stock only,StockLight
+MP40,MP40,SMG,Light Stock only,StockLight
+StenMK2_1,Sten MK II,SMG,Light Stock only,StockLight
+SteyrScout_1,Scout Tactical Elite,Sniper,Light Stock only,StockLight
+UMP_1,UMP,SMG,Light Stock only,StockLight
+VigM2_1,Vigneron M2,SMG,Light Stock only,VigM2_Stock_unfld_1
+LionRoar,The Lion's Roar,SMG,No Stock only,StockNo
+MicroUZI_1,Micro UZI,SMG,No Stock only,StockNo

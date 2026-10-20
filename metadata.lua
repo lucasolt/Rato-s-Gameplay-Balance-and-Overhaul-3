@@ -5,7 +5,7 @@ return PlaceObj('ModDef', {
 	'external_links', {
 		"https://www.buymeacoffee.com/rato_modder",
 	},
-	'last_changes', "4.2\n\nadded a safety mechanism to fix guns with no magazine under Revised Mags mod\nscopes can be removed from all weapons",
+	'last_changes', "4.03\n\nfixed SVD wrong base critical chance\nfixed short barrels not increasing pellet spread on shotguns\n\nChanged the way bipod interacts with recoil, as it was sometimes making it worse\nMGs now have reduced recoil correction error, and less recoil overall.\nMGs stance AP increased\nOther tweaks related to recoil\n\nCollateral Damage perk is back. Beaten Zone is now a new Str Gold Perk",
 	'SpellCheck', true,
 	'ignore_files', {
 		"*.git/*",
@@ -35,8 +35,8 @@ return PlaceObj('ModDef', {
 	'id', "cfahRED",
 	'author', "rato",
 	'version_major', 4,
-	'version_minor', 2,
-	'version', 13512,
+	'version_minor', 3,
+	'version', 13526,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -234,8 +234,8 @@ return PlaceObj('ModDef', {
 		noise_setting_num = 150,
 	},
 	'has_data', true,
-	'saved', 1792441387,
-	'code_hash', 4842782360463056972,
+	'saved', 1792462637,
+	'code_hash', -3957806442528243714,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",
