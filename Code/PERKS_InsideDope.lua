@@ -9,14 +9,12 @@ local IntelPingOffsetTiles = 4
 local IntelPingPadTiles = 1
 local IntelPingMaxRadiusTiles = 8
 local IntelPingPeriod = 10000
-local IntelPingSegments = 32
+local IntelPingMaterial = "ExplodingBarrelRange_Tiles"
 local IntelPingColor = RGB(220, 40, 40)
-local IntelPingFillAlpha = 20
-local IntelPingRingAlpha = 60--80--130
+local IntelPingOpacity = 60
 local IntelPingTextStyle = "FloatingTextError"
 local IntelPingTextColor = RGBA(255, 40, 40, 200)
 
-local AppendVertex = pstr().AppendVertex
 local intel_pings = false
 local intel_epoch = false
 local intel_key = false
@@ -119,31 +117,6 @@ local function GatherClusters(team)
     end
 end
 
-local function RingMesh(center, radius)
-    local band = const.SlabSizeX / 8
-    local vpstr = pstr("", 1024)
-    local r, g, b = GetRGB(IntelPingColor)
-    local fill, ring = RGBA(r, g, b, IntelPingFillAlpha), RGBA(r, g, b, IntelPingRingAlpha)
-    local outer, inner = {}, {}
-    for i = 0, IntelPingSegments do
-        local angle = MulDivRound(i, 360 * 60, IntelPingSegments)
-        outer[i] = center + Rotate(point(radius, 0, 0), angle)
-        inner[i] = center + Rotate(point(radius - band, 0, 0), angle)
-    end
-    for i = 1, IntelPingSegments do
-        AppendVertex(vpstr, center, fill)
-        AppendVertex(vpstr, inner[i - 1], fill)
-        AppendVertex(vpstr, inner[i], fill)
-        AppendVertex(vpstr, inner[i - 1], ring)
-        AppendVertex(vpstr, outer[i - 1], ring)
-        AppendVertex(vpstr, outer[i], ring)
-        AppendVertex(vpstr, inner[i - 1], ring)
-        AppendVertex(vpstr, outer[i], ring)
-        AppendVertex(vpstr, inner[i], ring)
-    end
-    return vpstr
-end
-
 local function PlaceIntelPing(cluster, epoch)
     local units, centroid = cluster.units, cluster.centroid
     local n = #units
@@ -164,17 +137,16 @@ local function PlaceIntelPing(cluster, epoch)
     dist, seed = BraidRandom(seed, max_offset * max_offset + 1)
     dist = sqrt(dist)
     jitter, seed = BraidRandom(seed, 3)
-    local center = centroid + Rotate(point(dist, 0, 0), angle) + point(0, 0, const.SlabSizeZ / 10)
+    local center = centroid + Rotate(point(dist, 0, 0), angle)
     -- Guarantees only the centroid inside; edge enemies of a wide group may fall outside.
     local radius = Min((IntelPingOffsetTiles + IntelPingPadTiles) * const.SlabSizeX + spread / 2,
                        IntelPingMaxRadiusTiles * const.SlabSizeX)
 
-    local mesh = PlaceObject("Mesh")
-    mesh:SetMeshFlags(const.mfWorldSpace)
-    local sh = ProceduralMeshShaders.default_mesh
-    mesh:SetShader(sh, (sh.depth_test == "runtime") and false or nil)
-    mesh:SetMesh(RingMesh(center, radius))
-    mesh:SetPos(center)
+    -- Same tile mesh as the exploding barrel range, without LOS shading: it is not cast from the center.
+    local steps, step_objs = GetStepPositionsInArea(center, radius, 0, -1, nil, false)
+    local mesh = CreateAOETilesCircle(steps, step_objs, nil, center, radius, empty_table, IntelPingMaterial)
+    mesh:SetColorModifier(IntelPingColor)
+    mesh:SetOpacity(IntelPingOpacity)
 
     local text = PlaceText("~" .. Max(1, n + jitter - 1), center + point(0, 0, const.SlabSizeZ))
     text:SetTextStyle(IntelPingTextStyle)
