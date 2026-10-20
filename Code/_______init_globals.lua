@@ -37,8 +37,8 @@ if FirstLoad then
         medium = {
             modifier = 1.40,
             aim_mul = 0.9,
-            ---- 5.56's identity is control (5.45's is flat crit), so it kicks like 5.45
-            ["556"] = {str = 62},
+            ---- 5.56 hits 1 harder than 5.45 and pays a little more kick; 5.45 keeps the flat crit
+            ["556"] = {str = 64},
             -- Group 5: Assault Rifle and Intermediate Cartridges
             ["5_45x39"] = {str = 62},
             ["4_7x33"] = {str = 60},

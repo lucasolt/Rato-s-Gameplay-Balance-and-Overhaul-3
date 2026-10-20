@@ -385,7 +385,7 @@ const.CaliberDamage = {
     ["9x39"] = {base = 25, barrel = 200, per_100mm = 10, min = -1, max = 1},
     ["4_7x33"] = {base = 25, barrel = 380, per_100mm = 8, min = -2, max = 1},
     ["5_45x39"] = {base = 26, barrel = 415, per_100mm = 8, min = -3, max = 1},
-    ["556"] = {base = 26, barrel = 500, per_100mm = 8, min = -3, max = 1},
+    ["556"] = {base = 27, barrel = 500, per_100mm = 8, min = -3, max = 1},
     ["762WP"] = {base = 31, barrel = 415, per_100mm = 8, min = -2, max = 1},
     ["7_92x33"] = {base = 29, barrel = 425, per_100mm = 8, min = -2, max = 1},
     ["762NATO"] = {base = 35, barrel = 500, per_100mm = 6, min = -2, max = 1},
