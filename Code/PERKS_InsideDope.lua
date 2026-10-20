@@ -13,6 +13,7 @@ local IntelPingMaterial = "ExplodingBarrelRange_Tiles"
 local IntelPingColor = RGB(220, 40, 40)
 local IntelPingOpacity = 60
 local IntelPingZOffset = 40 * guic
+local IntelPingMaxRise = 100 * guic
 local IntelPingTextStyle = "FloatingTextError"
 local IntelPingTextColor = RGBA(255, 40, 40, 200)
 
@@ -118,6 +119,22 @@ local function GatherClusters(team)
     end
 end
 
+---- Drops tiles on rock tops and roofs, unless they are at the group's own height.
+local function LowSteps(center, steps, step_objs)
+    local kept, kept_objs = {}, {}
+    local cz = center:z()
+    for i, pos in ipairs(steps) do
+        local x, y, z = pos:xyz()
+        local ground = terrain.GetHeight(x, y)
+        z = z or ground
+        if z - ground <= IntelPingMaxRise or abs(z - cz) <= IntelPingMaxRise then
+            kept[#kept + 1] = pos
+            kept_objs[#kept_objs + 1] = step_objs[i]
+        end
+    end
+    return kept, kept_objs
+end
+
 local function PlaceIntelPing(cluster, epoch)
     local units, centroid = cluster.units, cluster.centroid
     local n = #units
@@ -144,7 +161,7 @@ local function PlaceIntelPing(cluster, epoch)
                        IntelPingMaxRadiusTiles * const.SlabSizeX)
 
     -- Same tile mesh as the exploding barrel range, without LOS shading: it is not cast from the center.
-    local steps, step_objs = GetStepPositionsInArea(center, radius, 0, -1, nil, false)
+    local steps, step_objs = LowSteps(center, GetStepPositionsInArea(center, radius, 0, -1, nil, false))
     local mesh = CreateAOETilesCircle(steps, step_objs, nil, center, radius, empty_table, IntelPingMaterial)
     -- Vanilla lifts the tiles only 10 cm, so grass covers them; rebuild the vertices higher.
     local vertices = pstr("", 1024)
