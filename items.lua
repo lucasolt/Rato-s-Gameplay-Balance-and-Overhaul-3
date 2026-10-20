@@ -1747,6 +1747,10 @@ return {
 			'CodeFileName', "Code/PATCH_WeaponsPresetClass.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "PATCH_TOG_Reparent",
+			'CodeFileName', "Code/PATCH_TOG_Reparent.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "_PATCH_GBO_weapons",
 			'CodeFileName', "Code/_PATCH_GBO_weapons.lua",
 		}),
