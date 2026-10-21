@@ -312,8 +312,9 @@ function Rat_ConeFactors(data)
             prod = MulDivRound(prod, d, 100)
             sub[#sub + 1] = T {528193740615, "Level <n> <pct>", n = i, pct = Rat_ConeMulTag(d)}
         end
-        local cone = a.ApertureAsymptotic and (flr + MulDivRound(gap0, prod, 100))
-                        or MulDivRound(pre, prod, 100)
+        ---- post_aim is the real result: the held-weight share closes on its own ladder
+        local cone = parts.post_aim or (a.ApertureAsymptotic and (flr + MulDivRound(gap0, prod, 100))
+                        or MulDivRound(pre, prod, 100))
         local eff = (pre > 0) and MulDivRound(cone, 100, pre) or 100
         for _, m in ipairs(parts.aim_meta or empty_table) do sub[#sub + 1] = m end
         out[#out + 1] = {name = T {158426093774, "Aim <n>", n = aim},

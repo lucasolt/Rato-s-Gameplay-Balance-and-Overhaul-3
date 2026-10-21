@@ -384,7 +384,8 @@ function Rat_ApertureDecayMeta(e, compDef)
     return compDef.DisplayName
 end
 
-function Rat_ApertureAimDecay(weapon, attacker, level, optics, extra_acc)
+---- `hand_eye`: closes at this Hand-Eye instead of the attacker's (the held-weight share of the cone)
+function Rat_ApertureAimDecay(weapon, attacker, level, optics, extra_acc, hand_eye)
     local a = P()
 
 	local meta = {}
@@ -414,7 +415,7 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics, extra_acc)
     --- Hand-Eye Coordination (Dex+Marks): abaixo de 100 o fechamento e parcial.
     local he = 100
     if attacker and not attacker.placeholder and IsKindOf(weapon, "Firearm") then
-        he = Clamp(rGetHandEyeCoordination(attacker) or 100, 10, 100)
+        he = Clamp(hand_eye or rGetHandEyeCoordination(attacker) or 100, 10, 100)
         ---- vanilla handler scales the Aim modifier, which aCTH disables; same mul on the closing here
         local oob = attacker:GetStatusEffect("R_outofbreath")
         if oob then
@@ -712,6 +713,25 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
     ---- (gap_mul so faz sentido contra o piso), para que o produto das linhas feche no Total.
     local pre_aim = s
 
+    ---- the held-weight share of the cone closes at a fixed Hand-Eye: Dex can't aim through weight, only Strength lifts it
+    local held_gap = 0
+    if aim > 0 and a.ApertureAsymptotic and a.HeldAimHandEye and attacker and not attacker.placeholder and
+        IsKindOf(weapon, "Firearm") then
+        local gun_mul = Rat_HandlingBaseMul(weapon, attacker)
+        if base_mul > gun_mul then
+            local gun_gap = Max(0, MulDivRound(s, gun_mul, base_mul) - floor)
+            held_gap = Max(0, s - floor) - gun_gap
+            for i = 1, aim do
+                local d = Rat_ApertureAimDecay(weapon, attacker, i, comps, settled_acc, a.HeldAimHandEye)
+                if mobile_close then
+                    d = 100 - MulDivRound(100 - d, mobile_close, 100)
+                end
+                held_gap = MulDivRound(held_gap, d, 100)
+            end
+            s = s - (Max(0, s - floor) - gun_gap)
+        end
+    end
+
     if a.ApertureAsymptotic then
         ---- sigma = piso + (sigma0 - piso) * prod(decay_i). Converge para o piso em vez de bater
         ---- nele: cada stat sempre rende (AimAccuracy = velocidade, WeaponRange/scope = assintota).
@@ -719,12 +739,13 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
         for i = 1, aim do
             gap = MulDivRound(gap, ladder[i], 100)
         end
-        s = floor + gap
+        s = floor + gap + held_gap
     else
         for i = 1, aim do
             s = MulDivRound(s, ladder[i], 100)
         end
     end
+    local post_aim = s
 
     --- 5. degrau de "arma no ombro" (hipfire/snapshot). GetWeaponHipfireOrSnapshotMul
     ---    escala so o EXCESSO do alargamento, nunca o cone inteiro. Ver AimStep em __ApertureParams.lua.
@@ -822,6 +843,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
         skill = skill_mul,
         cone_mul_effects = cone_mul_effects,
         pre_aim = pre_aim,
+        post_aim = post_aim,
         decay = decay,
         decay_ladder = ladder,
         step = step,

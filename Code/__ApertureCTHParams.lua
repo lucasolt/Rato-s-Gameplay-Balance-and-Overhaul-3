@@ -237,6 +237,8 @@ A.HeldStrMaxReliefPct = 60
 A.HeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
 ---- % cone widening per excess point (aim, not muzzle control)
 A.HandlingHeldSlope = 300
+---- Hand-Eye the held-weight share of the cone closes at, whatever the merc's: Dex never aims through weight
+A.HeldAimHandEye = 70
 
 ---- Rotulo da penalidade de peso, POR POSTURA -- antes era sempre "(-) Standing", inclusive
 ---- agachado, onde HeldStanceMul ainda cobra 60%. Sem entrada, a postura nao rotula.
