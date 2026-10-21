@@ -135,6 +135,12 @@ A.MGSetupInterruptStepMul = 45
 ---- Mobile attacks (A.MobileActions): % of each aim level's closing kept. Classic halves their Aim bonus.
 A.MobileActions = {MobileShot = true, RunAndGun = true, RecklessAssault = true}
 A.MobileAimClosePct = 50
+---- Mobile attacks: step x (100 + Per10 x (Pivot - Agility) / 10)%, clamped Min..Max. 0 disables
+A.MobileAgiPer10 = 5
+A.MobileAgiPivot = 70
+A.MobileAgiMinMul = 80
+A.MobileAgiMaxMul = 130
+A.MobileAgiMeta = {id = 959274318406, text = "Agility (moving) <pct>"}
 ---- Attribute on the step excess, like classic: excess x (100 - Impact*(stat - Pivot)/50). 0 disables.
 ---- Impact 35 / Pivot 50 = classic's x1.35 at stat 0, x0.65 at 100. Stat is Reflexes, or Strength
 ---- for hipfired autofire-type attacks (see Rat_StepAttrMul).
@@ -543,7 +549,8 @@ local t_id_table = {
     [617384902551] = "(-) Camouflaged",
 	[195731482566] = "(-) Not prone",
     [742063918825] = "Reflexes <pct>",
-    [380571264917] = "Strength <pct>"
+    [380571264917] = "Strength <pct>",
+    [959274318406] = "Agility (moving) <pct>"
 }
 
 ratG_T_table['__ApertureCTHParams.lua'] = t_id_table

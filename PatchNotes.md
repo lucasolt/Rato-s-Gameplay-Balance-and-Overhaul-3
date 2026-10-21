@@ -46,6 +46,7 @@ Expect dynamic (chaotic) results (that is the fun part!). You need to have the s
 [*]With simulated aCTH, firing through smoke no longer causes grazing; it reduces accuracy instead.
 [*]With simulated aCTH, the Take Cover action no longer causes grazing. Can be reverted with a mod option.
 [*]The Bullet Hell action now has simulated shots with recoil calculation.
+[*]Mobile attacks (Run and Gun, Mobile Shot, Reckless Assault) depend on [b]Agility[/b]: above 70 it tightens the shots fired on the move, below 70 it widens them.
 [/list]
 
 [hr][/hr]

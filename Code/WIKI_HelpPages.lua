@@ -85,7 +85,7 @@ GBO_WIKI_PAGES = {
     {
         id = "MobileAttacks",
         title = T(735216048837, "GBO: Mobile Attacks"),
-        text = T(735216048838, "Mobile attacks, such as Run and Gun and Mobile Shot, fire while moving. Their shots are always <em>snapshots</em>.\n\nThey can be planned <em>without a visible target</em>. If an enemy is revealed during the move, the merc shoots at them. If nobody shows up, the AP for the planned shots is not refunded.\n\nWhen the move ends, the merc stays in Shooting Stance, facing the last target."),
+        text = T(735216048838, "Mobile attacks, such as Run and Gun and Mobile Shot, fire while moving. Their shots are always <em>snapshots</em>.\n\n<em>Agility</em> decides how steady the merc is on the move: above 70 the shots get tighter, below 70 they get wider. A nimble merc is the one to run and gun with.\n\nThey can be planned <em>without a visible target</em>. If an enemy is revealed during the move, the merc shoots at them. If nobody shows up, the AP for the planned shots is not refunded.\n\nWhen the move ends, the merc stays in Shooting Stance, facing the last target."),
     },
     {
         id = "Shotguns",
@@ -135,7 +135,7 @@ GBO_WIKI_PAGES = {
     {
         id = "Reflexes",
         title = T(735216048855, "GBO: Reflexes"),
-        text = T(735216048856, "<em>Reflexes</em> is a combined attribute, made equally of <em>Dexterity</em> and <em>Agility</em>.\n\nIt reduces the <em>Hipfire</em> and <em>Snapshot</em> penalties, so it decides how accurate quick, unaimed shots are.\n\nThis includes interrupt attacks such as <em>Overwatch</em>, which are always snapshots.\n\nFor hipfired bursts from automatic weapons and shotguns, <em>Strength</em> takes the place of Reflexes, since holding the weapon steady matters more than speed."),
+        text = T(735216048856, "<em>Reflexes</em> is a combined attribute, made equally of <em>Dexterity</em> and <em>Agility</em>.\n\nIt reduces the <em>Hipfire</em> and <em>Snapshot</em> penalties, so it decides how accurate quick, unaimed shots are.\n\nThis includes interrupt attacks such as <em>Overwatch</em>, which are always snapshots.\n\nFor hipfired bursts from automatic weapons and shotguns, <em>Strength</em> takes the place of Reflexes, since holding the weapon steady matters more than speed.\n\nMobile attacks add a separate <em>Agility</em> modifier on top, for shooting while on the move."),
     },
     {
         id = "Composure",

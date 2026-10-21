@@ -631,6 +631,17 @@ function Rat_StepAttrMul(attacker, action, aim, opportunity_attack)
     return Max(0, 100 - MulDivRound(impact, stat - (a.StepAttrPivot or 50), 50)), key
 end
 
+---- Mobile attacks: whole-step mul % from Agility off MobileAgiPivot, MobileAgiPer10 % per 10 points
+function Rat_MobileAgilityMul(attacker, action)
+    local a = P()
+    local slope = a.MobileAgiPer10 or 0
+    if slope == 0 or not action or not (a.MobileActions or empty_table)[action.id] or not attacker or attacker.placeholder then
+        return 100
+    end
+    local mul = 100 + MulDivRound(slope, (a.MobileAgiPivot or 70) - (attacker.Agility or 0), 10)
+    return Clamp(mul, a.MobileAgiMinMul or 0, a.MobileAgiMaxMul or 1000)
+end
+
 ---- interrupt from a set-up MG or emplacement, or the MGSetup / MGRotate preview of one
 function Rat_IsMGSetupInterrupt(attacker, action, opportunity_attack)
     if not opportunity_attack or not attacker or attacker.placeholder then
@@ -780,6 +791,16 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
                 excess = MulDivRound(excess, a.MGSetupInterruptStepMul, 100)
             end
             step = 100 + excess
+            ---- moving fire: Agility scales the whole step, its lane (Dex owns aimed fire)
+            local mobile_agi = Rat_MobileAgilityMul(attacker, action)
+            if mobile_agi ~= 100 then
+                step = MulDivRound(step, mobile_agi, 100)
+                local lbl = a.MobileAgiMeta
+                if lbl then
+                    step_meta = step_meta or {}
+                    step_meta[#step_meta + 1] = T {lbl.id, lbl.text, pct = Rat_ConeMulTag(mobile_agi)}
+                end
+            end
 
 			local original_s_debug = s
             s = MulDivRound(s, step, 100)
@@ -799,8 +820,8 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
             if mg_setup then
                 meta[#meta + 1] = CombatActions.MGSetup.DisplayName
             end
-            if step_meta then
-                meta[#meta + 1] = step_meta[1]
+            for _, v in ipairs(step_meta or empty_table) do
+                meta[#meta + 1] = v
             end
 
         end
