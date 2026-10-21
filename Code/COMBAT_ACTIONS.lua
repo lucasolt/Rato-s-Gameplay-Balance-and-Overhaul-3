@@ -505,9 +505,8 @@ function rat_combat_actions()
         local recoil = unit:GetStatusEffect("Rat_recoil")
         local recoil_extra_cost = 0
         if recoil then
-            recoil_extra_cost = cRoundDown(recoil:ResolveValue("aim_cost") or 0 *
-                                               const.Combat.PindownAimLevelsForAPCost) *
-                                    const.Scale.AP
+            recoil_extra_cost = Rat_RecoilAimSurcharge(unit, weapon, recoil:ResolveValue("aim_cost"),
+                                                       const.Combat.PindownAimLevelsForAPCost)
         end
         -----------
 
@@ -538,8 +537,9 @@ function rat_combat_actions()
         local id = IsACHTActive() and 291547951652 or 854982151651
         local descr = TranslationTable[id] or ratG_T_table['FUNCTIONS_aCTH_ChangeTexts.lua'][id]
         if recoil then
-            local aim_cost = recoil:ResolveValue("aim_cost") or 0
-            local extra_cost = cRoundDown(aim_cost * const.Combat.PindownAimLevelsForAPCost) -- * const.Scale.AP
+            local weapon = unit:GetActiveWeapons()
+            local extra_cost = Rat_RecoilAimSurcharge(unit, weapon, recoil:ResolveValue("aim_cost"),
+                                                      const.Combat.PindownAimLevelsForAPCost) / const.Scale.AP
             if extra_cost > 0 then
                 descr = descr ..
                             (TranslationTable[231988463514] or

@@ -38,6 +38,8 @@ const.Combat.Recoil.Perks.TakeAimMul = 0.88
 const.Combat.Recoil.Perks.AutoWeaponsMul = 0.85
 ----
 const.Combat.Recoil.Other = {Prone = 0.90, Crouch = 0.95, Tracer = 0.90, AP = 1.05}
+---- % of the cycle AP a manually cycled shot takes off its recoil aim surcharge, once per shot
+const.Combat.Recoil.CycleRecoveryPct = 60
 
 function OnMsg.ClassesGenerate()
     AppendClass.FirearmProperties = {

@@ -166,8 +166,8 @@ DefineClass.Rat_recoil = {
 					return
 				end
 				
-				local aim_cost = self:ResolveValue("aim_cost") 
-				local extra_cost = cRoundDown(aim_cost * aim_level) * const.Scale.AP
+				local aim_cost = self:ResolveValue("aim_cost")
+				local extra_cost = Rat_RecoilAimSurcharge(target, weapon, aim_cost, aim_level)
 				
 				return current_ap + extra_cost
 			end,

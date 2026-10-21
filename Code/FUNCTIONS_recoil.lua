@@ -29,7 +29,7 @@ end
 ---- em sincronia".
 ----
 ---- PURA: nao le nem escreve o efeito `Rat_recoil`; `stacks` entra por argumento.
----- O consumidor no jogo e `Rat_recoil.OnCalcAPCost`, como `cRoundDown(aim_cost * aim)`.
+---- O consumidor no jogo e `Rat_recoil.OnCalcAPCost`, via `Rat_RecoilAimSurcharge`.
 ---------------------------------------------------------------------------------------------------
 function Rat_GetRecoilAimCost(attacker, action, weapon, stacks)
     if not attacker or not IsKindOf(weapon, "Firearm") then
@@ -39,16 +39,7 @@ function Rat_GetRecoilAimCost(attacker, action, weapon, stacks)
     local recoil_value = get_recoilP_value(attacker, action, weapon, false, stacks, false)
     local aim_mul = GetAimMul_Recoil_byCaliber(weapon)
 
-    local aim_cost = -recoil_value * 0.7 * aim_mul / 30.00
-    local bolt_cost_adj = 0
-	--if not const.Combat.Aperture.RecoilPersistOffset then
-    	if rat_canBolt(weapon) then
-    	    ---- the gun's base cycle, not this merc's: Dex cuts the cycle AP, never the recovery
-    	    bolt_cost_adj = rat_get_manual_cyclingAP(nil, weapon, true) * 0.6 / R_VanillaAP(1)
-    	end
-	
-    	aim_cost = Max(0, aim_cost - bolt_cost_adj)
-	--end
+    local aim_cost = Max(0, -recoil_value * 0.7 * aim_mul / 30.00)
     aim_cost = cRoundFlt(aim_cost, 0.5)
     aim_cost = Min(5, aim_cost)
 
@@ -59,6 +50,22 @@ function Rat_GetRecoilAimCost(attacker, action, weapon, stacks)
     end
 
     return R_VanillaAPToDisplay(aim_cost), recoil_value
+end
+
+---- AP the per-level `aim_cost` adds at `aim`; a manual cycle buys back part of its own AP once per shot, never past break-even
+function Rat_RecoilAimSurcharge(attacker, weapon, aim_cost, aim)
+    local level = Min(3, aim or 0)
+    if level < 1 or (aim_cost or 0) <= 0 then
+        return 0
+    end
+    local extra = cRoundDown(aim_cost * level) * const.Scale.AP
+    if rat_canBolt(weapon) then
+        local cycle = rat_get_manual_cyclingAP(attacker, weapon, true)
+        local recovered = MulDivRound(cycle, const.Combat.Recoil.CycleRecoveryPct, 100 * const.Scale.AP) *
+                              const.Scale.AP
+        extra = Max(0, extra - recovered)
+    end
+    return extra
 end
 
 function Unit:ApplyPersistantRecoilEffects(aim, action, weapon, attack_args)
