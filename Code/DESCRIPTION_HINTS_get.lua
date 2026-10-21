@@ -515,11 +515,11 @@ local function HintCompareChart(dlg)
     end
     local acc = chart()
     acc.rat_curves, acc.rat_ref_curves = HintChartCurves(item, unit), HintChartCurves(ref, unit)
-    ---- recoil below when the hovered gun has automatic fire; dashed only if the other one does too
+    ---- aimed burst below when the hovered gun has automatic fire; dashed only if the other one does too
     local recoil = HintRecoilCurves(item, unit) and chart()
     if recoil then
-        HintRecoilSetup(recoil, item, unit)
-        recoil.rat_ref_curves = HintRecoilCurves(ref, unit)
+        HintRecoilSetup(recoil, item, unit, nil, true)
+        recoil.rat_ref_curves = HintRecoilCurves(ref, unit, nil, true)
         recoil.rat_reserve_ref = true
     end
     panel:Open()
