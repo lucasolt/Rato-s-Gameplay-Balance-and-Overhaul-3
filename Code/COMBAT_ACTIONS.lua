@@ -7,6 +7,16 @@ local function MobileAgilityText(unit)
               pct = Rat_ConeMulTag(Rat_MobileAgilityMul(unit, CombatActions.MobileShot))}
 end
 
+---- Agility line plus the Fast Runner move AP already folded into the shown Move AP
+local function MobileExtrasText(unit)
+    local text = MobileAgilityText(unit)
+    if unit and HasPerk(unit, "SteadyBreathing") then
+        text = text .. T {831604927315, "\n\n<em>Fast Runner</em>: +<ap> Move AP.",
+                          ap = R_VanillaAPToDisplay(const.Combat.Perks.FastRunnerMobileMoveAP)}
+    end
+    return text
+end
+
 function rat_combat_actions()
     CombatActions.BurstFire.ActionPointDelta = 0
     CombatActions.SingleShot.ActionPointDelta = -2000
@@ -1034,7 +1044,7 @@ function rat_combat_actions()
                                 " Move AP</em>.\n\nFire a number of bursts during movement toward the closest enemies. \n\nEach shot has <em>1 aim level</em>, but <em>aim accuracy is reduced by half</em>. \n\nEach shot suffers increased <em>Snapshot</em> and <em>Recoil</em> accuracy penalties.")
         end
 
-        description = description .. MobileAgilityText(unit) .. T(312473917195, "\n\nThe unit will be <em>Out of Breath</em>.")
+        description = description .. MobileExtrasText(unit) .. T(312473917195, "\n\nThe unit will be <em>Out of Breath</em>.")
 
         if unit.stance ~= "Standing" then
             description = description ..
@@ -1160,7 +1170,7 @@ function rat_combat_actions()
                                 " Move AP</em>.\n\nFire a number of shots during movement toward the closest enemies. \n\nEach shot has <em>1 aim level</em>, but <em>aim accuracy is reduced by half</em>. \n\nEach shot suffers increased <em>Snapshot</em> accuracy penalty.")
         end
 
-        description = description .. MobileAgilityText(unit) .. T(966648741688, "\n\nThe unit will be <em>Out of Breath</em>.")
+        description = description .. MobileExtrasText(unit) .. T(966648741688, "\n\nThe unit will be <em>Out of Breath</em>.")
         -------
 
         local damage, base, bonus = self:GetActionDamage(unit)
@@ -1207,7 +1217,7 @@ function rat_combat_actions()
                                 DisplayMoveAP ..
                                 " Move AP</em>. Smiley will be <em>Out of Breath (2 stacks)</em> after use. Can't be used when <em>Out of Breath</em>.\n\nEach shot has <em>1 aim level</em>, but <em>aim accuracy is reduced by half</em>.")
         end
-        description = description .. MobileAgilityText(unit)
+        description = description .. MobileExtrasText(unit)
 
         return description
 
