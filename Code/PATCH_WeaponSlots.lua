@@ -3386,8 +3386,12 @@ GBO_TOGWeaponSlots = {
 		{
 			SlotType = "Side",
 			CanBeEmpty = true,
-			Modifiable = false,
+			Modifiable = true,
 			AvailableComponents = {
+				"Flashlight",
+				"LaserDot",
+				"FlashlightDot",
+				"UVDot",
 			},
 		},
 		{
@@ -3488,8 +3492,12 @@ GBO_TOGWeaponSlots = {
 		{
 			SlotType = "Side",
 			CanBeEmpty = true,
-			Modifiable = false,
+			Modifiable = true,
 			AvailableComponents = {
+				"Flashlight",
+				"LaserDot",
+				"FlashlightDot",
+				"UVDot",
 			},
 		},
 		{

@@ -10206,12 +10206,14 @@ return {
 			PlaceObj('WeaponComponentVisual', {
 				ApplyTo = "HK23E_1",
 				Entity = "WeaponAttA_StockHK21_02",
+				Offset = point(32, 0, 0),
 				Slot = "Stock",
 				param_bindings = false,
 			}),
 			PlaceObj('WeaponComponentVisual', {
 				ApplyTo = "HK23ECamo_1",
 				Entity = "WeaponAttA_StockHK21_02",
+				Offset = point(32, 0, 0),
 				Slot = "Stock",
 				param_bindings = false,
 			}),
@@ -17023,12 +17025,14 @@ return {
 			PlaceObj('WeaponComponentVisual', {
 				ApplyTo = "HK23E_1",
 				Entity = "WeaponAttA_StockHK21_03",
+				Offset = point(32, 0, 0),
 				Slot = "Stock",
 				param_bindings = false,
 			}),
 			PlaceObj('WeaponComponentVisual', {
 				ApplyTo = "HK23ECamo_1",
 				Entity = "WeaponAttA_StockHK21_03",
+				Offset = point(32, 0, 0),
 				Slot = "Stock",
 				param_bindings = false,
 			}),
