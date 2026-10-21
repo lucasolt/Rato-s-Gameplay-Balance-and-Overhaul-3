@@ -57,6 +57,23 @@ local function err_term(rnd, floor_err, mag)
     return (rnd(2) == 0) and e or -e
 end
 
+---- Grip divisor from `control`: a power law anchored on the stat-100 standing merc. A multiplier on
+---- control acts by the same ratio wherever the merc starts; the old linear gain had a pole at 60.
+---- RecoilCtlExp is in hundredths and only resolves to halves (integer part + sqrt).
+function Rat_RecoilCtlEff(control)
+    local a = P()
+    local r = MulDivRound(control, 1000, a.RecoilCtlAnchor or 85)
+    local e = a.RecoilCtlExp or 250
+    local v = 1000
+    for _ = 1, e / 100 do
+        v = MulDivRound(v, r, 1000)
+    end
+    if e % 100 >= 50 then
+        v = MulDivRound(v, Rat_ISqrt(r * 1000), 1000)
+    end
+    return Max(a.RecoilCtlEffMin or 30, MulDivRound(a.RecoilCtlAnchorEff or 62, v, 1000))
+end
+
 ---------------------------------------------------------------------------------------------------
 ---- PROFILE: the constants of one attack, resolved once. Everything the shooter and the weapon
 ---- contribute enters here and nowhere else.
@@ -84,6 +101,19 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
         Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots, persistent)
     control, other_control, str_control = cRound(control), cRound(other_control),
                                           cRound(str_control)
+
+    ---- recoil perks leave the curve: their control multiplier only keeps `gun` intact, and through the
+    ---- curve it pinned every merc to the floor. They add a flat share of grip instead.
+    local take_aim, auto_perk = Rat_RecoilPerks(attacker, action)
+    local perk_rec = 100
+    if take_aim then
+        control = MulDivRound(control, 100, cRound(const.Combat.Recoil.Perks.TakeAimMul * 100))
+        perk_rec = perk_rec + (a.RecoilTakeAimRecoveryPct or 0)
+    end
+    if auto_perk then
+        control = MulDivRound(control, 100, cRound(const.Combat.Recoil.Perks.AutoWeaponsMul * 100))
+        perk_rec = perk_rec + (a.RecoilAutoWeaponsRecoveryPct or 0)
+    end
 
     local kick = MulDivRound(a.RecoilKickBase or 0, cRound(gun), 100)
     kick = Max(0, MulDivRound(kick, const.Combat.R_Recoil or 100, 100))
@@ -131,8 +161,8 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
     ---- opening the gate and keeps helping here, smoothly, the way the old CTH had it (its loss
     ---- moved 15 -> 14 per shot from Str 50 to 100). The floor keeps a bipodded prone MG from
     ---- dividing by nearly nothing.
-    local ctl_eff = Max(30, 100 + MulDivRound(control - 100, a.RecoilOtherGain or 100, 100))
-    local max_inc = Max(1, MulDivRound(a.RecoilMaxIncBase or 1, 100, ctl_eff))
+    local ctl_eff = Rat_RecoilCtlEff(control)
+    local max_inc = Max(1, MulDivRound(a.RecoilMaxIncBase or 1, perk_rec, ctl_eff))
 
     ---- rate of fire shortens the time BETWEEN shots, so it shortens the reaction -- not the
     ---- force, which is muscle, and not the kick, which is the cartridge.

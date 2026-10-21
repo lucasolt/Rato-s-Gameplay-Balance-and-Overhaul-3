@@ -324,6 +324,17 @@ function Rat_HyperburstCorr(weapon, action)
     return 0
 end
 
+local recoil_perk_single = {SingleShot = true, Buckshot = true, Pindown = true, MobileShot = true}
+
+---- recoil perks this attack gets: Recoil Management always, Auto Weapons off the single-shot actions
+function Rat_RecoilPerks(attacker, action)
+    if attacker.placeholder then
+        return false, false
+    end
+    local auto_perk = action and not recoil_perk_single[action.id] and attacker:HasStatusEffect("AutoWeapons")
+    return attacker:HasStatusEffect("TakeAim") and true or false, auto_perk and true or false
+end
+
 ---- `persistent`: the recoil felt BETWEEN attacks. A hyperburst defers its kick instead of
 ---- cancelling it, so its burst delta does not apply there.
 function GetRecoilOther(weapon, attacker, action, persistent)
@@ -373,15 +384,14 @@ function GetRecoilOther(weapon, attacker, action, persistent)
 
     -----------------perks
     if not attacker.placeholder then
-        if attacker:HasStatusEffect("TakeAim") then
+        local take_aim, auto_perk = Rat_RecoilPerks(attacker, action)
+        if take_aim then
             mod = mod * const.Combat.Recoil.Perks.TakeAimMul
             control = control * const.Combat.Recoil.Perks.TakeAimMul
             metaText[#metaText + 1] = rT(712682745289, "Perk: Recoil Management")
         end
 
-        if action and
-            not (action.id == "SingleShot" or action.id == "Buckshot" or action.id == "Pindown" or
-                action.id == "MobileShot") and attacker:HasStatusEffect("AutoWeapons") then
+        if auto_perk then
             mod = mod * const.Combat.Recoil.Perks.AutoWeaponsMul
             control = control * const.Combat.Recoil.Perks.AutoWeaponsMul
             metaText[#metaText + 1] = rT(764956297274, "Perk: Auto Weapons")

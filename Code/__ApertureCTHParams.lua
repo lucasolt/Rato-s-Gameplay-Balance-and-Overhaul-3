@@ -257,7 +257,7 @@ A.HandlingHeldStanceMeta = {
 A.HandlingHeldLowStrMeta = T {599531270289, "(-) Low Strength"}
 
 ---- HELD RECOIL: same excess and Strength curve as above, paid in grip and force, never in kick.
----- % per excess point; RecoilOtherGain re-amplifies it by 2.5x into max_inc
+---- % per excess point on control; the RecoilCtlExp curve turns it into grip
 A.RecoilHeldSlope = 70
 ---- UP = the penalty also widens lateral sway. Barely measurable: 0 -> 200 moves lateral 352' -> 376'
 A.RecoilHeldLatPct = 100
@@ -289,8 +289,8 @@ A.AimCentroidPct = 100 --100
 ---- sigma 100' against a torso theta of 167' (a lone round is 75%).
 ----   AK = AK47 standing, 6 rds.   MG = MG42 prone on its bipod, MGBurstFire, 8 rds.
 ----   x/y = mean |lateral| / |vertical| of the LAST round, in minutes (theta = 167').
----- Past its Str breakpoint (77) a bipod MG42 is SKILL-CAPPED: ctl_eff hits its hardcoded floor
----- of 30 and accuracy clamps at 100, so mercs 80 and 95 measure the same. Only the params
+---- Past its Str breakpoint (77) a bipod MG42 is SKILL-CAPPED: ctl_eff hits RecoilCtlEffMin (30)
+---- and accuracy clamps at 100, so mercs 80 and 95 measure the same. Only the params
 ---- that act after that cap (lateral, floor, settle, damping, bipod) move it.
 ---------------------------------------------------------------------------------------------------
 
@@ -341,9 +341,21 @@ A.RecoilMaxIncBase = 70
 ---- breakpoint continua valendo alguma coisa em vez de virar um degrau. O peso relativo sai de
 ---- graca e bate com o old CTH -- la Marks 50->100 mexia a perda 14% e Forca 50->100 mexia 7%,
 ---- e aqui other_control anda 15% contra os 9% de str_control. Mesma proporcao de 2 para 1.
----- UP = skill (Marks, stance, bipod, Str) spreads mercs further apart. AK merc 95: 100 -> 23%,
----- 175 -> 25%, 250 -> 31%, 350 -> 41% (merc 80: 21 -> 25%). MG 100 -> 42%, 175+ saturates at 49%.
-A.RecoilOtherGain = 250
+---- Was a linear gain (100 + 2.5 x (control - 100)): pole at control 60, so the stat-100 merc (85) sat a
+---- third from the floor and a x0.88 perk became x1.69 grip. Now a power law anchored on that merc:
+---- ctl_eff = AnchorEff x (control / Anchor)^Exp. Same baseline, same Marks spread, a fixed ratio per multiplier.
+---- UP = skill (Marks, stance, bipod, Str) spreads mercs further apart. Hundredths, halves only.
+A.RecoilCtlExp = 250
+---- the stat-100 standing merc's control and the ctl_eff the old gain gave it
+A.RecoilCtlAnchor = 85
+A.RecoilCtlAnchorEff = 62
+---- floor: keeps a prone bipod MG with every bonus from dividing by nearly nothing
+A.RecoilCtlEffMin = 30
+
+---- Recoil perks as flat grip, out of the curve; additive when both apply.
+---- Recoil Management (TakeAim) on every attack, Auto Weapons on burst and autofire.
+A.RecoilTakeAimRecoveryPct = 30
+A.RecoilAutoWeaponsRecoveryPct = 40
 
 ---- T: em quantos tiros o atirador TENTA zerar (p, v). Ganhos do duplo polo em 1 - 1/T:
 ---- Kd = 2/T, Kp = 1/T^2. Manda a FORMA da queda, nao os extremos dela.

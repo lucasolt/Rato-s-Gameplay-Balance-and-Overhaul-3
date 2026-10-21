@@ -1286,8 +1286,7 @@ local function apply_over(prof, sigma, theta, over)
             prof.cf_min = MulDivRound(prof.kick_min, a.RecoilCFHeadroom or 100, se)
         end
         if over.other_control then
-            local oe = Max(30, 100 + MulDivRound(over.other_control - 100,
-                                                 a.RecoilOtherGain or 100, 100))
+            local oe = Rat_RecoilCtlEff(over.other_control)
             prof.other_control = over.other_control
             prof.inc_min = Max(1, MulDivRound(a.RecoilMaxIncBase or 1, 100, oe))
             prof.max_inc = prof.inc_min * 100
