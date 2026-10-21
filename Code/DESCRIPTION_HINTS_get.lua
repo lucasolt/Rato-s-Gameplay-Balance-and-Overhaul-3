@@ -1189,6 +1189,40 @@ function Rat_PatchWeaponRollover()
             XContextControl.OnContextUpdate(self, context)
         end
     end
+    ---- header damage: vanilla reads AvailableAttacks[1], a hidden BurstFire on guns without a limiter
+    path = FindXtByProp(XTemplates.RolloverInventoryWeaponBase, "comment", "dmg, crit,range")
+    local node = path and path[1][1]
+    if IsKindOf(node, "XTemplateForEach") then
+        node.rat_vanilla_run_after = node.rat_vanilla_run_after or node.run_after
+        local vanilla_run_after = node.rat_vanilla_run_after
+        node.run_after = function(child, context, item, ...)
+            vanilla_run_after(child, context, item, ...)
+            if item.bind_to ~= "Damage" or not IsKindOf(context, "Firearm") then
+                return
+            end
+            local action = CombatActions[context:GetBaseAttack(nil, true)]
+            if not action or action.id == (context.AvailableAttacks or empty_table)[1] then
+                return
+            end
+            child.CreatePropValText = function(self, value, scale)
+                local unit = context.owner and (g_Units[context.owner] or gv_UnitData[context.owner]) or
+                                 GetInventoryUnit() or SelectedObj
+                if not unit then
+                    local satellite = GetSatelliteDialog()
+                    local squad = satellite and satellite:HasMember("selected_squad") and satellite.selected_squad
+                    unit = squad and squad.units and squad.units[1] and gv_UnitData[squad.units[1]]
+                end
+                local dmg = 0
+                if unit then
+                    local total, base = action:GetActionDamage(unit, false, {weapon = context})
+                    dmg = base or total
+                end
+                ---- default length, not the ammo-clamped one: an empty gun would read 1x
+                return Untranslated(context:GetAutofireShots(action) ..
+                                        "<valign bottom -3><style InventoryRolloverPropSmall>x</style><valign center>" .. dmg)
+            end
+        end
+    end
     path = FindXtByProp(XTemplates.RolloverInventoryWeaponBase, "comment", "penetration")
     if path then
         SetTemplateFunc(path[1], "CreatePropValText(self, value, scale)", function(self, value, scale)
