@@ -1319,6 +1319,12 @@ function Rat_AttOriginal(fn)
     return fn
 end
 
+---- Guns whose spots face backwards for the shared optic visuals: class -> slot -> attach angle.
+RAT_ATT_PART_ANGLE = {
+    HK23E_1 = {Scope = 180 * 60, Mount = 180 * 60},
+    HK23ECamo_1 = {Scope = 180 * 60, Mount = 180 * 60}
+}
+
 ---- Put back the native model first: the removal pass only deletes a part whose entity matches one
 ---- of the old component's Visuals, so a swapped part would outlive its component.
 function Rat_AttUpdateVisualObj(self, vis, orig)
@@ -1345,6 +1351,12 @@ function Rat_AttUpdateVisualObj(self, vis, orig)
         for _, part in pairs(vis.parts or empty_table) do
             if IsValid(part) and part.rat_offset then
                 part:SetAttachOffset(part:GetAttachOffset() + part.rat_offset)
+            end
+        end
+        for slot, angle in pairs(RAT_ATT_PART_ANGLE[self.class] or empty_table) do
+            local part = vis.parts and vis.parts[slot]
+            if IsValid(part) then
+                part:SetAttachAngle(angle) -- absolute, so a repeated pass cannot add up
             end
         end
     end
