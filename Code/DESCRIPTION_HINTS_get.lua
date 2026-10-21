@@ -551,7 +551,7 @@ end
 ---- modify dialog stance, kept across openings; nil follows the owner
 local HintModChartStance
 ---- modify dialog recoil tab, kept across openings: 1 recoil alone, 2 aimed burst
-local HintModRecoilTab = 1
+local HintModRecoilTab = 2
 ---- modify dialog top tab, kept across openings: 1 hit chance, 2 the vanilla combined effects text
 local HintModAccTab = 1
 local HintModEffectsTitle = ratT(file_str, 731590264446, "Effects")
