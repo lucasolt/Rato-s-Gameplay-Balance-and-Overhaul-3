@@ -68,6 +68,7 @@ const.Combat.PindownRangeMul = 150 --- MulDivRound; aCTH uses A.PindownRangeMul
 ------ Perks
 const.Combat.Perks = {}
 const.Combat.Perks.RelentlessAdvanceFreeMoveMul = 150
+const.Combat.Perks.FastRunnerMobileMoveAP = 1 --- vanilla AP added to mobile attacks' move AP (not Sprint)
 const.Combat.Perks.OutOfBreathAimMul = 70
 const.Combat.Perks.SaviorAdrenalineRushFreeMoveMul = 120
 const.Combat.Perks.SaviorAdrenalineRushFreeMoveBonus = R_VanillaAPToDisplay(4)

@@ -28,7 +28,8 @@ function presets_char_effect()
         --------------------------------------------------------------------------------------------
 
         if p.id == 'SteadyBreathing' then
-            p.Description = T(778949186487, "Grants the ability to <em>Sprint</em> in combat.")
+            p.Description = T {778949186487, "Grants the ability to <em>Sprint</em> in combat.<newline><newline>Mobile attacks can move <em><ap> AP</em> further.",
+                               ap = R_VanillaAPToDisplay(const.Combat.Perks.FastRunnerMobileMoveAP)}
         end
 
         --------------------------------------------------------------------------------------------

@@ -3,7 +3,7 @@ local function MobileAgilityText(unit)
     if not unit or not IsACHTActive() or (const.Combat.Aperture.MobileAgiPer10 or 0) == 0 then
         return ""
     end
-    return T {205718364093, "\n\nShots on the move depend on <em>Agility</em>: dispersion <pct>.",
+    return T {205718364093, "\n\nShots on the move depend on <em>Agility</em> (dispersion <pct>).",
               pct = Rat_ConeMulTag(Rat_MobileAgilityMul(unit, CombatActions.MobileShot))}
 end
 

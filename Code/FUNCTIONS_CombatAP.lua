@@ -83,6 +83,9 @@ function rat_getMobileshot_moveAP(action, unit, weapon)
 
     local agility_scaling = Max(0, (unit.Agility - 40.0) / 10.0)
     local move_ap = Max(min_ap, cRound(base_ap * 1.00 + agility_scaling - (stanceap)))
+    if not is_sprint and HasPerk(unit, "SteadyBreathing") then
+        move_ap = move_ap + const.Combat.Perks.FastRunnerMobileMoveAP
+    end
 
     return move_ap
 end
