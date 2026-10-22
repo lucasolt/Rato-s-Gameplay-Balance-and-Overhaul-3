@@ -15,7 +15,7 @@ local IntelPingOpacity = 60
 local IntelPingZOffset = 40 * guic
 local IntelPingMaxRise = 100 * guic
 local IntelPingTextStyle = "FloatingTextError"
-local IntelPingTextColor = RGBA(255, 40, 40, 200)
+local IntelPingTextColor = RGBA(255, 40, 40, 0) --200)
 
 local intel_pings = false
 local intel_epoch = false
