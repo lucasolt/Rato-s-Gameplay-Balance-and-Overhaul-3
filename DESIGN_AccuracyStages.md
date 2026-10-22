@@ -71,8 +71,18 @@ measurements below.
 Set `A.BasePrecisionModel = false` in `__ApertureCTHParams.lua` to return to the old model. Handling data is
 untouched (no length-neutral retune yet).
 
-- **Negative Handling cut:** `Rat_GetAperture` divides out the gun's Handling factor above x1.00 when
-  aim > `AimStepMaxLevel`. Held weight stays.
+- **Handling is positive-only; bulk lives in the hip/snap mul** (2026-10-22, second pass):
+  - `Rat_HandlingEffectivePoints` floors at 0.
+  - The negative part becomes bulk points (`Rat_HandlingBulkPoints`). Each point adds
+    `A.HandlingBulkStepPermille` (15) to the hipfire and snapshot multipliers, after their 25-400 clamp.
+  - The tooltip's Hipfire / Snapshot Penalty Multiplier and the sheet's Hip% / Snap% include it.
+  - Calibrated on the 18 live negative-Handling guns, standing and prone, all stats 85: aim-1 cones are 1.009x
+    the old ones on average, aim 0 1.026x, aim 2 0.974x, aim 3 0.931x (bulk no longer reaches aim 3).
+  - Bulk has the same unit as the data (`wep_base_snapshot_mul` / `wep_base_hip_mul`), so it can later be baked
+    into the sheet and Handling set to >= 0 there.
+  - Held weight stays on the base cone.
+  - The wiki Handling page still describes large weapons as handling poorly; not rewritten while this is a
+    toggle.
 - **Follow-up cone:** `Rat_GetAperture(..., base_only)` skips the aim ladder and scope frames but keeps the
   chosen level's hip/snap step and the same cut. `Rat_FollowUpConeMul` returns it as a per-mille of the round-1
   aperture (floored at 1000), so residuals (cover, stance) carry over. It returns nil at aim 0, on single shots

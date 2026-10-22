@@ -309,6 +309,9 @@ A.RecoilKickBase = 95
 ---- Base precision + aim (DESIGN_AccuracyStages.md). Negative Handling only up to AimStepMaxLevel;
 ---- burst/autofire rounds 2+ of an aimed attack fire at the base cone (no aim, no step). false = old model.
 A.BasePrecisionModel = true
+---- BasePrecisionModel: Handling is positive-only; each negative point (bulk) adds this per-mille to the hip/snap
+---- mul. 15 keeps the old aim-1 cones on average (aim 0 +2%, aim 2 -3%, aim 3 -7%: bulk no longer reaches it).
+A.HandlingBulkStepPermille = 15
 
 ---- Component recoil muls for the aCTH kick only; missing keys fall back to const.Combat.Recoil.Components.
 ---- Kick against recovery amplifies them: AK47 6 rds @10 tiles, x0.90 -> +26% hits, x1.10 -> -25%

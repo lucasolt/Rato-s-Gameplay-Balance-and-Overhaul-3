@@ -460,7 +460,29 @@ function Rat_HandlingPoints(weapon)
 end
 
 ---- Whole points after the clamp and Hand-Eye; higher = better. Gun + merc only, no stance.
+---- BasePrecisionModel: Handling is positive-only, the negative part is bulk (Rat_HandlingBulkPoints).
 function Rat_HandlingEffectivePoints(weapon, attacker)
+    local pts, meta = Rat_HandlingSignedPoints(weapon, attacker)
+    if P().BasePrecisionModel then
+        return Max(0, pts), meta
+    end
+    return pts, meta
+end
+
+---- Bulk points (>= 0): the negative Handling, moved into the hip/snap step under BasePrecisionModel.
+function Rat_HandlingBulkPoints(weapon, attacker)
+    if not P().BasePrecisionModel then
+        return 0
+    end
+    return Max(0, -(Rat_HandlingSignedPoints(weapon, attacker)))
+end
+
+---- per-mille on the hip/snap excess mul from bulk
+function Rat_HandlingBulkStepMul(weapon, attacker)
+    return 1000 + Rat_HandlingBulkPoints(weapon, attacker) * (P().HandlingBulkStepPermille or 0)
+end
+
+function Rat_HandlingSignedPoints(weapon, attacker)
     local a = P()
     if not IsKindOf(weapon, "FirearmProperties") then
         return 0
@@ -670,14 +692,6 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
     --- 1. manejo da arma (o antigo Point Blank Accuracy). Multiplica sigma_0, entao o efeito
     ---    decai a cada nivel de mira em vez de ser um desconto fixo no cone final.
     local base_mul, handling_meta = Rat_ApertureHandlingMul(weapon, attacker, action)
-    ---- big-gun clumsiness belongs to the snapshot: past the step levels only positive Handling stays
-    local clumsy_cut = a.BasePrecisionModel and step_aim > a.AimStepMaxLevel
-    if clumsy_cut then
-        local gun = Rat_HandlingBaseMul(weapon, attacker)
-        if gun > 10000 then
-            base_mul = MulDivRound(base_mul, 10000, gun)
-        end
-    end
     if base_mul ~= 10000 then
         s = MulDivRound(s, base_mul, 10000)
     end
@@ -739,9 +753,6 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
     if aim > 0 and a.ApertureAsymptotic and a.HeldAimHandEye and attacker and not attacker.placeholder and
         IsKindOf(weapon, "Firearm") then
         local gun_mul = Rat_HandlingBaseMul(weapon, attacker)
-        if clumsy_cut then
-            gun_mul = Min(gun_mul, 10000)
-        end
         if base_mul > gun_mul then
             local gun_gap = Max(0, MulDivRound(s, gun_mul, base_mul) - floor)
             held_gap = Max(0, s - floor) - gun_gap
@@ -780,6 +791,8 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
         if weapon and GetWeaponHipfireOrSnapshotMul then
             local m = GetWeaponHipfireOrSnapshotMul(weapon, attacker, action, true, aim)
             hipsnap = Clamp(cRound((m or 1.0) * 100), 25, 400)
+            ---- after the clamp, or the clamp eats the bulk of guns already at 400 (PSG1)
+            hipsnap = MulDivRound(hipsnap, Rat_HandlingBulkStepMul(weapon, attacker), 1000)
         end
 
         local excess = MulDivRound((a.AimStep[aim] or 100) - 100, GBO_Opt("ACTHHipSnapPct", 100), 100)
