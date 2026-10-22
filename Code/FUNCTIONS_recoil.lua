@@ -93,10 +93,46 @@ function Unit:ApplyPersistantRecoilEffects(aim, action, weapon, attack_args)
     Rat_RecoilPersistCommit(self, action, weapon, aim, num_shots, attack_args and attack_args.target)
 end
 
-function GetWepRecoil(weapon, attacker, display)
+---- class-keyed muls (barrels, no stock) resolve by weapon kind; NoStockMul has no pistol entry
+local function RecoilCompMul(rc, key, w)
+    local v = rc[key]
+    if type(v) ~= "table" then
+        return v
+    end
+    if IsKindOf(w, "Pistol") or w.pistol_swap then
+        return v.Pistol or v.Other
+    elseif IsKindOf(w, "Revolver") then
+        return v.Revolver or v.Other
+    elseif IsKindOf(w, "SubmachineGun") then
+        return v.SubmachineGun
+    end
+    return v.Other
+end
+
+local factory_recoil_fx = {}
+---- effects of the class's default components, cached per class
+function Rat_FactoryRecoilEffects(weapon)
+    local set = factory_recoil_fx[weapon.class]
+    if not set then
+        set = {}
+        for _, slot in ipairs(weapon.ComponentSlots or empty_table) do
+            local def = WeaponComponents[slot.DefaultComponent]
+            for _, e in ipairs(def and def.ModificationEffects or empty_table) do
+                set[e] = true
+            end
+        end
+        factory_recoil_fx[weapon.class] = set
+    end
+    return set
+end
+
+---- `comps`: an override table (the aCTH kick's). It prices only the change from the factory setup,
+---- so a stock gun keeps the shared value its base recoil was tuned on.
+function GetWepRecoil(weapon, attacker, display, comps)
     local mod = 1.00
     local metaText = {}
     local recoil_components = const.Combat.Recoil.Components
+    local factory = comps and comps ~= recoil_components and Rat_FactoryRecoilEffects(weapon)
 
     -----
     mod = mod * ((weapon.wep_base_recoil_mul or 100) / 100.00)
@@ -136,115 +172,33 @@ function GetWepRecoil(weapon, attacker, display)
 
     ------
     local components = {
-        {
-            name = "Vert_grip_recoil",
-            mod = recoil_components.VerticalGripMul,
-            text = rT(892823936544, "Vertical Grip"),
-            condition = not weapon2
-        }, {
-            name = "tac_grip_recoil",
-            mod = recoil_components.FoldableGripMul,
-            text = rT(371872683581, "Foldable Grip"),
-            condition = not weapon2
-        }, {
-            name = "no_stock",
-            mod = function(w)
-                return IsKindOfClasses(w, "SubmachineGun") and
-                           recoil_components.NoStockMul.SubmachineGun or
-                           recoil_components.NoStockMul.Other
-            end,
-            text = rT(115796595571, "(-) No Stock")
-        }, {
-            name = "compensator_effect",
-            mod = recoil_components.CompensatorMul,
-            text = rT(134618826773, "Compensator")
-        }, {
-            name = "recoil_booster_effect",
-            mod = recoil_components.RecoilBoosterMul,
-            text = rT(862593714174, "Recoil Booster")
-        }, {
-            name = "integr_muzzle_brake",
-            mod = recoil_components.IntegratedMuzzleBrakeMul,
-            text = rT(585361131592, "Integrated Muzzle Brake")
-        }, {
-            name = "compensator_effect_silencer",
-            mod = recoil_components.SuppressorMul,
-            text = rT(263781558966, "Suppressor")
-        }, {
-            name = "compensator_effect_ugly_silencer",
-            mod = recoil_components.ImprovisedSuppressorMul,
-            text = rT(696373868183, "Improvised Suppressor")
-        }, {
-            name = "longbarrel",
-            mod = function(w)
-                if IsKindOf(w, "Pistol") or w.pistol_swap then
-                    return recoil_components.LongBarrelMul.Pistol
-                elseif IsKindOf(w, "Revolver") then
-                    return recoil_components.LongBarrelMul.Revolver
-                elseif IsKindOf(w, "SubmachineGun") then
-                    return recoil_components.LongBarrelMul.SubmachineGun
-                end
-                return recoil_components.LongBarrelMul.Other
-            end,
-            text = rT(894953874886, "Extended Barrel")
-        }, {
-            name = "shortbarrel",
-            mod = function(w)
-                if IsKindOf(w, "Pistol") or w.pistol_swap then
-                    return recoil_components.ShortBarrelMul.Pistol
-                elseif IsKindOf(w, "Revolver") then
-                    return recoil_components.ShortBarrelMul.Revolver
-                elseif IsKindOf(w, "SubmachineGun") then
-                    return recoil_components.ShortBarrelMul.SubmachineGun
-                end
-                return recoil_components.ShortBarrelMul.Other
-            end,
-            text = rT(228113672715, "(-) Short Barrel")
-        }, {
-            name = "heavy_barrel_effect",
-            mod = function(w)
-                if IsKindOf(w, "Pistol") or w.pistol_swap then
-                    return recoil_components.HeavyBarrelMul.Pistol
-                elseif IsKindOf(w, "Revolver") then
-                    return recoil_components.HeavyBarrelMul.Revolver
-                elseif IsKindOf(w, "SubmachineGun") then
-                    return recoil_components.HeavyBarrelMul.SubmachineGun
-                end
-                return recoil_components.HeavyBarrelMul.Other
-            end,
-            text = rT(649749565849, "Heavy Barrel")
-        }, {
-            name = "hipfire_light_barrel",
-            mod = function(w)
-                if IsKindOf(w, "Pistol") or w.pistol_swap then
-                    return recoil_components.LightBarrelMul.Pistol
-                elseif IsKindOf(w, "Revolver") then
-                    return recoil_components.LightBarrelMul.Revolver
-                elseif IsKindOf(w, "SubmachineGun") then
-                    return recoil_components.LightBarrelMul.SubmachineGun
-                end
-                return recoil_components.LightBarrelMul.Other
-            end,
-            text = rT(826212377342, "(-) Light Barrel")
-        }, {
-            name = "stockheavy_effect_recoil",
-            mod = recoil_components.HeavyStockMul,
-            text = rT(456789123654, "Heavy Stock")
-        }, {
-            name = "stocklight_effect_recoil",
-            mod = recoil_components.LightStockMul,
-            text = rT(321654987321, "(-) Light Stock")
-        }, {
-            name = "FullChokeRecoil",
-            mod = recoil_components.FullChokeRecoilMul,
-            text = rT(984651387752, "(-) Full Choke")
-        }
+        {name = "Vert_grip_recoil", key = "VerticalGripMul", text = rT(892823936544, "Vertical Grip"), condition = not weapon2},
+        {name = "tac_grip_recoil", key = "FoldableGripMul", text = rT(371872683581, "Foldable Grip"), condition = not weapon2},
+        {name = "no_stock", key = "NoStockMul", text = rT(115796595571, "(-) No Stock")},
+        {name = "compensator_effect", key = "CompensatorMul", text = rT(134618826773, "Compensator")},
+        {name = "recoil_booster_effect", key = "RecoilBoosterMul", text = rT(862593714174, "Recoil Booster")},
+        {name = "integr_muzzle_brake", key = "IntegratedMuzzleBrakeMul", text = rT(585361131592, "Integrated Muzzle Brake")},
+        {name = "compensator_effect_silencer", key = "SuppressorMul", text = rT(263781558966, "Suppressor")},
+        {name = "compensator_effect_ugly_silencer", key = "ImprovisedSuppressorMul", text = rT(696373868183, "Improvised Suppressor")},
+        {name = "longbarrel", key = "LongBarrelMul", text = rT(894953874886, "Extended Barrel")},
+        {name = "shortbarrel", key = "ShortBarrelMul", text = rT(228113672715, "(-) Short Barrel")},
+        {name = "heavy_barrel_effect", key = "HeavyBarrelMul", text = rT(649749565849, "Heavy Barrel")},
+        {name = "hipfire_light_barrel", key = "LightBarrelMul", text = rT(826212377342, "(-) Light Barrel")},
+        {name = "stockheavy_effect_recoil", key = "HeavyStockMul", text = rT(456789123654, "Heavy Stock")},
+        {name = "stocklight_effect_recoil", key = "LightStockMul", text = rT(321654987321, "(-) Light Stock")},
+        {name = "FullChokeRecoil", key = "FullChokeRecoilMul", text = rT(984651387752, "(-) Full Choke")}
     }
     for _, comp in ipairs(components) do
-        if weapon and weapon:HasComponent(comp.name) and (comp.condition == nil or comp.condition) then
-            local component_mod = type(comp.mod) == "function" and comp.mod(weapon) or comp.mod
-            mod = mod * component_mod
+        local allowed = comp.condition == nil or comp.condition
+        local has = weapon and allowed and weapon:HasComponent(comp.name)
+        if has then
+            mod = mod * RecoilCompMul(recoil_components, comp.key, weapon)
             metaText[#metaText + 1] = comp.text
+        end
+        ---- override applies to what differs from factory: added parts at its value, removed ones undone at it
+        if factory and allowed and (has and true or false) ~= (factory[comp.name] or false) then
+            local ratio = RecoilCompMul(comps, comp.key, weapon) / RecoilCompMul(recoil_components, comp.key, weapon)
+            mod = has and mod * ratio or mod / ratio
         end
     end
 
@@ -337,7 +291,8 @@ end
 
 ---- `persistent`: the recoil felt BETWEEN attacks. A hyperburst defers its kick instead of
 ---- cancelling it, so its burst delta does not apply there.
-function GetRecoilOther(weapon, attacker, action, persistent)
+function GetRecoilOther(weapon, attacker, action, persistent, comps)
+    comps = comps or const.Combat.Recoil.Components
 
     local metaText = {}
     local mod = 1.00
@@ -415,9 +370,16 @@ function GetRecoilOther(weapon, attacker, action, persistent)
         end
 
         if action and (action.id == "AutoFire" or action.id == "BurstFire") then
-            if weapon and weapon:HasComponent("recoil_bump") then
-                mod = mod * const.Combat.Recoil.Components.RecoilBumpMul
+            local shared = const.Combat.Recoil.Components
+            local bump = weapon and weapon:HasComponent("recoil_bump")
+            if bump then
+                mod = mod * shared.RecoilBumpMul
                 metaText[#metaText + 1] = rT(749694622664, "(-) Bump Stock")
+            end
+            ---- same factory-relative rule as GetWepRecoil
+            if weapon and comps ~= shared and (bump and true or false) ~= (Rat_FactoryRecoilEffects(weapon).recoil_bump or false) then
+                local ratio = comps.RecoilBumpMul / shared.RecoilBumpMul
+                mod = bump and mod * ratio or mod / ratio
             end
         end
 
@@ -549,7 +511,7 @@ local param_base = const.Combat.Recoil.MaxPenalty
 ---- Retorna `mod` na mesma escala de antes (comeca em 100 e e multiplicado por
 ---- fatores em torno de 1.0) e a lista de metaText acumulada.
 ---------------------------------------------------------------------------------------------------
-function Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots, persistent)
+function Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots, persistent, comps)
     local mod = 100
     local metaText = {}
     local display = false
@@ -557,9 +519,9 @@ function Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots, persistent)
     local w1, weapon2 = attacker:GetActiveWeapons()
     local dual = action and action.id == "DualShot"
 
-    local weapon_recoil_mod, metaText_wep = GetWepRecoil(weapon, attacker, display)
+    local weapon_recoil_mod, metaText_wep = GetWepRecoil(weapon, attacker, display, comps)
     if dual then
-        local weapon_recoil_mod2 = GetWepRecoil(weapon2, attacker, display)
+        local weapon_recoil_mod2 = GetWepRecoil(weapon2, attacker, display, comps)
         weapon_recoil_mod = (weapon_recoil_mod + weapon_recoil_mod2) / 2
         metaText_wep = {rT(461685692199, "Average Recoil: Two Weapons")}
     end
@@ -571,7 +533,7 @@ function Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots, persistent)
     local control, situation_mod, other_control, str_control
     control, situation_mod, metaText, other_control, str_control =
         Rat_GetRecoilControl(attacker, action, weapon, num_shots, metaText, dual, weapon2,
-                             persistent)
+                             persistent, comps)
     mod = mod * situation_mod
 
     ---- Parte da ARMA, isolada: e `mod` sem o que o atirador cancela. Invariante a postura, perks e
@@ -595,12 +557,12 @@ end
 ----                     nao negocia: deltas de rajada, bump stock, cartucho no piso, tracer, AP.
 ---------------------------------------------------------------------------------------------------
 function Rat_GetRecoilControl(attacker, action, weapon, num_shots, metaText, dual, weapon2,
-                              persistent)
+                              persistent, comps)
     local control = 1.00
     local situation_mod = 1.00
 
     -----------------------Stance, perks
-    local other, otherMeta, other_control = GetRecoilOther(weapon, attacker, action, persistent)
+    local other, otherMeta, other_control = GetRecoilOther(weapon, attacker, action, persistent, comps)
     situation_mod = situation_mod * other
     control = control * other_control
     for i, text in ipairs(otherMeta) do

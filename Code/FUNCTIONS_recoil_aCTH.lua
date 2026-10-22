@@ -74,6 +74,20 @@ function Rat_RecoilCtlEff(control)
     return Max(a.RecoilCtlEffMin or 30, MulDivRound(a.RecoilCtlAnchorEff or 62, v, 1000))
 end
 
+local acth_comps, acth_own, acth_shared
+---- aCTH kick's component table: RecoilComponents keys over the shared one, which old CTH keeps
+function Rat_RecoilComponentsACTH()
+    local shared, own = const.Combat.Recoil.Components, P().RecoilComponents
+    if not own then
+        return shared
+    end
+    if own ~= acth_own or shared ~= acth_shared then
+        acth_own, acth_shared = own, shared
+        acth_comps = setmetatable(table.copy(own), {__index = shared})
+    end
+    return acth_comps
+end
+
 ---------------------------------------------------------------------------------------------------
 ---- PROFILE: the constants of one attack, resolved once. Everything the shooter and the weapon
 ---- contribute enters here and nowhere else.
@@ -98,7 +112,7 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
     end
 
     local _, _, control, gun, other_control, str_control =
-        Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots, persistent)
+        Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots, persistent, Rat_RecoilComponentsACTH())
     control, other_control, str_control = cRound(control), cRound(other_control),
                                           cRound(str_control)
 

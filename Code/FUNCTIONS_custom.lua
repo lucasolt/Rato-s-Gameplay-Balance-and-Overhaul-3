@@ -125,11 +125,12 @@ function GetRecoil_mul(self)
         attacker.Strength = 100 -- Recoil_StrBreakpoint(self)
     end
     local display = true
-    local recoil = GetWepRecoil(weapon, attacker, display)
+    local comps = IsACHTActive() and Rat_RecoilComponentsACTH() or nil
+    local recoil = GetWepRecoil(weapon, attacker, display, comps)
     local other = 1.0
     local caliber = 1.0
     if attacker then
-        other = GetRecoilOther(weapon, attacker, false)
+        other = GetRecoilOther(weapon, attacker, false, nil, comps)
         caliber = GetCaliberStrRecoil(weapon, attacker)
     end
     recoil = recoil * other * caliber

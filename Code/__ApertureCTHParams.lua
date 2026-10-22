@@ -306,6 +306,28 @@ A.AimCentroidPct = 100 --100
 ---- AK pays it in climb (y 162' -> 1506'), bipod MG in sideways drift (x 137' -> 215').
 A.RecoilKickBase = 95
 
+---- Component recoil muls for the aCTH kick only; missing keys fall back to const.Combat.Recoil.Components.
+---- Kick against recovery amplifies them: AK47 6 rds @10 tiles, x0.90 -> +26% hits, x1.10 -> -25%
+---- (AK74 +7/-11, FAL +40/-14). These halve the shared deviation. BipodMul is grip, not kick: shared.
+A.RecoilComponents = {
+    VerticalGripMul = 0.95,
+    FoldableGripMul = 0.975,
+    NoStockMul = {SubmachineGun = 1.20, Other = 1.35},
+    CompensatorMul = 0.955,
+    RecoilBoosterMul = 0.985,
+    IntegratedMuzzleBrakeMul = 0.955,
+    SuppressorMul = 0.97,
+    ImprovisedSuppressorMul = 0.985,
+    LongBarrelMul = {Pistol = 0.98, Revolver = 0.975, SubmachineGun = 0.965, Other = 0.95},
+    ShortBarrelMul = {Pistol = 1.02, Revolver = 1.025, SubmachineGun = 1.035, Other = 1.05},
+    LightBarrelMul = {Pistol = 1.01, Revolver = 1.015, SubmachineGun = 1.02, Other = 1.025},
+    HeavyBarrelMul = {Pistol = 0.99, Revolver = 0.985, SubmachineGun = 0.98, Other = 0.975},
+    HeavyStockMul = 0.95,
+    LightStockMul = 1.05,
+    RecoilBumpMul = 1.03,
+    FullChokeRecoilMul = 1.045
+}
+
 ---- Direcao do coice, em graus a direita da vertical. E um TORQUE: tem lado fixo, nao e sorteado.
 ---- Global por enquanto; virar campo por arma exige preset no editor do jogo.
 ---- UP = trades climb for rightward drift; hit rate nearly flat. AK x/y: 0 -> 199'/656', 40 -> 452'/502'. MG 0 -> 49%, 40 -> 45%

@@ -6,9 +6,10 @@ local HintFullStats = {placeholder = true, Marksmanship = 100, Dexterity = 100, 
 
 ---- the caliber's kick at Strength 100 belongs to the gun; only the Strength penalty above it is the merc's
 local function HintRecoil(weapon, attacker)
-    local recoil = GetWepRecoil(weapon, attacker, true) * GetCaliberStrRecoil(weapon, attacker or HintFullStats)
+    local comps = IsACHTActive() and Rat_RecoilComponentsACTH() or nil
+    local recoil = GetWepRecoil(weapon, attacker, true, comps) * GetCaliberStrRecoil(weapon, attacker or HintFullStats)
     if attacker then
-        recoil = recoil * GetRecoilOther(weapon, attacker, false)
+        recoil = recoil * GetRecoilOther(weapon, attacker, false, nil, comps)
     end
     return cRound(recoil * 100)
 end
@@ -897,7 +898,9 @@ end
 local function HintModeRecoil(weapon, unit, delta_prop, bump)
     local net = MulDivRound(HintRecoil(weapon, unit), weapon[delta_prop] or 100, 100)
     if bump and weapon:HasComponent("recoil_bump") then
-        net = cRound(net * const.Combat.Recoil.Components.RecoilBumpMul)
+        ---- an added bump stock is priced by the aCTH table, a factory one keeps the shared value
+        local acth = IsACHTActive() and not Rat_FactoryRecoilEffects(weapon).recoil_bump
+        net = cRound(net * (acth and Rat_RecoilComponentsACTH() or const.Combat.Recoil.Components).RecoilBumpMul)
     end
     if unit and unit:HasStatusEffect("AutoWeapons") then
         net = cRound(net * const.Combat.Recoil.Perks.AutoWeaponsMul)
