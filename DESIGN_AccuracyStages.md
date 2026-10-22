@@ -45,9 +45,14 @@ no snapshot step. The recoil walk (Str force, Marks correction) does the rest.
   automatic fire". The quickness side (bringing the gun up) is the snapshot. "Base Accuracy" was the alternative.
 - **Every Handling point source must be re-read:** does the part make the gun more precise unaimed (-> base) or
   quicker / clumsier to bring up (-> snapshot)?
-  - **Short barrel:** base + (handier, steadier unaimed). It already pays in recoil (x1.10) and range, a good
-    trade-off for autofire.
-  - **Long barrel:** its negative goes to the snapshot (slower to bring up), not to base.
+  - **Length and mass are an inertia trade-off.** A long or heavy gun is slower to move but steadier while
+    aimed; a short one is quicker but less stable (Wikipedia "Long gun"; shotgun swing lore).
+    Applying it:
+    - **Short barrel:** snapshot + (quicker), base - (less steady), hipfire - (support points close; the old
+      "MP5 good at snapshot, bad at hipfire" rule).
+    - **Long barrel:** snapshot - (slower to bring up), base + (steadier).
+    - **Heavy guns** (MGs, battle rifles) gain base Handling, which supports the long-string identity. Unbraced
+      fatigue stays in the held-weight penalty.
   - **Tac / vertical grip:** base (steadier hold).
   - **Folded stock:** snapshot (quick to shoulder), arguably negative base (less stable). It is not a base bonus.
 
