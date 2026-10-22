@@ -981,10 +981,6 @@ return {
 		'name', "T_ID_enforcement",
 		'CodeFileName', "Code/T_ID_enforcement.lua",
 	}),
-	PlaceObj('ModItemCode', {
-		'name', "Assign_magsize",
-		'CodeFileName', "Code/Assign_magsize.lua",
-	}),
 	PlaceObj('ModItemFolder', {
 		'name', "Weapon Component Effects",
 	}, {

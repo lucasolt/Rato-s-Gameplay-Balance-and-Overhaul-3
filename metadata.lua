@@ -68,7 +68,6 @@ return PlaceObj('ModDef', {
 		"Code/CaliberApplyParams.lua",
 		"Code/UPDATE_Change components.lua",
 		"Code/T_ID_enforcement.lua",
-		"Code/Assign_magsize.lua",
 		"Code/COMPONENT_weaponcomp_effects.lua",
 		"Code/shooting_stance_prepare_weapon_action.lua",
 		"Code/COMBAT_ACTIONS_ShotgunRework.lua",
