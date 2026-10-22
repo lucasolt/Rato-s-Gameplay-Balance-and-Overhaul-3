@@ -374,6 +374,13 @@ A.RecoilCtlAnchorEff = 62
 ---- floor: keeps a prone bipod MG with every bonus from dividing by nearly nothing
 A.RecoilCtlEffMin = 30
 
+---- Tracer ammo: from this round on the shooter follows the streaks (2 = right after round 1)
+A.RecoilTracerFromShot = 3
+---- % added to Kp (the pull back to the target) on those rounds; the kick is untouched.
+---- 50: 6 rds @10 +0-5% hits, 10 rds +7-18% (AK74/AK47/FAL/Minimi); unbraced MG42/HK21 ~0.
+---- Correction error and grip speed were tried: error ~0, grip favoured full-power like the old kick cut.
+A.RecoilTracerKpPct = 50
+
 ---- Recoil perks as flat grip, out of the curve; additive when both apply.
 ---- Recoil Management (TakeAim) on every attack, Auto Weapons on burst and autofire.
 A.RecoilTakeAimRecoveryPct = 30

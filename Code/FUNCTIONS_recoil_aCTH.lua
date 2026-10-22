@@ -131,6 +131,11 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
 
     local kick = MulDivRound(a.RecoilKickBase or 0, cRound(gun), 100)
     kick = Max(0, MulDivRound(kick, const.Combat.R_Recoil or 100, 100))
+    ---- tracers don't kick less: their old-CTH recoil cut leaves `gun`, they steady the correction instead
+    local tracer = num_shots and num_shots > 1 and weapon.tracer == 1
+    if tracer then
+        kick = MulDivRound(kick, 100, cRound(const.Combat.Recoil.Other.Tracer * 100))
+    end
 
 	local lat = a.RecoilLateralPct or 0
 
@@ -220,7 +225,10 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
         kp = MulDivRound(1000, 1, T * T),
         kd = MulDivRound(2000, a.RecoilDamping or 100, 100 * T),
         err_ratio = a.RecoilErrorRatio or 0,
-        lat = MulDivRound(lat, noise, 100),
+        ---- 0 = no tracer; else the round whose correction first sees the streaks
+        tracer_from = tracer and Max(2, a.RecoilTracerFromShot or 3) or 0,
+        tracer_kp = a.RecoilTracerKpPct or 0,
+        lat =MulDivRound(lat, noise, 100),
         noise = noise,
         ---- Marksmanship aims the correction (technique); Strength sizes it (cf_max). Dex stays out of
         ---- recoil: it is precision only. Never removes the floor, only the error above it.
@@ -243,7 +251,7 @@ end
 ---------------------------------------------------------------------------------------------------
 
 function Rat_RecoilState(px, py)
-    return {px = px or 0, py = py or 0, vx = 0, vy = 0, cx = 0, cy = 0}
+    return {px = px or 0, py = py or 0, vx = 0, vy = 0, cx = 0, cy = 0, n = 0}
 end
 
 ---- One shot of dynamics; `st` advances in place. The bullet leaves from `st` BEFORE this runs.
@@ -256,8 +264,16 @@ function Rat_RecoilStep(prof, st, rnd, trace)
     ---- to undo the last kick. Kp is what does that; Kd only stops the muzzle. Keep SettleShots
     ---- small enough that Kp = 1/T^2 stays a real force next to Kd = 2/T, or the muzzle just
     ---- coasts to a halt wherever it happens to be and the model reads as per-shot compensation.
-    local ax = -(MulDivRound(st.px, prof.kp, 1000) + MulDivRound(st.vx, prof.kd, 1000))
-    local ay = -(MulDivRound(st.py, prof.kp, 1000) + MulDivRound(st.vy, prof.kd, 1000))
+    ---- this step aims round n + 1; once it can follow earlier tracer streaks the fire is walked back harder
+    local n = (st.n or 0) + 1
+    st.n = n
+    local kp = prof.kp
+    if prof.tracer_from > 0 and n + 1 >= prof.tracer_from then
+        kp = MulDivRound(kp, 100 + prof.tracer_kp, 100)
+    end
+
+    local ax = -(MulDivRound(st.px, kp, 1000) + MulDivRound(st.vx, prof.kd, 1000))
+    local ay = -(MulDivRound(st.py, kp, 1000) + MulDivRound(st.vy, prof.kd, 1000))
 
     ---- the counter-force also has to cancel the incoming kick, and the grip cannot change
     ---- instantly, so only max_inc of the shortfall is attempted this shot
@@ -514,7 +530,7 @@ function Rat_EstimateBurst(prof, theta, sigma, num_shots, samples, seed, p0x, p0
     for k = 1, samples do
         local rnd = BraidRandomCreate(seed + k)
         st.px, st.py = p0x or 0, p0y or 0
-        st.vx, st.vy, st.cx, st.cy = 0, 0, 0, 0
+        st.vx, st.vy, st.cx, st.cy, st.n = 0, 0, 0, 0, 0
         for i = 1, num_shots do
             local x, y, r = Rat_RecoilPoint(st)
             if measure then

@@ -407,7 +407,7 @@ local function HintRecoilCurves(weapon, owner, stance, aimed)
     end
     for k = 1, HintRecoilSamples do
         local rnd = BraidRandomCreate(seed + k)
-        st.px, st.py, st.vx, st.vy, st.cx, st.cy = 0, 0, 0, 0, 0, 0
+        st.px, st.py, st.vx, st.vy, st.cx, st.cy, st.n = 0, 0, 0, 0, 0, 0, 0
         for i = 1, shots do
             local _, _, r = Rat_RecoilPoint(st)
             table.insert(offs[i], r)

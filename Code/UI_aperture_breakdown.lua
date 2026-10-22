@@ -311,7 +311,7 @@ local function recoil_walk(prof, n)
     end
     for k = 1, Max(1, a.RecoilWindowSamples or 64) do
         local rnd = BraidRandomCreate(seed + k)
-        st.px, st.py, st.vx, st.vy, st.cx, st.cy = 0, 0, 0, 0, 0, 0
+        st.px, st.py, st.vx, st.vy, st.cx, st.cy, st.n = 0, 0, 0, 0, 0, 0, 0
         for i = 1, n do
             local _, _, r = Rat_RecoilPoint(st)
             offs[i][#offs[i] + 1] = r
