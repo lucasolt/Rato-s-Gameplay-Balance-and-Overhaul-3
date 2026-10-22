@@ -18,13 +18,16 @@ the base sets the starting cone, and each level closes part of what's left towar
   SVD / Barrett / MG42)
 - aim 0: hipfire penalty
 
-**Follow-up rounds of a string:** the starting cone only (R x base precision x held weight), with no aim levels and
-no snapshot step. The recoil walk (Str force, Marks correction) does the rest.
+**Follow-up rounds of a string:** round 1 without the aim levels: R x base precision x held weight x the chosen
+level's hip/snapshot step. Recoil undoes the sight picture (aim), not the shouldering (step), so the step is never
+spared. Round 2+ can therefore never beat round 1 (decided 2026-10-22). The recoil walk (Str force, Marks
+correction) does the rest.
 
 **What falls out of it:**
 - **Aim pays on round 1 only,** so long strings no longer spread the aim AP. That gives the volume (Str/Marks) vs
   precision (Dex) split.
-- **Braced MGs need no special case:** their clumsiness lives in the snapshot, which follow-ups don't use.
+- **Braced MGs:** their clumsiness lives in the snapshot, which follow-ups keep, so a cheap aim-1 MG string is
+  not free. An MG identity for cheap long strings needs its own lever (e.g. the MG snapshot value).
 - **Light guns need no compensation:** positive base precision stays at every level (MP5 x0.90, pistols x0.87,
   where AimAccuracy closes little).
 - **Big guns aimed:** at aim 3 they lose the leftover Handling factor (MG42 prone ~48 -> ~42, Barrett 15 -> 14,
@@ -34,8 +37,7 @@ no snapshot step. The recoil walk (Str force, Marks correction) does the rest.
   between today's aim 1 (AK-74 77) and aim 2 (52). Autofire identity then comes mostly from recoil.
 
 **Explicit rules:**
-1. **Hip strings stay hip.** The follow-up base cone applies only to shouldered attacks (aim >= 1); otherwise
-   hip autofire would be penalized on round 1 only.
+1. **Hip strings stay hip.** This falls out of the formula: at aim 0 the follow-up cone is round 1's cone.
 2. **Held weight stays in follow-ups.** An unbraced MG42 standing is still x2.12.
 
 **Naming and components (open):**
@@ -71,31 +73,32 @@ untouched (no length-neutral retune yet).
 
 - **Negative Handling cut:** `Rat_GetAperture` divides out the gun's Handling factor above x1.00 when
   aim > `AimStepMaxLevel`. Held weight stays.
-- **Follow-up cone:** `Rat_GetAperture(..., base_only)` gives aim 0 without the hip/snap step and with the same
-  cut. `Rat_FollowUpConeMul` returns it as a per-mille of the round-1 aperture, so residuals (cover, stance)
-  carry over. It returns nil at aim 0, on single shots and on hyperburst.
+- **Follow-up cone:** `Rat_GetAperture(..., base_only)` skips the aim ladder and scope frames but keeps the
+  chosen level's hip/snap step and the same cut. `Rat_FollowUpConeMul` returns it as a per-mille of the round-1
+  aperture (floored at 1000), so residuals (cover, stance) carry over. It returns nil at aim 0, on single shots
+  and on hyperburst.
 - **Wired into:**
   - `Rat_SimPlanShots`: scatter of rounds 2+, with sigma_y re-derived and the same inherited recoil.
   - `Rat_SimReplanShot`.
   - `Rat_SimRecoilLadder` / `Rat_EstimateBurst` (9th argument; the BurstAimLossSpeed prototype is removed).
-  - `Rat_GetShotConeRatios`: the ratio cap goes to 400 when the model is on.
+  - `Rat_GetShotConeRatios`.
   - The weapon hint's aimed chart, the recoil debug overlay, and the Rato Dev sheet.
 
-**Measured (stub shooter, all stats 85; hits per attack off > on, 10 / 20 tiles):**
+**Measured (stub shooter, all stats 85; hits per attack off > on, 10 / 20 tiles; follow-up cone in brackets):**
 
 | Gun, mode | Aim 1 | Aim 3 |
 |---|---|---|
-| AK-74 auto 10 | 2.66 > 2.91 / 0.80 > 0.86 | 3.99 > 3.34 / 1.66 > 1.39 |
-| AK-47 auto 10 | 1.27 > 1.27 | 1.73 > 1.70 |
-| FAL auto 10 | 0.91 > 0.92 | 1.33 > 1.35 / 0.79 > 0.84 |
-| MP5 auto 10 | 1.92 > 1.96 | 2.37 > 2.25 |
+| AK-74 auto 10 | 2.66 > 2.31 / 0.80 > 0.66 [124] | 3.99 > 3.34 / 1.66 > 1.39 [81] |
+| AK-47 auto 10 | 1.27 > 1.23 [121] | 1.73 > 1.70 |
+| FAL auto 10 | 0.91 > 0.92 [128] | 1.33 > 1.35 / 0.79 > 0.84 |
+| MP5 auto 10 | 1.92 > 1.85 [97] | 2.37 > 2.25 [77] |
 | AN-94 hyperburst 2 | unchanged 1.20 | unchanged 1.94 / 1.33 |
-| AN-94 auto 3 | 1.47 > 1.53 | 2.30 > 1.89 |
-| G36 burst 2 | 0.97 > 1.03 | 1.69 > 1.46 |
-| G36 auto 3 | 1.16 > 1.24 | 1.92 > 1.67 |
-| MG42 prone auto 10 | 2.48 > 4.34 / 0.73 > 1.36 | 6.79 > 5.02 / 2.72 > 1.92 |
-| Minimi prone auto 10 | 3.70 > 4.73 | 7.45 > 5.25 |
-| MG42 standing auto 10 | 0.28 > 0.32 | 0.74 > 0.72 |
+| AN-94 auto 3 | 1.47 > 1.23 | 2.30 > 1.89 |
+| G36 burst 2 | 0.97 > 0.86 | 1.69 > 1.46 |
+| G36 auto 3 | 1.16 > 1.04 | 1.92 > 1.67 |
+| MG42 prone auto 10 | 2.48 > 1.74 / 0.73 > 0.51 [192] | 6.79 > 5.02 / 2.72 > 1.92 [86] |
+| Minimi prone auto 10 | 3.70 > 2.72 [143] | 7.45 > 5.25 [84] |
+| MG42 standing auto 10 | 0.28 > 0.19 [460] | 0.74 > 0.72 [199] |
 
 Single shots at aim 3: M24 cone 27 -> 25, Barrett prone 18 -> 17, MG42 prone 48 -> 42; CTH barely moves.
 
@@ -104,10 +107,11 @@ Single shots at aim 3: M24 cone 27 -> 25, Barrett prone 18 -> 17, MG42 prone 48 
   aim-3 string hits. Heavy-recoil guns (AK-47, FAL) don't move, since recoil already owned their strings.
 - **The AN-94 hyperburst** now beats its own 3-round auto per attack at aim 3 (1.94 vs 1.89). The G36's 2-round
   burst still loses to its 3-round auto (1.46 vs 1.67).
-- **Braced MGs at aim 1 nearly double:** the follow-ups drop the big MG snapshot step (cone 145 -> 86). Their aim-3
-  strings lose about 25%, so aim 1 vs aim 3 is now 4.34 vs 5.02. The long cheap string becomes the MG play.
-- **Display oddity:** at aim 1, rounds 2+ can show a higher CTH than round 1 (AK-47 crouched, 7 tiles: 27% then
-  39%), because round 1 pays the snapshot step and the follow-ups don't.
+- **Aim-1 strings lose too** (AK-74 -13%, AN-94 auto -16%), since rounds 2+ lose aim 1's decay but keep its step.
+  Braced MGs lose the most at aim 1 (MG42 -30%, Minimi -26%): their step is the biggest.
+- **No inversion:** live, AK-47 crouched at 7 tiles, aim 1 reads 27% then 21%, 17%, 14%... (the first try,
+  without the step, read 27% then 39%).
+- **MG identity for cheap long strings** is open: it now needs its own lever.
 
 ## Problem
 

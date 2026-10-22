@@ -658,10 +658,11 @@ end
 
 ---- Retorna sigma e a lista de contribuicoes (para a UI mostrar em minutos de cone,
 ---- no lugar da lista aditiva de pontos percentuais que o modelo antigo exibia).
----- `base_only`: the follow-up round cone (BasePrecisionModel) -- aim 0 without the hip/snap step.
+---- `base_only`: the follow-up round cone (BasePrecisionModel) -- no aim levels, but `aim`'s hip/snap step.
 function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, attacker_pos, base_only)
     local a = P()
-    aim = base_only and 0 or aim or 0
+    local step_aim = aim or 0
+    aim = base_only and 0 or step_aim
 
     local meta = {}
     local s = Rat_ApertureBase()
@@ -670,7 +671,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
     ---    decai a cada nivel de mira em vez de ser um desconto fixo no cone final.
     local base_mul, handling_meta = Rat_ApertureHandlingMul(weapon, attacker, action)
     ---- big-gun clumsiness belongs to the snapshot: past the step levels only positive Handling stays
-    local clumsy_cut = a.BasePrecisionModel and (base_only or aim > a.AimStepMaxLevel)
+    local clumsy_cut = a.BasePrecisionModel and step_aim > a.AimStepMaxLevel
     if clumsy_cut then
         local gun = Rat_HandlingBaseMul(weapon, attacker)
         if gun > 10000 then
@@ -773,7 +774,9 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
     --- 5. degrau de "arma no ombro" (hipfire/snapshot). GetWeaponHipfireOrSnapshotMul
     ---    escala so o EXCESSO do alargamento, nunca o cone inteiro. Ver AimStep em __ApertureParams.lua.
     local hipsnap, step, step_meta = 100, 100, nil
-    if aim <= a.AimStepMaxLevel and not base_only then
+    ---- follow-up rounds keep the chosen level's step: recoil undoes the sight picture, not the shouldering
+    local aim = step_aim
+    if aim <= a.AimStepMaxLevel then
         if weapon and GetWeaponHipfireOrSnapshotMul then
             local m = GetWeaponHipfireOrSnapshotMul(weapon, attacker, action, true, aim)
             hipsnap = Clamp(cRound((m or 1.0) * 100), 25, 400)
@@ -886,19 +889,20 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
     }
 end
 
----- Per-mille of the attack's cone that rounds 2+ fire at (BasePrecisionModel): base cone over the
----- round-1 aperture, so residuals carry over. nil = every round at the attack's cone (hip, hyperburst).
+---- Per-mille of the attack's cone that rounds 2+ fire at (BasePrecisionModel): round 1 without the aim
+---- levels, never tighter than round 1. nil = every round at the attack's cone (hip, hyperburst).
 function Rat_FollowUpConeMul(weapon, attacker, action, aim, opportunity_attack, attacker_pos, num_shots)
     if not P().BasePrecisionModel or (aim or 0) < 1 or (num_shots or 1) < 2 or
         Rat_HyperburstCorr(weapon, action) > 0 then
         return nil
     end
     local s1 = Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, attacker_pos)
-    local s0 = Rat_GetAperture(weapon, attacker, action, 0, opportunity_attack, attacker_pos, true)
+    local s0 = Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, attacker_pos, true)
     if not s1 or s1 < 1 or not s0 then
         return nil
     end
-    return MulDivRound(s0, 1000, s1)
+    ---- a malus component on the aimed cone (negative cone_mul points) could otherwise invert it
+    return Max(1000, MulDivRound(s0, 1000, s1))
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -1983,8 +1987,7 @@ function Rat_GetShotConeRatios(attacker, target, body_part_def, action, weapon, 
     end
 
     for i = 2, num_shots do
-        ---- a base cone without the snapshot step can beat round 1
-        ratios[i] = Clamp(MulDivRound(cth[i], 100, base), 0, follow and 400 or 100)
+        ratios[i] = Clamp(MulDivRound(cth[i], 100, base), 0, 100)
     end
 
     return ratios
