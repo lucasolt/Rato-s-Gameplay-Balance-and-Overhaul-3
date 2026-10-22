@@ -306,6 +306,11 @@ A.AimCentroidPct = 100 --100
 ---- AK pays it in climb (y 162' -> 1506'), bipod MG in sideways drift (x 137' -> 215').
 A.RecoilKickBase = 95
 
+---- Aim decays along a string: each round moves toward the aim-1 cone by speed / (speed + this), speed being
+---- the muzzle's recoil speed (minutes/shot: AN-94 hyperburst 10, MG42 prone 36, AK74 50, AK47 70-115, FAL 80-160).
+---- 0 = off. Prototype: only Rat_EstimateBurst reads it, the real shot does not yet.
+A.BurstAimLossSpeed = 0
+
 ---- Component recoil muls for the aCTH kick only; missing keys fall back to const.Combat.Recoil.Components.
 ---- Kick against recovery amplifies them: AK47 6 rds @10 tiles, x0.90 -> +26% hits, x1.10 -> -25%
 ---- (AK74 +7/-11, FAL +40/-14). These halve the shared deviation. BipodMul is grip, not kick: shared.

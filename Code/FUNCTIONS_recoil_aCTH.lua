@@ -511,8 +511,12 @@ end
 ---- One seed PER WALK: on a shared stream, a longer burst shifted every later walk's draws, so the
 ---- early rounds' ladder changed with burst length.
 ---------------------------------------------------------------------------------------------------
-function Rat_EstimateBurst(prof, theta, sigma, num_shots, samples, seed, p0x, p0y)
+---- `sigma_loose` (optional): the aim-1 cone. With BurstAimLossSpeed on, each round loses the aim
+---- benefit by the muzzle's recoil speed: speed / (speed + BurstAimLossSpeed) of the way to it.
+function Rat_EstimateBurst(prof, theta, sigma, num_shots, samples, seed, p0x, p0y, sigma_loose)
     local a = P()
+    local loss_ref = a.BurstAimLossSpeed or 0
+    local gap = (loss_ref > 0 and sigma_loose and sigma) and Max(0, sigma_loose - sigma) or 0
     num_shots = Max(1, num_shots or 1)
     samples = Max(1, samples or a.RecoilEstimateSamples or 128)
     seed = seed or a.RecoilEstimateSeed or 1
@@ -533,13 +537,15 @@ function Rat_EstimateBurst(prof, theta, sigma, num_shots, samples, seed, p0x, p0
         st.vx, st.vy, st.cx, st.cy, st.n = 0, 0, 0, 0, 0
         for i = 1, num_shots do
             local x, y, r = Rat_RecoilPoint(st)
+            local v = Rat_RecoilSpeed(st)
             if measure then
-                cth[i] = cth[i] + Rat_RiceCTH(theta, sigma, r)
+                local sg = gap > 0 and v > 0 and sigma + MulDivRound(gap, v, v + loss_ref) or sigma
+                cth[i] = cth[i] + Rat_RiceCTH(theta, sg, r)
             end
             sx[i], sy[i] = sx[i] + x, sy[i] + y
             s2[i] = s2[i] + x * x + y * y
             off[i] = off[i] + r
-            spd[i] = spd[i] + Rat_RecoilSpeed(st)
+            spd[i] = spd[i] + v
             Rat_RecoilStep(prof, st, rnd)
         end
     end
