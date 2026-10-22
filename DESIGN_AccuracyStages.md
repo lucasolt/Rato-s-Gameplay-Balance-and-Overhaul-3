@@ -38,8 +38,11 @@ no snapshot step. The recoil walk (Str force, Marks correction) does the rest.
 2. **Held weight stays in follow-ups.** An unbraced MG42 standing is still x2.12.
 
 **Naming and components (open):**
-- **"Handling" changes meaning:** it now means precision, not quickness. A name that pairs with Aim Accuracy reads
-  well, e.g. **Base Accuracy** ("Base Accuracy + 3 x Aim Accuracy").
+- **Name: keep "Handling"** (researched 2026-10-21). In shooting usage, handling is how a gun feels and moves in the
+  hands: balance, weight distribution, how it points and swings. Point shooting (no sights) gets its accuracy from
+  the shooter's familiarity with that weight and balance. So the property behind unaimed precision is handling.
+  Tooltip: "how naturally the weapon points without aiming; applies before aim levels and to follow-up rounds in
+  automatic fire". The quickness side (bringing the gun up) is the snapshot. "Base Accuracy" was the alternative.
 - **Every Handling point source must be re-read:** does the part make the gun more precise unaimed (-> base) or
   quicker / clumsier to bring up (-> snapshot)?
   - **Short barrel:** base + (handier, steadier unaimed). It already pays in recoil (x1.10) and range, a good
