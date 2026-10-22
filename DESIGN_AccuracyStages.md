@@ -45,6 +45,49 @@ aim 2+ deliberate  sk = F + (s(k-1) - F) x decay_k   AimAccuracy, Dex (Hand-Eye)
 Handling leaves aCTH: its points (tac grip, folded stock, barrels) move into the components' hip/snap
 qualities. Old CTH keeps Handling as PB.
 
+## Alternative B: snapshot as the AP price of aiming
+
+Instead of a snapshot cone stage, the snapshot stops being an accuracy penalty and becomes **time to bring the
+gun onto target**, which in JA3 is AP. A sniper isn't inaccurate on a quick shot; it's slow. Pricing that as a
+cone penalty is what forced the compensation (SVD +44% at aim 1).
+
+| Concept | Today | Alternative B |
+|---|---|---|
+| Hipfire (aim 0) | cone penalty | stays a cone penalty (no shoulder, no stance) |
+| Snapshot | cone step applied after the aim decay | AP cost of aim levels, mostly the first ones |
+| Handling | scales `sigma_0` (wrong sign for big guns) | the AP price of aiming: low Handling = slow to aim, not inaccurate |
+| AimAccuracy | how much each level closes | unchanged, with no counterweight in the same level |
+| Range / scope | floor | unchanged |
+
+**What falls out of it:**
+- The aim-1 cone is just the ladder's first level. Each parameter owns one thing.
+- **Repeat attacks on the same target:** the first aim level is discounted (already on target). That's the
+  old CTH rule in AP terms, without the identity inversion: the sniper still pays its expensive levels, just
+  one fewer.
+- **Braced** (bipod, set-up MG) makes aiming cheaper, which supports the MG identity.
+- It joins the AP economy (stance, cycling, RPM, recoil) instead of being a cone hack. The 100 AP scale
+  gives the granularity for per-gun prices.
+
+**Risks and open choices:**
+1. **Overlap with shooting stance AP,** which is already "bringing the gun up" and is weapon-dependent.
+   Split them: stance = entering the position (once per position), aim price = acquiring this target (per
+   attack). Otherwise this becomes a third system for one concept.
+2. **High-magnification scopes** currently carry a bigger snapshot penalty. Move it either into aim AP (slow
+   to acquire) or into a low-aim cone penalty owned by the optic.
+3. **Reflexes** scales the snapshot step today. Here it would make aiming cheaper (fast acquisition), which
+   changes what the stat buys.
+4. **It doesn't fix the autofire leak by itself:** aim still applies to every round. It still needs the
+   follow-up-rounds rule, but now against a clean first level.
+5. **UI:** the price per aim level must be readable on the crosshair, since it carries identity the cone
+   used to show.
+
+**Complexity:** about the same number of mechanisms as today, and clearer. It removes a cone penalty that
+needed compensation and adds per-level AP prices.
+
+**Stages model vs Alternative B:** both give each concept one owner and both need the follow-up-rounds rule.
+The stages model keeps the snapshot as accuracy (its own cone stage). B moves it into time (AP).
+B fixes Handling's sign for free; the stages model drops Handling in aCTH.
+
 ## Follow-up rounds in a string
 
 - Round 1 uses the chosen aim. Rounds 2+ use the **snapshot stage** (`s1`): the shooter is in stance but
