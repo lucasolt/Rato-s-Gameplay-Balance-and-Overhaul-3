@@ -27,6 +27,7 @@ end
 
 function GBO_GeneralComponentPatch()
     RatoGBOComponents()
+    GBO_RevMag_ApplyMagCatalog()
     reapply_tog_revmag_visuals()
     --ApplyApertureItemParams() -- override de comps enquanto o aperture esta ligado
 	reapply_tog_components()

@@ -59,27 +59,6 @@ function OnMsg.ClassesGenerate(classdefs)
     GBO_RevMag_ChangeMagazinesClasses()
 end
 
----- Visuals are shared with the _Master_ preset (shallow copy): mutating one in place lets the mod
----- editor save it into items.lua, so swap in a clone instead.
-local function rat_revmag_replace_visual(comp_id, apply_to, entity, icon)
-    local mag = WeaponComponents[comp_id]
-    for i, v in ipairs(mag and mag.Visuals or empty_table) do
-        if v.ApplyTo == apply_to then
-            local copy = v:Clone()
-            copy.Entity = entity
-            copy.Icon = icon
-            mag.Visuals[i] = copy
-            return
-        end
-    end
-end
-
----- under Revised Mags MagNormalFine is the 30-round AK74 mag; without it the RPK keeps the 45
-function Rat_RevMag_fixNormalMagRPK74()
-    rat_revmag_replace_visual("MagNormalFine", "RPK74", 'WeaponAttA_MagazineAK74_01',
-                              'UI/Icons/Upgrades/AK74_Bakelite_magazine')
-end
-
 ---- the G36 drum (MagLarger with RevMags, MagLarge_9 without) gets the vanilla MagLarge fold block
 function Rat_BlockFoldWithDrumG36(drum)
     local pair = WeaponComponentBlockPairs.G36StockAndDrumMag
@@ -96,15 +75,9 @@ function Rat_BlockFoldWithDrumG36(drum)
     })
 end
 
----- only reached by saved G36s still holding MagLarge from before the MagNormal switch
-function Rat_RevMag_fixDefaultlMagG36()
-    rat_revmag_replace_visual("MagLarge", "G36", 'WeaponAttA_MagazineHKG36_01', 'UI/Icons/Upgrades/G36_magazine')
-end
-
+---- mag visuals under Revised Mags: GBO_RevMagCatalog (COMPATIBILITY_RevMagCatalog.lua)
 function GBO_ApplyRevMagCompatibility()
     if IsMod_loaded("URkxyfE") then
-        Rat_RevMag_fixNormalMagRPK74()
-        Rat_RevMag_fixDefaultlMagG36()
         Rat_BlockFoldWithDrumG36("MagLarger")
     else
         Rat_BlockFoldWithDrumG36("MagLarge_9")

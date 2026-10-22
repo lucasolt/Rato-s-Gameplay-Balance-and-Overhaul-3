@@ -1363,6 +1363,10 @@ return {
 			'CodeFileName', "Code/COMPATIBILITY_RevMags.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "COMPATIBILITY_RevMagCatalog",
+			'CodeFileName', "Code/COMPATIBILITY_RevMagCatalog.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "COMPATIBILITY_DescriptiveCTH",
 			'CodeFileName', "Code/COMPATIBILITY_DescriptiveCTH.lua",
 		}),
