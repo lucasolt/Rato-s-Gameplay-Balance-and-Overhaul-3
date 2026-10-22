@@ -2,6 +2,55 @@
 
 Status: idea, not implemented. Written 2026-10-21 after the AN-94 / G36 burst investigation.
 
+## Current proposal (2026-10-21): base precision + aim
+
+This supersedes the stages model and Alternative B below as the preferred direction; they stay for reference.
+
+**Concept:** an attack's precision = the gun's precision before aiming (today's "Handling") plus what each aim
+level buys (AimAccuracy). An aim-3 attack is "base + 3 levels of AimAccuracy". The code already has this shape:
+the base sets the starting cone, and each level closes part of what's left toward the floor.
+
+**Round 1 (and single shots):**
+- starting cone = R x base precision (positive part only)
+- each aim level closes the gap with AimAccuracy
+- aim 1-2: snapshot penalty, now also holding big-gun clumsiness (today's negative Handling, x1.06-1.24 on
+  SVD / Barrett / MG42)
+- aim 0: hipfire penalty
+
+**Follow-up rounds of a string:** the starting cone only (R x base precision x held weight), with no aim levels and
+no snapshot step. The recoil walk (Str force, Marks correction) does the rest.
+
+**What falls out of it:**
+- **Aim pays on round 1 only,** so long strings no longer spread the aim AP. That gives the volume (Str/Marks) vs
+  precision (Dex) split.
+- **Braced MGs need no special case:** their clumsiness lives in the snapshot, which follow-ups don't use.
+- **Light guns need no compensation:** positive base precision stays at every level (MP5 x0.90, pistols x0.87,
+  where AimAccuracy closes little).
+- **Big guns aimed:** at aim 3 they lose the leftover Handling factor (MG42 prone ~48 -> ~42, Barrett 15 -> 14,
+  SVD 32 -> 31).
+- **The graph stays readable:** snapshot and hipfire remain visible round-1 penalties.
+- **Expected follow-up cones:** about 57-66' (MP5 59, Beretta 57, AK-74 ~63, AK-47 / FAL / SVD / MG ~66 braced),
+  between today's aim 1 (AK-74 77) and aim 2 (52). Autofire identity then comes mostly from recoil.
+
+**Explicit rules:**
+1. **Hip strings stay hip.** The follow-up base cone applies only to shouldered attacks (aim >= 1); otherwise
+   hip autofire would be penalized on round 1 only.
+2. **Held weight stays in follow-ups.** An unbraced MG42 standing is still x2.12.
+
+**Naming and components (open):**
+- **"Handling" changes meaning:** it now means precision, not quickness. A name that pairs with Aim Accuracy reads
+  well, e.g. **Base Accuracy** ("Base Accuracy + 3 x Aim Accuracy").
+- **Every Handling point source must be re-read:** does the part make the gun more precise unaimed (-> base) or
+  quicker / clumsier to bring up (-> snapshot)?
+  - **Short barrel:** base + (handier, steadier unaimed). It already pays in recoil (x1.10) and range, a good
+    trade-off for autofire.
+  - **Long barrel:** its negative goes to the snapshot (slower to bring up), not to base.
+  - **Tac / vertical grip:** base (steadier hold).
+  - **Folded stock:** snapshot (quick to shoulder), arguably negative base (less stable). It is not a base bonus.
+
+**First measurement:** follow-ups at R x base precision in `Rat_EstimateBurst`, same table as the Phase 1
+measurements below.
+
 ## Problem
 
 1. **Two systems describe the same concept.** The aim-0/1 cone in `Rat_GetAperture` stacks:
