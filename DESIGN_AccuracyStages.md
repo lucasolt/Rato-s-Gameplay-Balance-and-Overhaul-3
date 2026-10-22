@@ -206,3 +206,109 @@ Values per optic go in `RAT_ATT_BALANCE`. Round 1 keeps today's optic behavior.
   | AK-47 | 139 | 84 | 52 |
   | MG42 standing | 354 | 273 | 123 |
   | MG42 prone | 175 | 115 | 48 |
+
+## Phase 1 measurements (2026-10-21)
+
+Live, stat-100 stand-in shooter, default loadouts, standing unless noted, theta 120' (standing torso at 10 tiles),
+64 seeded walks. D/AP excludes crit. AP is `GetAPCost`, which includes the shooting-stance entry on the first aimed
+attack. Counterfactuals: `A.HandlingPointPct` (Handling), `A.HandlingHeldSlope` (held weight) and
+`A.AimStepMaxLevel` (step) set to 0 / -1 around `Rat_GetAperture`.
+
+### Who owns each aim level today
+
+Cone, then the factor each part applies (H Handling, Aim decay, Step hip/snapshot). R = 66 for every gun.
+
+| Gun | aim 0 | aim 1 | aim 2 | aim 3 | Floor |
+|---|---|---|---|---|---|
+| MP5 | 148 (H .90, Step 2.51) | 70 (H .91, Aim .95, Step 1.23) | 59 (H .89, Aim .92, Step 1.07) | 53 (H .90, Aim .89) | 33 |
+| Beretta 92 | 173 (H .87, Step 3.04) | 65 (H .87, Aim 1.00, Step 1.14) | 60 (Step 1.05) | 57 (H .86, Aim 1.00) | 45 |
+| AK-74 | 139 (H .95, Step 2.21) | 77 (Aim .83, Step 1.45) | 52 (Aim .71, Step 1.16) | 37 (Aim .56) | 24 |
+| AK-47 | 139 | 84 (Aim .92, Step 1.42) | 63 (Step 1.15) | 52 (Aim .80) | 26 |
+| FAL | 138 | 76 (Aim .82, Step 1.43) | 51 (Step 1.16) | 38 (Aim .58) | 17 |
+| SVD (PSO) | 140 (H 1.08, Step 1.97) | 93 (H 1.06, Aim .74, Step 1.79) | 51 (Step 1.28) | 32 (H 1.03, Aim .47) | 16 |
+| Barrett prone | 163 (H 1.24, Step 1.99) | 71 (H 1.22, Aim .50, Step 1.78) | 28 (H 1.17, Step 1.27) | 15 (H 1.07, Aim .21) | 10 |
+| MG42 standing | 354 (held x2.12, H 1.19) | 273 (held x2.12, Step 1.81) | 174 | 123 (held x2.12, H 1.16) | 24 |
+| MG42 prone | 175 (H 1.19, Step 2.22) | 115 (H 1.19, Aim .85, Step 1.74) | 70 (Step 1.25) | 48 (H 1.14, Aim .64) | 19 |
+| AN-94 | 133 | 71 (Aim .73, Step 1.42) | 49 (Step 1.14) | 38 (Aim .58) | 24 |
+
+- **Aim 0:** the hip step (x2-3). Handling moves it by 5-24%.
+- **Aim 1:** the snapshot step, on every gun except pistols and the standing MG42 (held weight). Deliberate aim closes
+  only 0-50% here.
+- **Aim 2:** shared; the step is still +5-29%.
+- **Aim 3:** AimAccuracy on rifles. On the MP5, Handling (-10%) equals all aim levels together; on pistols the
+  AimAccuracy closes nothing and the cone is R x Handling.
+- **Handling's sign:** x1.06-1.24 on the SVD, Barrett and MG42 at every level, never fully fading.
+- **Share of the aim 1 -> 3 gain that is just the step going away:** MP5 74%, pistol 100%, AK-47 73%, MG42 prone 63%,
+  AN-94 56%, SVD 55%, FAL 52%, AK-74 51%, Barrett prone 37%. This is what autofire spreads across its rounds.
+
+### Models as sketched
+
+- **Stages:** behavior-preserving conversion. s0 / s1 = today's aim 0 / 1; one per-gun decay keeps aim 3 equal to
+  today (aim 2 moves 2' at most). Follow-up rounds at today's s1.
+- **B:** Handling and the snapshot step leave the cone; hip step and held weight stay. Follow-up rounds at B's aim-1
+  cone. Price sketch: level 1 = 10 AP x the gun's snapshot mul; levels 2+ = 10 AP x Handling.
+
+**Single shot, cone / AP / CTH:**
+
+| Gun | aim 1 today | aim 1 B | aim 3 today | aim 3 B |
+|---|---|---|---|---|
+| MP5 | 70 / 45 / 77% | 63 / 42 / 84% | 53 / 65 / 92% | 59 / 60 / 87% |
+| Beretta 92 | 65 / 37 / 82% | 66 / 31 / 81% | 57 / 57 / 89% | 66 / 49 / 81% |
+| AK-74 | 77 / 65 / 70% | 55 / 69 / 91% | 37 / 85 | same |
+| AK-47 | 84 / 60 / 64% | 61 / 63 / 86% | 52 / 80 | 53 / 82 |
+| SVD | 93 / 65 / 56% | 49 / 79 / 95% | 32 / 85 | 31 / 101 |
+| Barrett prone | 71 / 80 / 76% | 33 / 99 / 97% | 15 / 100 | 14 / 123 |
+| MG42 prone | 115 / 99 | 56 / 117 | 48 / 119 | 42 / 141 |
+
+B's light guns lose the full-aim edge (Handling now buys AP); precise guns get tight quick shots. The level-1 price
+that keeps today's aim-1 D/AP at 10 tiles: MP5 14, pistol 10, AN-94 23, AK/FAL 29-31, Barrett 32, SVD 55 AP.
+
+**Burst vs auto, best D/AP @ aim (p stance paid, f already in stance):**
+
+| Mode | Today | Stages | B |
+|---|---|---|---|
+| AN-94 2-round burst | 0.75 hip / f 1.19 @1 | 0.75 hip / f 1.19 @1 | 0.73 @1 / f 1.35 @1 |
+| AN-94 6-round auto | 0.84 @2 / f 1.13 @2 | 0.76 @1 / f 1.05 @1 | 0.87 @1 / f 1.20 @1 |
+| AK-74 auto | 0.84 @3 / f 1.21 @2 | 0.73 @1 / f 1.10 @1 | 0.86 @1 / f 1.28 @1 |
+| AK-47 auto | 0.53 @2 | 0.53 hip | 0.58 @1 |
+| FAL auto | 0.47 hip / f 0.65 @2 | same | 0.48 @1 / f 0.71 @1 |
+| MP5 auto | 0.65 @1 | 0.65 @1 | 0.73 @1 |
+| MG42 prone auto | 1.48 @3 / f 2.76 @3 | 1.12 hip, aimed 0.83-0.87 / f 1.87 | 1.46 hip, 1.40 @1 / f 2.65 @1 |
+
+- Both models make aim 1 the best level for 6-round strings.
+- **Stages breaks braced MGs:** today's prone s1 (115', snapshot x1.74) puts an unbraced penalty on every follow-up,
+  and hipfire wins. The braced SnapGap is a prerequisite.
+- B keeps the MG because its follow-up cone (56') is clean.
+- The AN-94 burst beats auto only with the stance already paid.
+
+**3 single shots on one target, aim 1** (attacks 2-3 skip stance in every model). D/AP, CTH of attacks 2 / 3:
+
+| Gun | Today | Old-CTH port (skip step) | Stages (aim 1 free) | B (level 1 free) |
+|---|---|---|---|---|
+| MP5 | 0.43 (73/67) | 0.48 | 0.54 | 0.61 (80/73) |
+| AK-74 | 0.43 (69/66) | 0.52 | 0.51 | 0.63 (89/85) |
+| FAL | 0.52 (63/47) | 0.61 | 0.62 | 0.77 (81/62) |
+| SVD | 0.44 (52/44) | 0.61 | 0.52 | 0.77 (88/74) |
+
+At 20 tiles: SVD 0.14 / 0.24 / 0.17 / 0.37, MP5 0.17 / 0.20 / 0.20 / 0.25. The port gains in proportion to the step
+(SVD +39%, MP5 +12%); stages gives every gun ~+20% and keeps the order; B makes rifle quick-repeats dominant unless
+persistent recoil carries real weight.
+
+### Findings for both models
+
+- **Shooting-stance AP is already an acquisition price** (MP5 15, pistol 7, AK 30-35, SVD 35, Barrett/MG42 50-55),
+  paid on the first aimed attack and free on repeats: that is B's "level 1 discounted" rule. A separate level-1 price
+  would mostly duplicate it. With stance paid, hipfire wins D/AP at 10 tiles for the FAL, SVD and AK-74.
+- **Persistent recoil per single shot doesn't follow caliber** (offset in minutes): Beretta 92 137, FAL 128, SVD 107,
+  AK-47 103, MP5 74, Barrett prone 50, AK-74 49, AN-94 47. At aim 1 it costs 1-11 CTH points.
+
+### Current read
+
+B is the cleaner fix for the leak and for Handling's sign, with no braced special case. Its cost is the compensation
+the step hid: precise guns need something to price quick shots back, either a large first-level price (overlapping
+stance AP) or an optic-owned low-aim penalty. Candidate: fold the acquisition price into stance AP, re-charged on a
+target switch. Stages is the safer migration but only works after the braced SnapGap, and keeps the step's
+compensation inside s1.
+
+**Caveats:** 10 tiles saturates rifles at 97% from aim 2; the B price list is a sketch; persistent recoil uses an
+area-equivalent circle and an upper-bound offset for attack 3.
