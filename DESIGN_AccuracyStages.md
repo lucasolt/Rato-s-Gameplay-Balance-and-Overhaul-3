@@ -65,6 +65,48 @@ qualities. Old CTH keeps Handling as PB.
 - Braced MGs stay best at long strings. Unbraced battle rifles on auto get worse at range, which matches
   the full-power identity.
 
+## Repeat attacks on the same target: recoil takes over from the snapshot
+
+Old CTH skips the snapshot when `aim > 0` and the target is the last one attacked (`GetLastAttack() == target`,
+not for Overwatch / MobileShot / RunAndGun / interrupts). Persistent recoil then takes over. aCTH has no such
+rule: every attack at aim 1-2 pays the step.
+
+**Goal: one currency for caliber.** After the first attack, single-shot recoil (the persistent offset) carries
+the caliber's cost, the same way the recoil walk does in autofire. A full-power round then pays for its kick
+in both modes through one mechanism, with Str (force) and Marks (correction) deciding how much. The snapshot
+keeps one meaning: target acquisition (the first attack, or a target switch), which is where light guns shine.
+
+**In the stages model:** "already on target" means the snapshot stage is reached for free, deliberate levels
+still cost AP, and persistent recoil adds spread. That's the same rule as follow-up rounds inside a string: the
+shooter starts from the snapshot stage.
+
+**Don't port it to the current pipeline.** Today's step compensates for aim, so skipping it on repeats gains
+in proportion to the gun's aim. Cone at aim 1 with and without the step, stat-100, single shot:
+
+| Gun | With step | Without | Step widens it by |
+|---|---|---|---|
+| MP5 | 70 | 57 | 19% |
+| Beretta 93R | 65 | 58 | 11% |
+| AK-74 | 77 | 53 | 31% |
+| FAL | 76 | 53 | 30% |
+| SVD | 93 | 52 | 44% |
+| Barrett prone | 71 | 40 | 44% |
+| MG42 prone | 115 | 66 | 43% |
+
+The SVD's repeat at aim 1 would equal today's aim 2 for 10 AP less, and "light guns are good at snapshot"
+would vanish on repeats.
+
+**Prerequisites for persistent recoil to carry the weight:**
+- **Aim reduces it, doesn't reset it.** `RecoilPersistAimMul` is 100/66/33/0, so a fully aimed shot pays
+  nothing for the last one and aimed semi-auto loses the caliber cost.
+- **AP heals it.** `RecoilPersistRetainPerAP = 100` means no decay per AP spent. Turn it on so rapid fire
+  pays a lot, calm fire pays little, and the full-power round pays more in both.
+- **The offset is already caliber-driven:** one kick of the last attack's walk (Str gate, Marks correction).
+  The difference exists today; it just barely weighs in.
+
+**Measure:** a sheet view for N repeat attacks on one target at aim k. D/AP by caliber (5.56 / 7.62x39 /
+7.62 NATO / SVD) with the snapshot paid only on the first attack.
+
 ## Optics on follow-up rounds
 
 Optics act on the **correction** (recoil walk `accuracy` / `max_inc`), not on the cone, so they differ
