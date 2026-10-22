@@ -433,3 +433,19 @@ compensation inside s1.
 
 **Caveats:** 10 tiles saturates rifles at 97% from aim 2; the B price list is a sketch; persistent recoil uses an
 area-equivalent circle and an upper-bound offset for attack 3.
+
+## Recoil error floor follows the kick (2026-10-22, A.RecoilErrFromKick)
+
+Before this change, the PD correction error had a fixed floor of 17.5' per round (14' on MGs). On soft guns that floor was most of the walk: by round 6 it was 61% of the HK23E's offset standing and 83-95% on braced MGs. Recoil parts could only shrink the remaining part, so they were nearly dead on these guns. Now the floor is multiplied by the effective kick / RecoilErrKickRef (150'). A gun kicking 150' keeps the old floor.
+
+Hits over 6 rounds at aim 3, 20 tiles, as % of the fixed floor (all live guns):
+
+| ref | Rifle prone/standing (M100) | SMG prone/standing (M100) | MG prone / standing |
+|---|---|---|---|
+| 120 | 90 / 97 | 88 / 98 | 106 / 101 |
+| 150 | 97 / 101 | 95 / 101 | 110 / 106 |
+| 180 | 102 / 104 | 100 / 102 | 112 / 109 |
+
+Picked 150: rifles and SMGs stay neutral, and braced MGs gain about 10% (high investment, high return). High-kick guns get a noisier walk (AK-47 offset at round 6: 295 -> 375), but their late rounds were already off target.
+
+What zero kick could buy, i.e. the ceiling for recoil parts (fixed floor -> kick-scaled floor): AK-74 standing +22% -> +64%, RPK-74 standing +8% -> +21%, HK23E prone +2% -> +9%. A -10% kick step now buys 14-20% on 5.45/5.56 rifles standing. A braced MG still gets only 2-3%: its walk (40-73') sits under its follow-up base cone (66'), so the cone is the limiter, not recoil.

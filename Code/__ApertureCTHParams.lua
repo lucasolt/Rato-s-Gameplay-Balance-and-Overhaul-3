@@ -462,6 +462,11 @@ A.RecoilNoiseSkillSlope = 2
 ---- 6 rds prone bipod, Grizzly / STR70 MRK75: RPK +14/+16% over AK74 heavy stock, Minimi +12/+15% over HK33.
 A.RecoilMGSteadyPct = 20
 
+---- Correction error floor scales with the effective kick (bipod included): a gun at RecoilErrKickRef
+---- minutes/round keeps today's floor. Off = fixed floor, which made up 82-95% of a braced MG's walk.
+A.RecoilErrFromKick = true
+A.RecoilErrKickRef = 150
+
 ---- firing on the move: no brace at all, and the stride throws the muzzle sideways
 ---- UP = worse grip / wider sway while running (RunAndGun, RecklessAssault). Not measured.
 A.RecoilMovingCtlPct = 25

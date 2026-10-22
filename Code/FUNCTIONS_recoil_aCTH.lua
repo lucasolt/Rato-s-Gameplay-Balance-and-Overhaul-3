@@ -211,16 +211,24 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
         lat = MulDivRound(lat, a.RecoilBipodLatMul or 100, 100)
     end
 
+    ---- centiminutes per shot, which is what the step runs in
+    local kick_x = MulDivRound(kick * 100, sin(ang), 4096)
+    local kick_y = MulDivRound(MulDivRound(kick * 100, cos(ang), 4096), kick_y_mul, 100)
+
+    ---- floor off the NEUTRAL increment, never off this merc's: `max_inc` is skill-driven now,
+    ---- and scaling the floor with it would make skill raise its own error.
+    local min_err = MulDivRound(MulDivRound((a.RecoilMaxIncBase or 1) * 100, a.RecoilMinErrorPct or 0, 100), noise, 100)
+    ---- the error is in fighting the kick, so it scales with it; a fixed floor left recoil parts dead on soft guns
+    if a.RecoilErrFromKick then
+        min_err = MulDivRound(min_err, vlen(kick_x, kick_y), (a.RecoilErrKickRef or 150) * 100)
+    end
+
     return {
-        ---- centiminutes per shot, which is what the step runs in
-        kick_x = MulDivRound(kick * 100, sin(ang), 4096),
-        kick_y = MulDivRound(MulDivRound(kick * 100, cos(ang), 4096), kick_y_mul, 100),
+        kick_x = kick_x,
+        kick_y = kick_y,
         cf_max = cf_max * 100,
         max_inc = max_inc * 100,
-        ---- floor off the NEUTRAL increment, never off this merc's: `max_inc` is skill-driven now,
-        ---- and scaling the floor with it would make skill raise its own error.
-        min_err = MulDivRound(MulDivRound((a.RecoilMaxIncBase or 1) * 100, a.RecoilMinErrorPct or 0,
-                                          100), noise, 100),
+        min_err = min_err,
         ---- gains by 1000. Double root at 1 - 1/T gives Kd = 2/T and Kp = 1/T^2.
         kp = MulDivRound(1000, 1, T * T),
         kd = MulDivRound(2000, a.RecoilDamping or 100, 100 * T),
