@@ -658,9 +658,10 @@ end
 
 ---- Retorna sigma e a lista de contribuicoes (para a UI mostrar em minutos de cone,
 ---- no lugar da lista aditiva de pontos percentuais que o modelo antigo exibia).
-function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, attacker_pos)
+---- `base_only`: the follow-up round cone (BasePrecisionModel) -- aim 0 without the hip/snap step.
+function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, attacker_pos, base_only)
     local a = P()
-    aim = aim or 0
+    aim = base_only and 0 or aim or 0
 
     local meta = {}
     local s = Rat_ApertureBase()
@@ -668,6 +669,14 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
     --- 1. manejo da arma (o antigo Point Blank Accuracy). Multiplica sigma_0, entao o efeito
     ---    decai a cada nivel de mira em vez de ser um desconto fixo no cone final.
     local base_mul, handling_meta = Rat_ApertureHandlingMul(weapon, attacker, action)
+    ---- big-gun clumsiness belongs to the snapshot: past the step levels only positive Handling stays
+    local clumsy_cut = a.BasePrecisionModel and (base_only or aim > a.AimStepMaxLevel)
+    if clumsy_cut then
+        local gun = Rat_HandlingBaseMul(weapon, attacker)
+        if gun > 10000 then
+            base_mul = MulDivRound(base_mul, 10000, gun)
+        end
+    end
     if base_mul ~= 10000 then
         s = MulDivRound(s, base_mul, 10000)
     end
@@ -729,6 +738,9 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
     if aim > 0 and a.ApertureAsymptotic and a.HeldAimHandEye and attacker and not attacker.placeholder and
         IsKindOf(weapon, "Firearm") then
         local gun_mul = Rat_HandlingBaseMul(weapon, attacker)
+        if clumsy_cut then
+            gun_mul = Min(gun_mul, 10000)
+        end
         if base_mul > gun_mul then
             local gun_gap = Max(0, MulDivRound(s, gun_mul, base_mul) - floor)
             held_gap = Max(0, s - floor) - gun_gap
@@ -761,7 +773,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
     --- 5. degrau de "arma no ombro" (hipfire/snapshot). GetWeaponHipfireOrSnapshotMul
     ---    escala so o EXCESSO do alargamento, nunca o cone inteiro. Ver AimStep em __ApertureParams.lua.
     local hipsnap, step, step_meta = 100, 100, nil
-    if aim <= a.AimStepMaxLevel then
+    if aim <= a.AimStepMaxLevel and not base_only then
         if weapon and GetWeaponHipfireOrSnapshotMul then
             local m = GetWeaponHipfireOrSnapshotMul(weapon, attacker, action, true, aim)
             hipsnap = Clamp(cRound((m or 1.0) * 100), 25, 400)
@@ -872,6 +884,21 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
         floor = floor,
         aim_meta = aim_meta
     }
+end
+
+---- Per-mille of the attack's cone that rounds 2+ fire at (BasePrecisionModel): base cone over the
+---- round-1 aperture, so residuals carry over. nil = every round at the attack's cone (hip, hyperburst).
+function Rat_FollowUpConeMul(weapon, attacker, action, aim, opportunity_attack, attacker_pos, num_shots)
+    if not P().BasePrecisionModel or (aim or 0) < 1 or (num_shots or 1) < 2 or
+        Rat_HyperburstCorr(weapon, action) > 0 then
+        return nil
+    end
+    local s1 = Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, attacker_pos)
+    local s0 = Rat_GetAperture(weapon, attacker, action, 0, opportunity_attack, attacker_pos, true)
+    if not s1 or s1 < 1 or not s0 then
+        return nil
+    end
+    return MulDivRound(s0, 1000, s1)
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -1523,9 +1550,18 @@ function Rat_SimPlanShots(ctx)
     ctx.sigma_y, ctx.sigma_y_dn, ctx.fan, ctx.vsigma = sigma_y, sigma_y_dn, fan, vs
 
     local num_shots = Max(1, ctx.num_shots or 1)
+    ---- rounds 2+ at the base cone; same stretch and inherited recoil, fan unchanged
+    local follow = Rat_FollowUpConeMul(ctx.weapon, ctx.attacker, ctx.action, ctx.aim, ctx.opportunity_attack,
+                                       ctx.step_pos, num_shots)
+    local sigma_f, sigma_y_f, sigma_y_dn_f = sigma, sigma_y, sigma_y_dn
+    if follow then
+        sigma_f = Max(1, MulDivRound(sigma, follow, 1000))
+        sigma_y_f, sigma_y_dn_f = Rat_ConeSigmaY({rat_sigma = sigma_f, rat_vsigma = vs, rat_stretch = cone.rat_stretch})
+    end
+    ctx.follow, ctx.sigma_f, ctx.sigma_y_f, ctx.sigma_y_dn_f = follow, sigma_f, sigma_y_f, sigma_y_dn_f
     local cth, prof, est, sigma_disp = Rat_SimRecoilLadder(ctx.attacker, ctx.action, ctx.weapon,
                                                            sigma, num_shots, theta, ctx.want_cth,
-                                                           ctx.aim, ctx.target, sigma_y, sigma_y_dn)
+                                                           ctx.aim, ctx.target, sigma_y, sigma_y_dn, follow)
     ctx.recoil, ctx.recoil_est, ctx.sigma_disp, ctx.num_shots = prof, est, sigma_disp, num_shots
 
     ---- a rajada SEMPRE comeca do alvo: entre ataques o atirador reencara, e o que o ataque
@@ -1560,16 +1596,19 @@ function Rat_SimPlanShots(ctx)
         local aim_pos = (axis and not zero) and
                             Rat_RecoilWalkPoint(ctx.attack_pos, ctx.aim_pos, axis, mu, lat_axis, lat) or
                             ctx.aim_pos
+        local first = i == 1
         shots[i] = {
             ---- cone de EXIBICAO: o que daria este mesmo CTH contra este alvo. A dispersao que a
-            ---- bala usa e sempre `sigma` -- o recuo esta em `mu`/`lat`, nao no cone.
-            sigma = sigma_disp[i] or sigma,
+            ---- bala usa e `sigma` (rounds 2+: `sigma_f`) -- o recuo esta em `mu`/`lat`, nao no cone.
+            sigma = sigma_disp[i] or (first and sigma or sigma_f),
             cth = cth[i],
             mu = mu,
             lat = lat,
             target_pos = zero and aim_pos or
-                             Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, sigma,
-                                                  sigma_y, sigma_y_dn, fan, shared and
+                             Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos,
+                                                  first and sigma or sigma_f,
+                                                  first and sigma_y or sigma_y_f,
+                                                  first and sigma_y_dn or sigma_y_dn_f, fan, shared and
                                                       Rat_ShotScatterMix(shared,
                                                                          Rat_ShotScatterDraw(ctx.attacker),
                                                                          corr))
@@ -1612,11 +1651,13 @@ function Rat_SimReplanShot(ctx, idx)
     local aim_pos = axis and
                         Rat_RecoilWalkPoint(ctx.attack_pos, ctx.aim_pos, axis, mu, lat_axis, lat) or
                         ctx.aim_pos
+    local f = idx > 1 and ctx.sigma_f
     return {
         mu = mu,
         lat = lat,
-        target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, ctx.sigma,
-                                          ctx.sigma_y, ctx.sigma_y_dn, ctx.fan)
+        target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, f or ctx.sigma,
+                                          f and ctx.sigma_y_f or ctx.sigma_y,
+                                          f and ctx.sigma_y_dn_f or ctx.sigma_y_dn, ctx.fan)
     }
 end
 
@@ -1639,8 +1680,9 @@ end
 ---- contra este alvo (Rat_SigmaForCTH). UI, anel e bala saem todos da mesma probabilidade.
 ---- Sem theta so o perfil faz sentido -- e o que Rat_DbgVerifySim precisa.
 ---------------------------------------------------------------------------------------------------
+---- `follow`: per-mille cone of rounds 2+ (Rat_FollowUpConeMul), nil = same cone.
 function Rat_SimRecoilLadder(attacker, action, weapon, sigma0, num_shots, theta, want_cth,
-                             aim, target, sigma_y, sigma_y_down)
+                             aim, target, sigma_y, sigma_y_down, follow)
     num_shots = Max(1, num_shots or 1)
 
     local prof = (num_shots > 1) and Rat_RecoilProfile(attacker, action, weapon, num_shots) or nil
@@ -1657,16 +1699,18 @@ function Rat_SimRecoilLadder(attacker, action, weapon, sigma0, num_shots, theta,
     ---- os dois meios-eixos entram pela media: a escada e radial e nao sabe de cima e baixo
     local sy = sigma_y and Max(1, MulDivRound(sigma_y + (sigma_y_down or sigma_y), 1, 2)) or nil
     local sigma_eff = (sy and sy >= 1 and sy ~= sigma0) and Max(1, Rat_ISqrt(sigma0 * sy)) or sigma0
+    local sigma_eff_f = follow and Max(1, MulDivRound(sigma_eff, follow, 1000)) or sigma_eff
 
     if not prof then
         for i = 1, num_shots do
-            cth[i], sigma_disp[i] = Rat_RayleighCTH(theta, sigma_eff), sigma_eff
+            local s = i > 1 and sigma_eff_f or sigma_eff
+            cth[i], sigma_disp[i] = Rat_RayleighCTH(theta, s), s
         end
         return cth, prof, nil, sigma_disp
     end
 
     local est = Rat_EstimateBurst(prof, theta, sigma_eff, num_shots,
-                                  (type(want_cth) == "number") and want_cth or nil)
+                                  (type(want_cth) == "number") and want_cth or nil, nil, nil, nil, sigma_eff_f)
     for i = 1, num_shots do
         cth[i] = est.cth[i]
         sigma_disp[i] = Rat_SigmaForCTH(theta, Clamp(cth[i], 1, 99)) or sigma_eff
@@ -1926,9 +1970,10 @@ function Rat_GetShotConeRatios(attacker, target, body_part_def, action, weapon, 
     ---- isto roda no caminho do tiro do pipeline vanilla. Semente fixa, entao nao treme.
     ---- `aim` e `target` vao junto: e deles que sai o offset herdado (nivel de mira que zera, AP
     ---- que recupera). Sem eles a escada partiria de um cano limpo que a bala nao tem.
+    local follow = Rat_FollowUpConeMul(weapon, attacker, action, aim, opportunity_attack, attacker_pos, num_shots)
     local cth, prof = Rat_SimRecoilLadder(attacker, action, weapon, sigma, num_shots, theta, 48,
-                                          aim, target)
-    if not prof or prof.kick_min <= 0 then
+                                          aim, target, nil, nil, follow)
+    if not prof or (prof.kick_min <= 0 and not follow) then
         return ratios
     end
 
@@ -1938,7 +1983,8 @@ function Rat_GetShotConeRatios(attacker, target, body_part_def, action, weapon, 
     end
 
     for i = 2, num_shots do
-        ratios[i] = Clamp(MulDivRound(cth[i], 100, base), 0, 100)
+        ---- a base cone without the snapshot step can beat round 1
+        ratios[i] = Clamp(MulDivRound(cth[i], 100, base), 0, follow and 400 or 100)
     end
 
     return ratios

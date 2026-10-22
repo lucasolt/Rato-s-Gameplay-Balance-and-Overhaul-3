@@ -1404,7 +1404,9 @@ function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker, over)
     end
 
     ---- o MESMO estimador que alimenta a escada de CTH: ponto medio do cano e largura do grupo
-    local est = Rat_EstimateBurst(prof, theta, sigma, burst)
+    local follow = sigma and Rat_FollowUpConeMul(weapon, attacker, action, aim, false, attacker:GetPos(), burst)
+    local est = Rat_EstimateBurst(prof, theta, sigma, burst, nil, nil, nil, nil,
+                                  follow and Max(1, MulDivRound(sigma, follow, 1000)))
 
     DbgClearVectors()
     DbgClearTexts()

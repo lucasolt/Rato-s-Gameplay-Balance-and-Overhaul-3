@@ -418,6 +418,8 @@ local function HintRecoilCurves(weapon, owner, stance, aimed)
     if aimed then
         local aim = Min(HintAimedLevel, weapon.MaxAimActions or HintAimedLevel)
         local sigma = Max(1, MulDivRound(Rat_GetAperture(weapon, shooter, action, aim), HintChartBipodMul(shooter, weapon), 100))
+        local follow = Rat_FollowUpConeMul(weapon, shooter, action, aim, false, nil, shots)
+        local sigma_f = follow and Max(1, MulDivRound(sigma, follow, 1000)) or sigma
         curves.aim = aim
         ---- CTH is smooth in the offset: sorted bucket means stand in for the samples at a fraction of the Rice calls
         local size = HintRecoilSamples / HintAimedBuckets
@@ -440,7 +442,7 @@ local function HintRecoilCurves(weapon, owner, stance, aimed)
             for i = 1, shots do
                 local sum = 0
                 for _, r in ipairs(offs[i]) do
-                    sum = sum + Rat_RiceCTH(theta, sigma, r)
+                    sum = sum + Rat_RiceCTH(theta, i > 1 and sigma_f or sigma, r)
                 end
                 curves[i][d + 1] = Clamp(MulDivRound(sum, 1, #offs[i]), a.MinCTH, a.MaxCTH)
             end
