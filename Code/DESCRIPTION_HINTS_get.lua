@@ -1403,7 +1403,7 @@ function Rat_PatchWeaponRollover()
         table.insert(path[2], HintChartWindow("idRatRecoilChart", 260, box(0, 8, 0, 0), function(self)
             local weapon = ResolvePropObj(self.context)
             local owner = weapon.owner and (not gv_SatelliteView and g_Units[weapon.owner] or gv_UnitData[weapon.owner])
-            return HintRecoilSetup(self, weapon, owner)
+            return HintRecoilSetup(self, weapon, owner, nil, true)
         end))
     end
     HintWrapOpenCompare()
