@@ -2065,7 +2065,7 @@ return {
 			'name', "NightSightDisc",
 			'NameColor', RGBA(20, 110, 40, 255),
 			'DisplayName', "<color AmmoMatchColor>Night Sight Disc</color>",
-			'Help', "At night, softer light around the selected merc. Its edge is how far he sees an enemy standing in the dark; lit enemies are seen at full range.",
+			'Help', "At night, the map gets darker past how far the selected merc sees an enemy standing in the dark. Lit enemies are seen at full range.",
 			'DefaultValue', true,
 		}),
 		PlaceObj('ModItemOptionToggle', {
