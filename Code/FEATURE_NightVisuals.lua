@@ -31,7 +31,7 @@ end
 local night_copies = setmetatable({}, weak_keys_meta)
 
 function Rat_NightLightmodel(lm)
-    local level = GBO_Opt("NightDarkness", 8)
+    local level = GBO_Opt("NightDarkness", 12)
     if level <= 0 or LightmodelOverride or type(lm) ~= "table" or not Rat_IsNightLightmodel(lm) then
         return lm
     end
@@ -100,7 +100,7 @@ local orphans_swept = false
 
 ---- Shade opacity 0..255 for the current time of day
 local function ShadeAlpha()
-    local pct = IsNightShade() and GBO_Opt("NightSightShade", 55) or GBO_Opt("DaySightShade", 35)
+    local pct = IsNightShade() and GBO_Opt("NightSightShade", 70) or GBO_Opt("DaySightShade", 35)
     return MulDivRound(255, Clamp(pct, 0, 100), 100)
 end
 

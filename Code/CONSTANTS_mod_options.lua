@@ -12,7 +12,7 @@ GBO_SIGHT_FLOOR = 40
 function GBO_UpdateSightFloor()
 	local floor = GBO_SIGHT_FLOOR
 	if GameState.Night or GameState.Underground then
-		floor = Min(floor, 100 - GBO_Opt("NightSightReduction", 40))
+		floor = Min(floor, 100 - GBO_Opt("NightSightReduction", 70))
 	end
 	const.Combat.SightModMinValue = floor
 end
@@ -29,7 +29,7 @@ function GBO_ApplyOptions()
 	const.Combat.UnawareSightRange = GBO_Opt("UnawareSightRange", 14)
 	const.Combat.AwareSightRange = GBO_Opt("AwareSightRange", 56)
 	const.EnvEffects.DarknessDetectionRate = -GBO_Opt("NightDetectReduction", 40)
-	const.EnvEffects.DarknessSightMod = -GBO_Opt("NightSightReduction", 40)
+	const.EnvEffects.DarknessSightMod = -GBO_Opt("NightSightReduction", 70)
 	GBO_UpdateSightFloor()
 
 	const.Combat.R_OWMul = GBO_Opt("OWBonusPct", 100)
