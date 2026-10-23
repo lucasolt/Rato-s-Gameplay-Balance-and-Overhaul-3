@@ -8,11 +8,14 @@ local APScaleParams = {
         {"Heroic", "ap_gain"}, {"Inspired", "bonus"},
         {"SidneyPerk", "APBuff"}, {"Stimmed", "apGain"}, {"Suppressed", "ap_loss"}, {"Tired", "ap_loss"},
         {"WellRested", "ap_gain"}, {"YouSeeIgor", "APRestore"}, {"HawksEye", "pindownCostOverwrite"},
-        {"SteadyBreathing", "freeMoveBonusAp"}, {"MinFreeMove", "minFreeMove"},
+        {"SteadyBreathing", "freeMoveBonusAp"}, {"MinFreeMove", "minFreeMove"}, {"MrFixit", "mrfixit_ap"},
         -- Protected.max_ap_carried is owned by presets_char_effect(), which runs after this and would undo the rescale.
     },
     CombatActions = {
-        {"Charge", "move_ap"}, {"HyenaCharge", "move_ap"}, {"GloryHog", "move_ap"},
+        {"Charge", "move_ap"}, {"HyenaCharge", "move_ap"}, {"GloryHog", "move_ap"}, {"Bombard", "ap_per_shot"},
+    },
+    StatGainingPrerequisites = {
+        {"MovementAPSpent", "APToSpend"},
     },
 }
 
@@ -27,13 +30,14 @@ end
 -- ResolveValue finds it first and saving does not look:
 -- StoreAsTable presets (CombatActions) serialize every field but Preset:ResolveValue falls back to g_PresetParamCache;
 -- CharacterEffectCompositeDef reads Parameters directly, but GetProperty comes first and undeclared fields are not saved.
+-- StatGainingPrerequisite keeps lowercase `parameters` and its own ResolveValue (GetProperty first, no cache).
 local function ScaleParam(preset, name)
-    local param = table.find_value(preset.Parameters or empty_table, "Name", name)
+    local param = table.find_value(preset.Parameters or preset.parameters or empty_table, "Name", name)
     if not param or preset:GetPropertyMetadata(name) then
         return
     end
     local value = R_VanillaAPToDisplay(param.Value)
-    if preset.StoreAsTable then
+    if preset.StoreAsTable and preset.ResolveValue == Preset.ResolveValue then
         g_PresetParamCache[preset] = g_PresetParamCache[preset] or {}
         g_PresetParamCache[preset][name] = value
     else
