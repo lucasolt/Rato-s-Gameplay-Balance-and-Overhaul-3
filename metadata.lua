@@ -5,7 +5,7 @@ return PlaceObj('ModDef', {
 	'external_links', {
 		"https://www.buymeacoffee.com/rato_modder",
 	},
-	'last_changes', "4.04\n\n-- Perks:\nLivewire perk changed. It will now show a ping in the map that shows an approximation of enemy's position. Groups get clustered.\nAnatomical Precision now also grants +10% base crit chance against Flanked enemies, which works with bursts and autofire.\nFlanker now also reduces snapshot penalty for Mobile Attacks\nFast Runner improves Mobile Attacksmove range sligthly\n\n\nMobile attacks accuracy now has a new factor based on the merc's agility\n\nImproved UI cth calculation performance\n\nImproved aCTH compatibility with DescriptiveCTH  mod\n\n\n\n556 does slightly more damage and has a little more recoil than 5.45\n\n-- Recoil\ntweaked recoil interaction with manual cycling\nChanged the math on recoil modifiers\nTracers now increase correction from the third shot instead of reducing recoil\nDexterity no longer compensates for the weight of heavy weapons when aiming; only Strength does.\n\nTuned balance of various weapons\n",
+	'last_changes', "4.04\n\n-- Night and weather\nNights are darker (new option: Night Darkness).\nThe map darkens past the selected merc's sight range, at night and by day. Lit spots and lit enemies still show through at night (new options: Night Sight Shade, Day Sight Shade).\nAiming at targets in the dark: penalty reduced from -30 to -10. Night is now mostly about sight.\nHeavy rain now cuts every weapon's aim gain by the same 20%. Before, it nearly erased aiming on pistols.\n\n\n-- Perks:\nLivewire perk changed. It will now show a ping in the map that shows an approximation of enemy's position. Groups get clustered.\nAnatomical Precision now also grants +10% base crit chance against Flanked enemies, which works with bursts and autofire.\nFlanker now also reduces snapshot penalty for Mobile Attacks\nFast Runner improves Mobile Attacks move range sligthly\n\nFixed  Calm Under Fire perk under the new AP scale\nFixed some Pinned Down compatibility with new AP scale\n\n\nMobile attacks accuracy now has a new factor based on the merc's agility\n\nImproved UI cth calculation performance\n\nImproved aCTH compatibility with DescriptiveCTH  mod\n\n\n\n556 does slightly more damage and has a little more recoil than 5.45\n\n-- Recoil\ntweaked recoil interaction with manual cycling\nChanged the math on recoil modifiers\nTracers now increase correction from the third shot instead of reducing recoil\nDexterity no longer compensates for the weight of heavy weapons when aiming; only Strength does.\n\nTuned balance of various weapons\n",
 	'SpellCheck', true,
 	'ignore_files', {
 		"*.git/*",
@@ -37,7 +37,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 4,
 	'version_minor', 4,
-	'version', 13555,
+	'version', 13556,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -241,7 +241,7 @@ return PlaceObj('ModDef', {
 		noise_setting_num = 150,
 	},
 	'has_data', true,
-	'saved', 1792633589,
+	'saved', 1792633664,
 	'code_hash', 1193499727556113585,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
