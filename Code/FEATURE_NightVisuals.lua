@@ -87,6 +87,8 @@ end
 local disc_mesh = false
 local disc_key = false
 local disc_built_at = 0
+---- Saving the mod reloads this file and drops disc_mesh: sweep the tagged orphans once per load
+local orphans_swept = false
 
 local function DiscUnit()
     if GBO_Opt("NightSightShade", 55) <= 0 then
@@ -347,7 +349,16 @@ function Rat_NightDiscUpdate()
     end
 
     if not IsValid(disc_mesh) then
+        if not orphans_swept then
+            orphans_swept = true
+            MapForEach("map", "Mesh", function(o)
+                if o.rat_night_shade then
+                    DoneObject(o)
+                end
+            end)
+        end
         local m = PlaceObject("Mesh")
+        m.rat_night_shade = true
         ---- no depth test: a flat ring at the merc's feet must still shade walls, roofs and canopies
         m:SetShader(ProceduralMeshShaders.default_mesh, false)
         disc_mesh = m
