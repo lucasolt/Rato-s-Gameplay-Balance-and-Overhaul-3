@@ -5,9 +5,8 @@
 
 ---- Auto-exposure key drop per NightDarkness step. Exposure itself is undone by auto-exposure.
 RAT_NIGHT_KEY_STEP = 100000
----- Shade outside the disc: alpha of the black ring, edge fade width, outer reach.
+---- Shade outside the disc: edge fade width, outer reach. Opacity is the NightSightShade option.
 ---- A light inside the disc was tried first: it glints on wet ground, water and foliage.
-RAT_NIGHT_SHADE_ALPHA = 140
 RAT_NIGHT_SHADE_FADE = 4 * guim
 RAT_NIGHT_SHADE_REACH = 200 * guim
 RAT_NIGHT_SHADE_SEGMENTS = 96
@@ -81,7 +80,7 @@ local disc_mesh = false
 local disc_radius = false
 
 local function DiscUnit()
-    if CurrentModOptions and CurrentModOptions.NightSightDisc == false then
+    if GBO_Opt("NightSightShade", 55) <= 0 then
         return
     end
     if not (GameState.Night or GameState.Underground) or gv_SatelliteView or IsSetpiecePlaying() then
@@ -106,7 +105,8 @@ end
 local function ShadeMesh(radius)
     local n = RAT_NIGHT_SHADE_SEGMENTS
     local s = pstr("", n * 12 * 16)
-    local clear, dark = RGBA(0, 0, 0, 0), RGBA(0, 0, 0, RAT_NIGHT_SHADE_ALPHA)
+    local alpha = MulDivRound(255, Clamp(GBO_Opt("NightSightShade", 55), 0, 100), 100)
+    local clear, dark = RGBA(0, 0, 0, 0), RGBA(0, 0, 0, alpha)
     local function band(r1, r2, c1, c2)
         for i = 0, n - 1 do
             local a1, a2 = i * 360 * 60 / n, (i + 1) * 360 * 60 / n

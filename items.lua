@@ -2061,12 +2061,14 @@ return {
 			'DefaultValue', 8,
 			'MaxValue', 15,
 		}),
-		PlaceObj('ModItemOptionToggle', {
-			'name', "NightSightDisc",
+		PlaceObj('ModItemOptionNumber', {
+			'name', "NightSightShade",
 			'NameColor', RGBA(20, 110, 40, 255),
-			'DisplayName', "<color AmmoMatchColor>Night Sight Disc</color>",
-			'Help', "At night, the map gets darker past how far the selected merc sees an enemy standing in the dark. Lit enemies are seen at full range.",
-			'DefaultValue', true,
+			'DisplayName', "<color AmmoMatchColor>Night Sight Shade %</color>",
+			'Help', "At night, the map gets darker past how far the selected merc sees an enemy standing in the dark. Lit enemies are seen at full range. How dark that outside area gets; 0 = off. GBO default 55.",
+			'DefaultValue', 55,
+			'MaxValue', 100,
+			'StepSize', 5,
 		}),
 		PlaceObj('ModItemOptionToggle', {
 			'name', "NoRevealMemory",
