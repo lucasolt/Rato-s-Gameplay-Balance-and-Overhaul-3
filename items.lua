@@ -1366,6 +1366,10 @@ return {
 			'name', "COMPATIBILITY_DescriptiveCTH",
 			'CodeFileName', "Code/COMPATIBILITY_DescriptiveCTH.lua",
 		}),
+		PlaceObj('ModItemCode', {
+			'name', "COMPATIBILITY_PinnedDown",
+			'CodeFileName', "Code/COMPATIBILITY_PinnedDown.lua",
+		}),
 		}),
 	PlaceObj('ModItemCode', {
 		'name', "BOBBYRAY_category_pairs",
