@@ -189,6 +189,24 @@ function OnMsg.ClassesGenerate(classdefs)
         })
     end
 
+    -- tempHPperAP is Grit per vanilla AP; the reserved ap is displayed AP.
+    if classdefs.Hardened then
+        classdefs.Hardened.unit_reactions = {
+            PlaceObj('UnitReaction', {
+                Event = "OnEndTurn",
+                Handler = function(self, target)
+                    local ap = Min(self:ResolveValue("maxReservedAP"), target:GetUIScaledAP())
+                    if ap > 0 then
+                        target:ApplyTempHitPoints(MulDivRound(ap, self:ResolveValue("tempHPperAP"),
+                                                              R_VanillaAPToDisplay(1)))
+                        target:AddStatusEffect("ReservedAP")
+                        target:SetEffectValue("reserved_ap", ap * const.Scale.AP)
+                    end
+                end
+            })
+        }
+    end
+
     if classdefs.MartialArts.unit_reactions then
         classdefs.MartialArts.unit_reactions = {
             PlaceObj('UnitReaction', {

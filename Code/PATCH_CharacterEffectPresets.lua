@@ -27,6 +27,11 @@ function presets_char_effect()
 		end
         --------------------------------------------------------------------------------------------
 
+        if p.id == "Hardened" then
+            p.Description = T {448317095726, "At the end of your turn, <em>transfer</em> up to <em><maxReservedAP> unused AP</em> to the next turn.\n\nGain <em><tempHPperAP></em> <GameTerm('Grit')> per <em><ap> AP</em> transferred.",
+                               ap = R_VanillaAPToDisplay(1)}
+        end
+
         if p.id == 'SteadyBreathing' then
             p.Description = T {778949186487, "Grants the ability to <em>Sprint</em> in combat.<newline><newline>Mobile attacks can move <em><ap> AP</em> further.",
                                ap = R_VanillaAPToDisplay(const.Combat.Perks.FastRunnerMobileMoveAP)}

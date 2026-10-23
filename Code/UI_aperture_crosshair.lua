@@ -381,6 +381,25 @@ local function fallback(self, context, ...)
     return vanilla_update(self, context, ...)
 end
 
+---- No silhouette exposed: keep the world ring (grey, no recoil marks) instead of the vanilla 2D circle.
+function Rat_ShowOccludedRing(attacker, target, action, part, aim, override_pos, step_pos, dist, sigma)
+    local a = const.Combat.Aperture
+    local center = Rat_RingAnchor(target, part)
+    if not center then
+        return false
+    end
+    local radius = Rat_ConeRadius(dist, MulDivRound(sigma, a.CrosshairSigmaMul, 100))
+    local dir = center - Rat_RingValidZ(step_pos)
+    Rat_HideStroke("wedge")
+    Rat_HideStroke("climb")
+    Rat_HideStroke("fanl")
+    Rat_HideStroke("fanr")
+    update_shadow(attacker, target, action, part, aim, override_pos,
+                  { center = center, radius = radius, dir = dir })
+    Rat_ShowConeRing(center, radius, dir, RGB(150, 150, 150))
+    return true
+end
+
 ---- Desenha o anel a partir do estado do CROSSHAIR, nao do widget: passar o mouse pelas body
 ---- parts chama SetSelectedPart (muda targetPart) sem disparar update de contexto nenhum.
 ---- false = o modelo nao se aplica aqui; o chamador volta ao circulo 2D.
@@ -415,12 +434,17 @@ function Rat_UpdateConeRing(crosshair)
     ---- UM cone so, o mesmo que Rat_SimPlanShots dispara: quem o resolve e CalcChanceToHit
     ---- (geometria + residuais ja em cone) e ele o devolve nos proprios args.
     local target_pos = target:GetPos()
-    local sigma, theta, cth, sy, sy_dn, fan = Rat_AttackCone(attacker, target, action, part, aim,
-                                                             false, step_pos, target_pos)
+    local sigma, theta, cth, sy, sy_dn, fan, occluded_sigma = Rat_AttackCone(attacker, target, action,
+                                                                             part, aim, false, step_pos,
+                                                                             target_pos)
+    local dist = step_pos:Dist(target_pos)
+    if not sigma and occluded_sigma and occluded_sigma > 0 then
+        return Rat_ShowOccludedRing(attacker, target, action, part, aim, c.override_pos, step_pos, dist,
+                                    occluded_sigma)
+    end
     if not sigma or not theta or theta < 1 then
         return false
     end
-    local dist = step_pos:Dist(target_pos)
 
     ---- raio que contem ~96% dos tiros (2.5 sigma), nao 1 sigma cru -- ver A.CrosshairSigmaMul.
     local spread = MulDivRound(sigma, a.CrosshairSigmaMul, 100)

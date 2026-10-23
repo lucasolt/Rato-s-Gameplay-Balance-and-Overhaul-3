@@ -1300,7 +1300,8 @@ function Rat_AttackCone(attacker, target, action, spot, aim, opportunity_attack,
     ---- o quarto e o quinto sao os meios-eixos VERTICAIS (cima, baixo): sem eles quem desenha ou
     ---- dispara volta ao circulo
     if not args.rat_sigma then
-        return args.rat_sigma, args.rat_theta, cth
+        ---- 7th: clean cone of a fully occluded target (only that branch leaves geo_sigma without sigma)
+        return args.rat_sigma, args.rat_theta, cth, nil, nil, nil, args.rat_geo_sigma
     end
     local sy_up, sy_dn = Rat_ConeSigmaY(args)
     return args.rat_sigma, args.rat_theta, cth, sy_up, sy_dn, Rat_ConeFanX(args)
