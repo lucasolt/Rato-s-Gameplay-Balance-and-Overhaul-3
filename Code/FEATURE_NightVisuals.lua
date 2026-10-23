@@ -1,11 +1,11 @@
 ---------------------------------------------------------------------------------------------------
----- NIGHT VISUALS -- darker night lightmodels, and the night darkens further past the distance
----- the selected merc sees a target standing in the dark.
+---- NIGHT VISUALS -- darker night lightmodels, and the map darkens past the distance the selected
+---- merc sees: a target in the dark at night, any target by day.
 ---------------------------------------------------------------------------------------------------
 
 ---- Auto-exposure key drop per NightDarkness step. Exposure itself is undone by auto-exposure.
 RAT_NIGHT_KEY_STEP = 100000
----- Shade outside the disc: edge fade width, outer reach. Opacity is the NightSightShade option.
+---- Shade outside the disc: edge fade width, outer reach. Opacity is NightSightShade / DaySightShade.
 ---- A light inside the disc was tried first: it glints on wet ground, water and foliage.
 RAT_NIGHT_SHADE_FADE = 4 * guim
 RAT_NIGHT_SHADE_REACH = 200 * guim
@@ -63,14 +63,22 @@ end
 ---- Sight disc
 ---------------------------------------------------------------------------------------------------
 
----- GetSightRadius against a dark target, minus the per-target terms (stealth, camo, grass, height)
-function Rat_NightSightRadius(unit)
+local function IsNightShade()
+    return GameState.Night or GameState.Underground
+end
+
+---- GetSightRadius against a dark target at night (any target by day), minus the per-target terms
+---- (stealth, camo, grass, height)
+function Rat_ShadeSightRadius(unit)
     local sight = unit:IsAware() and const.Combat.AwareSightRange or const.Combat.UnawareSightRange
-    local dark = const.EnvEffects.DarknessSightMod
-    if unit:HasNightVision() then
-        dark = MulDivRound(dark, CharacterEffectDefs.NightOps:ResolveValue("night_vision_penalty_reduction"), 100)
+    local modifier = 100
+    if IsNightShade() then
+        local dark = const.EnvEffects.DarknessSightMod
+        if unit:HasNightVision() then
+            dark = MulDivRound(dark, CharacterEffectDefs.NightOps:ResolveValue("night_vision_penalty_reduction"), 100)
+        end
+        modifier = modifier + dark
     end
-    local modifier = 100 + dark
     if GameState.Fog then
         modifier = modifier + const.EnvEffects.FogSightMod
     end
@@ -90,11 +98,14 @@ local disc_built_at = 0
 ---- Saving the mod reloads this file and drops disc_mesh: sweep the tagged orphans once per load
 local orphans_swept = false
 
+---- Shade opacity 0..255 for the current time of day
+local function ShadeAlpha()
+    local pct = IsNightShade() and GBO_Opt("NightSightShade", 55) or GBO_Opt("DaySightShade", 35)
+    return MulDivRound(255, Clamp(pct, 0, 100), 100)
+end
+
 local function DiscUnit()
-    if GBO_Opt("NightSightShade", 55) <= 0 then
-        return
-    end
-    if not (GameState.Night or GameState.Underground) or gv_SatelliteView or IsSetpiecePlaying() then
+    if ShadeAlpha() <= 0 or gv_SatelliteView or IsSetpiecePlaying() then
         return
     end
     local u = SelectedObj
@@ -147,6 +158,8 @@ end
 ---- Lights don't move: both are built once and dropped when lights change.
 local stealth_lights = false
 local lit_field = {}
+---- lit_field at night, empty by day: lights reveal nothing in daylight
+local active_field = empty_table
 local lit_field_done = setmetatable({}, weak_keys_meta)
 
 local function ResetLitCache()
@@ -154,6 +167,7 @@ local function ResetLitCache()
     stealth_lights = false
     lit_field = {}
     lit_field_done = setmetatable({}, weak_keys_meta)
+    active_field = empty_table
     disc_key = false
 end
 
@@ -249,7 +263,7 @@ end
 
 ---- 0..1000 of the shade kept at (x, y): lit field, then the unit holes in `near`
 local function HoleKeep(near, x, y)
-    local keep = lit_field[TileKey(x, y)] or 1000
+    local keep = active_field[TileKey(x, y)] or 1000
     local cell = near[(x / NEAR) * 65536 + y / NEAR]
     if not cell then
         return keep
@@ -334,13 +348,15 @@ function Rat_NightDiscUpdate()
     end
     local now = RealTime()
     local center = u:GetVisualPos()
-    local radius = Rat_NightSightRadius(u)
-    local alpha = MulDivRound(255, Clamp(GBO_Opt("NightSightShade", 55), 0, 100), 100)
+    local radius = Rat_ShadeSightRadius(u)
+    local alpha = ShadeAlpha()
+    local night = IsNightShade()
     local far = radius + RAT_NIGHT_SHADE_FINE
 
-    local sig = radius * 7 + alpha + center:x() / (guim / 2) * 3 + center:y() / (guim / 2) * 5
+    local sig = radius * 7 + alpha + (night and 17 or 0) + center:x() / (guim / 2) * 3 + center:y() / (guim / 2) * 5
     local units = {}
     for _, x in ipairs(g_Units) do
+        ---- by day IsIlluminated is always true: every visible unit shows through
         if x ~= u and not x:IsDead() and x:GetEnumFlags(const.efVisible) ~= 0 and IsIlluminated(x) then
             local p = x:GetVisualPos()
             units[#units + 1] = p
@@ -371,7 +387,8 @@ function Rat_NightDiscUpdate()
 
     local near, cols = {}, {}
     local tile_reach = RAT_NIGHT_HOLE_TILE.clear + RAT_NIGHT_HOLE_TILE.fade
-    for _, l in ipairs(StealthLights()) do
+    active_field = night and lit_field or empty_table
+    for _, l in ipairs(night and StealthLights() or empty_table) do
         if IsValid(l) and IsCloser2D(l, center, far + 20 * guim) then
             AddLightToField(l)
             for _, t in ipairs(LightTiles(l)) do

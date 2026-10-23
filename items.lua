@@ -2074,6 +2074,15 @@ return {
 			'MaxValue', 100,
 			'StepSize', 5,
 		}),
+		PlaceObj('ModItemOptionNumber', {
+			'name', "DaySightShade",
+			'NameColor', RGBA(20, 110, 40, 255),
+			'DisplayName', "<color AmmoMatchColor>Day Sight Shade %</color>",
+			'Help', "By day, the map gets darker past the selected merc's sight range. Enemies your squad sees still show through. How dark that outside area gets; 0 = off. GBO default 35.",
+			'DefaultValue', 35,
+			'MaxValue', 100,
+			'StepSize', 5,
+		}),
 		PlaceObj('ModItemOptionToggle', {
 			'name', "NoRevealMemory",
 			'NameColor', RGBA(20, 110, 40, 255),

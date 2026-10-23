@@ -219,6 +219,7 @@ return PlaceObj('ModDef', {
 		AIWeaponStanceMul = 100,
 		ApertureCTH = "aCTH",
 		AwareSightRange = 56,
+		DaySightShade = 35,
 		ExtraMaxAP = 0,
 		GunDamagePct = 100,
 		MarksEffectPct = 100,
