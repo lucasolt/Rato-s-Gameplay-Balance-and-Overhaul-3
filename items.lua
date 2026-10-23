@@ -1867,6 +1867,10 @@ return {
 			'CodeFileName', "Code/FEATURE_StepOutGate.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "FEATURE_NightVisuals",
+			'CodeFileName', "Code/FEATURE_NightVisuals.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "WIKI_HelpPages",
 			'CodeFileName', "Code/WIKI_HelpPages.lua",
 		}),
@@ -2048,6 +2052,21 @@ return {
 			'DefaultValue', 40,
 			'MaxValue', 90,
 			'StepSize', 5,
+		}),
+		PlaceObj('ModItemOptionNumber', {
+			'name', "NightDarkness",
+			'NameColor', RGBA(20, 110, 40, 255),
+			'DisplayName', "<color AmmoMatchColor>Night Darkness</color>",
+			'Help', "How much darker night maps look. Visual only. 0 = vanilla lighting. GBO default 8.",
+			'DefaultValue', 8,
+			'MaxValue', 15,
+		}),
+		PlaceObj('ModItemOptionToggle', {
+			'name', "NightSightDisc",
+			'NameColor', RGBA(20, 110, 40, 255),
+			'DisplayName', "<color AmmoMatchColor>Night Sight Disc</color>",
+			'Help', "At night, softer light around the selected merc. Its edge is how far he sees an enemy standing in the dark; lit enemies are seen at full range.",
+			'DefaultValue', true,
 		}),
 		PlaceObj('ModItemOptionToggle', {
 			'name', "NoRevealMemory",
