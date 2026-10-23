@@ -71,6 +71,8 @@ A.PindownRangeMul = 200
 
 ---- Multiplicadores do DECAY da mira. Uma entrada por modificador, tudo declarado AQUI -- nenhum
 ---- deles tem bloco de codigo proprio em Rat_ApertureAimDecay. mul 100 = desligado, > 100 piora.
+---- close = % of each level's closing kept (after Hand-Eye): same relative cut for every gun,
+---- where mul on the decay all but erases aiming on low-AimAccuracy guns.
 ---- Condicoes (todas opcionais, somam-se; sem nenhuma a entrada vale sempre):
 ----   stance     = "Crouch"|"Prone"|"Standing"   postura do atirador
 ----   classes    = {"Pistol", "Revolver"}        basta UMA bater
@@ -82,7 +84,7 @@ A.PindownRangeMul = 200
 ---- DisplayName do proprio componente (com "(-) " quando piora); meta = false cala a entrada.
 ---- Ordem de aplicacao = alfabetica pela chave (sorted_pairs) para o co-op nao divergir.
 A.AimDecayMuls = {
-	HeavyRainAim = {mul = 120, game_state = "RainHeavy", indoors = false,
+	HeavyRainAim = {close = 80, game_state = "RainHeavy", indoors = false,
 	                meta = T {901477523654, "(-) Heavy Rain"}},
 	HandgunPenalty = {
 		mul = 100,--150,

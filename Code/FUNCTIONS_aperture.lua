@@ -378,7 +378,7 @@ function Rat_ApertureDecayMeta(e, compDef)
     if not compDef or not compDef.DisplayName then
         return nil
     end
-    if (e.mul or 100) > 100 then
+    if (e.mul or 100) > 100 or (e.close or 100) < 100 then
         return Untranslated("(-) ") .. compDef.DisplayName
     end
     return compDef.DisplayName
@@ -395,13 +395,16 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics, extra_acc, hand_e
 
     ---- chuva, postura, classe, componentes: TUDO vem de A.AimDecayMuls, entrada a entrada.
     ---- sorted_pairs e nao pairs: a ordem do produto inteiro entra no NetUpdateHash do co-op.
+    local close = 100
     for _, e in sorted_pairs(a.AimDecayMuls or empty_table) do
         ---- entrada crua (numero solto, o formato antigo) e ignorada em vez de estourar no combate
         local mul = type(e) == "table" and (e.mul or 100) or 100
-        if mul ~= 100 then
+        local e_close = type(e) == "table" and (e.close or 100) or 100
+        if mul ~= 100 or e_close ~= 100 then
             local ok, compDef = Rat_ApertureDecayApplies(e, weapon, attacker)
             if ok then
                 decay = MulDivRound(decay, mul, 100)
+                close = MulDivRound(close, e_close, 100)
                 local m = Rat_ApertureDecayMeta(e, compDef)
                 if m then
                     meta[#meta + 1] = m
@@ -426,6 +429,7 @@ function Rat_ApertureAimDecay(weapon, attacker, level, optics, extra_acc, hand_e
     --- decay_efetivo = 100 - (100 - decay) * he/100
     decay = 100 - MulDivRound(100 - decay, he, 100)
     decay = 100 - MulDivRound(100 - decay, GBO_Opt("ACTHAimEffectPct", 100), 100)
+    decay = 100 - MulDivRound(100 - decay, close, 100)
 
 	local final_decay = Clamp(decay, a.DecayMinPct, 99)
 	--print("---- APERTURE AIM DECAY -- Base Aim: ", weapon.AimAccuracy, "Total Aim: ", acc, "Level: ", level, "Decay unclamped: ", decay, "Effective decay: ",final_decay)

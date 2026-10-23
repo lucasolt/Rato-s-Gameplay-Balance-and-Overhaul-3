@@ -103,7 +103,7 @@ const.EnvEffects.FogGrazeChance = 0-- 25
 const.EnvEffects.FireStormSightMod = -10
 const.EnvEffects.DustStormSightMod = -10
 const.EnvEffects.DustStormGrazeChance = 0
-const.EnvEffects.DarknessCTHPenalty = -30 -- -20
+const.EnvEffects.DarknessCTHPenalty = -10 -- -20
 
 ---------------------------------------------------------------------------------------------------
 ---- aCTH ONLY (simulated); replaces the gas graze
