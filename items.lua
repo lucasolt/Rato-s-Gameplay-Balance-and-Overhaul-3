@@ -2039,9 +2039,9 @@ return {
 			'name', "NightSightReduction",
 			'NameColor', RGBA(20, 110, 40, 255),
 			'DisplayName', "<color AmmoMatchColor>Night Sight Reduction %</color>",
-			'Help', "How much darkness cuts sight range, for aware and unaware units. GBO default 40.",
+			'Help', "How much darkness cuts sight range, for aware and unaware units. GBO default 40.\n\nAbove 60, Blinded and Distracted units also see less at night (they get the night sight floor).",
 			'DefaultValue', 40,
-			'MaxValue', 90,
+			'MaxValue', 95,
 			'StepSize', 5,
 		}),
 		PlaceObj('ModItemOptionNumber', {
