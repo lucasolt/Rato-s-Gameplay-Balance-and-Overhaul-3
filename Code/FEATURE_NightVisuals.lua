@@ -328,10 +328,16 @@ end
 ---------------------------------------------------------------------------------------------------
 ---- Line of sight inside the radius (SightShadeLOS). Vegetation never blocks sight in JA3 (grass only
 ---- shortens the range to a target standing in it), so CheckLOS alone matches what the merc sees.
----- One cell per tile along each column, filled a few columns per tick; the plain ring shows meanwhile.
+---- One cell per tile along each column, filled a few columns per tick. A walking merc changes tile
+---- faster than a job ends, so a job always runs out and the last built one stays drawn in place.
 ---------------------------------------------------------------------------------------------------
 local los_job = false
+local los_shown = false
 local los_gen = 0
+
+function OnMsg.NewMapLoaded()
+    los_job, los_shown = false, false
+end
 
 local function LosEnabled()
     return CurrentModOptions and CurrentModOptions.SightShadeLOS
@@ -343,7 +349,7 @@ local LOS_KEEP = {[1] = 500, [2] = 0}
 local function LosStep(u, radius)
     local pos, stance = u:GetPos(), u.stance
     local job = los_job
-    if not job or job.pos ~= pos or job.stance ~= stance or job.radius ~= radius then
+    if not job or job.built and (job.pos ~= pos or job.stance ~= stance or job.radius ~= radius) then
         job = {pos = pos, stance = stance, radius = radius, rows = Max(1, radius / const.SlabSizeX), keep = {}, col = 0}
         los_job = job
     end
@@ -449,7 +455,7 @@ local function ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb, los)
     local ux, uy = circle.x, circle.y
     local cx, cy = center:x(), center:y()
     local s = pstr("", n * (rings + 2) * 6 * 20)
-    local los_edge = los and los.edge
+    local los_edge = los and IsCloser2D(center, los.pos, guim) and los.edge
     local px, py, pa = {}, {}, {}
     for k = 0, rings + 1 do
         local r = k <= rings and radius + k * step or radius + RAT_NIGHT_SHADE_FINE + RAT_NIGHT_SHADE_REACH
@@ -516,8 +522,13 @@ function Rat_NightDiscUpdate()
     if LosEnabled() then
         LosStep(u, radius)
         local job = los_job
-        if job.done and IsCloser2D(center, job.pos, guim) and LosBuildStep(job, alpha, cr, cg, cb) then
-            los = job
+        if job.done and LosBuildStep(job, alpha, cr, cg, cb) then
+            los_shown = job
+        end
+        ---- a stale grid only while the merc is still inside it (not after selecting another merc)
+        local shown = los_shown
+        if shown and IsCloser2D(center, shown.pos, shown.radius) and LosBuildStep(shown, alpha, cr, cg, cb) then
+            los = shown
         end
     end
 
