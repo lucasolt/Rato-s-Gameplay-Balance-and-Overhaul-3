@@ -1,6 +1,6 @@
 ---- Cheats menu (in-game Esc > Cheats > COMBAT) entries for aCTH debugging
-local function AppendZeroDispersionCheat()
-    if UIFindControl("IGMainActions", "idToggleRatZeroDispersion") then
+local function AppendToggleCheat(action_id, name, cheat)
+    if UIFindControl("IGMainActions", action_id) then
         return
     end
     local _, parent, idx = UIFindControl("IGMainActions", "idToggleAlwaysMiss")
@@ -9,17 +9,60 @@ local function AppendZeroDispersionCheat()
     end
     table.insert(parent, idx + 1, PlaceObj('XTemplateAction', {
         'comment', "cheat",
-        'ActionId', "idToggleRatZeroDispersion",
-        'ActionName', T(482193570611, "aCTH Zero Dispersion (toggle)"),
+        'ActionId', action_id,
+        'ActionName', name,
         'ActionToolbar', "cheats",
         'ActionToolbarSection', "COMBAT",
         'OnAction', function(self, host, source, ...)
-            NetSyncCheatEnableIG("RatZeroDispersion")
+            NetSyncCheatEnableIG(cheat)
             CloseMenuDialogs()
         end,
     }))
 end
 
+local function FindXtFunc(node, name)
+    if type(node) ~= "table" then
+        return
+    end
+    if rawget(node, "name") == name and node.func then
+        return node
+    end
+    for _, child in ipairs(node) do
+        local found = FindXtFunc(child, name)
+        if found then
+            return found
+        end
+    end
+end
+
+local function NotCombatMode()
+    return false
+end
+
+---- The part popup is the only place that blocks modifying in combat (InventoryIsCombatMode, twice).
+local function PatchModifyInCombat()
+    local element = FindXtFunc(XTemplates.WeaponModChoicePopup, "ModifyPartPreview(self, partId, reason)")
+    if not element or element.rat_combat_wrapped then
+        return
+    end
+    local orig = element.func
+    element:SetProperty("func", function(...)
+        if not CheatEnabled("RatModifyInCombat") then
+            return orig(...)
+        end
+        local real = InventoryIsCombatMode
+        InventoryIsCombatMode = NotCombatMode
+        local ok, err = pcall(orig, ...)
+        InventoryIsCombatMode = real
+        if not ok then
+            error(err, 0)
+        end
+    end)
+    element.rat_combat_wrapped = true
+end
+
 function OnMsg.ModsReloaded()
-    AppendZeroDispersionCheat()
+    AppendToggleCheat("idToggleRatZeroDispersion", T(482193570611, "aCTH Zero Dispersion (toggle)"), "RatZeroDispersion")
+    AppendToggleCheat("idToggleRatModifyInCombat", Untranslated("Modify Weapons in Combat (toggle)"), "RatModifyInCombat")
+    PatchModifyInCombat()
 end
