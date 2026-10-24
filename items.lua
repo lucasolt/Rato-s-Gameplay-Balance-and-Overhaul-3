@@ -1875,6 +1875,10 @@ return {
 			'CodeFileName', "Code/FEATURE_NightVisuals.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "FEATURE_LightSources",
+			'CodeFileName', "Code/FEATURE_LightSources.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "FEATURE_WeaponFlashlight",
 			'CodeFileName', "Code/FEATURE_WeaponFlashlight.lua",
 		}),

@@ -207,6 +207,7 @@ return PlaceObj('ModDef', {
 		"Code/FIX_NoVisibilityReload.lua",
 		"Code/FEATURE_StepOutGate.lua",
 		"Code/FEATURE_NightVisuals.lua",
+		"Code/FEATURE_LightSources.lua",
 		"Code/FEATURE_WeaponFlashlight.lua",
 		"Code/WIKI_HelpPages.lua",
 		"InventoryItem/M14SAW_AUTO.lua",
