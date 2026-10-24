@@ -24,6 +24,8 @@ RAT_FLASHLIGHT_CONE = {inner = 15, outer = 30}
 ---- Glow: point light `offset` ahead of the attachment along its X axis; a lowered gun puts it on the
 ---- floor ahead, where the spotlight shows nothing (it skips surfaces closer than ~1.5 m)
 RAT_FLASHLIGHT_GLOW = {intensity = 15, radius = 25 * guic, offset = 70 * guic}
+---- Lens glow: same, on the flashlight itself
+RAT_FLASHLIGHT_LENS = {intensity = 10, radius = 40 * guic, offset = 10 * guic}
 ---- Visible beam origin on the attachment, in its own axes: x along the barrel (+ forward), y sideways, z up
 RAT_FLASHLIGHT_BEAM_OFFSET = point(10 * guic, 0, 0)
 ---- Beam origin height and downward tilt (degrees) per stance, so the cone reaches the ground
@@ -220,8 +222,7 @@ local function SetupSpot(l, reach)
     l:SetConeOuterAngle(RAT_FLASHLIGHT_CONE.outer)
 end
 
-local function SetupGlow(l)
-    local g = RAT_FLASHLIGHT_GLOW
+local function SetupGlow(l, g)
     l:SetColor(RAT_FLASHLIGHT_COLOR)
     l:SetIntensity(g.intensity)
     l:SetAttenuationRadius(g.radius)
@@ -235,7 +236,7 @@ local function RemoveBeam(unit)
     if not b then
         return false
     end
-    for _, l in ipairs{b.render, b.stealth, b.glow} do
+    for _, l in ipairs{b.render, b.stealth, b.glow, b.lens} do
         if IsValid(l) then
             DoneObject(l)
         end
@@ -272,10 +273,10 @@ local function SamePose(a, b)
 end
 
 local function SettingsKey()
-    local c, g, o = RAT_FLASHLIGHT_CONE, RAT_FLASHLIGHT_GLOW, RAT_FLASHLIGHT_BEAM_OFFSET
-    return string.format("%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d", RAT_FLASHLIGHT_REACH, RAT_FLASHLIGHT_RENDER_REACH,
-                         RAT_FLASHLIGHT_INTENSITY, RAT_FLASHLIGHT_COLOR, c.inner, c.outer, g.intensity,
-                         g.radius, g.offset, o:x(), o:y(), o:z())
+    local c, g, n, o = RAT_FLASHLIGHT_CONE, RAT_FLASHLIGHT_GLOW, RAT_FLASHLIGHT_LENS, RAT_FLASHLIGHT_BEAM_OFFSET
+    return string.format("%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d", RAT_FLASHLIGHT_REACH,
+                         RAT_FLASHLIGHT_RENDER_REACH, RAT_FLASHLIGHT_INTENSITY, RAT_FLASHLIGHT_COLOR, c.inner, c.outer,
+                         g.intensity, g.radius, g.offset, n.intensity, n.radius, n.offset, o:x(), o:y(), o:z())
 end
 
 ---- True when the stealth light was placed, moved or removed
@@ -288,20 +289,22 @@ local function UpdateBeam(unit, weapon, lit)
     local changed = false
     local key = SettingsKey()
     local part = FlashlightPart(weapon)
-    if part ~= b.part or not IsValid(b.render) or part and not IsValid(b.glow) then
-        for _, l in ipairs{b.render, b.glow} do
+    if part ~= b.part or not IsValid(b.render) or part and not (IsValid(b.glow) and IsValid(b.lens)) then
+        for _, l in ipairs{b.render, b.glow, b.lens} do
             if IsValid(l) then
                 DoneObject(l)
             end
         end
-        b.part, b.render, b.render_pose, b.glow, b.key = part, NewRenderLight("RatFlashlightBeam"), false, false, false
+        b.part, b.render, b.render_pose, b.glow, b.lens, b.key = part, NewRenderLight("RatFlashlightBeam"), false,
+                                                                 false, false, false
         ---- on the attachment the beam follows the gun's animation; it points down, -90 about y is the part's +X (measured)
         if part then
             part:Attach(b.render)
             b.render:SetAttachAxis(axis_y)
             b.render:SetAttachAngle(-90 * 60)
-            b.glow = NewRenderLight("RatFlashlightGlow")
+            b.glow, b.lens = NewRenderLight("RatFlashlightGlow"), NewRenderLight("RatFlashlightGlow")
             part:Attach(b.glow)
+            part:Attach(b.lens)
         end
     end
     if lit and not IsValid(b.stealth) then
@@ -324,7 +327,8 @@ local function UpdateBeam(unit, weapon, lit)
             changed = true
         end
         if b.glow then
-            SetupGlow(b.glow)
+            SetupGlow(b.glow, RAT_FLASHLIGHT_GLOW)
+            SetupGlow(b.lens, RAT_FLASHLIGHT_LENS)
         end
     end
     local stance_aim = GetAimPos_ShootingStance(unit:GetStatusEffect("shooting_stance"))
