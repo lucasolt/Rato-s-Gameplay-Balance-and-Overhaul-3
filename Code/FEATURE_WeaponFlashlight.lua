@@ -8,7 +8,8 @@
 ---------------------------------------------------------------------------------------------------
 
 ---- Gameplay reach (lit voxels, darkness CTH): a lit flashlight shot inside it ignores darkness
-RAT_FLASHLIGHT_REACH = 12 * const.SlabSizeX
+local reach = 18
+RAT_FLASHLIGHT_REACH = reach * const.SlabSizeX
 ---- AP of the switch action (GBO AP scale)
 RAT_FLASHLIGHT_SWITCH_AP = 5 * const.Scale.AP
 ---- true: player units use the automatic rules too, and the switch action is hidden
@@ -16,18 +17,20 @@ RAT_FLASHLIGHT_AUTO_RULES = false
 ---- Automatic rules: a hip-fire shot leaves the light on until the shooter's next turn; outside combat, this long (ms)
 RAT_FLASHLIGHT_LEFT_ON_EXPLORE = 10000
 ---- Visible beam only; live beams pick up changes within 100 ms
-RAT_FLASHLIGHT_RENDER_REACH = 12 * const.SlabSizeX
-RAT_FLASHLIGHT_INTENSITY = 30
+RAT_FLASHLIGHT_RENDER_REACH = reach * const.SlabSizeX
+RAT_FLASHLIGHT_INTENSITY = 70
 RAT_FLASHLIGHT_COLOR = RGB(255, 245, 225)
 ---- Cone in degrees, both lights; the visible edge is the inner angle
 RAT_FLASHLIGHT_CONE = {inner = 15, outer = 30}
 ---- Glow: point light `offset` ahead of the attachment along its X axis; a lowered gun puts it on the
 ---- floor ahead, where the spotlight shows nothing (it skips surfaces closer than ~1.5 m)
-RAT_FLASHLIGHT_GLOW = {intensity = 15, radius = 25 * guic, offset = 70 * guic}
+RAT_FLASHLIGHT_GLOW = {intensity = 20, radius = 25 * guic, offset = 70 * guic}
 ---- Lens glow: same, on the flashlight itself
-RAT_FLASHLIGHT_LENS = {intensity = 10, radius = 40 * guic, offset = 10 * guic}
+RAT_FLASHLIGHT_LENS = {intensity = 40, radius = 18 * guic, offset = 20 * guic}
 ---- Visible beam origin on the attachment, in its own axes: x along the barrel (+ forward), y sideways, z up
 RAT_FLASHLIGHT_BEAM_OFFSET = point(10 * guic, 0, 0)
+---- The stealth light copies the visible beam once it drifts this far (origin, and beam tip 1 m out)
+RAT_FLASHLIGHT_FOLLOW = 25 * guic
 ---- Beam origin height and downward tilt (degrees) per stance, so the cone reaches the ground
 RAT_FLASHLIGHT_POSE = {
     Standing = {height = 130 * guic, tilt = 6},
@@ -272,6 +275,15 @@ local function SamePose(a, b)
     return a and b and a[1] == b[1] and a[2] == b[2] and a[3] == b[3]
 end
 
+local function BeamTip(pose)
+    return RotateAxis(point(0, 0, -guim), pose[2], pose[3])
+end
+
+local function NearPose(a, b)
+    local d = RAT_FLASHLIGHT_FOLLOW
+    return a and b and a[1]:Dist(b[1]) < d and BeamTip(a):Dist(BeamTip(b)) < d
+end
+
 local function SettingsKey()
     local c, g, n, o = RAT_FLASHLIGHT_CONE, RAT_FLASHLIGHT_GLOW, RAT_FLASHLIGHT_LENS, RAT_FLASHLIGHT_BEAM_OFFSET
     return string.format("%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d", RAT_FLASHLIGHT_REACH,
@@ -341,8 +353,15 @@ local function UpdateBeam(unit, weapon, lit)
         end
     end
     if b.stealth then
-        local real = {BeamPose(unit, stance_aim)}
-        if not SamePose(real, b.stealth_pose) then
+        ---- on the attachment, voxels follow the visible beam; frozen while aiming so hovering a target reveals nothing
+        local follow = b.part and IsValid(b.render)
+        local real
+        if not follow then
+            real = {BeamPose(unit, stance_aim)}
+        elseif not (unit.aim_action_id and b.stealth_pose) then
+            real = {b.render:GetVisualPos(), b.render:GetVisualAxis(), b.render:GetVisualAngle()}
+        end
+        if real and not (follow and NearPose or SamePose)(real, b.stealth_pose) then
             b.stealth_pose = real
             PlaceSpot(b.stealth, real)
             ---- stealth voxels only count sync lights
