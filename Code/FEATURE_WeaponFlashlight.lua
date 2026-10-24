@@ -21,8 +21,9 @@ RAT_FLASHLIGHT_INTENSITY = 30
 RAT_FLASHLIGHT_COLOR = RGB(255, 245, 225)
 ---- Cone in degrees, both lights; the visible edge is the inner angle
 RAT_FLASHLIGHT_CONE = {inner = 15, outer = 30}
----- Lens glow: point light on the flashlight attachment, `offset` along its X axis
-RAT_FLASHLIGHT_GLOW = {intensity = 10, radius = 40 * guic, offset = 10 * guic}
+---- Glow: point light `offset` ahead of the attachment along its X axis; a lowered gun puts it on the
+---- floor ahead, where the spotlight shows nothing (it skips surfaces closer than ~1.5 m)
+RAT_FLASHLIGHT_GLOW = {intensity = 15, radius = 25 * guic, offset = 70 * guic}
 ---- Visible beam origin on the attachment, in its own axes: x along the barrel (+ forward), y sideways, z up
 RAT_FLASHLIGHT_BEAM_OFFSET = point(10 * guic, 0, 0)
 ---- Beam origin height and downward tilt (degrees) per stance, so the cone reaches the ground
