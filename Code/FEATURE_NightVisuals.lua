@@ -222,7 +222,7 @@ function Rat_NightShadeLightsChanged()
     ResetLitCache()
 end
 
-local function StealthLights()
+local function MapStealthLights()
     if not stealth_lights then
         stealth_lights = {}
         MapForEach("map", "Light", function(l)
@@ -581,7 +581,7 @@ function Rat_NightDiscUpdate()
     local near, cols = {}, {}
     local tile_reach = RAT_NIGHT_HOLE_TILE.clear + RAT_NIGHT_HOLE_TILE.fade
     active_field = night and lit_field or empty_table
-    for _, l in ipairs(night and StealthLights() or empty_table) do
+    for _, l in ipairs(night and MapStealthLights() or empty_table) do
         if IsValid(l) and IsCloser2D(l, center, far + 20 * guim) then
             AddLightToField(l)
             for _, t in ipairs(LightTiles(l)) do
@@ -599,7 +599,15 @@ function Rat_NightDiscUpdate()
     disc_mesh:SetPos(center + point(0, 0, 20))
 end
 
+---- FX lights (flares) get their stealth twin at runtime without LightsStateUpdated
+local stealth_twins = -1
+
 MapRealTimeRepeat("RatNightDisc", 50, function()
+    local n = #(StealthLights or empty_table)
+    if n ~= stealth_twins then
+        stealth_twins = n
+        ResetLitCache()
+    end
     Rat_NightDiscUpdate()
 end)
 
