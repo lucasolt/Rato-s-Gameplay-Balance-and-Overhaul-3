@@ -502,7 +502,7 @@ function Rat_PlaceFlashlightAction()
             end
             return "enabled"
         end,
-        Icon = "UI/Icons/Hud/fire_flare",
+        Icon = "Mod/cfahRED/Images/flashlight_switch.png",
         IdDefault = "R_Flashlight",
         IsAimableAttack = false,
         KeybindingSortId = "2353",
