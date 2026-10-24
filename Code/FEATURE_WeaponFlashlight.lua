@@ -21,6 +21,8 @@ RAT_FLASHLIGHT_INTENSITY = 30
 RAT_FLASHLIGHT_COLOR = RGB(255, 245, 225)
 ---- Cone in degrees, both lights; the visible edge is the inner angle
 RAT_FLASHLIGHT_CONE = {inner = 15, outer = 30}
+---- Most the visible beam dips below horizontal (degrees); a lowered gun lights the ground ahead
+RAT_FLASHLIGHT_MAX_DOWN = 20
 ---- Lens glow: point light on the flashlight attachment, `offset` along its X axis
 RAT_FLASHLIGHT_GLOW = {intensity = 10, radius = 40 * guic, offset = 10 * guic}
 ---- Beam origin height and downward tilt (degrees) per stance, so the cone reaches the ground
@@ -292,11 +294,8 @@ local function UpdateBeam(unit, weapon, lit)
             end
         end
         b.part, b.render, b.render_pose, b.glow, b.key = part, NewRenderLight("RatFlashlightBeam"), false, false, false
-        ---- on the attachment the beam follows the gun's animation; it points down, -90 about y is the part's +X (measured)
+        ---- with a part, the beam is placed from it by the RatFlashlightRender loop
         if part then
-            part:Attach(b.render)
-            b.render:SetAttachAxis(axis_y)
-            b.render:SetAttachAngle(-90 * 60)
             b.glow = NewRenderLight("RatFlashlightGlow")
             part:Attach(b.glow)
         end
@@ -313,9 +312,6 @@ local function UpdateBeam(unit, weapon, lit)
     if b.key ~= key then
         b.key = key
         SetupSpot(b.render, RAT_FLASHLIGHT_RENDER_REACH)
-        if b.part then
-            b.render:SetAttachOffset(point(RAT_FLASHLIGHT_GLOW.offset, 0, 0))
-        end
         if b.stealth then
             SetupSpot(b.stealth, RAT_FLASHLIGHT_REACH)
             changed = true
@@ -347,6 +343,21 @@ local function UpdateBeam(unit, weapon, lit)
     end
     return changed
 end
+
+---- Visible beam follows the flashlight part's real direction, its dip capped: a lowered gun (measured
+---- 50 degrees down from 67 cm) put the spot under the merc's own feet, where it seemed to vanish
+MapRealTimeRepeat("RatFlashlightRender", 30, function()
+    for _, b in pairs(beams) do
+        local part, l = b.part, b.render
+        if IsValid(part) and IsValid(l) then
+            local d = RotateAxis(point(4096, 0, 0), part:GetVisualAxis(), part:GetVisualAngle())
+            local down = Min(-atan(d:z(), d:Len2D()) / 60, RAT_FLASHLIGHT_MAX_DOWN)
+            local axis, angle = ComposeRotation(axis_y, (down - 90) * 60, axis_z, atan(d:y(), d:x()))
+            l:SetPos(part:GetVisualPos() + SetLen(d, RAT_FLASHLIGHT_GLOW.offset))
+            l:SetAxisAngle(axis, angle)
+        end
+    end
+end)
 
 MapGameTimeRepeat("RatFlashlights", 100, function()
     if SavingGame then
