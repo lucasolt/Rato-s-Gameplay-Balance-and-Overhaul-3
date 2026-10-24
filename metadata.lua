@@ -237,6 +237,7 @@ return PlaceObj('ModDef', {
 		SightShade = 90,
 		UnawareSightRange = 14,
 		VanillaFreeMoveBonus = 0,
+		WeatherShade = 90,
 		noise_setting_num = 150,
 	},
 	'has_data', true,

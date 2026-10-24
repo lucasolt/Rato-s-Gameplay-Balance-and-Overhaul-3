@@ -5,7 +5,7 @@
 
 ---- Auto-exposure key drop per NightDarkness step. Exposure itself is undone by auto-exposure.
 RAT_NIGHT_KEY_STEP = 100000
----- Shade outside the disc: edge fade width, outer reach. Opacity is the SightShade option.
+---- Shade outside the disc: edge fade width, outer reach. Opacity is SightShade, or WeatherShade under a tint.
 ---- A light inside the disc was tried first: it glints on wet ground, water and foliage.
 RAT_NIGHT_SHADE_FADE = 4 * guim
 RAT_NIGHT_SHADE_REACH = 200 * guim
@@ -105,22 +105,30 @@ local disc_built_at = 0
 ---- Saving the mod reloads this file and drops disc_mesh: sweep the tagged orphans once per load
 local orphans_swept = false
 
+local function ActiveTint()
+    for _, t in ipairs(RAT_NIGHT_SHADE_TINTS) do
+        if GameState[t.state] then
+            return t
+        end
+    end
+end
+
 ---- Shade opacity 0..255
 local function ShadeAlpha()
-    return MulDivRound(255, Clamp(GBO_Opt("SightShade", 90), 0, 100), 100)
+    local pct = ActiveTint() and GBO_Opt("WeatherShade", 90) or GBO_Opt("SightShade", 90)
+    return MulDivRound(255, Clamp(pct, 0, 100), 100)
 end
 
 local function ShadeTint()
-    for _, t in ipairs(RAT_NIGHT_SHADE_TINTS) do
-        if GameState[t.state] then
-            if IsNightShade() then
-                local pct = RAT_NIGHT_SHADE_TINT_NIGHT_PCT
-                return MulDivRound(t.r, pct, 100), MulDivRound(t.g, pct, 100), MulDivRound(t.b, pct, 100)
-            end
-            return t.r, t.g, t.b
-        end
+    local t = ActiveTint()
+    if not t then
+        return 0, 0, 0
     end
-    return 0, 0, 0
+    if IsNightShade() then
+        local pct = RAT_NIGHT_SHADE_TINT_NIGHT_PCT
+        return MulDivRound(t.r, pct, 100), MulDivRound(t.g, pct, 100), MulDivRound(t.b, pct, 100)
+    end
+    return t.r, t.g, t.b
 end
 
 local function DiscUnit()
