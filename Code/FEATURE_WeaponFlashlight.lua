@@ -162,6 +162,8 @@ local function LightsChanged()
     if g_Combat then
         g_Combat.visibility_update_hash = false
     end
+    ---- the hash alone waits for the next move or stance change; unforced, it still respects action freezes
+    VisibilityUpdate()
     Rat_NightShadeLightsChanged()
 end
 
