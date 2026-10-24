@@ -23,6 +23,8 @@ RAT_FLASHLIGHT_COLOR = RGB(255, 245, 225)
 RAT_FLASHLIGHT_CONE = {inner = 15, outer = 30}
 ---- Lens glow: point light on the flashlight attachment, `offset` along its X axis
 RAT_FLASHLIGHT_GLOW = {intensity = 10, radius = 40 * guic, offset = 10 * guic}
+---- Visible beam origin on the attachment, in its own axes: x along the barrel (+ forward), y sideways, z up
+RAT_FLASHLIGHT_BEAM_OFFSET = point(10 * guic, 0, 0)
 ---- Beam origin height and downward tilt (degrees) per stance, so the cone reaches the ground
 RAT_FLASHLIGHT_POSE = {
     Standing = {height = 130 * guic, tilt = 6},
@@ -269,10 +271,10 @@ local function SamePose(a, b)
 end
 
 local function SettingsKey()
-    local c, g = RAT_FLASHLIGHT_CONE, RAT_FLASHLIGHT_GLOW
-    return string.format("%d/%d/%d/%d/%d/%d/%d/%d/%d", RAT_FLASHLIGHT_REACH, RAT_FLASHLIGHT_RENDER_REACH,
+    local c, g, o = RAT_FLASHLIGHT_CONE, RAT_FLASHLIGHT_GLOW, RAT_FLASHLIGHT_BEAM_OFFSET
+    return string.format("%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d", RAT_FLASHLIGHT_REACH, RAT_FLASHLIGHT_RENDER_REACH,
                          RAT_FLASHLIGHT_INTENSITY, RAT_FLASHLIGHT_COLOR, c.inner, c.outer, g.intensity,
-                         g.radius, g.offset)
+                         g.radius, g.offset, o:x(), o:y(), o:z())
 end
 
 ---- True when the stealth light was placed, moved or removed
@@ -314,7 +316,7 @@ local function UpdateBeam(unit, weapon, lit)
         b.key = key
         SetupSpot(b.render, RAT_FLASHLIGHT_RENDER_REACH)
         if b.part then
-            b.render:SetAttachOffset(point(RAT_FLASHLIGHT_GLOW.offset, 0, 0))
+            b.render:SetAttachOffset(RAT_FLASHLIGHT_BEAM_OFFSET)
         end
         if b.stealth then
             SetupSpot(b.stealth, RAT_FLASHLIGHT_REACH)
