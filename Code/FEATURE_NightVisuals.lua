@@ -354,8 +354,9 @@ local LOS_KEEP = {[1] = 0, [2] = 0}
 local function LosStep(u, radius)
     local pos, stance = u:GetPos(), u.stance
     local job = los_job
-    if not job or job.built and (job.pos ~= pos or job.stance ~= stance or job.radius ~= radius) then
-        job = {pos = pos, stance = stance, radius = radius, rows = Max(1, radius / const.SlabSizeX), keep = {}, col = 0}
+    if not job or job.unit ~= u or job.built and (job.pos ~= pos or job.stance ~= stance or job.radius ~= radius) then
+        job = {unit = u, pos = pos, z = u:GetVisualPos():z(), stance = stance, radius = radius,
+               rows = Max(1, radius / const.SlabSizeX), keep = {}, col = 0}
         los_job = job
     end
     if job.done then
@@ -532,8 +533,12 @@ function Rat_NightDiscUpdate()
         if job.done and LosBuildStep(job, alpha, cr, cg, cb) then
             los_shown = job
         end
-        ---- a stale grid only while the merc is still inside it (not after selecting another merc)
         local shown = los_shown
+        ---- another merc selected: the old ring and grid stay until the new grid is built, then both swap
+        if shown and shown.unit ~= u and not job.built and IsValid(disc_mesh) then
+            return
+        end
+        ---- a stale grid only while the merc is still inside it
         if shown and IsCloser2D(center, shown.pos, shown.radius) and LosBuildStep(shown, alpha, cr, cg, cb) then
             los = shown
         end
@@ -569,7 +574,7 @@ function Rat_NightDiscUpdate()
         if grid_mesh.rat_job ~= los or grid_mesh.rat_color ~= los.color_key then
             grid_mesh.rat_job, grid_mesh.rat_color = los, los.color_key
             grid_mesh:SetMesh(los.s)
-            grid_mesh:SetPos(los.pos + point(0, 0, 20))
+            grid_mesh:SetPos(los.pos:SetZ(los.z + 20))
         end
     elseif IsValid(grid_mesh) then
         DoneObject(grid_mesh)
