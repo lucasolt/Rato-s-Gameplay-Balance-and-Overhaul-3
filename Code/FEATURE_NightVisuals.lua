@@ -226,7 +226,9 @@ local function MapStealthLights()
     if not stealth_lights then
         stealth_lights = {}
         MapForEach("map", "Light", function(l)
-            if IsLightSetupToAffectStealth(l) then
+            ---- a weapon flashlight reveals only from shooting stance (see FEATURE_WeaponFlashlight)
+            local owner = l.rat_unit
+            if IsLightSetupToAffectStealth(l) and (not owner or IsValid(owner) and owner:HasStatusEffect("shooting_stance")) then
                 stealth_lights[#stealth_lights + 1] = l
             end
         end)

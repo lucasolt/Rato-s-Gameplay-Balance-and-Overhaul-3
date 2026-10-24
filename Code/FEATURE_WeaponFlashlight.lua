@@ -333,6 +333,8 @@ local function UpdateBeam(unit, weapon, lit)
     end
     if lit and not IsValid(b.stealth) then
         b.stealth, b.stealth_pose, b.key = PlaceObject("RatFlashlightStealth"), false, false
+        ---- the night shade reveals through it only while this unit is in shooting stance
+        b.stealth.rat_unit = unit
     elseif not lit and b.stealth then
         if IsValid(b.stealth) then
             DoneObject(b.stealth)
@@ -374,8 +376,13 @@ local function UpdateBeam(unit, weapon, lit)
     end
     if b.stealth then
         ---- on the attachment, voxels follow the visible beam; frozen while aiming so hovering a target reveals nothing
-        ---- walking: the computed pose, which only changes per tile
-        local follow = b.part and IsValid(b.render) and not unit.goto_target
+        ---- walking or shooting stance: the computed pose (per tile / toward the stance aim), no animation sway
+        local stance = unit:HasStatusEffect("shooting_stance") and true or false
+        if stance ~= b.in_stance then
+            b.in_stance = stance
+            changed = true
+        end
+        local follow = b.part and IsValid(b.render) and not unit.goto_target and not stance
         local real
         if not follow then
             real = {BeamPose(unit, stance_aim)}
