@@ -24,7 +24,8 @@ RAT_FLASHLIGHT_COLOR = RGB(255, 245, 225)
 RAT_FLASHLIGHT_CONE = {inner = 15, outer = 30}
 ---- Glow: point light `offset` ahead of the attachment along its X axis; a lowered gun puts it on the
 ---- floor ahead, where the spotlight shows nothing (it skips surfaces closer than ~1.5 m)
-RAT_FLASHLIGHT_GLOW = {intensity = 20, radius = 25 * guic, offset = 70 * guic}
+---- The offset slides along the barrel to where it comes down to `height` above the floor, within min..offset
+RAT_FLASHLIGHT_GLOW = {intensity = 20, radius = 25 * guic, offset = 70 * guic, height = 15 * guic, min = 20 * guic}
 ---- Lens glow: same, on the flashlight itself
 RAT_FLASHLIGHT_LENS = {intensity = 40, radius = 18 * guic, offset = 20 * guic}
 ---- Visible beam origin on the attachment, in its own axes: x along the barrel (+ forward), y sideways, z up
@@ -225,6 +226,17 @@ local function SetupSpot(l, reach)
     l:SetConeOuterAngle(RAT_FLASHLIGHT_CONE.outer)
 end
 
+---- Distance along the barrel (part +X) where it reaches the floor glow's height above the unit's floor
+local function FloorGlowOffset(unit, part)
+    local g = RAT_FLASHLIGHT_GLOW
+    local dir = RotateAxis(point(guim, 0, 0), part:GetVisualAxis(), part:GetVisualAngle())
+    local drop = part:GetVisualPos():z() - unit:GetVisualPos():z() - g.height
+    if dir:z() >= 0 then
+        return g.offset
+    end
+    return Clamp(MulDivRound(Max(drop, 0), guim, -dir:z()), g.min, g.offset)
+end
+
 local function SetupGlow(l, g)
     l:SetColor(RAT_FLASHLIGHT_COLOR)
     l:SetIntensity(g.intensity)
@@ -341,6 +353,14 @@ local function UpdateBeam(unit, weapon, lit)
         if b.glow then
             SetupGlow(b.glow, RAT_FLASHLIGHT_GLOW)
             SetupGlow(b.lens, RAT_FLASHLIGHT_LENS)
+            b.glow_offset = false
+        end
+    end
+    if b.glow then
+        local t = FloorGlowOffset(unit, b.part)
+        if t ~= b.glow_offset then
+            b.glow_offset = t
+            b.glow:SetAttachOffset(point(t, 0, 0))
         end
     end
     local stance_aim = GetAimPos_ShootingStance(unit:GetStatusEffect("shooting_stance"))
