@@ -25,6 +25,9 @@ RAT_NIGHT_SHADE_TINTS = {
     {state = "Fog", r = 190, g = 195, b = 200},
 }
 RAT_NIGHT_SHADE_TINT_NIGHT_PCT = 35
+---- SightShadeLOS: ms of CheckLOS per tick (~30 us per cell, one call can't be split), and columns per call
+RAT_SHADE_LOS_BUDGET = 8
+RAT_SHADE_LOS_BATCH = 4
 
 function Rat_IsNightLightmodel(lm)
     if not lm or not lm.night then
@@ -100,6 +103,8 @@ function Rat_ShadeSightRadius(unit)
 end
 
 local disc_mesh = false
+---- SightShadeLOS grid, its own mesh
+local grid_mesh = false
 local disc_key = false
 local disc_built_at = 0
 ---- Saving the mod reloads this file and drops disc_mesh: sweep the tagged orphans once per load
@@ -146,8 +151,19 @@ function Rat_NightDiscRemove()
     if IsValid(disc_mesh) then
         DoneObject(disc_mesh)
     end
-    disc_mesh = false
+    if IsValid(grid_mesh) then
+        DoneObject(grid_mesh)
+    end
+    disc_mesh, grid_mesh = false, false
     disc_key = false
+end
+
+local function NewShadeMesh()
+    local m = PlaceObject("Mesh")
+    m.rat_night_shade = true
+    ---- no depth test: a flat ring at the merc's feet must still shade walls, roofs and canopies
+    m:SetShader(ProceduralMeshShaders.default_mesh, false)
+    return m
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -288,9 +304,8 @@ local function AddHole(near, x, y, hole)
     end
 end
 
----- 0..1000 of the shade kept at (x, y): lit field, then the unit holes in `near`
-local function HoleKeep(near, x, y)
-    local keep = active_field[TileKey(x, y)] or 1000
+---- 0..1000 of the shade kept at (x, y) by the unit holes in `near`
+local function UnitKeep(near, x, y, keep)
     local cell = near[(x / NEAR) * 65536 + y / NEAR]
     if not cell then
         return keep
@@ -305,15 +320,70 @@ local function HoleKeep(near, x, y)
     return keep
 end
 
+---- Lit field, then the unit holes
+local function HoleKeep(near, x, y)
+    return UnitKeep(near, x, y, active_field[TileKey(x, y)] or 1000)
+end
+
+---------------------------------------------------------------------------------------------------
+---- Line of sight inside the radius (SightShadeLOS). Vegetation never blocks sight in JA3 (grass only
+---- shortens the range to a target standing in it), so CheckLOS alone matches what the merc sees.
+---- One cell per tile along each column, filled a few columns per tick; the plain ring shows meanwhile.
+---------------------------------------------------------------------------------------------------
+local los_job = false
+local los_gen = 0
+
+local function LosEnabled()
+    return CurrentModOptions and CurrentModOptions.SightShadeLOS
+end
+
+---- Shade kept 0..1000 per CheckLOS value: none, partial (1), full (2)
+local LOS_KEEP = {[1] = 500, [2] = 0}
+
+local function LosStep(u, radius)
+    local pos, stance = u:GetPos(), u.stance
+    local job = los_job
+    if not job or job.pos ~= pos or job.stance ~= stance or job.radius ~= radius then
+        job = {pos = pos, stance = stance, radius = radius, rows = Max(1, radius / const.SlabSizeX), keep = {}, col = 0}
+        los_job = job
+    end
+    if job.done then
+        return
+    end
+    local n = RAT_NIGHT_SHADE_SEGMENTS
+    local start = GetPreciseTicks()
+    while job.col < n and GetPreciseTicks() - start < RAT_SHADE_LOS_BUDGET do
+        local first, last = job.col, Min(n, job.col + RAT_SHADE_LOS_BATCH) - 1
+        local pts = {}
+        for i = first, last do
+            for j = 1, job.rows do
+                local p = RotateRadius(MulDivRound(radius, j, job.rows), i * 360 * 60 / n, pos)
+                pts[#pts + 1] = GetPassSlab(p) or p:SetTerrainZ()
+            end
+        end
+        local _, vals = CheckLOS(pts, pos, -1, stance, -1, false, false)
+        vals = vals or empty_table
+        local k = 0
+        for i = first, last do
+            local col = {[0] = 0}
+            for j = 1, job.rows do
+                k = k + 1
+                col[j] = LOS_KEEP[vals[k]] or 1000
+            end
+            job.keep[i] = col
+        end
+        job.col = last + 1
+    end
+    if job.col >= n then
+        job.done = true
+        los_gen = los_gen + 1
+    end
+end
+
 local unit_circle = false
 
----- Ring from the radius outwards: fades in over RAT_NIGHT_SHADE_FADE, holed in the fine band.
----- Columns without a hole skip the fine rows: one quad from the end of the fade to the far edge.
-local function ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb)
+local function UnitCircle()
     local n = RAT_NIGHT_SHADE_SEGMENTS
-    local step = RAT_NIGHT_SHADE_STEP
-    local rings = RAT_NIGHT_SHADE_FINE / step
-    local fade_rows = (RAT_NIGHT_SHADE_FADE + step - 1) / step
     if not unit_circle or unit_circle.n ~= n then
         unit_circle = {n = n, x = {}, y = {}}
         for i = 0, n do
@@ -321,8 +391,65 @@ local function ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb)
             unit_circle.x[i], unit_circle.y[i] = p:x(), p:y()
         end
     end
-    local ux, uy = unit_circle.x, unit_circle.y
+    return unit_circle
+end
+
+---- Grid triangles of a finished job, a few columns per tick, relative to the job's tile. Static per
+---- job and colour, so it lives in its own mesh and the ring rebuilds stay cheap. True when built.
+local function LosBuildStep(job, alpha, cr, cg, cb)
+    local color_key = ((alpha * 256 + cr) * 256 + cg) * 256 + cb
+    if job.color_key ~= color_key then
+        job.color_key, job.build_col, job.built = color_key, 0, false
+        job.s, job.edge = pstr("", 4096), {}
+    end
+    if job.built then
+        return true
+    end
+    local n, rows, radius = RAT_NIGHT_SHADE_SEGMENTS, job.rows, job.radius
+    local circle = UnitCircle()
+    local ux, uy = circle.x, circle.y
+    local s = job.s
+    local start = GetPreciseTicks()
+    while job.build_col < n and GetPreciseTicks() - start < RAT_SHADE_LOS_BUDGET do
+        local i = job.build_col
+        local i2 = i + 1
+        local ka, kb = job.keep[i], job.keep[i2 % n]
+        job.edge[i] = MulDivRound(alpha, ka[rows], 1000)
+        for j = 0, rows - 1 do
+            local a1, a2, b1, b2 = ka[j], ka[j + 1], kb[j], kb[j + 1]
+            if a1 + a2 + b1 + b2 > 0 then
+                local r1, r2 = MulDivRound(radius, j, rows), MulDivRound(radius, j + 1, rows)
+                local x1, y1 = MulDivRound(ux[i], r1, 4096), MulDivRound(uy[i], r1, 4096)
+                local x2, y2 = MulDivRound(ux[i], r2, 4096), MulDivRound(uy[i], r2, 4096)
+                local x3, y3 = MulDivRound(ux[i2], r2, 4096), MulDivRound(uy[i2], r2, 4096)
+                local x4, y4 = MulDivRound(ux[i2], r1, 4096), MulDivRound(uy[i2], r1, 4096)
+                local c1 = RGBA(cr, cg, cb, MulDivRound(alpha, a1, 1000))
+                local c2 = RGBA(cr, cg, cb, MulDivRound(alpha, a2, 1000))
+                local c3 = RGBA(cr, cg, cb, MulDivRound(alpha, b2, 1000))
+                local c4 = RGBA(cr, cg, cb, MulDivRound(alpha, b1, 1000))
+                s:AppendVertex(x1, y1, 0, c1) s:AppendVertex(x2, y2, 0, c2) s:AppendVertex(x3, y3, 0, c3)
+                s:AppendVertex(x1, y1, 0, c1) s:AppendVertex(x3, y3, 0, c3) s:AppendVertex(x4, y4, 0, c4)
+            end
+        end
+        job.build_col = i2
+    end
+    job.built = job.build_col >= n
+    return job.built
+end
+
+---- Ring from the radius outwards: fades in over RAT_NIGHT_SHADE_FADE, holed in the fine band.
+---- Columns without a hole skip the fine rows: one quad from the end of the fade to the far edge.
+---- With a built `los` job the fade starts from the grid's edge shade, so blocked columns stay dark.
+local function ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb, los)
+    local n = RAT_NIGHT_SHADE_SEGMENTS
+    local step = RAT_NIGHT_SHADE_STEP
+    local rings = RAT_NIGHT_SHADE_FINE / step
+    local fade_rows = (RAT_NIGHT_SHADE_FADE + step - 1) / step
+    local circle = UnitCircle()
+    local ux, uy = circle.x, circle.y
     local cx, cy = center:x(), center:y()
+    local s = pstr("", n * (rings + 2) * 6 * 20)
+    local los_edge = los and los.edge
     local px, py, pa = {}, {}, {}
     for k = 0, rings + 1 do
         local r = k <= rings and radius + k * step or radius + RAT_NIGHT_SHADE_FINE + RAT_NIGHT_SHADE_REACH
@@ -338,12 +465,16 @@ local function ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb)
                 local x, y = MulDivRound(ux[i], r, 4096), MulDivRound(uy[i], r, 4096)
                 row_x[i], row_y[i] = x, y
                 local keep = (can_hole and holed) and HoleKeep(near, cx + x, cy + y) or 1000
-                row_a[i] = keep == 1000 and ring_color or RGBA(cr, cg, cb, MulDivRound(ring_alpha, keep, 1000))
+                local base = los_edge and Max(ring_alpha, los_edge[i % n]) or ring_alpha
+                if base == ring_alpha and keep == 1000 then
+                    row_a[i] = ring_color
+                else
+                    row_a[i] = RGBA(cr, cg, cb, MulDivRound(base, keep, 1000))
+                end
             end
         end
         px[k], py[k], pa[k] = row_x, row_y, row_a
     end
-    local s = pstr("", n * (rings + 2) * 6 * 20)
     local function quad(k1, k2, i, j)
         local ax, ay, aa, bx, by, ba = px[k1], py[k1], pa[k1], px[k2], py[k2], pa[k2]
         s:AppendVertex(ax[i], ay[i], 0, aa[i]) s:AppendVertex(bx[i], by[i], 0, ba[i])
@@ -381,7 +512,16 @@ function Rat_NightDiscUpdate()
     local cr, cg, cb = ShadeTint()
     local far = radius + RAT_NIGHT_SHADE_FINE
 
-    local sig = radius * 7 + alpha + (night and 17 or 0) + (cr * 65536 + cg * 256 + cb) * 19 + center:x() / (guim / 2) * 3 + center:y() / (guim / 2) * 5
+    local los
+    if LosEnabled() then
+        LosStep(u, radius)
+        local job = los_job
+        if job.done and IsCloser2D(center, job.pos, guim) and LosBuildStep(job, alpha, cr, cg, cb) then
+            los = job
+        end
+    end
+
+    local sig = (los and los_gen or 0) * 29 + radius * 7 + alpha + (night and 17 or 0) + (cr * 65536 + cg * 256 + cb) * 19 + center:x() / (guim / 2) * 3 + center:y() / (guim / 2) * 5
     local units = {}
     for _, x in ipairs(g_Units) do
         ---- by day IsIlluminated is always true: every visible unit shows through
@@ -401,12 +541,21 @@ function Rat_NightDiscUpdate()
                 end
             end)
         end
-        local m = PlaceObject("Mesh")
-        m.rat_night_shade = true
-        ---- no depth test: a flat ring at the merc's feet must still shade walls, roofs and canopies
-        m:SetShader(ProceduralMeshShaders.default_mesh, false)
-        disc_mesh = m
+        disc_mesh = NewShadeMesh()
         disc_key = false
+    end
+    if los then
+        if not IsValid(grid_mesh) then
+            grid_mesh = NewShadeMesh()
+        end
+        if grid_mesh.rat_job ~= los or grid_mesh.rat_color ~= los.color_key then
+            grid_mesh.rat_job, grid_mesh.rat_color = los, los.color_key
+            grid_mesh:SetMesh(los.s)
+            grid_mesh:SetPos(los.pos + point(0, 0, 20))
+        end
+    elseif IsValid(grid_mesh) then
+        DoneObject(grid_mesh)
+        grid_mesh = false
     end
     if sig == disc_key or disc_key and now - disc_built_at < RAT_NIGHT_REBUILD_MIN then
         return
@@ -430,7 +579,7 @@ function Rat_NightDiscUpdate()
             AddHole(near, p:x(), p:y(), RAT_NIGHT_HOLE_UNIT)
         end
     end
-    disc_mesh:SetMesh(ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb))
+    disc_mesh:SetMesh(ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb, los))
     disc_mesh:SetPos(center + point(0, 0, 20))
 end
 
