@@ -1481,6 +1481,7 @@ end
 ---- exato (a rajada completa, como o jogo dispara). Sem alvo sob o cursor o cone e o de
 ---- Rat_GetAperture, sem os residuais -- que exigem alvo.
 ---- Aceita tambem uma tabela unica: Rat_DbgRecoilShots{burst = 10, chance = 0, scatter = true}.
+---- With `scatter` and A.StringAnchor the string shares one aiming draw ("A") and walks in from it.
 ---- ATENCAO: consome random sincronizado; em co-op nao use no turno de outro jogador.
 function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker, over)
     if is_opts(burst) then
@@ -1536,13 +1537,24 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker, over)
         return attacker:Random(n)
     end
 
+    ---- string anchor: one shared aiming draw, and the walk toward the target once the impacts show
+    local corr = (scatter and sigma and sigma >= 1) and (prof.anchor_corr or 0) or 0
+    local shared = corr > 0 and Rat_ShotScatterDraw(attacker) or nil
+    if shared then
+        local ax, ay = Rat_AnchorMinutes(shared, corr, sigma)
+        Rat_RecoilSetAnchor(prof, st, ax, ay)
+        DbgAddText("A", Rat_RecoilWalkPoint(attack_pos, aim_pos, axis, ay, lat_ax, ax), clrAxis)
+    end
+
     local rows, nhit, nsat = {}, 0, 0
     for i = 1, burst do
         local lat, mu, off = Rat_RecoilPoint(st)
         local spd = Rat_RecoilSpeed(st)
+        local walked = st.walking
         local aimed = Rat_RecoilWalkPoint(attack_pos, aim_pos, axis, mu, lat_ax, lat)
         if scatter and sigma and sigma >= 1 then
-            aimed = Rat_ShotScatterPoint(attacker, attack_pos, aimed, sigma)
+            aimed = Rat_ShotScatterPoint(attacker, attack_pos, aimed, sigma, nil, nil, nil, shared and
+                                             Rat_ShotScatterMix(shared, Rat_ShotScatterDraw(attacker), corr))
         end
 
         Rat_SimLoFOverrides(args, attack_pos, attacker:Random(), args.ignore_colliders)
@@ -1567,8 +1579,8 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker, over)
         if sat then
             nsat = nsat + 1
         end
-        rows[#rows + 1] = string.format("    %2d  | %+6d | %+6d | %6d | %6d | %-8s | %s", i, lat,
-                                        mu, off, spd, sat and "no teto" or "sobra",
+        rows[#rows + 1] = string.format("    %2d  | %+6d | %+6d | %6d | %6d | %-8s | %-4s | %s", i, lat,
+                                        mu, off, spd, sat and "no teto" or "sobra", walked and "walk" or "",
                                         target and (hit and ("acerto " .. tostring(part or "?")) or
                                             "erro") or "-")
         Rat_RecoilStep(prof, st, rnd)
@@ -1589,7 +1601,10 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker, over)
         string.format("cone %d' (%s)   %s", sigma, cone_src,
                       scatter and "dispersao LIGADA: o tiro 1 tambem sai do centro" or
                           "dispersao desligada: so o passeio do cano"),
-        "    tiro | lateral |  subiu |   |p| |   |v| | forca    | resultado",
+        shared and string.format("string anchor %d%% (A = the string's aim point)   walk %d%% from round %d",
+                                 corr, prof.walk_pct or 0, prof.walk_from or 0) or
+            "no string anchor (scatter off, or A.StringAnchor false)",
+        "    tiro | lateral |  subiu |   |p| |   |v| | forca    | walk | resultado",
         table.concat(rows, "\n")    }
     if target then
         lines[#lines + 1] = string.format("alvo %s [%s]   theta %d'   %d de %d acertos",
