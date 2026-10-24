@@ -261,8 +261,22 @@ local function UpdateBeam(unit, weapon, lit)
     end
     local changed = false
     local key = SettingsKey()
-    if not IsValid(b.render) then
-        b.render, b.render_pose, b.key = NewRenderLight("RatFlashlightBeam"), false, false
+    local part = FlashlightPart(weapon)
+    if part ~= b.part or not IsValid(b.render) or part and not IsValid(b.glow) then
+        for _, l in ipairs{b.render, b.glow} do
+            if IsValid(l) then
+                DoneObject(l)
+            end
+        end
+        b.part, b.render, b.render_pose, b.glow, b.key = part, NewRenderLight("RatFlashlightBeam"), false, false, false
+        ---- on the attachment the beam follows the gun's animation; it points down, -90 about y is the part's +X (measured)
+        if part then
+            part:Attach(b.render)
+            b.render:SetAttachAxis(axis_y)
+            b.render:SetAttachAngle(-90 * 60)
+            b.glow = NewRenderLight("RatFlashlightGlow")
+            part:Attach(b.glow)
+        end
     end
     if lit and not IsValid(b.stealth) then
         b.stealth, b.stealth_pose, b.key = PlaceObject("RatFlashlightStealth"), false, false
@@ -273,20 +287,12 @@ local function UpdateBeam(unit, weapon, lit)
         b.stealth = false
         changed = true
     end
-    local part = FlashlightPart(weapon)
-    if part ~= b.glow_part or not IsValid(b.glow) then
-        if IsValid(b.glow) then
-            DoneObject(b.glow)
-        end
-        b.glow, b.glow_part, b.key = false, part, false
-        if part then
-            b.glow = NewRenderLight("RatFlashlightGlow")
-            part:Attach(b.glow)
-        end
-    end
     if b.key ~= key then
         b.key = key
         SetupSpot(b.render, RAT_FLASHLIGHT_RENDER_REACH)
+        if b.part then
+            b.render:SetAttachOffset(point(RAT_FLASHLIGHT_GLOW.offset, 0, 0))
+        end
         if b.stealth then
             SetupSpot(b.stealth, RAT_FLASHLIGHT_REACH)
             changed = true
@@ -296,10 +302,13 @@ local function UpdateBeam(unit, weapon, lit)
         end
     end
     local stance_aim = GetAimPos_ShootingStance(unit:GetStatusEffect("shooting_stance"))
-    local view = {BeamPose(unit, AimTargetPos(unit) or stance_aim)}
-    if not SamePose(view, b.render_pose) then
-        b.render_pose = view
-        PlaceSpot(b.render, view)
+    ---- no attachment part (no weapon visual): the beam stands on the computed axis instead
+    if not b.part then
+        local view = {BeamPose(unit, AimTargetPos(unit) or stance_aim)}
+        if not SamePose(view, b.render_pose) then
+            b.render_pose = view
+            PlaceSpot(b.render, view)
+        end
     end
     if b.stealth then
         local real = {BeamPose(unit, stance_aim)}
