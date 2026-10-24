@@ -434,17 +434,8 @@ function Rat_DbgShots(count, aim, target_spot, target, attacker, shot_idx, burst
                dz, a.AimCentroidPct or 0, args_src, table.concat(ps, "\n"))
 end
 
----- hue sweep blue -> cyan -> green -> yellow -> red over the burst, so a round's place reads at a glance
 local function recoil_ring_color(i, n)
-    local h = (n > 1) and MulDivRound(n - i, 240, n - 1) or 240
-    if h >= 180 then
-        return RGB(0, MulDivRound(240 - h, 255, 60), 255)
-    elseif h >= 120 then
-        return RGB(0, 255, MulDivRound(h - 120, 255, 60))
-    elseif h >= 60 then
-        return RGB(MulDivRound(120 - h, 255, 60), 255, 0)
-    end
-    return RGB(255, MulDivRound(h, 255, 60), 0)
+    return Rat_RoundOrderColor(i, n)
 end
 
 ---------------------------------------------------------------------------------------------------

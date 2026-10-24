@@ -10,9 +10,24 @@
 ---- unit -> array de records, mais novo por ultimo. Chave fraca: o rastro nao segura um morto.
 g_RatShotHistory = setmetatable({}, {__mode = "k"})
 g_RatShotTracesOn = false
+---- debug: each trace in its round's colour (Rat_RoundOrderColor) and numbered, instead of hit/miss
+g_RatShotTraceOrder = false
 
 local function P()
     return const.Combat.Aperture
+end
+
+---- Round `i` of `n`: hue sweep blue -> cyan -> green -> yellow -> red, so a round's place reads at a glance.
+function Rat_RoundOrderColor(i, n)
+    local h = (n > 1) and MulDivRound(n - i, 240, n - 1) or 240
+    if h >= 180 then
+        return RGB(0, MulDivRound(240 - h, 255, 60), 255)
+    elseif h >= 120 then
+        return RGB(0, 255, MulDivRound(h - 120, 255, 60))
+    elseif h >= 60 then
+        return RGB(MulDivRound(120 - h, 255, 60), 255, 0)
+    end
+    return RGB(255, MulDivRound(h, 255, 60), 0)
 end
 
 ---- Classe propria, IRMA de RatConeRing e nao filha: Rat_SweepConeRings varre por classe e
@@ -98,13 +113,18 @@ end
 
 ---- Material da linha (A.ShotTraceStyle) por tipo, com os alphas de fill/glow escalados por
 ---- `pct` (idade do ataque). Clone: a base e preset compartilhado e nao pode ser mutada.
-local function trace_material(kind, pct)
+---- `color` (optional): replaces the RGB of fill and glow, keeping their alphas
+local function trace_material(kind, pct, color)
     local st = (P().ShotTraceStyle or empty_table)[kind] or empty_table
     local base = CRM_VisionLinePreset:GetById(st.preset or "PreparedAttack")
               or CRM_VisionLinePreset:GetById("PreparedAttack")
     local mat = base:Clone()
     local fill = st.fill_color or mat.fill_color
     local glow = st.glow_color or mat.glow_color
+    if color then
+        fill = SetA(color, select(4, GetRGBA(fill)))
+        glow = SetA(color, select(4, GetRGBA(glow)))
+    end
     if pct < 100 then
         fill = SetA(fill, MulDivRound(select(4, GetRGBA(fill)), pct, 100))
         glow = SetA(glow, MulDivRound(select(4, GetRGBA(glow)), pct, 100))
@@ -117,7 +137,7 @@ local function trace_material(kind, pct)
     return mat
 end
 
-local function show_trace_pindown(key, from, to, kind, pct)
+local function show_trace_pindown(key, from, to, kind, pct, color)
     local obj = traces[key]
     if not IsKindOf(obj, "RatShotTrace") then
         if IsValid(obj) then DoneObject(obj) end
@@ -127,7 +147,7 @@ local function show_trace_pindown(key, from, to, kind, pct)
     end
     local meshPtr = pstr("")
     CRTrail_AppendLineSegment(meshPtr, from, to, false, false, false)
-    local mat = trace_material(kind, pct)
+    local mat = trace_material(kind, pct, color)
     mat.length = from:Dist(to)
     obj:SetCRMaterial(mat)
     obj:SetMesh(meshPtr)
@@ -159,7 +179,7 @@ local function aged_style(obj, id, pct)
     return out
 end
 
-local function show_trace_line(key, from, to, kind, pct)
+local function show_trace_line(key, from, to, kind, pct, order_color)
     local obj = traces[key]
     if not IsKindOf(obj, "RatShotTraceLine") then
         if IsValid(obj) then DoneObject(obj) end
@@ -170,16 +190,16 @@ local function show_trace_line(key, from, to, kind, pct)
     local color = kind == "miss" and const.clrRed or const.clrGreen
     local pts = trace_points(from, to, 8)
     local st = aged_style(obj, id, pct)
-    obj:SetMesh(Rat_StrokeMesh(id, pts, (st and st.color) or color, st))
+    obj:SetMesh(Rat_StrokeMesh(id, pts, order_color or (st and st.color) or color, st))
     obj:SetPos(pts[1]) --- so culling: com mfWorldSpace os vertices ja sao absolutos
     obj:SetVisible(true)
 end
 
-local function show_trace(key, from, to, kind, pct)
+local function show_trace(key, from, to, kind, pct, color)
     if P().ShotTracePindown ~= false then
-        show_trace_pindown(key, from, to, kind, pct)
+        show_trace_pindown(key, from, to, kind, pct, color)
     else
-        show_trace_line(key, from, to, kind, pct)
+        show_trace_line(key, from, to, kind, pct, color)
     end
 end
 
@@ -375,12 +395,17 @@ function Rat_DrawShotTraces(unit)
                         (oldest + MulDivRound(100 - oldest, ord[a] - 1, attacks - 1)) or 100
         ---- Z invalido degrada a aritmetica de vetor para 2D e a linha sai deitada no chao
         local from = rec.attack_pos and Rat_RingValidZ(rec.attack_pos)
+        local nshots = #(rec.shots or empty_table)
         for i, sh in ipairs(rec.shots or empty_table) do
             local to = sh.end_pos
             to = to and Rat_RingValidZ(to)
             if from and to and from:Dist(to) > 0 then
                 local key, kind = string.format("%d_%d", a, i), sh.miss and "miss" or "hit"
-                show_trace(key, from, to, kind, pct)
+                local color = g_RatShotTraceOrder and Rat_RoundOrderColor(i, nshots) or nil
+                show_trace(key, from, to, kind, pct, color)
+                if color then
+                    show_label(to, 0, tostring(i), color, pct)
+                end
                 local stop_marked = false
                 for j, imp in ipairs(sh.impacts or empty_table) do
                     show_impact(key .. "_" .. j, imp, pct)
@@ -410,6 +435,14 @@ function Rat_ToggleShotTraces()
     g_RatShotTracesOn = not g_RatShotTracesOn
     local n = Rat_DrawShotTraces()
     return g_RatShotTracesOn, n
+end
+
+---- Debug: toggles the round-order colours of the Ctrl-Alt-H traces and redraws them.
+function Rat_DbgShotTraceOrder()
+    g_RatShotTraceOrder = not g_RatShotTraceOrder
+    Rat_DrawShotTraces()
+    return g_RatShotTraceOrder and "shot traces: round order (blue = round 1 -> red = last)" or
+               "shot traces: hit / miss"
 end
 
 ---- Selecao nova: o rastro e da unidade selecionada, entao acompanha.
