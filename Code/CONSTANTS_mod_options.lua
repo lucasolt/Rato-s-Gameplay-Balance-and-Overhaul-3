@@ -49,6 +49,51 @@ function OnMsg.ApplyModOptions(id)
 	GBO_ApplyOptions()
 end
 
+---- Our GetOptionMeta wrapper -> what it wrapped, so a hot load does not stack wrappers
+GBO_OPT_META_WRAPS = setmetatable({}, weak_keys_meta)
+
+function GBO_FormatOptionDefault(option)
+	local v = option.DefaultValue
+	if type(v) == "boolean" then
+		return v and "On" or "Off"
+	end
+	return tostring(v)
+end
+
+---- `<default>` in a GBO option's Help shows its DefaultValue in the in-game tooltip
+function GBO_HookOptionDefaultTag()
+	local orig = ModItemOption.GetOptionMeta
+	while GBO_OPT_META_WRAPS[orig] do
+		orig = GBO_OPT_META_WRAPS[orig]
+	end
+	local function wrapper(self)
+		local meta = orig(self)
+		if self.mod and self.mod.id == CurrentModId and meta.help then
+			meta.help = T{meta.help, default = GBO_FormatOptionDefault(self)}
+		end
+		return meta
+	end
+	GBO_OPT_META_WRAPS[wrapper] = orig
+	---- Number/Choice call ModItemOption.GetOptionMeta; Toggle got a copy of it at class build
+	for _, class in pairs(g_Classes) do
+		if IsKindOf(class, "ModItemOption") and GBO_OptMetaIsBase(class.GetOptionMeta, orig) then
+			class.GetOptionMeta = wrapper
+		end
+	end
+end
+
+function GBO_OptMetaIsBase(fn, orig)
+	while GBO_OPT_META_WRAPS[fn] do
+		fn = GBO_OPT_META_WRAPS[fn]
+	end
+	return fn == orig
+end
+
+---- Classes are rebuilt after mod code loads, which drops a file-scope hook
+OnMsg.ClassesBuilt = GBO_HookOptionDefaultTag
+OnMsg.AutorunEnd = GBO_HookOptionDefaultTag
+OnMsg.ModsReloaded = GBO_HookOptionDefaultTag
+
 
 
 
