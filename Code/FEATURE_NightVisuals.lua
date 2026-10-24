@@ -455,7 +455,9 @@ local function ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb, los)
     local n = RAT_NIGHT_SHADE_SEGMENTS
     local step = RAT_NIGHT_SHADE_STEP
     local rings = RAT_NIGHT_SHADE_FINE / step
-    local fade_rows = (RAT_NIGHT_SHADE_FADE + step - 1) / step
+    ---- the grid already fades per tile; a 4 m fade past it would show a lit band beyond sight
+    local fade = los and const.SlabSizeX or RAT_NIGHT_SHADE_FADE
+    local fade_rows = (fade + step - 1) / step
     local circle = UnitCircle()
     local ux, uy = circle.x, circle.y
     local cx, cy = center:x(), center:y()
@@ -464,7 +466,7 @@ local function ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb, los)
     local px, py, pa = {}, {}, {}
     for k = 0, rings + 1 do
         local r = k <= rings and radius + k * step or radius + RAT_NIGHT_SHADE_FINE + RAT_NIGHT_SHADE_REACH
-        local edge = Clamp(MulDivRound(r - radius, 1000, RAT_NIGHT_SHADE_FADE), 0, 1000)
+        local edge = Clamp(MulDivRound(r - radius, 1000, fade), 0, 1000)
         local ring_alpha = MulDivRound(alpha, edge, 1000)
         local ring_color = RGBA(cr, cg, cb, ring_alpha)
         local fine = k > fade_rows and k <= rings
