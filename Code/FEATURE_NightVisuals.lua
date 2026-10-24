@@ -5,7 +5,7 @@
 
 ---- Auto-exposure key drop per NightDarkness step. Exposure itself is undone by auto-exposure.
 RAT_NIGHT_KEY_STEP = 100000
----- Shade outside the disc: edge fade width, outer reach. Opacity is NightSightShade / DaySightShade.
+---- Shade outside the disc: edge fade width, outer reach. Opacity is the SightShade option.
 ---- A light inside the disc was tried first: it glints on wet ground, water and foliage.
 RAT_NIGHT_SHADE_FADE = 4 * guim
 RAT_NIGHT_SHADE_REACH = 200 * guim
@@ -18,6 +18,13 @@ RAT_NIGHT_HOLE_TILE = {clear = guim / 2, fade = 2 * guim}
 RAT_NIGHT_HOLE_UNIT = {clear = guim, fade = 2 * guim}
 ---- Minimum ms between rebuilds while something moves
 RAT_NIGHT_REBUILD_MIN = 250
+---- Shade tint per sight-cutting weather, first match wins; black otherwise. Night keeps `night_pct` of it.
+RAT_NIGHT_SHADE_TINTS = {
+    {state = "FireStorm", r = 110, g = 40, b = 20},
+    {state = "DustStorm", r = 150, g = 120, b = 80},
+    {state = "Fog", r = 190, g = 195, b = 200},
+}
+RAT_NIGHT_SHADE_TINT_NIGHT_PCT = 35
 
 function Rat_IsNightLightmodel(lm)
     if not lm or not lm.night then
@@ -98,10 +105,22 @@ local disc_built_at = 0
 ---- Saving the mod reloads this file and drops disc_mesh: sweep the tagged orphans once per load
 local orphans_swept = false
 
----- Shade opacity 0..255 for the current time of day
+---- Shade opacity 0..255
 local function ShadeAlpha()
-    local pct = IsNightShade() and GBO_Opt("NightSightShade", 70) or GBO_Opt("DaySightShade", 35)
-    return MulDivRound(255, Clamp(pct, 0, 100), 100)
+    return MulDivRound(255, Clamp(GBO_Opt("SightShade", 90), 0, 100), 100)
+end
+
+local function ShadeTint()
+    for _, t in ipairs(RAT_NIGHT_SHADE_TINTS) do
+        if GameState[t.state] then
+            if IsNightShade() then
+                local pct = RAT_NIGHT_SHADE_TINT_NIGHT_PCT
+                return MulDivRound(t.r, pct, 100), MulDivRound(t.g, pct, 100), MulDivRound(t.b, pct, 100)
+            end
+            return t.r, t.g, t.b
+        end
+    end
+    return 0, 0, 0
 end
 
 local function DiscUnit()
@@ -282,7 +301,7 @@ local unit_circle = false
 
 ---- Ring from the radius outwards: fades in over RAT_NIGHT_SHADE_FADE, holed in the fine band.
 ---- Columns without a hole skip the fine rows: one quad from the end of the fade to the far edge.
-local function ShadeMesh(radius, center, near, cols, alpha)
+local function ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb)
     local n = RAT_NIGHT_SHADE_SEGMENTS
     local step = RAT_NIGHT_SHADE_STEP
     local rings = RAT_NIGHT_SHADE_FINE / step
@@ -301,7 +320,7 @@ local function ShadeMesh(radius, center, near, cols, alpha)
         local r = k <= rings and radius + k * step or radius + RAT_NIGHT_SHADE_FINE + RAT_NIGHT_SHADE_REACH
         local edge = Clamp(MulDivRound(r - radius, 1000, RAT_NIGHT_SHADE_FADE), 0, 1000)
         local ring_alpha = MulDivRound(alpha, edge, 1000)
-        local ring_color = RGBA(0, 0, 0, ring_alpha)
+        local ring_color = RGBA(cr, cg, cb, ring_alpha)
         local fine = k > fade_rows and k <= rings
         local can_hole = k <= rings and edge > 0
         local row_x, row_y, row_a = {}, {}, {}
@@ -311,7 +330,7 @@ local function ShadeMesh(radius, center, near, cols, alpha)
                 local x, y = MulDivRound(ux[i], r, 4096), MulDivRound(uy[i], r, 4096)
                 row_x[i], row_y[i] = x, y
                 local keep = (can_hole and holed) and HoleKeep(near, cx + x, cy + y) or 1000
-                row_a[i] = keep == 1000 and ring_color or RGBA(0, 0, 0, MulDivRound(ring_alpha, keep, 1000))
+                row_a[i] = keep == 1000 and ring_color or RGBA(cr, cg, cb, MulDivRound(ring_alpha, keep, 1000))
             end
         end
         px[k], py[k], pa[k] = row_x, row_y, row_a
@@ -351,9 +370,10 @@ function Rat_NightDiscUpdate()
     local radius = Rat_ShadeSightRadius(u)
     local alpha = ShadeAlpha()
     local night = IsNightShade()
+    local cr, cg, cb = ShadeTint()
     local far = radius + RAT_NIGHT_SHADE_FINE
 
-    local sig = radius * 7 + alpha + (night and 17 or 0) + center:x() / (guim / 2) * 3 + center:y() / (guim / 2) * 5
+    local sig = radius * 7 + alpha + (night and 17 or 0) + (cr * 65536 + cg * 256 + cb) * 19 + center:x() / (guim / 2) * 3 + center:y() / (guim / 2) * 5
     local units = {}
     for _, x in ipairs(g_Units) do
         ---- by day IsIlluminated is always true: every visible unit shows through
@@ -402,7 +422,7 @@ function Rat_NightDiscUpdate()
             AddHole(near, p:x(), p:y(), RAT_NIGHT_HOLE_UNIT)
         end
     end
-    disc_mesh:SetMesh(ShadeMesh(radius, center, near, cols, alpha))
+    disc_mesh:SetMesh(ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb))
     disc_mesh:SetPos(center + point(0, 0, 20))
 end
 
