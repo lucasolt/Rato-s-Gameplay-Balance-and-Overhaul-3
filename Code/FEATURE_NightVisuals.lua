@@ -168,7 +168,7 @@ end
 
 ---------------------------------------------------------------------------------------------------
 ---- Holes: lit tiles around stealth lights (the voxel flag IsIlluminated reads), and visible units
----- that count as lit anyway (fire, IgnoreInTheDark weapons). Light radius is no guide to the lit
+---- that count as lit anyway (fire, a flashlight beam on). Light radius is no guide to the lit
 ---- area: measured lit ground reaches ~60-70% of it, and nothing on floors the light can't reach.
 ---------------------------------------------------------------------------------------------------
 
@@ -216,6 +216,11 @@ end
 
 OnMsg.LightsStateUpdated = ResetLitCache
 OnMsg.NewMapLoaded = ResetLitCache
+
+---- Lights placed or moved at runtime (weapon flashlights)
+function Rat_NightShadeLightsChanged()
+    ResetLitCache()
+end
 
 local function StealthLights()
     if not stealth_lights then
