@@ -1,18 +1,17 @@
-local file_str = 'FEATURE_WeaponFlashlight.lua'
-
 ---------------------------------------------------------------------------------------------------
 ---- WEAPON FLASHLIGHT -- at night a flashlight weapon in shooting stance casts a real beam toward the
 ---- stance aim point: a rendered spotlight plus a StealthSpotLight, so whatever it reaches is
 ---- illuminated (sight range, darkness CTH). Aiming at a target (stance or not) shows the visible
 ---- beam on it, without the stealth light, so hovering reveals nothing. The lens glows while the
----- visible beam is on. The wielder is lit only in stance; vanilla lit him always (vanilla's own
----- TurnOn FX is dead: EnableAimFX is off on Flashlight, and played by hand it shows nothing).
+---- visible beam is on. A hip-fire shot leaves the light on until the shooter's next turn. The
+---- wielder is lit only while the real beam is on; vanilla lit him always (vanilla's own TurnOn FX
+---- is dead: EnableAimFX is off on Flashlight, and played by hand it shows nothing).
 ---------------------------------------------------------------------------------------------------
 
----- Gameplay reach (lit voxels, darkness CTH); aimed shots inside it ignore darkness, hip fire keeps
----- RAT_FLASHLIGHT_HIPFIRE_PCT of the penalty
+---- Gameplay reach (lit voxels, darkness CTH): any flashlight shot inside it ignores darkness
 RAT_FLASHLIGHT_REACH = 12 * const.SlabSizeX
-RAT_FLASHLIGHT_HIPFIRE_PCT = 50
+---- A hip-fire shot leaves the light on until the shooter's next turn; outside combat, this long (ms)
+RAT_FLASHLIGHT_LEFT_ON_EXPLORE = 10000
 ---- Visible beam only; live beams pick up changes within 100 ms
 RAT_FLASHLIGHT_RENDER_REACH = 12 * const.SlabSizeX
 RAT_FLASHLIGHT_INTENSITY = 30
@@ -42,9 +41,50 @@ function Rat_FlashlightWeapon(unit)
     end
 end
 
+local LEFT_ON = "rat_flashlight_left_on"
+
+---- true in combat (until the unit's next turn), an end GameTime outside it
+function Rat_FlashlightLeftOn(unit)
+    local v = unit:GetEffectValue(LEFT_ON)
+    return v == true or type(v) == "number" and GameTime() < v
+end
+
+---- The real beam: shooting stance, or left on by hip fire
 function Rat_FlashlightOn(unit)
     return (GameState.Night or GameState.Underground) and IsValid(unit) and not unit:IsDead()
-        and unit:HasStatusEffect("shooting_stance") and Rat_FlashlightWeapon(unit) and true or false
+        and (unit:HasStatusEffect("shooting_stance") or Rat_FlashlightLeftOn(unit))
+        and Rat_FlashlightWeapon(unit) and true or false
+end
+
+---- Stance before the action: OnAttack is too late, shooting stance is entered in an earlier OnAttack
+function OnMsg.RunCombatAction(action_id, unit)
+    if IsKindOf(unit, "Unit") then
+        unit.rat_flashlight_pre_stance = unit:HasStatusEffect("shooting_stance")
+    end
+end
+
+function OnMsg.OnAttack(unit, action, target, results, attack_args)
+    local weapon = attack_args and attack_args.weapon
+    if not IsKindOf(unit, "Unit") or not (GameState.Night or GameState.Underground) or not IsKindOf(weapon, "Firearm")
+        or not weapon:HasComponent("IgnoreInTheDark") then
+        return
+    end
+    if (attack_args.aim or 0) > 0 or attack_args.opportunity_attack or unit.rat_flashlight_pre_stance then
+        return
+    end
+    unit:SetEffectValue(LEFT_ON, g_Combat and true or GameTime() + RAT_FLASHLIGHT_LEFT_ON_EXPLORE)
+end
+
+function OnMsg.UnitBeginTurn(unit)
+    unit:SetEffectValue(LEFT_ON, nil)
+end
+
+function OnMsg.CombatEnd()
+    for _, unit in ipairs(g_Units) do
+        if unit:GetEffectValue(LEFT_ON) == true then
+            unit:SetEffectValue(LEFT_ON, GameTime() + RAT_FLASHLIGHT_LEFT_ON_EXPLORE)
+        end
+    end
 end
 
 ---- Vanilla IsIlluminated (Lua/Stealth.lua), with the flashlight clause tied to the beam being on
@@ -112,7 +152,7 @@ local function BeamWeapon(unit)
     if not (GameState.Night or GameState.Underground) or not IsValid(unit) or unit:IsDead() then
         return
     end
-    if not unit:HasStatusEffect("shooting_stance") and not AimTargetPos(unit) then
+    if not unit:HasStatusEffect("shooting_stance") and not AimTargetPos(unit) and not Rat_FlashlightLeftOn(unit) then
         return
     end
     return Rat_FlashlightWeapon(unit)
@@ -306,9 +346,8 @@ MapGameTimeRepeat("RatFlashlights", 100, function()
 end)
 
 ---------------------------------------------------------------------------------------------------
----- Darkness CTH: a flashlight shot within reach is lit. Aimed (aim, shooting stance, interrupt):
----- no penalty, even before the beam reaches the target, so the preview matches the shot. Hip fire
----- keeps RAT_FLASHLIGHT_HIPFIRE_PCT of it.
+---- Darkness CTH: a flashlight shot within reach is lit, even before the beam reaches the target, so
+---- the preview matches the shot. Hip fire pays for it in OnAttack (light left on).
 ---------------------------------------------------------------------------------------------------
 local function FlashlightCovers(attacker, weapon, target, attacker_pos, target_pos)
     if not IsKindOf(attacker, "Unit") or not IsKindOf(weapon, "Firearm") or not weapon:HasComponent("IgnoreInTheDark") then
@@ -332,11 +371,7 @@ function Rat_PatchDarknessCTH()
         if not use or not FlashlightCovers(attacker, weapon1, target, attacker_pos, target_pos) then
             return use, value, name, meta
         end
-        if (aim or 0) > 0 or opportunity_attack or attacker:HasStatusEffect("shooting_stance") then
-            return false, 0
-        end
-        return true, MulDivRound(value, RAT_FLASHLIGHT_HIPFIRE_PCT, 100),
-               ratT(file_str, 731905548221, "In the dark (flashlight, hip fire)"), meta
+        return false, 0
     end
     RAT_ATT_WRAPS[m.CalcValue] = orig
 end
