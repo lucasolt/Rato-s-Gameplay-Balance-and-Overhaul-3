@@ -434,12 +434,17 @@ function Rat_DbgShots(count, aim, target_spot, target, attacker, shot_idx, burst
                dz, a.AimCentroidPct or 0, args_src, table.concat(ps, "\n"))
 end
 
----- Anel do tiro `i` de `n`: amarelo no primeiro, vermelho no ultimo. E a leitura do recoil --
----- quanto mais longe do amarelo, mais o cone abriu.
+---- hue sweep blue -> cyan -> green -> yellow -> red over the burst, so a round's place reads at a glance
 local function recoil_ring_color(i, n)
-    local t = (n > 1) and MulDivRound(i - 1, 100, n - 1) or 0
-    return RGB(255 - MulDivRound(25, t, 100), 220 - MulDivRound(160, t, 100),
-               MulDivRound(40, t, 100))
+    local h = (n > 1) and MulDivRound(n - i, 240, n - 1) or 240
+    if h >= 180 then
+        return RGB(0, MulDivRound(240 - h, 255, 60), 255)
+    elseif h >= 120 then
+        return RGB(0, 255, MulDivRound(h - 120, 255, 60))
+    elseif h >= 60 then
+        return RGB(MulDivRound(120 - h, 255, 60), 255, 0)
+    end
+    return RGB(255, MulDivRound(h, 255, 60), 0)
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -559,7 +564,7 @@ function Rat_DbgBurst(bursts, burst, aim, target_spot, target, attacker)
                              "  tiro | prev | med  |    mu | cone\n%s\n" ..
                              "  acertos por rajada (media %d.%02d de %d; ao menos 1 em %d%%):\n%s\n" ..
                              "  distribuicao por membro:\n%s\n" ..
-                             "  desenhada a ULTIMA rajada: amarelo = tiro 1, vermelho = ultimo",
+                             "  desenhada a ULTIMA rajada: azul = tiro 1 -> verde -> amarelo -> vermelho = ultimo",
                          tostring(attacker.session_id), tostring(ctx.weapon.class),
                          tostring(target.session_id), tostring(target:GetHitStance()),
                          attacker:GetDist(target) / const.SlabSizeX, aim, tostring(target_spot),
@@ -895,7 +900,7 @@ function Rat_DbgLastShots(rings)
                tostring(l.inside_attack_area_check), tostring(l.forced_hit_on_eye_contact),
                tostring(l.additional_colliders), tostring(l.n_ignore_colliders),
                hits, total, MulDivRound(hits, 100, Max(1, total)), total - hits, crits,
-               rings and "um anel por tiro, amarelo (tiro 1) -> vermelho (ultimo) = recoil abrindo" or
+               rings and "um anel por tiro, azul (tiro 1) -> verde -> vermelho (ultimo) = recoil abrindo" or
                    "amarelo = 96% dos tiros do disparo 1 (Rat_DbgLastShots(true) = anel por tiro)",
                table.concat(ps, "\n"), table.concat(lines, "\n"))
 end
@@ -1467,7 +1472,7 @@ function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker, over)
     end
     lines[#lines + 1] = over_line(over)
     lines[#lines + 1] =
-        "amarelo->vermelho = tiro 1..N no ponto medio do cano | disco = largura do grupo ali"
+        "azul->verde->amarelo->vermelho = tiro 1..N no ponto medio do cano | disco = largura do grupo ali"
 
     side_legend(lines, aim_pos, dir)
 
@@ -2117,7 +2122,7 @@ function Rat_DbgPersist(attacker, target, action_id)
         if theta0 and theta0 >= 1 then
             draw_disc(sc.aim_pos, cone_radius(sc.dist, theta0), sc.dir, clrSilh, 32)
         end
-        lines[#lines + 1] = "ciano = alvo | amarelo->vermelho = elipse do cone por mira 0..N"
+        lines[#lines + 1] = "ciano = alvo | azul->vermelho = elipse do cone por mira 0..N"
     end
     lines[#lines + 1] = "`tremor` = dispersao vertical A MAIS, somada em quadratura ao cone -- o " ..
                             "cano NAO fica parado fora do alvo. `jogo` deveria ser igual a `CTH`."
@@ -2213,7 +2218,7 @@ function Rat_DbgPersistChain(attacks, aim, attacker, target, action_id)
     end
     lines[#lines + 1] = "`comeca em` ja desconta a recuperacao por AP; `termina em` e depois do teto."
     if sc then
-        lines[#lines + 1] = "ciano = alvo | amarelo->vermelho = elipse do cone no ataque 1..N"
+        lines[#lines + 1] = "ciano = alvo | azul->vermelho = elipse do cone no ataque 1..N"
         side_legend(lines, sc.aim_pos, sc.dir)
     end
     return table.concat(lines, "\n")
