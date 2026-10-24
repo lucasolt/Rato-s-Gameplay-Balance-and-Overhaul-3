@@ -354,7 +354,8 @@ local function UpdateBeam(unit, weapon, lit)
     end
     if b.stealth then
         ---- on the attachment, voxels follow the visible beam; frozen while aiming so hovering a target reveals nothing
-        local follow = b.part and IsValid(b.render)
+        ---- walking: the computed pose, which only changes per tile
+        local follow = b.part and IsValid(b.render) and not unit.goto_target
         local real
         if not follow then
             real = {BeamPose(unit, stance_aim)}
