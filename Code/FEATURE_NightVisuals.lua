@@ -348,8 +348,8 @@ local function LosEnabled()
     return CurrentModOptions and CurrentModOptions.SightShadeLOS
 end
 
----- Shade kept 0..1000 per CheckLOS value: none, partial (1), full (2)
-local LOS_KEEP = {[1] = 500, [2] = 0}
+---- Shade kept 0..1000 per CheckLOS value: none, partial (1), full (2); partial still sees a unit there
+local LOS_KEEP = {[1] = 0, [2] = 0}
 
 local function LosStep(u, radius)
     local pos, stance = u:GetPos(), u.stance
