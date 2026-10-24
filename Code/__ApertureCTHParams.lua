@@ -322,8 +322,10 @@ A.StringAnchorCorrPct = 95
 ---- Walking fire: once the impacts are visible the correction pulls toward the target. % of the anchor error
 ---- taken back at full recoil accuracy (Marksmanship vs control); 0 = anchor only.
 A.WalkFirePct = 80
----- round whose correction first sees the impacts without tracers (tracers: RecoilTracerFromShot)
-A.WalkFireSeeFrom = 4
+---- reaction to round 1's impact; the first walked round is the first one fired after it (weapon.RPM).
+---- 250 ms: round 4 at 600 RPM, 5 at 900, 6 at 1200. Tracers show the stream sooner.
+A.WalkFireReactMs = 250
+A.WalkFireReactTracerMs = 150
 
 ---- Component recoil muls for the aCTH kick only; missing keys fall back to const.Combat.Recoil.Components.
 ---- Kick against recovery amplifies them: AK47 6 rds @10 tiles, x0.90 -> +26% hits, x1.10 -> -25%

@@ -454,7 +454,7 @@ What zero kick could buy, i.e. the ceiling for recoil parts (fixed floor -> kick
 
 A string draws its aiming error **once**. Rounds 2+ land at that point plus the recoil walk. `StringAnchorCorrPct` (95) of the cone is shared by the string and the rest is drawn per round; the total sigma is the same, so each round keeps its marginal CTH. This is the same mix the AN-94 hyperburst already used. While the anchor is on it replaces BasePrecisionModel's follow-up cone (`Rat_FollowUpConeMul` returns nil), so aim counts for the whole string again.
 
-**Walking fire.** From the round whose correction first sees the impacts (`WalkFireSeeFrom` 4, tracers `RecoilTracerFromShot` 3), the PD setpoint moves from the original aim point to the target: `-anchor x WalkFirePct (80) x recoil accuracy`. The pull toward the target spends the same `max_inc` budget that fights the kick, so soft-recoil guns walk in and hard kickers can't. The persistent offset stores only the unrecovered recoil (`p - setpoint`).
+**Walking fire.** From the first round fired after the shooter reacts to round 1's impact (`WalkFireReactMs` 250, tracers 150, over `weapon.RPM`: round 4 at 600 RPM, 5 at 750-900, 6 at 1200), the PD setpoint moves from the original aim point to the target: `-anchor x WalkFirePct (80) x recoil accuracy`. The pull toward the target spends the same `max_inc` budget that fights the kick, so soft-recoil guns walk in and hard kickers can't. The persistent offset stores only the unrecovered recoil (`p - setpoint`).
 
 **Estimator.** For each walk it samples the anchor and runs the walk toward it. Each round is Rice(theta, residual sigma, |anchor + p|), and round 1 stays analytic Rayleigh. It costs about 8% more per estimate.
 

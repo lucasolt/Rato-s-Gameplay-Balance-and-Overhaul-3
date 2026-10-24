@@ -228,6 +228,10 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
     anchor_corr = Max(anchor_corr, Rat_HyperburstCorr(weapon, action))
     local accuracy = Clamp(MulDivRound(attacker.Marksmanship or 0, 100, Max(30, other_control)), 0, 100)
     local walk_pct = a.StringAnchor and MulDivRound(a.WalkFirePct or 0, accuracy, 100) or 0
+    ---- rounds that leave before the shooter reacts to round 1's impact: a fast gun spends more of them
+    local react = tracer and (a.WalkFireReactTracerMs or 0) or (a.WalkFireReactMs or 0)
+    local rpm = Max(1, weapon.RPM or const.Combat.Recoil.ROFRefRPM or 600)
+    local walk_from = 1 + (react * rpm + 59999) / 60000
 
     return {
         kick_x = kick_x,
@@ -249,8 +253,7 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
         accuracy = accuracy,
         anchor_corr = anchor_corr,
         walk_pct = walk_pct,
-        ---- the round whose correction first sees the impacts: tracers show them sooner
-        walk_from = tracer and Max(2, a.RecoilTracerFromShot or 3) or (a.WalkFireSeeFrom or 4),
+        walk_from = walk_from,
         ---- centiminutes; 0 = no ceiling
         climb_cap = kick * 100 * (a.RecoilClimbCapKicks or 0),
         ---- minutes, for reading and for the gate: kick_min > cf_min means unstabilisable
