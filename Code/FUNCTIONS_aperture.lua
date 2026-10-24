@@ -909,7 +909,8 @@ end
 ---- Per-mille of the attack's cone that rounds 2+ fire at (BasePrecisionModel): round 1 without the aim
 ---- levels, never tighter than round 1. nil = every round at the attack's cone (hip, hyperburst).
 function Rat_FollowUpConeMul(weapon, attacker, action, aim, opportunity_attack, attacker_pos, num_shots)
-    if not P().BasePrecisionModel or (aim or 0) < 1 or (num_shots or 1) < 2 or
+    ---- string anchor: the whole string shares round 1's aim, so there is no follow-up cone
+    if not P().BasePrecisionModel or P().StringAnchor or (aim or 0) < 1 or (num_shots or 1) < 2 or
         Rat_HyperburstCorr(weapon, action) > 0 then
         return nil
     end
@@ -1310,12 +1311,13 @@ end
 
 ---- Desvio radial de UM tiro, em minutos de angulo. Consome random SINCRONIZADO,
 ---- entao so pode ser chamada na resolucao do tiro, nunca em previsao.
-function Rat_SampleShotOffset(attacker, sigma)
+---- `rnd` (optional): a seeded rnd(n) in place of the attacker's synced one
+function Rat_SampleShotOffset(attacker, sigma, rnd)
     local a = P()
     if not sigma or sigma < 1 then
         return 0
     end
-    local u = attacker:Random(1000)
+    local u = rnd and rnd(1000) or attacker:Random(1000)
     local T, step = a.Rayleigh, a.RayleighStep
 
     local k1000 = #T * step
@@ -1396,6 +1398,13 @@ function Rat_ShotScatterMix(shared, own, corr)
     local rest = Rat_ISqrt(10000 - corr * corr)
     return {MulDivRound(shared[1], corr, 100) + MulDivRound(own[1], rest, 100),
             MulDivRound(shared[2], corr, 100) + MulDivRound(own[2], rest, 100)}
+end
+
+---- The shared part of a mixed draw in minutes (lateral, up), as Rat_ShotScatterPoint places it, fan aside.
+function Rat_AnchorMinutes(shared, corr, sigma, sigma_y, sigma_y_down)
+    local sy = ((shared[2] >= 0) and sigma_y or (sigma_y_down or sigma_y)) or sigma
+    return MulDivRound(sigma, MulDivRound(shared[1], corr, 100), 1000),
+           MulDivRound(sy, MulDivRound(shared[2], corr, 100), 1000)
 end
 
 ---- `draw` (optional): a precomputed Rat_ShotScatterDraw instead of rolling one here.
@@ -1600,9 +1609,13 @@ function Rat_SimPlanShots(ctx)
         return ctx.attacker:Random(n)
     end or nil
 
-    ---- hyperburst: the rounds leave inside one hold, so they share most of the aiming error
-    local corr = (num_shots > 1) and Rat_HyperburstCorr(ctx.weapon, ctx.action) or 0
+    ---- the rounds share the aiming error (string anchor; hyperburst leaves inside one hold)
+    local corr = (num_shots > 1) and Max(Rat_HyperburstCorr(ctx.weapon, ctx.action), prof and prof.anchor_corr or 0) or 0
     local shared = (corr > 0) and Rat_ShotScatterDraw(ctx.attacker) or nil
+    if shared and st then
+        Rat_RecoilSetAnchor(prof, st, Rat_AnchorMinutes(shared, corr, sigma, sigma_y, sigma_y_dn))
+    end
+    ctx.anchor_corr = corr
 
     ---- cheat: every bullet lands on the aim point, to tell aiming bugs from real misses
     local zero = CheatEnabled("RatZeroDispersion")
@@ -1657,11 +1670,16 @@ function Rat_SimReplanShot(ctx, idx)
     local axis = (prof and idx > 1) and
                      Rat_RecoilWalkAxis(ctx.attacker, ctx.attack_pos, ctx.aim_pos) or nil
 
+    local corr = ctx.anchor_corr or 0
+    local shared = (axis and corr > 0) and Rat_ShotScatterDraw(ctx.attacker) or nil
     local mu, lat = 0, 0
     if axis then
         local st = Rat_RecoilState()
         local rnd = function(n)
             return ctx.attacker:Random(n)
+        end
+        if shared then
+            Rat_RecoilSetAnchor(prof, st, Rat_AnchorMinutes(shared, corr, ctx.sigma, ctx.sigma_y, ctx.sigma_y_dn))
         end
         for _ = 1, idx - 1 do
             Rat_RecoilStep(prof, st, rnd)
@@ -1679,7 +1697,8 @@ function Rat_SimReplanShot(ctx, idx)
         lat = lat,
         target_pos = Rat_ShotScatterPoint(ctx.attacker, ctx.attack_pos, aim_pos, f or ctx.sigma,
                                           f and ctx.sigma_y_f or ctx.sigma_y,
-                                          f and ctx.sigma_y_dn_f or ctx.sigma_y_dn, ctx.fan)
+                                          f and ctx.sigma_y_dn_f or ctx.sigma_y_dn, ctx.fan, shared and
+                                              Rat_ShotScatterMix(shared, Rat_ShotScatterDraw(ctx.attacker), corr))
     }
 end
 

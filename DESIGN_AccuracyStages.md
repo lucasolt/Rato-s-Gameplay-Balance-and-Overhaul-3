@@ -449,3 +449,19 @@ Hits over 6 rounds at aim 3, 20 tiles, as % of the fixed floor (all live guns):
 Picked 150: rifles and SMGs stay neutral, and braced MGs gain about 10% (high investment, high return). High-kick guns get a noisier walk (AK-47 offset at round 6: 295 -> 375), but their late rounds were already off target.
 
 What zero kick could buy, i.e. the ceiling for recoil parts (fixed floor -> kick-scaled floor): AK-74 standing +22% -> +64%, RPK-74 standing +8% -> +21%, HK23E prone +2% -> +9%. A -10% kick step now buys 14-20% on 5.45/5.56 rifles standing. A braced MG still gets only 2-3%: its walk (40-73') sits under its follow-up base cone (66'), so the cone is the limiter, not recoil.
+
+## String anchor and walking fire (2026-10-23, A.StringAnchor)
+
+A string draws its aiming error **once**. Rounds 2+ land at that point plus the recoil walk. `StringAnchorCorrPct` (95) of the cone is shared by the string and the rest is drawn per round; the total sigma is the same, so each round keeps its marginal CTH. This is the same mix the AN-94 hyperburst already used. While the anchor is on it replaces BasePrecisionModel's follow-up cone (`Rat_FollowUpConeMul` returns nil), so aim counts for the whole string again.
+
+**Walking fire.** From the round whose correction first sees the impacts (`WalkFireSeeFrom` 4, tracers `RecoilTracerFromShot` 3), the PD setpoint moves from the original aim point to the target: `-anchor x WalkFirePct (80) x recoil accuracy`. The pull toward the target spends the same `max_inc` budget that fights the kick, so soft-recoil guns walk in and hard kickers can't. The persistent offset stores only the unrecovered recoil (`p - setpoint`).
+
+**Estimator.** For each walk it samples the anchor and runs the walk toward it. Each round is Rice(theta, residual sigma, |anchor + p|), and round 1 stays analytic Rayleigh. It costs about 8% more per estimate.
+
+Live check (Marks 85, 20 tiles, sum of per-round CTH):
+- Anchor without walking reproduces the 4.04 means within sampling noise (AK-74 10 rds aim 1: 4.04 78 / anchor 73; HK23E prone 15 rds aim 1: 183 / 193).
+- Walking: AK-74 standing 10 rds aim 1 73 -> 82. Prone, 15 rds, aim 1: HK23E 193 -> 415, RPK-74 185 -> 391, MG42 111 -> 225. In the HK23E ladder the per-round CTH climbs 13% -> 42% over the string. High-kick guns (UZI, AK-47, FAL) barely change.
+- -10% kick gain (branch -> walk): rifles standing +15-37% -> +20-50%. Braced MGs +0-5% -> +2-13%, still the weakest.
+- Wide cones no longer rescue rounds that the walk took off target (MG42 standing 15 rds aim 1: 17 -> 3).
+
+Not yet checked end to end through GetLoFData (Rat_DbgBurst): the test map had no target.

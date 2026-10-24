@@ -314,6 +314,16 @@ A.BasePrecisionModel = true
 ---- BasePrecisionModel: Handling is positive-only; each negative point (bulk) adds this per-mille to the hip/snap
 ---- mul. 15 keeps the old aim-1 cones on average (aim 0 +2%, aim 2 -3%, aim 3 -7%: bulk no longer reaches it).
 A.HandlingBulkStepPermille = 15
+---- String anchor: a string draws its aiming error once and rounds 2+ land there plus the recoil walk.
+---- Replaces BasePrecisionModel's follow-up cone (aim counts for the whole string again). false = per-round draws.
+A.StringAnchor = true
+---- % of the cone the rounds share; the rest is drawn per round. Same total sigma, so each round keeps its CTH.
+A.StringAnchorCorrPct = 95
+---- Walking fire: once the impacts are visible the correction pulls toward the target. % of the anchor error
+---- taken back at full recoil accuracy (Marksmanship vs control); 0 = anchor only.
+A.WalkFirePct = 80
+---- round whose correction first sees the impacts without tracers (tracers: RecoilTracerFromShot)
+A.WalkFireSeeFrom = 4
 
 ---- Component recoil muls for the aCTH kick only; missing keys fall back to const.Combat.Recoil.Components.
 ---- Kick against recovery amplifies them: AK47 6 rds @10 tiles, x0.90 -> +26% hits, x1.10 -> -25%

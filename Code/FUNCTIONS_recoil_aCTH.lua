@@ -223,6 +223,12 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
         min_err = MulDivRound(min_err, vlen(kick_x, kick_y), (a.RecoilErrKickRef or 150) * 100)
     end
 
+    ---- string anchor: % of the cone the rounds share; walking fire: % of that error the correction takes back
+    local anchor_corr = a.StringAnchor and (a.StringAnchorCorrPct or 0) or 0
+    anchor_corr = Max(anchor_corr, Rat_HyperburstCorr(weapon, action))
+    local accuracy = Clamp(MulDivRound(attacker.Marksmanship or 0, 100, Max(30, other_control)), 0, 100)
+    local walk_pct = a.StringAnchor and MulDivRound(a.WalkFirePct or 0, accuracy, 100) or 0
+
     return {
         kick_x = kick_x,
         kick_y = kick_y,
@@ -240,7 +246,11 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
         noise = noise,
         ---- Marksmanship aims the correction (technique); Strength sizes it (cf_max). Dex stays out of
         ---- recoil: it is precision only. Never removes the floor, only the error above it.
-        accuracy = Clamp(MulDivRound(attacker.Marksmanship or 0, 100, Max(30, other_control)), 0, 100),
+        accuracy = accuracy,
+        anchor_corr = anchor_corr,
+        walk_pct = walk_pct,
+        ---- the round whose correction first sees the impacts: tracers show them sooner
+        walk_from = tracer and Max(2, a.RecoilTracerFromShot or 3) or (a.WalkFireSeeFrom or 4),
         ---- centiminutes; 0 = no ceiling
         climb_cap = kick * 100 * (a.RecoilClimbCapKicks or 0),
         ---- minutes, for reading and for the gate: kick_min > cf_min means unstabilisable
@@ -280,8 +290,14 @@ function Rat_RecoilStep(prof, st, rnd, trace)
         kp = MulDivRound(kp, 100 + prof.tracer_kp, 100)
     end
 
-    local ax = -(MulDivRound(st.px, kp, 1000) + MulDivRound(st.vx, prof.kd, 1000))
-    local ay = -(MulDivRound(st.py, kp, 1000) + MulDivRound(st.vy, prof.kd, 1000))
+    ---- walking fire: once the impacts are visible the setpoint is the target, not the original aim point
+    local sx, sy = 0, 0
+    st.walking = st.walk_x and n + 1 >= (prof.walk_from or 0) or nil
+    if st.walking then
+        sx, sy = st.walk_x, st.walk_y
+    end
+    local ax = -(MulDivRound(st.px - sx, kp, 1000) + MulDivRound(st.vx, prof.kd, 1000))
+    local ay = -(MulDivRound(st.py - sy, kp, 1000) + MulDivRound(st.vy, prof.kd, 1000))
 
     ---- the counter-force also has to cancel the incoming kick, and the grip cannot change
     ---- instantly, so only max_inc of the shortfall is attempted this shot
@@ -460,8 +476,23 @@ function Rat_RecoilPersistSigma(attacker, action, weapon, aim, target, stance)
     return MulDivRound(MulDivRound(r, a.RecoilPersistSigmaPct or 0, 100 * 100), mul, 100)
 end
 
+---- a walked string carries only the recoil it left unrecovered, not the walk toward the target
 function Rat_RecoilPersistStash(attacker, st)
-    stash_unit, stash_px, stash_py = attacker, st.px, st.py
+    local sx, sy = 0, 0
+    if st.walking then
+        sx, sy = st.walk_x, st.walk_y
+    end
+    stash_unit, stash_px, stash_py = attacker, st.px - sx, st.py - sy
+end
+
+---- Seeds the walking-fire setpoint from the string's anchor (minutes, lateral / up).
+function Rat_RecoilSetAnchor(prof, st, ax, ay)
+    local pct = prof and prof.walk_pct or 0
+    if pct <= 0 then
+        st.walk_x, st.walk_y = nil, nil
+        return
+    end
+    st.walk_x, st.walk_y = -MulDivRound(ax * 100, pct, 100), -MulDivRound(ay * 100, pct, 100)
 end
 
 ---- Writes where the muzzle ended. Uses the stash when the real shots ran; otherwise advances the
@@ -536,16 +567,39 @@ function Rat_EstimateBurst(prof, theta, sigma, num_shots, samples, seed, p0x, p0
     ---- inverts, so this costs no fidelity and removes the noise the samples would have to beat
     local measure = theta and theta >= 1 and sigma and sigma >= 1
 
+    ---- string anchor: the shared part of the cone is drawn per walk, the rest stays analytic around it
+    local corr = measure and num_shots > 1 and prof.anchor_corr or 0
+    local s_anchor, s_res = 0, sigma
+    if corr > 0 then
+        s_anchor = MulDivRound(sigma, corr, 100)
+        s_res = Max(1, MulDivRound(sigma, Rat_ISqrt(10000 - corr * corr), 100))
+    end
+
     local st = Rat_RecoilState()
     for k = 1, samples do
         local rnd = BraidRandomCreate(seed + k)
         st.px, st.py = p0x or 0, p0y or 0
         st.vx, st.vy, st.cx, st.cy, st.n = 0, 0, 0, 0, 0
+        st.walk_x, st.walk_y, st.walking = nil, nil, nil
+        local ax, ay = 0, 0
+        if corr > 0 then
+            local r0 = Rat_SampleShotOffset(nil, s_anchor, rnd)
+            local ang = rnd(360 * 60)
+            ax, ay = MulDivRound(r0, sin(ang), 4096), MulDivRound(r0, cos(ang), 4096)
+            Rat_RecoilSetAnchor(prof, st, ax, ay)
+        end
         for i = 1, num_shots do
             local x, y, r = Rat_RecoilPoint(st)
             local v = Rat_RecoilSpeed(st)
             if measure then
-                cth[i] = cth[i] + Rat_RiceCTH(theta, i > 1 and sigma_follow or sigma, r)
+                if corr <= 0 then
+                    cth[i] = cth[i] + Rat_RiceCTH(theta, i > 1 and sigma_follow or sigma, r)
+                elseif i == 1 then
+                    ---- round 1 has no walk yet: the anchor plus the rest is the whole cone, exactly
+                    cth[i] = cth[i] + Rat_RayleighCTH(theta, sigma)
+                else
+                    cth[i] = cth[i] + Rat_RiceCTH(theta, s_res, vlen(ax + x, ay + y))
+                end
             end
             sx[i], sy[i] = sx[i] + x, sy[i] + y
             s2[i] = s2[i] + x * x + y * y
