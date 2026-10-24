@@ -310,7 +310,8 @@ A.RecoilKickBase = 95
 
 ---- Base precision + aim (DESIGN_AccuracyStages.md). Negative Handling only up to AimStepMaxLevel;
 ---- burst/autofire rounds 2+ of an aimed attack fire at the base cone (no aim, no step). false = old model.
-A.BasePrecisionModel = true
+---- Off since the string anchor: Handling is signed again (4.04), negative points widen the cone at every level.
+A.BasePrecisionModel = false
 ---- BasePrecisionModel: Handling is positive-only; each negative point (bulk) adds this per-mille to the hip/snap
 ---- mul. 15 keeps the old aim-1 cones on average (aim 0 +2%, aim 2 -3%, aim 3 -7%: bulk no longer reaches it).
 A.HandlingBulkStepPermille = 15
