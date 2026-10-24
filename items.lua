@@ -2093,7 +2093,7 @@ return {
 			'name', "SightShadeLOS",
 			'NameColor', RGBA(20, 110, 40, 255),
 			'DisplayName', "<color AmmoMatchColor>[Visual] Sight Shade: Line of Sight</color>",
-			'Help', "Experimental. Inside the sight range, the shade also covers what the selected merc has no line of sight to (walls, buildings, terrain). Bushes and grass never block sight in JA3, so they stay clear. Half shade where the line is partial.\n\nFills in shortly after the merc stops moving (about 0.2 s at night, 1-2 s by day).\n\nVisual only: no effect on gameplay.",
+			'Help', "Experimental. Inside the sight range, the shade also covers what the selected merc has no line of sight to (walls, buildings, terrain). Bushes and grass never block sight in JA3, so they stay clear. Only during combat.\n\nFills in shortly after the merc stops moving (about 0.2 s at night, 1-2 s by day).\n\nVisual only: no effect on gameplay.",
 		}),
 		PlaceObj('ModItemOptionToggle', {
 			'name', "NoRevealMemory",

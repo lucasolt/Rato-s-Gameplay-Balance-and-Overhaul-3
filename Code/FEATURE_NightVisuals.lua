@@ -346,8 +346,9 @@ function OnMsg.NewMapLoaded()
     los_job, los_shown = false, false
 end
 
+---- combat only
 local function LosEnabled()
-    return CurrentModOptions and CurrentModOptions.SightShadeLOS
+    return g_Combat and CurrentModOptions and CurrentModOptions.SightShadeLOS
 end
 
 ---- Shade kept 0..1000 per CheckLOS value: none, partial (1), full (2); partial still sees a unit there
