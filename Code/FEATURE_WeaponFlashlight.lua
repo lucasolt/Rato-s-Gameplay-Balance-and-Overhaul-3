@@ -1,16 +1,19 @@
 ---------------------------------------------------------------------------------------------------
----- WEAPON FLASHLIGHT -- at night a flashlight weapon in shooting stance casts a real beam toward the
----- stance aim point: a rendered spotlight plus a StealthSpotLight, so whatever it reaches is
----- illuminated (sight range, darkness CTH). Aiming at a target (stance or not) shows the visible
----- beam on it, without the stealth light, so hovering reveals nothing. The lens glows while the
----- visible beam is on. A hip-fire shot leaves the light on until the shooter's next turn. The
----- wielder is lit only while the real beam is on; vanilla lit him always (vanilla's own TurnOn FX
----- is dead: EnableAimFX is off on Flashlight, and played by hand it shows nothing).
+---- WEAPON FLASHLIGHT -- at night a lit flashlight weapon casts a real beam: a rendered spotlight on
+---- the attachment (follows the gun) plus a StealthSpotLight, so whatever it reaches is illuminated
+---- (sight range, darkness CTH), and the lens glows. The wielder is lit only while it is on; vanilla
+---- lit him always (vanilla's own TurnOn FX is dead: EnableAimFX is off on Flashlight).
+---- Players switch it with the R_Flashlight action. The AI, which has no button, uses the automatic
+---- rules: on in shooting stance or left on by hip fire, with an aim-preview beam (no stealth light).
 ---------------------------------------------------------------------------------------------------
 
----- Gameplay reach (lit voxels, darkness CTH): any flashlight shot inside it ignores darkness
+---- Gameplay reach (lit voxels, darkness CTH): a lit flashlight shot inside it ignores darkness
 RAT_FLASHLIGHT_REACH = 12 * const.SlabSizeX
----- A hip-fire shot leaves the light on until the shooter's next turn; outside combat, this long (ms)
+---- AP of the switch action (GBO AP scale)
+RAT_FLASHLIGHT_SWITCH_AP = 5 * const.Scale.AP
+---- true: player units use the automatic rules too, and the switch action is hidden
+RAT_FLASHLIGHT_AUTO_RULES = false
+---- Automatic rules: a hip-fire shot leaves the light on until the shooter's next turn; outside combat, this long (ms)
 RAT_FLASHLIGHT_LEFT_ON_EXPLORE = 10000
 ---- Visible beam only; live beams pick up changes within 100 ms
 RAT_FLASHLIGHT_RENDER_REACH = 12 * const.SlabSizeX
@@ -42,6 +45,15 @@ function Rat_FlashlightWeapon(unit)
 end
 
 local LEFT_ON = "rat_flashlight_left_on"
+local SWITCH = "rat_flashlight_switch"
+
+function Rat_FlashlightAutoRules(unit)
+    return RAT_FLASHLIGHT_AUTO_RULES or R_IsAI(unit)
+end
+
+function Rat_FlashlightSwitchedOn(unit)
+    return unit:GetEffectValue(SWITCH) and true or false
+end
 
 ---- true in combat (until the unit's next turn), an end GameTime outside it
 function Rat_FlashlightLeftOn(unit)
@@ -49,11 +61,18 @@ function Rat_FlashlightLeftOn(unit)
     return v == true or type(v) == "number" and GameTime() < v
 end
 
----- The real beam: shooting stance, or left on by hip fire
+---- The real beam: the switch, or (automatic rules) shooting stance / left on by hip fire
 function Rat_FlashlightOn(unit)
-    return (GameState.Night or GameState.Underground) and IsValid(unit) and not unit:IsDead()
-        and (unit:HasStatusEffect("shooting_stance") or Rat_FlashlightLeftOn(unit))
-        and Rat_FlashlightWeapon(unit) and true or false
+    if not (GameState.Night or GameState.Underground) or not IsValid(unit) or unit:IsDead() then
+        return false
+    end
+    local on
+    if Rat_FlashlightAutoRules(unit) then
+        on = unit:HasStatusEffect("shooting_stance") or Rat_FlashlightLeftOn(unit)
+    else
+        on = Rat_FlashlightSwitchedOn(unit)
+    end
+    return on and Rat_FlashlightWeapon(unit) and true or false
 end
 
 ---- Stance before the action: OnAttack is too late, shooting stance is entered in an earlier OnAttack
@@ -65,8 +84,8 @@ end
 
 function OnMsg.OnAttack(unit, action, target, results, attack_args)
     local weapon = attack_args and attack_args.weapon
-    if not IsKindOf(unit, "Unit") or not (GameState.Night or GameState.Underground) or not IsKindOf(weapon, "Firearm")
-        or not weapon:HasComponent("IgnoreInTheDark") then
+    if not IsKindOf(unit, "Unit") or not Rat_FlashlightAutoRules(unit) or not (GameState.Night or GameState.Underground)
+        or not IsKindOf(weapon, "Firearm") or not weapon:HasComponent("IgnoreInTheDark") then
         return
     end
     if (attack_args.aim or 0) > 0 or attack_args.opportunity_attack or unit.rat_flashlight_pre_stance then
@@ -152,7 +171,11 @@ local function BeamWeapon(unit)
     if not (GameState.Night or GameState.Underground) or not IsValid(unit) or unit:IsDead() then
         return
     end
-    if not unit:HasStatusEffect("shooting_stance") and not AimTargetPos(unit) and not Rat_FlashlightLeftOn(unit) then
+    if Rat_FlashlightAutoRules(unit) then
+        if not unit:HasStatusEffect("shooting_stance") and not AimTargetPos(unit) and not Rat_FlashlightLeftOn(unit) then
+            return
+        end
+    elseif not Rat_FlashlightSwitchedOn(unit) then
         return
     end
     return Rat_FlashlightWeapon(unit)
@@ -355,11 +378,15 @@ MapGameTimeRepeat("RatFlashlights", 100, function()
 end)
 
 ---------------------------------------------------------------------------------------------------
----- Darkness CTH: a flashlight shot within reach is lit, even before the beam reaches the target, so
----- the preview matches the shot. Hip fire pays for it in OnAttack (light left on).
+---- Darkness CTH: a lit flashlight shot within reach ignores darkness, even before the beam reaches the
+---- target, so the preview matches the shot. Automatic rules: any flashlight shot (hip fire pays for
+---- it in OnAttack, light left on).
 ---------------------------------------------------------------------------------------------------
 local function FlashlightCovers(attacker, weapon, target, attacker_pos, target_pos)
     if not IsKindOf(attacker, "Unit") or not IsKindOf(weapon, "Firearm") or not weapon:HasComponent("IgnoreInTheDark") then
+        return false
+    end
+    if not Rat_FlashlightAutoRules(attacker) and not Rat_FlashlightSwitchedOn(attacker) then
         return false
     end
     local from = attacker_pos or attacker:GetPos()
@@ -386,3 +413,61 @@ function Rat_PatchDarknessCTH()
 end
 
 OnMsg.DataLoaded = Rat_PatchDarknessCTH
+
+---------------------------------------------------------------------------------------------------
+---- Switch action (players)
+---------------------------------------------------------------------------------------------------
+function Unit:RatFlashlightSwitch()
+    self:SetEffectValue(SWITCH, not Rat_FlashlightSwitchedOn(self) or nil)
+    ObjModified(self)
+end
+
+function Rat_PlaceFlashlightAction()
+    PlaceObj('CombatAction', {
+        ActionPoints = RAT_FLASHLIGHT_SWITCH_AP,
+        ConfigurableKeybind = false,
+        Description = T(618204937716, "Switch the weapon flashlight. While it is on at night, its beam lights what it points at: enemies inside it can be seen, and this merc's shots within reach ignore the darkness penalty. This merc is lit too."),
+        DisplayName = T(618204937717, "Flashlight On"),
+        GetAPCost = function(self, unit, args)
+            return RAT_FLASHLIGHT_SWITCH_AP
+        end,
+        GetActionDisplayName = function(self, units)
+            local unit = units[1]
+            return unit and Rat_FlashlightSwitchedOn(unit) and T(618204937718, "Flashlight Off") or self.DisplayName
+        end,
+        GetUIState = function(self, units, args)
+            local unit = units[1]
+            if RAT_FLASHLIGHT_AUTO_RULES or not unit or not (GameState.Night or GameState.Underground)
+                or not Rat_FlashlightWeapon(unit) then
+                return "hidden"
+            end
+            if not unit:UIHasAP(self:GetAPCost(unit, args)) then
+                return "disabled", GetUnitNoApReason(unit)
+            end
+            return "enabled"
+        end,
+        Icon = "UI/Icons/Hud/fire_flare",
+        IdDefault = "R_Flashlight",
+        IsAimableAttack = false,
+        KeybindingSortId = "2353",
+        MultiSelectBehavior = "first",
+        QueuedBadgeText = T(618204937719, "LIGHT"),
+        RequireState = "any",
+        Run = function(self, unit, ap, ...)
+            unit:SetActionCommand("RatFlashlightSwitch")
+        end,
+        SimultaneousPlay = true,
+        SortKey = 22,
+        group = "Default",
+        id = "R_Flashlight",
+    })
+end
+
+OnMsg.DataLoaded = Rat_PlaceFlashlightAction
+
+ratG_T_table['FEATURE_WeaponFlashlight.lua'] = {
+    [618204937716] = "Switch the weapon flashlight. While it is on at night, its beam lights what it points at: enemies inside it can be seen, and this merc's shots within reach ignore the darkness penalty. This merc is lit too.",
+    [618204937717] = "Flashlight On",
+    [618204937718] = "Flashlight Off",
+    [618204937719] = "LIGHT",
+}
