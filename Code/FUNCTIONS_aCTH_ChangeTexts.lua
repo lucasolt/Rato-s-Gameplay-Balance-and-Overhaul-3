@@ -82,10 +82,10 @@ local acth_text_swaps = {
         ratT(file_str,145788352124, "Major <em>Accuracy</em> bonus when attacking enemies at short range (degrades with distance)."),
         ratT(file_str,583920174465, "Reduced <em>Hipfire</em> and <em>Snapshot</em> penalties.\n\nMajor <em>Accuracy</em> bonus with <em>Melee</em> and <em>Thrown</em> attacks at short range (degrades with distance).")},
 
-    ---- Grizzly skips the not-prone weight recoil and handling maluses; aim capped by singleMaxActions
+    ---- Grizzly: always hipfired (aim 0), smaller hipfire step (A.GrizzlyStepReduc), skips the not-prone weight maluses
     {"CharacterEffectDefs", "GrizzlyPerk", "Description",
         ratT(file_str,272740235755, "<em>Machine Gun attack</em> with reduced <em>Accuracy</em> penalty that does not suffer increased penalties if firing without <GameTerm('Setup')>."),
-        ratT(file_str,279916694418, "<em>Machine Gun attack</em> fired from the hip. Ignores the heavy weapon <em>Recoil</em> and <em>Handling</em> penalties for not firing <em>prone</em>. Maximum <em>aim</em> level is 1.")},
+        ratT(file_str,279916694418, "<em>Machine Gun attack</em> fired from the hip, with a reduced <em>Hipfire</em> penalty. Ignores the heavy weapon <em>Recoil</em> and <em>Handling</em> penalties for not firing <em>prone</em>. Cannot be <em>aimed</em>.")},
 
     ---- gas costs CTH instead of grazing (CTH_smoke.lua); only with simulated shots, so `sim = true`
     {"InventoryItemDefs", "SmokeGrenade", "AdditionalHint", no_mod = "RATONADE", sim = true,

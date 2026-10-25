@@ -817,6 +817,10 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
             if cqc then
                 excess = MulDivRound(excess, 100 - a.CQCStepReduc, 100)
             end
+            local grizzly = action and action.id == "GrizzlyPerk" and (a.GrizzlyStepReduc or 0) > 0
+            if grizzly then
+                excess = MulDivRound(excess, 100 - a.GrizzlyStepReduc, 100)
+            end
             local mg_setup = (a.MGSetupInterruptStepMul or 100) ~= 100 and
                                  Rat_IsMGSetupInterrupt(attacker, action, opportunity_attack)
             if mg_setup then
@@ -844,6 +848,9 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
             end
             if cqc then
                 meta[#meta + 1] = cqc.DisplayName
+            end
+            if grizzly then
+                meta[#meta + 1] = CharacterEffectDefs.GrizzlyPerk.DisplayName
             end
             local hip_stance = aim == 0 and attacker and (a.HipfireStanceMeta or empty_table)[attacker.stance]
             if hip_stance then
@@ -2106,6 +2113,10 @@ function Rat_EffectiveAim(attacker, action, aim, opportunity_attack, target, sta
 
     if action and (action.id == "MGSetup" or action.id == "MGRotate") then
         return Max(aim, 1), true
+    end
+    ---- Grizzly is always fired from the hip, even from the shooting stance
+    if action and action.id == "GrizzlyPerk" then
+        return 0, opportunity_attack
     end
 
     local shouldered

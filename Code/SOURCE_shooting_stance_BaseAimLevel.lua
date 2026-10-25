@@ -20,6 +20,9 @@ function Unit:GetBaseAimLevelRange(action, target)
             if singleMaxActions[action.id] then
                 max = 1
             end
+            if const.Combat.Aperture.Enabled and action.id == "GrizzlyPerk" then
+                max = 0
+            end
 
             if self.Mobile_aimed then
                 min = 1
