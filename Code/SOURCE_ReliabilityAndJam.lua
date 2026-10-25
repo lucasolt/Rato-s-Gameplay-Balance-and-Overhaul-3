@@ -12,7 +12,7 @@
 ---- jam_chance = (100 - Condition) * JamSlopePct/100 * (100 - Reliability) / JamRelRef
 ----
 ---- Multiplicativa e ANCORADA de proposito, em vez de somar os dois deficits: assim uma arma
----- confiavel continua confiavel mesmo bem suja (a AK a 95 fica em ~2-3% ate Condition 20), que e
+---- confiavel continua confiavel mesmo bem suja (o Mosin a 96 fica em ~3% ate Condition 20), que e
 ---- exatamente o comportamento que se quer representar. Somar deficits faria toda arma convergir
 ---- para o mesmo patamar ruim conforme a condicao caisse, apagando a identidade do modelo.
 ----
@@ -25,12 +25,11 @@ function FirearmBase:GetJamChance(attacker, condition)
         return 0
     end
 
-    local base = MulDivRound(deficit_cond, const.Weapons.JamSlopePct, 100)
-
     ---- `Reliability` ausente ou 100 => deficit 0 => nunca emperra. Mesma leitura do vanilla para
     ---- itens sem a property (facas, explosivos, veiculos: todos ja vinham com 100).
     local deficit_rel = Max(0, 100 - (self.Reliability or 100))
-    local chance = MulDivRound(base, deficit_rel, Max(1, const.Weapons.JamRelRef))
+    local chance = MulDivRound(deficit_cond * const.Weapons.JamSlopePct, deficit_rel,
+        100 * Max(1, const.Weapons.JamRelRef))
 
     if (GameState.RainHeavy or GameState.RainLight) and not attacker.indoors then
         chance = MulDivRound(chance, 100 + const.Weapons.RainJamPct, 100)
@@ -62,9 +61,9 @@ end
 
 function FirearmBase:ReliabilityCheck(attacker, num_shots)
     local item = self.parent_weapon or self
-    local loss = item:GetBaseDegradePerShot()
-    -- rain scales the roll, not the loss: 1 * 150% rounds back to 2
-    local degrade_chance = const.Weapons.DegradeChancePct
+    local loss = const.Weapons.DegradePerShot
+    -- rate and rain scale the roll, not the loss: a 1-point loss rounds any rate back to 1
+    local degrade_chance = MulDivRound(const.Weapons.DegradeChancePct, item.ConditionDegradationRate or 100, 100)
     if (GameState.RainHeavy or GameState.RainLight) and not attacker.indoors then
         degrade_chance = MulDivRound(degrade_chance, 100 + const.Weapons.RainWearPct, 100)
     end
@@ -73,7 +72,7 @@ function FirearmBase:ReliabilityCheck(attacker, num_shots)
     ---- termo do vanilla era `attacker.team.control ~= "AI"`, sem valvula. Ver o portao da IA em
     ---- `__JamParams.lua`.
     local player_controlled = attacker.team and attacker.team.control ~= "AI"
-    local subject_to_wear = player_controlled or const.Weapons.WearAppliesToAI
+    local subject_to_wear = player_controlled or const.Weapons.WearAppliesToAI == true
 
     local jammed
     if not attacker.infinite_condition and attacker.team and subject_to_wear and
