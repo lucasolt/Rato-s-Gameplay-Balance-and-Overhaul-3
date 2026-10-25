@@ -1691,6 +1691,11 @@ function GBO_GetDescriptionHints(self)
 	    formattedString = formattedString .. cumbersome_text:gsub("<ap>", function() return tostring(R_VanillaAPToDisplay(1)) end)
 	end
 
+	if HintSwapAP(self) == 0 then
+	    formattedString = formattedString .. (TranslationTable[731905264418] or
+	        "\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Swapping to this weapon is free, as long it is not dual-wielded")
+	end
+
 	return T {formattedString}
 end
 
@@ -1698,6 +1703,7 @@ end
 
 local t_id_table = {
     [153781665575] = "\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Cumbersome (no Free Move)\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Increases Stance AP cost by <ap> (negated by high Strength)\n",
+    [731905264418] = "\n<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Swapping to this weapon is free, as long it is not dual-wielded",
     [242435461626] = "Shooting Stance Cost: ",
     [573918264051] = "Cycling Cost: ",
     [524204987393] = "Double Action Cost: ",
