@@ -209,6 +209,7 @@ return PlaceObj('ModDef', {
 		"Code/FEATURE_NightVisuals.lua",
 		"Code/FEATURE_LightSources.lua",
 		"Code/FEATURE_WeaponFlashlight.lua",
+		"Code/FEATURE_TracerFX.lua",
 		"Code/WIKI_HelpPages.lua",
 		"InventoryItem/M14SAW_AUTO.lua",
 	},
