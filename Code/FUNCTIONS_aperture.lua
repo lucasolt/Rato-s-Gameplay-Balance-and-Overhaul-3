@@ -637,14 +637,15 @@ end
 ---------------------------------------------------------------------------------------------------
 
 
----- % applied to the hipfire/snapshot excess by the attacker's attribute: handguns and SMGs swing on
----- Reflexes, everything else is hauled around by Strength. Without a weapon, Reflexes.
+---- % applied to the hipfire/snapshot excess by the attacker's attribute. Snapshot is Reflexes; a hipfire
+---- swings handguns and SMGs on Reflexes and hauls everything else around by Strength.
 function Rat_StepAttrMul(attacker, action, aim, opportunity_attack, weapon)
     local a = P()
     if not attacker or attacker.placeholder then
         return 100
     end
-    local light = not weapon or IsKindOfClasses(weapon, "Pistol", "Revolver", "SubmachineGun")
+    local light = (aim or 0) > 0 or opportunity_attack or not weapon or
+                      IsKindOfClasses(weapon, "Pistol", "Revolver", "SubmachineGun")
     local stat, key, impact
     if light then
         stat, key, impact = rGetReflex(attacker), "Reflexes", a.StepAttrImpactReflex or a.StepAttrImpact or 0
