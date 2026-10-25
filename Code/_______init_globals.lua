@@ -13,7 +13,7 @@ if FirstLoad then
             aim_mul = 0.8,
             -- Group 1: Small Caliber Pistols
             ["7_65x21"] = {str = 44},
-            ["9x18"] = {str = 45},
+            ["9x18"] = {str = 44},
             ["22LR"] = {str = 40},
             ["32ACP"] = {str = 42},
             ["380ACP"] = {str = 41},

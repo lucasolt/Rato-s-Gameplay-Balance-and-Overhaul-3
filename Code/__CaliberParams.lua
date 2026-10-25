@@ -376,7 +376,7 @@ const.Calibers = {
 ---- weapon Damage = base + Clamp((barrel_len - barrel) * per_100mm / 1000, min, max); per_100mm is in tenths
 const.CaliberDamage = {
     ["380ACP"] = {base = 16, barrel = 120, per_100mm = 15, min = -1, max = 2},
-    ["9x18"] = {base = 16, barrel = 120, per_100mm = 15, min = -1, max = 2},
+    ["9x18"] = {base = 17, barrel = 120, per_100mm = 15, min = -1, max = 2},
     ["9mm"] = {base = 19, barrel = 115, per_100mm = 15, min = -1, max = 2},
     ["5_7x28"] = {base = 18, barrel = 260, per_100mm = 10, min = -1, max = 1},
     ["45ACP"] = {base = 22, barrel = 127, per_100mm = 10, min = -1, max = 1},
