@@ -247,7 +247,7 @@ function rat_combat_actions()
         local descr = T {description, num = num_shots, damage = base}
         if IsKindOf(weapon, "MachineGun") and IsACHTActive() then
             local overwatch = g_Overwatch[unit]
-            descr = descr .. T(390817264453, "<newline><newline>Reduced accuracy and heavier recoil if not fired <em>prone</em>, braced on the bipod.")
+            descr = descr .. T(390817264453, "<newline><newline>Reduced accuracy if <em>hipfired</em> or not <em>prone</em>.")
             if overwatch and overwatch.permanent then
                 descr = descr .. T(390817264454, " Only targets enemies within the set cone.")
             end
@@ -1531,7 +1531,7 @@ local t_id_table = {
     [617859618521] = "Shoots <em><num> bullets</em> at the target. The accuracy of each shot is reduced by <em>Recoil</em>. Critical chance is reduced.\n\nOnly the first shot will benefit from <em>Aim</em> bonus.",
     [164165234891] = "Snipe",
     [771943820562] = "MG Autofire",
-    [390817264453] = "<newline><newline>Reduced accuracy and heavier recoil if not fired <em>prone</em>, braced on the bipod.",
+    [390817264453] = "<newline><newline>Reduced accuracy if <em>hipfired</em> or not <em>prone</em>.",
     [390817264454] = " Only targets enemies within the set cone.",
     [854982151651] = "<em>Spends all AP</em>\nThe target is <em><GameTerm('Marked')></em>. At the start of next turn, shoot the target if the target is still in the line of sight. The attack will have max aim levels. Each aim level grants <bonus_crit> extra critical chance. This attack bypasses low cover, has reduced penalties to hit body parts and <em>increases the weapon's effective range by 50%</em>.\n\nSnipe requires a clear line and sight to the target.",
     [231988463514] = "\n\n<em>Recoil</em> is increasing the AP cost by <em>"
