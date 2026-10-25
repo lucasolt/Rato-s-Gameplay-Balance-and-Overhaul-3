@@ -1,121 +1,32 @@
----- Console tools: visual-only boost of map light sources. Load: dofile("Mod/cfahRED/tools/light_tuning.lua")
----- Each source gets an unsynced companion PointLight, kept out of the stealth voxel scan.
+---- Console tools for Code/FEATURE_MapLightBoost.lua. Load: dofile("Mod/cfahRED/tools/light_tuning.lua")
+---- Settings last until the next Lua reload; make them permanent in RAT_MAP_LIGHT_BOOST.
 ---- rawset: console tool, runtime globals are otherwise refused.
 
-local state = rawget(_G, "RatLightState") or {companions = {}, cfg = false, thread = false, saving = false}
-rawset(_G, "RatLightState", state)
-
----- Only synced lights define what is lit; units and FX carry their own lights
-local function is_source(l, placed)
-    if not IsValid(l) or l.rat_companion or not l:IsSyncObject() then
-        return false
-    end
-    local p = GetTopmostParent(l)
-    if p == l then
-        return placed
-    end
-    return not (IsKindOf(p, "Unit") or IsKindOf(p, "GrenadeVisual") or p.class:find("Window"))
-end
-
-local function place_companion(l, cfg)
-    local extra = state.companions[l]
-    if not IsValid(extra) then
-        extra = PlaceObject("PointLight")
-        extra.rat_companion = true
-        extra:ClearEnumFlags(const.efVsPointLight | const.efVsSpotLight)
-        ---- the renderer skips Lua-placed lights without it; it also makes them saved, hence the save hooks
-        extra:SetGameFlags(const.gofPermanent)
-        state.companions[l] = extra
-    end
-    local base = l:GetIntensity()
-    extra:SetPos(l:GetVisualPos())
-    extra:SetColor(l:GetColor())
-    extra:SetIntensity(Clamp(MulDivRound(base, cfg.pct - 100, 100), 0, 255))
-    extra:SetAttenuationRadius(MulDivRound(l:GetAttenuationRadius(), cfg.radius_pct, 100))
-    extra:SetCastShadows(cfg.shadows)
-    ---- PlaceObject starts at shape 0 / constant 0, the softest falloff; map lamps tune both
-    extra:SetAttenuationShape(state.shape or l:GetAttenuationShape())
-    extra:SetConstantIntensity(state.constant or l:GetConstantIntensity())
-end
-
-local function remove_companion(l)
-    local extra = state.companions[l]
-    if IsValid(extra) then
-        DoneObject(extra)
-    end
-    state.companions[l] = nil
-end
-
-local function refresh()
-    local cfg = not state.saving and state.cfg
-    for l in pairs(state.companions) do
-        if not cfg or not is_source(l, cfg.placed) then
-            remove_companion(l)
-        end
-    end
-    if not cfg then
-        return 0
-    end
-    local n = 0
-    MapForEach("map", "Light", function(l)
-        if is_source(l, cfg.placed) then
-            place_companion(l, cfg)
-            n = n + 1
-        end
-    end)
-    return n
-end
-
----- Sources come and go with the LightsOn game state
-local function ensure_thread()
-    if IsValidThread(state.thread) then
-        return
-    end
-    state.thread = CreateMapRealTimeThread(function()
-        while state.cfg do
-            Sleep(1000)
-            refresh()
-        end
-        state.thread = false
-    end)
-end
-
----- Hooks append on every dofile: register once, call through state
-state.on_save = function(saving)
-    state.saving = saving
-    refresh()
-end
-if not state.hooked then
-    state.hooked = true
-    OnMsg.SaveGameStart = function() state.on_save(true) end
-    OnMsg.SaveGameDone = function() state.on_save(false) end
-end
+local cfg = RAT_MAP_LIGHT_BOOST
 
 ---- pct: total visual brightness (200 = twice vanilla). radius_pct: companion reach vs the source's.
 ---- placed: also boost lights placed directly on the map. shadows: companions cast shadows (costly).
 rawset(_G, "RatLights", function(pct, radius_pct, placed, shadows)
-    pct = pct or 200
-    if pct <= 100 then
-        return RatLightsOff()
-    end
-    state.cfg = {pct = pct, radius_pct = radius_pct or 100, placed = placed or false, shadows = shadows ~= false}
-    local n = refresh()
-    ensure_thread()
+    cfg.pct = pct or 200
+    cfg.radius_pct = radius_pct or 100
+    cfg.placed = placed or false
+    cfg.shadows = shadows ~= false
+    local n = Rat_MapLightsRefresh()
     print(string.format("RatLights: %d sources at %d%%, radius %d%%, placed %s, shadows %s",
-        n, pct, state.cfg.radius_pct, tostring(state.cfg.placed), tostring(state.cfg.shadows)))
+        n, cfg.pct, cfg.radius_pct, tostring(cfg.placed), tostring(cfg.shadows)))
 end)
 
 ---- Falloff override for all companions; nil copies each source's. shape 0-255, constant -128..127.
 rawset(_G, "RatLightsShape", function(shape, constant)
-    state.shape = shape
-    state.constant = constant
-    refresh()
+    cfg.shape = shape or false
+    cfg.constant = constant or false
+    Rat_MapLightsRefresh()
     print(string.format("RatLights: shape %s, constant %s", tostring(shape or "source"), tostring(constant or "source")))
 end)
 
 rawset(_G, "RatLightsOff", function()
-    state.cfg = false
-    refresh()
+    cfg.pct = 100
+    Rat_MapLightsRefresh()
     print("RatLights: off")
 end)
 
@@ -123,9 +34,12 @@ end)
 rawset(_G, "RatLightsInfo", function()
     local groups = {}
     MapForEach("map", "Light", function(l)
-        if is_source(l, true) then
+        if not l.rat_companion and l:IsSyncObject() then
             local p = GetTopmostParent(l)
-            local extra = state.companions[l]
+            if IsKindOf(p, "Unit") or IsKindOf(p, "GrenadeVisual") then
+                return
+            end
+            local extra = RatMapLightCompanions[l]
             local key = string.format("%s I%d R%d S%d C%d +I%d R%d", p == l and "(placed)" or p.class, l:GetIntensity(),
                 l:GetAttenuationRadius(), l:GetAttenuationShape(), l:GetConstantIntensity(),
                 IsValid(extra) and extra:GetIntensity() or 0, IsValid(extra) and extra:GetAttenuationRadius() or 0)

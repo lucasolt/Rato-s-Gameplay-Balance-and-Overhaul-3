@@ -1883,6 +1883,10 @@ return {
 			'CodeFileName', "Code/FEATURE_LightSources.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "FEATURE_MapLightBoost",
+			'CodeFileName', "Code/FEATURE_MapLightBoost.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "FEATURE_WeaponFlashlight",
 			'CodeFileName', "Code/FEATURE_WeaponFlashlight.lua",
 		}),

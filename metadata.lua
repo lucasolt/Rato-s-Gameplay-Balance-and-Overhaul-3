@@ -209,6 +209,7 @@ return PlaceObj('ModDef', {
 		"Code/FEATURE_StepOutGate.lua",
 		"Code/FEATURE_NightVisuals.lua",
 		"Code/FEATURE_LightSources.lua",
+		"Code/FEATURE_MapLightBoost.lua",
 		"Code/FEATURE_WeaponFlashlight.lua",
 		"Code/FEATURE_TracerFX.lua",
 		"Code/FEATURE_StealthDetection.lua",
