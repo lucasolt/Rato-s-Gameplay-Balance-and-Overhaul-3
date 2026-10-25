@@ -132,6 +132,33 @@ function Firearm:PrecalcAmmoUse(attacker, num, prediction, per_round)
     return fired, jammed, condition, ammo_type
 end
 
+---- vanilla WeaponJam FX is only the dry-fire click; layer a louder mechanical sound on it
+local Rat_JamOrig = FirearmBase.Jam
+function FirearmBase:Jam(unit)
+    Rat_JamOrig(self, unit)
+    local sound = const.Weapons.JamExtraSound
+    if sound and sound ~= "" and IsValid(unit) then
+        PlaySound(sound, nil, 0, false, unit)
+    end
+end
+
+local jam_refund_actions = {AutoFire = true, BurstFire = true, MGBurstFire = true}
+
+---- a jammed burst pays only for the rounds that left the barrel (a first-round jam pays a single shot)
+function Rat_RefundJammedRounds(unit, action, results, attack_args, cost_ap)
+    local planned = attack_args and attack_args.num_shots or 0
+    if not (action and jam_refund_actions[action.id] and results.jammed and planned > 1 and (cost_ap or 0) > 0) then
+        return
+    end
+    local weapon = results.weapon
+    local fired = Max(1, results.fired or 0)
+    local refund = Rat_AutoExtraAP(action, weapon, planned) - Rat_AutoExtraAP(action, weapon, fired)
+    refund = Clamp(refund, 0, cost_ap)
+    if refund > 0 then
+        unit:GainAP(refund)
+    end
+end
+
 function Rat_ApplyPendingJam(weapon)
     local unit = weapon and weapon.rat_pending_jam
     if not unit then

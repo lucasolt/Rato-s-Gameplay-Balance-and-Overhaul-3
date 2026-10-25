@@ -26,6 +26,9 @@ const.Weapons.RainJamPct = 50
 -- Burst totals at a 5% chance: 3 rounds ~7%, 6 ~10%, 10 ~13%, 25 ~22%.
 const.Weapons.JamExtraShotPct = 20
 
+-- SoundPreset played at the shooter on top of the vanilla dry-fire click; "" = click only.
+const.Weapons.JamExtraSound = "ColtAnaconda_unjam"
+
 -- Jams roll only below this Condition. 100 = continuous ramp (vanilla cliff was 70, ItemConditionUsed).
 const.Weapons.JamConditionGate = 100
 

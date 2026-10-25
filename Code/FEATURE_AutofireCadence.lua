@@ -157,6 +157,7 @@ function Unit:ExecFirearmAttacks(action, cost_ap, attack_args, results)
 		self:StartFireAnim(results.shots and results.shots[1], attack_args)
 		results.weapon:ApplyAmmoUse(self, results.fired, results.jammed, results.condition)
 		fired = results.fired
+		Rat_RefundJammedRounds(self, action, results, attack_args, cost_ap)
 	end
 	
 	if not fired then
