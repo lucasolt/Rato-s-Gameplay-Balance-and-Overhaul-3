@@ -105,14 +105,14 @@ end
 ---- how much of the grip is already on the gun when bullet 2 leaves, which is the only place a
 ---- shot-2 gradient can come from once the kick itself is weapon-only.
 ---------------------------------------------------------------------------------------------------
-function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent)
+function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent, aim)
     local a = P()
     if not attacker or not IsKindOf(weapon, "Firearm") then
         return nil
     end
 
     local _, _, control, gun, other_control, str_control =
-        Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots, persistent, Rat_RecoilComponentsACTH())
+        Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots, persistent, Rat_RecoilComponentsACTH(), aim)
     control, other_control, str_control = cRound(control), cRound(other_control),
                                           cRound(str_control)
 
@@ -204,7 +204,8 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
 
     ---- a bipod is a vertical constraint: it stops the climb, never the yaw
     local kick_y_mul = 100
-    if attacker.stance == "Prone" and weapon:HasComponent("RecoilControlWhenProne") or IsKindOf(weapon, "BrowningM2HMG") then
+    if (attacker.stance == "Prone" and weapon:HasComponent("RecoilControlWhenProne") or IsKindOf(weapon, "BrowningM2HMG"))
+        and Rat_RecoilBipodBraced(attacker, aim) then
         kick_y_mul = a.RecoilBipodKickYMul or 100
         ---- lat is a fraction of |cf|, which the smaller kick already shrank -- raise it or the
         ---- group merely gets smaller instead of flatter and wider
@@ -519,7 +520,7 @@ function Rat_RecoilPersistCommit(attacker, action, weapon, aim, num_shots, targe
     ---- hyperburst: the real shots ran on the burst delta, but the shoulder takes the full kick
     ---- once the rounds are gone -- replay the burst unreduced, from the target like the real one
     local deferred = Rat_HyperburstCorr(weapon, action) > 0
-    local prof = Rat_RecoilProfile(attacker, action, weapon, num_shots, nil, deferred)
+    local prof = Rat_RecoilProfile(attacker, action, weapon, num_shots, nil, deferred, aim)
     local px, py
     if stash_unit == attacker and not deferred then
         px, py = stash_px, stash_py

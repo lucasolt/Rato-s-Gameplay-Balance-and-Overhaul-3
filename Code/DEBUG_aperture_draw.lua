@@ -1393,7 +1393,7 @@ function Rat_DbgRecoilAt(pos, burst, aim, action_id, attacker, over)
                                       target:GetPos())
     end
 
-    local prof = Rat_RecoilProfile(attacker, action, weapon, burst, true)
+    local prof = Rat_RecoilProfile(attacker, action, weapon, burst, true, nil, aim)
     prof, sigma, theta = apply_over(prof, sigma, theta, over)
     if not prof then
         return "sem perfil de recuo para esta arma"
@@ -1506,7 +1506,7 @@ function Rat_DbgRecoilShots(burst, aim, scatter, pos, action_id, attacker, over)
     local cone_src = sigma and "cone final" or "abertura crua (sem residuais)"
     sigma = sigma or Rat_GetAperture(weapon, attacker, action, aim, false)
 
-    local prof = Rat_RecoilProfile(attacker, action, weapon, burst, true)
+    local prof = Rat_RecoilProfile(attacker, action, weapon, burst, true, nil, aim)
     prof, sigma, theta = apply_over(prof, sigma, theta, over)
     if not prof then
         a.Enabled = was

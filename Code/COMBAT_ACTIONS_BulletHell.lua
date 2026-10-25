@@ -99,7 +99,7 @@ function Rat_SweepPlanShots(ctx)
                                                                   cone.rat_vsigma
 
     local n = #sweep.points
-    local prof = (n > 1) and Rat_RecoilProfile(attacker, auto, weapon, n) or nil
+    local prof = (n > 1) and Rat_RecoilProfile(attacker, auto, weapon, n, nil, nil, 0) or nil
     local st = prof and Rat_RecoilState() or nil
     local rnd = function(k)
         return attacker:Random(k)

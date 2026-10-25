@@ -290,9 +290,17 @@ function Rat_RecoilPerks(attacker, action)
     return attacker:HasStatusEffect("TakeAim") and true or false, auto_perk and true or false
 end
 
+---- a bipod braces only an aimed attack; a set-up MG is braced already. `aim` nil = braced.
+function Rat_RecoilBipodBraced(attacker, aim)
+    if aim ~= 0 or attacker.placeholder then
+        return true
+    end
+    return attacker:HasStatusEffect("StationedMachineGun") or attacker:HasStatusEffect("ManningEmplacement")
+end
+
 ---- `persistent`: the recoil felt BETWEEN attacks. A hyperburst defers its kick instead of
 ---- cancelling it, so its burst delta does not apply there.
-function GetRecoilOther(weapon, attacker, action, persistent, comps)
+function GetRecoilOther(weapon, attacker, action, persistent, comps, aim)
     comps = comps or const.Combat.Recoil.Components
 
     local metaText = {}
@@ -304,7 +312,7 @@ function GetRecoilOther(weapon, attacker, action, persistent, comps)
                 mod = mod * const.Combat.Recoil.Other.Prone
                 control = control * const.Combat.Recoil.Other.Prone
                 metaText[#metaText + 1] = rT(294661659116, "Prone")
-                if weapon and weapon:HasComponent("RecoilControlWhenProne") then
+                if weapon and weapon:HasComponent("RecoilControlWhenProne") and Rat_RecoilBipodBraced(attacker, aim) then
                     mod = mod * const.Combat.Recoil.Components.BipodMul
                     control = control * const.Combat.Recoil.Components.BipodMul
                     metaText[#metaText + 1] = rT(523692869416, "Bipod")
@@ -512,7 +520,7 @@ local param_base = const.Combat.Recoil.MaxPenalty
 ---- Retorna `mod` na mesma escala de antes (comeca em 100 e e multiplicado por
 ---- fatores em torno de 1.0) e a lista de metaText acumulada.
 ---------------------------------------------------------------------------------------------------
-function Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots, persistent, comps)
+function Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots, persistent, comps, aim)
     local mod = 100
     local metaText = {}
     local display = false
@@ -534,7 +542,7 @@ function Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots, persistent, c
     local control, situation_mod, other_control, str_control
     control, situation_mod, metaText, other_control, str_control =
         Rat_GetRecoilControl(attacker, action, weapon, num_shots, metaText, dual, weapon2,
-                             persistent, comps)
+                             persistent, comps, aim)
     mod = mod * situation_mod
 
     ---- Parte da ARMA, isolada: e `mod` sem o que o atirador cancela. Invariante a postura, perks e
@@ -558,12 +566,12 @@ end
 ----                     nao negocia: deltas de rajada, bump stock, cartucho no piso, tracer, AP.
 ---------------------------------------------------------------------------------------------------
 function Rat_GetRecoilControl(attacker, action, weapon, num_shots, metaText, dual, weapon2,
-                              persistent, comps)
+                              persistent, comps, aim)
     local control = 1.00
     local situation_mod = 1.00
 
     -----------------------Stance, perks
-    local other, otherMeta, other_control = GetRecoilOther(weapon, attacker, action, persistent, comps)
+    local other, otherMeta, other_control = GetRecoilOther(weapon, attacker, action, persistent, comps, aim)
     situation_mod = situation_mod * other
     control = control * other_control
     for i, text in ipairs(otherMeta) do
@@ -622,7 +630,7 @@ function get_recoil(attacker, target, target_pos, action, weapon, aim, num_shots
     local flat_penalty = flat_penalty_base
 
     local mod, metaText = Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots,
-                                               stacks and true or false)
+                                               stacks and true or false, nil, aim)
 
     ----------------------------------------------------------------------------------------------------------mods
 

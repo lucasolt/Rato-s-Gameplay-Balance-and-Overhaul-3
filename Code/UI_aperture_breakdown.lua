@@ -392,7 +392,7 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
     win.idChanceToHit.parent:SetZOrder(1)
 
     local kick_meta, hold_meta, corr_meta = {}, {}, {}
-    local _, meta = Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots)
+    local _, meta = Rat_GetRecoilBaseMod(attacker, action, weapon, num_shots, nil, nil, attackResults.aim or 0)
     for _, m in ipairs(meta or empty_table) do
         local id, l = recoil_meta_line(m)
         if l then

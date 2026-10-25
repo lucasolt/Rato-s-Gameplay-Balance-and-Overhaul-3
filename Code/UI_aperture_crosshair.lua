@@ -31,7 +31,7 @@ end
 ---- also read by the RECOIL window, so ring and numbers come from one estimate. The profile is
 ---- rebuilt every call (cheap); only the Monte Carlo is reused while the profile is unchanged.
 function Rat_CrosshairRecoilEstimate(attacker, action, weapon, aim, num_shots)
-    local prof = Rat_RecoilProfile(attacker, action, weapon, num_shots)
+    local prof = Rat_RecoilProfile(attacker, action, weapon, num_shots, nil, nil, aim)
     if not prof then
         return nil
     end

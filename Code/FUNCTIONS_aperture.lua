@@ -1726,7 +1726,7 @@ function Rat_SimRecoilLadder(attacker, action, weapon, sigma0, num_shots, theta,
                              aim, target, sigma_y, sigma_y_down, follow)
     num_shots = Max(1, num_shots or 1)
 
-    local prof = (num_shots > 1) and Rat_RecoilProfile(attacker, action, weapon, num_shots) or nil
+    local prof = (num_shots > 1) and Rat_RecoilProfile(attacker, action, weapon, num_shots, nil, nil, aim) or nil
     local cth, sigma_disp = {}, {}
     ---- o estimador e caro (Monte Carlo, Rat_ISqrt no laco) e o CTH por tiro so serve para exibir:
     ---- a bala le `p`, nao a probabilidade. Quem precisa da escada pede, e pode pedir com menos
