@@ -671,13 +671,13 @@ function SpawnCrosshair(self, action, ...)
     return GBO_OriginalSpawnCrosshair(self, action, ...)
 end
 
----- vanilla squeezes any count into a 40 deg arc; past three keep its 20 deg step, centred on the same point
+---- vanilla squeezes any count into a 40 deg arc; past three use a 16 deg step, centred on the same point
 local GBO_OriginalFireModeButtonOffset = CalculateCrosshairFireModeButtonOffset
 function CalculateCrosshairFireModeButtonOffset(num, totalParts)
     if totalParts <= 3 then
         return GBO_OriginalFireModeButtonOffset(num, totalParts)
     end
-    local radius, step = 130, 20
+    local radius, step = 130, 16
     local angle = (-180 + MulDivRound(step, totalParts - 1, 2) - (num - 1) * step) * 60
     return MulDivRound(radius, cos(angle), 4096) + radius + 1, MulDivRound(radius, sin(angle), 4096) + radius
 end
