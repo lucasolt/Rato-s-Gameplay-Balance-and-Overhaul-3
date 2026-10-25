@@ -607,7 +607,9 @@ end
 RAT_CROSSHAIR_SIGNATURES = {
     GrizzlyPerk = {icon = "UI/Hud/fm_autoshot", weapon = function(w) return IsKindOf(w, "MachineGun") end},
     KalynaPerk = {icon = "UI/Hud/fm_single_shot",
-                  weapon = function(w) return IsKindOf(w, "Firearm") and not IsKindOf(w, "Shotgun") end}
+                  weapon = function(w) return IsKindOf(w, "Firearm") and not IsKindOf(w, "Shotgun") end},
+    TheGrim = {icon = "UI/Hud/fm_single_shot",
+               weapon = function(w) return IsKindOf(w, "Firearm") and not IsKindOf(w, "Shotgun") end}
 }
 
 ---- vanilla DisplayName is "<placeholder>" (the bar reads the perk); the mode button reads DisplayName
