@@ -81,14 +81,10 @@ end
 ---- (stealth, camo, grass, height)
 function Rat_ShadeSightRadius(unit)
     local sight = unit:IsAware() and const.Combat.AwareSightRange or const.Combat.UnawareSightRange
-    local modifier = 100
     if IsNightShade() then
-        local dark = const.EnvEffects.DarknessSightMod
-        if unit:HasNightVision() then
-            dark = MulDivRound(dark, CharacterEffectDefs.NightOps:ResolveValue("night_vision_penalty_reduction"), 100)
-        end
-        modifier = modifier + dark
+        sight = GBO_NightBaseSight(unit, nil, not unit:IsAware())
     end
+    local modifier = 100
     if GameState.Fog then
         modifier = modifier + const.EnvEffects.FogSightMod
     end

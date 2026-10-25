@@ -4,23 +4,30 @@ function GBO_Opt(id, default)
 	return type(v) == "number" and v or default
 end
 
----- Vanilla SightModMinValue. GetSightRadius clamps the whole sight modifier there, which capped
----- NightSightReduction at 60; Blinded/Distracted get exactly this floor as their sight.
+---- Vanilla SightModMinValue; Blinded/Distracted get exactly this floor as their sight
 GBO_SIGHT_FLOOR = 40
 
----- At night (and underground) the floor drops to what NightSightReduction leaves
-function GBO_UpdateSightFloor()
-	local floor = GBO_SIGHT_FLOOR
-	if GameState.Night or GameState.Underground then
-		floor = Min(floor, 100 - GBO_Opt("NightSightReduction", 70))
+---- Night base sight in tiles against an unlit target. NightSightReduction scales Aware; Unaware (and
+---- anyone looking at a Hidden unit) never sees further than that. Stealth, camo, prone and grass
+---- then apply as by day: the darkness modifier is 0, so it no longer sinks every case to the floor.
+function GBO_NightBaseSight(unit, base_sight, unaware)
+	local pct = GBO_Opt("NightSightReduction", 70)
+	if unit:HasNightVision() then
+		pct = MulDivRound(pct, CharacterEffectDefs.NightOps:ResolveValue("night_vision_penalty_reduction"), 100)
 	end
-	const.Combat.SightModMinValue = floor
+	local aware = MulDivRound(base_sight or const.Combat.AwareSightRange, 100 - pct, 100)
+	return unaware and Min(aware, const.Combat.UnawareSightRange) or aware
 end
 
-function OnMsg.GameStateChanged(changed)
-	if changed.Night ~= nil or changed.Underground ~= nil then
-		GBO_UpdateSightFloor()
+local GetSightRadius_orig = Unit.GetSightRadius
+
+function Unit:GetSightRadius(other, base_sight, step_pos)
+	if other and (GameState.Night or GameState.Underground) and not IsIlluminated(other, nil, nil, step_pos) then
+		---- same Unaware rule as vanilla: a hidden target is judged with Unaware sight; a given base is Aware
+		local unaware = not base_sight and (IsKindOf(other, "Unit") and other:HasStatusEffect("Hidden") or not self:IsAware())
+		base_sight = GBO_NightBaseSight(self, base_sight, unaware)
 	end
+	return GetSightRadius_orig(self, other, base_sight, step_pos)
 end
 
 function GBO_ApplyOptions()
@@ -29,8 +36,9 @@ function GBO_ApplyOptions()
 	const.Combat.UnawareSightRange = GBO_Opt("UnawareSightRange", 14)
 	const.Combat.AwareSightRange = GBO_Opt("AwareSightRange", 56)
 	const.EnvEffects.DarknessDetectionRate = -GBO_Opt("NightDetectReduction", 40)
-	const.EnvEffects.DarknessSightMod = -GBO_Opt("NightSightReduction", 70)
-	GBO_UpdateSightFloor()
+	---- the night penalty lives in GBO_NightBaseSight
+	const.EnvEffects.DarknessSightMod = 0
+	const.Combat.SightModMinValue = GBO_SIGHT_FLOOR
 
 	const.Combat.R_OWMul = GBO_Opt("OWBonusPct", 100)
 	const.Combat.R_MarksMul = GBO_Opt("MarksEffectPct", 100)
