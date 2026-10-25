@@ -158,7 +158,9 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
     ---- the cartridge, and mass already helped there. Grizzly is the perk that waives this.
     local held_pen = 0
     if aid ~= "GrizzlyPerk" then
-        local pen = Rat_HeldWeightPen(weapon, attacker, attacker.stance, a.RecoilHeldSlope)
+        ---- prone hipfire holds the gun off the ground: the shooting stance is what braces it
+        local held_stance = attacker.stance == "Prone" and aim == 0 and "ProneHip" or attacker.stance
+        local pen = Rat_HeldWeightPen(weapon, attacker, held_stance, a.RecoilHeldSlope)
         held_pen = pen
         if pen > 0 then
             ---- one application each: these are three separate outputs, and `control` is a lever of

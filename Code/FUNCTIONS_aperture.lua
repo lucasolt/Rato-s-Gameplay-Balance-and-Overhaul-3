@@ -845,6 +845,10 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
             if cqc then
                 meta[#meta + 1] = cqc.DisplayName
             end
+            local hip_stance = aim == 0 and attacker and (a.HipfireStanceMeta or empty_table)[attacker.stance]
+            if hip_stance then
+                meta[#meta + 1] = hip_stance
+            end
             ---- the cut itself rides in `hipsnap` (GetWeaponHipfireOrSnapshotMul); only the label goes here
             if Rat_FlankerMobile(attacker, action) then
                 meta[#meta + 1] = CharacterEffectDefs.Flanker.DisplayName

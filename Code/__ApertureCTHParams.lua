@@ -159,6 +159,8 @@ A.AimStepMeta = {
     [0] = {id = 936174028553, text = "Hipfire <pct>"},
     [1] = {id = 418205963714, text = "Snapshot <pct>"}
 }
+---- labels the stance share of the hipfire step (Hipfire.Other in GetWeaponHipfireOrSnapshotMul)
+A.HipfireStanceMeta = {Prone = T {828597839679, "(-) Prone"}, Crouch = T {254262498254, "(-) Crouching"}}
 
 ---- Rotulo do piso mecanico (so aparece no modelo nao-assintotico, quando o cone bate no piso).
 A.FloorMeta = T {353401714895, "Range"}
@@ -242,7 +244,8 @@ A.HeldStrRelief = 12
 ---- Strength never removes more than this % of a gun's excess: a heavy gun carried standing always weighs something.
 A.HeldStrMaxReliefPct = 60
 ---- how much of the malus each stance pays: prone rests the gun, standing carries it
-A.HeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0}
+---- ProneHip: recoil only, prone at aim 0 -- out of the shooting stance nothing rests the gun
+A.HeldStanceMul = {Standing = 100, Crouch = 60, Prone = 0, ProneHip = 100}
 ---- % cone widening per excess point (aim, not muzzle control)
 A.HandlingHeldSlope = 300
 ---- Hand-Eye the held-weight share of the cone closes at, whatever the merc's: Dex never aims through weight

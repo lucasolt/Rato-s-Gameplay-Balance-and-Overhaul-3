@@ -239,10 +239,11 @@ end
 
 ---- Strength vs caliber -> cf_max
 local hold_ids = {[285153762692] = true, [988872717528] = true}
----- stance, Marksmanship, perks -> max_inc. Everything else (gun, ammo, bipod, burst) is kick.
+---- stance, Marksmanship, perks, tracers (they steady the correction) -> max_inc. Everything else (gun, ammo, bipod, burst) is kick.
 local correction_ids = {
     [294661659116] = true, [663793494488] = true, [869135768177] = true, [495676736357] = true,
-    [889423438892] = true, [946448112577] = true, [712682745289] = true, [764956297274] = true
+    [889423438892] = true, [946448112577] = true, [712682745289] = true, [764956297274] = true,
+    [669471256347] = true
 }
 
 local function recoil_meta_line(m)
@@ -405,7 +406,7 @@ function Rat_ACTHRecoilPopulate(win, attacker, action, attackResults, weapon)
     local view = CurrentModOptions.RecoilWindowView or "Bars"
     ---- weight carried off the ground: cuts both levers, so the detailed view lists it under each
     if (prof.held_pen or 0) >= (a.RecoilHeldShowPct or 5) then
-        local _, l = recoil_meta_line({902615374832, "(-) Heavy Weapon Not Prone"})
+        local _, l = recoil_meta_line({902615374832, "(-) Heavy Weapon Not Braced"})
         hold_meta[#hold_meta + 1] = l
         if view ~= "Simple" then
             corr_meta[#corr_meta + 1] = l
@@ -470,7 +471,7 @@ local t_id_table = {
     [386402917753] = "Drift",
     [902615374830] = "Control",
     [902615374831] = "Rounds",
-    [902615374832] = "(-) Heavy Weapon Not Prone"
+    [902615374832] = "(-) Heavy Weapon Not Braced"
 }
 
 ratG_T_table['UI_aperture_breakdown.lua'] = t_id_table
