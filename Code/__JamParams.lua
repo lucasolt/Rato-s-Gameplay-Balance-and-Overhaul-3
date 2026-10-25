@@ -22,6 +22,10 @@ const.Weapons.JamChanceMax = 30
 -- Rain bonus to jam chance, in %. Own const so vanilla's RainJamChanceMod (100) stays untouched.
 const.Weapons.RainJamPct = 50
 
+-- Per-round jam: each round after the first rolls at this % of the jam chance; a jam on round k fires k-1.
+-- Burst totals at a 5% chance: 3 rounds ~7%, 6 ~10%, 10 ~13%, 25 ~22%.
+const.Weapons.JamExtraShotPct = 20
+
 -- Jams roll only below this Condition. 100 = continuous ramp (vanilla cliff was 70, ItemConditionUsed).
 const.Weapons.JamConditionGate = 100
 

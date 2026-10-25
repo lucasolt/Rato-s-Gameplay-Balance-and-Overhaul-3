@@ -101,7 +101,7 @@ function Firearm:GetAttackResults(action, attack_args)
     -----------------------------------
 
     local fired, jammed, condition, ammo_type = self:PrecalcAmmoUse(attacker, consumed_ammo,
-                                                                    prediction)
+                                                                    prediction, num_shots > 1 and not aoe_params)
     if type(fired) == "number" and num_shots > 0 then
         num_shots = Min(fired, num_shots)
         shot_attack_args.num_shots = fired
@@ -751,7 +751,8 @@ function Firearm:GetAttackResults(action, attack_args)
         end
 
         -- if not shot_attack_args.lof and not aoe_params or not fired or jammed or shot_attack_args.chance_only then
-        if not fired or jammed or
+        ---- a mid-burst jam keeps `fired` (rounds before it); a first-round jam has fired = false
+        if not fired or
             (shot_attack_args.chance_only and not shot_attack_args.damage_breakdown) then
             return attack_results
         end

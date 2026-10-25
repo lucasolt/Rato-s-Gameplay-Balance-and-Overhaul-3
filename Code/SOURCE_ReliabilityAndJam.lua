@@ -59,7 +59,9 @@ function FirearmBase:GetBaseDegradePerShot()
 	return MulDivRound(const.Weapons.DegradePerShot, self.ConditionDegradationRate or 100, 100)
 end
 
-function FirearmBase:ReliabilityCheck(attacker, num_shots)
+---- 3rd return: rounds fired before a mid-burst jam (per_round only; 0 = jammed on the first round).
+---- HeavyWeapon passes jam_roll as the 3rd arg; harmless, its num_shots is 1.
+function FirearmBase:ReliabilityCheck(attacker, num_shots, per_round)
     local item = self.parent_weapon or self
     local loss = const.Weapons.DegradePerShot
     -- rate and rain scale the roll, not the loss: a 1-point loss rounds any rate back to 1
@@ -74,21 +76,30 @@ function FirearmBase:ReliabilityCheck(attacker, num_shots)
     local player_controlled = attacker.team and attacker.team.control ~= "AI"
     local subject_to_wear = player_controlled or const.Weapons.WearAppliesToAI == true
 
-    local jammed
+    local jammed, jam_fired
     if not attacker.infinite_condition and attacker.team and subject_to_wear and
         not attacker:HasStatusEffect("ManningEmplacement") then
-        -- jam check once per attack
+        local shots = num_shots or 1
         local jam_chance = item:GetJamChance(attacker, condition)
         local jam_roll = 1 + attacker:Random(100)
-        if item.num_safe_attacks <= 0 and condition < const.Weapons.JamConditionGate and jam_roll <=
-            jam_chance then
-            jammed = true
+        local can_jam = item.num_safe_attacks <= 0 and condition < const.Weapons.JamConditionGate
+        if can_jam and jam_roll <= jam_chance then
+            jammed, jam_fired = true, 0
+        elseif can_jam and per_round and shots > 1 then
+            -- per-mille: 20% of a 1-3% chance must not round to 0
+            local extra_chance = MulDivRound(jam_chance * 10, const.Weapons.JamExtraShotPct, 100)
+            for i = 2, shots do
+                if 1 + attacker:Random(1000) <= extra_chance then
+                    jammed, jam_fired = true, i - 1
+                    break
+                end
+            end
         end
 
-        if not jammed then
+        local fired = jam_fired or shots
+        if fired > 0 then
             ---- balas EFETIVAS: a primeira conta inteira, cada uma depois conta uma fracao
-            local extra = Max(0, (num_shots or 1) - 1)
-            local rolls = 1 + MulDivRound(extra, const.Weapons.ExtraShotDegradePct, 100)
+            local rolls = 1 + MulDivRound(fired - 1, const.Weapons.ExtraShotDegradePct, 100)
             for i = 1, rolls do
                 local condition_roll = 1 + attacker:Random(100)
                 if condition_roll <= degrade_chance then
@@ -97,5 +108,37 @@ function FirearmBase:ReliabilityCheck(attacker, num_shots)
             end
         end
     end
-    return jammed, condition
+    return jammed, condition, jam_fired
+end
+
+---- Engine copy (Weapon.lua:1488) + per_round: a mid-burst jam fires the rounds before it.
+function Firearm:PrecalcAmmoUse(attacker, num, prediction, per_round)
+    local fired = num
+    local jammed, condition, jam_fired
+    if not prediction then
+        local shots = (self.ammo and not attacker.infinite_ammo) and Min(num, self.ammo.Amount) or num
+        jammed, condition, jam_fired = self:ReliabilityCheck(attacker, shots, per_round)
+    end
+
+    local ammo_type = self.ammo and self.ammo.class
+    if (jammed and (jam_fired or 0) <= 0) or (not attacker.infinite_ammo and not self.ammo) then
+        fired = false
+    elseif jammed then
+        fired = jam_fired
+    elseif self.ammo and self.ammo.Amount < num then
+        fired = self.ammo.Amount
+    end
+
+    return fired, jammed, condition, ammo_type
+end
+
+---- vanilla spends no ammo on a jammed attack; a mid-burst jam spent `fired` rounds first
+local Rat_ApplyAmmoUseOrig = Firearm.ApplyAmmoUse
+function Firearm:ApplyAmmoUse(attacker, fired, jammed, condition)
+    if not (jammed and fired) then
+        return Rat_ApplyAmmoUseOrig(self, attacker, fired, jammed, condition)
+    end
+    Rat_ApplyAmmoUseOrig(self, attacker, fired, false, condition)
+    self:Jam(attacker)
+    Msg("InventoryChange", attacker)
 end
