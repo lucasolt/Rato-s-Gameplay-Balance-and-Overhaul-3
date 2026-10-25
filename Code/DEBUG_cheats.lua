@@ -1,9 +1,9 @@
----- Cheats menu (in-game Esc > Cheats > COMBAT) entries for aCTH debugging
-local function AppendToggleCheat(action_id, name, cheat)
+---- Cheats menu (in-game Esc > Cheats) entries, each inserted after a vanilla action of its section
+local function AppendToggleCheat(action_id, name, cheat, after_id, section)
     if UIFindControl("IGMainActions", action_id) then
         return
     end
-    local _, parent, idx = UIFindControl("IGMainActions", "idToggleAlwaysMiss")
+    local _, parent, idx = UIFindControl("IGMainActions", after_id)
     if not parent then
         return
     end
@@ -12,7 +12,7 @@ local function AppendToggleCheat(action_id, name, cheat)
         'ActionId', action_id,
         'ActionName', name,
         'ActionToolbar', "cheats",
-        'ActionToolbarSection', "COMBAT",
+        'ActionToolbarSection', section,
         'OnAction', function(self, host, source, ...)
             NetSyncCheatEnableIG(cheat)
             CloseMenuDialogs()
@@ -62,7 +62,9 @@ local function PatchModifyInCombat()
 end
 
 function OnMsg.ModsReloaded()
-    AppendToggleCheat("idToggleRatZeroDispersion", T(482193570611, "aCTH Zero Dispersion (toggle)"), "RatZeroDispersion")
-    AppendToggleCheat("idToggleRatModifyInCombat", Untranslated("Modify Weapons in Combat (toggle)"), "RatModifyInCombat")
+    AppendToggleCheat("idToggleRatZeroDispersion", T(482193570611, "aCTH Zero Dispersion (toggle)"), "RatZeroDispersion",
+                      "idToggleAlwaysMiss", "COMBAT")
+    AppendToggleCheat("idToggleRatModifyInCombat", Untranslated("Modify Weapons in Combat (toggle)"), "RatModifyInCombat",
+                      "idToggleFreeParts", "GENERAL")
     PatchModifyInCombat()
 end
