@@ -228,6 +228,10 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
     anchor_corr = Max(anchor_corr, Rat_HyperburstCorr(weapon, action))
     local accuracy = Clamp(MulDivRound(attacker.Marksmanship or 0, 100, Max(30, other_control)), 0, 100)
     local walk_pct = a.StringAnchor and MulDivRound(a.WalkFirePct or 0, accuracy, 100) or 0
+    local walk_kp = a.StringAnchor and MulDivRound(a.WalkFireKpPct or 0, accuracy, 100) or 0
+    if auto_perk and walk_kp > 0 then
+        walk_kp = walk_kp + (a.RecoilAutoWeaponsWalkKpPct or 0)
+    end
     ---- rounds that leave before the shooter reacts to round 1's impact: a fast gun spends more of them
     local react = tracer and (a.WalkFireReactTracerMs or 0) or (a.WalkFireReactMs or 0)
     local rpm = Max(1, weapon.RPM or const.Combat.Recoil.ROFRefRPM or 600)
@@ -253,6 +257,7 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
         accuracy = accuracy,
         anchor_corr = anchor_corr,
         walk_pct = walk_pct,
+        walk_kp = walk_kp,
         walk_from = walk_from,
         ---- centiminutes; 0 = no ceiling
         climb_cap = kick * 100 * (a.RecoilClimbCapKicks or 0),
@@ -288,17 +293,19 @@ function Rat_RecoilStep(prof, st, rnd, trace)
     ---- this step aims round n + 1; once it can follow earlier tracer streaks the fire is walked back harder
     local n = (st.n or 0) + 1
     st.n = n
-    local kp = prof.kp
+    local kp_pct = 100
     if prof.tracer_from > 0 and n + 1 >= prof.tracer_from then
-        kp = MulDivRound(kp, 100 + prof.tracer_kp, 100)
+        kp_pct = kp_pct + prof.tracer_kp
     end
 
-    ---- walking fire: once the impacts are visible the setpoint is the target, not the original aim point
+    ---- walking fire: once the impacts are visible the setpoint is the target, and seeing them pulls harder
     local sx, sy = 0, 0
     st.walking = st.walk_x and n + 1 >= (prof.walk_from or 0) or nil
     if st.walking then
         sx, sy = st.walk_x, st.walk_y
+        kp_pct = kp_pct + (prof.walk_kp or 0)
     end
+    local kp = MulDivRound(prof.kp, kp_pct, 100)
     local ax = -(MulDivRound(st.px - sx, kp, 1000) + MulDivRound(st.vx, prof.kd, 1000))
     local ay = -(MulDivRound(st.py - sy, kp, 1000) + MulDivRound(st.vy, prof.kd, 1000))
 

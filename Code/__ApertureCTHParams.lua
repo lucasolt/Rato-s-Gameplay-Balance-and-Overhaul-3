@@ -323,6 +323,8 @@ A.StringAnchorCorrPct = 95
 ---- Walking fire: once the impacts are visible the correction pulls toward the target. % of the anchor error
 ---- taken back at full recoil accuracy (Marksmanship vs control); 0 = anchor only.
 A.WalkFirePct = 80
+---- % added to Kp once walking (x recoil accuracy): the impacts show the whole miss, climb included
+A.WalkFireKpPct = 100
 ---- reaction to round 1's impact; the first walked round is the first one fired after it (weapon.RPM).
 ---- 250 ms: round 4 at 600 RPM, 5 at 900, 6 at 1200. Tracers show the stream sooner.
 A.WalkFireReactMs = 250
@@ -406,7 +408,9 @@ A.RecoilTracerKpPct = 50
 ---- Recoil perks as flat grip, out of the curve; additive when both apply.
 ---- Recoil Management (TakeAim) on every attack, Auto Weapons on burst and autofire.
 A.RecoilTakeAimRecoveryPct = 30
-A.RecoilAutoWeaponsRecoveryPct = 40
+A.RecoilAutoWeaponsRecoveryPct = 30
+---- Auto Weapons: flat % added to the walking-fire Kp
+A.RecoilAutoWeaponsWalkKpPct = 50
 
 ---- T: em quantos tiros o atirador TENTA zerar (p, v). Ganhos do duplo polo em 1 - 1/T:
 ---- Kd = 2/T, Kp = 1/T^2. Manda a FORMA da queda, nao os extremos dela.
