@@ -365,7 +365,7 @@ function redefine_crosshairUI_function()
             local recoil_ap, recoil_text, recoil_capped = 0, false, false
             local recoil = attacker:GetStatusEffect("Rat_recoil")
             local aim_penalty = recoil and recoil:ResolveValue("aim_cost")
-            if aim_penalty and aim_penalty >= R_VanillaAPToDisplay(0.5) then
+            if aim_penalty and aim_penalty > 0 then
                 local min_aim = attacker:GetBaseAimLevelRange(action, weapon)
                 local aim_level = Max(0, (args.aim or 0) - min_aim)
                 recoil_capped = aim_level > 3

@@ -37,19 +37,19 @@ function Rat_GetRecoilAimCost(attacker, action, weapon, stacks)
     end
 
     local recoil_value = get_recoilP_value(attacker, action, weapon, false, stacks, false)
-    local aim_mul = GetAimMul_Recoil_byCaliber(weapon)
+    local aim_pct = cRound(GetAimMul_Recoil_byCaliber(weapon) * 100)
 
-    local aim_cost = Max(0, -recoil_value * 0.7 * aim_mul / 30.00)
-    aim_cost = cRoundFlt(aim_cost, 0.5)
-    aim_cost = Min(5, aim_cost)
+    ---- displayed AP per aim level: 0.7 vanilla AP per 30 recoil
+    local aim_cost = Max(0, MulDivRound(cRound(-recoil_value * 100), 7 * aim_pct, 300000))
+    aim_cost = Min(R_VanillaAPToDisplay(5), aim_cost)
 
     if HasPerk(attacker, "shooting_stance") then
-        local stance_cost = (GetWeapon_StanceAP(attacker, weapon) + (Get_AimCost(attacker) * 2)) /
-                                (R_VanillaAP(1) * 1.0)
+        local stance_cost = MulDivRound(GetWeapon_StanceAP(attacker, weapon) + Get_AimCost(attacker) * 2, 1,
+                                        const.Scale.AP)
         aim_cost = Min(stance_cost, aim_cost)
     end
 
-    return R_VanillaAPToDisplay(aim_cost), recoil_value
+    return aim_cost, recoil_value
 end
 
 ---- AP the per-level `aim_cost` adds at `aim`; a manual cycle buys back part of its own AP once per shot, never past break-even

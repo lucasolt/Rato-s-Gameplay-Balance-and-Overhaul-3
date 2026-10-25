@@ -13,7 +13,7 @@ function R_VanillaAP(n)
     return n * const.Combat.R_VanillaAPRaw
 end
 
--- Float-safe: recoil aim cost comes in 0.5 steps.
+-- Float-safe: some vanilla AP params are fractional.
 function R_VanillaAPToDisplay(n)
     if math.type(n) == "float" then
         return n * const.Combat.R_VanillaAPRaw / const.Scale.AP
