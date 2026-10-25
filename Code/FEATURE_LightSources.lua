@@ -4,7 +4,7 @@
 
 ---- Stealth lighting comes from the FX light's radius/intensity, not AreaOfEffect; keep AoE in step
 RAT_FLARE_AOE = 6
-RAT_FLARE_LIGHT = {radius = 8000, intensity0 = 40, intensity1 = 50}
+RAT_FLARE_LIGHT = {radius = 8000, intensity0 = 32, intensity1 = 40}
 ---- Glowstick is a plain PointLight: Intensity drives it (vanilla 10)
 RAT_GLOWSTICK_LIGHT = {intensity = 16}
 
@@ -33,4 +33,38 @@ end
 ---- ModsReloaded runs after every mod's ClassesGenerate, so an Explosive Overhaul preset can't undo it
 function OnMsg.ModsReloaded()
     g_Classes.FlareStick.AreaOfEffect = RAT_FLARE_AOE
+end
+
+local function FlareLight(flare)
+    for _, obj in ipairs(flare.visual_obj:GetAttaches("Weapon_FlareStick_OnGround") or empty_table) do
+        if obj:GetAttach("Light") then
+            return obj
+        end
+    end
+end
+
+---- A burnt-out stick (Despawn false) keeps remaining_time -1; rebuilding its visual on load spawned the light again
+local Rat_FlareSetDynamicData = FlareOnGround.SetDynamicData
+function FlareOnGround:SetDynamicData(data)
+    Rat_FlareSetDynamicData(self, data)
+    local class = g_Classes[self.item_class]
+    if self.remaining_time >= 0 or not (class and class.Expires) then
+        return
+    end
+    ---- the light comes from deferred Spawn FX a few frames after the visual
+    CreateMapRealTimeThread(function(flare)
+        for _ = 1, 50 do
+            Sleep(100)
+            if not IsValid(flare) or not IsValid(flare.visual_obj) then
+                return
+            end
+            local obj = FlareLight(flare)
+            if obj then
+                PlayFX("Flare", "end", flare.visual_obj)
+                PlayFX("Flare", "end", obj)
+                ResetVoxelStealthParamsCache()
+                return
+            end
+        end
+    end, self)
 end
