@@ -602,20 +602,23 @@ end
 
 ---------------------------------------------------------------------------------------------------
 ---- Signature attacks as crosshair firing modes while off cooldown, so the perk is not forgotten.
----- Keyed by action id (= perk id): the weapon the attack needs, and the vanilla mode icon it borrows.
+---- Keyed by action id (= perk id unless `perk` says otherwise): the weapon it needs, the borrowed mode icon.
 ---------------------------------------------------------------------------------------------------
 RAT_CROSSHAIR_SIGNATURES = {
     GrizzlyPerk = {icon = "UI/Hud/fm_autoshot", weapon = function(w) return IsKindOf(w, "MachineGun") end},
     KalynaPerk = {icon = "UI/Hud/fm_single_shot",
                   weapon = function(w) return IsKindOf(w, "Firearm") and not IsKindOf(w, "Shotgun") end},
     TheGrim = {icon = "UI/Hud/fm_single_shot",
-               weapon = function(w) return IsKindOf(w, "Firearm") and not IsKindOf(w, "Shotgun") end}
+               weapon = function(w) return IsKindOf(w, "Firearm") and not IsKindOf(w, "Shotgun") end},
+    ---- no cooldown; GetUIState hides it where AvailableAttacks lacks it (slug check for shotguns)
+    CancelShot = {icon = "UI/Hud/fm_single_shot", perk = "CancelShotPerk",
+                  weapon = function(w) return IsKindOf(w, "Firearm") end}
 }
 
 ---- vanilla DisplayName is "<placeholder>" (the bar reads the perk); the mode button reads DisplayName
 function Rat_ApplyCrosshairSignatures()
     for id, def in pairs(RAT_CROSSHAIR_SIGNATURES) do
-        local action, perk = CombatActions[id], CharacterEffectDefs[id]
+        local action, perk = CombatActions[id], CharacterEffectDefs[def.perk or id]
         if action and perk then
             action.DisplayName = perk.DisplayName
             action.IconFiringMode = def.icon
@@ -631,7 +634,7 @@ local function signature_modes(unit, mode_id)
     rat_fm_units[1] = unit
     for id, def in sorted_pairs(RAT_CROSSHAIR_SIGNATURES) do
         local action = CombatActions[id]
-        if action and HasPerk(unit, id) and not unit:GetSignatureRecharge(id) and
+        if action and HasPerk(unit, def.perk or id) and not unit:GetSignatureRecharge(id) and
             def.weapon(action:GetAttackWeapons(unit)) and action:GetUIState(rat_fm_units) ~= "hidden" then
             out = out or {}
             out[#out + 1] = action
@@ -667,7 +670,7 @@ function SpawnCrosshair(self, action, ...)
     return GBO_OriginalSpawnCrosshair(self, action, ...)
 end
 
----- the crosshair template has three firing-mode slots; signatures can add two more
+---- the crosshair template has three firing-mode slots; signatures can add three more
 function Rat_PatchCrosshairFiringModes()
     local chain = FindXtByProp(XTemplates.ActionCameraCrosshair, 'Id', 'idFireModeContainer')
     local box = chain and chain[1]
@@ -679,7 +682,7 @@ function Rat_PatchCrosshairFiringModes()
             table.remove(box, i)
         end
     end
-    for slot = 4, 5 do
+    for slot = 4, 6 do
         box[#box + 1] = PlaceObj('XTemplateTemplate', {
             'comment', "rat_firing_mode_extra",
             '__context', function(parent, context)
