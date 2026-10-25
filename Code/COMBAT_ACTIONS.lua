@@ -392,10 +392,12 @@ function rat_combat_actions()
 
             return weapon and
                        (unit:GetAttackAPCost(self, weapon, nil, args and args.aim or 0, ap_delta) +
-                           ap_extra) or -1
+                           ap_extra + Rat_AutoExtraAP(self, weapon, args and args.num_shots)) or -1
         end
         return self.ActionPoints
     end
+    ---- once per combat: the signature recharge is set on use and cleared on CombatEnd
+    GBO_ChangeParamAndUpdateCache(CombatActions.GrizzlyPerk, "rechargeTime", const.Combat.SignatureAbilityRechargeTime)
 
     CombatActions.BuckshotBurst.GetAPCost = function(self, unit, args)
 
@@ -1540,3 +1542,11 @@ local t_id_table = {
 
 ratG_T_table['shooting_stance_combat_actions.lua'] = t_id_table
 
+
+function OnMsg.CombatEnd()
+    for _, unit in ipairs(g_Units) do
+        if unit:GetSignatureRecharge("GrizzlyPerk") then
+            unit:RechargeSignature("GrizzlyPerk")
+        end
+    end
+end

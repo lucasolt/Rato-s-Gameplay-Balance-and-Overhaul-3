@@ -8,7 +8,7 @@ end
 
 function Rat_IsVariableAuto(action)
     local id = action and action.id
-    return id == "AutoFire" or id == "MGBurstFire"
+    return id == "AutoFire" or id == "MGBurstFire" or id == "GrizzlyPerk"
 end
 
 ---- no full auto means burst is the only automatic mode, so it stays
@@ -271,6 +271,18 @@ function Rat_ApplyVariableAutofire()
     auto.GetActionDamage = variable_damage
     mg.GetActionDamage = variable_damage
     mg.GetUIState = variable_ui_state
+    ---- Grizzly fires MGBurstFire's results (vanilla delegates), so it takes the same selectable string
+    local grizzly = CombatActions.GrizzlyPerk
+    grizzly.Execute = variable_execute
+    grizzly.GetActionDamage = function(self, unit, target, args)
+        return variable_damage(mg, unit, target, args)
+    end
+    grizzly.GetUIState = function(self, units, args)
+        if not self:GetAttackWeapons(units[1], args) then
+            return "disabled", AttackDisableReasons.RequiresMachineGun
+        end
+        return variable_ui_state(self, units, args)
+    end
     ---- folds MG Autofire into the Single / Burst firing-mode toggle
     mg.FiringModeMember = "Attack"
     mg.IconFiringMode = auto.IconFiringMode
