@@ -50,7 +50,7 @@ function presets_char_effect()
 
         --------------------------------------------------------------------------------------------
         if p.id == 'AutoWeapons' then ------------AutoWeapons
-            p.Description = ratT(file_str, 483920175316, "Reduced <em>Recoil</em> with <em>Burst Fire</em> and <em>Auto Fire</em>.\n\nLess likely to <em>overrun the trigger</em> in <em>Auto Fire</em>.")
+            p.Description = ratT(file_str, 483920175316, "Reduced <em>Recoil</em> with <em>Burst Fire</em> and <em>Auto Fire</em>.\n\nWalks long <em>Auto Fire</em> strings onto the target faster once the impacts show.\n\nLess likely to <em>overrun the trigger</em> in <em>Auto Fire</em>.")
             for _, param in ipairs(p.Parameters) do
                 if param.Name == 'automatics_penalty_reduction' then
                     param.Value = 100 ---  not used anymore
