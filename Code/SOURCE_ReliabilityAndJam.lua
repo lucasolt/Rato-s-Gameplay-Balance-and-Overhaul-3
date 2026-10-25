@@ -9,7 +9,7 @@
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
----- jam_chance = (100 - Condition) * JamSlopePct/100 * (100 - Reliability) / JamRelRef
+---- jam_chance = d * JamSlopePct/100 * (100 - Reliability) / JamRelRef * sqrt(d / JamCurveRef)
 ----
 ---- Multiplicativa e ANCORADA de proposito, em vez de somar os dois deficits: assim uma arma
 ---- confiavel continua confiavel mesmo bem suja (o Mosin a 96 fica em ~3% ate Condition 20), que e
@@ -28,8 +28,10 @@ function FirearmBase:GetJamChance(attacker, condition)
     ---- `Reliability` ausente ou 100 => deficit 0 => nunca emperra. Mesma leitura do vanilla para
     ---- itens sem a property (facas, explosivos, veiculos: todos ja vinham com 100).
     local deficit_rel = Max(0, 100 - (self.Reliability or 100))
-    local chance = MulDivRound(deficit_cond * const.Weapons.JamSlopePct, deficit_rel,
-        100 * Max(1, const.Weapons.JamRelRef))
+    -- linear term x sqrt(deficit / JamCurveRef): power 1.5, equal to the linear curve at the ref
+    local ref = Max(1, const.Weapons.JamCurveRef)
+    local chance = MulDivRound(deficit_cond * const.Weapons.JamSlopePct * deficit_rel, sqrt(deficit_cond * 10000),
+        100 * Max(1, const.Weapons.JamRelRef) * sqrt(ref * 10000))
 
     if (GameState.RainHeavy or GameState.RainLight) and not attacker.indoors then
         chance = MulDivRound(chance, 100 + const.Weapons.RainJamPct, 100)

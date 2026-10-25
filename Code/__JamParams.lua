@@ -6,8 +6,8 @@
 ---------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
----- JAM:  jam% = (100 - Condition) * JamSlopePct/100 * (100 - Reliability) / JamRelRef
-----   C70: AK47 3, FNFAL 7, G11 10   C40: AK47 6, FNFAL 13, G11 19   C20: AK47 8, FNFAL 17, G11 25
+---- JAM:  jam% = d * JamSlopePct/100 * (100 - Reliability) / JamRelRef * sqrt(d / JamCurveRef),  d = 100 - Condition
+----   C70: AK47 2, FNFAL 5, G11 7   C50: AK47 5, FNFAL 11, G11 16   C10: AK47 12, FNFAL 26, G11 30
 ---------------------------------------------------------------------------------------------------
 
 -- 25 reproduces vanilla's /4 at the reference Reliability.
@@ -15,6 +15,9 @@ const.Weapons.JamSlopePct = 25
 
 -- Reliability deficit worth x1 (R70 jams like vanilla); higher compresses the spread between guns.
 const.Weapons.JamRelRef = 30
+
+-- Condition deficit where the power-1.5 curve equals the linear one; flatter above it, steeper below.
+const.Weapons.JamCurveRef = 50
 
 -- Hard cap per attack, after rain.
 const.Weapons.JamChanceMax = 30
