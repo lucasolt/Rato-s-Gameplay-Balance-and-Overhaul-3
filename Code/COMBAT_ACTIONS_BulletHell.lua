@@ -84,22 +84,30 @@ end
 
 ---- sim_ctx planner for rat_sweep (GetAttackResults): same scatter and recoil walk as
 ---- Rat_SimPlanShots, but the cone is the shooter's alone -- there is no target to resolve it against
+---- the sweep is hipfired, except prone on a bipod or MG: braced, it fires as aim 1
+function Rat_BulletHellAim(attacker, weapon)
+    local braced = attacker.stance == "Prone" and
+                       (IsKindOf(weapon, "MachineGun") or weapon:HasComponent("RecoilControlWhenProne"))
+    return braced and 1 or 0
+end
+
 function Rat_SweepPlanShots(ctx)
     local sweep = ctx.args.rat_sweep
     local attacker, weapon = ctx.attacker, ctx.weapon
     local auto = sweep.crit_action
-    local sigma = Rat_GetAperture(weapon, attacker, auto, 0, false)
+    local bh_aim = Rat_BulletHellAim(attacker, weapon)
+    local sigma = Rat_GetAperture(weapon, attacker, auto, bh_aim, false)
     if not sigma or sigma < 1 then
         return nil
     end
-    local cone = {rat_sigma = sigma, rat_vsigma = Rat_RecoilPersistSigma(attacker, auto, weapon, 0)}
+    local cone = {rat_sigma = sigma, rat_vsigma = Rat_RecoilPersistSigma(attacker, auto, weapon, bh_aim)}
     local sigma_y, sigma_y_dn = Rat_ConeSigmaY(cone)
     local fan = Rat_ConeFanX(cone)
     ctx.sigma, ctx.sigma_y, ctx.sigma_y_dn, ctx.fan, ctx.vsigma = sigma, sigma_y, sigma_y_dn, fan,
                                                                   cone.rat_vsigma
 
     local n = #sweep.points
-    local prof = (n > 1) and Rat_RecoilProfile(attacker, auto, weapon, n, nil, nil, 0) or nil
+    local prof = (n > 1) and Rat_RecoilProfile(attacker, auto, weapon, n, nil, nil, bh_aim) or nil
     local st = prof and Rat_RecoilState() or nil
     local rnd = function(k)
         return attacker:Random(k)
@@ -190,6 +198,6 @@ function Rat_ApplyBulletHell()
     local perk = CharacterEffectDefs.BulletHell
     if perk then
         perk.Description = T(482915370264,
-                             "Sweep a long <em>autofire</em> burst evenly across the cone at torso height. Anyone the bullets cross is hit, and everyone in the cone is <GameTerm('Suppressed')> and sent <GameTerm('Prone')>.")
+                             "Sweep a long <em>autofire</em> burst evenly across the cone at torso height. Anyone the bullets cross is hit, and everyone in the cone is <GameTerm('Suppressed')> and sent <GameTerm('Prone')>.\n\nFired <em>prone</em> with a <em>bipod</em> or <em>Machine Gun</em>, the sweep is braced as if <em>aimed</em>.")
     end
 end
