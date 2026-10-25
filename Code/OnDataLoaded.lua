@@ -14,6 +14,7 @@ function rat_apply_changes()
     ------ Combat Actions
     rat_combat_actions()
     Rat_ApplyVariableAutofire()
+    Rat_ApplyCrosshairSignatures()
     Rat_ApplyBulletHell()
     rat_MGSetup_getap()
     -- change_MGSetupAction_GetAimParams()

@@ -273,9 +273,6 @@ function Rat_ApplyVariableAutofire()
     mg.GetUIState = variable_ui_state
     ---- Grizzly fires MGBurstFire's results (vanilla delegates), so it takes the same selectable string
     local grizzly = CombatActions.GrizzlyPerk
-    ---- crosshair firing-mode button: vanilla DisplayName is "<placeholder>" and there is no mode icon
-    grizzly.DisplayName = CharacterEffectDefs.GrizzlyPerk.DisplayName
-    grizzly.IconFiringMode = auto.IconFiringMode
     grizzly.Execute = variable_execute
     grizzly.GetActionDamage = function(self, unit, target, args)
         return variable_damage(mg, unit, target, args)
@@ -603,30 +600,72 @@ local function resolve_visible_firing_modes(self, firingMode, ui, sync)
     return id or actions[1].id, actions
 end
 
----- Grizzly joins the MG's crosshair modes while off cooldown, so the perk is not forgotten
-local function add_grizzly_mode(unit, actions)
-    local gz = CombatActions.GrizzlyPerk
-    if not HasPerk(unit, "GrizzlyPerk") or unit:GetSignatureRecharge("GrizzlyPerk") or table.find(actions, gz) then
-        return
+---------------------------------------------------------------------------------------------------
+---- Signature attacks as crosshair firing modes while off cooldown, so the perk is not forgotten.
+---- Keyed by action id (= perk id): the weapon the attack needs, and the vanilla mode icon it borrows.
+---------------------------------------------------------------------------------------------------
+RAT_CROSSHAIR_SIGNATURES = {
+    GrizzlyPerk = {icon = "UI/Hud/fm_autoshot", weapon = function(w) return IsKindOf(w, "MachineGun") end},
+    KalynaPerk = {icon = "UI/Hud/fm_single_shot",
+                  weapon = function(w) return IsKindOf(w, "Firearm") and not IsKindOf(w, "Shotgun") end}
+}
+
+---- vanilla DisplayName is "<placeholder>" (the bar reads the perk); the mode button reads DisplayName
+function Rat_ApplyCrosshairSignatures()
+    for id, def in pairs(RAT_CROSSHAIR_SIGNATURES) do
+        local action, perk = CombatActions[id], CharacterEffectDefs[id]
+        if action and perk then
+            action.DisplayName = perk.DisplayName
+            action.IconFiringMode = def.icon
+        end
+    end
+end
+
+local function signature_modes(unit, mode_id)
+    local out
+    if mode_id ~= "Attack" then
+        return out
     end
     rat_fm_units[1] = unit
-    if gz:GetUIState(rat_fm_units) ~= "hidden" then
-        actions[#actions + 1] = gz
+    for id, def in sorted_pairs(RAT_CROSSHAIR_SIGNATURES) do
+        local action = CombatActions[id]
+        if action and HasPerk(unit, id) and not unit:GetSignatureRecharge(id) and
+            def.weapon(action:GetAttackWeapons(unit)) and action:GetUIState(rat_fm_units) ~= "hidden" then
+            out = out or {}
+            out[#out + 1] = action
+        end
     end
+    return out
 end
 
 function Unit:ResolveDefaultFiringModeAction(firingMode, ui, sync)
     local id, actions = resolve_visible_firing_modes(self, firingMode, ui, sync)
     if actions and #actions > 1 and table.find(actions, "id", "MGBurstFire") then
         table.sort(actions, mg_fm_order)
-        if ui then
-            add_grizzly_mode(self, actions)
+    end
+    local extra = ui and actions and signature_modes(self, type(firingMode) == "table" and firingMode.id or firingMode)
+    for _, action in ipairs(extra or empty_table) do
+        if not table.find(actions, action) then
+            actions[#actions + 1] = action
         end
     end
     return id, actions
 end
 
----- the crosshair template has three firing-mode slots; Grizzly can be a fourth
+---- a weapon with one Attack mode (bolt sniper) opens the crosshair on the member, with no mode row;
+---- open it through the meta action instead, which resolves to that same member plus the signatures
+local GBO_OriginalSpawnCrosshair = SpawnCrosshair
+function SpawnCrosshair(self, action, ...)
+    local attacker = self and self.attacker
+    local meta = action and action.FiringModeMember == "Attack" and CombatActions.Attack
+    if meta and attacker and attacker.ui_actions and attacker.ui_actions.Attack ~= "enabled" and
+        signature_modes(attacker, "Attack") then
+        return GBO_OriginalSpawnCrosshair(self, meta, ...)
+    end
+    return GBO_OriginalSpawnCrosshair(self, action, ...)
+end
+
+---- the crosshair template has three firing-mode slots; signatures can add two more
 function Rat_PatchCrosshairFiringModes()
     local chain = FindXtByProp(XTemplates.ActionCameraCrosshair, 'Id', 'idFireModeContainer')
     local box = chain and chain[1]
@@ -634,15 +673,17 @@ function Rat_PatchCrosshairFiringModes()
         return
     end
     for i = #box, 1, -1 do
-        if box[i].comment == "rat_firing_mode_4" then
+        if box[i].comment == "rat_firing_mode_extra" or box[i].comment == "rat_firing_mode_4" then
             table.remove(box, i)
         end
     end
-    box[#box + 1] = PlaceObj('XTemplateTemplate', {
-        'comment', "rat_firing_mode_4",
-        '__context', function(parent, context)
-            return {action = parent:ResolveId("node").context.firingModes[4]}
-        end,
-        '__template', "CrosshairFiringModeButton"
-    })
+    for slot = 4, 5 do
+        box[#box + 1] = PlaceObj('XTemplateTemplate', {
+            'comment', "rat_firing_mode_extra",
+            '__context', function(parent, context)
+                return {action = parent:ResolveId("node").context.firingModes[slot]}
+            end,
+            '__template', "CrosshairFiringModeButton"
+        })
+    end
 end
