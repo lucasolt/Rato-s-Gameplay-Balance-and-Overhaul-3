@@ -32,6 +32,8 @@ RAT_FLASHLIGHT_LENS = {intensity = 40, radius = 18 * guic, offset = 20 * guic}
 RAT_FLASHLIGHT_BEAM_OFFSET = point(10 * guic, 0, 0)
 ---- The stealth light copies the visible beam once it drifts this far (origin, and beam tip 1 m out)
 RAT_FLASHLIGHT_FOLLOW = 25 * guic
+---- ...and only after the beam holds within that for this long (ms), so idle fidgets light nothing
+RAT_FLASHLIGHT_SETTLE = 1500
 ---- Beam origin height and downward tilt (degrees) per stance, so the cone reaches the ground
 RAT_FLASHLIGHT_POSE = {
     Standing = {height = 130 * guic, tilt = 6},
@@ -389,7 +391,13 @@ local function UpdateBeam(unit, weapon, lit)
         if not follow then
             real = {BeamPose(unit, stance_aim)}
         elseif not (unit.aim_action_id and b.stealth_pose) then
-            real = {b.render:GetVisualPos(), b.render:GetVisualAxis(), b.render:GetVisualAngle()}
+            local seen = {b.render:GetVisualPos(), b.render:GetVisualAxis(), b.render:GetVisualAngle()}
+            if not NearPose(seen, b.settle_pose) then
+                b.settle_pose, b.settle_at = seen, GameTime()
+            end
+            if not b.stealth_pose or GameTime() - b.settle_at >= RAT_FLASHLIGHT_SETTLE then
+                real = b.settle_pose
+            end
         end
         if real and not (follow and NearPose or SamePose)(real, b.stealth_pose) then
             b.stealth_pose = real
