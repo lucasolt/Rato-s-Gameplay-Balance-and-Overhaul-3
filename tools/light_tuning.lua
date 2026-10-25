@@ -1,8 +1,8 @@
 ---- Console tools: visual-only boost of map light sources. Load: dofile("Mod/cfahRED/tools/light_tuning.lua")
----- Each source gets an unsynced companion PointLight: unsynced lights don't feed voxel stealth (measured).
+---- Each source gets an unsynced companion PointLight, kept out of the stealth voxel scan.
 ---- rawset: console tool, runtime globals are otherwise refused.
 
-local state = rawget(_G, "RatLightState") or {companions = {}, cfg = false, thread = false}
+local state = rawget(_G, "RatLightState") or {companions = {}, cfg = false, thread = false, saving = false}
 rawset(_G, "RatLightState", state)
 
 ---- Only synced lights define what is lit; units and FX carry their own lights
@@ -22,6 +22,9 @@ local function place_companion(l, cfg)
     if not IsValid(extra) then
         extra = PlaceObject("PointLight")
         extra.rat_companion = true
+        extra:ClearEnumFlags(const.efVsPointLight | const.efVsSpotLight)
+        ---- the renderer skips Lua-placed lights without it; it also makes them saved, hence the save hooks
+        extra:SetGameFlags(const.gofPermanent)
         state.companions[l] = extra
     end
     local base = l:GetIntensity()
@@ -41,7 +44,7 @@ local function remove_companion(l)
 end
 
 local function refresh()
-    local cfg = state.cfg
+    local cfg = not state.saving and state.cfg
     for l in pairs(state.companions) do
         if not cfg or not is_source(l, cfg.placed) then
             remove_companion(l)
@@ -72,6 +75,17 @@ local function ensure_thread()
         end
         state.thread = false
     end)
+end
+
+---- Hooks append on every dofile: register once, call through state
+state.on_save = function(saving)
+    state.saving = saving
+    refresh()
+end
+if not state.hooked then
+    state.hooked = true
+    OnMsg.SaveGameStart = function() state.on_save(true) end
+    OnMsg.SaveGameDone = function() state.on_save(false) end
 end
 
 ---- pct: total visual brightness (200 = twice vanilla). radius_pct: companion reach vs the source's.
