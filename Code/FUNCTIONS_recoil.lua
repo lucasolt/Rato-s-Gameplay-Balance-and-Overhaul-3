@@ -99,8 +99,9 @@ local function RecoilCompMul(rc, key, w)
     if type(v) ~= "table" then
         return v
     end
-    if IsKindOf(w, "Pistol") or w.pistol_swap then
-        return v.Pistol or v.Other
+    ---- a pistol_swap SMG falls through to its class where there is no pistol entry, not to the rifle value
+    if (IsKindOf(w, "Pistol") or w.pistol_swap) and v.Pistol then
+        return v.Pistol
     elseif IsKindOf(w, "Revolver") then
         return v.Revolver or v.Other
     elseif IsKindOf(w, "SubmachineGun") then
