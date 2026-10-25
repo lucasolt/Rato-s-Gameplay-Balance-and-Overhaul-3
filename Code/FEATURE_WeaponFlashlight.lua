@@ -315,7 +315,10 @@ local function UpdateBeam(unit, weapon, lit)
         beams[unit] = b
     end
     local changed = false
-    local key = SettingsKey()
+    ---- crouched or prone idles hold the gun level to the side: outside stance only the glows, so a forward light costs the stance
+    local cone = unit.stance == "Standing" or unit:HasStatusEffect("shooting_stance")
+    lit = lit and cone
+    local key = SettingsKey() .. (cone and "/cone" or "")
     local part = FlashlightPart(weapon)
     if part ~= b.part or not IsValid(b.render) or part and not (IsValid(b.glow) and IsValid(b.lens)) then
         for _, l in ipairs{b.render, b.glow, b.lens} do
@@ -349,6 +352,9 @@ local function UpdateBeam(unit, weapon, lit)
     if b.key ~= key then
         b.key = key
         SetupSpot(b.render, RAT_FLASHLIGHT_RENDER_REACH)
+        if not cone then
+            b.render:SetIntensity(0)
+        end
         if b.part then
             b.render:SetAttachOffset(RAT_FLASHLIGHT_BEAM_OFFSET)
         end
