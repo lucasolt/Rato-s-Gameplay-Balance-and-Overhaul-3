@@ -5,7 +5,7 @@ return PlaceObj('ModDef', {
 	'external_links', {
 		"https://www.buymeacoffee.com/rato_modder",
 	},
-	'last_changes', "4.04\n\n-- Recoil simulation refactored\nbefore, every round of a burst rolled the full cone again, so a gun's accuracy and your aiming mattered as much as (often more than) recoil control. Now the first round's aim error carries through the whole string, and recoil (kick, Strength, control) decides how far the rest drift from it.\n\nWalking fire: once your merc sees the impacts (sooner with tracers, later on fast-firing guns), they walk the fire onto the target. Good recoil control and long strings now pay off, especially on MGs.\n\na short burst with full aim lives or dies on the first round, so it favours high Marksmanship and Dexterity. A long burst corrects toward the target (if your merc can handle the kick) from about round 4 (later on high-RPM guns, earlier with tracers), so it favours high Strength and Marksmanship, low-kick guns and bipods. Short aimed bursts suit precise mercs; long bursts suit strong mercs who control recoil.\n\n-- Night and weather\nNights are darker (new option: Night Darkness).\nThe map darkens past the selected merc's sight range, at night and by day. Lit spots and lit enemies still show through at night (new option: Sight Shade). Fog, dust storms and firestorms tint it.\nAiming at targets in the dark: penalty reduced from -30 to -10. Night is now mostly about sight.\nHeavy rain now cuts every weapon's aim gain by the same 20%. Before, it nearly erased aiming on pistols.\n\n\n-- Perks:\nLivewire perk changed. It will now show a ping in the map that shows an approximation of enemy's position. Groups get clustered.\nAnatomical Precision now also grants +10% base crit chance against Flanked enemies, which works with bursts and autofire.\nFlanker now also reduces snapshot penalty for Mobile Attacks\nFast Runner improves Mobile Attacks move range sligthly\n\nFixed  Calm Under Fire perk under the new AP scale\nFixed some Pinned Down compatibility with new AP scale\n\n\nMobile attacks accuracy now has a new factor based on the merc's agility\n\nImproved UI cth calculation performance\n\nImproved aCTH compatibility with DescriptiveCTH  mod\n\n\n\n556 does slightly more damage and has a little more recoil than 5.45\n\n-- Recoil\ntweaked recoil interaction with manual cycling\nChanged the math on recoil modifiers\nTracers now increase correction from the third shot instead of reducing recoil\nDexterity no longer compensates for the weight of heavy weapons when aiming; only Strength does.\n\nTuned balance of various weapons\n",
+	'last_changes', "4.04\n\n-- Recoil simulation refactored\nbefore, every round of a burst rolled the full cone again, so a gun's accuracy and your aiming mattered as much as (often more than) recoil control. Now the first round's aim error carries through the whole string, and recoil (kick, Strength, control) decides how far the rest drift from it.\n\nWalking fire: once your merc sees the impacts (sooner with tracers, later on fast-firing guns), they walk the fire onto the target. Good recoil control and long strings now pay off, especially on MGs.\n\na short burst with full aim lives or dies on the first round, so it favours high Marksmanship and Dexterity. A long burst corrects toward the target (if your merc can handle the kick) from about round 4 (later on high-RPM guns, earlier with tracers), so it favours high Strength and Marksmanship, low-kick guns and bipods. Short aimed bursts suit precise mercs; long bursts suit strong mercs who control recoil.\n\n-- Night and weather\nNights are darker (new option: Night Darkness).\nThe map darkens past the selected merc's sight range, at night and by day. Lit spots and lit enemies still show through at night (new option: Sight Shade). Fog, dust storms and firestorms tint it.\nAiming at targets in the dark: penalty reduced from -30 to -10. Night is now mostly about sight.\nHeavy rain now cuts every weapon's aim gain by the same 20%. Before, it nearly erased aiming on pistols.\nFlashlight now can be toggled on and off, and will cast a light beam that dinamically illuminates the area. A merc can use his flashlight to lit a target for his teammate.\nTracer rounds now have a visual effect\n\n\n-- Perks:\nLivewire perk changed. It will now show a ping in the map that shows an approximation of enemy's position. Groups get clustered.\nAnatomical Precision now also grants +10% base crit chance against Flanked enemies, which works with bursts and autofire.\nFlanker now also reduces snapshot penalty for Mobile Attacks\nFast Runner improves Mobile Attacks move range sligthly\n\nFixed  Calm Under Fire perk under the new AP scale\nFixed some Pinned Down compatibility with new AP scale\n\n\nMobile attacks accuracy now has a new factor based on the merc's agility\n\nImproved UI cth calculation performance\n\nImproved aCTH compatibility with DescriptiveCTH  mod\n\n\n\n556 does slightly more damage and has a little more recoil than 5.45\n\n-- Recoil\ntweaked recoil interaction with manual cycling\nChanged the math on recoil modifiers\nTracers now increase correction from the third shot instead of reducing recoil\nDexterity no longer compensates for the weight of heavy weapons when aiming; only Strength does.\n\nTuned balance of various weapons\n",
 	'SpellCheck', true,
 	'ignore_files', {
 		"*.git/*",
@@ -37,7 +37,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 4,
 	'version_minor', 4,
-	'version', 13558,
+	'version', 13573,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -210,6 +210,7 @@ return PlaceObj('ModDef', {
 		"Code/FEATURE_LightSources.lua",
 		"Code/FEATURE_WeaponFlashlight.lua",
 		"Code/FEATURE_TracerFX.lua",
+		"Code/FEATURE_StealthDetection.lua",
 		"Code/WIKI_HelpPages.lua",
 		"InventoryItem/M14SAW_AUTO.lua",
 	},
@@ -221,7 +222,7 @@ return PlaceObj('ModDef', {
 		ACTHTakeCoverGraze = false,
 		AIWeaponStanceMul = 100,
 		ApertureCTH = "aCTH",
-		AwareSightRange = 56,
+		AwareSightRange = 42,
 		ExtraMaxAP = 0,
 		GunDamagePct = 100,
 		MarksEffectPct = 100,
@@ -229,7 +230,7 @@ return PlaceObj('ModDef', {
 		MuteIMPVoice = false,
 		NightDarkness = 14,
 		NightDetectReduction = 40,
-		NightSightReduction = 70,
+		NightSightReduction = 80,
 		NoRevealMemory = true,
 		OWBonusPct = 100,
 		PartsGainPct = 70,
@@ -245,8 +246,8 @@ return PlaceObj('ModDef', {
 		noise_setting_num = 150,
 	},
 	'has_data', true,
-	'saved', 1792807824,
-	'code_hash', 6784115577253669346,
+	'saved', 1792895330,
+	'code_hash', -7790204415509342479,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",

@@ -1887,6 +1887,10 @@ return {
 			'CodeFileName', "Code/FEATURE_TracerFX.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "FEATURE_StealthDetection",
+			'CodeFileName', "Code/FEATURE_StealthDetection.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "WIKI_HelpPages",
 			'CodeFileName', "Code/WIKI_HelpPages.lua",
 		}),
