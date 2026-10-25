@@ -5,38 +5,67 @@
 ---------------------------------------------------------------------------------------------------
 
 RAT_TRACER_FX = {
-    chance = 25,
+    chance = 50,
     ---- streak sprite, cloned from vanilla Bullet_Small (width 400, length 3000 -> 1000)
     particles = "Rat_Bullet_Tracer",
     width = 600,
-    length = 9000,
-    tail = 6000,
+    length = 16000,
+    tail = 9000,
     color_min = RGB(255, 45, 10),
     color_max = RGB(255, 75, 20),
     ---- moving point light; out of the stealth voxel scan, so it lights nothing for gameplay
     light_color = RGB(255, 90, 30),
-    light_intensity = 10,
-    light_radius = 150 * guic,
+    light_intensity = 20,
+    light_radius = 100 * guic,
 }
 
+---- Weapon.lua file locals, needed by the ProjectileFly copy
+local BulletVegetationCollisionMask = const.cmDefaultObject | const.cmActionCamera
+local BulletVegetationCollisionQueryFlags = const.cqfSorted | const.cqfResultIfStartInside
+local BulletVegetationClasses = { "Shrub", "SmallTree", "TreeTop" }
+
+---- Data/ParticleSystemPreset/Bullet_Small.lua with our size and color; outside the editor no
+---- Lua particle presets are loaded, so there is nothing to clone at runtime
 local function TracerParticles()
     local t = RAT_TRACER_FX
-    local preset = ParticleSystemPresets[t.particles]
-    if preset then
+    if ParticleSystemPresets[t.particles] then
         return t.particles
     end
-    local src = ParticleSystemPresets.Bullet_Small
-    preset = ParticleSystemPreset:new{id = t.particles, group = src.group}
-    for i, behavior in ipairs(src) do
-        local b = behavior:Clone()
-        if b.class == "ParticleBehaviorResize" then
-            b.start_size_min, b.start_size_max, b.mid_size, b.end_size = t.width, t.width, t.width, t.width
-            b.start_size2_min, b.start_size2_max, b.mid_size2, b.end_size2 = t.length, t.length, t.tail, t.tail
-        elseif b.class == "ParticleBehaviorColorize" then
-            b.start_color_min, b.start_color_max = t.color_min, t.color_max
-        end
-        preset[i] = b
-    end
+    local preset = ParticleSystemPreset:new{id = t.particles, group = "Shooting"}
+    preset[1] = ParticleEmitter:new{
+        label = "Bullet",
+        emit_detail_level = 100,
+        max_live_count = 1,
+        parts_per_sec = 50000,
+        lifetime_min = 0,
+        lifetime_max = 0,
+        size_min = 5000,
+        size_max = 5000,
+        shader = "Add",
+        texture = "Textures/Particles/Bullet.tga",
+        outlines = {{point(1904, 2080), point(1712, 3776), point(2384, 3776), point(2144, 2016)}},
+        texture_hash = -487854556171420195,
+    }
+    preset[2] = ParticleBehaviorResize:new{
+        start_size_min = t.width,
+        start_size_max = t.width,
+        mid_size = t.width,
+        end_size = t.width,
+        non_square_size = true,
+        start_size2_min = t.length,
+        start_size2_max = t.length,
+        mid_size2 = t.tail,
+        end_size2 = t.tail,
+    }
+    preset[3] = ParticleBehaviorColorize:new{
+        start_color_min = t.color_min,
+        start_color_max = t.color_max,
+        type = "Start color only",
+    }
+    preset[4] = FaceAlongMovement:new{}
+    preset[5] = ParticleBehaviorEmissive:new{
+        emissive_curve = {range_y = 10, scale = 1000, point(0, 489, 489), point(290, 157, 157), point(667, 0, 0), point(1000, 0, 0)},
+    }
     ---- code-made presets skip PostLoad: register and push to the native side by hand
     preset:Register()
     preset:BindParams()
