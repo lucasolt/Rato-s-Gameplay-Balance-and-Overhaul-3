@@ -48,8 +48,8 @@ end
 ----    produz justamente valores baixos (1-4%) para as armas boas, e sob o operador antigo essa
 ----    faixa inteira seria silenciosamente inerte.
 ----
----- 2. O laco de desgaste roda `balas_efetivas` vezes, nao `num_shots` vezes. Ver
-----    `ExtraShotDegradePct` em `__JamParams.lua`.
+---- 2. O desgaste cresce com rounds^0.6, nao linear com `num_shots`. Ver `WearRoundsExpNum` em
+----    `__JamParams.lua`.
 ----
 ---- CONSEQUENCIA DE SINCRONIA: o numero de chamadas a `attacker:Random` por ataque mudou. Isso
 ---- desloca a sequencia de RNG sincronizada, entao todos os jogadores de uma partida em rede
@@ -59,6 +59,39 @@ end
 
 function FirearmBase:GetBaseDegradePerShot()
 	return MulDivRound(const.Weapons.DegradePerShot, self.ConditionDegradationRate or 100, 100)
+end
+
+local function ipow(base, exp)
+    local r = 1
+    for i = 1, exp do
+        r = r * base
+    end
+    return r
+end
+
+local wear_pow_cache = {}
+
+---- rounds^(WearRoundsExpNum/Den) x100, by bisection on x^den = n^num * 100^den; Den <= 5 keeps it in int64
+function Rat_WearRoundsPow(n)
+    local num, den = const.Weapons.WearRoundsExpNum, const.Weapons.WearRoundsExpDen
+    n = Clamp(n, 1, 500)
+    local key = (n * 100 + num) * 100 + den
+    local cached = wear_pow_cache[key]
+    if cached then
+        return cached
+    end
+    local target = ipow(n, num) * ipow(100, den)
+    local lo, hi = 100, Min(100 * n, 6000)
+    while lo < hi do
+        local mid = (lo + hi + 1) / 2
+        if ipow(mid, den) <= target then
+            lo = mid
+        else
+            hi = mid - 1
+        end
+    end
+    wear_pow_cache[key] = lo
+    return lo
 end
 
 -- testing: a round number forces every burst that long (player/wear-subject attacks) to jam on it
@@ -105,14 +138,13 @@ function FirearmBase:ReliabilityCheck(attacker, num_shots, per_round)
 
         local fired = jam_fired or shots
         if fired > 0 then
-            ---- balas EFETIVAS: a primeira conta inteira, cada uma depois conta uma fracao
-            local rolls = 1 + MulDivRound(fired - 1, const.Weapons.ExtraShotDegradePct, 100)
-            for i = 1, rolls do
-                local condition_roll = 1 + attacker:Random(100)
-                if condition_roll <= degrade_chance then
-                    condition = Max(0, condition - loss)
-                end
+            -- expected loss in 1/1000 points = chance x rounds^exp; whole points, then one roll for the rest
+            local expected = MulDivRound(degrade_chance * 10, Rat_WearRoundsPow(fired), 100)
+            local points = expected / 1000
+            if 1 + attacker:Random(1000) <= expected % 1000 then
+                points = points + 1
             end
+            condition = Max(0, condition - points * loss)
         end
     end
     return jammed, condition, jam_fired

@@ -39,15 +39,16 @@ const.Weapons.JamSoundVolumePct = 200
 const.Weapons.JamConditionGate = 100
 
 ---------------------------------------------------------------------------------------------------
----- WEAR:  per attack, `rolls` tries at DegradeChancePct * ConditionDegradationRate/100 to lose
----- DegradePerShot.  rolls = 1 + (num_shots - 1) * ExtraShotDegradePct / 100
-----   per round: single 0.20, 6-round burst 0.13, 10-round 0.12  (single/auto ratio ~1.6)
+---- WEAR:  per attack, expected loss = DegradeChancePct% x ConditionDegradationRate/100 x rounds^(Num/Den)
+---- points of DegradePerShot (whole points, then one roll for the remainder).
+----   per attack: 1 round 0.25, 3 x1.9, 6 x2.9, 10 x4.0, 25 x6.9  (exponent 1 = vanilla linear)
 ---------------------------------------------------------------------------------------------------
 
-const.Weapons.DegradeChancePct = 20
+const.Weapons.DegradeChancePct = 25
 
--- Share of each round after the first; 100 = vanilla linear.
-const.Weapons.ExtraShotDegradePct = 60
+-- Rounds exponent as a fraction (Den <= 5); 3/5 = 0.6, 1/2 = sqrt, 1/1 = linear.
+const.Weapons.WearRoundsExpNum = 3
+const.Weapons.WearRoundsExpDen = 5
 
 -- Rain bonus to the wear roll chance, in %. Replaces vanilla's RainConditionLossMod (100, on the loss).
 const.Weapons.RainWearPct = 50
