@@ -137,7 +137,25 @@ function Firearm:PrecalcAmmoUse(attacker, num, prediction, per_round)
     return fired, jammed, condition, ammo_type
 end
 
-local jam_refund_actions = {AutoFire = true, BurstFire = true, MGBurstFire = true}
+---- the WeaponJam FX banks (used by nothing else); base volume kept so reapplying doesn't compound
+local jam_sounds = {"empty_machinegun", "empty_mortar", "empty_pistol", "empty_revolver", "empty_rifle",
+                    "empty_rocketlauncher", "empty_shotgun", "empty_sniper", "empty_submachine"}
+
+function Rat_ApplyJamSoundVolume()
+    for _, id in ipairs(jam_sounds) do
+        local preset = SoundPresets[id]
+        if preset then
+            preset.rat_base_volume = preset.rat_base_volume or preset.volume
+            preset.volume = Min(300, MulDivRound(preset.rat_base_volume, const.Weapons.JamSoundVolumePct, 100))
+            LoadSoundBank(preset)
+        end
+    end
+end
+
+OnMsg.DataLoaded = Rat_ApplyJamSoundVolume
+OnMsg.ModsReloaded = Rat_ApplyJamSoundVolume
+
+local jam_refund_actions ={AutoFire = true, BurstFire = true, MGBurstFire = true}
 
 ---- a jammed burst pays only for the rounds that left the barrel (a first-round jam pays a single shot)
 function Rat_RefundJammedRounds(unit, action, results, attack_args, cost_ap)

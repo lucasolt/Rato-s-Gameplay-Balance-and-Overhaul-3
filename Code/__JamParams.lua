@@ -27,7 +27,10 @@ const.Weapons.RainJamPct = 50
 const.Weapons.JamExtraShotPct = 20
 
 -- ms after the last fired round before a mid-burst jam (FX, log, text); too short and the burst masks the sound.
-const.Weapons.JamFXDelay = 200
+const.Weapons.JamFXDelay = 50
+
+-- Volume of the guns' own jam sounds (empty_* banks, base 80, cap 300). Live: set it, then Rat_ApplyJamSoundVolume().
+const.Weapons.JamSoundVolumePct = 200
 
 -- Jams roll only below this Condition. 100 = continuous ramp (vanilla cliff was 70, ItemConditionUsed).
 const.Weapons.JamConditionGate = 100
