@@ -89,4 +89,7 @@ function OnMsg.SaveGameDone()
 end
 
 ---- Sources come and go with the LightsOn game state
-MapRealTimeRepeat("RatMapLightBoost", 1000, Rat_MapLightsRefresh)
+---- the callback's return is the next sleep: the light count (often 0) spun the loading screen forever
+MapRealTimeRepeat("RatMapLightBoost", 1000, function()
+    Rat_MapLightsRefresh()
+end)
