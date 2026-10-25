@@ -318,6 +318,8 @@ local function UpdateBeam(unit, weapon, lit)
     ---- crouched or prone idles hold the gun level to the side: outside stance only the glows, so a forward light costs the stance
     local cone = unit.stance == "Standing" or unit:HasStatusEffect("shooting_stance")
     lit = lit and cone
+    ---- aiming at a target raises the gun: the visible cone only, no lit voxels from a hover
+    cone = cone or AimTargetPos(unit) and true
     local key = SettingsKey() .. (cone and "/cone" or "")
     local part = FlashlightPart(weapon)
     if part ~= b.part or not IsValid(b.render) or part and not (IsValid(b.glow) and IsValid(b.lens)) then
