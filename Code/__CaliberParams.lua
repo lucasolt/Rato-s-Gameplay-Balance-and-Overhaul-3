@@ -21,10 +21,11 @@ const.Calibers = {
     HP = {
         CostMul = 200,
         AdditionalHint = T({
-            "<bullet_point> No armor penetration\n<bullet_point> High Critical Damage\n<bullet_point> Inflicts <color EmStyle>Bleeding</color> "
+            "<bullet_point> No armor penetration\n<bullet_point> Increased Critical Chance\n<bullet_point> Increased Critical Damage\n<bullet_point> Inflicts <color EmStyle>Bleeding</color> "
         }),
         Modifications = {
-            CritDamage = 50,
+            CritChance = 10,
+            CritDamage = 30,
             PenetrationClass = -4
         },
         AppliedEffects = {"Bleeding"}
