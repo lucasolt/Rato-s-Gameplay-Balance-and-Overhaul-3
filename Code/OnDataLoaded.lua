@@ -43,6 +43,7 @@ function rat_apply_changes()
     ---- o circulo de mira do crosshair passa a mostrar a abertura real
     Rat_PatchCrosshairAimCircle()
     Rat_PatchCrosshairRounds()
+    Rat_PatchCrosshairFiringModes()
     Rat_PatchCrosshairAPBreakdown()
     Rat_PatchCrosshairApertureSection()
     Rat_ReclaimPopulateCth()

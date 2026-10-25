@@ -273,6 +273,9 @@ function Rat_ApplyVariableAutofire()
     mg.GetUIState = variable_ui_state
     ---- Grizzly fires MGBurstFire's results (vanilla delegates), so it takes the same selectable string
     local grizzly = CombatActions.GrizzlyPerk
+    ---- crosshair firing-mode button: vanilla DisplayName is "<placeholder>" and there is no mode icon
+    grizzly.DisplayName = CharacterEffectDefs.GrizzlyPerk.DisplayName
+    grizzly.IconFiringMode = auto.IconFiringMode
     grizzly.Execute = variable_execute
     grizzly.GetActionDamage = function(self, unit, target, args)
         return variable_damage(mg, unit, target, args)
@@ -600,10 +603,46 @@ local function resolve_visible_firing_modes(self, firingMode, ui, sync)
     return id or actions[1].id, actions
 end
 
+---- Grizzly joins the MG's crosshair modes while off cooldown, so the perk is not forgotten
+local function add_grizzly_mode(unit, actions)
+    local gz = CombatActions.GrizzlyPerk
+    if not HasPerk(unit, "GrizzlyPerk") or unit:GetSignatureRecharge("GrizzlyPerk") or table.find(actions, gz) then
+        return
+    end
+    rat_fm_units[1] = unit
+    if gz:GetUIState(rat_fm_units) ~= "hidden" then
+        actions[#actions + 1] = gz
+    end
+end
+
 function Unit:ResolveDefaultFiringModeAction(firingMode, ui, sync)
     local id, actions = resolve_visible_firing_modes(self, firingMode, ui, sync)
     if actions and #actions > 1 and table.find(actions, "id", "MGBurstFire") then
         table.sort(actions, mg_fm_order)
+        if ui then
+            add_grizzly_mode(self, actions)
+        end
     end
     return id, actions
+end
+
+---- the crosshair template has three firing-mode slots; Grizzly can be a fourth
+function Rat_PatchCrosshairFiringModes()
+    local chain = FindXtByProp(XTemplates.ActionCameraCrosshair, 'Id', 'idFireModeContainer')
+    local box = chain and chain[1]
+    if not box then
+        return
+    end
+    for i = #box, 1, -1 do
+        if box[i].comment == "rat_firing_mode_4" then
+            table.remove(box, i)
+        end
+    end
+    box[#box + 1] = PlaceObj('XTemplateTemplate', {
+        'comment', "rat_firing_mode_4",
+        '__context', function(parent, context)
+            return {action = parent:ResolveId("node").context.firingModes[4]}
+        end,
+        '__template', "CrosshairFiringModeButton"
+    })
 end
