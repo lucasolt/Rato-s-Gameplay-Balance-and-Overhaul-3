@@ -3856,6 +3856,7 @@ GBO_TOGWeaponSlots = {
 			Modifiable = true,
 			AvailableComponents = {
 				"RAT_TOG_CompensatorNoEntity",
+				"RAT_TOG_suppressor",
 			},
 		},
 		{
@@ -4796,6 +4797,7 @@ GBO_TOGWeaponSlots = {
 			Modifiable = true,
 			AvailableComponents = {
 				"RAT_TOG_compensator",
+				"RAT_TOG_suppressor",
 				"ToG_VFX_Muzzle",
 			},
 		},
@@ -5107,6 +5109,7 @@ GBO_TOGWeaponSlots = {
 			Modifiable = true,
 			AvailableComponents = {
 				"RAT_TOG_compensator",
+				"RAT_TOG_suppressor",
 				"ToG_VFX_Muzzle",
 			},
 		},
@@ -5198,6 +5201,7 @@ GBO_TOGWeaponSlots = {
 			Modifiable = true,
 			AvailableComponents = {
 				"RAT_TOG_compensator",
+				"RAT_TOG_suppressor",
 				"ToG_VFX_Muzzle",
 			},
 		},
@@ -5289,6 +5293,7 @@ GBO_TOGWeaponSlots = {
 			Modifiable = true,
 			AvailableComponents = {
 				"RAT_TOG_compensator",
+				"RAT_TOG_suppressor",
 				"ToG_VFX_Muzzle",
 			},
 		},
