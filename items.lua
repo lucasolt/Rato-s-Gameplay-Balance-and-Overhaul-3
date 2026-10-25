@@ -1089,7 +1089,7 @@ return {
 		}),
 		PlaceObj('ModItemWeaponComponentEffect', {
 			Comment = "--- Bipod",
-			Description = T(136851478092, --[[ModItemWeaponComponentEffect RecoilControlWhenProne Description]] "Decreases <em>Recoil Penalty</em> while prone"),
+			Description = T(136851478092, --[[ModItemWeaponComponentEffect RecoilControlWhenProne Description]] "Decreases <em>Recoil Penalty</em> while prone. Does not apply to hipfire attacks"),
 			comment = "--- Bipod",
 			group = "Default",
 			id = "RecoilControlWhenProne",

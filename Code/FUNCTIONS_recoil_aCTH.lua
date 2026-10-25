@@ -205,7 +205,7 @@ function Rat_RecoilProfile(attacker, action, weapon, num_shots, test, persistent
     ---- a bipod is a vertical constraint: it stops the climb, never the yaw
     local kick_y_mul = 100
     if (attacker.stance == "Prone" and weapon:HasComponent("RecoilControlWhenProne") or IsKindOf(weapon, "BrowningM2HMG"))
-        and Rat_RecoilBipodBraced(attacker, aim) then
+        and aim ~= 0 then
         kick_y_mul = a.RecoilBipodKickYMul or 100
         ---- lat is a fraction of |cf|, which the smaller kick already shrank -- raise it or the
         ---- group merely gets smaller instead of flatter and wider

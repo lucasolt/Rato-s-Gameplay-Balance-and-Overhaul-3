@@ -290,14 +290,6 @@ function Rat_RecoilPerks(attacker, action)
     return attacker:HasStatusEffect("TakeAim") and true or false, auto_perk and true or false
 end
 
----- a bipod braces only an aimed attack; a set-up MG is braced already. `aim` nil = braced.
-function Rat_RecoilBipodBraced(attacker, aim)
-    if aim ~= 0 or attacker.placeholder then
-        return true
-    end
-    return attacker:HasStatusEffect("StationedMachineGun") or attacker:HasStatusEffect("ManningEmplacement")
-end
-
 ---- `persistent`: the recoil felt BETWEEN attacks. A hyperburst defers its kick instead of
 ---- cancelling it, so its burst delta does not apply there.
 function GetRecoilOther(weapon, attacker, action, persistent, comps, aim)
@@ -312,7 +304,8 @@ function GetRecoilOther(weapon, attacker, action, persistent, comps, aim)
                 mod = mod * const.Combat.Recoil.Other.Prone
                 control = control * const.Combat.Recoil.Other.Prone
                 metaText[#metaText + 1] = rT(294661659116, "Prone")
-                if weapon and weapon:HasComponent("RecoilControlWhenProne") and Rat_RecoilBipodBraced(attacker, aim) then
+                ---- hipfire is never braced; `aim` nil = braced (callers with no attack)
+                if weapon and weapon:HasComponent("RecoilControlWhenProne") and aim ~= 0 then
                     mod = mod * const.Combat.Recoil.Components.BipodMul
                     control = control * const.Combat.Recoil.Components.BipodMul
                     metaText[#metaText + 1] = rT(523692869416, "Bipod")
