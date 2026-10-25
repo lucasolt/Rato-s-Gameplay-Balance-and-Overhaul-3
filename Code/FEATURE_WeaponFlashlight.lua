@@ -34,6 +34,9 @@ RAT_FLASHLIGHT_BEAM_OFFSET = point(10 * guic, 0, 0)
 RAT_FLASHLIGHT_FOLLOW = 25 * guic
 ---- ...and only after the beam holds within that for this long (ms), so idle fidgets light nothing
 RAT_FLASHLIGHT_SETTLE = 1500
+---- Crouched outside stance and aim, the visible cone dips `tilt` degrees below the barrel and reaches `reach`
+---- (the idle holds the gun level, 36 deg to the side); prone shows only the glows
+RAT_FLASHLIGHT_LOW = {tilt = 12, reach = 4 * const.SlabSizeX}
 ---- Beam origin height and downward tilt (degrees) per stance, so the cone reaches the ground
 RAT_FLASHLIGHT_POSE = {
     Standing = {height = 130 * guic, tilt = 6},
@@ -315,12 +318,14 @@ local function UpdateBeam(unit, weapon, lit)
         beams[unit] = b
     end
     local changed = false
-    ---- crouched or prone idles hold the gun level to the side: outside stance only the glows, so a forward light costs the stance
-    local cone = unit.stance == "Standing" or unit:HasStatusEffect("shooting_stance")
-    lit = lit and cone
+    ---- crouched or prone idles hold the gun level to the side: lit voxels need standing or stance, so a forward light costs the stance
+    local in_stance = unit:HasStatusEffect("shooting_stance")
+    local aiming = AimTargetPos(unit)
+    lit = lit and (unit.stance == "Standing" or in_stance)
     ---- aiming at a target raises the gun: the visible cone only, no lit voxels from a hover
-    cone = cone or AimTargetPos(unit) and true
-    local key = SettingsKey() .. (cone and "/cone" or "")
+    local cone = unit.stance ~= "Prone" or in_stance or aiming
+    local low = unit.stance == "Crouch" and not in_stance and not aiming
+    local key = SettingsKey() .. (cone and "/cone" or "") .. (low and "/low" .. RAT_FLASHLIGHT_LOW.tilt .. "/" .. RAT_FLASHLIGHT_LOW.reach or "")
     local part = FlashlightPart(weapon)
     if part ~= b.part or not IsValid(b.render) or part and not (IsValid(b.glow) and IsValid(b.lens)) then
         for _, l in ipairs{b.render, b.glow, b.lens} do
@@ -353,7 +358,7 @@ local function UpdateBeam(unit, weapon, lit)
     end
     if b.key ~= key then
         b.key = key
-        SetupSpot(b.render, RAT_FLASHLIGHT_RENDER_REACH)
+        SetupSpot(b.render, low and RAT_FLASHLIGHT_LOW.reach or RAT_FLASHLIGHT_RENDER_REACH)
         if not cone then
             b.render:SetIntensity(0)
         end
@@ -368,6 +373,24 @@ local function UpdateBeam(unit, weapon, lit)
             SetupGlow(b.glow, RAT_FLASHLIGHT_GLOW)
             SetupGlow(b.lens, RAT_FLASHLIGHT_LENS)
             b.glow_offset = false
+        end
+    end
+    ---- low cone: off the attachment, along the barrel's heading, dipped in world space (the idle rolls the gun)
+    if b.part then
+        if low then
+            if b.render:GetParent() then
+                b.render:Detach()
+            end
+            local p = b.part
+            local barrel = RotateAxis(point(guim, 0, 0), p:GetVisualAxis(), p:GetVisualAngle())
+            local dip = RAT_FLASHLIGHT_LOW.tilt - atan(barrel:z(), barrel:Len2D()) / 60
+            b.render:SetPos(p:GetVisualPos())
+            b.render:SetAxisAngle(ComposeRotation(axis_y, (dip - 90) * 60, axis_z, CalcOrientation(point30, barrel)))
+        elseif not b.render:GetParent() then
+            b.part:Attach(b.render)
+            b.render:SetAttachAxis(axis_y)
+            b.render:SetAttachAngle(-90 * 60)
+            b.render:SetAttachOffset(RAT_FLASHLIGHT_BEAM_OFFSET)
         end
     end
     if b.glow then
@@ -448,6 +471,20 @@ MapGameTimeRepeat("RatFlashlights", 100, function()
         LightsChanged()
     end
 end)
+
+---- Picking a target starts the aim animation at once; the 100 ms loop would turn the cone on mid-raise
+local SetAimTarget_orig = Unit.SetAimTarget
+
+function Unit:SetAimTarget(...)
+    local result = SetAimTarget_orig(self, ...)
+    if swept and not SavingGame then
+        local weapon = BeamWeapon(self)
+        if weapon and UpdateBeam(self, weapon, Rat_FlashlightOn(self)) then
+            LightsChanged()
+        end
+    end
+    return result
+end
 
 ---------------------------------------------------------------------------------------------------
 ---- Darkness CTH: a lit flashlight shot within reach ignores darkness, even before the beam reaches the
