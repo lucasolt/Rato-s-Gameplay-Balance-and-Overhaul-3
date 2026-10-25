@@ -1370,6 +1370,10 @@ return {
 			'name', "COMPATIBILITY_PinnedDown",
 			'CodeFileName', "Code/COMPATIBILITY_PinnedDown.lua",
 		}),
+		PlaceObj('ModItemCode', {
+			'name', "COMPATIBILITY_RevisedGear",
+			'CodeFileName', "Code/COMPATIBILITY_RevisedGear.lua",
+		}),
 		}),
 	PlaceObj('ModItemCode', {
 		'name', "BOBBYRAY_category_pairs",

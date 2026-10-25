@@ -92,6 +92,7 @@ return PlaceObj('ModDef', {
 		"Code/COMPATIBILITY_RevMagCatalog.lua",
 		"Code/COMPATIBILITY_DescriptiveCTH.lua",
 		"Code/COMPATIBILITY_PinnedDown.lua",
+		"Code/COMPATIBILITY_RevisedGear.lua",
 		"Code/BOBBYRAY_category_pairs.lua",
 		"Code/CTH_2weaponfire.lua",
 		"Code/CTH_Setting.lua",
