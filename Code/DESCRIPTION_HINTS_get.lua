@@ -785,7 +785,7 @@ local function HintSwapAP(weapon)
     if weapon:HasComponent("FreeWeaponSwap") then
         ap = Max(0, ap - 20)
     end
-    if IsKindOfClasses(weapon, "Pistol", "Revolver") and not weapon.pistol_swap and ap < 20 then
+    if (IsKindOfClasses(weapon, "Pistol", "Revolver") or weapon.pistol_swap) and ap < 20 then
         return 0
     end
     return ap

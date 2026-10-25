@@ -126,7 +126,7 @@ function rat_combat_actions()
                     ap_add = Max(0, ap_add - 20)
                 end
 
-                if not IsKindOfClasses(weapon, "Pistol", "Revolver") or weapon.pistol_swap then
+                if not (IsKindOfClasses(weapon, "Pistol", "Revolver") or weapon.pistol_swap) then
                     free_swap = false
                 end
 
