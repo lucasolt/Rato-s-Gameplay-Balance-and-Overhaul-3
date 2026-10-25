@@ -499,6 +499,10 @@ function Rat_PlaceFlashlightAction()
             local unit = units[1]
             return unit and Rat_FlashlightSwitchedOn(unit) and T(618204937718, "Flashlight Off") or self.DisplayName
         end,
+        GetActionIcon = function(self, units)
+            local unit = units and units[1]
+            return unit and Rat_FlashlightSwitchedOn(unit) and "Mod/cfahRED/Images/flashlight_switch_off.png" or self.Icon
+        end,
         GetUIState = function(self, units, args)
             local unit = units[1]
             if RAT_FLASHLIGHT_AUTO_RULES or not unit or not (GameState.Night or GameState.Underground)
