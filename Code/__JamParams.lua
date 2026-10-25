@@ -39,5 +39,14 @@ const.Weapons.ExtraShotDegradePct = 60
 -- Rain bonus to the wear roll chance, in %. Replaces vanilla's RainConditionLossMod (100, on the loss).
 const.Weapons.RainWearPct = 50
 
+---------------------------------------------------------------------------------------------------
+---- FAILED UNJAM (engine Unjam): loss = Min(Max, Max(Min, gap) / Divisor), gap = (100-C)+(100-R)-Mechanical
+----   gap 15 -> 3, 30 -> 5, 36+ -> 6.  Vanilla 3/3/16 broke dirty guns in low-Mechanical hands.
+---------------------------------------------------------------------------------------------------
+
+const.Weapons.JamConditionLossMin = 3
+const.Weapons.JamConditionLossDivisor = 6
+const.Weapons.JamConditionLossMax = 6
+
 -- AI gate: `const.Weapons.WearAppliesToAI` (nil = AI never jams nor wears, vanilla). Set by Rato's AI
 -- Overhaul; not defaulted here because mod code doesn't load in dependency order and would overwrite it.
