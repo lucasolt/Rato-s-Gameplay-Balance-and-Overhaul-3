@@ -33,6 +33,9 @@ local function place_companion(l, cfg)
     extra:SetIntensity(Clamp(MulDivRound(base, cfg.pct - 100, 100), 0, 255))
     extra:SetAttenuationRadius(MulDivRound(l:GetAttenuationRadius(), cfg.radius_pct, 100))
     extra:SetCastShadows(cfg.shadows)
+    ---- PlaceObject starts at shape 0 / constant 0, the softest falloff; map lamps tune both
+    extra:SetAttenuationShape(state.shape or l:GetAttenuationShape())
+    extra:SetConstantIntensity(state.constant or l:GetConstantIntensity())
 end
 
 local function remove_companion(l)
@@ -102,6 +105,14 @@ rawset(_G, "RatLights", function(pct, radius_pct, placed, shadows)
         n, pct, state.cfg.radius_pct, tostring(state.cfg.placed), tostring(state.cfg.shadows)))
 end)
 
+---- Falloff override for all companions; nil copies each source's. shape 0-255, constant -128..127.
+rawset(_G, "RatLightsShape", function(shape, constant)
+    state.shape = shape
+    state.constant = constant
+    refresh()
+    print(string.format("RatLights: shape %s, constant %s", tostring(shape or "source"), tostring(constant or "source")))
+end)
+
 rawset(_G, "RatLightsOff", function()
     state.cfg = false
     refresh()
@@ -115,8 +126,9 @@ rawset(_G, "RatLightsInfo", function()
         if is_source(l, true) then
             local p = GetTopmostParent(l)
             local extra = state.companions[l]
-            local key = string.format("%s I%d R%d +I%d", p == l and "(placed)" or p.class, l:GetIntensity(),
-                l:GetAttenuationRadius(), IsValid(extra) and extra:GetIntensity() or 0)
+            local key = string.format("%s I%d R%d S%d C%d +I%d R%d", p == l and "(placed)" or p.class, l:GetIntensity(),
+                l:GetAttenuationRadius(), l:GetAttenuationShape(), l:GetConstantIntensity(),
+                IsValid(extra) and extra:GetIntensity() or 0, IsValid(extra) and extra:GetAttenuationRadius() or 0)
             groups[key] = (groups[key] or 0) + 1
         end
     end)
