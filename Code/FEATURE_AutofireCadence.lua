@@ -232,6 +232,7 @@ function Unit:ExecFirearmAttacks(action, cost_ap, attack_args, results)
 			end
 		end
 		attack.weapon:FireSpread(attack, attackArg) -- deal the area damage, if any
+		Rat_ApplyPendingJam(attack.weapon)
 		base_weapon_damage = base_weapon_damage + attack.weapon.Damage
 	end
 

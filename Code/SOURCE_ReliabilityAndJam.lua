@@ -132,13 +132,28 @@ function Firearm:PrecalcAmmoUse(attacker, num, prediction, per_round)
     return fired, jammed, condition, ammo_type
 end
 
----- vanilla spends no ammo on a jammed attack; a mid-burst jam spent `fired` rounds first
+function Rat_ApplyPendingJam(weapon)
+    local unit = weapon and weapon.rat_pending_jam
+    if not unit then
+        return
+    end
+    weapon.rat_pending_jam = nil
+    weapon:Jam(unit)
+    Msg("InventoryChange", unit)
+end
+
+---- vanilla spends no ammo on a jammed attack; a mid-burst jam spends `fired` rounds and jams after
+---- the last one (ExecFirearmAttacks), not at anim start where ApplyAmmoUse runs
 local Rat_ApplyAmmoUseOrig = Firearm.ApplyAmmoUse
 function Firearm:ApplyAmmoUse(attacker, fired, jammed, condition)
     if not (jammed and fired) then
         return Rat_ApplyAmmoUseOrig(self, attacker, fired, jammed, condition)
     end
     Rat_ApplyAmmoUseOrig(self, attacker, fired, false, condition)
-    self:Jam(attacker)
-    Msg("InventoryChange", attacker)
+    self.rat_pending_jam = attacker
+    -- fallback for attack paths that never reach the burst-end hook
+    CreateGameTimeThread(function(weapon)
+        WaitMsg("CombatActionEnd", 10000)
+        Rat_ApplyPendingJam(weapon)
+    end, self)
 end
