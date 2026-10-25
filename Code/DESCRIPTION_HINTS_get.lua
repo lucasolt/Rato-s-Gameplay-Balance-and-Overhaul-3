@@ -21,7 +21,7 @@ local function HintHipSnap(weapon, aim, unit, acth)
     if acth then
         ---- bulk (negative Handling) rides on the step under BasePrecisionModel
         local v = MulDivRound(cRound(mul * 100), Rat_HandlingBulkStepMul(weapon, unit), 1000)
-        return unit and MulDivRound(v, Rat_StepAttrMul(unit, nil, aim), 100) or v
+        return unit and MulDivRound(v, Rat_StepAttrMul(unit, nil, aim, nil, weapon), 100) or v
     elseif unit then
         mul = mul * (1.35 - 0.70 * rGetReflex(unit) / 100)
     end

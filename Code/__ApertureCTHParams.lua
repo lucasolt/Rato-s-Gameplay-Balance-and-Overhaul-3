@@ -146,9 +146,12 @@ A.MobileAgiMinMul = 80
 A.MobileAgiMaxMul = 130
 A.MobileAgiMeta = {id = 959274318406, text = "Agility (moving) <pct>"}
 ---- Attribute on the step excess, like classic: excess x (100 - Impact*(stat - Pivot)/50). 0 disables.
----- Impact 35 / Pivot 50 = classic's x1.35 at stat 0, x0.65 at 100. Stat is Reflexes, or Strength
----- for hipfired autofire-type attacks (see Rat_StepAttrMul).
+---- Impact 35 / Pivot 50 = classic's x1.35 at stat 0, x0.65 at 100. Stat by weapon class: handguns and
+---- SMGs use Reflexes, the rest Strength (see Rat_StepAttrMul).
 A.StepAttrImpact = 35
+---- Reflexes is the mean of Agility and Dexterity: merc spread p10-p90 62-92 vs Strength 56-89, and
+---- each point costs two stat points, so it scales harder. 45: x0.64 at 90, x0.91 at 60.
+A.StepAttrImpactReflex = 45
 A.StepAttrPivot = 50
 A.StepAttrMeta = {
     Reflexes = {id = 742063918825, text = "Reflexes <pct>"},

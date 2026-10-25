@@ -637,22 +637,22 @@ end
 ---------------------------------------------------------------------------------------------------
 
 
-local StrengthHipfireActions = {BuckshotBurst = true, MGBurstFire = true, GrizzlyPerk = true,
-                                AutoFire = true}
-
----- % applied to the hipfire/snapshot excess by the attacker's attribute; stat pick mirrors classic.
-function Rat_StepAttrMul(attacker, action, aim, opportunity_attack)
+---- % applied to the hipfire/snapshot excess by the attacker's attribute: handguns and SMGs swing on
+---- Reflexes, everything else is hauled around by Strength. Without a weapon, Reflexes.
+function Rat_StepAttrMul(attacker, action, aim, opportunity_attack, weapon)
     local a = P()
-    local impact = a.StepAttrImpact or 0
-    if impact == 0 or not attacker or attacker.placeholder then
+    if not attacker or attacker.placeholder then
         return 100
     end
-    local stat, key = rGetReflex(attacker), "Reflexes"
-    if not opportunity_attack and aim < 1 and action then
-        local str = attacker.Strength or 0
-        if StrengthHipfireActions[action.id] or (action.id == "BurstFire" and str > stat) then
-            stat, key = str, "Strength"
-        end
+    local light = not weapon or IsKindOfClasses(weapon, "Pistol", "Revolver", "SubmachineGun")
+    local stat, key, impact
+    if light then
+        stat, key, impact = rGetReflex(attacker), "Reflexes", a.StepAttrImpactReflex or a.StepAttrImpact or 0
+    else
+        stat, key, impact = attacker.Strength or 0, "Strength", a.StepAttrImpact or 0
+    end
+    if impact == 0 then
+        return 100
     end
     return Max(0, 100 - MulDivRound(impact, stat - (a.StepAttrPivot or 50), 50)), key
 end
@@ -804,7 +804,7 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
             ---- `hipsnap` ja traz wep_base_hip_mul / wep_base_snapshot_mul da arma; nao ha
             ---- segundo multiplicador de manejo aqui de proposito.
             excess = MulDivRound(excess, hipsnap, 100)
-            local attr_mul, attr_key = Rat_StepAttrMul(attacker, action, aim, opportunity_attack)
+            local attr_mul, attr_key = Rat_StepAttrMul(attacker, action, aim, opportunity_attack, weapon)
             if attr_mul ~= 100 then
                 excess = MulDivRound(excess, attr_mul, 100)
                 local lbl = (a.StepAttrMeta or empty_table)[attr_key]
