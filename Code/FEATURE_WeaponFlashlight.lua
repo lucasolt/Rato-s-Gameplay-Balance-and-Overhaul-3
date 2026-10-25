@@ -34,8 +34,8 @@ RAT_FLASHLIGHT_BEAM_OFFSET = point(10 * guic, 0, 0)
 RAT_FLASHLIGHT_FOLLOW = 25 * guic
 ---- ...and only after the beam holds within that for this long (ms), so idle fidgets light nothing
 RAT_FLASHLIGHT_SETTLE = 1500
----- Crouched outside stance and aim, the visible cone dips `tilt` degrees below the barrel and reaches `reach`
----- (the idle holds the gun level, 36 deg to the side); prone shows only the glows
+---- Crouched outside stance and aim, the cone dips `tilt` degrees below the barrel and reaches `reach`, lit voxels
+---- included (the idle holds the gun level, 36 deg to the side); prone shows only the glows
 RAT_FLASHLIGHT_LOW = {tilt = 12, reach = 4 * const.SlabSizeX}
 ---- Beam origin height and downward tilt (degrees) per stance, so the cone reaches the ground
 RAT_FLASHLIGHT_POSE = {
@@ -318,14 +318,17 @@ local function UpdateBeam(unit, weapon, lit)
         beams[unit] = b
     end
     local changed = false
-    ---- crouched or prone idles hold the gun level to the side: lit voxels need standing or stance, so a forward light costs the stance
+    ---- crouched or prone idles hold the gun level to the side: a long forward light costs the stance
     local in_stance = unit:HasStatusEffect("shooting_stance")
     local aiming = AimTargetPos(unit)
-    lit = lit and (unit.stance == "Standing" or in_stance)
-    ---- aiming at a target raises the gun: the visible cone only, no lit voxels from a hover
+    ---- crouched outside stance the lit voxels stay short, also while aiming (they freeze then, so a hover reveals nothing)
+    local short = unit.stance == "Crouch" and not in_stance
+    lit = lit and (unit.stance ~= "Prone" or in_stance)
+    ---- aiming at a target raises the gun: the visible cone only
     local cone = unit.stance ~= "Prone" or in_stance or aiming
-    local low = unit.stance == "Crouch" and not in_stance and not aiming
-    local key = SettingsKey() .. (cone and "/cone" or "") .. (low and "/low" .. RAT_FLASHLIGHT_LOW.tilt .. "/" .. RAT_FLASHLIGHT_LOW.reach or "")
+    local low = short and not aiming
+    local key = SettingsKey() .. (cone and "/cone" or "") .. (low and "/low" or "")
+                    .. (short and "/short" .. RAT_FLASHLIGHT_LOW.tilt .. "/" .. RAT_FLASHLIGHT_LOW.reach or "")
     local part = FlashlightPart(weapon)
     if part ~= b.part or not IsValid(b.render) or part and not (IsValid(b.glow) and IsValid(b.lens)) then
         for _, l in ipairs{b.render, b.glow, b.lens} do
@@ -366,7 +369,7 @@ local function UpdateBeam(unit, weapon, lit)
             b.render:SetAttachOffset(RAT_FLASHLIGHT_BEAM_OFFSET)
         end
         if b.stealth then
-            SetupSpot(b.stealth, RAT_FLASHLIGHT_REACH)
+            SetupSpot(b.stealth, short and RAT_FLASHLIGHT_LOW.reach or RAT_FLASHLIGHT_REACH)
             changed = true
         end
         if b.glow then
