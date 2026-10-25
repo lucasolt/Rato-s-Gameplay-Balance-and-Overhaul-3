@@ -21,6 +21,7 @@ function rat_combat_actions()
 	CombatActions.Buckshot.ActionPointDelta = -2000
 	CombatActions.DoubleBarrel.ActionPointDelta = 0 -- 1000
     CombatActions.BuckshotBurst.ActionPointDelta = 0
+    CombatActions.CancelShotCone.ActionPointDelta = CombatActions.Buckshot.ActionPointDelta + 10 * const.Scale.AP
 
     CombatActions.DualShot.ActionPointDelta = 0
 

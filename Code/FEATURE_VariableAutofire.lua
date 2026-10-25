@@ -602,7 +602,8 @@ end
 
 ---------------------------------------------------------------------------------------------------
 ---- Signature attacks as crosshair firing modes while off cooldown, so the perk is not forgotten.
----- Keyed by action id (= perk id unless `perk` says otherwise): the weapon it needs, the borrowed mode icon.
+---- Keyed by action id (= perk id unless `perk` says otherwise): the weapon it needs, the borrowed mode icon,
+---- and the meta action whose row it joins (`mode`, default Attack).
 ---------------------------------------------------------------------------------------------------
 RAT_CROSSHAIR_SIGNATURES = {
     GrizzlyPerk = {icon = "UI/Hud/fm_autoshot", weapon = function(w) return IsKindOf(w, "MachineGun") end},
@@ -612,7 +613,9 @@ RAT_CROSSHAIR_SIGNATURES = {
                weapon = function(w) return IsKindOf(w, "Firearm") and not IsKindOf(w, "Shotgun") end},
     ---- no cooldown; GetUIState hides it where AvailableAttacks lacks it (slug check for shotguns)
     CancelShot = {icon = "UI/Hud/fm_single_shot", perk = "CancelShotPerk",
-                  weapon = function(w) return IsKindOf(w, "Firearm") end}
+                  weapon = function(w) return IsKindOf(w, "Firearm") end},
+    CancelShotCone = {icon = "UI/Hud/fm_buckshot", perk = "CancelShotPerk", mode = "AttackShotgun",
+                      weapon = function(w) return IsKindOf(w, "Shotgun") end}
 }
 
 ---- vanilla DisplayName is "<placeholder>" (the bar reads the perk); the mode button reads DisplayName
@@ -628,12 +631,9 @@ end
 
 local function signature_modes(unit, mode_id)
     local out
-    if mode_id ~= "Attack" then
-        return out
-    end
     rat_fm_units[1] = unit
     for id, def in sorted_pairs(RAT_CROSSHAIR_SIGNATURES) do
-        local action = CombatActions[id]
+        local action = (def.mode or "Attack") == mode_id and CombatActions[id]
         if action and HasPerk(unit, def.perk or id) and not unit:GetSignatureRecharge(id) and
             def.weapon(action:GetAttackWeapons(unit)) and action:GetUIState(rat_fm_units) ~= "hidden" then
             out = out or {}
@@ -657,14 +657,15 @@ function Unit:ResolveDefaultFiringModeAction(firingMode, ui, sync)
     return id, actions
 end
 
----- a weapon with one Attack mode (bolt sniper) opens the crosshair on the member, with no mode row;
+---- a weapon with one mode (bolt sniper, pump shotgun) opens the crosshair on the member, with no mode row;
 ---- open it through the meta action instead, which resolves to that same member plus the signatures
 local GBO_OriginalSpawnCrosshair = SpawnCrosshair
 function SpawnCrosshair(self, action, ...)
     local attacker = self and self.attacker
-    local meta = action and action.FiringModeMember == "Attack" and CombatActions.Attack
-    if meta and attacker and attacker.ui_actions and attacker.ui_actions.Attack ~= "enabled" and
-        signature_modes(attacker, "Attack") then
+    local member = action and action.FiringModeMember
+    local meta = member and CombatActions[member]
+    if meta and attacker and attacker.ui_actions and attacker.ui_actions[member] ~= "enabled" and
+        signature_modes(attacker, member) then
         return GBO_OriginalSpawnCrosshair(self, meta, ...)
     end
     return GBO_OriginalSpawnCrosshair(self, action, ...)
