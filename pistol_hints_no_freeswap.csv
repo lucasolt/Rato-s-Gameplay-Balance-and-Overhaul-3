@@ -1,0 +1,21 @@
+id,AdditionalHint
+B93RR_1,"<description_hints>
+<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Selective fire burst mode leads to less recoil"
+Bereta92,<description_hints>
+ColtAnaconda,"<description_hints>
+<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Double action"
+ColtPeacemaker,"<description_hints>
+<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Single action"
+DesertEagle,<description_hints>
+Glock17_1,<description_hints>
+Glock18,"<description_hints>
+<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Automatic firing modes"
+HiPower,<description_hints>
+M1911_1,<description_hints>
+P08_1,<description_hints>
+TexRevolver,"<description_hints>
+<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Tex has reduced penalty when using Dual Shot with his revolvers
+<image UI/Conversation/T_Dialogue_IconBackgroundCircle.tga 400 130 128 120> Single action"
+USP_1,<description_hints>
+VikingMP446_1,<description_hints>
+MicroUZI_1,<description_hints>

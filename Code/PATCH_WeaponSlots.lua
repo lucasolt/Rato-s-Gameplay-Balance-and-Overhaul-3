@@ -3856,7 +3856,6 @@ GBO_TOGWeaponSlots = {
 			Modifiable = true,
 			AvailableComponents = {
 				"RAT_TOG_CompensatorNoEntity",
-				"RAT_TOG_suppressor",
 			},
 		},
 		{

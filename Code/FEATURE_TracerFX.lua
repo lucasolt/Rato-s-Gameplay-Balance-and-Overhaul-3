@@ -8,15 +8,15 @@ RAT_TRACER_FX = {
     chance = 50,
     ---- streak sprite, cloned from vanilla Bullet_Small (width 400, length 3000 -> 1000)
     particles = "Rat_Bullet_Tracer",
-    width = 600,
+    width = 1000,
     length = 16000,
-    tail = 9000,
+    tail = 6000,
     color_min = RGB(255, 45, 10),
     color_max = RGB(255, 75, 20),
     ---- moving point light; out of the stealth voxel scan, so it lights nothing for gameplay
     light_color = RGB(255, 90, 30),
-    light_intensity = 20,
-    light_radius = 100 * guic,
+    light_intensity = 8,
+    light_radius = 250 * guic,
 }
 
 ---- Weapon.lua file locals, needed by the ProjectileFly copy
