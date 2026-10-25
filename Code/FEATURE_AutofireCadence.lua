@@ -233,6 +233,12 @@ function Unit:ExecFirearmAttacks(action, cost_ap, attack_args, results)
 			end
 		end
 		attack.weapon:FireSpread(attack, attackArg) -- deal the area damage, if any
+		if attack.weapon.rat_pending_jam then
+			CreateGameTimeThread(function(weapon)
+				Sleep(const.Weapons.JamFXDelay)
+				Rat_ApplyPendingJam(weapon)
+			end, attack.weapon)
+		end
 		base_weapon_damage = base_weapon_damage + attack.weapon.Damage
 	end
 
@@ -262,7 +268,7 @@ function Unit:ExecFirearmAttacks(action, cost_ap, attack_args, results)
 			self:SetState(aim_state, const.eKeepComponentTargets)
 		end
 	end
-	-- after the fire anim, so the burst's sound tail doesn't cover the jam FX
+	-- no-op unless JamFXDelay outlasted the fire anim
 	for _, attack in ipairs(attacks) do
 		Rat_ApplyPendingJam(attack.weapon)
 	end

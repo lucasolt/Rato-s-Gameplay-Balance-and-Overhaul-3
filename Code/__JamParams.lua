@@ -26,6 +26,9 @@ const.Weapons.RainJamPct = 50
 -- Burst totals at a 5% chance: 3 rounds ~7%, 6 ~10%, 10 ~13%, 25 ~22%.
 const.Weapons.JamExtraShotPct = 20
 
+-- ms after the last fired round before a mid-burst jam (FX, log, text); too short and the burst masks the sound.
+const.Weapons.JamFXDelay = 200
+
 -- Jams roll only below this Condition. 100 = continuous ramp (vanilla cliff was 70, ItemConditionUsed).
 const.Weapons.JamConditionGate = 100
 
