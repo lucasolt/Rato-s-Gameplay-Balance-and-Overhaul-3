@@ -59,6 +59,9 @@ function FirearmBase:GetBaseDegradePerShot()
 	return MulDivRound(const.Weapons.DegradePerShot, self.ConditionDegradationRate or 100, 100)
 end
 
+-- testing: a round number forces every burst that long (player/wear-subject attacks) to jam on it
+Rat_ForceJamRound = false
+
 ---- 3rd return: rounds fired before a mid-burst jam (per_round only; 0 = jammed on the first round).
 ---- HeavyWeapon passes jam_roll as the 3rd arg; harmless, its num_shots is 1.
 function FirearmBase:ReliabilityCheck(attacker, num_shots, per_round)
@@ -83,7 +86,9 @@ function FirearmBase:ReliabilityCheck(attacker, num_shots, per_round)
         local jam_chance = item:GetJamChance(attacker, condition)
         local jam_roll = 1 + attacker:Random(100)
         local can_jam = item.num_safe_attacks <= 0 and condition < const.Weapons.JamConditionGate
-        if can_jam and jam_roll <= jam_chance then
+        if Rat_ForceJamRound and per_round and shots >= Rat_ForceJamRound then
+            jammed, jam_fired = true, Rat_ForceJamRound - 1
+        elseif can_jam and jam_roll <= jam_chance then
             jammed, jam_fired = true, 0
         elseif can_jam and per_round and shots > 1 then
             -- per-mille: 20% of a 1-3% chance must not round to 0
@@ -130,16 +135,6 @@ function Firearm:PrecalcAmmoUse(attacker, num, prediction, per_round)
     end
 
     return fired, jammed, condition, ammo_type
-end
-
----- vanilla WeaponJam FX is only the dry-fire click; layer a louder mechanical sound on it
-local Rat_JamOrig = FirearmBase.Jam
-function FirearmBase:Jam(unit)
-    Rat_JamOrig(self, unit)
-    local sound = const.Weapons.JamExtraSound
-    if sound and sound ~= "" and IsValid(unit) then
-        PlaySound(sound, nil, 0, false, unit)
-    end
 end
 
 local jam_refund_actions = {AutoFire = true, BurstFire = true, MGBurstFire = true}

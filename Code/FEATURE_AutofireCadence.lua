@@ -233,7 +233,6 @@ function Unit:ExecFirearmAttacks(action, cost_ap, attack_args, results)
 			end
 		end
 		attack.weapon:FireSpread(attack, attackArg) -- deal the area damage, if any
-		Rat_ApplyPendingJam(attack.weapon)
 		base_weapon_damage = base_weapon_damage + attack.weapon.Damage
 	end
 
@@ -262,6 +261,10 @@ function Unit:ExecFirearmAttacks(action, cost_ap, attack_args, results)
 			Sleep(time_to_fire_end)
 			self:SetState(aim_state, const.eKeepComponentTargets)
 		end
+	end
+	-- after the fire anim, so the burst's sound tail doesn't cover the jam FX
+	for _, attack in ipairs(attacks) do
+		Rat_ApplyPendingJam(attack.weapon)
 	end
 
 	-- special-case: interrupt neutral units with neutral_retaliate flag attacked by player units,
