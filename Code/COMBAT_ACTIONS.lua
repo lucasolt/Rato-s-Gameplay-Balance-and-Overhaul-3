@@ -61,6 +61,10 @@ function rat_combat_actions()
         return unit:GetAttackAPCost(self, weapon1, false, args and args.aim or 0, ap_delta) +
                    ap_extra + cycling_ap or -1
     end
+    ---- aimed single shots enter the stance too; their vanilla cost skipped stance AP and rat_getDeltaAP
+    for _, id in ipairs {"CancelShot", "KalynaPerk", "TheGrim", "IcePerk"} do
+        CombatActions[id].GetAPCost = CombatActions.SingleShot.GetAPCost
+    end
 
     CombatActions.SingleShot.GetActionResults = function(self, unit, args)
         --------------
@@ -440,6 +444,7 @@ function rat_combat_actions()
 
         return unit:GetAttackAPCost(self, weapon1, false, args and args.aim or 0) + ap_extra + delta or -1
     end
+    CombatActions.CancelShotCone.GetAPCost = CombatActions.Buckshot.GetAPCost
 
     CombatActions.DoubleBarrel.GetAPCost = function(self, unit, args)
 
