@@ -311,7 +311,7 @@ function rat_getDeltaAP(action, weapon, action_id_override)
         action_id = "SingleShot"
     end
 
-    if action_id == "SingleShot" then
+    if action_id == "SingleShot" or action_id == "CancelShot" then
         base = base + (weapon.SingleShotCustomDeltaAP or 0) * const.Scale.AP
 
     elseif action_id == "AutoFire" then

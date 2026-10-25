@@ -10,6 +10,8 @@ end
 function rat_combat_actions()
     CombatActions.BurstFire.ActionPointDelta = 0
     CombatActions.SingleShot.ActionPointDelta = -2000
+    ---- single shot + 10; also takes the gun's SingleShotCustomDeltaAP (rat_getDeltaAP)
+    CombatActions.CancelShot.ActionPointDelta = CombatActions.SingleShot.ActionPointDelta + 10 * const.Scale.AP
     ---- length is priced per round by RPM (Rat_AutoExtraAP)
     CombatActions.AutoFire.ActionPointDelta = 0
     CombatActions.MGBurstFire.ActionPointDelta = 0
