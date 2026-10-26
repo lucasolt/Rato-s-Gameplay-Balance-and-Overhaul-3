@@ -79,6 +79,10 @@ function presets_char_effect()
             p.Description = ratT(file_str, 483920175319, "<GameTerm('Overwatch')> attacks have <em>3 aim levels</em> against the <em>first</em> enemy that triggers it and <em>2 aim levels</em> against the <em>second</em> one.\n\nEnables <GameTerm('Crits')> with <GameTerm('Overwatch')> attacks.\n\nDoes not apply to <em>Machine Gun Setup</em>.")
         end
 
+        if p.id == "NightOps" then
+            p.Description = ratT(file_str, 483920175320, "At <em>Night</em> and in <em>underground</em> Sectors, the <em>Accuracy</em> penalty is reduced by <em><night_acc_penalty_reduction>%</em> and the <em>Sight</em> penalty by <em><night_vision_penalty_reduction>%</em>.\n\nSame effect as <em>Night Vision Goggles</em>; the two do not stack.")
+        end
+
         --------------------------------------------------------------------------------------------
         if p.id == "Psycho" then
             p.Description = ratT(file_str, 483920175317, "Can decide to use a more vicious attack than the one selected: a <em>Single Shot</em> becomes a burst, and <em>Auto Fire</em> fires up to twice as many rounds at no extra <em>AP</em>.\n\nMore likely to <em>overrun the trigger</em> in <em>Auto Fire</em>.\n\nAdditional <em>conversation options</em>.")
