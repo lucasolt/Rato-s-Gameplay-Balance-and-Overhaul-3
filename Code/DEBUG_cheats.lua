@@ -61,6 +61,62 @@ local function PatchModifyInCombat()
     element.rat_combat_wrapped = true
 end
 
+local function SwapEffectOn(obj, old_id, new_id)
+    local effect = obj and obj:GetStatusEffect(old_id)
+    if not effect then
+        return false
+    end
+    local stacks = effect.stacks or 1
+    obj:RemoveStatusEffect(old_id, "all")
+    if new_id then
+        obj:AddStatusEffect(new_id, stacks)
+    end
+    return true
+end
+
+---- Console: Rat_SwapEffect("NightOps", "Spiritual") swaps on SelectedObj, both the Unit and its gv_UnitData.
+---- `who`: unit, session_id, or "all" (every unit with old_id). new_id nil only removes.
+function Rat_SwapEffect(old_id, new_id, who)
+    if not CharacterEffectDefs[old_id] or new_id and not CharacterEffectDefs[new_id] then
+        return "unknown effect id"
+    end
+    local ids = {}
+    if who == "all" then
+        for id, ud in pairs(gv_UnitData or empty_table) do
+            if ud:GetStatusEffect(old_id) then
+                ids[#ids + 1] = id
+            end
+        end
+        for _, u in ipairs(g_Units or empty_table) do
+            if u:GetStatusEffect(old_id) and not table.find(ids, u.session_id) then
+                ids[#ids + 1] = u.session_id
+            end
+        end
+    else
+        who = who or SelectedObj
+        local id = type(who) == "string" and who or IsKindOfClasses(who, "Unit", "UnitData") and who.session_id
+        if not id then
+            return "no unit"
+        end
+        ids[1] = id
+    end
+    local done = {}
+    for _, id in ipairs(ids) do
+        local on_unit = SwapEffectOn(g_Units[id], old_id, new_id)
+        local on_data = SwapEffectOn(gv_UnitData[id], old_id, new_id)
+        if on_unit or on_data then
+            done[#done + 1] = string.format("%s (unit %s, data %s)", id, tostring(on_unit), tostring(on_data))
+            if g_Units[id] then
+                ObjModified(g_Units[id])
+            end
+            if gv_UnitData[id] then
+                ObjModified(gv_UnitData[id])
+            end
+        end
+    end
+    return #done > 0 and table.concat(done, ", ") or "nothing had " .. old_id
+end
+
 function OnMsg.ModsReloaded()
     AppendToggleCheat("idToggleRatZeroDispersion", T(482193570611, "aCTH Zero Dispersion (toggle)"), "RatZeroDispersion",
                       "idToggleAlwaysMiss", "COMBAT")
