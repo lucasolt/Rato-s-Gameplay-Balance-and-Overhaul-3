@@ -94,6 +94,12 @@ function Rat_ExpectedPelletsOnTarget(attacker, weapon, action, target, attacker_
     if not up or not cone_angle then
         return pellets * 100
     end
+    return Rat_PelletsInsideExtents(weapon, pellets, cone_angle, up, down, right, left)
+end
+
+---- The grid behind Rat_ExpectedPelletsOnTarget, on half-extents in arcmin around the main pellet;
+---- target-free so balance tools can feed it a stock silhouette.
+function Rat_PelletsInsideExtents(weapon, pellets, cone_angle, up, down, right, left)
     local plane, min_offset, scatter = Rat_PelletScatterRadii(weapon, cone_angle)
     local var_offset = Max(0, scatter - min_offset)
     local vf = weapon.VerticalPelletSpreadFactorMul or 100
