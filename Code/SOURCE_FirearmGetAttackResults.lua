@@ -954,7 +954,7 @@ function Firearm:GetAttackResults(action, attack_args)
 
                 p_i = p_i + 1
 
-                ----- strays are hardcoded -50% dmg, grazes use the constant (-70% dmg)
+                ----- target strays are hardcoded -50% dmg, grazes use the constant (-70% dmg); other units are off-part hits
                 if IsValid(target) then
                     local p_hit, p_spot, p_off_part, p_crit
                     if sim then
@@ -991,6 +991,12 @@ function Firearm:GetAttackResults(action, attack_args)
                                 end
                             else
                                 hit.stray = false
+                            end
+                        elseif IsKindOf(hit.obj, "Unit") then
+                            local crit = Rat_PelletBystanderHit(self, attacker, action,
+                                                                shot_attack_args, hit, prediction)
+                            if pellet_hit_data.critical == nil then
+                                pellet_hit_data.critical = crit
                             end
                         else
                             hit.stray = true

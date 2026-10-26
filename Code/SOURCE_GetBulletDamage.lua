@@ -54,7 +54,7 @@ function Firearm:BulletCalcDamage(hit_data, ricochet_idx)
 		local is_unit
 		if obj and IsKindOf(obj, "Unit") and not stray then
 			is_unit = true
-			stray = obj ~= target
+			stray = obj ~= target and not hit.rat_bystander
 			target_reached = target_reached or target and obj == target
 
 			if not prediction then
@@ -66,7 +66,7 @@ function Firearm:BulletCalcDamage(hit_data, ricochet_idx)
 					hit_data.critical = critRoll < critChance
 				end
 			end
-			if not stray then
+			if not stray and not hit.rat_bystander then
 				hit.spot_group = hit_data.target_spot_group or hit.spot_group
 			end
 		end -- hits on non-units are never stray or critical

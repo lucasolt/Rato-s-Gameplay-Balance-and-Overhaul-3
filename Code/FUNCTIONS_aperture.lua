@@ -1883,6 +1883,25 @@ function Rat_SimPelletHit(weapon, attacker, target, action, args, aimed_spot, ba
     return true, spot, off_part, attacker:Random(100) < chance
 end
 
+---- Pellet on a unit other than the target: an off-part pellet hit, not a vanilla stray (-50%, no crit/mods).
+---- Returns the crit; BulletCalcDamage keeps the hit off its stray rule through rat_bystander.
+function Rat_PelletBystanderHit(weapon, attacker, action, args, hit, prediction)
+    local obj = hit.obj
+    local spot = Rat_SplitGroinSpot(obj, hit.spot_group, hit.pos)
+    hit.stray = false
+    hit.rat_bystander = true
+    hit.rat_offpart = "pellet"
+    hit.spot_group = spot or hit.spot_group
+    if prediction then
+        return false
+    end
+    local prev = args.target_spot_group
+    args.target_spot_group = hit.spot_group
+    local chance = attacker:CalcCritChance(weapon, obj, action, args, args.step_pos)
+    args.target_spot_group = prev
+    return attacker:Random(100) < Rat_OffPartCritChance(chance, "pellet")
+end
+
 ---- The body part status effect (Inaccurate/Slowed/Suppressed) only survives a roll on an off-part
 ---- hit. Ammo and perk effects stay: the penalty is for hitting the wrong part, not for the ammo.
 function Rat_OffPartRollEffects(attacker, hit, prediction)
