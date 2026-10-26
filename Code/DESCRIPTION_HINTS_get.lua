@@ -919,6 +919,19 @@ end
 ---- bar value of each row for the preset scan, taken for the gun alone and for a stat-100 merc; `range`
 ---- skips the scan and `ammo` rows scan every ammo of the caliber instead of the Basic one.
 ---- lower = smaller is better, which only picks the gap color: bars always grow with the value, like vanilla
+---- no full auto but a burst: the burst's cadence is the gun's only rate of fire
+local function HintBurstOnly(w)
+    if Rat_HasVariableAuto(w) then
+        return false
+    end
+    local attacks = w.AvailableAttacks or empty_table
+    return table.find(attacks, "BurstFire") or table.find(attacks, "BuckshotBurst") or false
+end
+
+local function HintShownRPM(w)
+    return HintBurstOnly(w) and Rat_BurstRPM(w) or w.RPM or 0
+end
+
 local HintBarRows = {
     Pellets = {ammo = HintAmmoPellets},
     Spread = {lower = true, ammo = function(w, ammo)
@@ -943,7 +956,7 @@ local HintBarRows = {
     Hipfire = {lower = true, value = function(w, unit) return HintHipSnap(w, 0, unit, IsACHTActive()) end},
     Snapshot = {lower = true, value = function(w, unit) return HintHipSnap(w, 1, unit, IsACHTActive()) end},
     Recoil = {lower = true, value = HintRecoil},
-    RPM = {value = function(w) return w.RPM or 0 end, applies = function(w) return Rat_HasVariableAuto(w) end},
+    RPM = {value = HintShownRPM, applies = function(w) return Rat_HasVariableAuto(w) or HintBurstOnly(w) end},
     Barrel = {value = function(w) return Rat_EffectiveBarrelLength(w) end, applies = function(w) return Rat_HasBarrelRule(w) end},
     CaliberDamage = {ammo = function(w, ammo)
         local base = Rat_CaliberDamage(w.Caliber)
@@ -1643,7 +1656,19 @@ function GBO_GetDescriptionHints(self)
 		})
 	end
 
-	if Rat_HasVariableAuto(self) then
+	if HintBurstOnly(self) then
+		local rpm = Rat_BurstRPM(self)
+		local tenths = MulDivRound(Rat_AutoAPPerRound(self, rpm), 10, const.Scale.AP)
+		table.insert(termList, {
+			id = "RateOfFire",
+			TranslationTable[638215904417] or "Rate of Fire: ",
+			rpm,
+			string.format(" RPM (<color PDABrowserTextHighlight>%d.%d</color> ", tenths / 10, tenths % 10) ..
+				_InternalTranslate(ratT(file_str, 638215904418, "AP/extra round")) .. ")" ..
+				_InternalTranslate(ratT(file_str, 638215904420, ", burst only")),
+			bar = "RPM", bar_v = rpm,
+		})
+	elseif Rat_HasVariableAuto(self) then
 		local tenths = MulDivRound(Rat_AutoAPPerRound(self), 10, const.Scale.AP)
 		table.insert(termList, {
 			id = "RateOfFire",
