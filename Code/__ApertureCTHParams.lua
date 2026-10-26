@@ -346,6 +346,7 @@ A.RecoilComponents = {
     FoldableGripMul = 0.975,
     NoStockMul = {SubmachineGun = 1.20, Other = 1.35},
     CompensatorMul = 0.955,
+    AdvancedCompensatorMul = 0.94,
     RecoilBoosterMul = 0.985,
     IntegratedMuzzleBrakeMul = 0.955,
     SuppressorMul = 0.97,

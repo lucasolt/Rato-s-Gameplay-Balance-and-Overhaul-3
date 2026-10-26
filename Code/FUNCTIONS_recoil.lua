@@ -177,6 +177,7 @@ function GetWepRecoil(weapon, attacker, display, comps)
         {name = "tac_grip_recoil", key = "FoldableGripMul", text = rT(371872683581, "Foldable Grip"), condition = not weapon2},
         {name = "no_stock", key = "NoStockMul", text = rT(115796595571, "(-) No Stock")},
         {name = "compensator_effect", key = "CompensatorMul", text = rT(134618826773, "Compensator")},
+        {name = "advanced_compensator_effect", key = "AdvancedCompensatorMul", text = rT(927364015842, "Advanced Compensator")},
         {name = "recoil_booster_effect", key = "RecoilBoosterMul", text = rT(862593714174, "Recoil Booster")},
         {name = "integr_muzzle_brake", key = "IntegratedMuzzleBrakeMul", text = rT(585361131592, "Integrated Muzzle Brake")},
         {name = "compensator_effect_silencer", key = "SuppressorMul", text = rT(263781558966, "Suppressor")},

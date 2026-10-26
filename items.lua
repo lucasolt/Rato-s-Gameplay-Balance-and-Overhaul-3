@@ -19096,15 +19096,7 @@ return {
 		Icon = "UI/Icons/Upgrades/glock_compensator",
 		ModificationDifficulty = 10,
 		ModificationEffects = {
-			"IncreaseCritChangeScaled",
-			"compensator_effect",
-		},
-		Parameters = {
-			PlaceObj('PresetParamNumber', {
-				'Name', "CritChangeScaledIncrease",
-				'Value', 10,
-				'Tag', "<CritChangeScaledIncrease>",
-			}),
+			"advanced_compensator_effect",
 		},
 		Slot = "Muzzle",
 		Tags = set( "CloseQuarters", "Intimate", "Precision", "Strategic", "Tactical" ),
@@ -19244,19 +19236,13 @@ return {
 		ModificationDifficulty = 20,
 		ModificationEffects = {
 			"IncreaseReliability",
-			"compensator_effect",
-			"IncreaseCritChangeScaled",
+			"advanced_compensator_effect",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
 				'Name', "ReliabilityIncrease",
 				'Value', 10,
 				'Tag', "<ReliabilityIncrease>",
-			}),
-			PlaceObj('PresetParamNumber', {
-				'Name', "CritChangeScaledIncrease",
-				'Value', 10,
-				'Tag', "<CritChangeScaledIncrease>",
 			}),
 		},
 		Slot = "Muzzle",

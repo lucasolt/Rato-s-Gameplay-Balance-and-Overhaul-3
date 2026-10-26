@@ -438,6 +438,13 @@ function weapon_components_rat()
     })
 
     PlaceObj('WeaponComponentEffect', {
+        Description = T(581302746619,
+                        "Further reduced <em>recoil penalty</em>"),
+        group = "FX Placeholders",
+        id = "advanced_compensator_effect"
+    })
+
+    PlaceObj('WeaponComponentEffect', {
         Description = T(954822518050,
                         "Slightly reduced <em>recoil penalty</em>"),
         group = "FX Placeholders",
