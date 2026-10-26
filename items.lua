@@ -6995,7 +6995,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "BuckshotAngleDecrease",
-					'Value', 78,
+					'Value', 66,
 					'Tag', "<BuckshotAngleDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7061,7 +7061,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "BuckshotAngleDecrease",
-					'Value', 78,
+					'Value', 66,
 					'Tag', "<BuckshotAngleDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7130,7 +7130,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "BuckshotAngleDecrease",
-					'Value', 78,
+					'Value', 66,
 					'Tag', "<BuckshotAngleDecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9718,7 +9718,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "BuckshotAngleIncrease",
-					'Value', 122,
+					'Value', 150,
 					'Tag', "<BuckshotAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9788,7 +9788,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "BuckshotAngleIncrease",
-					'Value', 122,
+					'Value', 150,
 					'Tag', "<BuckshotAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9838,7 +9838,7 @@ return {
 			GBO_OverrideParams = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "BuckshotAngleIncrease",
-					'Value', 122,
+					'Value', 150,
 					'Tag', "<BuckshotAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9871,7 +9871,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "BuckshotAngleIncrease",
-					'Value', 122,
+					'Value', 150,
 					'Tag', "<BuckshotAngleIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -18545,7 +18545,6 @@ return {
 		ModificationEffects = {
 			"DecreaseBuckshotAngle",
 			"IncreaseRange",
-			"FullChokeRecoil",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -18555,7 +18554,7 @@ return {
 			}),
 			PlaceObj('PresetParamNumber', {
 				'Name', "BuckshotAngleDecrease",
-				'Value', 60,
+				'Value', 55,
 				'Tag', "<BuckshotAngleDecrease>",
 			}),
 		},

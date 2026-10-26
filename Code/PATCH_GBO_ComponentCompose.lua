@@ -229,12 +229,12 @@ GBO_COMP_TRAITS = {
     },
     ["Shotgun.WideBuckshot"] = {
         effects = {"IncreaseBuckshotAngle"},
-        params = {BuckshotAngleIncrease = 122}
+        params = {BuckshotAngleIncrease = 150} ---- was 122 + the pattern also widening with the -4 range
     },
 
 	["Shotgun.NarrowBuckshot"] = {
         effects = {"DecreaseBuckshotAngle"},
-        params = {BuckshotAngleDecrease = 78}
+        params = {BuckshotAngleDecrease = 66} ---- was 78 + the pattern also tightening with the +4 range
     },
 	["Stock.Light"] = {
 		effects = 			{

@@ -922,7 +922,7 @@ end
 local HintBarRows = {
     Pellets = {ammo = HintAmmoPellets},
     Spread = {lower = true, ammo = function(w, ammo)
-        return HintAmmoPellets(w, ammo) and HintAmmoProp(w.BuckshotConeAngle or 0, ammo, "BuckshotConeAngle")
+        return HintAmmoPellets(w, ammo) and Rat_PelletSpreadAngle(HintAmmoProp(w.BuckshotConeAngle or 0, ammo, "BuckshotConeAngle"))
     end},
     RecStr = {lower = true, range = {30, 100}},
     Penetration = {range = {0, 5}},
@@ -1634,7 +1634,7 @@ function GBO_GetDescriptionHints(self)
 
 	---- barrels change the spread, so it stays with the gun; the loaded (or Basic) ammo still widens it
 	if (Rat_BasicAmmoProp(self, "NumPellets") or 0) > 1 then
-		local spread = Rat_BasicAmmoProp(self, "BuckshotConeAngle") or 0
+		local spread = Rat_PelletSpreadAngle(Rat_BasicAmmoProp(self, "BuckshotConeAngle") or 0)
 		table.insert(termList, {
 			id = "PelletSpreadAngle",
 			TranslationTable[193184162359] or "Pellet Spread Angle: ",

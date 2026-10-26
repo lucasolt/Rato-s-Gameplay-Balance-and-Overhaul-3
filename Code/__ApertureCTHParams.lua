@@ -356,8 +356,7 @@ A.RecoilComponents = {
     HeavyBarrelMul = {Pistol = 0.99, Revolver = 0.985, SubmachineGun = 0.98, Other = 0.975},
     HeavyStockMul = 0.95,
     LightStockMul = 1.05,
-    RecoilBumpMul = 1.03,
-    FullChokeRecoilMul = 1.045
+    RecoilBumpMul = 1.03
 }
 
 ---- Direcao do coice, em graus a direita da vertical. E um TORQUE: tem lado fixo, nao e sorteado.

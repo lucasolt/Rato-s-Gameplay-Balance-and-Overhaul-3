@@ -972,13 +972,6 @@ function weapon_components_rat()
     })
 
     PlaceObj('WeaponComponentEffect', {
-        Description = T(195877439875,
-                        "Increases <em>Recoil</em> penalty"),
-        group = "FX Placeholders",
-        id = "FullChokeRecoil"
-    })
-
-    PlaceObj('WeaponComponentEffect', {
         Description = T(674215963791,
                         "Changes pellet spread pattern, reducing vertical spread"),
         ModificationType = "Subtract",

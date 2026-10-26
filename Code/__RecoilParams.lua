@@ -30,8 +30,7 @@ const.Combat.Recoil.Components = {
     HeavyStockMul = 0.90,
     LightStockMul = 1.10,
     RecoilBumpMul = 1.06,
-    BipodMul = 0.85,
-    FullChokeRecoilMul = 1.09
+    BipodMul = 0.85
 }
 ----- Perks
 const.Combat.Recoil.Perks.TakeAimMul = 0.88

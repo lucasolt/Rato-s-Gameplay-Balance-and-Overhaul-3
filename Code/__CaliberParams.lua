@@ -122,7 +122,7 @@ const.Calibers = {
             PenetrationClass = 1,
             Damage = {0, 450}, ---- 6 and 7 base both round to 3
             WeaponRange = 2,
-            BuckshotConeAngle = {0, 500},
+            BuckshotConeAngle = {0, 460}, ---- was 500 + the +2 range tightening
             NumPellets = {0, 2000}
         },
         AppliedEffects = {"Bleeding"}
@@ -138,9 +138,7 @@ const.Calibers = {
             PenetrationClass = -4,
             Damage = {0, 100},
             WeaponRange = -4,
-            BuckshotConeAngle = {
-                0, 2500
-            },
+            BuckshotConeAngle = {0, 3050},
             NumPellets = {0, 4000}
         },
         AppliedEffects = {

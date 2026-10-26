@@ -186,8 +186,7 @@ function GetWepRecoil(weapon, attacker, display, comps)
         {name = "heavy_barrel_effect", key = "HeavyBarrelMul", text = rT(649749565849, "Heavy Barrel")},
         {name = "hipfire_light_barrel", key = "LightBarrelMul", text = rT(826212377342, "(-) Light Barrel")},
         {name = "stockheavy_effect_recoil", key = "HeavyStockMul", text = rT(456789123654, "Heavy Stock")},
-        {name = "stocklight_effect_recoil", key = "LightStockMul", text = rT(321654987321, "(-) Light Stock")},
-        {name = "FullChokeRecoil", key = "FullChokeRecoilMul", text = rT(984651387752, "(-) Full Choke")}
+        {name = "stocklight_effect_recoil", key = "LightStockMul", text = rT(321654987321, "(-) Light Stock")}
     }
     for _, comp in ipairs(components) do
         local allowed = comp.condition == nil or comp.condition
@@ -825,8 +824,7 @@ local t_id_table = {
     [594122678151] = "(-) Held MG",
     [219911149892] = "Point-Blank Range",
     [574718433471] = "Recoil",
-    [862325237281] = "Average Recoil: Two Weapons",
-    [984651387752] = "(-) Full Choke"
+    [862325237281] = "Average Recoil: Two Weapons"
 }
 
 ratG_T_table['FUNCTIONS_recoil.lua'] = t_id_table
