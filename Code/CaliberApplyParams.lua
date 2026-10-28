@@ -150,9 +150,9 @@ function ApplyAmmoParams(class_id, class, ...)
         local args = {target_prop = k, mod_add = v.mod_add, mod_mul = v.mod_mul or 1000}
 
 		--- aCTH AimAccuracy Scale Handling
-		if const.Combat.Aperture.Enabled and const.Combat.Aperture.SimulateShots then
+		if const.Combat.Aperture.Enabled then
 			if k == "AimAccuracy" then
-				local mod = MulDivRound(const.Combat.Aperture.aCTHAimAccuracyScaleMul, 70, 100)
+				local mod = MulDivRound(const.Combat.Aperture.aCTHAimAccuracyScaleMul or 500, const.MatchRoundAimMulMod_aCTH or 100, 100)
 				args.mod_add = MulDivRound(args.mod_add, mod, 100)
 				print("GBO - aCTH enabled, changing caliber: ",class_id, k, "to ", args.mod_add)
 			end

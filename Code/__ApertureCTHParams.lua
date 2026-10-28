@@ -8,6 +8,8 @@
 
 const.Combat.Aperture = const.Combat.Aperture or {}
 local A = const.Combat.Aperture
+
+
 ---------------------------------------------------------------------------------------------------
 ---- Marksmanship escala o cone inteiro -- x2.60 em Marks 0 .. x1.00 em Marks 100
 ---------------------------------------------------------------------------------------------------
@@ -104,6 +106,8 @@ A.AimDecayMuls = {
 	                cond = function(weapon, attacker) return not attacker or attacker.stance ~= "Prone" end},
 	---- stocks live in A.ComponentEffectsAimBonus: light flat, no/folded a mul on AimAccuracy
 }
+
+
 
 ---- CAMUFLAGEM. Alvo camuflado e mais dificil de VER, entao encolhe a SILHUETA -- nao alarga o
 ---- cone e nao mexe na mira. Assim vale em todo nivel de mira (inclusive hipfire), empilha com

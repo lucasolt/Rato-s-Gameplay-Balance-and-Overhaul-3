@@ -135,7 +135,7 @@ GBO_COMP_TRAITS = {
         effects = {"shortbarrel", "ReduceRange", "StanceAPdecrease"},
         params = {
             OverwatchAngle = 107,
-            RangeDecrease = 2,
+            RangeDecrease = 4,
             APdecrease = barrel_ap
         },
 		modes = {
@@ -149,7 +149,7 @@ GBO_COMP_TRAITS = {
         effects = {"shortbarrel", "ReduceRange", "StanceAPdecrease"},
         params = {
             OverwatchAngle = 107,
-            RangeDecrease = 2,
+            RangeDecrease = 4,
             APdecrease = barrel_ap
         },
 		modes = {
@@ -168,8 +168,7 @@ GBO_COMP_TRAITS = {
         params = {
 			OverwatchAngle = 105,
 		 	RangeDecrease = 2,
-			---- the short barrel's length costs damage now; the AP saving matches the rifle short barrel
-			APdecrease = 5
+			APdecrease = 3
 		},
 		modes = {
 			aCTH = {
@@ -191,7 +190,7 @@ GBO_COMP_TRAITS = {
 				"StanceAPincrease"
 			},
 		params = {
-			RangeIncrease = 2,
+			RangeIncrease = 4,
 			AimAccuracyIncrease = 1,
 			OverwatchAngle = 92,
 			APincrease = 3

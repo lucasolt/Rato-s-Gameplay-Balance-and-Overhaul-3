@@ -396,6 +396,8 @@ const.CaliberDamage = {
     ["50BMG"] = {base = 72, barrel = 730, per_100mm = 10, min = -5, max = 2}
 }
 
+const.MatchRoundAimMulMod_aCTH = 50
+
 ---- barrel parts change length, not damage: % of the stock barrel (rat_barrel_len), keyed by family trait
 const.BarrelTraitLength = {
     longbarrel = 130,

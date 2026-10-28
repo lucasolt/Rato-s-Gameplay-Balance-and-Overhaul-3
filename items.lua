@@ -2131,7 +2131,7 @@ return {
 			'name', "PartsGainPct",
 			'DisplayName', "Parts Gain %",
 			'Help', "Multiplies Parts from scrapping, loot and salvage spots. Attachments are bought instead of crafted, so Parts have fewer uses. GBO default <default>.",
-			'DefaultValue', 70,
+			'DefaultValue', 80,
 			'MaxValue', 201,
 			'StepSize', 10,
 		}),
@@ -7202,7 +7202,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeIncrease",
-					'Value', 2,
+					'Value', 4,
 					'Tag', "<RangeIncrease>",
 				}),
 			},
@@ -7366,7 +7366,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeIncrease",
-					'Value', 2,
+					'Value', 4,
 					'Tag', "<RangeIncrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -7528,7 +7528,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "RangeIncrease",
-					'Value', 2,
+					'Value', 4,
 					'Tag', "<RangeIncrease>",
 				}),
 			},
@@ -8925,7 +8925,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 5,
+					'Value', 3,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9313,7 +9313,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 5,
+					'Value', 3,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9446,7 +9446,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 5,
+					'Value', 3,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -9936,7 +9936,7 @@ return {
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
 					'Name', "APdecrease",
-					'Value', 5,
+					'Value', 3,
 					'Tag', "<APdecrease>",
 				}),
 				PlaceObj('PresetParamNumber', {

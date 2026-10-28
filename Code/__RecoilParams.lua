@@ -46,8 +46,8 @@ function OnMsg.ClassesGenerate()
         properties = {{id = "class_base_recoil", editor = "number", default = 100, no_edit = true}}
     }
 
-    Pistol.class_base_recoil = 195
-    Revolver.class_base_recoil = 188
+    Pistol.class_base_recoil = 185--195
+    Revolver.class_base_recoil = 178--188
     SubmachineGun.class_base_recoil = 138
     MachineGun.class_base_recoil = 65
     Shotgun.class_base_recoil = 90
