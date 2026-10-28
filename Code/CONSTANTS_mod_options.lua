@@ -10,11 +10,19 @@ GBO_SIGHT_FLOOR = 40
 ---- Night base sight in tiles against an unlit target. NightSightReduction scales Aware; Unaware (and
 ---- anyone looking at a Hidden unit) never sees further than that. Stealth, camo, prone and grass
 ---- then apply as by day: the darkness modifier is 0, so it no longer sinks every case to the floor.
+function GBO_NightVisionSightReduction(unit)
+	local best = HasPerk(unit, "NightOps") and const.EnvEffects.NightOpsSightReduction or 0
+	---- "NVG" is Revised Tactical Gear II's slot; nil without it
+	local goggles = unit:GetItemInSlot("NVG") or unit:GetItemInSlot("Head")
+	if IsKindOf(goggles, "NightVisionGoggles") and goggles.Condition > 0 then
+		best = Max(best, const.EnvEffects.NVGSightReduction)
+	end
+	return best
+end
+
 function GBO_NightBaseSight(unit, base_sight, unaware)
 	local pct = GBO_Opt("NightSightReduction", 70)
-	if unit:HasNightVision() then
-		pct = MulDivRound(pct, 100 - const.EnvEffects.NightVisionSightReduction, 100)
-	end
+	pct = MulDivRound(pct, 100 - GBO_NightVisionSightReduction(unit), 100)
 	local aware = MulDivRound(base_sight or const.Combat.AwareSightRange, 100 - pct, 100)
 	return unaware and Min(aware, const.Combat.UnawareSightRange) or aware
 end
