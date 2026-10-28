@@ -13,7 +13,7 @@ GBO_SIGHT_FLOOR = 40
 function GBO_NightBaseSight(unit, base_sight, unaware)
 	local pct = GBO_Opt("NightSightReduction", 70)
 	if unit:HasNightVision() then
-		pct = MulDivRound(pct, CharacterEffectDefs.NightOps:ResolveValue("night_vision_penalty_reduction"), 100)
+		pct = MulDivRound(pct, 100 - const.EnvEffects.NightVisionSightReduction, 100)
 	end
 	local aware = MulDivRound(base_sight or const.Combat.AwareSightRange, 100 - pct, 100)
 	return unaware and Min(aware, const.Combat.UnawareSightRange) or aware

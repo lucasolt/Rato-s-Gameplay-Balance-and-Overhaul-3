@@ -80,6 +80,11 @@ function presets_char_effect()
         end
 
         if p.id == "NightOps" then
+            for _, param in ipairs(p.Parameters) do
+                if param.Name == "night_vision_penalty_reduction" then
+                    param.Value = const.EnvEffects.NightVisionSightReduction
+                end
+            end
             p.Description = ratT(file_str, 483920175320, "At <em>Night</em> and in <em>underground</em> Sectors, the <em>Accuracy</em> penalty is reduced by <em><night_acc_penalty_reduction>%</em> and the <em>Sight</em> penalty by <em><night_vision_penalty_reduction>%</em>.\n\nSame effect as <em>Night Vision Goggles</em>; the two do not stack.")
         end
 

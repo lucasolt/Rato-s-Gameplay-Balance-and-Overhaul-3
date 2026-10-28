@@ -104,6 +104,8 @@ const.EnvEffects.FireStormSightMod = -20
 const.EnvEffects.DustStormSightMod = -35
 const.EnvEffects.DustStormGrazeChance = 0
 const.EnvEffects.DarknessCTHPenalty = -10 -- -20
+---- % of the night sight penalty removed by Night Ops or NVG (no stacking); written into NightOps' param for the text
+const.EnvEffects.NightVisionSightReduction = 50
 
 ---------------------------------------------------------------------------------------------------
 ---- aCTH ONLY (simulated); replaces the gas graze
