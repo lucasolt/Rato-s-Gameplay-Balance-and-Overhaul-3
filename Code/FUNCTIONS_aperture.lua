@@ -822,10 +822,12 @@ function Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, atta
             if grizzly then
                 excess = MulDivRound(excess, 100 - a.GrizzlyStepReduc, 100)
             end
-            local mg_setup = (a.MGSetupInterruptStepMul or 100) ~= 100 and
-                                 Rat_IsMGSetupInterrupt(attacker, action, opportunity_attack)
+            local mg_setup = Rat_IsMGSetupInterrupt(attacker, action, opportunity_attack)
             if mg_setup then
                 excess = MulDivRound(excess, a.MGSetupInterruptStepMul, 100)
+            elseif (a.InterruptStepMul or 100) ~= 100 and
+                (opportunity_attack or (action and action.id == "Overwatch")) then
+                excess = MulDivRound(excess, a.InterruptStepMul, 100)
             end
             step = 100 + excess
             ---- moving fire: Agility scales the whole step, its lane (Dex owns aimed fire)
