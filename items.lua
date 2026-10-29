@@ -1875,6 +1875,10 @@ return {
 			'CodeFileName', "Code/FEATURE_StepOutGate.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "FEATURE_OverwatchHoldFire",
+			'CodeFileName', "Code/FEATURE_OverwatchHoldFire.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "FEATURE_NightVisuals",
 			'CodeFileName', "Code/FEATURE_NightVisuals.lua",
 		}),

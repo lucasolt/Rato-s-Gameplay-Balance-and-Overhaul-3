@@ -207,6 +207,7 @@ return PlaceObj('ModDef', {
 		"Code/FEATURE_NoRevealMemory.lua",
 		"Code/FIX_NoVisibilityReload.lua",
 		"Code/FEATURE_StepOutGate.lua",
+		"Code/FEATURE_OverwatchHoldFire.lua",
 		"Code/FEATURE_NightVisuals.lua",
 		"Code/FEATURE_LightSources.lua",
 		"Code/FEATURE_MapLightBoost.lua",
