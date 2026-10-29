@@ -629,7 +629,18 @@ function Rat_ApertureFloor(weapon, action, attacker)
     if attacker and attacker.stance == "Prone" and IsKindOf(weapon, "Firearm") and weapon:HasComponent("AccuracyBonusProne") then
         floor = MulDivRound(floor, a.BipodProneFloorMul or 100, 100)
     end
+    floor = MulDivRound(floor, Rat_FloorHandEyeMul(weapon, attacker), 100)
     return Max(1, floor)
+end
+
+function Rat_FloorHandEyeMul(weapon, attacker)
+    local a = P()
+    local pivot, min_pct = a.FloorHandEyePivot or 100, a.FloorHandEyeMinPct or 100
+    if min_pct >= 100 or pivot >= 100 or not attacker or attacker.placeholder or not IsKindOf(weapon, "Firearm") then
+        return 100
+    end
+    local he = Clamp(rGetHandEyeCoordination(attacker) or 0, pivot, 100)
+    return 100 - MulDivRound(100 - min_pct, he - pivot, 100 - pivot)
 end
 
 ---------------------------------------------------------------------------------------------------

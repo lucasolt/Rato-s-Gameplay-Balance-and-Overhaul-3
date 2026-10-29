@@ -37,6 +37,11 @@ A.FloorPct = 60--45 --130 --55
 
 ---- braced bipod (AccuracyBonusProne, prone): floor mul, stacks with the scope's
 A.BipodProneFloorMul = 80
+
+---- Hand-Eye lowers the floor: 100 at or below Pivot, linear to MinPct at Hand-Eye 100. Stacks with scope/bipod.
+---- Pivot 75 sits above most enemies (Army p90 84, SuperSoldiers/Thugs max 83): mercs gain, AI barely moves.
+A.FloorHandEyePivot = 75
+A.FloorHandEyeMinPct = 70 --- 100 disables
 ----------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------------
