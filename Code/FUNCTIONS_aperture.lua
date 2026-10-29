@@ -498,12 +498,12 @@ function Rat_HandlingSignedPoints(weapon, attacker)
                       MulDivRound(100 - a.HandlingMin, per_mul, a.HandlingPointPct))
 
     local meta
-    local impact = a.HandlingAttrImpact or 0
+    local impact = (pts > 0 and a.HandlingAttrImpact or a.HandlingAttrPenaltyImpact) or 0
     if attacker and impact ~= 0 and pts ~= 0 then
         local hec = rGetHandEyeCoordination(attacker)
-        local gain = MulDivRound(impact, Clamp(hec, 0, 100) - (a.HandlingAttrPivot or 100), 100)
-        ---- above the pivot a bonus grows and a penalty shrinks by the same %, below it the reverse
-        pts = MulDivRound(pts, 100 + (pts > 0 and gain or -gain), 100)
+        local loss = MulDivRound(impact, 100 - Clamp(hec, 0, 100), 100)
+        ---- HEC 100 is nominal: below it a bonus shrinks and a penalty grows
+        pts = MulDivRound(pts, 100 + (pts > 0 and -loss or loss), 100)
         if hec < a.HandlingAttrLowAt then
             meta = {a.HandlingAttrLowMeta}
         end

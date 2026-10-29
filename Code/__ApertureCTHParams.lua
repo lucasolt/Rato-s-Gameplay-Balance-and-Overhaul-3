@@ -230,10 +230,11 @@ A.HandlingComponentPoints = {
 }
 
 ---- Hand-Eye scales the handling DEVIATION from 100, never the multiplier: the sign survives, so a
----- bad-handling gun never beats a good one whatever the merc. HEC at Pivot gets the nominal value.
----- Each HEC point from Pivot moves a bonus by Impact/100 % and a penalty by as much the other way.
-A.HandlingAttrImpact = 30
-A.HandlingAttrPivot = 100
+---- bad-handling gun never beats a good one whatever the merc. HEC 100 gets the nominal value, never more.
+---- Each HEC point below 100 loses Impact/100 % of a bonus; PenaltyImpact adds as much to a penalty.
+---- Kept under aim's 100 (closing x HEC): handling should need less skill than aiming.
+A.HandlingAttrImpact = 50
+A.HandlingAttrPenaltyImpact = 0
 A.HandlingAttrLowAt = 70
 A.HandlingAttrLowMeta = T(273969979692, "(-) Low Hand-Eye Coordination")
 
