@@ -524,7 +524,8 @@ end
 local normals_shown = false
 
 ---- Console helper: the normal of each steep shaded grid triangle, green when it faces the camera
----- (drawn), red when it faces away (culled). Calling it again clears them.
+---- (drawn), red when it faces away (culled); yellow, at any slope, when it faces the camera but the
+---- terrain hides it (drawn anyway: no depth test). Calling it again clears them.
 function Rat_ShadeNormals()
     DbgClearVectors()
     normals_shown = not normals_shown
@@ -547,14 +548,19 @@ function Rat_ShadeNormals()
         local ny = (u:z() * v:x() - u:x() * v:z()) / 1000
         local nz = (u:x() * v:y() - u:y() * v:x()) / 1000
         local len = point(nx, ny, nz):Len()
-        if len == 0 or abs(nz) * 2 > len then
+        if len == 0 then
             return
         end
         local vec = point(MulDivRound(nx, 2 * guim, len), MulDivRound(ny, 2 * guim, len), MulDivRound(nz, 2 * guim, len))
         local mid = point((a:x() + b:x() + c:x()) / 3, (a:y() + b:y() + c:y()) / 3, (a:z() + b:z() + c:z()) / 3)
         local e = eye - mid
         local facing = vec:x() * (e:x() / 100) + vec:y() * (e:y() / 100) + vec:z() * (e:z() / 100) > 0
-        DbgAddVector(mid, vec, facing and const.clrGreen or const.clrRed)
+        local hidden = facing and terrain.IntersectSegment(eye, mid + point(0, 0, guim / 2))
+        if hidden then
+            DbgAddVector(mid, vec, const.clrYellow)
+        elseif abs(nz) * 2 <= len then
+            DbgAddVector(mid, vec, facing and const.clrGreen or const.clrRed)
+        end
     end
     for i = 0, n - 1 do
         local i2 = i + 1
