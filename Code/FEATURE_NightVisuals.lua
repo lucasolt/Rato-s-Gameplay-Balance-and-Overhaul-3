@@ -169,12 +169,22 @@ if not ProceduralMeshShaders.rat_cull_mesh then
     })
 end
 
+local shade_cull = true
+
 local function NewShadeMesh()
     local m = PlaceObject("Mesh")
     m.rat_night_shade = true
     ---- no depth test: a flat ring at the merc's feet must still shade walls, roofs and canopies
-    m:SetShader(ProceduralMeshShaders.rat_cull_mesh, false)
+    m:SetShader(shade_cull and ProceduralMeshShaders.rat_cull_mesh or ProceduralMeshShaders.default_mesh, false)
     return m
+end
+
+---- Console helper: switches the shade between culled and unculled; true when culling is on
+function Rat_ShadeCull()
+    shade_cull = not shade_cull
+    ---- a live mesh ignores a shader swap, so the meshes are rebuilt
+    Rat_NightDiscRemove()
+    return shade_cull
 end
 
 ---------------------------------------------------------------------------------------------------
