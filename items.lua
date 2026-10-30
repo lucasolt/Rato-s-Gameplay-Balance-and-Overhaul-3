@@ -1544,6 +1544,10 @@ return {
 			'name', "DEBUG_cheats",
 			'CodeFileName', "Code/DEBUG_cheats.lua",
 		}),
+		PlaceObj('ModItemCode', {
+			'name', "DEBUG_ow_cth_overlay",
+			'CodeFileName', "Code/DEBUG_ow_cth_overlay.lua",
+		}),
 		}),
 	PlaceObj('ModItemFolder', {
 		'name', "UI and CROSSHAIR",
