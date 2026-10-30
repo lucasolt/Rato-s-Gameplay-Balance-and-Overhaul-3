@@ -366,7 +366,7 @@ local function LosStep(u, radius)
     local pos, stance = u:GetPos(), u.stance
     local job = los_job
     if not job or job.unit ~= u or job.built and (job.pos ~= pos or job.stance ~= stance or job.radius ~= radius) then
-        job = {unit = u, pos = pos, z = u:GetVisualPos():z(), stance = stance, radius = radius,
+        job = {unit = u, pos = pos, ground = terrain.GetHeight(pos:x(), pos:y()), stance = stance, radius = radius,
                rows = Max(1, radius / const.SlabSizeX), keep = {}, col = 0}
         los_job = job
     end
@@ -423,7 +423,7 @@ local function LosBuildStep(job, alpha, cr, cg, cb)
     local color_key = ((alpha * 256 + cr) * 256 + cg) * 256 + cb
     if job.color_key ~= color_key then
         job.color_key, job.build_col, job.built = color_key, 0, false
-        job.s, job.edge = pstr("", 4096), {}
+        job.s, job.edge, job.hz = pstr("", 4096), {}, {}
     end
     if job.built then
         return true
@@ -432,11 +432,25 @@ local function LosBuildStep(job, alpha, cr, cg, cb)
     local circle = UnitCircle()
     local ux, uy = circle.x, circle.y
     local s = job.s
+    local px, py, ground = job.pos:x(), job.pos:y(), job.ground
+    local function column_z(i)
+        local col = job.hz[i]
+        if not col then
+            col = {}
+            for j = 0, rows do
+                local r = MulDivRound(radius, j, rows)
+                col[j] = terrain.GetHeight(px + MulDivRound(ux[i], r, 4096), py + MulDivRound(uy[i], r, 4096)) - ground
+            end
+            job.hz[i] = col
+        end
+        return col
+    end
     local start = GetPreciseTicks()
     while job.build_col < n and GetPreciseTicks() - start < RAT_SHADE_LOS_BUDGET do
         local i = job.build_col
         local i2 = i + 1
         local ka, kb = job.keep[i], job.keep[i2 % n]
+        local za, zb = column_z(i), column_z(i2)
         job.edge[i] = MulDivRound(alpha, ka[rows], 1000)
         for j = 0, rows - 1 do
             local a1, a2, b1, b2 = ka[j], ka[j + 1], kb[j], kb[j + 1]
@@ -450,8 +464,9 @@ local function LosBuildStep(job, alpha, cr, cg, cb)
                 local c2 = RGBA(cr, cg, cb, MulDivRound(alpha, a2, 1000))
                 local c3 = RGBA(cr, cg, cb, MulDivRound(alpha, b2, 1000))
                 local c4 = RGBA(cr, cg, cb, MulDivRound(alpha, b1, 1000))
-                s:AppendVertex(x1, y1, 0, c1) s:AppendVertex(x2, y2, 0, c2) s:AppendVertex(x3, y3, 0, c3)
-                s:AppendVertex(x1, y1, 0, c1) s:AppendVertex(x3, y3, 0, c3) s:AppendVertex(x4, y4, 0, c4)
+                local z1, z2, z3, z4 = za[j], za[j + 1], zb[j + 1], zb[j]
+                s:AppendVertex(x1, y1, z1, c1) s:AppendVertex(x2, y2, z2, c2) s:AppendVertex(x3, y3, z3, c3)
+                s:AppendVertex(x1, y1, z1, c1) s:AppendVertex(x3, y3, z3, c3) s:AppendVertex(x4, y4, z4, c4)
             end
         end
         job.build_col = i2
@@ -463,6 +478,8 @@ end
 ---- Ring from the radius outwards: fades in over RAT_NIGHT_SHADE_FADE, holed in the fine band.
 ---- Columns without a hole skip the fine rows: one quad from the end of the fade to the far edge.
 ---- With a built `los` job the fade starts from the grid's edge shade, so blocked columns stay dark.
+---- Draped on the terrain, relative to center:z() (the ground under the merc): an upper floor
+---- would leave a flat ring floating. The far row stays at that height.
 local function ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb, los)
     local n = RAT_NIGHT_SHADE_SEGMENTS
     local step = RAT_NIGHT_SHADE_STEP
@@ -472,10 +489,10 @@ local function ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb, los)
     local fade_rows = (fade + step - 1) / step
     local circle = UnitCircle()
     local ux, uy = circle.x, circle.y
-    local cx, cy = center:x(), center:y()
+    local cx, cy, ground = center:x(), center:y(), center:z()
     local s = pstr("", n * (rings + 2) * 6 * 20)
     local los_edge = los and IsCloser2D(center, los.pos, guim) and los.edge
-    local px, py, pa = {}, {}, {}
+    local px, py, pz, pa = {}, {}, {}, {}
     for k = 0, rings + 1 do
         local r = k <= rings and radius + k * step or radius + RAT_NIGHT_SHADE_FINE + RAT_NIGHT_SHADE_REACH
         local edge = Clamp(MulDivRound(r - radius, 1000, fade), 0, 1000)
@@ -483,12 +500,13 @@ local function ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb, los)
         local ring_color = RGBA(cr, cg, cb, ring_alpha)
         local fine = k > fade_rows and k <= rings
         local can_hole = k <= rings and edge > 0
-        local row_x, row_y, row_a = {}, {}, {}
+        local row_x, row_y, row_z, row_a = {}, {}, {}, {}
         for i = 0, n do
             local holed = cols[i % n] or cols[(i - 1) % n]
             if holed or not fine then
                 local x, y = MulDivRound(ux[i], r, 4096), MulDivRound(uy[i], r, 4096)
                 row_x[i], row_y[i] = x, y
+                row_z[i] = k <= rings and terrain.GetHeight(cx + x, cy + y) - ground or 0
                 local keep = (can_hole and holed) and HoleKeep(near, cx + x, cy + y) or 1000
                 local base = los_edge and Max(ring_alpha, los_edge[i % n]) or ring_alpha
                 if base == ring_alpha and keep == 1000 then
@@ -498,14 +516,14 @@ local function ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb, los)
                 end
             end
         end
-        px[k], py[k], pa[k] = row_x, row_y, row_a
+        px[k], py[k], pz[k], pa[k] = row_x, row_y, row_z, row_a
     end
     local function quad(k1, k2, i, j)
-        local ax, ay, aa, bx, by, ba = px[k1], py[k1], pa[k1], px[k2], py[k2], pa[k2]
-        s:AppendVertex(ax[i], ay[i], 0, aa[i]) s:AppendVertex(bx[i], by[i], 0, ba[i])
-        s:AppendVertex(bx[j], by[j], 0, ba[j])
-        s:AppendVertex(ax[i], ay[i], 0, aa[i]) s:AppendVertex(bx[j], by[j], 0, ba[j])
-        s:AppendVertex(ax[j], ay[j], 0, aa[j])
+        local ax, ay, az, aa, bx, by, bz, ba = px[k1], py[k1], pz[k1], pa[k1], px[k2], py[k2], pz[k2], pa[k2]
+        s:AppendVertex(ax[i], ay[i], az[i], aa[i]) s:AppendVertex(bx[i], by[i], bz[i], ba[i])
+        s:AppendVertex(bx[j], by[j], bz[j], ba[j])
+        s:AppendVertex(ax[i], ay[i], az[i], aa[i]) s:AppendVertex(bx[j], by[j], bz[j], ba[j])
+        s:AppendVertex(ax[j], ay[j], az[j], aa[j])
     end
     for i = 0, n - 1 do
         local j = i + 1
@@ -691,14 +709,14 @@ local function SquadDiscUpdate()
     local cr, cg, cb = ShadeTint()
     ---- by day holes only matter near the edge; at night lit spots in the fine band do too
     local pad = night and RAT_NIGHT_SHADE_FINE or RAT_NIGHT_SHADE_FADE + RAT_NIGHT_SQUAD_CELL
-    local discs, cx, cy, z = {}, 0, 0, 0
+    local discs, cx, cy = {}, 0, 0
     local sig = alpha + (night and 17 or 0) + (cr * 65536 + cg * 256 + cb) * 19
     for _, x in ipairs(g_Units) do
         if x:IsLocalPlayerTeam() and not x:IsDead() and x:IsValidPos() then
             local p, r = x:GetVisualPos(), Rat_ShadeSightRadius(x)
             local rf = r + RAT_NIGHT_SHADE_FADE
             discs[#discs + 1] = {p:x(), p:y(), r, r * r, rf * rf, p}
-            cx, cy, z = cx + p:x(), cy + p:y(), z + p:z()
+            cx, cy = cx + p:x(), cy + p:y()
             sig = sig + r * 7 + p:x() / (guim / 2) * 3 + p:y() / (guim / 2) * 5
         end
     end
@@ -730,7 +748,8 @@ local function SquadDiscUpdate()
             end
         end
     end
-    local center = point(cx / #discs, cy / #discs, z / #discs + 20)
+    cx, cy = cx / #discs, cy / #discs
+    local center = point(cx, cy, terrain.GetHeight(cx, cy) + 20)
     disc_mesh:SetMesh(SquadMesh(discs, units, center, pad, alpha, cr, cg, cb))
     disc_mesh:SetPos(center)
 end
@@ -783,7 +802,7 @@ function Rat_NightDiscUpdate()
         if grid_mesh.rat_job ~= los or grid_mesh.rat_color ~= los.color_key then
             grid_mesh.rat_job, grid_mesh.rat_color = los, los.color_key
             grid_mesh:SetMesh(los.s)
-            grid_mesh:SetPos(los.pos:SetZ(los.z + 20))
+            grid_mesh:SetPos(los.pos:SetZ(los.ground + 20))
         end
     elseif IsValid(grid_mesh) then
         DoneObject(grid_mesh)
@@ -811,6 +830,7 @@ function Rat_NightDiscUpdate()
             AddHole(near, p:x(), p:y(), RAT_NIGHT_HOLE_UNIT)
         end
     end
+    center = center:SetZ(terrain.GetHeight(center:x(), center:y()))
     disc_mesh:SetMesh(ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb, los))
     disc_mesh:SetPos(center + point(0, 0, 20))
 end
