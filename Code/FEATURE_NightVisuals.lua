@@ -31,6 +31,10 @@ RAT_SHADE_LOS_BATCH = 4
 ---- LOS shadow kept off the merc: drawn without depth, a blocked tile behind him darkens his model.
 ---- Clear radius grows by his height above the terrain (an upper floor projects farther back).
 RAT_SHADE_GRACE = {clear = 12 * guim / 10, fade = 12 * guim / 10}
+---- LOS grid is depth tested so terrain hides it from the camera; lifted to stay over low clutter
+RAT_SHADE_LOS_LIFT = 100 * guic
+---- A grid cell spanning more than this lays its high corners on the low ground: no sheet over cliff faces
+RAT_SHADE_LOS_DROP = 150 * guic
 ---- Enemy turn: the shade clears what the whole squad sees; fine cell size, fine cells per block side
 RAT_NIGHT_SQUAD_CELL = 2 * guim
 RAT_NIGHT_SQUAD_BLOCK = 4
@@ -159,11 +163,11 @@ function Rat_NightDiscRemove()
     disc_key = false
 end
 
-local function NewShadeMesh()
+local function NewShadeMesh(depth)
     local m = PlaceObject("Mesh")
     m.rat_night_shade = true
-    ---- no depth test: a flat ring at the merc's feet must still shade walls, roofs and canopies
-    m:SetShader(ProceduralMeshShaders.default_mesh, false)
+    ---- the ring has no depth test: a flat ring at the merc's feet must still shade walls, roofs and canopies
+    m:SetShader(ProceduralMeshShaders.default_mesh, depth or false)
     return m
 end
 
@@ -478,6 +482,11 @@ local function LosBuildStep(job, alpha, cr, cg, cb)
                 local c3 = RGBA(cr, cg, cb, MulDivRound(alpha, b2, 1000))
                 local c4 = RGBA(cr, cg, cb, MulDivRound(alpha, b1, 1000))
                 local z1, z2, z3, z4 = za[j], za[j + 1], zb[j + 1], zb[j]
+                local zlow = Min(Min(z1, z2), Min(z3, z4))
+                if Max(Max(z1, z2), Max(z3, z4)) - zlow > RAT_SHADE_LOS_DROP then
+                    local top = zlow + RAT_SHADE_LOS_DROP
+                    z1, z2, z3, z4 = z1 > top and zlow or z1, z2 > top and zlow or z2, z3 > top and zlow or z3, z4 > top and zlow or z4
+                end
                 s:AppendVertex(x1, y1, z1, c1) s:AppendVertex(x2, y2, z2, c2) s:AppendVertex(x3, y3, z3, c3)
                 s:AppendVertex(x1, y1, z1, c1) s:AppendVertex(x3, y3, z3, c3) s:AppendVertex(x4, y4, z4, c4)
             end
@@ -815,12 +824,12 @@ function Rat_NightDiscUpdate()
     EnsureDiscMesh(false)
     if los then
         if not IsValid(grid_mesh) then
-            grid_mesh = NewShadeMesh()
+            grid_mesh = NewShadeMesh(true)
         end
         if grid_mesh.rat_job ~= los or grid_mesh.rat_color ~= los.color_key then
             grid_mesh.rat_job, grid_mesh.rat_color = los, los.color_key
             grid_mesh:SetMesh(los.s)
-            grid_mesh:SetPos(los.pos:SetZ(los.ground + 20))
+            grid_mesh:SetPos(los.pos:SetZ(los.ground + RAT_SHADE_LOS_LIFT))
         end
     elseif IsValid(grid_mesh) then
         DoneObject(grid_mesh)
@@ -854,7 +863,8 @@ function Rat_NightDiscUpdate()
     end
     center = center:SetZ(terrain.GetHeight(center:x(), center:y()))
     disc_mesh:SetMesh(ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb, los))
-    disc_mesh:SetPos(center + point(0, 0, 20))
+    ---- at the grid's height, or the two edges miss each other on screen
+    disc_mesh:SetPos(center + point(0, 0, los and RAT_SHADE_LOS_LIFT or 20))
 end
 
 ---- FX lights (flares) get their stealth twin at runtime without LightsStateUpdated
