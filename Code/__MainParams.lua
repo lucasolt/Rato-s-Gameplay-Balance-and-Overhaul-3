@@ -42,6 +42,10 @@ const.Combat.MGSetupConeFlat = 180 --- addition (minutes)
 const.Combat.OWMinDelta = 20
 const.Combat.OWMaxDelta = -10
 const.Combat.OWMinCTH = 6 -- aCTH: overwatch holds fire below this and waits for a better tile
+---- Far-range interrupt bonus: 0 at Start tiles, ramps to Max points (x Reflexes/100) at Full tiles
+const.Combat.OWRangeBonusStart = 8
+const.Combat.OWRangeBonusFull = 24
+const.Combat.OWRangeBonusMax = 20
 ---- Reflexes scaling of the OW modifier (old CTH also uses it for Aim and Point Blank)
 const.Combat.R_MinAimScaling = 10
 const.Combat.R_MaxAimScaling = 100

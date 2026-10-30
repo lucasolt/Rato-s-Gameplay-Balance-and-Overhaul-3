@@ -47,6 +47,15 @@ function ow_cth()
         value = cRound(value * scale_factor * const.Combat.R_OWMul / 100)
         value = value + base_value
 
+        ---- far targets give the watcher time to settle: linear in Reflexes, outside scale_factor
+        if attacker_pos and target_pos then
+            local c = const.Combat
+            local tiles = attacker_pos:Dist(target_pos) / const.SlabSizeX
+            local ramp = Clamp(MulDivRound(tiles - c.OWRangeBonusStart, 100,
+                                           Max(1, c.OWRangeBonusFull - c.OWRangeBonusStart)), 0, 100)
+            value = value + MulDivRound(c.OWRangeBonusMax * ramp, reflex * c.R_OWMul, 1000000)
+        end
+
         local side = attacker and attacker.team and attacker.team.side or ''
         if value and value < 0 then
             if not (side == 'player1' or side == 'player2') then
