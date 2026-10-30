@@ -99,7 +99,7 @@ const.Combat.ConditionPenaltyPoor = 20
 ----- Environment
 const.EnvEffects.RainAimingMultiplier = 0 --- %
 const.EnvEffects.RainConditionLossMod = 75
-const.EnvEffects.FogSightMod = -40
+const.EnvEffects.FogSightMod = -60 -- -40
 const.EnvEffects.FogGrazeChance = 0-- 25
 const.EnvEffects.FireStormSightMod = -20
 const.EnvEffects.DustStormSightMod = -35
