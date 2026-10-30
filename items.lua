@@ -2900,7 +2900,6 @@ return {
 		ModificationDifficulty = 0,
 		ModificationEffects = {
 			"IncreaseRPMMul",
-			"recoil_booster_effect",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
@@ -3011,7 +3010,6 @@ return {
 		ModificationEffects = {
 			"IncreaseRPMMul",
 			"IncreaseReliability",
-			"recoil_booster_effect",
 		},
 		Parameters = {
 			PlaceObj('PresetParamNumber', {
