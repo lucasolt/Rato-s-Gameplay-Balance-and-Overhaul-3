@@ -511,6 +511,56 @@ local function LosBuildStep(job, alpha, cr, cg, cb)
     return job.built
 end
 
+local normals_shown = false
+
+---- Console helper: the normal of each steep shaded grid triangle, green when it faces the camera
+---- (drawn), red when it faces away (culled). Calling it again clears them.
+function Rat_ShadeNormals()
+    DbgClearVectors()
+    normals_shown = not normals_shown
+    local job = los_shown
+    if not normals_shown or not (job and job.built) then
+        return
+    end
+    local eye = GetCamera()
+    local n, rows, radius = RAT_NIGHT_SHADE_SEGMENTS, job.rows, job.radius
+    local circle = UnitCircle()
+    local px, py, base = job.pos:x(), job.pos:y(), job.ground + 20
+    local function vtx(i, j, z)
+        local r = MulDivRound(radius, j, rows)
+        return point(px + MulDivRound(circle.x[i], r, 4096), py + MulDivRound(circle.y[i], r, 4096), base + z)
+    end
+    local function tri(a, b, c)
+        local u, v = b - a, c - a
+        ---- scaled down so point():Len() stays in range
+        local nx = (u:y() * v:z() - u:z() * v:y()) / 1000
+        local ny = (u:z() * v:x() - u:x() * v:z()) / 1000
+        local nz = (u:x() * v:y() - u:y() * v:x()) / 1000
+        local len = point(nx, ny, nz):Len()
+        if len == 0 or abs(nz) * 2 > len then
+            return
+        end
+        local vec = point(MulDivRound(nx, 2 * guim, len), MulDivRound(ny, 2 * guim, len), MulDivRound(nz, 2 * guim, len))
+        local mid = point((a:x() + b:x() + c:x()) / 3, (a:y() + b:y() + c:y()) / 3, (a:z() + b:z() + c:z()) / 3)
+        local e = eye - mid
+        local facing = vec:x() * (e:x() / 100) + vec:y() * (e:y() / 100) + vec:z() * (e:z() / 100) > 0
+        DbgAddVector(mid, vec, facing and const.clrGreen or const.clrRed)
+    end
+    for i = 0, n - 1 do
+        local i2 = i + 1
+        local za, zb, ka, kb = job.hz[i], job.hz[i2], job.keep[i], job.keep[i2 % n]
+        if za and zb and ka and kb then
+            for j = 0, rows - 1 do
+                if ka[j] + ka[j + 1] + kb[j] + kb[j + 1] > 0 then
+                    local p1, p2, p3, p4 = vtx(i, j, za[j]), vtx(i, j + 1, za[j + 1]), vtx(i2, j + 1, zb[j + 1]), vtx(i2, j, zb[j])
+                    tri(p1, p2, p3)
+                    tri(p1, p3, p4)
+                end
+            end
+        end
+    end
+end
+
 ---- Ring from the radius outwards: fades in over RAT_NIGHT_SHADE_FADE, holed in the fine band.
 ---- Columns without a hole skip the fine rows: one quad from the end of the fade to the far edge.
 ---- With a built `los` job the fade starts from the grid's edge shade, so blocked columns stay dark.
