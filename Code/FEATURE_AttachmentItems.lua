@@ -32,7 +32,8 @@ RAT_ATT_SLOTS = {
 ---- Fitting an optic you already own is the same job whatever the optic is: one skill gate, one
 ---- parts bill. Applied by hooking the two readers, never by writing to the component presets --
 ---- the editor saves live preset values back into whichever mod owns them.
-RAT_ATT_DIFFICULTY = -10 -- Easy, per const.WeaponModDifficultyPresets
+RAT_ATT_DIFFICULTY = -25 -- Trivial, per const.WeaponModDifficultyPresets; success is Mechanical + 25 %
+RAT_ATT_FAMILY_DIFFICULTY = {grenadelauncher = -10} -- real fitting work keeps Easy
 RAT_ATT_PARTS = 5
 RAT_ATT_OLD = {} -- component id -> {cost, difficulty} the preset still declares
 
@@ -1786,8 +1787,9 @@ function ModifyWeaponDlg:GetModificationDifficultyParams(componentToChangePreset
         return skill, mostSkilled, difficulty, allowed
     end
     if item then
-        local fee = RAT_ATT_STOCK_FEES[RAT_ATT_FAMILY_OF[componentToChangePreset.id]]
-        difficulty = fee and fee.difficulty or RAT_ATT_DIFFICULTY
+        local family = RAT_ATT_FAMILY_OF[componentToChangePreset.id]
+        local fee = RAT_ATT_STOCK_FEES[family]
+        difficulty = fee and fee.difficulty or RAT_ATT_FAMILY_DIFFICULTY[family] or RAT_ATT_DIFFICULTY
     end
     difficulty = difficulty + (fit and fit.difficulty or 0)
     return skill, mostSkilled, difficulty, (skill - difficulty > 10)
