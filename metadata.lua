@@ -217,6 +217,7 @@ return PlaceObj('ModDef', {
 		"Code/FEATURE_WeaponFlashlight.lua",
 		"Code/FEATURE_TracerFX.lua",
 		"Code/FEATURE_StealthDetection.lua",
+		"Code/DEBUG_EnemySight.lua",
 		"Code/WIKI_HelpPages.lua",
 		"InventoryItem/M14SAW_AUTO.lua",
 	},

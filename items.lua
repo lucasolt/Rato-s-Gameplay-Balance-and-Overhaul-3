@@ -1915,6 +1915,10 @@ return {
 			'CodeFileName', "Code/FEATURE_StealthDetection.lua",
 		}),
 		PlaceObj('ModItemCode', {
+			'name', "DEBUG_EnemySight",
+			'CodeFileName', "Code/DEBUG_EnemySight.lua",
+		}),
+		PlaceObj('ModItemCode', {
 			'name', "WIKI_HelpPages",
 			'CodeFileName', "Code/WIKI_HelpPages.lua",
 		}),
