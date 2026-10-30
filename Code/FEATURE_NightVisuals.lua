@@ -25,7 +25,7 @@ RAT_NIGHT_SHADE_TINTS = {
     {state = "Fog", r = 190, g = 195, b = 200},
 }
 RAT_NIGHT_SHADE_TINT_NIGHT_PCT = 35
----- SightShadeLOS: ms of CheckLOS per tick (~30 us per cell, one call can't be split), and columns per call
+---- SightShadeLOSMode: ms of CheckLOS per tick (~30 us per cell, one call can't be split), and columns per call
 RAT_SHADE_LOS_BUDGET = 8
 RAT_SHADE_LOS_BATCH = 4
 ---- LOS shadow kept off the merc: drawn without depth, a blocked tile behind him darkens his model.
@@ -95,7 +95,7 @@ function Rat_ShadeLitRadius(unit)
 end
 
 local disc_mesh = false
----- SightShadeLOS grid, its own mesh
+---- SightShadeLOSMode grid, its own mesh
 local grid_mesh = false
 local disc_key = false
 local disc_built_at = 0
@@ -347,7 +347,7 @@ local function HoleKeep(near, x, y)
 end
 
 ---------------------------------------------------------------------------------------------------
----- Line of sight inside the radius (SightShadeLOS). Vegetation never blocks sight in JA3 (grass only
+---- Line of sight inside the radius (SightShadeLOSMode). Vegetation never blocks sight in JA3 (grass only
 ---- shortens the range to a target standing in it), so CheckLOS alone matches what the merc sees.
 ---- One cell per tile along each column, filled a few columns per tick. A walking merc changes tile
 ---- faster than a job ends, so a job always runs out and the last built one stays drawn in place.
@@ -361,8 +361,19 @@ function OnMsg.NewMapLoaded()
 end
 
 ---- combat only
+---- SightShadeLOSMode: "Off", "Flat" (shade never below the merc's ground) or "Drape" (follows every drop)
+local function LosMode()
+    return CurrentModOptions and CurrentModOptions.SightShadeLOSMode or "Flat"
+end
+
 local function LosEnabled()
-    return g_Combat and CurrentModOptions and CurrentModOptions.SightShadeLOS
+    return g_Combat and LosMode() ~= "Off"
+end
+
+---- Lowest height the shade drapes to, relative to the merc's ground: flat over lower ground drops the
+---- sheets over cliff faces and keeps hidden ground from painting over the lip
+local function DrapeFloor()
+    return LosMode() == "Drape" and min_int or 0
 end
 
 ---- Shade kept 0..1000 per CheckLOS value: none, partial (1), full (2); partial still sees a unit there
@@ -446,14 +457,14 @@ local function LosBuildStep(job, alpha, cr, cg, cb)
     local ux, uy = circle.x, circle.y
     local s = job.s
     local px, py, ground = job.pos:x(), job.pos:y(), job.ground
+    local floor = DrapeFloor()
     local function column_z(i)
         local col = job.hz[i]
         if not col then
             col = {}
             for j = 0, rows do
                 local r = MulDivRound(radius, j, rows)
-                ---- flat at the merc's level over lower ground: no sheet over drops, no shade on the lip
-                col[j] = Max(0, terrain.GetHeight(px + MulDivRound(ux[i], r, 4096), py + MulDivRound(uy[i], r, 4096)) - ground)
+                col[j] = Max(floor, terrain.GetHeight(px + MulDivRound(ux[i], r, 4096), py + MulDivRound(uy[i], r, 4096)) - ground)
             end
             job.hz[i] = col
         end
@@ -506,6 +517,7 @@ local function ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb, los)
     local cx, cy, ground = center:x(), center:y(), center:z()
     local s = pstr("", n * (rings + 2) * 6 * 20)
     local los_edge = los and IsCloser2D(center, los.pos, guim) and los.edge
+    local floor = DrapeFloor()
     local px, py, pz, pa = {}, {}, {}, {}
     for k = 0, rings + 1 do
         local r = k <= rings and radius + k * step or radius + RAT_NIGHT_SHADE_FINE + RAT_NIGHT_SHADE_REACH
@@ -520,7 +532,7 @@ local function ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb, los)
             if holed or not fine then
                 local x, y = MulDivRound(ux[i], r, 4096), MulDivRound(uy[i], r, 4096)
                 row_x[i], row_y[i] = x, y
-                row_z[i] = k <= rings and Max(0, terrain.GetHeight(cx + x, cy + y) - ground) or 0
+                row_z[i] = k <= rings and Max(floor, terrain.GetHeight(cx + x, cy + y) - ground) or 0
                 local keep = (can_hole and holed) and HoleKeep(near, cx + x, cy + y) or 1000
                 local base = los_edge and Max(ring_alpha, los_edge[i % n]) or ring_alpha
                 if base == ring_alpha and keep == 1000 then
@@ -876,4 +888,6 @@ function OnMsg.ApplyModOptions(id)
     end
     Rat_ReapplyNightLightmodel()
     Rat_NightDiscRemove()
+    ---- the grid caches heights per job: a new LOS mode needs a fresh one
+    los_job, los_shown = false, false
 end

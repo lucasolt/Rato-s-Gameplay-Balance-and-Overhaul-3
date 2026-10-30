@@ -2113,12 +2113,17 @@ return {
 			'DefaultValue', 90,
 			'StepSize', 5,
 		}),
-		PlaceObj('ModItemOptionToggle', {
-			'name', "SightShadeLOS",
+		PlaceObj('ModItemOptionChoice', {
+			'name', "SightShadeLOSMode",
 			'NameColor', RGBA(20, 110, 40, 255),
 			'DisplayName', "<color AmmoMatchColor>[Visual] Sight Shade: Line of Sight</color>",
-			'Help', "Experimental. Inside the sight range, the shade also covers what the selected merc has no line of sight to (walls, buildings, terrain). Only during combat.\n\nFills in shortly after the merc stops moving (about 0.2 s at night, 1-2 s by day).\n\nVisual only: no effect on gameplay.",
-			'DefaultValue', true,
+			'Help', "Experimental. Inside the sight range, the shade also covers what the selected merc has no line of sight to (walls, buildings, terrain). Only during combat.\n\nFills in shortly after the merc stops moving (about 0.2 s at night, 1-2 s by day).\n\nOff: no line of sight shade.\n\nFlat (default): the shade follows the ground up hills but stays at the merc's level over lower ground, so cliffs below stay clean.\n\nDrape: the shade follows every drop. Closer to the ground in pits, but cliff faces get dark streaks.\n\nVisual only: no effect on gameplay.",
+			'DefaultValue', "Flat",
+			'ChoiceList', {
+				"Off",
+				"Flat",
+				"Drape",
+			},
 		}),
 		PlaceObj('ModItemOptionToggle', {
 			'name', "NoRevealMemory",

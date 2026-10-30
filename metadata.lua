@@ -243,7 +243,7 @@ return PlaceObj('ModDef', {
 		RecoilVReticle = true,
 		RecoilWindowView = "Bars",
 		SightShade = 75,
-		SightShadeLOS = true,
+		SightShadeLOSMode = "Flat",
 		UnawareSightRange = 14,
 		VanillaFreeMoveBonus = 0,
 		WeatherShade = 90,
