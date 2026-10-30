@@ -28,6 +28,9 @@ RAT_NIGHT_SHADE_TINT_NIGHT_PCT = 35
 ---- SightShadeLOS: ms of CheckLOS per tick (~30 us per cell, one call can't be split), and columns per call
 RAT_SHADE_LOS_BUDGET = 8
 RAT_SHADE_LOS_BATCH = 4
+---- LOS shadow kept off the merc: drawn without depth, a blocked tile behind him darkens his model.
+---- Clear radius grows by his height above the terrain (an upper floor projects farther back).
+RAT_SHADE_GRACE = {clear = 12 * guim / 10, fade = 12 * guim / 10}
 ---- Enemy turn: the shade clears what the whole squad sees; fine cell size, fine cells per block side
 RAT_NIGHT_SQUAD_CELL = 2 * guim
 RAT_NIGHT_SQUAD_BLOCK = 4
@@ -366,8 +369,10 @@ local function LosStep(u, radius)
     local pos, stance = u:GetPos(), u.stance
     local job = los_job
     if not job or job.unit ~= u or job.built and (job.pos ~= pos or job.stance ~= stance or job.radius ~= radius) then
-        job = {unit = u, pos = pos, ground = terrain.GetHeight(pos:x(), pos:y()), stance = stance, radius = radius,
-               rows = Max(1, radius / const.SlabSizeX), keep = {}, col = 0}
+        local ground = terrain.GetHeight(pos:x(), pos:y())
+        job = {unit = u, pos = pos, ground = ground, stance = stance, radius = radius,
+               rows = Max(1, radius / const.SlabSizeX), keep = {}, col = 0,
+               grace = RAT_SHADE_GRACE.clear + Max(0, u:GetVisualPos():z() - ground)}
         los_job = job
     end
     if job.done then
@@ -391,7 +396,12 @@ local function LosStep(u, radius)
             local col = {[0] = 0}
             for j = 1, job.rows do
                 k = k + 1
-                col[j] = LOS_KEEP[vals[k]] or 1000
+                local keep = LOS_KEEP[vals[k]] or 1000
+                local d = MulDivRound(radius, j, job.rows) - job.grace
+                if keep > 0 and d < RAT_SHADE_GRACE.fade then
+                    keep = Min(keep, d <= 0 and 0 or MulDivRound(d, 1000, RAT_SHADE_GRACE.fade))
+                end
+                col[j] = keep
             end
             job.keep[i] = col
         end
