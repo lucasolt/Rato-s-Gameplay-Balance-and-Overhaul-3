@@ -111,7 +111,7 @@ const.EnvEffects.FireStormSightMod = 0 -- -20
 const.EnvEffects.DustStormSightMod = 0 -- -35
 const.EnvEffects.FogSightReduction = 60 --- %
 const.EnvEffects.DustStormSightReduction = 50 --- %
-const.EnvEffects.FireStormSightReduction = 20 --- %
+const.EnvEffects.FireStormSightReduction = 35 --- % -- 20
 ---- the graze is replaced by a CTH penalty (CTH_smoke.lua place_obscured_cth)
 const.EnvEffects.FogGrazeChance = 0-- 25
 const.EnvEffects.DustStormGrazeChance = 0
