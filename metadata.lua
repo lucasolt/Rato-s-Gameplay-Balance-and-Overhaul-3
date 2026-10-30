@@ -145,6 +145,7 @@ return PlaceObj('ModDef', {
 		"Code/REACTIONS_ShootingStance.lua",
 		"Code/SOURCE_APScale_vanilla.lua",
 		"Code/SOURCE_UnitRunAndGun.lua",
+		"Code/FIX_HyenaChargeAP.lua",
 		"Code/SOURCE_UnitCalcChanceToHit.lua",
 		"Code/SOURCE_Unit_EnterCombat.lua",
 		"Code/SOURCE_UnitActions_WaitAttack.lua",

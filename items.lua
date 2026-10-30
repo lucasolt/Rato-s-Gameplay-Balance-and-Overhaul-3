@@ -1607,6 +1607,10 @@ return {
 		'CodeFileName', "Code/SOURCE_UnitRunAndGun.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "FIX_HyenaChargeAP",
+		'CodeFileName', "Code/FIX_HyenaChargeAP.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "SOURCE_UnitCalcChanceToHit",
 		'CodeFileName', "Code/SOURCE_UnitCalcChanceToHit.lua",
 	}),
