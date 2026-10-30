@@ -2102,7 +2102,7 @@ return {
 			'NameColor', RGBA(20, 110, 40, 255),
 			'DisplayName', "<color AmmoMatchColor>[Visual] Sight Shade %</color>",
 			'Help', "Fog of war: the map gets darker past how far the selected merc sees. At night that is an enemy standing in the dark, and lit spots and lit enemies show through. By day, enemies your squad sees show through. In fog and storms, Weather Shade sets the strength instead.\n\nHow strong the shade is; 0 = off, 100 = solid. GBO default <default>.\n\nVisual only: no effect on gameplay.",
-			'DefaultValue', 90,
+			'DefaultValue', 75,
 			'StepSize', 5,
 		}),
 		PlaceObj('ModItemOptionNumber', {
@@ -2117,7 +2117,8 @@ return {
 			'name', "SightShadeLOS",
 			'NameColor', RGBA(20, 110, 40, 255),
 			'DisplayName', "<color AmmoMatchColor>[Visual] Sight Shade: Line of Sight</color>",
-			'Help', "Experimental. Inside the sight range, the shade also covers what the selected merc has no line of sight to (walls, buildings, terrain). Bushes and grass never block sight in JA3, so they stay clear. Only during combat.\n\nFills in shortly after the merc stops moving (about 0.2 s at night, 1-2 s by day).\n\nVisual only: no effect on gameplay.",
+			'Help', "Experimental. Inside the sight range, the shade also covers what the selected merc has no line of sight to (walls, buildings, terrain). Only during combat.\n\nFills in shortly after the merc stops moving (about 0.2 s at night, 1-2 s by day).\n\nVisual only: no effect on gameplay.",
+			'DefaultValue', true,
 		}),
 		PlaceObj('ModItemOptionToggle', {
 			'name', "NoRevealMemory",

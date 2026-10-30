@@ -5,7 +5,7 @@ return PlaceObj('ModDef', {
 	'external_links', {
 		"https://www.buymeacoffee.com/rato_modder",
 	},
-	'last_changes', "4.05\n\n-- Recoil simulation refactored\nbefore, every round of a burst rolled the full cone again, so a gun's accuracy and your aiming mattered as much as (often more than) recoil control. Now the first round's aim error carries through the whole string, and recoil (kick, Strength, control) decides how far the rest drift from it.\n\nWalking fire: once your merc sees the impacts (sooner with tracers, later on fast-firing guns), they walk the fire onto the target. Good recoil control and long strings now pay off, especially on MGs.\n\na short burst with full aim lives or dies on the first round, so it favours high Marksmanship and Dexterity. A long burst corrects toward the target (if your merc can handle the kick) from about round 4 (later on high-RPM guns, earlier with tracers), so it favours high Strength and Marksmanship, low-kick guns and bipods. Short aimed bursts suit precise mercs; long bursts suit strong mercs who control recoil.\n\nPersistant recoil impact on aim ap now is granular (no longer only 5 step changes)\n\n-- Night and weather\nNights are darker (new option: Night Darkness).\nThe map darkens past the selected merc's sight range, at night and by day. Lit spots and lit enemies still show through at night (new option: Sight Shade). Fog, dust storms and firestorms tint it.\n\nThere is also a FoW that obscure areas where the selected merc's sight is obstructed - only in combat. it is off by default, but you can enable it\n\nFlares light aoe increased\nAiming at targets in the dark: penalty reduced from -30 to -10. Night is now mostly about sight.\nHeavy rain now cuts every weapon's aim gain by the same 20%. Before, it nearly erased aiming on pistols.\nFlashlight now can be toggled on and off, and will cast a light beam that dynamically illuminates the area. Shooting stance casts the beam in the direction chosen, so a merc can use his flashlight to lit a target for his teammate,\nTracer rounds now have a visual effect\nSight ranges have been changed.\nA bug that caused night to not reduce suspicion meter was fixed\nChanged some interaction between unware sight range and night sight range \nFixed a bug in Revised Mags II that applied weather penalty to sight twice\n\n-- Grizzly (Off the Hip)\nAlways fired from the hip, with a greatly reduced Hipfire penalty.\nChoose how many rounds to fire, like MG Autofire.\nOnce per combat.\nShows in the crosshair as a firing mode while available (Kalyna's and Reaper's signature shots too [and Distracting shot]).\n\n-- Other \nJam chances have been tuned. Now a weapon can jam in the mid of a burst\nFix some handguns having no text about free swap\nAdded suppressors in the list of components for the SKS and Type56 (m70 wasnt included because it can bug the muzzle grenade)\nHP ammo now has 10% base crit chance, 30% extra crit damage\nWeapon balance\nMG held penalties and bipod recoil bonus now only apply if you are prone and in shooting stance (will not apply to hipshots aim = 0)\nDistracting shot now only costs single shot + 10AP\nOverwatch is more accurate against distant targets, more so with long-range weapons, scopes and high Reflexes",
+	'last_changes', "4.05\n\n-- Recoil simulation refactored\nbefore, every round of a burst rolled the full cone again, so a gun's accuracy and your aiming mattered as much as (often more than) recoil control. Now the first round's aim error carries through the whole string, and recoil (kick, Strength, control) decides how far the rest drift from it.\n\nWalking fire: once your merc sees the impacts (sooner with tracers, later on fast-firing guns), they walk the fire onto the target. Good recoil control and long strings now pay off, especially on MGs.\n\na short burst with full aim lives or dies on the first round, so it favours high Marksmanship and Dexterity. A long burst corrects toward the target (if your merc can handle the kick) from about round 4 (later on high-RPM guns, earlier with tracers), so it favours high Strength and Marksmanship, low-kick guns and bipods. Short aimed bursts suit precise mercs; long bursts suit strong mercs who control recoil.\n\nPersistant recoil impact on aim ap now is granular (no longer only 5 step changes)\n\n-- Night and weather\nNights are darker (new option: Night Darkness).\nThe map darkens past the selected merc's sight range, at night and by day. Lit spots and lit enemies still show through at night (new option: Sight Shade). Fog, dust storms and firestorms tint it.\n\nThere is also a FoW that obscure areas where the selected merc's sight is obstructed - only in combat. it is off by default, but you can enable it\n\nFlares light aoe increased\nAiming at targets in the dark: penalty reduced from -30 to -10. Night is now mostly about sight.\nHeavy rain now cuts every weapon's aim gain by the same 20%. Before, it nearly erased aiming on pistols.\nFlashlight now can be toggled on and off, and will cast a light beam that dynamically illuminates the area. Shooting stance casts the beam in the direction chosen, so a merc can use his flashlight to lit a target for his teammate,\nTracer rounds now have a visual effect\nSight ranges have been changed.\nA bug that caused night to not reduce suspicion meter was fixed - stealth will be improved\nChanged some interaction between unware sight range and night sight range \nFixed a bug in Revised Mags II that applied weather penalty to sight twice\n\n-- Grizzly (Off the Hip)\nAlways fired from the hip, with a greatly reduced Hipfire penalty.\nChoose how many rounds to fire, like MG Autofire.\nOnce per combat.\nShows in the crosshair as a firing mode while available (Kalyna's and Reaper's signature shots too [and Distracting shot]).\n\n-- Other \nJam chances have been tuned. Now a weapon can jam in the mid of a burst\nFix some handguns having no text about free swap\nAdded suppressors in the list of components for the SKS and Type56 (m70 wasnt included because it can bug the muzzle grenade)\nHP ammo now has 10% base crit chance, 30% extra crit damage\nWeapon balance\nMG held penalties and bipod recoil bonus now only apply if you are prone and in shooting stance (will not apply to hipshots aim = 0)\nDistracting shot now only costs single shot + 10AP\nInterrupt attacks now have less snapshot penalty, \nYou will be able to select a shorter autofire attack if you only have AP for less than 3 shots on auto only weapons\nOW will now only fire if there is a decent CTH\nHand Eye now helps reduce the floor spread of aiming (good mercs get better)\nOverwatch is more accurate against distant targets, more so with long-range weapons, scopes and high Reflexes",
 	'SpellCheck', true,
 	'ignore_files', {
 		"*.git/*",
@@ -37,7 +37,7 @@ return PlaceObj('ModDef', {
 	'author', "rato",
 	'version_major', 4,
 	'version_minor', 5,
-	'version', 13615,
+	'version', 13621,
 	'lua_revision', 233360,
 	'saved_with_revision', 366685,
 	'code', {
@@ -242,16 +242,16 @@ return PlaceObj('ModDef', {
 		RecoilPct = 100,
 		RecoilVReticle = true,
 		RecoilWindowView = "Bars",
-		SightShade = 90,
-		SightShadeLOS = false,
+		SightShade = 75,
+		SightShadeLOS = true,
 		UnawareSightRange = 14,
 		VanillaFreeMoveBonus = 0,
 		WeatherShade = 90,
 		noise_setting_num = 150,
 	},
 	'has_data', true,
-	'saved', 1792992990,
-	'code_hash', 592687712503823553,
+	'saved', 1793318543,
+	'code_hash', 8206739058035813606,
 	'affected_resources', {
 		PlaceObj('ModResourcePreset', {
 			'Class', "XTemplate",

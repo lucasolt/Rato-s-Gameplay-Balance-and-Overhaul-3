@@ -119,7 +119,7 @@ const.EnvEffects.FogCTHPenalty = -10
 const.EnvEffects.DustStormCTHPenalty = -10
 const.EnvEffects.DarknessCTHPenalty = -10 -- -20
 ---- % of the night sight penalty removed; Night Ops + NVG don't stack, the better one applies
-const.EnvEffects.NightOpsSightReduction = 50 -- also written into NightOps' param for the text
+const.EnvEffects.NightOpsSightReduction = 25 -- also written into NightOps' param for the text
 const.EnvEffects.NVGSightReduction = 50
 
 ---------------------------------------------------------------------------------------------------

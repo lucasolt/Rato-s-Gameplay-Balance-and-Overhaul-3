@@ -146,7 +146,7 @@ A.GrizzlyStepReduc = 80
 ---- 45 = 55 x 135/165: holds set-up OW where it was when the MG class snapshot rose 135 -> 165.
 A.MGSetupInterruptStepMul = 45
 ---- Any other interrupt (and the Overwatch preview): % of the snapshot excess kept. 100 = same as a free aim-1 shot.
-A.InterruptStepMul = 100
+A.InterruptStepMul = 75
 ---- Mobile attacks (A.MobileActions): % of each aim level's closing kept. Classic halves their Aim bonus.
 A.MobileActions = {MobileShot = true, RunAndGun = true, RecklessAssault = true}
 A.MobileAimClosePct = 50
