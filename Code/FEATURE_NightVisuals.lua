@@ -28,6 +28,9 @@ RAT_NIGHT_SHADE_TINT_NIGHT_PCT = 35
 ---- SightShadeLOS: ms of CheckLOS per tick (~30 us per cell, one call can't be split), and columns per call
 RAT_SHADE_LOS_BUDGET = 8
 RAT_SHADE_LOS_BATCH = 4
+---- Enemy turn: the shade clears what the whole squad sees; fine cell size, fine cells per block side
+RAT_NIGHT_SQUAD_CELL = 2 * guim
+RAT_NIGHT_SQUAD_BLOCK = 4
 
 function Rat_IsNightLightmodel(lm)
     if not lm or not lm.night then
@@ -132,8 +135,17 @@ local function ShadeTint()
     return t.r, t.g, t.b
 end
 
+local function ShadeHidden()
+    return ShadeAlpha() <= 0 or gv_SatelliteView or IsSetpiecePlaying()
+end
+
+---- the last selected merc means nothing while enemies act
+local function SquadTurn()
+    return g_Combat and g_Teams and not IsNetPlayerTurn()
+end
+
 local function DiscUnit()
-    if ShadeAlpha() <= 0 or gv_SatelliteView or IsSetpiecePlaying() then
+    if ShadeHidden() then
         return
     end
     local u = SelectedObj
@@ -511,7 +523,223 @@ local function ShadeMesh(radius, center, near, cols, alpha, cr, cg, cb, los)
     return s
 end
 
+local disc_squad = false
+
+local function EnsureDiscMesh(squad)
+    if not IsValid(disc_mesh) then
+        if not orphans_swept then
+            orphans_swept = true
+            MapForEach("map", "Mesh", function(o)
+                if o.rat_night_shade then
+                    DoneObject(o)
+                end
+            end)
+        end
+        disc_mesh = NewShadeMesh()
+        disc_key = false
+    end
+    if disc_squad ~= squad then
+        disc_squad, disc_key = squad, false
+    end
+end
+
+---- Positions of the visible units that cut holes; folds them into the signature
+local function HoleUnits(skip, sig)
+    local units = {}
+    for _, x in ipairs(g_Units) do
+        ---- by day IsIlluminated is always true: every visible unit shows through
+        if x ~= skip and not x:IsDead() and x:GetEnumFlags(const.efVisible) ~= 0 and IsIlluminated(x) then
+            local p = x:GetVisualPos()
+            units[#units + 1] = p
+            sig = sig + p:x() / (guim / 2) * 11 + p:y() / (guim / 2) * 13
+        end
+    end
+    return units, sig
+end
+
+---- 0..1000 of the shade kept at (x, y) by the squad's discs {x, y, r, r^2, (r + fade)^2}
+local function SquadKeep(discs, x, y)
+    local keep = 1000
+    for _, d in ipairs(discs) do
+        local dx, dy = x - d[1], y - d[2]
+        local d2 = dx * dx + dy * dy
+        if d2 <= d[4] then
+            return 0
+        end
+        if d2 < d[5] then
+            keep = Min(keep, MulDivRound(sqrt(d2) - d[3], 1000, RAT_NIGHT_SHADE_FADE))
+        end
+    end
+    return keep
+end
+
+---- 0 when a disc holds the whole block, 1000 when no fade band reaches it, nil when mixed
+local function BlockKeep(discs, xa, ya, xb, yb)
+    local outside = true
+    for _, d in ipairs(discs) do
+        local cx, cy = d[1], d[2]
+        local fx, fy = Max(abs(xa - cx), abs(xb - cx)), Max(abs(ya - cy), abs(yb - cy))
+        if fx * fx + fy * fy <= d[4] then
+            return 0
+        end
+        local nx, ny = Clamp(cx, xa, xb) - cx, Clamp(cy, ya, yb) - cy
+        if nx * nx + ny * ny < d[5] then
+            outside = false
+        end
+    end
+    return outside and 1000 or nil
+end
+
+---- Flat grid over the discs' box padded by `pad`: uniform blocks are one quad (inside a disc: none),
+---- only blocks on a fade band or a hole get fine cells. A frame RAT_NIGHT_SHADE_REACH wide closes it.
+---- Vertices are relative to `center`: anchored at a far grid corner the mesh gets culled.
+local function SquadMesh(discs, units, center, pad, alpha, cr, cg, cb)
+    local cell, nb, reach = RAT_NIGHT_SQUAD_CELL, RAT_NIGHT_SQUAD_BLOCK, RAT_NIGHT_SHADE_REACH
+    local block = cell * nb
+    local x0, y0, x1, y1 = max_int, max_int, min_int, min_int
+    for _, d in ipairs(discs) do
+        local r = d[3] + pad
+        x0, y0 = Min(x0, d[1] - r), Min(y0, d[2] - r)
+        x1, y1 = Max(x1, d[1] + r), Max(y1, d[2] + r)
+    end
+    x0, y0 = x0 / block * block, y0 / block * block
+    local bx, by = (x1 - x0 + block - 1) / block, (y1 - y0 + block - 1) / block
+    local w, h = bx * block, by * block
+
+    local near, holed = {}, {}
+    local function mark(x, y, r)
+        for kx = Max(0, (x - r - x0) / block), Min(bx - 1, (x + r - x0) / block) do
+            for ky = Max(0, (y - r - y0) / block), Min(by - 1, (y + r - y0) / block) do
+                holed[kx * 65536 + ky] = true
+            end
+        end
+    end
+    local unit_reach = RAT_NIGHT_HOLE_UNIT.clear + RAT_NIGHT_HOLE_UNIT.fade
+    for _, p in ipairs(units) do
+        AddHole(near, p:x(), p:y(), RAT_NIGHT_HOLE_UNIT)
+        mark(p:x(), p:y(), unit_reach)
+    end
+    local tile = const.SlabSizeX
+    for key, keep in pairs(active_field) do
+        if keep < 1000 then
+            mark(key / 65536 * tile + tile / 2, key % 65536 * tile + tile / 2, tile)
+        end
+    end
+
+    local full = RGBA(cr, cg, cb, alpha)
+    local s = pstr("", 4096)
+    local ox, oy = x0 - center:x(), y0 - center:y()
+    local function quad(xa, ya, xb, yb, c1, c2, c3, c4)
+        xa, ya, xb, yb = xa + ox, ya + oy, xb + ox, yb + oy
+        s:AppendVertex(xa, ya, 0, c1) s:AppendVertex(xb, ya, 0, c2) s:AppendVertex(xb, yb, 0, c3)
+        s:AppendVertex(xa, ya, 0, c1) s:AppendVertex(xb, yb, 0, c3) s:AppendVertex(xa, yb, 0, c4)
+    end
+    local function color(keep)
+        return keep == 1000 and full or RGBA(cr, cg, cb, MulDivRound(alpha, keep, 1000))
+    end
+    for ky = 0, by - 1 do
+        local ya, yb = ky * block, (ky + 1) * block
+        local run = false
+        for kx = 0, bx do
+            local xa, xb = kx * block, (kx + 1) * block
+            local keep = kx < bx and BlockKeep(discs, x0 + xa, y0 + ya, x0 + xb, y0 + yb)
+            if keep == 1000 and holed[kx * 65536 + ky] then
+                keep = nil
+            end
+            if keep == 1000 then
+                run = run or xa
+            else
+                if run then
+                    quad(run, ya, xa, yb, full, full, full, full)
+                    run = false
+                end
+                if keep == nil and kx < bx then
+                    local ks = {}
+                    for i = 0, nb do
+                        local col = {}
+                        for j = 0, nb do
+                            local x, y = x0 + xa + i * cell, y0 + ya + j * cell
+                            local k = SquadKeep(discs, x, y)
+                            col[j] = k > 0 and MulDivRound(k, HoleKeep(near, x, y), 1000) or 0
+                        end
+                        ks[i] = col
+                    end
+                    for i = 0, nb - 1 do
+                        local ka, kb = ks[i], ks[i + 1]
+                        for j = 0, nb - 1 do
+                            if ka[j] + ka[j + 1] + kb[j] + kb[j + 1] > 0 then
+                                local cxa, cya = xa + i * cell, ya + j * cell
+                                quad(cxa, cya, cxa + cell, cya + cell, color(ka[j]), color(kb[j]), color(kb[j + 1]), color(ka[j + 1]))
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    quad(-reach, -reach, w + reach, 0, full, full, full, full)
+    quad(-reach, h, w + reach, h + reach, full, full, full, full)
+    quad(-reach, 0, 0, h, full, full, full, full)
+    quad(w, 0, w + reach, h, full, full, full, full)
+    return s
+end
+
+---- Enemy turn: one shade for the whole squad, without the LOS grid
+local function SquadDiscUpdate()
+    local alpha = ShadeAlpha()
+    local night = IsNightShade()
+    local cr, cg, cb = ShadeTint()
+    ---- by day holes only matter near the edge; at night lit spots in the fine band do too
+    local pad = night and RAT_NIGHT_SHADE_FINE or RAT_NIGHT_SHADE_FADE + RAT_NIGHT_SQUAD_CELL
+    local discs, cx, cy, z = {}, 0, 0, 0
+    local sig = alpha + (night and 17 or 0) + (cr * 65536 + cg * 256 + cb) * 19
+    for _, x in ipairs(g_Units) do
+        if x:IsLocalPlayerTeam() and not x:IsDead() and x:IsValidPos() then
+            local p, r = x:GetVisualPos(), Rat_ShadeSightRadius(x)
+            local rf = r + RAT_NIGHT_SHADE_FADE
+            discs[#discs + 1] = {p:x(), p:y(), r, r * r, rf * rf, p}
+            cx, cy, z = cx + p:x(), cy + p:y(), z + p:z()
+            sig = sig + r * 7 + p:x() / (guim / 2) * 3 + p:y() / (guim / 2) * 5
+        end
+    end
+    if #discs == 0 then
+        Rat_NightDiscRemove()
+        return
+    end
+    local units
+    units, sig = HoleUnits(false, sig)
+    if IsValid(grid_mesh) then
+        DoneObject(grid_mesh)
+        grid_mesh = false
+    end
+    EnsureDiscMesh(true)
+    local now = RealTime()
+    if sig == disc_key or disc_key and now - disc_built_at < RAT_NIGHT_REBUILD_MIN then
+        return
+    end
+    disc_key, disc_built_at = sig, now
+
+    active_field = night and lit_field or empty_table
+    for _, l in ipairs(night and MapStealthLights() or empty_table) do
+        if IsValid(l) then
+            for _, d in ipairs(discs) do
+                if IsCloser2D(l, d[6], d[3] + pad + 20 * guim) then
+                    AddLightToField(l)
+                    break
+                end
+            end
+        end
+    end
+    local center = point(cx / #discs, cy / #discs, z / #discs + 20)
+    disc_mesh:SetMesh(SquadMesh(discs, units, center, pad, alpha, cr, cg, cb))
+    disc_mesh:SetPos(center)
+end
+
 function Rat_NightDiscUpdate()
+    if SquadTurn() and not ShadeHidden() then
+        SquadDiscUpdate()
+        return
+    end
     local u = DiscUnit()
     if not u then
         Rat_NightDiscRemove()
@@ -544,28 +772,10 @@ function Rat_NightDiscUpdate()
     end
 
     local sig = (los and los_gen or 0) * 29 + radius * 7 + alpha + (night and 17 or 0) + (cr * 65536 + cg * 256 + cb) * 19 + center:x() / (guim / 2) * 3 + center:y() / (guim / 2) * 5
-    local units = {}
-    for _, x in ipairs(g_Units) do
-        ---- by day IsIlluminated is always true: every visible unit shows through
-        if x ~= u and not x:IsDead() and x:GetEnumFlags(const.efVisible) ~= 0 and IsIlluminated(x) then
-            local p = x:GetVisualPos()
-            units[#units + 1] = p
-            sig = sig + p:x() / (guim / 2) * 11 + p:y() / (guim / 2) * 13
-        end
-    end
+    local units
+    units, sig = HoleUnits(u, sig)
 
-    if not IsValid(disc_mesh) then
-        if not orphans_swept then
-            orphans_swept = true
-            MapForEach("map", "Mesh", function(o)
-                if o.rat_night_shade then
-                    DoneObject(o)
-                end
-            end)
-        end
-        disc_mesh = NewShadeMesh()
-        disc_key = false
-    end
+    EnsureDiscMesh(false)
     if los then
         if not IsValid(grid_mesh) then
             grid_mesh = NewShadeMesh()
