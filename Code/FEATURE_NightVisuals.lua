@@ -159,11 +159,21 @@ function Rat_NightDiscRemove()
     disc_key = false
 end
 
+---- default_mesh with back faces culled. Shade triangles wind counterclockwise from above, so a sheet
+---- draped over a drop and seen from behind (the camera beyond the lip) is not drawn.
+---- Registering a name twice asserts, and the file reloads on mod save.
+if not ProceduralMeshShaders.rat_cull_mesh then
+    InsertProceduralMeshShaders({
+        {shaderid = "ProceduralMesh.fx", defines = {}, name = "rat_cull_mesh", topology = const.ptTriangleList,
+         cull_mode = const.cullModeBack, blend_mode = const.blendNormal, depth_test = "runtime"},
+    })
+end
+
 local function NewShadeMesh()
     local m = PlaceObject("Mesh")
     m.rat_night_shade = true
     ---- no depth test: a flat ring at the merc's feet must still shade walls, roofs and canopies
-    m:SetShader(ProceduralMeshShaders.default_mesh, false)
+    m:SetShader(ProceduralMeshShaders.rat_cull_mesh, false)
     return m
 end
 
