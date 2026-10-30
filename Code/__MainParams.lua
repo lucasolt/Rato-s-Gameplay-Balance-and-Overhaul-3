@@ -99,11 +99,18 @@ const.Combat.ConditionPenaltyPoor = 20
 ----- Environment
 const.EnvEffects.RainAimingMultiplier = 0 --- %
 const.EnvEffects.RainConditionLossMod = 75
-const.EnvEffects.FogSightMod = -60 -- -40
+---- weather scales the base sight range (GBO_BaseSight) so stealth/camo/grass still stack above the floor
+const.EnvEffects.FogSightMod = 0 -- -40
+const.EnvEffects.FireStormSightMod = 0 -- -20
+const.EnvEffects.DustStormSightMod = 0 -- -35
+const.EnvEffects.FogSightReduction = 60 --- %
+const.EnvEffects.DustStormSightReduction = 50 --- %
+const.EnvEffects.FireStormSightReduction = 20 --- %
+---- the graze is replaced by a CTH penalty (CTH_smoke.lua place_obscured_cth)
 const.EnvEffects.FogGrazeChance = 0-- 25
-const.EnvEffects.FireStormSightMod = -20
-const.EnvEffects.DustStormSightMod = -35
 const.EnvEffects.DustStormGrazeChance = 0
+const.EnvEffects.FogCTHPenalty = -10
+const.EnvEffects.DustStormCTHPenalty = -10
 const.EnvEffects.DarknessCTHPenalty = -10 -- -20
 ---- % of the night sight penalty removed; Night Ops + NVG don't stack, the better one applies
 const.EnvEffects.NightOpsSightReduction = 50 -- also written into NightOps' param for the text

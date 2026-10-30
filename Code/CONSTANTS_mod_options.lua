@@ -20,20 +20,49 @@ function GBO_NightVisionSightReduction(unit)
 	return best
 end
 
-function GBO_NightBaseSight(unit, base_sight, unaware)
-	local pct = GBO_Opt("NightSightReduction", 70)
-	pct = MulDivRound(pct, 100 - GBO_NightVisionSightReduction(unit), 100)
-	local aware = MulDivRound(base_sight or const.Combat.AwareSightRange, 100 - pct, 100)
+---- Fog/dust/fire storm % off the base range; RTG goggles cancel their rated share of the storm (its branch order)
+function GBO_WeatherSightReduction(unit)
+	local env = const.EnvEffects
+	local fog = GameState.Fog and env.FogSightReduction or 0
+	local dust = GameState.DustStorm and env.DustStormSightReduction or 0
+	local fire = GameState.FireStorm and env.FireStormSightReduction or 0
+	---- "FaceItem" is Revised Tactical Gear II's slot; nil without it
+	local face = not GameState.Underground and unit:GetItemInSlot("FaceItem")
+	if face then
+		if dust > 0 and face.DustStormModifier then
+			dust = MulDivRound(dust, 100 - face.DustStormModifier, 100)
+		elseif fire > 0 and face.FireStormModifier then
+			fire = MulDivRound(fire, 100 - face.FireStormModifier, 100)
+		end
+	end
+	return Clamp(fog + dust + fire, 0, 90)
+end
+
+---- Base sight in tiles: night (unlit target) and weather both scale Aware; Unaware is capped by the result
+function GBO_BaseSight(unit, base_sight, unaware, dark)
+	local aware = base_sight or const.Combat.AwareSightRange
+	if dark then
+		local pct = GBO_Opt("NightSightReduction", 70)
+		pct = MulDivRound(pct, 100 - GBO_NightVisionSightReduction(unit), 100)
+		aware = MulDivRound(aware, 100 - pct, 100)
+	end
+	aware = MulDivRound(aware, 100 - GBO_WeatherSightReduction(unit), 100)
 	return unaware and Min(aware, const.Combat.UnawareSightRange) or aware
+end
+
+---- dark-target base sight, weather included (AI Overhaul's RATOAI_DarkSightRadius)
+function GBO_NightBaseSight(unit, base_sight, unaware)
+	return GBO_BaseSight(unit, base_sight, unaware, true)
 end
 
 local GetSightRadius_orig = Unit.GetSightRadius
 
 function Unit:GetSightRadius(other, base_sight, step_pos)
-	if other and (GameState.Night or GameState.Underground) and not IsIlluminated(other, nil, nil, step_pos) then
+	local dark = other and (GameState.Night or GameState.Underground) and not IsIlluminated(other, nil, nil, step_pos)
+	if dark or GameState.Fog or GameState.DustStorm or GameState.FireStorm then
 		---- same Unaware rule as vanilla: a hidden target is judged with Unaware sight; a given base is Aware
 		local unaware = not base_sight and (IsKindOf(other, "Unit") and other:HasStatusEffect("Hidden") or not self:IsAware())
-		base_sight = GBO_NightBaseSight(self, base_sight, unaware)
+		base_sight = GBO_BaseSight(self, base_sight, unaware, dark)
 	end
 	return GetSightRadius_orig(self, other, base_sight, step_pos)
 end

@@ -86,22 +86,7 @@ end
 ---- GetSightRadius against a dark target at night (any target by day), minus the per-target terms
 ---- (stealth, camo, grass, height)
 function Rat_ShadeSightRadius(unit)
-    local sight = unit:IsAware() and const.Combat.AwareSightRange or const.Combat.UnawareSightRange
-    if IsNightShade() then
-        sight = GBO_NightBaseSight(unit, nil, not unit:IsAware())
-    end
-    local modifier = 100
-    if GameState.Fog then
-        modifier = modifier + const.EnvEffects.FogSightMod
-    end
-    if GameState.DustStorm then
-        modifier = modifier + const.EnvEffects.DustStormSightMod
-    end
-    if GameState.FireStorm then
-        modifier = modifier + const.EnvEffects.FireStormSightMod
-    end
-    modifier = Clamp(modifier, const.Combat.SightModMinValue, const.Combat.SightModMaxValue)
-    return MulDivRound(sight, modifier, 100) * const.SlabSizeX
+    return GBO_BaseSight(unit, nil, not unit:IsAware(), IsNightShade()) * const.SlabSizeX
 end
 
 local disc_mesh = false

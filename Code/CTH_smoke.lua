@@ -64,10 +64,47 @@ function place_smoke_cth()
     })
 end
 
+---- Fog/dust storm graze (Weapon.lua) is zeroed; a target concealed/obscured beyond 8 tiles costs CTH instead
+function place_obscured_cth()
+    PlaceObj('ChanceToHitModifier', {
+        CalcValue = function(self, attacker, target, body_part_def, action, weapon1, weapon2, lof,
+                             aim, opportunity_attack, attacker_pos, target_pos)
+            if not (GameState.Fog or GameState.DustStorm) or not attacker or not IsKindOf(target, "Unit") then
+                return false, 0
+            end
+            ---- same exemption as the vanilla weather graze
+            if weapon1 and IsFullyAimedAttack(aim) and weapon1:HasComponent("IgnoreGrazingHitsWhenFullyAimed") then
+                return false, 0
+            end
+            local from = attacker_pos or attacker
+            local ee = const.EnvEffects
+            local value = 0
+            if target:IsConcealedFrom(from) then
+                value = value + ee.FogCTHPenalty
+            end
+            if target:IsObscuredFrom(from) then
+                value = value + ee.DustStormCTHPenalty
+            end
+            return value ~= 0, value
+        end,
+        RequireTarget = true,
+        RequireActionType = "Any Ranged Attack",
+        display_name = T(503817264951, "Low Visibility"),
+        group = "Default",
+        id = "_obscured",
+    })
+
+    GameStateDefs.Fog.description = T(611482937055, "Visual range is reduced and enemies become concealed at certain distance. Ranged attacks against concealed foes are less accurate.")
+    GameStateDefs.DustStorm.description = T(728390416624, "Movement costs are increased. Cover is more effective. Enemies become concealed at certain distance. Ranged attacks against concealed foes are less accurate.")
+end
+
 ---------------------------------------------------------------------------------------------------------
 
 local t_id_table = {
     [736150294817] = "Through Gas",
+    [503817264951] = "Low Visibility",
+    [611482937055] = "Visual range is reduced and enemies become concealed at certain distance. Ranged attacks against concealed foes are less accurate.",
+    [728390416624] = "Movement costs are increased. Cover is more effective. Enemies become concealed at certain distance. Ranged attacks against concealed foes are less accurate.",
 }
 
 ratG_T_table['CTH_smoke.lua'] = t_id_table
