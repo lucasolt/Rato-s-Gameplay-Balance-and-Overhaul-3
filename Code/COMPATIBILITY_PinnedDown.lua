@@ -75,6 +75,8 @@ local function patch_pinned_down()
 	end
 	cls.HandleSuppression = HandleSuppression
 	cls.LogPanicked = LogPanicked
+	---- its per-hit suppression breakdown floods the combat log with 7 debug lines
+	cls.LogToSnype = empty_func
 end
 
 OnMsg.ClassesBuilt = patch_pinned_down

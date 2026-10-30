@@ -45,3 +45,17 @@ function Unit:ProvokeOpportunityAttacksFromList(list, ...)
     end
     return ProvokeFromList_orig(self, filtered or list, ...)
 end
+
+---- Rato Dev only: the interrupt shot's CTH in the combat log, beside the hold-fire line
+function OnMsg.OnAttack(attacker, action, target, results, attack_args)
+    if not (attack_args and attack_args.opportunity_attack) or not IsKindOf(target, "Unit") or
+        not IsMod_loaded("WxLXvdc") then
+        return
+    end
+    CombatLog("debug", T{Untranslated("<attacker> <kind> on <target>: CTH <cth>% (aim <aim>, <dist> tiles)"),
+                         attacker = attacker:GetLogName(), target = target:GetLogName(),
+                         kind = Untranslated(attack_args.opportunity_attack_type or "interrupt"),
+                         cth = results and results.chance_to_hit or 0,
+                         aim = results and results.aim or attack_args.aim or 0,
+                         dist = attacker:GetDist(target) / const.SlabSizeX})
+end
