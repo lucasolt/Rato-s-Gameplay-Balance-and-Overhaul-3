@@ -89,6 +89,11 @@ function Rat_ShadeSightRadius(unit)
     return GBO_BaseSight(unit, nil, not unit:IsAware(), IsNightShade()) * const.SlabSizeX
 end
 
+---- Same against a lit target: how far the lit holes reach (short in fog)
+function Rat_ShadeLitRadius(unit)
+    return GBO_BaseSight(unit, nil, not unit:IsAware(), false) * const.SlabSizeX
+end
+
 local disc_mesh = false
 ---- SightShadeLOS grid, its own mesh
 local grid_mesh = false
@@ -323,9 +328,22 @@ local function UnitKeep(near, x, y, keep)
     return keep
 end
 
+---- {x, y, lit radius} per disc: the lit field fades out past where a lit target is seen
+local lit_reach = {}
+
+local function LitFieldKeep(x, y, keep)
+    local outside = 1000
+    for _, c in ipairs(lit_reach) do
+        local dx, dy = x - c[1], y - c[2]
+        outside = Min(outside, Clamp(MulDivRound(sqrt(dx * dx + dy * dy) - c[3], 1000, RAT_NIGHT_SHADE_FADE), 0, 1000))
+    end
+    return Max(keep, outside)
+end
+
 ---- Lit field, then the unit holes
 local function HoleKeep(near, x, y)
-    return UnitKeep(near, x, y, active_field[TileKey(x, y)] or 1000)
+    local keep = active_field[TileKey(x, y)]
+    return UnitKeep(near, x, y, keep and LitFieldKeep(x, y, keep) or 1000)
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -708,11 +726,11 @@ local function SquadDiscUpdate()
     local sig = alpha + (night and 17 or 0) + (cr * 65536 + cg * 256 + cb) * 19
     for _, x in ipairs(g_Units) do
         if x:IsLocalPlayerTeam() and not x:IsDead() and x:IsValidPos() then
-            local p, r = x:GetVisualPos(), Rat_ShadeSightRadius(x)
+            local p, r, lit = x:GetVisualPos(), Rat_ShadeSightRadius(x), Rat_ShadeLitRadius(x)
             local rf = r + RAT_NIGHT_SHADE_FADE
-            discs[#discs + 1] = {p:x(), p:y(), r, r * r, rf * rf, p}
+            discs[#discs + 1] = {p:x(), p:y(), r, r * r, rf * rf, p, lit}
             cx, cy = cx + p:x(), cy + p:y()
-            sig = sig + r * 7 + p:x() / (guim / 2) * 3 + p:y() / (guim / 2) * 5
+            sig = sig + r * 7 + lit * 23 + p:x() / (guim / 2) * 3 + p:y() / (guim / 2) * 5
         end
     end
     if #discs == 0 then
@@ -733,10 +751,14 @@ local function SquadDiscUpdate()
     disc_key, disc_built_at = sig, now
 
     active_field = night and lit_field or empty_table
+    lit_reach = {}
+    for _, d in ipairs(discs) do
+        lit_reach[#lit_reach + 1] = {d[1], d[2], d[7]}
+    end
     for _, l in ipairs(night and MapStealthLights() or empty_table) do
         if IsValid(l) then
             for _, d in ipairs(discs) do
-                if IsCloser2D(l, d[6], d[3] + pad + 20 * guim) then
+                if IsCloser2D(l, d[6], Min(d[3] + pad, d[7]) + 20 * guim) then
                     AddLightToField(l)
                     break
                 end
@@ -762,6 +784,7 @@ function Rat_NightDiscUpdate()
     local now = RealTime()
     local center = u:GetVisualPos()
     local radius = Rat_ShadeSightRadius(u)
+    local lit = Rat_ShadeLitRadius(u)
     local alpha = ShadeAlpha()
     local night = IsNightShade()
     local cr, cg, cb = ShadeTint()
@@ -785,7 +808,7 @@ function Rat_NightDiscUpdate()
         end
     end
 
-    local sig = (los and los_gen or 0) * 29 + radius * 7 + alpha + (night and 17 or 0) + (cr * 65536 + cg * 256 + cb) * 19 + center:x() / (guim / 2) * 3 + center:y() / (guim / 2) * 5
+    local sig = (los and los_gen or 0) * 29 + radius * 7 + lit * 23 + alpha + (night and 17 or 0) + (cr * 65536 + cg * 256 + cb) * 19 + center:x() / (guim / 2) * 3 + center:y() / (guim / 2) * 5
     local units
     units, sig = HoleUnits(u, sig)
 
@@ -811,11 +834,15 @@ function Rat_NightDiscUpdate()
     local near, cols = {}, {}
     local tile_reach = RAT_NIGHT_HOLE_TILE.clear + RAT_NIGHT_HOLE_TILE.fade
     active_field = night and lit_field or empty_table
+    lit_reach = {{center:x(), center:y(), lit}}
+    local lit_far = lit + RAT_NIGHT_SHADE_FADE + tile_reach
     for _, l in ipairs(night and MapStealthLights() or empty_table) do
-        if IsValid(l) and IsCloser2D(l, center, far + 20 * guim) then
+        if IsValid(l) and IsCloser2D(l, center, Min(far, lit_far) + 20 * guim) then
             AddLightToField(l)
             for _, t in ipairs(LightTiles(l)) do
-                MarkColumns(cols, center, radius, t:x(), t:y(), tile_reach)
+                if IsCloser2D(t, center, lit_far) then
+                    MarkColumns(cols, center, radius, t:x(), t:y(), tile_reach)
+                end
             end
         end
     end
