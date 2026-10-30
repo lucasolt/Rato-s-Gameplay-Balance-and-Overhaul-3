@@ -48,11 +48,12 @@ function ow_cth()
         value = value + base_value
 
         ---- far targets give the watcher time to settle: linear in Reflexes, outside scale_factor
-        if attacker_pos and target_pos then
+        if attacker_pos and target_pos and IsKindOf(weapon1, "Firearm") then
             local c = const.Combat
             local tiles = attacker_pos:Dist(target_pos) / const.SlabSizeX
+            local full = MulDivRound(weapon1.WeaponRange, c.OWRangeBonusFullPct, 100)
             local ramp = Clamp(MulDivRound(tiles - c.OWRangeBonusStart, 100,
-                                           Max(1, c.OWRangeBonusFull - c.OWRangeBonusStart)), 0, 100)
+                                           Max(1, full - c.OWRangeBonusStart)), 0, 100)
             value = value + MulDivRound(c.OWRangeBonusMax * ramp, reflex * c.R_OWMul, 1000000)
         end
 
