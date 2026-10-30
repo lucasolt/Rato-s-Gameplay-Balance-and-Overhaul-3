@@ -1603,6 +1603,10 @@ return {
 		'CodeFileName', "Code/SOURCE_APScale_vanilla.lua",
 	}),
 	PlaceObj('ModItemCode', {
+		'name', "SOURCE_Morale",
+		'CodeFileName', "Code/SOURCE_Morale.lua",
+	}),
+	PlaceObj('ModItemCode', {
 		'name', "SOURCE_UnitRunAndGun",
 		'CodeFileName', "Code/SOURCE_UnitRunAndGun.lua",
 	}),
