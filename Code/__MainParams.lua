@@ -42,10 +42,12 @@ const.Combat.MGSetupConeFlat = 180 --- addition (minutes)
 const.Combat.OWMinDelta = 20
 const.Combat.OWMaxDelta = -10
 const.Combat.OWMinCTH = 6 -- aCTH: overwatch holds fire below this and waits for a better tile
----- Far-range interrupt bonus: 0 at Start tiles, ramps to Max points (x Reflexes/100) at FullPct of WeaponRange
-const.Combat.OWRangeBonusStart = 8
-const.Combat.OWRangeBonusFullPct = 75 -- 75 = the OW cone's end for most guns (Firearm:GetOverwatchConeParam)
-const.Combat.OWRangeBonusMax = 20
+---- Interrupt range bonus (Rat_OWRangeConeMul): cone narrowing eased from Min(Start, StartPct) to FullPct of WeaponRange
+const.Combat.OWRangeStart = 8 -- tiles
+const.Combat.OWRangeStartPct = 25 -- % of WeaponRange, when shorter than Start
+const.Combat.OWRangeFullPct = 50 -- % of WeaponRange
+const.Combat.OWRangeConePerTile = 6 -- per-mille per tile of scope-aware range, x Reflexes/100
+const.Combat.OWRangeConeCap = 400 -- per-mille
 ---- Reflexes scaling of the OW modifier (old CTH also uses it for Aim and Point Blank)
 const.Combat.R_MinAimScaling = 10
 const.Combat.R_MaxAimScaling = 100

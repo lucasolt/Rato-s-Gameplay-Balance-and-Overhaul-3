@@ -327,6 +327,11 @@ function Rat_ConeFactors(data)
                          tag = Rat_ConeMulTag(parts.step), mul = parts.step, sub = parts.step_meta}
     end
 
+    if parts.ow_range and parts.ow_range ~= 100 then
+        out[#out + 1] = {name = T(716204938517, "Overwatch Range"), tag = Rat_ConeMulTag(parts.ow_range),
+                         mul = parts.ow_range}
+    end
+
     ---- o cano herdado nao alarga o cone, desloca o centro -- mas a coluna aqui e toda em % de
     ---- cone, entao entra traduzido pela MESMA porta dos residuais (Rat_ConeMulForPoints): o cone
     ---- que, centrado no alvo, custaria estes mesmos pontos. A sub-nota diz o que ele e de verdade.

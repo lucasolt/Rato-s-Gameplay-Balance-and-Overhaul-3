@@ -612,6 +612,26 @@ function Rat_ScopeFloorMul(weapon)
     return 100 - Clamp(reduc or 0, 0, 99)
 end
 
+---- Interrupt range bonus, per-mille cone mul. Size from the scope-aware range (the floor scales 1/range),
+---- ramp from the bare WeaponRange because that is what sets the cone length.
+function Rat_OWRangeConeMul(weapon, attacker, dist)
+    local c = const.Combat
+    if not IsKindOf(weapon, "Firearm") or not attacker or not dist then
+        return 1000
+    end
+    local range = weapon.WeaponRange or 0
+    local start = Min(c.OWRangeStart, MulDivRound(range, c.OWRangeStartPct, 100))
+    local full = Max(start + 1, MulDivRound(range, c.OWRangeFullPct, 100))
+    local x = Clamp(MulDivRound(dist - start * const.SlabSizeX, 1000, (full - start) * const.SlabSizeX), 0, 1000)
+    if x == 0 then
+        return 1000
+    end
+    local ease = 1000 - MulDivRound(1000 - x, 1000 - x, 1000)
+    local narrow = Min(c.OWRangeConeCap, c.OWRangeConePerTile * MulDivRound(range, 100, Rat_ScopeFloorMul(weapon)))
+    narrow = MulDivRound(narrow, ease * rGetReflex(attacker), 100000)
+    return 1000 - MulDivRound(narrow, c.R_OWMul, 100)
+end
+
 ---- Piso mecanico do cone, derivado do WeaponRange -- a ASSINTOTA do tiro mirado. Opticas nao dao
 ---- mais WeaponRange; a "cereja" delas entra aqui, so no piso, entao e invisivel com pouca mira
 ---- (no aim 0 o cone e ~10x o piso) e vale tudo com mira cheia. Canos longos continuam pelo range.
@@ -1156,6 +1176,15 @@ function Rat_AngularCTH(attacker, target, body_part_def, action, weapon, aim, op
     local dist = attacker_pos:Dist(target_pos)
 
     local sigma, meta, parts = Rat_GetAperture(weapon, attacker, action, aim, opportunity_attack, attacker_pos)
+    if opportunity_attack then
+        local ow = Rat_OWRangeConeMul(weapon, attacker, dist)
+        if ow < 1000 then
+            sigma = Max(1, MulDivRound(sigma, ow, 1000))
+            if parts then
+                parts.ow_range = MulDivRound(ow, 1, 10)
+            end
+        end
+    end
 
     ---- Cobertura = silhueta menor, nao penalidade. Fracao exposta via raycast (FUNCTIONS_cover_silhouette.lua).
     if exposed_pct == nil and a.CoverRaycast then
