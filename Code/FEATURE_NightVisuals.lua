@@ -454,7 +454,9 @@ end
 ---- Grid triangles of a finished job, a few columns per tick, relative to the job's tile. Static per
 ---- job and colour, so it lives in its own mesh and the ring rebuilds stay cheap. True when built.
 local function LosBuildStep(job, alpha, cr, cg, cb)
-    local color_key = ((alpha * 256 + cr) * 256 + cg) * 256 + cb
+    local floor = DrapeFloor()
+    ---- the LOS mode is in the key: heights are cached per build, and the shown mesh swaps on a key change
+    local color_key = (((alpha * 256 + cr) * 256 + cg) * 256 + cb) * 2 + (floor == 0 and 1 or 0)
     if job.color_key ~= color_key then
         job.color_key, job.build_col, job.built = color_key, 0, false
         job.s, job.edge, job.hz = pstr("", 4096), {}, {}
@@ -467,7 +469,6 @@ local function LosBuildStep(job, alpha, cr, cg, cb)
     local ux, uy = circle.x, circle.y
     local s = job.s
     local px, py, ground = job.pos:x(), job.pos:y(), job.ground
-    local floor = DrapeFloor()
     local function column_z(i)
         local col = job.hz[i]
         if not col then
@@ -831,7 +832,7 @@ function Rat_NightDiscUpdate()
         end
     end
 
-    local sig = (los and los_gen or 0) * 29 + radius * 7 + lit * 23 + alpha + (night and 17 or 0) + (cr * 65536 + cg * 256 + cb) * 19 + center:x() / (guim / 2) * 3 + center:y() / (guim / 2) * 5
+    local sig = (los and los_gen or 0) * 29 + radius * 7 + lit * 23 + alpha + (night and 17 or 0) + (DrapeFloor() == 0 and 37 or 0) + (cr * 65536 + cg * 256 + cb) * 19 + center:x() / (guim / 2) * 3 + center:y() / (guim / 2) * 5
     local units
     units, sig = HoleUnits(u, sig)
 
@@ -898,6 +899,4 @@ function OnMsg.ApplyModOptions(id)
     end
     Rat_ReapplyNightLightmodel()
     Rat_NightDiscRemove()
-    ---- the grid caches heights per job: a new LOS mode needs a fresh one
-    los_job, los_shown = false, false
 end
