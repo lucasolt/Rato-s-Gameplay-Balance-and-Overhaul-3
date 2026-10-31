@@ -6,7 +6,7 @@
 ---- placed: also lights placed directly on the map. shape/constant: falloff override, false copies the source.
 RAT_MAP_LIGHT_BOOST = {pct = 350, radius_pct = 100, placed = false, shadows = true, shape = false, constant = false}
 
----- Each source gets an unsynced companion PointLight, kept out of the stealth voxel scan
+---- Each source gets an unsynced companion of its own shape (PointLight or SpotLight), kept out of the stealth voxel scan
 MapVar("RatMapLightCompanions", {})
 local saving = false
 
@@ -24,8 +24,14 @@ end
 
 local function PlaceCompanion(l, cfg)
     local extra = RatMapLightCompanions[l]
+    ---- a spot source gets a spot companion: a point one lit a full disc around a cone the voxels never see
+    local class = IsKindOf(l, "SpotLight") and "SpotLight" or "PointLight"
+    if IsValid(extra) and extra.class ~= class then
+        DoneObject(extra)
+        extra = nil
+    end
     if not IsValid(extra) then
-        extra = PlaceObject("PointLight")
+        extra = PlaceObject(class)
         extra.rat_companion = true
         extra:ClearEnumFlags(const.efVsPointLight | const.efVsSpotLight)
         ---- the renderer skips Lua-placed lights without it; it also makes them saved, hence the save hooks
@@ -40,6 +46,12 @@ local function PlaceCompanion(l, cfg)
     ---- PlaceObject starts at shape 0 / constant 0, the softest falloff; map lamps tune both
     extra:SetAttenuationShape(cfg.shape or l:GetAttenuationShape())
     extra:SetConstantIntensity(cfg.constant or l:GetConstantIntensity())
+    if class == "SpotLight" then
+        extra:SetAxis(l:GetVisualAxis())
+        extra:SetAngle(l:GetVisualAngle())
+        extra:SetConeInnerAngle(l:GetConeInnerAngle())
+        extra:SetConeOuterAngle(l:GetConeOuterAngle())
+    end
 end
 
 local function RemoveCompanion(l)
