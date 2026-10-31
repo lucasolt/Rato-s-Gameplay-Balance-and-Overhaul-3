@@ -2079,9 +2079,10 @@ return {
 			'NameColor', RGBA(20, 110, 40, 255),
 			'DisplayName', "<color AmmoMatchColor>Unaware Sight Range</color>",
 			'Help', "Sight range, in tiles, of units that have not noticed you. Higher makes sneaking harder. Vanilla 12, GBO default <default>.",
-			'DefaultValue', 14,
+			'DefaultValue', 20,
 			'MinValue', 4,
-			'MaxValue', 30,
+			'MaxValue', 60,
+			'StepSize', 2,
 		}),
 		PlaceObj('ModItemOptionNumber', {
 			'name', "NightSightReduction",
@@ -5161,7 +5162,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "floor_reduc",
-					'Value', 6,
+					'Value', 8,
 					'Tag', "<floor_reduc>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -5385,7 +5386,7 @@ return {
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "floor_reduc",
-					'Value', 6,
+					'Value', 8,
 					'Tag', "<floor_reduc>",
 				}),
 				PlaceObj('PresetParamNumber', {
@@ -5575,6 +5576,7 @@ return {
 				"DecreaseSnapshotMul",
 				"FirstAimBonusModifier",
 				"IncreaseMaxAimActions",
+				"ScopeFloorReduction",
 			},
 			Parameters = {
 				PlaceObj('PresetParamNumber', {
@@ -5601,6 +5603,11 @@ return {
 					'Name', "first_aim_bonus_acc",
 					'Value', 8,
 					'Tag', "<first_aim_bonus_acc>",
+				}),
+				PlaceObj('PresetParamNumber', {
+					'Name', "floor_reduc",
+					'Value', 8,
+					'Tag', "<floor_reduc>",
 				}),
 				PlaceObj('PresetParamNumber', {
 					'Name', "snap_mul_reduc",
