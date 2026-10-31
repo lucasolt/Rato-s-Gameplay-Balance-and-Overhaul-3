@@ -46,9 +46,10 @@ const.Calibers = {
     Shock = {
         CostMul = 200,
         AdditionalHint = T({
-            "<bullet_point> Reduced range\n<bullet_point> Greater Critical Damage\n<bullet_point> Inflicts <color EmStyle>Bleeding</color> and <color EmStyle>Exposed</color>"
+            "<bullet_point> Reduced range\n<bullet_point> Increased Critical Chance\n<bullet_point> Greater Critical Damage\n<bullet_point> Inflicts <color EmStyle>Bleeding</color> and <color EmStyle>Exposed</color>"
         }),
         Modifications = {
+            CritChance = 10,
             CritDamage = 70,
             WeaponRange = -4
         },
