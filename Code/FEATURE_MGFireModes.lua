@@ -253,9 +253,8 @@ function Unit:RecalcUIActions(force)
 		local caction = CombatActions[id]
 		if caction.group == "SignatureAbilities" then
 			if ui_actions[13] then
-				local swapped = table.remove(ui_actions, 13)
-				ui_actions[i] = swapped
-				ui_actions[13] = id
+				-- GBO: plain swap; vanilla's remove(13) shifted a signature past slot 13, duplicating it and losing two actions
+				ui_actions[i], ui_actions[13] = ui_actions[13], id
 			else
 				table.remove(ui_actions, i)
 				if #ui_actions < 12 then
