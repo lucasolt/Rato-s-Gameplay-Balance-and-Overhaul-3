@@ -50,7 +50,7 @@ const.Calibers = {
         }),
         Modifications = {
             CritChance = 15,
-            CritDamage = 40,
+            CritDamage = 50,
             WeaponRange = -4
         },
         AppliedEffects = {
